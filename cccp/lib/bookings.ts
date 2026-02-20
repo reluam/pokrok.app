@@ -1,6 +1,70 @@
 import { sql } from "./db";
 import { fetchGoogleCalendarEventsForUser } from "./google-calendar";
 
+type SessionBlock = { scheduled_at: string; duration_minutes: number | null };
+
+async function getSessionBlocksForUser(
+  userId: string,
+  fromISO: string,
+  toISO: string
+): Promise<SessionBlock[]> {
+  try {
+    return (await sql`
+      SELECT s.scheduled_at, s.duration_minutes
+      FROM sessions s
+      LEFT JOIN clients c ON c.id = s.client_id
+      WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
+        AND s.scheduled_at IS NOT NULL
+        AND s.scheduled_at >= ${fromISO}
+        AND s.scheduled_at <= ${toISO}
+    `) as SessionBlock[];
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      return (await sql`
+        SELECT s.scheduled_at, s.duration_minutes
+        FROM sessions s
+        INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+        WHERE s.scheduled_at IS NOT NULL
+          AND s.scheduled_at >= ${fromISO}
+          AND s.scheduled_at <= ${toISO}
+      `) as SessionBlock[];
+    }
+    throw err;
+  }
+}
+
+async function getSessionBlocksOverlapping(
+  userId: string,
+  startISO: string,
+  endISO: string
+): Promise<SessionBlock[]> {
+  try {
+    return (await sql`
+      SELECT s.scheduled_at, s.duration_minutes
+      FROM sessions s
+      LEFT JOIN clients c ON c.id = s.client_id
+      WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
+        AND s.scheduled_at IS NOT NULL
+        AND s.scheduled_at < ${endISO}
+        AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
+    `) as SessionBlock[];
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      return (await sql`
+        SELECT s.scheduled_at, s.duration_minutes
+        FROM sessions s
+        INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+        WHERE s.scheduled_at IS NOT NULL
+          AND s.scheduled_at < ${endISO}
+          AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
+      `) as SessionBlock[];
+    }
+    throw err;
+  }
+}
+
 const COACH_TIMEZONE = "Europe/Prague";
 
 type WeeklyAvailabilityRow = {
@@ -147,18 +211,11 @@ export async function getAvailableSlots(
         AND scheduled_at >= ${from.toISOString()}
         AND scheduled_at <= ${to.toISOString()}
     `,
-    sql`
-      SELECT s.scheduled_at, s.duration_minutes
-      FROM sessions s
-      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-      WHERE s.scheduled_at IS NOT NULL
-        AND s.scheduled_at >= ${from.toISOString()}
-        AND s.scheduled_at <= ${to.toISOString()}
-    `,
+    getSessionBlocksForUser(userId, from.toISOString(), to.toISOString()),
   ]);
 
   const bookingsList = bookingsRows as { scheduled_at: string; duration_minutes: number }[];
-  const sessionsList = sessionsRows as { scheduled_at: string; duration_minutes: number | null }[];
+  const sessionsList = sessionsRows;
 
   const blockedRanges: { start: number; end: number }[] = [];
   for (const b of bookingsList) {
@@ -227,14 +284,7 @@ export async function isSlotFree(
         AND scheduled_at < ${endISO}
         AND scheduled_at + (COALESCE(duration_minutes, 30) * interval '1 minute') > ${startISO}
     `,
-    sql`
-      SELECT s.scheduled_at, s.duration_minutes
-      FROM sessions s
-      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-      WHERE s.scheduled_at IS NOT NULL
-        AND s.scheduled_at < ${endISO}
-        AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
-    `,
+    getSessionBlocksOverlapping(userId, startISO, endISO),
   ]);
 
   const bookings = bookingsRaw as { scheduled_at: string; duration_minutes: number }[];
@@ -311,18 +361,11 @@ export async function getAvailableSlotsForEvent(
         AND scheduled_at >= ${from.toISOString()}
         AND scheduled_at <= ${to.toISOString()}
     `,
-    sql`
-      SELECT s.scheduled_at, s.duration_minutes
-      FROM sessions s
-      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-      WHERE s.scheduled_at IS NOT NULL
-        AND s.scheduled_at >= ${from.toISOString()}
-        AND s.scheduled_at <= ${to.toISOString()}
-    `,
+    getSessionBlocksForUser(userId, from.toISOString(), to.toISOString()),
   ]);
 
   const bookingsList = bookingsRows as { scheduled_at: string; duration_minutes: number }[];
-  const sessionsList = sessionsRows as { scheduled_at: string; duration_minutes: number | null }[];
+  const sessionsList = sessionsRows;
 
   const blockedRanges: { start: number; end: number }[] = [];
   for (const b of bookingsList) {

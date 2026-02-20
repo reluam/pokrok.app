@@ -34,9 +34,9 @@ async function getTodaySessions(userId: string): Promise<TodaySession[]> {
       s.title,
       s.scheduled_at,
       s.duration_minutes,
-      c.name AS client_name
+      COALESCE(c.name, 'Bez klienta') AS client_name
     FROM sessions s
-    JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+    LEFT JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
     WHERE s.scheduled_at::date = CURRENT_DATE
     ORDER BY s.scheduled_at ASC
   `;

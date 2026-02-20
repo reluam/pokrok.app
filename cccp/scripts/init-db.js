@@ -108,6 +108,12 @@ async function initializeCoachCrmDatabase() {
 
     await sql`CREATE INDEX IF NOT EXISTS idx_sessions_client_id ON sessions(client_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_sessions_scheduled_at ON sessions(scheduled_at)`;
+    // Allow sessions without client (coach can add sessions directly)
+    try {
+      await sql`ALTER TABLE sessions ALTER COLUMN client_id DROP NOT NULL`;
+    } catch (e) {
+      // Column might already be nullable
+    }
 
     // session_templates (per user)
     await sql`

@@ -101,6 +101,26 @@ export async function initializeCoachCrmDatabase() {
     await sql`
       CREATE INDEX IF NOT EXISTS idx_sessions_scheduled_at ON sessions(scheduled_at)
     `;
+    // Allow sessions without client (coach can add sessions directly)
+    try {
+      await sql`ALTER TABLE sessions ALTER COLUMN client_id DROP NOT NULL`;
+    } catch (e) {
+      // Column might already be nullable
+    }
+    // Add user_id to sessions for sessions without client
+    await sql`ALTER TABLE sessions ADD COLUMN IF NOT EXISTS user_id TEXT`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id)`;
+    // Backfill user_id from clients for existing sessions
+    try {
+      await sql`
+        UPDATE sessions s
+        SET user_id = c.user_id
+        FROM clients c
+        WHERE s.client_id = c.id AND s.user_id IS NULL
+      `;
+    } catch (e) {
+      // Ignore if fails
+    }
 
     // session_templates (per user)
     await sql`
@@ -226,9 +246,11 @@ export async function initializeCoachCrmDatabase() {
       CREATE TABLE IF NOT EXISTS user_settings (
         user_id TEXT PRIMARY KEY,
         first_day_of_week INTEGER NOT NULL DEFAULT 1,
+        use_integrated_calendars BOOLEAN NOT NULL DEFAULT true,
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS use_integrated_calendars BOOLEAN NOT NULL DEFAULT true`;
 
     // events (bookable event types: name, duration, min advance booking, per-user)
     await sql`

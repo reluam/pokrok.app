@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { sql } from "../../../lib/db";
 import { getAvailableSlots, getAvailableSlotsForEvent, isSlotFree } from "../../../lib/bookings";
 import { sendBookingConfirmation, sendCoachNotification } from "../../../lib/email";
@@ -7,6 +8,9 @@ import { clerkClient } from "@clerk/nextjs/server";
 const DEFAULT_DURATION_MINUTES = 30;
 
 export async function POST(request: Request) {
+  const { userId: authenticatedUserId } = await auth();
+  const isCoachAdding = !!authenticatedUserId;
+
   let body: {
     coach?: string;
     event_id?: string;
@@ -16,6 +20,7 @@ export async function POST(request: Request) {
     name?: string;
     phone?: string;
     note?: string;
+    duration_minutes?: number;
   };
   try {
     body = await request.json();
@@ -26,7 +31,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const coachUserId = (body.coach ?? "").trim();
+  const coachUserId = (body.coach ?? "").trim() || (isCoachAdding ? authenticatedUserId! : null);
   const eventId = (body.event_id ?? "").trim() || null;
   const sourceRaw = typeof body.source === "string" ? body.source.trim().slice(0, 50) : "";
   const source = /^[a-zA-Z0-9_-]+$/.test(sourceRaw) ? sourceRaw : "";
@@ -35,9 +40,10 @@ export async function POST(request: Request) {
   const name = (body.name ?? "").trim();
   const phone = (body.phone ?? "").trim() || null;
   const note = typeof body.note === "string" ? body.note.trim().slice(0, 2000) || null : null;
+  const durationMinutesFromBody = body.duration_minutes ? Math.min(120, Math.max(15, Number(body.duration_minutes) || DEFAULT_DURATION_MINUTES)) : undefined;
 
   let resolvedCoach = coachUserId;
-  let durationMinutes = DEFAULT_DURATION_MINUTES;
+  let durationMinutes = durationMinutesFromBody ?? DEFAULT_DURATION_MINUTES;
   let bookingEventId: string | null = null;
   let eventName: string | undefined = undefined;
 
@@ -48,8 +54,16 @@ export async function POST(request: Request) {
     if (eventRows.length === 0) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
-    resolvedCoach = eventRows[0].user_id;
-    durationMinutes = eventRows[0].duration_minutes;
+    if (!isCoachAdding) {
+      // Pro veřejné bookingy: event určuje kouče
+      resolvedCoach = eventRows[0].user_id;
+      durationMinutes = eventRows[0].duration_minutes;
+    } else {
+      // Pro kouče: event je jen referenční, použije duration z eventu jen pokud není v body
+      if (durationMinutesFromBody === undefined) {
+        durationMinutes = eventRows[0].duration_minutes;
+      }
+    }
     eventName = eventRows[0].name;
     bookingEventId = eventId;
   }
@@ -83,20 +97,24 @@ export async function POST(request: Request) {
     );
   }
 
-  const fromDate = date.toISOString().slice(0, 10);
-  const slots = bookingEventId
-    ? await getAvailableSlotsForEvent(bookingEventId, fromDate, fromDate)
-    : await getAvailableSlots(fromDate, fromDate, resolvedCoach);
-  const slotMs = date.getTime();
-  const slotMatch = slots.some((s) => {
-    const sMs = new Date(s.slot_at).getTime();
-    return sMs === slotMs || Math.abs(sMs - slotMs) < 60 * 1000;
-  });
-  if (!slotMatch) {
-    return NextResponse.json(
-      { error: "Slot is not offered" },
-      { status: 400 }
-    );
+  // Pro veřejné bookingy: kontrola, jestli slot je v nabídce
+  // Pro kouče: žádná kontrola - může přidat jakýkoli termín
+  if (!isCoachAdding) {
+    const fromDate = date.toISOString().slice(0, 10);
+    const slots = bookingEventId
+      ? await getAvailableSlotsForEvent(bookingEventId, fromDate, fromDate)
+      : await getAvailableSlots(fromDate, fromDate, resolvedCoach);
+    const slotMs = date.getTime();
+    const slotMatch = slots.some((s) => {
+      const sMs = new Date(s.slot_at).getTime();
+      return sMs === slotMs || Math.abs(sMs - slotMs) < 60 * 1000;
+    });
+    if (!slotMatch) {
+      return NextResponse.json(
+        { error: "Slot is not offered" },
+        { status: 400 }
+      );
+    }
   }
 
   const id = crypto.randomUUID();

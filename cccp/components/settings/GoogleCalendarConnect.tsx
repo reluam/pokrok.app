@@ -6,6 +6,8 @@ export function GoogleCalendarConnect() {
   const [connected, setConnected] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [useIntegratedCalendars, setUseIntegratedCalendars] = useState(true);
+  const [savingSetting, setSavingSetting] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "error"; text: string } | null>(null);
 
   useEffect(() => {
@@ -24,10 +26,18 @@ export function GoogleCalendarConnect() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch("/api/calendar/google/status");
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      setConnected(data.connected === true);
+      const [statusRes, settingsRes] = await Promise.all([
+        fetch("/api/calendar/google/status"),
+        fetch("/api/settings/use-integrated-calendars"),
+      ]);
+      if (!statusRes.ok) throw new Error(await statusRes.text());
+      const statusData = await statusRes.json();
+      setConnected(statusData.connected === true);
+      
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json();
+        setUseIntegratedCalendars(settingsData.use_integrated_calendars ?? true);
+      }
     } catch (e) {
       setMessage({ type: "error", text: (e as Error).message });
       setConnected(false);
@@ -55,6 +65,30 @@ export function GoogleCalendarConnect() {
     }
   };
 
+  const handleToggleIntegratedCalendars = async (checked: boolean) => {
+    setSavingSetting(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/settings/use-integrated-calendars", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ use_integrated_calendars: checked }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setUseIntegratedCalendars(checked);
+      setMessage({
+        type: "ok",
+        text: checked
+          ? "Události z integrovaných kalendářů se nyní zohledňují při výpočtu volných termínů."
+          : "Události z integrovaných kalendářů se již nezohledňují.",
+      });
+    } catch (e) {
+      setMessage({ type: "error", text: (e as Error).message });
+    } finally {
+      setSavingSetting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="rounded-2xl bg-white/80 p-8 shadow-sm ring-1 ring-slate-100">
@@ -78,28 +112,50 @@ export function GoogleCalendarConnect() {
         </p>
       )}
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        {connected ? (
-          <>
-            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200">
-              Připojeno
-            </span>
-            <button
-              type="button"
-              onClick={handleDisconnect}
-              disabled={disconnecting}
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
+      <div className="mt-6 space-y-4">
+        <div className="flex flex-wrap items-center gap-3">
+          {connected ? (
+            <>
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200">
+                Připojeno
+              </span>
+              <button
+                type="button"
+                onClick={handleDisconnect}
+                disabled={disconnecting}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
+              >
+                {disconnecting ? "Odpojuji…" : "Odpojit"}
+              </button>
+            </>
+          ) : (
+            <a
+              href="/api/calendar/google/connect"
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
             >
-              {disconnecting ? "Odpojuji…" : "Odpojit"}
-            </button>
-          </>
-        ) : (
-          <a
-            href="/api/calendar/google/connect"
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
-          >
-            Připojit Google Kalendář
-          </a>
+              Připojit Google Kalendář
+            </a>
+          )}
+        </div>
+
+        {connected && (
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={useIntegratedCalendars}
+              onChange={(e) => handleToggleIntegratedCalendars(e.target.checked)}
+              disabled={savingSetting}
+              className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500 disabled:opacity-50"
+            />
+            <div className="flex-1">
+              <span className="text-sm font-medium text-slate-900">
+                Zohledňovat události z integrovaných kalendářů
+              </span>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Pokud je zaškrtnuto, události z Google Kalendáře se zohlední při výpočtu volných termínů pro eventy.
+              </p>
+            </div>
+          </label>
         )}
       </div>
     </div>

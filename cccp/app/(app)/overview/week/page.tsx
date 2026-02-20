@@ -30,9 +30,9 @@ async function getWeekSessions(userId: string): Promise<Session[]> {
       s.id,
       s.title,
       s.scheduled_at,
-      c.name AS client_name
+      COALESCE(c.name, 'Bez klienta') AS client_name
     FROM sessions s
-    JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+    LEFT JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
     WHERE s.scheduled_at::date >= date_trunc('week', CURRENT_DATE)
       AND s.scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
     ORDER BY s.scheduled_at ASC

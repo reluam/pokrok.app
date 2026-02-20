@@ -22,23 +22,46 @@ type BookingRow = {
 };
 
 async function getUpcomingSessions(userId: string): Promise<SessionRow[]> {
-  const rows = await sql`
-    SELECT
-      s.id,
-      s.client_id,
-      s.title,
-      s.scheduled_at,
-      s.duration_minutes,
-      c.name AS client_name,
-      c.email AS client_email
-    FROM sessions s
-    JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-    WHERE s.scheduled_at IS NOT NULL
-    ORDER BY s.scheduled_at ASC
-    LIMIT 50
-  `;
-
-  return rows as SessionRow[];
+  try {
+    const rows = await sql`
+      SELECT
+        s.id,
+        s.client_id,
+        s.title,
+        s.scheduled_at,
+        s.duration_minutes,
+        COALESCE(c.name, 'Bez klienta') AS client_name,
+        c.email AS client_email
+      FROM sessions s
+      LEFT JOIN clients c ON c.id = s.client_id
+      WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
+        AND s.scheduled_at IS NOT NULL
+      ORDER BY s.scheduled_at ASC
+      LIMIT 50
+    `;
+    return rows as SessionRow[];
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      const rows = await sql`
+        SELECT
+          s.id,
+          s.client_id,
+          s.title,
+          s.scheduled_at,
+          s.duration_minutes,
+          COALESCE(c.name, 'Bez klienta') AS client_name,
+          c.email AS client_email
+        FROM sessions s
+        INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+        WHERE s.scheduled_at IS NOT NULL
+        ORDER BY s.scheduled_at ASC
+        LIMIT 50
+      `;
+      return rows as SessionRow[];
+    }
+    throw err;
+  }
 }
 
 async function getUpcomingBookings(userId: string): Promise<BookingRow[]> {

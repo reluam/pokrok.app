@@ -1,5 +1,7 @@
 import { sql } from "./db";
 
+// Import sql at top level for use in fetchGoogleCalendarEventsForUser
+
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.readonly";
@@ -154,6 +156,16 @@ export async function fetchGoogleCalendarEventsForUser(
   from: Date,
   to: Date
 ): Promise<GoogleCalendarEvent[]> {
+  // Check if user wants to use integrated calendars
+  const settingsRows = (await sql`
+    SELECT use_integrated_calendars FROM user_settings WHERE user_id = ${userId} LIMIT 1
+  `) as { use_integrated_calendars: boolean | null }[];
+  const useIntegratedCalendars = settingsRows.length > 0 
+    ? (settingsRows[0].use_integrated_calendars ?? true)
+    : true; // Default to true if no setting exists
+  
+  if (!useIntegratedCalendars) return [];
+
   const conn = await getCalendarConnection(userId);
   if (!conn) return [];
 

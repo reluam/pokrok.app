@@ -19,17 +19,42 @@ function toYYYYMMDD(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-async function getWeekItems(weekStart: string, weekEnd: string, userId: string): Promise<CalendarItem[]> {
-  const [sessions, bookings] = await Promise.all([
-    sql`
-      SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, c.name AS client_name, c.email AS client_email
+async function getWeekSessions(
+  weekStart: string,
+  weekEnd: string,
+  userId: string
+): Promise<CalendarItem[]> {
+  try {
+    return (await sql`
+      SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, COALESCE(c.name, 'Bez klienta') AS client_name, c.email AS client_email
       FROM sessions s
-      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-      WHERE s.scheduled_at IS NOT NULL
+      LEFT JOIN clients c ON c.id = s.client_id
+      WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
+        AND s.scheduled_at IS NOT NULL
         AND s.scheduled_at::date >= ${weekStart}
         AND s.scheduled_at::date < ${weekEnd}
       ORDER BY s.scheduled_at ASC
-    `,
+    `) as CalendarItem[];
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      return (await sql`
+        SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, COALESCE(c.name, 'Bez klienta') AS client_name, c.email AS client_email
+        FROM sessions s
+        INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+        WHERE s.scheduled_at IS NOT NULL
+          AND s.scheduled_at::date >= ${weekStart}
+          AND s.scheduled_at::date < ${weekEnd}
+        ORDER BY s.scheduled_at ASC
+      `) as CalendarItem[];
+    }
+    throw err;
+  }
+}
+
+async function getWeekItems(weekStart: string, weekEnd: string, userId: string): Promise<CalendarItem[]> {
+  const [sessions, bookings] = await Promise.all([
+    getWeekSessions(weekStart, weekEnd, userId),
     sql`
       SELECT id, scheduled_at, duration_minutes, name, email
       FROM bookings

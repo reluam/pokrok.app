@@ -12,9 +12,16 @@ export async function GET() {
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  if (!clientId || !baseUrl) {
+  const missing: string[] = [];
+  if (!clientId) missing.push("GOOGLE_CLIENT_ID");
+  if (!baseUrl) missing.push("NEXT_PUBLIC_APP_URL");
+  if (missing.length > 0) {
     return NextResponse.json(
-      { error: "Google Calendar is not configured (GOOGLE_CLIENT_ID, NEXT_PUBLIC_APP_URL)" },
+      {
+        error: "Google Calendar is not configured",
+        missing_env: missing,
+        hint: "Add these to .env.local and restart the dev server. See .env.example for values.",
+      },
       { status: 500 }
     );
   }

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { BookingDetailModal } from "./BookingDetailModal";
+import { AddCalendarItemModal } from "./AddCalendarItemModal";
 
 export type CalendarItem = {
   type: "session" | "booking";
@@ -55,9 +56,21 @@ export function WeekGrid({ items, weekStart, prevWeekHref, nextWeekHref, weekLab
   const router = useRouter();
   const byDay = useMemo(() => groupByDay(items, weekStart), [items, weekStart]);
   const [popoverDay, setPopoverDay] = useState<number | null>(null);
+  const [popoverPositions, setPopoverPositions] = useState<Map<number, "bottom" | "top">>(new Map());
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [addModalDate, setAddModalDate] = useState<string | null>(null);
+  const popoverRefs = useRef<Map<number, { button: HTMLButtonElement | null; popover: HTMLDivElement | null }>>(new Map());
 
   const startDate = new Date(weekStart + "T12:00:00");
+
+  function getDateForDay(dayIndex: number): string {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + dayIndex);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
 
   return (
     <div className="space-y-4">
@@ -95,10 +108,20 @@ export function WeekGrid({ items, weekStart, prevWeekHref, nextWeekHref, weekLab
               className="min-h-[140px] rounded-xl border border-slate-200 bg-slate-50/50 p-2"
             >
               <div className="mb-1.5 flex items-baseline justify-between">
-                <span className="text-xs font-semibold text-slate-500">{label}</span>
-                <span className="text-xs text-slate-400">
-                  {dayDate.getDate()}.{dayDate.getMonth() + 1}.
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setAddModalDate(getDateForDay(i))}
+                  className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-300"
+                  title="Přidat schůzku"
+                >
+                  +
+                </button>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xs font-semibold text-slate-500">{label}</span>
+                  <span className="text-xs text-slate-400">
+                    {dayDate.getDate()}.{dayDate.getMonth() + 1}.
+                  </span>
+                </div>
               </div>
               <div className="space-y-1">
                 {visible.map((item) => (
@@ -137,16 +160,45 @@ export function WeekGrid({ items, weekStart, prevWeekHref, nextWeekHref, weekLab
                 {rest.length > 0 && (
                   <div className="relative">
                     <button
+                      ref={(el) => {
+                        const map = popoverRefs.current;
+                        if (!map.has(i)) map.set(i, { button: null, popover: null });
+                        map.get(i)!.button = el;
+                      }}
                       type="button"
                       className="w-full rounded-lg border border-dashed border-slate-300 bg-white py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
-                      onMouseEnter={() => setPopoverDay(i)}
+                      onMouseEnter={() => {
+                        setPopoverDay(i);
+                        setTimeout(() => {
+                          const refs = popoverRefs.current.get(i);
+                          if (refs?.button && refs?.popover) {
+                            const buttonRect = refs.button.getBoundingClientRect();
+                            const popoverRect = refs.popover.getBoundingClientRect();
+                            const viewportHeight = window.innerHeight;
+                            
+                            const position = buttonRect.bottom + popoverRect.height > viewportHeight - 20 ? "top" : "bottom";
+                            setPopoverPositions((prev) => {
+                              const next = new Map(prev);
+                              next.set(i, position);
+                              return next;
+                            });
+                          }
+                        }, 10);
+                      }}
                       onMouseLeave={() => setPopoverDay(null)}
                     >
                       +{rest.length} další
                     </button>
                     {popoverDay === i && (
                       <div
-                        className="absolute left-0 top-full z-20 mt-1 min-w-[200px] rounded-lg border border-slate-200 bg-white p-2 shadow-lg"
+                        ref={(el) => {
+                          const map = popoverRefs.current;
+                          if (!map.has(i)) map.set(i, { button: null, popover: null });
+                          map.get(i)!.popover = el;
+                        }}
+                        className={`absolute left-0 z-50 min-w-[200px] max-w-[280px] rounded-lg border border-slate-200 bg-white p-2 shadow-xl ${
+                          (popoverPositions.get(i) || "bottom") === "bottom" ? "top-full mt-1" : "bottom-full mb-1"
+                        }`}
                         onMouseEnter={() => setPopoverDay(i)}
                         onMouseLeave={() => setPopoverDay(null)}
                       >
@@ -199,6 +251,15 @@ export function WeekGrid({ items, weekStart, prevWeekHref, nextWeekHref, weekLab
         open={selectedBookingId !== null}
         onClose={() => setSelectedBookingId(null)}
         onCancelled={() => router.refresh()}
+      />
+      <AddCalendarItemModal
+        open={addModalDate !== null}
+        date={addModalDate || ""}
+        onClose={() => setAddModalDate(null)}
+        onAdded={() => {
+          router.refresh();
+          setAddModalDate(null);
+        }}
       />
     </div>
   );
