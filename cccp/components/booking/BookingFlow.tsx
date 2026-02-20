@@ -37,6 +37,10 @@ function getNextDays(count: number): string[] {
   return out;
 }
 
+function dateKey(slotAt: string): string {
+  return slotAt.slice(0, 10);
+}
+
 type BookingFlowProps = {
   coach?: string;
   eventId?: string;
@@ -52,49 +56,78 @@ export function BookingFlow(props?: BookingFlowProps) {
   const coach = props?.coach ?? coachFromUrl;
   const eventId = props?.eventId ?? "";
   const source = props?.source ?? sourceFromUrl;
+  const nameFromUrl = searchParams.get("name")?.trim() ?? "";
+  const emailFromUrl = searchParams.get("email")?.trim() ?? "";
 
+  const dates = getNextDays(14);
   const [step, setStep] = useState<"date" | "slot" | "form">("date");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [slotsByDate, setSlotsByDate] = useState<Record<string, Slot[]>>({});
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState(nameFromUrl);
+  const [email, setEmail] = useState(emailFromUrl);
   const [phone, setPhone] = useState("");
 
-  const dates = getNextDays(14);
-
-  const fetchSlots = useCallback(
-    async (date: string) => {
-      if (!coach && !eventId) return;
-      setLoadingSlots(true);
-      setError(null);
-      try {
-        const params = new URLSearchParams({
-          from: date,
-          to: date,
-        });
-        if (eventId) params.set("eventId", eventId);
-        else params.set("coach", coach);
-        const res = await fetch(`/api/bookings/slots?${params.toString()}`);
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || res.statusText);
-        }
-        const data = await res.json();
-        setSlots(Array.isArray(data) ? data : []);
-        setSelectedDate(date);
-        setStep("slot");
-      } catch (e) {
-        setError((e as Error).message);
-      } finally {
-        setLoadingSlots(false);
+  const fetchSlotsRange = useCallback(async () => {
+    if (!coach && !eventId) return;
+    setLoadingSlots(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        from: dates[0],
+        to: dates[dates.length - 1],
+      });
+      if (eventId) params.set("eventId", eventId);
+      else params.set("coach", coach);
+      const res = await fetch(`/api/bookings/slots?${params.toString()}`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || res.statusText);
       }
+      const data = await res.json();
+      const allSlots: Slot[] = Array.isArray(data) ? data : [];
+      const byDate: Record<string, Slot[]> = {};
+      for (const date of dates) byDate[date] = [];
+      for (const slot of allSlots) {
+        const key = dateKey(slot.slot_at);
+        if (byDate[key]) byDate[key].push(slot);
+      }
+      setSlotsByDate(byDate);
+      const firstWithSlots = dates.find((d) => (byDate[d]?.length ?? 0) > 0);
+      if (firstWithSlots && (byDate[firstWithSlots]?.length ?? 0) > 0) {
+        setSelectedDate(firstWithSlots);
+        setSlots(byDate[firstWithSlots]);
+        setStep("slot");
+      }
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoadingSlots(false);
+      setInitialLoadDone(true);
+    }
+  }, [coach, eventId, dates]);
+
+  useEffect(() => {
+    if (success || (!coach && !eventId)) return;
+    fetchSlotsRange();
+  }, [success, coach, eventId]);
+
+  const selectDate = useCallback(
+    (date: string) => {
+      const daySlots = slotsByDate[date] ?? [];
+      if (daySlots.length === 0) return;
+      setSelectedDate(date);
+      setSlots(daySlots);
+      setStep("slot");
+      setError(null);
     },
-    [coach, eventId]
+    [slotsByDate]
   );
 
   useEffect(() => {
@@ -155,6 +188,8 @@ export function BookingFlow(props?: BookingFlowProps) {
     setError(null);
   };
 
+  const hasSlots = (date: string) => (slotsByDate[date]?.length ?? 0) > 0;
+
   const backToSlot = () => {
     setStep("slot");
     setSelectedSlot(null);
@@ -188,70 +223,90 @@ export function BookingFlow(props?: BookingFlowProps) {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
-      <h2 className="text-xl font-semibold text-slate-900">
+    <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200/60 md:p-8">
+      <h2 className="text-xl font-semibold tracking-tight text-slate-900">
         {props?.eventName ? `Rezervovat: ${props.eventName}` : "Rezervovat termín"}
       </h2>
-      <p className="mt-1 text-sm text-slate-600">
-        Vyber datum, potom čas a vyplň údaje.
+      <p className="mt-1 text-sm text-slate-500">
+        Vyber datum, čas a vyplň údaje.
       </p>
 
       {error && (
-        <div className="mt-4 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">
+        <div className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100">
           {error}
         </div>
       )}
 
-      {step === "date" && (
-        <div className="mt-6">
-          <p className="mb-2 text-sm font-medium text-slate-700">Datum</p>
-          <div className="flex flex-wrap gap-2">
-            {dates.map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => fetchSlots(d)}
-                disabled={loadingSlots}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
-              >
-                {new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "short",
-                })}
-              </button>
-            ))}
-          </div>
-          {loadingSlots && (
-            <p className="mt-2 text-xs text-slate-500">Načítám volné termíny…</p>
-          )}
+      {!initialLoadDone && loadingSlots && (
+        <div className="mt-6 flex flex-col items-center justify-center rounded-xl bg-slate-50/80 py-10 text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600" />
+          <p className="mt-3 text-sm text-slate-600">Načítám dostupnost…</p>
         </div>
       )}
 
-      {step === "slot" && selectedDate && (
+      {initialLoadDone && step === "date" && (
+        <div className="mt-6">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Vyber datum
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            {dates.map((d) => {
+              const available = hasSlots(d);
+              return (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => selectDate(d)}
+                  disabled={!available}
+                  className={`rounded-xl border px-3 py-3 text-left text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
+                    available
+                      ? "border-slate-200 bg-white text-slate-800 shadow-sm hover:border-slate-300 hover:bg-slate-50 hover:shadow"
+                      : "cursor-not-allowed border-slate-100 bg-slate-50/60 text-slate-400 line-through"
+                  }`}
+                >
+                  <span className="block truncate">
+                    {new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
+                  {!available && (
+                    <span className="mt-0.5 block text-[10px] font-normal normal-case not-italic text-slate-400">
+                      Bez volných termínů
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {initialLoadDone && step === "slot" && selectedDate && (
         <div className="mt-6">
           <button
             type="button"
             onClick={backToDate}
-            className="mb-2 text-sm text-slate-600 underline hover:text-slate-900"
+            className="mb-3 text-sm text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 rounded px-1 -ml-1"
           >
             ← Zpět na výběr data
           </button>
-          <p className="mb-2 text-sm font-medium text-slate-700">
-            Volné termíny pro {formatSlotDate(slots[0]?.slot_at ?? selectedDate + "T12:00:00")}
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Volné termíny — {formatSlotDate(slots[0]?.slot_at ?? selectedDate + "T12:00:00")}
           </p>
           {slots.length === 0 ? (
-            <p className="text-sm text-slate-500">
-              Pro tento den nejsou k dispozici žádné volné termíny. Zvol jiný den.
+            <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              Pro tento den nejsou volné termíny. Zvol jiný den.
             </p>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
               {slots.map((slot) => (
                 <button
                   key={slot.slot_at}
                   type="button"
                   onClick={() => handleSelectSlot(slot)}
-                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:shadow focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
                 >
                   {formatSlotTime(slot.slot_at)}
                 </button>
@@ -262,59 +317,64 @@ export function BookingFlow(props?: BookingFlowProps) {
       )}
 
       {step === "form" && selectedSlot && (
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <button
             type="button"
             onClick={backToSlot}
-            className="text-sm text-slate-600 underline hover:text-slate-900"
+            className="text-sm text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 rounded px-1 -ml-1"
           >
             ← Zpět na výběr času
           </button>
-          <p className="text-sm text-slate-700">
-            Termín: {formatSlotDate(selectedSlot.slot_at)} v {formatSlotTime(selectedSlot.slot_at)} ({selectedSlot.duration_minutes} min)
-          </p>
-          <div>
-            <label htmlFor="book-name" className="mb-1 block text-sm font-medium text-slate-700">
-              Jméno *
-            </label>
-            <input
-              id="book-name"
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
-            />
+          <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
+            <span className="font-medium">
+              {formatSlotDate(selectedSlot.slot_at)} v {formatSlotTime(selectedSlot.slot_at)}
+            </span>
+            <span className="text-slate-500"> · {selectedSlot.duration_minutes} min</span>
           </div>
-          <div>
-            <label htmlFor="book-email" className="mb-1 block text-sm font-medium text-slate-700">
-              E-mail *
-            </label>
-            <input
-              id="book-email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label htmlFor="book-phone" className="mb-1 block text-sm font-medium text-slate-700">
-              Telefon
-            </label>
-            <input
-              id="book-phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
-            />
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="book-name" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Jméno *
+              </label>
+              <input
+                id="book-name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+              />
+            </div>
+            <div>
+              <label htmlFor="book-email" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                E-mail *
+              </label>
+              <input
+                id="book-email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+              />
+            </div>
+            <div>
+              <label htmlFor="book-phone" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Telefon
+              </label>
+              <input
+                id="book-phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+              />
+            </div>
           </div>
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+            className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:opacity-50"
           >
             {submitting ? "Odesílám…" : "Rezervovat termín"}
           </button>

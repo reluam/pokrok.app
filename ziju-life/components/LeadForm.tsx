@@ -57,7 +57,7 @@ export default function LeadForm({
       }
       onSuccess?.();
       if (openBookingPopup) {
-        openBookingPopup();
+        openBookingPopup({ email, name: name || undefined });
         setLoading(false);
       } else if (data.redirectUrl) {
         window.location.href = data.redirectUrl;

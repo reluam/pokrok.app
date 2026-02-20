@@ -5,8 +5,10 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 const DEFAULT_BOOKING_URL =
   "https://talentino.app/book/matej/30-minutova-konzultace-zdarma?embed=1";
 
+type BookingPopupParams = { email?: string; name?: string };
+
 type BookingPopupContextValue = {
-  openBookingPopup: () => void;
+  openBookingPopup: (params?: BookingPopupParams) => void;
   closeBookingPopup: () => void;
 };
 
@@ -19,6 +21,7 @@ export function useBookingPopup() {
 export function BookingPopupProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [bookingUrl, setBookingUrl] = useState(DEFAULT_BOOKING_URL);
+  const [prefill, setPrefill] = useState<BookingPopupParams>({});
 
   useEffect(() => {
     fetch("/api/settings/booking-url")
@@ -29,7 +32,8 @@ export function BookingPopupProvider({ children }: { children: React.ReactNode }
       .catch(() => {});
   }, []);
 
-  const openBookingPopup = useCallback(() => {
+  const openBookingPopup = useCallback((params?: BookingPopupParams) => {
+    setPrefill(params ?? {});
     setIsOpen(true);
   }, []);
 
@@ -40,7 +44,7 @@ export function BookingPopupProvider({ children }: { children: React.ReactNode }
   return (
     <BookingPopupContext.Provider value={{ openBookingPopup, closeBookingPopup }}>
       {children}
-      <BookingModal isOpen={isOpen} onClose={closeBookingPopup} bookingUrl={bookingUrl} />
+      <BookingModal isOpen={isOpen} onClose={closeBookingPopup} bookingUrl={bookingUrl} prefill={prefill} />
     </BookingPopupContext.Provider>
   );
 }
@@ -49,12 +53,25 @@ function BookingModal({
   isOpen,
   onClose,
   bookingUrl,
+  prefill,
 }: {
   isOpen: boolean;
   onClose: () => void;
   bookingUrl: string;
+  prefill: { email?: string; name?: string };
 }) {
   if (!isOpen) return null;
+
+  const iframeSrc = (() => {
+    try {
+      const u = new URL(bookingUrl);
+      if (prefill.email?.trim()) u.searchParams.set("email", prefill.email.trim());
+      if (prefill.name?.trim()) u.searchParams.set("name", prefill.name.trim());
+      return u.toString();
+    } catch {
+      return bookingUrl;
+    }
+  })();
 
   return (
     <div
@@ -94,7 +111,7 @@ function BookingModal({
         </div>
         <div className="flex-1 min-h-0 relative">
           <iframe
-            src={bookingUrl}
+            src={iframeSrc}
             title="Rezervace"
             className="absolute inset-0 w-full h-full border-0"
             allow="camera; microphone; geolocation"
