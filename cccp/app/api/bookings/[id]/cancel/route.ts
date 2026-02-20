@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { sql } from "../../../../lib/db";
+import { sql } from "../../../../../lib/db";
 
 export async function PATCH(
   _request: Request,
