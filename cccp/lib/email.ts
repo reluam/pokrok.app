@@ -20,12 +20,16 @@ export async function sendBookingConfirmation(params: {
   eventName?: string;
   note?: string;
 }): Promise<{ success: boolean; error?: string }> {
+  console.log(`[Email] sendBookingConfirmation called for ${params.to}`);
+  
   if (!resend) {
     const errorMsg = "Resend client not initialized - missing RESEND_API_KEY";
-    console.error(errorMsg);
+    console.error(`[Email] ${errorMsg}`);
     return { success: false, error: errorMsg };
   }
 
+  console.log(`[Email] Resend client OK, proceeding with email send`);
+  
   try {
     const html = renderBookingConfirmationEmail({
       name: params.name,
@@ -37,13 +41,22 @@ export async function sendBookingConfirmation(params: {
 
     const fromEmail = formatFromEmail("Potvrzení schůzky");
     console.log(`[Email] Sending confirmation to ${params.to} from ${fromEmail}`);
+    console.log(`[Email] Resend client initialized:`, !!resend);
+    console.log(`[Email] About to call resend.emails.send...`);
     
-    const result = await resend.emails.send({
-      from: fromEmail,
-      to: params.to,
-      subject: `Rezervace potvrzena - ${params.eventName || "Konzultace"}`,
-      html,
-    });
+    let result;
+    try {
+      result = await resend.emails.send({
+        from: fromEmail,
+        to: params.to,
+        subject: `Rezervace potvrzena - ${params.eventName || "Konzultace"}`,
+        html,
+      });
+      console.log(`[Email] resend.emails.send completed`);
+    } catch (sendError) {
+      console.error(`[Email] Exception during resend.emails.send:`, sendError);
+      throw sendError;
+    }
 
     console.log(`[Email] Resend API response:`, JSON.stringify({ 
       hasError: !!result.error, 
