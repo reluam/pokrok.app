@@ -133,9 +133,17 @@ export async function POST(request: Request) {
       durationMinutes,
       eventName,
       note: note || undefined,
-    }).catch((err) => {
-      console.error("Failed to send booking confirmation email:", err);
-    });
+    })
+      .then((result) => {
+        if (result.success) {
+          console.log(`[Booking] Confirmation email sent successfully to ${email}`);
+        } else {
+          console.error(`[Booking] Failed to send confirmation email to ${email}:`, result.error);
+        }
+      })
+      .catch((err) => {
+        console.error("[Booking] Exception sending confirmation email:", err);
+      });
 
     // Send notification email to coach (async, don't block response)
     (async () => {

@@ -45,6 +45,13 @@ export async function sendBookingConfirmation(params: {
       html,
     });
 
+    console.log(`[Email] Resend API response:`, JSON.stringify({ 
+      hasError: !!result.error, 
+      hasData: !!result.data,
+      error: result.error ? { message: result.error.message, name: result.error.name } : null,
+      emailId: result.data?.id || null
+    }));
+
     if (result.error) {
       console.error("[Email] Error sending booking confirmation:", result.error);
       return { success: false, error: result.error.message || JSON.stringify(result.error) };
