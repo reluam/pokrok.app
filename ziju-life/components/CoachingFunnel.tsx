@@ -384,23 +384,8 @@ export default function CoachingFunnel() {
               </div>
             </section>
 
-            {/* Jak převzít řízení? */}
-            <section className="text-left max-w-lg mx-auto space-y-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
-                Jak převzít řízení?
-              </h2>
-              <ul className="space-y-2 text-foreground/85 text-sm sm:text-base">
-                <li><strong className="text-foreground">Žádné manuály</strong> – budeme řešit tvoji unikátní situaci.</li>
-                <li><strong className="text-foreground">Fokus na akci</strong> – konkrétní kroky, jak vzít život zpátky do rukou.</li>
-                <li><strong className="text-foreground">Hravost i v těžkých věcech</strong> – vážná témata bez ztráty radosti.</li>
-              </ul>
-            </section>
-
-            {/* Inspirace k životu podle sebe */}
+            {/* Jak převzít řízení – pouze 5 inspirací + tlačítko */}
             <section className="max-w-lg mx-auto space-y-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
-                Inspirace k životu podle sebe
-              </h2>
               {latestInspirace.length > 0 && (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
