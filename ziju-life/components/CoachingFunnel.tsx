@@ -220,13 +220,13 @@ export default function CoachingFunnel() {
         setLoading(false);
         return;
       }
+      setLoading(false);
       if (openBookingPopup) {
         openBookingPopup({
           email: email.trim().toLowerCase(),
           name: name.trim() || undefined,
           note: message?.trim() || undefined,
         });
-        setLoading(false);
       } else if (data.redirectUrl) {
         window.location.href = data.redirectUrl;
       }

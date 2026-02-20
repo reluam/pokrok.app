@@ -60,9 +60,9 @@ export default function LeadForm({
         return;
       }
       onSuccess?.();
+      setLoading(false);
       if (openBookingPopup) {
         openBookingPopup({ email, name: name || undefined, note: message?.trim() || undefined });
-        setLoading(false);
       } else if (data.redirectUrl) {
         window.location.href = data.redirectUrl;
       }

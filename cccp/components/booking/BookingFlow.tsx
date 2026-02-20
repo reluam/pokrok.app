@@ -189,7 +189,14 @@ export function BookingFlow(props?: BookingFlowProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSlot || (!coach && !eventId)) return;
+    if (!selectedSlot) {
+      setError("Vyberte prosím nejdřív časový slot v kalendáři.");
+      return;
+    }
+    if (!coach && !eventId) {
+      setError("Rezervace není k dispozici (chybí odkaz na kouče nebo event).");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
