@@ -50,11 +50,18 @@ Bookovací tlačítka používají **@calcom/embed-react**: po odeslání formul
 
 Mobile-first vícekrokový funnel (uvítání → 2 otázky → kontakt → popup cal.eu). Leady z funnelu mají `source: "funnel"`; v Notionu se zobrazí jako zdroj **Funnel**. Odpovědi z kroků se ukládají do pole Poznámka.
 
-**Subdoména form.ziju.life:** Aby na adrese `https://form.ziju.life` běžel funnel, postupuj takto:
+**Subdomény pro funnel:** Aby na adresách `https://form.ziju.life` nebo `https://coaching.ziju.life` běžel funnel, postupuj takto:
 
-1. **Vercel** – v projektu (stejný jako ziju.life) jdi do **Settings → Domains**, klikni **Add** a zadej `form.ziju.life`. Vercel ti ukáže, co máš nastavit v DNS (většinou CNAME na `cname.vercel-dns.com`).
+1. **Vercel** – v projektu (stejný jako ziju.life) jdi do **Settings → Domains**, klikni **Add** a zadej:
+   - `form.ziju.life`
+   - `coaching.ziju.life`
+   
+   Vercel ti u každé domény ukáže, co máš nastavit v DNS (většinou CNAME na `cname.vercel-dns.com`).
+
 2. **DNS** (u poskytovatele domény ziju.life, např. Cloudflare, Wedos, OVH):
-   - Přidej záznam typu **CNAME**
-   - Název/host: `form` (nebo `form.ziju.life` podle toho, jak to tvůj poskytovatel bere)
-   - Cíl/value: `cname.vercel-dns.com` (nebo hodnotu, kterou Vercel zobrazí u domény)
-3. V projektu je v `next.config.ts` rewrite: při požadavku na host `form.ziju.life` (kořen `/`) se zobrazí stránka `/form/koucing`. Po uložení DNS a ověření domény ve Vercelu tedy `https://form.ziju.life` zobrazí funnel.
+   - Přidej záznam typu **CNAME** pro každou subdoménu:
+     - Název/host: `form` → Cíl: hodnota z Vercelu (např. `cname.vercel-dns.com`)
+     - Název/host: `coaching` → Cíl: hodnota z Vercelu (např. `cname.vercel-dns.com`)
+   - *(Přesnou hodnotu „Cíl“ ti ukáže Vercel u každé domény – může být jiná podle projektu)*
+
+3. V projektu je v `next.config.ts` rewrite: při požadavku na host `form.ziju.life` nebo `coaching.ziju.life` (kořen `/`) se zobrazí stránka `/form/koucing`. Po uložení DNS a ověření domén ve Vercelu tedy obě adresy zobrazí funnel.

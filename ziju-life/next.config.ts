@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     return [
       // form.ziju.life (kořen) → funnel
       { source: "/", has: [{ type: "host", value: "form.ziju.life" }], destination: "/form/koucing" },
+      // coaching.ziju.life (kořen) → funnel
+      { source: "/", has: [{ type: "host", value: "coaching.ziju.life" }], destination: "/form/koucing" },
     ];
   },
 };
