@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 const DEFAULT_BOOKING_URL =
   "https://talentino.app/book/matej/30-minutova-konzultace-zdarma?embed=1";
 
-type BookingPopupParams = { email?: string; name?: string };
+type BookingPopupParams = { email?: string; name?: string; note?: string };
 
 type BookingPopupContextValue = {
   openBookingPopup: (params?: BookingPopupParams) => void;
@@ -58,7 +58,7 @@ function BookingModal({
   isOpen: boolean;
   onClose: () => void;
   bookingUrl: string;
-  prefill: { email?: string; name?: string };
+  prefill: { email?: string; name?: string; note?: string };
 }) {
   if (!isOpen) return null;
 
@@ -68,6 +68,7 @@ function BookingModal({
       u.searchParams.set("embed", "1");
       if (prefill.email?.trim()) u.searchParams.set("email", prefill.email.trim());
       if (prefill.name?.trim()) u.searchParams.set("name", prefill.name.trim());
+      if (prefill.note?.trim()) u.searchParams.set("note", prefill.note.trim());
       return u.toString();
     } catch {
       return bookingUrl;

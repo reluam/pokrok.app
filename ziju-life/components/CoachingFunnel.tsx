@@ -125,7 +125,11 @@ export default function CoachingFunnel() {
         return;
       }
       if (openBookingPopup) {
-        openBookingPopup({ email: email.trim().toLowerCase(), name: name.trim() || undefined });
+        openBookingPopup({
+          email: email.trim().toLowerCase(),
+          name: name.trim() || undefined,
+          note: message?.trim() || undefined,
+        });
         setLoading(false);
       } else if (data.redirectUrl) {
         window.location.href = data.redirectUrl;
