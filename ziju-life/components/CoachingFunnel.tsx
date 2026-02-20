@@ -162,7 +162,7 @@ export default function CoachingFunnel() {
         ].filter((i: InspirationItem) => i.isActive !== false);
         const sorted = items
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-          .slice(0, 5);
+          .slice(0, 6);
         setLatestInspirace(sorted);
       })
       .catch(() => {});
@@ -384,18 +384,22 @@ export default function CoachingFunnel() {
               </div>
             </section>
 
-            {/* Jak převzít řízení – pouze 5 inspirací + tlačítko */}
+            {/* Jak převzít řízení – 5 na mobilu, 6 na PC + tlačítko */}
             <section className="max-w-lg mx-auto space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
+                Jak převzít řízení?
+              </h2>
               {latestInspirace.length > 0 && (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {latestInspirace.map((item) => {
+                    {latestInspirace.map((item, index) => {
                       const Icon = getTypeIcon(item.type);
+                      const isSixthOnMobile = index === 5;
                       return (
                         <Link
                           key={item.id}
                           href={`/inspirace/${item.id}`}
-                          className="block text-left bg-white rounded-xl p-4 border-2 border-black/5 hover:border-accent/40 transition-all"
+                          className={`block text-left bg-white rounded-xl p-4 border-2 border-black/5 hover:border-accent/40 transition-all ${isSixthOnMobile ? "hidden sm:block" : ""}`}
                         >
                           <div className="flex items-center gap-2 mb-2">
                             <Icon className="text-accent shrink-0" size={18} />
