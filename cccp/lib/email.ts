@@ -21,7 +21,9 @@ export async function sendBookingConfirmation(params: {
   note?: string;
 }): Promise<{ success: boolean; error?: string }> {
   if (!resend) {
-    return { success: false, error: "Resend client not initialized" };
+    const errorMsg = "Resend client not initialized - missing RESEND_API_KEY";
+    console.error(errorMsg);
+    return { success: false, error: errorMsg };
   }
 
   try {
@@ -33,18 +35,22 @@ export async function sendBookingConfirmation(params: {
       note: params.note,
     });
 
+    const fromEmail = formatFromEmail("Potvrzení schůzky");
+    console.log(`[Email] Sending confirmation to ${params.to} from ${fromEmail}`);
+    
     const result = await resend.emails.send({
-      from: formatFromEmail("Potvrzení schůzky"),
+      from: fromEmail,
       to: params.to,
       subject: `Rezervace potvrzena - ${params.eventName || "Konzultace"}`,
       html,
     });
 
     if (result.error) {
-      console.error("Error sending booking confirmation:", result.error);
-      return { success: false, error: result.error.message };
+      console.error("[Email] Error sending booking confirmation:", result.error);
+      return { success: false, error: result.error.message || JSON.stringify(result.error) };
     }
 
+    console.log(`[Email] Confirmation sent successfully to ${params.to}, email ID: ${result.data?.id || "unknown"}`);
     return { success: true };
   } catch (error) {
     console.error("Exception sending booking confirmation:", error);
@@ -100,7 +106,9 @@ export async function sendCoachNotification(params: {
   note?: string;
 }): Promise<{ success: boolean; error?: string }> {
   if (!resend) {
-    return { success: false, error: "Resend client not initialized" };
+    const errorMsg = "Resend client not initialized - missing RESEND_API_KEY";
+    console.error(errorMsg);
+    return { success: false, error: errorMsg };
   }
 
   try {
@@ -113,8 +121,11 @@ export async function sendCoachNotification(params: {
       note: params.note,
     });
 
+    const fromEmail = formatFromEmail("Nová rezervace");
+    console.log(`[Email] Sending coach notification to ${params.coachEmail} from ${fromEmail}`);
+    
     const result = await resend.emails.send({
-      from: formatFromEmail("Nová rezervace"),
+      from: fromEmail,
       to: params.coachEmail,
       replyTo: params.clientEmail,
       subject: `Nová rezervace - ${params.clientName}`,
@@ -122,10 +133,11 @@ export async function sendCoachNotification(params: {
     });
 
     if (result.error) {
-      console.error("Error sending coach notification:", result.error);
-      return { success: false, error: result.error.message };
+      console.error("[Email] Error sending coach notification:", result.error);
+      return { success: false, error: result.error.message || JSON.stringify(result.error) };
     }
 
+    console.log(`[Email] Coach notification sent successfully to ${params.coachEmail}, email ID: ${result.data?.id || "unknown"}`);
     return { success: true };
   } catch (error) {
     console.error("Exception sending coach notification:", error);
