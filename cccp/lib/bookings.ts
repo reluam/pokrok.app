@@ -40,30 +40,59 @@ async function getSessionBlocksOverlapping(
   endISO: string,
   excludeSessionId?: string
 ): Promise<SessionBlock[]> {
-  const exclude = excludeSessionId ?? null;
+  const exclude = excludeSessionId != null && excludeSessionId !== "" ? excludeSessionId : null;
+  const hasExclude = exclude !== null;
+
+  const runQuery = async (useUserIdJoin: boolean) => {
+    if (useUserIdJoin) {
+      return hasExclude
+        ? (await sql`
+            SELECT s.scheduled_at, s.duration_minutes
+            FROM sessions s
+            LEFT JOIN clients c ON c.id = s.client_id
+            WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
+              AND s.scheduled_at IS NOT NULL
+              AND s.scheduled_at < ${endISO}
+              AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
+              AND s.id != ${exclude}
+          `) as SessionBlock[]
+        : (await sql`
+            SELECT s.scheduled_at, s.duration_minutes
+            FROM sessions s
+            LEFT JOIN clients c ON c.id = s.client_id
+            WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
+              AND s.scheduled_at IS NOT NULL
+              AND s.scheduled_at < ${endISO}
+              AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
+          `) as SessionBlock[];
+    } else {
+      return hasExclude
+        ? (await sql`
+            SELECT s.scheduled_at, s.duration_minutes
+            FROM sessions s
+            INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+            WHERE s.scheduled_at IS NOT NULL
+              AND s.scheduled_at < ${endISO}
+              AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
+              AND s.id != ${exclude}
+          `) as SessionBlock[]
+        : (await sql`
+            SELECT s.scheduled_at, s.duration_minutes
+            FROM sessions s
+            INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+            WHERE s.scheduled_at IS NOT NULL
+              AND s.scheduled_at < ${endISO}
+              AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
+          `) as SessionBlock[];
+    }
+  };
+
   try {
-    return (await sql`
-      SELECT s.scheduled_at, s.duration_minutes
-      FROM sessions s
-      LEFT JOIN clients c ON c.id = s.client_id
-      WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
-        AND s.scheduled_at IS NOT NULL
-        AND s.scheduled_at < ${endISO}
-        AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
-        AND (${exclude} IS NULL OR s.id != ${exclude})
-    `) as SessionBlock[];
+    return await runQuery(true);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("user_id") && msg.includes("does not exist")) {
-      return (await sql`
-        SELECT s.scheduled_at, s.duration_minutes
-        FROM sessions s
-        INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-        WHERE s.scheduled_at IS NOT NULL
-          AND s.scheduled_at < ${endISO}
-          AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
-          AND (${exclude} IS NULL OR s.id != ${exclude})
-      `) as SessionBlock[];
+      return runQuery(false);
     }
     throw err;
   }

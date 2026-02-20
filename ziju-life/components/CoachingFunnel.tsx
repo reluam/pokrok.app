@@ -162,7 +162,7 @@ export default function CoachingFunnel() {
         ].filter((i: InspirationItem) => i.isActive !== false);
         const sorted = items
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-          .slice(0, 3);
+          .slice(0, 5);
         setLatestInspirace(sorted);
       })
       .catch(() => {});
@@ -324,27 +324,27 @@ export default function CoachingFunnel() {
               </div>
             </section>
 
-            {/* Co z koučinku můžeš získat */}
+            {/* Co s koučingem můžeš získat */}
             <section className="text-left max-w-lg mx-auto space-y-4">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
-                Co z koučinku můžeš získat
+                Co s koučingem můžeš získat
               </h2>
               <ul className="space-y-2 text-foreground/85 leading-relaxed text-sm sm:text-base">
                 <li className="flex gap-2">
                   <span className="text-accent shrink-0">•</span>
-                  <span><strong className="text-foreground">Jasno v tom, co chceš a proč</strong> – místo „mělo by se\" přijdeme na to, co je opravdu tvoje.</span>
+                  <span><strong className="text-foreground">Jasno v tom, co chceš a proč</strong> – místo „mělo by se" přijdeme na to, co je opravdu tvoje.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-accent shrink-0">•</span>
-                  <span><strong className="text-foreground">Konkrétní kroky</strong> – méně přemítání, víc akce.</span>
+                  <span><strong className="text-foreground">Fokus na akci</strong> – Najdeme konkrétní kroky, jak vzít život zpátky do tvých rukou.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-accent shrink-0">•</span>
-                  <span><strong className="text-foreground">Vědomé převzetí řízení</strong> – nad reakcemi a tím, kam směřuješ.</span>
+                  <span><strong className="text-foreground">Žádné manuály</strong> – Budeme spolu řešit tvoji unikátní situaci.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-accent shrink-0">•</span>
-                  <span><strong className="text-foreground">Podpora na míru</strong> – tvoje situace, tvoje cesta.</span>
+                  <span><strong className="text-foreground">Hravost i v těžkých věcech</strong> – I vážná témata se dají probrat bez toho, abychom ztratili radost ze života.</span>
                 </li>
               </ul>
               <div className="pt-2">
