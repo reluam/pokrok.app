@@ -68,6 +68,11 @@ export async function POST(request: Request) {
     bookingEventId = eventId;
   }
 
+  const durationMins =
+    durationMinutes != null && Number.isFinite(Number(durationMinutes))
+      ? Math.min(120, Math.max(15, Number(durationMinutes)))
+      : DEFAULT_DURATION_MINUTES;
+
   if (!resolvedCoach) {
     return NextResponse.json(
       { error: "coach (user ID) or event_id is required" },
@@ -89,7 +94,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const free = await isSlotFree(scheduledAt, durationMinutes, resolvedCoach);
+  const free = await isSlotFree(scheduledAt, durationMins, resolvedCoach);
   if (!free) {
     return NextResponse.json(
       { error: "Slot is no longer available" },
@@ -166,7 +171,7 @@ export async function POST(request: Request) {
   try {
     await sql`
       INSERT INTO bookings (id, user_id, scheduled_at, duration_minutes, email, name, phone, note, lead_id, status, source, event_id, created_at)
-      VALUES (${id}, ${resolvedCoach}, ${date.toISOString()}, ${durationMinutes}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${source || null}, ${bookingEventId}, NOW())
+      VALUES (${id}, ${resolvedCoach}, ${date.toISOString()}, ${durationMins}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${source || null}, ${bookingEventId}, NOW())
     `;
 
     // Send confirmation email to client (async, don't block response)
@@ -174,7 +179,7 @@ export async function POST(request: Request) {
       to: email,
       name,
       scheduledAt: scheduledAt,
-      durationMinutes,
+      durationMinutes: durationMins,
       eventName,
       note: note || undefined,
     })
@@ -201,7 +206,7 @@ export async function POST(request: Request) {
             clientName: name,
             clientEmail: email,
             scheduledAt: scheduledAt,
-            durationMinutes,
+            durationMinutes: durationMins,
             eventName,
             note: note || undefined,
           });
