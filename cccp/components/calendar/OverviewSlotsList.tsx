@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BookingDetailModal } from "./BookingDetailModal";
+import { SessionDetailModal } from "./SessionDetailModal";
 
 export type OverviewSlotItem = {
   type: "session" | "booking";
@@ -20,6 +21,11 @@ type OverviewSlotsListProps = {
 export function OverviewSlotsList({ slots }: OverviewSlotsListProps) {
   const router = useRouter();
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+
+  function refresh() {
+    router.refresh();
+  }
 
   return (
     <>
@@ -27,25 +33,25 @@ export function OverviewSlotsList({ slots }: OverviewSlotsListProps) {
         {slots.map((s) => (
           <div
             key={s.type === "session" ? s.id : `b-${s.id}`}
-            role={s.type === "booking" ? "button" : undefined}
-            tabIndex={s.type === "booking" ? 0 : undefined}
-            onClick={
-              s.type === "booking" ? () => setSelectedBookingId(s.id) : undefined
-            }
-            onKeyDown={
+            role="button"
+            tabIndex={0}
+            onClick={() =>
               s.type === "booking"
-                ? (e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setSelectedBookingId(s.id);
-                    }
-                  }
-                : undefined
+                ? setSelectedBookingId(s.id)
+                : setSelectedSessionId(s.id)
             }
-            className={`flex items-center justify-between rounded-xl px-3 py-2 ${
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                s.type === "booking"
+                  ? setSelectedBookingId(s.id)
+                  : setSelectedSessionId(s.id);
+              }
+            }}
+            className={`flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 ${
               s.type === "booking"
-                ? "cursor-pointer bg-amber-50 ring-1 ring-amber-200/60 hover:bg-amber-100/80"
-                : "bg-slate-50"
+                ? "bg-amber-50 ring-1 ring-amber-200/60 hover:bg-amber-100/80"
+                : "bg-slate-50 ring-1 ring-slate-200/60 hover:bg-slate-100/80"
             }`}
           >
             <div>
@@ -59,7 +65,11 @@ export function OverviewSlotsList({ slots }: OverviewSlotsListProps) {
                   <span className="ml-1.5 rounded bg-amber-200/70 px-1.5 py-0.5 text-[10px] font-medium text-amber-900">
                     Rezervace
                   </span>
-                ) : null}
+                ) : (
+                  <span className="ml-1.5 rounded bg-slate-200/70 px-1.5 py-0.5 text-[10px] font-medium text-slate-700">
+                    Schůzka
+                  </span>
+                )}
               </div>
               <div className="text-sm font-semibold text-slate-900">
                 {s.title}
@@ -75,7 +85,13 @@ export function OverviewSlotsList({ slots }: OverviewSlotsListProps) {
         bookingId={selectedBookingId}
         open={selectedBookingId !== null}
         onClose={() => setSelectedBookingId(null)}
-        onCancelled={() => router.refresh()}
+        onCancelled={refresh}
+      />
+      <SessionDetailModal
+        sessionId={selectedSessionId}
+        open={selectedSessionId !== null}
+        onClose={() => setSelectedSessionId(null)}
+        onSaved={refresh}
       />
     </>
   );

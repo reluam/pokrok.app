@@ -25,20 +25,40 @@ type Lead = {
 };
 
 async function getWeekSessions(userId: string): Promise<Session[]> {
-  const rows = await sql`
-    SELECT
-      s.id,
-      s.title,
-      s.scheduled_at,
-      COALESCE(c.name, 'Bez klienta') AS client_name
-    FROM sessions s
-    LEFT JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-    WHERE s.scheduled_at::date >= date_trunc('week', CURRENT_DATE)
-      AND s.scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
-    ORDER BY s.scheduled_at ASC
-  `;
-
-  return rows as Session[];
+  try {
+    const rows = await sql`
+      SELECT
+        s.id,
+        s.title,
+        s.scheduled_at,
+        COALESCE(c.name, 'Bez klienta') AS client_name
+      FROM sessions s
+      LEFT JOIN clients c ON c.id = s.client_id
+      WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
+        AND s.scheduled_at::date >= date_trunc('week', CURRENT_DATE)
+        AND s.scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
+      ORDER BY s.scheduled_at ASC
+    `;
+    return rows as Session[];
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      const rows = await sql`
+        SELECT
+          s.id,
+          s.title,
+          s.scheduled_at,
+          COALESCE(c.name, 'Bez klienta') AS client_name
+        FROM sessions s
+        INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+        WHERE s.scheduled_at::date >= date_trunc('week', CURRENT_DATE)
+          AND s.scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
+        ORDER BY s.scheduled_at ASC
+      `;
+      return rows as Session[];
+    }
+    throw err;
+  }
 }
 
 async function getWeekBookings(userId: string): Promise<Booking[]> {

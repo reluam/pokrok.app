@@ -69,6 +69,7 @@ export function MonthGrid({
   const [popoverAnchor, setPopoverAnchor] = useState<{ left: number; top: number; bottom: number } | null>(null);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [addModalDate, setAddModalDate] = useState<string | null>(null);
+  const [mobileSelectedDayKey, setMobileSelectedDayKey] = useState<string | null>(null);
   const popoverRefs = useRef<Map<string, { button: HTMLButtonElement | null }>>(new Map());
   const popoverCloseTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -141,13 +142,16 @@ export function MonthGrid({
         </nav>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="grid min-w-[600px] grid-cols-7 gap-2">
+      <p className="mb-2 text-xs text-slate-500 md:sr-only">
+        Klepni na den pro zobrazení schůzek.
+      </p>
+      <div className="overflow-x-auto -mx-1 px-1 md:mx-0 md:px-0" style={{ WebkitOverflowScrolling: "touch" }}>
+        <div className="grid w-full min-w-0 grid-cols-7 gap-1 md:min-w-[600px] md:gap-2">
           {/* Header row: day labels */}
           {DAY_LABELS.map((label) => (
             <div
               key={label}
-              className="rounded-xl border border-slate-200 bg-slate-50 py-1.5 text-center text-xs font-semibold text-slate-600"
+              className="rounded-lg border border-slate-200 bg-slate-50 py-1 text-center text-[10px] font-semibold text-slate-600 md:rounded-xl md:py-1.5 md:text-xs"
             >
               {label}
             </div>
@@ -158,7 +162,7 @@ export function MonthGrid({
               return (
                 <div
                   key={`empty-${idx}`}
-                  className="min-h-[100px] rounded-xl border border-slate-100 bg-slate-50/30 p-2"
+                  className="min-h-[64px] rounded-lg border border-slate-100 bg-slate-50/30 p-1 md:min-h-[100px] md:rounded-xl md:p-2"
                 />
               );
             }
@@ -166,97 +170,203 @@ export function MonthGrid({
             const dayItems = byDate.get(key) ?? [];
             const visible = dayItems.slice(0, MAX_VISIBLE);
             const rest = dayItems.slice(MAX_VISIBLE);
+            const count = dayItems.length;
+            const isMobileSelected = mobileSelectedDayKey === key;
 
             return (
               <div
                 key={key}
-                className="min-h-[100px] rounded-xl border border-slate-200 bg-slate-50/50 p-2"
+                className={`min-h-[64px] rounded-lg border p-1 md:min-h-[100px] md:rounded-xl md:border-slate-200 md:bg-slate-50/50 md:p-2 ${
+                  isMobileSelected
+                    ? "border-slate-400 bg-slate-100 ring-2 ring-slate-300"
+                    : "border-slate-200 bg-slate-50/50"
+                }`}
               >
-                <div className="mb-1.5 flex items-baseline justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setAddModalDate(key)}
-                    className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-300"
-                    title="Přidat schůzku"
-                  >
-                    +
-                  </button>
-                  <span className="text-right text-xs font-medium text-slate-500">{day}</span>
-                </div>
-                <div className="space-y-1">
-                  {visible.map((item) => (
-                    <div
-                      key={item.type === "session" ? item.id : `b-${item.id}`}
-                      role={item.type === "booking" ? "button" : undefined}
-                      tabIndex={item.type === "booking" ? 0 : undefined}
-                      onClick={
-                        item.type === "booking"
-                          ? () => setSelectedBookingId(item.id)
-                          : undefined
-                      }
-                      onKeyDown={
-                        item.type === "booking"
-                          ? (e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                setSelectedBookingId(item.id);
-                              }
-                            }
-                          : undefined
-                      }
-                      className={`rounded-lg px-2 py-1 text-[11px] ${
-                        item.type === "booking"
-                          ? "cursor-pointer bg-amber-100 text-amber-900 hover:bg-amber-200"
-                          : "bg-white shadow-sm ring-1 ring-slate-100"
-                      }`}
-                    >
-                      <div className="truncate font-medium text-slate-900" title={item.title}>
-                        {item.title}
-                      </div>
-                      <div className="text-slate-500">{formatTime(item.scheduled_at!)}</div>
-                      <div className="truncate text-slate-600">{item.client_name}</div>
-                    </div>
-                  ))}
-                  {rest.length > 0 && (
-                    <div className="relative">
-                      <button
-                        ref={(el) => {
-                          const map = popoverRefs.current;
-                          if (!map.has(key)) map.set(key, { button: null });
-                          map.get(key)!.button = el;
-                        }}
-                        type="button"
-                        className="w-full rounded-lg border border-dashed border-slate-300 bg-white py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
-                        onMouseEnter={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          setPopoverAnchor({ left: rect.left, top: rect.top, bottom: rect.bottom });
-                          const position: "bottom" | "top" =
-                            rect.bottom + 280 > window.innerHeight - 20 ? "top" : "bottom";
-                          setPopoverPositions((prev) => {
-                            const next = new Map(prev);
-                            next.set(key, position);
-                            return next;
-                          });
-                          setPopoverKey(key);
-                        }}
-                        onMouseLeave={() => {
-                          popoverCloseTimeout.current = setTimeout(() => {
-                            setPopoverKey(null);
-                            setPopoverAnchor(null);
-                            popoverCloseTimeout.current = null;
-                          }, 150);
-                        }}
-                      >
-                        +{rest.length} další
-                      </button>
-                    </div>
+                {/* Mobile: compact cell – day number + count, tap to select and show list below */}
+                <div
+                  className="flex h-full min-h-[56px] flex-col items-center justify-center gap-0.5 md:hidden"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setMobileSelectedDayKey((prev) => (prev === key ? null : key))}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setMobileSelectedDayKey((prev) => (prev === key ? null : key));
+                    }
+                  }}
+                >
+                  <span className="text-xs font-medium text-slate-700">{day}</span>
+                  {count > 0 ? (
+                    <span className="rounded-full bg-slate-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      {count}
+                    </span>
+                  ) : (
+                    <span className="text-slate-300 text-[10px]">·</span>
                   )}
+                </div>
+
+                {/* Desktop: full cell content */}
+                <div className="hidden md:block">
+                  <div className="mb-1.5 flex items-baseline justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setAddModalDate(key)}
+                      className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-300"
+                      title="Přidat schůzku"
+                    >
+                      +
+                    </button>
+                    <span className="text-right text-xs font-medium text-slate-500">{day}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {visible.map((item) => (
+                      <div
+                        key={item.type === "session" ? item.id : `b-${item.id}`}
+                        role={item.type === "booking" ? "button" : undefined}
+                        tabIndex={item.type === "booking" ? 0 : undefined}
+                        onClick={
+                          item.type === "booking"
+                            ? () => setSelectedBookingId(item.id)
+                            : undefined
+                        }
+                        onKeyDown={
+                          item.type === "booking"
+                            ? (e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  setSelectedBookingId(item.id);
+                                }
+                              }
+                            : undefined
+                        }
+                        className={`rounded-lg px-2 py-1 text-[11px] ${
+                          item.type === "booking"
+                            ? "cursor-pointer bg-amber-100 text-amber-900 hover:bg-amber-200"
+                            : "bg-white shadow-sm ring-1 ring-slate-100"
+                        }`}
+                      >
+                        <div className="truncate font-medium text-slate-900" title={item.title}>
+                          {item.title}
+                        </div>
+                        <div className="text-slate-500">{formatTime(item.scheduled_at!)}</div>
+                        <div className="truncate text-slate-600">{item.client_name}</div>
+                      </div>
+                    ))}
+                    {rest.length > 0 && (
+                      <div className="relative">
+                        <button
+                          ref={(el) => {
+                            const map = popoverRefs.current;
+                            if (!map.has(key)) map.set(key, { button: null });
+                            map.get(key)!.button = el;
+                          }}
+                          type="button"
+                          className="w-full rounded-lg border border-dashed border-slate-300 bg-white py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
+                          onMouseEnter={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setPopoverAnchor({ left: rect.left, top: rect.top, bottom: rect.bottom });
+                            const position: "bottom" | "top" =
+                              rect.bottom + 280 > window.innerHeight - 20 ? "top" : "bottom";
+                            setPopoverPositions((prev) => {
+                              const next = new Map(prev);
+                              next.set(key, position);
+                              return next;
+                            });
+                            setPopoverKey(key);
+                          }}
+                          onMouseLeave={() => {
+                            popoverCloseTimeout.current = setTimeout(() => {
+                              setPopoverKey(null);
+                              setPopoverAnchor(null);
+                              popoverCloseTimeout.current = null;
+                            }, 150);
+                          }}
+                        >
+                          +{rest.length} další
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
+
+      {/* Mobile: selected day – list of events below the grid */}
+      {mobileSelectedDayKey && (
+        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:hidden">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-slate-900">
+              {(() => {
+                const [y, m, d] = mobileSelectedDayKey.split("-").map(Number);
+                return `${d}. ${m}. ${y}`;
+              })()}
+            </h3>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setAddModalDate(mobileSelectedDayKey)}
+                className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200"
+              >
+                + Přidat
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileSelectedDayKey(null)}
+                className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              >
+                Zavřít
+              </button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {(byDate.get(mobileSelectedDayKey) ?? []).length === 0 ? (
+              <p className="py-4 text-center text-sm text-slate-500">
+                V tento den nemáš žádné schůzky. Přidej ji tlačítkem výše.
+              </p>
+            ) : null}
+            {(byDate.get(mobileSelectedDayKey) ?? []).map((item) => (
+              <div
+                key={item.type === "session" ? item.id : `b-${item.id}`}
+                role={item.type === "booking" ? "button" : undefined}
+                tabIndex={item.type === "booking" ? 0 : undefined}
+                onClick={
+                  item.type === "booking" ? () => setSelectedBookingId(item.id) : undefined
+                }
+                onKeyDown={
+                  item.type === "booking"
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedBookingId(item.id);
+                        }
+                      }
+                    : undefined
+                }
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-left ${
+                  item.type === "booking"
+                    ? "cursor-pointer bg-amber-50 ring-1 ring-amber-200/60"
+                    : "bg-slate-50 ring-1 ring-slate-100"
+                }`}
+              >
+                <div>
+                  <div className="text-sm font-medium text-slate-900">{item.title}</div>
+                  <div className="text-xs text-slate-500">
+                    {formatTime(item.scheduled_at!)} · {item.client_name}
+                  </div>
+                </div>
+                {item.type === "booking" ? (
+                  <span className="rounded bg-amber-200/70 px-1.5 py-0.5 text-[10px] font-medium text-amber-900">
+                    Rezervace
+                  </span>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {typeof document !== "undefined" &&
         popoverKey &&
         popoverAnchor &&

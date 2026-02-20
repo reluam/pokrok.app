@@ -120,24 +120,50 @@ export async function POST(request: Request) {
   const id = crypto.randomUUID();
   const leadSource = source || "booking";
 
+  let leadId: string | null = null;
   try {
-    let leadId: string | null = null;
     const existingLead = (await sql`
-      SELECT id FROM leads WHERE LOWER(email) = ${email} LIMIT 1
+      SELECT id FROM leads WHERE LOWER(email) = ${email} AND (deleted_at IS NULL OR deleted_at > NOW()) LIMIT 1
     `) as { id: string }[];
     if (existingLead.length > 0) {
       leadId = existingLead[0].id;
       await sql`
-        UPDATE leads SET status = 'uvodni_call', updated_at = NOW() WHERE id = ${leadId}
+        UPDATE leads SET status = 'uvodni_call', name = COALESCE(NULLIF(TRIM(${name}), ''), name), updated_at = NOW() WHERE id = ${leadId}
       `;
     } else {
       leadId = crypto.randomUUID();
-      await sql`
-        INSERT INTO leads (id, email, name, source, status, created_at, updated_at)
-        VALUES (${leadId}, ${email}, ${name}, ${leadSource}, 'uvodni_call', NOW(), NOW())
-      `;
+      try {
+        await sql`
+          INSERT INTO leads (id, email, name, source, status, created_at, updated_at)
+          VALUES (${leadId}, ${email}, ${name || null}, ${leadSource}, 'uvodni_call', NOW(), NOW())
+        `;
+      } catch (leadErr: unknown) {
+        const msg = leadErr instanceof Error ? leadErr.message : String(leadErr);
+        if (msg.includes("duplicate") || msg.includes("unique") || msg.includes("already exists")) {
+          const retry = (await sql`
+            SELECT id FROM leads WHERE LOWER(email) = ${email} LIMIT 1
+          `) as { id: string }[];
+          if (retry.length > 0) {
+            leadId = retry[0].id;
+            await sql`
+              UPDATE leads SET status = 'uvodni_call', name = COALESCE(NULLIF(TRIM(${name}), ''), name), updated_at = NOW() WHERE id = ${leadId}
+            `;
+          } else {
+            leadId = null;
+            console.warn("[Booking] Lead create failed (duplicate?), continuing without lead:", leadErr);
+          }
+        } else {
+          leadId = null;
+          console.warn("[Booking] Lead create failed, continuing without lead:", leadErr);
+        }
+      }
     }
+  } catch (leadErr) {
+    leadId = null;
+    console.warn("[Booking] Lead create/update failed, continuing without lead:", leadErr);
+  }
 
+  try {
     await sql`
       INSERT INTO bookings (id, user_id, scheduled_at, duration_minutes, email, name, phone, note, lead_id, status, source, event_id, created_at)
       VALUES (${id}, ${resolvedCoach}, ${date.toISOString()}, ${durationMinutes}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${source || null}, ${bookingEventId}, NOW())

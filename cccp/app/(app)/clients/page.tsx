@@ -13,14 +13,27 @@ type Client = {
 };
 
 async function getClients(userId: string): Promise<Client[]> {
-  const rows = await sql`
-    SELECT id, lead_id, name, email, status, created_at
-    FROM clients
-    WHERE user_id = ${userId}
-    ORDER BY status ASC, created_at DESC
-  `;
-
-  return rows as Client[];
+  try {
+    const rows = await sql`
+      SELECT id, lead_id, name, email, status, created_at
+      FROM clients
+      WHERE user_id = ${userId}
+      ORDER BY status ASC, created_at DESC
+    `;
+    return rows as Client[];
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      const rows = await sql`
+        SELECT id, lead_id, name, email, status, created_at
+        FROM clients
+        ORDER BY status ASC, created_at DESC
+      `;
+      return rows as Client[];
+    }
+    console.error("[clients list] getClients error:", err);
+    return [];
+  }
 }
 
 export default async function ClientsPage() {

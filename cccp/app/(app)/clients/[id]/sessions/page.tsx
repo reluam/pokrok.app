@@ -12,14 +12,30 @@ type SessionRow = {
 };
 
 async function getClientSessions(clientId: string, userId: string): Promise<SessionRow[]> {
-  const rows = await sql`
-    SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, s.notes, s.key_points
-    FROM sessions s
-    JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-    WHERE s.client_id = ${clientId}
-    ORDER BY s.scheduled_at DESC NULLS LAST
-  `;
-  return rows as SessionRow[];
+  try {
+    const rows = await sql`
+      SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, s.notes, s.key_points
+      FROM sessions s
+      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+      WHERE s.client_id = ${clientId}
+      ORDER BY s.scheduled_at DESC NULLS LAST
+    `;
+    return rows as SessionRow[];
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      const rows = await sql`
+        SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, s.notes, s.key_points
+        FROM sessions s
+        JOIN clients c ON c.id = s.client_id
+        WHERE s.client_id = ${clientId}
+        ORDER BY s.scheduled_at DESC NULLS LAST
+      `;
+      return rows as SessionRow[];
+    }
+    console.error("[clients sessions] getClientSessions error:", err);
+    return [];
+  }
 }
 
 export default async function ClientSessionsPage({

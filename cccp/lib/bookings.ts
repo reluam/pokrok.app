@@ -37,8 +37,10 @@ async function getSessionBlocksForUser(
 async function getSessionBlocksOverlapping(
   userId: string,
   startISO: string,
-  endISO: string
+  endISO: string,
+  excludeSessionId?: string
 ): Promise<SessionBlock[]> {
+  const exclude = excludeSessionId ?? null;
   try {
     return (await sql`
       SELECT s.scheduled_at, s.duration_minutes
@@ -48,6 +50,7 @@ async function getSessionBlocksOverlapping(
         AND s.scheduled_at IS NOT NULL
         AND s.scheduled_at < ${endISO}
         AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
+        AND (${exclude} IS NULL OR s.id != ${exclude})
     `) as SessionBlock[];
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -59,6 +62,7 @@ async function getSessionBlocksOverlapping(
         WHERE s.scheduled_at IS NOT NULL
           AND s.scheduled_at < ${endISO}
           AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
+          AND (${exclude} IS NULL OR s.id != ${exclude})
       `) as SessionBlock[];
     }
     throw err;
@@ -268,7 +272,8 @@ export async function getAvailableSlots(
 export async function isSlotFree(
   scheduledAt: string,
   durationMinutes: number,
-  userId: string
+  userId: string,
+  excludeSessionId?: string
 ): Promise<boolean> {
   const start = new Date(scheduledAt).getTime();
   const end = start + durationMinutes * 60 * 1000;
@@ -284,7 +289,7 @@ export async function isSlotFree(
         AND scheduled_at < ${endISO}
         AND scheduled_at + (COALESCE(duration_minutes, 30) * interval '1 minute') > ${startISO}
     `,
-    getSessionBlocksOverlapping(userId, startISO, endISO),
+    getSessionBlocksOverlapping(userId, startISO, endISO, excludeSessionId),
   ]);
 
   const bookings = bookingsRaw as { scheduled_at: string; duration_minutes: number }[];

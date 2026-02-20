@@ -12,6 +12,7 @@ type BookingDetail = {
   phone: string | null;
   note: string | null;
   status: string;
+  source: string | null;
   created_at: string;
   lead: { id: string; name: string | null; email: string | null; status: string | null } | null;
   event: { id: string; name: string | null; slug: string | null } | null;
@@ -119,7 +120,7 @@ export function BookingDetailModal({
                 ) : null}
               </div>
 
-              {detail.lead && (
+              {detail.lead ? (
                 <div>
                   <div className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Lead
@@ -133,6 +134,49 @@ export function BookingDetailModal({
                   {detail.lead.status && (
                     <span className="ml-2 text-xs text-slate-500">{detail.lead.status}</span>
                   )}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                    Lead se nepodařilo vytvořit
+                  </div>
+                  <p className="mt-1 text-sm text-amber-900/90">
+                    Při vytvoření rezervace se lead nepropojil. Údaje níže můžeš zkopírovat a v CRM přidat lead ručně.
+                  </p>
+                  <dl className="mt-3 space-y-1.5 text-sm">
+                    <div>
+                      <dt className="text-xs font-medium text-amber-800/80">Jméno</dt>
+                      <dd className="font-medium text-slate-900">{detail.name || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-medium text-amber-800/80">E-mail</dt>
+                      <dd className="font-medium text-slate-900">{detail.email || "—"}</dd>
+                    </div>
+                    {detail.phone ? (
+                      <div>
+                        <dt className="text-xs font-medium text-amber-800/80">Telefon</dt>
+                        <dd className="font-medium text-slate-900">{detail.phone}</dd>
+                      </div>
+                    ) : null}
+                    {detail.source ? (
+                      <div>
+                        <dt className="text-xs font-medium text-amber-800/80">Zdroj</dt>
+                        <dd className="font-medium text-slate-900">{detail.source}</dd>
+                      </div>
+                    ) : null}
+                    {detail.note ? (
+                      <div>
+                        <dt className="text-xs font-medium text-amber-800/80">Poznámka</dt>
+                        <dd className="text-slate-700">{detail.note}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                  <Link
+                    href="/crm"
+                    className="mt-3 inline-block rounded-lg bg-amber-200/80 px-3 py-1.5 text-sm font-medium text-amber-900 hover:bg-amber-300/80"
+                  >
+                    Přejít do CRM a přidat lead →
+                  </Link>
                 </div>
               )}
 

@@ -11,14 +11,28 @@ type Client = {
 };
 
 async function getClient(id: string, userId: string): Promise<Client | null> {
-  const rows = (await sql`
-    SELECT id, name, email
-    FROM clients
-    WHERE id = ${id} AND user_id = ${userId}
-    LIMIT 1
-  `) as Client[];
-
-  return rows[0] ?? null;
+  try {
+    const rows = (await sql`
+      SELECT id, name, email
+      FROM clients
+      WHERE id = ${id} AND user_id = ${userId}
+      LIMIT 1
+    `) as Client[];
+    return rows[0] ?? null;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      const rows = (await sql`
+        SELECT id, name, email
+        FROM clients
+        WHERE id = ${id}
+        LIMIT 1
+      `) as Client[];
+      return rows[0] ?? null;
+    }
+    console.error("[clients layout] getClient error:", err);
+    return null;
+  }
 }
 
 export default async function ClientLayout({

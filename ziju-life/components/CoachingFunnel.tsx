@@ -2,8 +2,29 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useBookingPopup } from "@/components/BookingPopup";
-import { Circle } from "lucide-react";
+import {
+  Circle,
+  ChevronDown,
+  Clock,
+  Scale,
+  CalendarCheck,
+  Users,
+  Wallet,
+  Compass,
+  Zap,
+  Heart,
+  Sun,
+  Coffee,
+  Rocket,
+  Book,
+  Video,
+  FileText,
+  HelpCircle,
+  type LucideIcon,
+} from "lucide-react";
+import type { InspirationData, InspirationItem } from "@/lib/inspiration";
 
 /** Oddělovač sekce ve stylu Perspective: čára – kroužek s číslem – čára */
 function FunnelSectionDivider({ number }: { number: number }) {
@@ -61,6 +82,7 @@ const STEPS = [
       "Půl na půl. Často bojuji s tím, co po mně chtějí ostatní.",
       "Skoro žádnou. Dělám jen to, co se ode mě očekává.",
     ],
+    icons: [Clock, Scale, CalendarCheck],
   },
   {
     id: "q2",
@@ -72,6 +94,7 @@ const STEPS = [
       "Nedostatek peněz nebo prostředků.",
       "Vůbec nevím, kde začít.",
     ],
+    icons: [Users, Wallet, Compass],
   },
   {
     id: "q3",
@@ -84,6 +107,7 @@ const STEPS = [
       "Energie. Konečně se ráno těším na to, co vytvořím.",
     ],
     multi: true as const,
+    icons: [Zap, Heart, Sun],
   },
   {
     id: "q4",
@@ -94,12 +118,22 @@ const STEPS = [
       "Mám své povinnosti, ale zbytek volného času investuju do změny.",
       "Jdu do toho naplno. Chci výsledky co nejrychleji.",
     ],
+    icons: [Clock, Coffee, Rocket],
   },
   {
     id: "contact",
     type: "contact" as const,
   },
 ];
+
+const getTypeIcon = (type: string): LucideIcon => {
+  switch (type) {
+    case "video": return Video;
+    case "book": return Book;
+    case "article": return FileText;
+    default: return HelpCircle;
+  }
+};
 
 export default function CoachingFunnel() {
   const { openBookingPopup } = useBookingPopup() ?? {};
@@ -111,9 +145,28 @@ export default function CoachingFunnel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [multiSelection, setMultiSelection] = useState<string[]>([]);
-  const benefitsRef = useRef<HTMLDivElement | null>(null);
+  const [latestInspirace, setLatestInspirace] = useState<InspirationItem[]>([]);
+  const poznavasSeRef = useRef<HTMLDivElement | null>(null);
 
   const step = STEPS[stepIndex];
+
+  useEffect(() => {
+    fetch("/api/inspiration")
+      .then((res) => res.json())
+      .then((d: InspirationData) => {
+        const items = [
+          ...(d.videos || []),
+          ...(d.books || []),
+          ...(d.articles || []),
+          ...(d.other || []),
+        ].filter((i: InspirationItem) => i.isActive !== false);
+        const sorted = items
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 3);
+        setLatestInspirace(sorted);
+      })
+      .catch(() => {});
+  }, []);
   const progress = ((stepIndex + 1) / STEPS.length) * 100;
 
   // Reset multi-selection když přejdeme na non-multi otázku
@@ -199,7 +252,7 @@ export default function CoachingFunnel() {
         }`}
       >
         {step?.type === "welcome" && (
-          <div className="text-center pb-16 space-y-10">
+          <div className="text-center pb-16 space-y-14">
             <div className="pt-4">
               <Image
                 src="/ziju-life-logo.png"
@@ -218,67 +271,195 @@ export default function CoachingFunnel() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto">
+              <button
+                type="button"
+                onClick={() => setStepIndex(1)}
+                className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border-0 text-left w-full bg-transparent"
+              >
+                <FunnelCtaImage src="/form/btn-prevzit-rizeni.png" wrapperClassName="bg-white/20" />
+                <span className="w-full py-3 px-3 bg-accent text-white font-bold text-center text-base sm:text-lg">
+                  Chci převzít řízení
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  poznavasSeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+                className="flex flex-col rounded-2xl overflow-hidden border-2 border-black/15 shadow-lg hover:shadow-xl transition-all text-left w-full bg-white"
+              >
+                <FunnelCtaImage src="/form/btn-rozmyslim.png" />
+                <span className="w-full py-3 px-3 bg-accent/10 text-foreground font-bold text-center text-base sm:text-lg">
+                  Ještě se rozmýšlím
+                </span>
+              </button>
+            </div>
+
+            <div className="flex justify-center pt-2">
+              <ChevronDown className="text-foreground/50 w-8 h-8 animate-bounce" aria-hidden />
+            </div>
+
+            {/* Poznáváš se v tom? */}
+            <section ref={poznavasSeRef} className="text-left max-w-lg mx-auto space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
+                Poznáváš se v tom?
+              </h2>
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  "Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.",
+                  "Máš všechno, co bys „měl\" mít, ale cítíš, že ti život protéká mezi prsty.",
+                  "Tvá vlastní mysl je tvůj největší kritik, ne spojenec.",
+                  "Vidíš, jak reaguješ, ale neumíš to změnit.",
+                ].map((text, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-xl p-4 border-2 border-accent/20 flex items-center gap-3"
+                  >
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">
+                      ✓
+                    </span>
+                    <p className="text-foreground font-medium text-sm sm:text-base">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Co z koučinku můžeš získat */}
+            <section className="text-left max-w-lg mx-auto space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
+                Co z koučinku můžeš získat
+              </h2>
+              <ul className="space-y-2 text-foreground/85 leading-relaxed text-sm sm:text-base">
+                <li className="flex gap-2">
+                  <span className="text-accent shrink-0">•</span>
+                  <span><strong className="text-foreground">Jasno v tom, co chceš a proč</strong> – místo „mělo by se\" přijdeme na to, co je opravdu tvoje.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-accent shrink-0">•</span>
+                  <span><strong className="text-foreground">Konkrétní kroky</strong> – méně přemítání, víc akce.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-accent shrink-0">•</span>
+                  <span><strong className="text-foreground">Vědomé převzetí řízení</strong> – nad reakcemi a tím, kam směřuješ.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-accent shrink-0">•</span>
+                  <span><strong className="text-foreground">Podpora na míru</strong> – tvoje situace, tvoje cesta.</span>
+                </li>
+              </ul>
+              <div className="pt-2">
                 <button
                   type="button"
                   onClick={() => setStepIndex(1)}
-                  className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border-0 text-left w-full bg-transparent"
+                  className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
                 >
-                  <FunnelCtaImage src="/form/btn-prevzit-rizeni.png" wrapperClassName="bg-white/20" />
-                  <span className="w-full py-3 px-3 bg-accent text-white font-bold text-center text-base sm:text-lg">
-                    Chci převzít řízení
-                  </span>
+                  Chci změnu
                 </button>
+              </div>
+            </section>
+
+            {/* Ahoj, jsem Matěj */}
+            <section className="max-w-lg mx-auto space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
+                Ahoj, jsem Matěj
+              </h2>
+              <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start text-left">
+                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden bg-gray-100 shrink-0">
+                  <Image
+                    src="/matej-photo.jpg"
+                    alt="Matěj"
+                    fill
+                    className="object-cover"
+                    sizes="160px"
+                  />
+                </div>
+                <div className="space-y-2 text-foreground/85 text-sm sm:text-base">
+                  <p>
+                    Většinu života jsem strávil snahou pochopit, jak se tenhle život hraje. Experimentuji s vědou, technologiemi, biorytmy i meditací.
+                  </p>
+                  <p>
+                    Tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly – inspirace v textech, podpora v komunitě a individuální koučink, pokud to chceš vzít od podlahy.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Jak převzít řízení? */}
+            <section className="text-left max-w-lg mx-auto space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
+                Jak převzít řízení?
+              </h2>
+              <ul className="space-y-2 text-foreground/85 text-sm sm:text-base">
+                <li><strong className="text-foreground">Žádné manuály</strong> – budeme řešit tvoji unikátní situaci.</li>
+                <li><strong className="text-foreground">Fokus na akci</strong> – konkrétní kroky, jak vzít život zpátky do rukou.</li>
+                <li><strong className="text-foreground">Hravost i v těžkých věcech</strong> – vážná témata bez ztráty radosti.</li>
+              </ul>
+              <div className="pt-2">
                 <button
                   type="button"
-                  onClick={() =>
-                    benefitsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-                  }
-                  className="flex flex-col rounded-2xl overflow-hidden border-2 border-black/15 shadow-lg hover:shadow-xl transition-all text-left w-full bg-white"
+                  onClick={() => setStepIndex(1)}
+                  className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
                 >
-                  <FunnelCtaImage src="/form/btn-rozmyslim.png" />
-                  <span className="w-full py-3 px-3 bg-accent/10 text-foreground font-bold text-center text-base sm:text-lg">
-                    Ještě se rozmýšlím
-                  </span>
+                  Převzít řízení
                 </button>
-            </div>
-
-            {/* Co z koučinku můžeš získat */}
-            <section ref={benefitsRef} className="text-left max-w-lg mx-auto pt-8">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">
-                Co z koučinku můžeš získat
-              </h2>
-              <ul className="space-y-3 text-foreground/85 leading-relaxed">
-                <li className="flex gap-3">
-                  <span className="text-accent shrink-0 mt-0.5">•</span>
-                  <span><strong className="text-foreground">Jasno v tom, co chceš a proč</strong> – místo „mělo by se“ přijdeme na to, co je opravdu tvoje.</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-accent shrink-0 mt-0.5">•</span>
-                  <span><strong className="text-foreground">Konkrétní kroky</strong> – méně přemítání, víc akce, která tě posouvá.</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-accent shrink-0 mt-0.5">•</span>
-                  <span><strong className="text-foreground">Vědomé převzetí řízení</strong> – nad reakcemi, rozhodnutími a tím, kam směřuješ.</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="text-accent shrink-0 mt-0.5">•</span>
-                  <span><strong className="text-foreground">Podpora na míru</strong> – žádné univerzální manuály, řešíme tvoji situaci a tvoji cestu.</span>
-                </li>
-              </ul>
+              </div>
             </section>
+
+            {/* Poslední inspirace */}
+            {latestInspirace.length > 0 && (
+              <section className="max-w-lg mx-auto space-y-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
+                  Poslední inspirace
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {latestInspirace.map((item) => {
+                    const Icon = getTypeIcon(item.type);
+                    return (
+                      <Link
+                        key={item.id}
+                        href={`/inspirace/${item.id}`}
+                        className="block text-left bg-white rounded-xl p-4 border-2 border-black/5 hover:border-accent/40 transition-all"
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Icon className="text-accent shrink-0" size={18} />
+                          <span className="text-xs font-medium text-foreground/70 uppercase">{item.type}</span>
+                        </div>
+                        <h3 className="font-semibold text-foreground line-clamp-2 text-sm">{item.title}</h3>
+                        <p className="text-foreground/70 text-xs line-clamp-2 mt-1">{item.description}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+                <p className="text-center">
+                  <Link href="/inspirace" className="text-accent font-semibold hover:underline text-sm">
+                    Všechny inspirace →
+                  </Link>
+                </p>
+              </section>
+            )}
           </div>
         )}
 
         {step?.type === "question" && (
-          <div className="space-y-8">
-            <FunnelSectionDivider number={stepIndex + 1} />
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center">
-              {step.question}
-            </h2>
-            <div className="space-y-3">
-              {step.options.map((opt) => {
-                const isMulti = (step as { multi?: boolean }).multi;
+          <div className="space-y-4 w-full">
+            <div className="flex flex-col items-center gap-2 pb-2">
+              <Image
+                src="/ziju-life-logo.png"
+                alt="Žiju life"
+                width={100}
+                height={40}
+                className="h-8 w-auto"
+              />
+              <h2 className="text-lg sm:text-xl font-bold text-foreground text-center leading-tight">
+                {step.question}
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {step.options.map((opt, idx) => {
+                const stepWithIcons = step as { multi?: boolean; icons?: LucideIcon[] };
+                const isMulti = stepWithIcons.multi;
                 const isSelected = isMulti && multiSelection.includes(opt);
+                const IconComponent = stepWithIcons.icons?.[idx];
                 return (
                   <button
                     key={opt}
@@ -286,31 +467,37 @@ export default function CoachingFunnel() {
                     onClick={() =>
                       isMulti ? toggleMultiOption(opt) : handleAnswer(step.id, opt)
                     }
-                    className={`w-full text-left px-5 py-4 rounded-2xl border-2 transition-all font-medium flex items-start gap-3 ${
+                    className={`aspect-square rounded-2xl border-2 transition-all font-medium flex flex-col items-center justify-center gap-2 p-3 text-center ${
                       isSelected
                         ? "border-accent bg-accent text-white"
                         : "border-black/10 bg-white hover:border-accent hover:bg-accent/5 text-foreground"
                     }`}
                   >
-                    <Circle
-                      size={20}
-                      className={`shrink-0 mt-0.5 ${
-                        isSelected ? "text-white fill-white" : "text-accent"
-                      }`}
-                      strokeWidth={isSelected ? 0 : 2}
-                    />
-                    <span className="flex-1">{opt}</span>
+                    {IconComponent ? (
+                      <IconComponent
+                        size={28}
+                        className={isSelected ? "text-white" : "text-accent"}
+                        strokeWidth={1.5}
+                      />
+                    ) : (
+                      <Circle
+                        size={24}
+                        className={isSelected ? "text-white fill-white" : "text-accent"}
+                        strokeWidth={isSelected ? 0 : 2}
+                      />
+                    )}
+                    <span className="text-xs sm:text-sm leading-tight line-clamp-4">{opt}</span>
                   </button>
                 );
               })}
             </div>
             {(step as { multi?: boolean }).multi && (
-              <div className="pt-4">
+              <div className="pt-2">
                 <button
                   type="button"
                   onClick={() => handleMultiNext(step.id)}
                   disabled={multiSelection.length === 0}
-                  className="w-full px-6 py-4 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   Další
                 </button>

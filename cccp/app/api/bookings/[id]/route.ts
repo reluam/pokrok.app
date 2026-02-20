@@ -24,6 +24,7 @@ export async function GET(
       b.phone,
       b.note,
       b.status,
+      b.source,
       b.lead_id,
       b.event_id,
       b.created_at,
@@ -57,6 +58,7 @@ export async function GET(
     phone: string | null;
     note: string | null;
     status: string;
+    source: string | null;
     lead_id: string | null;
     event_id: string | null;
     created_at: string;
@@ -84,6 +86,7 @@ export async function GET(
     phone: r.phone,
     note: r.note,
     status: r.status,
+    source: r.source ?? null,
     created_at: r.created_at,
     lead: r.lead_id_ref
       ? {

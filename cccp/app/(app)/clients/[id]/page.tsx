@@ -18,26 +18,52 @@ type SessionSummary = {
 };
 
 async function getClientWithSummary(id: string, userId: string) {
-  const [clientRows, sessionRows] = await Promise.all([
-    sql`
-      SELECT id, name, email, phone, main_goal, status
-      FROM clients
-      WHERE id = ${id} AND user_id = ${userId}
-      LIMIT 1
-    `,
-    sql`
-      SELECT id, title, scheduled_at
-      FROM sessions s
-      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
-      WHERE s.client_id = ${id}
-      ORDER BY s.scheduled_at DESC NULLS LAST
-      LIMIT 5
-    `
-  ]);
-
-  const clients = clientRows as Client[];
-  const sessions = sessionRows as SessionSummary[];
-  return { client: clients[0] ?? null, sessions };
+  try {
+    const [clientRows, sessionRows] = await Promise.all([
+      sql`
+        SELECT id, name, email, phone, main_goal, status
+        FROM clients
+        WHERE id = ${id} AND user_id = ${userId}
+        LIMIT 1
+      `,
+      sql`
+        SELECT id, title, scheduled_at
+        FROM sessions s
+        JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+        WHERE s.client_id = ${id}
+        ORDER BY s.scheduled_at DESC NULLS LAST
+        LIMIT 5
+      `
+    ]);
+    const clients = clientRows as Client[];
+    const sessions = sessionRows as SessionSummary[];
+    return { client: clients[0] ?? null, sessions };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("user_id") && msg.includes("does not exist")) {
+      const [clientRows, sessionRows] = await Promise.all([
+        sql`
+          SELECT id, name, email, phone, main_goal, status
+          FROM clients
+          WHERE id = ${id}
+          LIMIT 1
+        `,
+        sql`
+          SELECT id, title, scheduled_at
+          FROM sessions s
+          JOIN clients c ON c.id = s.client_id
+          WHERE s.client_id = ${id}
+          ORDER BY s.scheduled_at DESC NULLS LAST
+          LIMIT 5
+        `
+      ]);
+      const clients = clientRows as Client[];
+      const sessions = sessionRows as SessionSummary[];
+      return { client: clients[0] ?? null, sessions };
+    }
+    console.error("[clients page] getClientWithSummary error:", err);
+    return { client: null, sessions: [] };
+  }
 }
 
 export default async function ClientOverviewPage({

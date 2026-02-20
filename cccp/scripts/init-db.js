@@ -229,7 +229,7 @@ async function initializeCoachCrmDatabase() {
     `;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_user_booking_slug_slug ON user_booking_slug(slug)`;
 
-    // user_settings (first day of week: 0=Sunday, 1=Monday)
+    // user_settings (first day of week: 0=Sunday, 1=Monday; use_integrated_calendars for Google Calendar)
     await sql`
       CREATE TABLE IF NOT EXISTS user_settings (
         user_id TEXT PRIMARY KEY,
@@ -237,6 +237,7 @@ async function initializeCoachCrmDatabase() {
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS use_integrated_calendars BOOLEAN NOT NULL DEFAULT true`;
 
     // events (bookable event types)
     await sql`
