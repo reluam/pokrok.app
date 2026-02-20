@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { BookingDetailModal } from "./BookingDetailModal";
 
 export type CalendarItem = {
   type: "session" | "booking";
@@ -50,8 +52,10 @@ type WeekGridProps = {
 };
 
 export function WeekGrid({ items, weekStart, prevWeekHref, nextWeekHref, weekLabel }: WeekGridProps) {
+  const router = useRouter();
   const byDay = useMemo(() => groupByDay(items, weekStart), [items, weekStart]);
   const [popoverDay, setPopoverDay] = useState<number | null>(null);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
 
   const startDate = new Date(weekStart + "T12:00:00");
 
@@ -100,9 +104,26 @@ export function WeekGrid({ items, weekStart, prevWeekHref, nextWeekHref, weekLab
                 {visible.map((item) => (
                   <div
                     key={item.type === "session" ? item.id : `b-${item.id}`}
+                    role={item.type === "booking" ? "button" : undefined}
+                    tabIndex={item.type === "booking" ? 0 : undefined}
+                    onClick={
+                      item.type === "booking"
+                        ? () => setSelectedBookingId(item.id)
+                        : undefined
+                    }
+                    onKeyDown={
+                      item.type === "booking"
+                        ? (e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setSelectedBookingId(item.id);
+                            }
+                          }
+                        : undefined
+                    }
                     className={`rounded-lg px-2 py-1 text-[11px] ${
                       item.type === "booking"
-                        ? "bg-amber-100 text-amber-900"
+                        ? "cursor-pointer bg-amber-100 text-amber-900 hover:bg-amber-200"
                         : "bg-white shadow-sm ring-1 ring-slate-100"
                     }`}
                   >
@@ -135,8 +156,27 @@ export function WeekGrid({ items, weekStart, prevWeekHref, nextWeekHref, weekLab
                         {rest.map((item) => (
                           <div
                             key={item.type === "session" ? item.id : `b-${item.id}`}
+                            role={item.type === "booking" ? "button" : undefined}
+                            tabIndex={item.type === "booking" ? 0 : undefined}
+                            onClick={
+                              item.type === "booking"
+                                ? () => setSelectedBookingId(item.id)
+                                : undefined
+                            }
+                            onKeyDown={
+                              item.type === "booking"
+                                ? (e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.preventDefault();
+                                      setSelectedBookingId(item.id);
+                                    }
+                                  }
+                                : undefined
+                            }
                             className={`border-b border-slate-100 py-1.5 last:border-0 ${
-                              item.type === "booking" ? "text-amber-800" : ""
+                              item.type === "booking"
+                                ? "cursor-pointer text-amber-800 hover:bg-amber-50"
+                                : ""
                             }`}
                           >
                             <div className="font-medium">{item.title}</div>
@@ -154,6 +194,12 @@ export function WeekGrid({ items, weekStart, prevWeekHref, nextWeekHref, weekLab
           );
         })}
       </div>
+      <BookingDetailModal
+        bookingId={selectedBookingId}
+        open={selectedBookingId !== null}
+        onClose={() => setSelectedBookingId(null)}
+        onCancelled={() => router.refresh()}
+      />
     </div>
   );
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { BookingDetailModal } from "./BookingDetailModal";
 
 export type CalendarItem = {
   type: "session" | "booking";
@@ -58,8 +60,10 @@ export function MonthGrid({
   nextMonthHref,
   monthLabel,
 }: MonthGridProps) {
+  const router = useRouter();
   const byDate = useMemo(() => groupByDate(items), [items]);
   const [popoverKey, setPopoverKey] = useState<string | null>(null);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
 
   const rows = useMemo(() => {
     const firstDay = new Date(year, month - 1, 1);
@@ -143,9 +147,26 @@ export function MonthGrid({
                         {visible.map((item) => (
                           <div
                             key={item.type === "session" ? item.id : `b-${item.id}`}
+                            role={item.type === "booking" ? "button" : undefined}
+                            tabIndex={item.type === "booking" ? 0 : undefined}
+                            onClick={
+                              item.type === "booking"
+                                ? () => setSelectedBookingId(item.id)
+                                : undefined
+                            }
+                            onKeyDown={
+                              item.type === "booking"
+                                ? (e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.preventDefault();
+                                      setSelectedBookingId(item.id);
+                                    }
+                                  }
+                                : undefined
+                            }
                             className={`rounded px-1.5 py-1 text-[11px] ${
                               item.type === "booking"
-                                ? "bg-amber-100 text-amber-900"
+                                ? "cursor-pointer bg-amber-100 text-amber-900 hover:bg-amber-200"
                                 : "bg-slate-50 ring-1 ring-slate-100"
                             }`}
                           >
@@ -178,8 +199,27 @@ export function MonthGrid({
                                 {rest.map((item) => (
                                   <div
                                     key={item.type === "session" ? item.id : `b-${item.id}`}
+                                    role={item.type === "booking" ? "button" : undefined}
+                                    tabIndex={item.type === "booking" ? 0 : undefined}
+                                    onClick={
+                                      item.type === "booking"
+                                        ? () => setSelectedBookingId(item.id)
+                                        : undefined
+                                    }
+                                    onKeyDown={
+                                      item.type === "booking"
+                                        ? (e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                              e.preventDefault();
+                                              setSelectedBookingId(item.id);
+                                            }
+                                          }
+                                        : undefined
+                                    }
                                     className={`border-b border-slate-100 py-1.5 last:border-0 ${
-                                      item.type === "booking" ? "text-amber-800" : ""
+                                      item.type === "booking"
+                                        ? "cursor-pointer text-amber-800 hover:bg-amber-50"
+                                        : ""
                                     }`}
                                   >
                                     <div className="font-medium">{item.title}</div>
@@ -201,6 +241,12 @@ export function MonthGrid({
           </tbody>
         </table>
       </div>
+      <BookingDetailModal
+        bookingId={selectedBookingId}
+        open={selectedBookingId !== null}
+        onClose={() => setSelectedBookingId(null)}
+        onCancelled={() => router.refresh()}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { sql } from "../../../../lib/db";
+import { OverviewSlotsList } from "../../../../components/calendar/OverviewSlotsList";
 
 type Session = {
   id: string;
@@ -107,41 +108,7 @@ export default async function OverviewMonthPage() {
               V tomto měsíci zatím nejsou naplánované žádné schůzky ani rezervace.
             </p>
           ) : (
-            <div className="space-y-2 text-sm">
-              {allSlots.map((s) => (
-                <div
-                  key={s.type === "session" ? s.id : `b-${s.id}`}
-                  className={`flex items-center justify-between rounded-xl px-3 py-2 ${
-                    s.type === "booking"
-                      ? "bg-amber-50 ring-1 ring-amber-200/60"
-                      : "bg-slate-50"
-                  }`}
-                >
-                  <div>
-                    <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                      {new Date(s.scheduled_at).toLocaleDateString("cs-CZ", {
-                        day: "numeric",
-                        month: "numeric",
-                        year: "2-digit"
-                      })}
-                      {s.type === "booking" ? (
-                        <span className="ml-1.5 rounded bg-amber-200/70 px-1.5 py-0.5 text-[10px] font-medium text-amber-900">
-                          Rezervace
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="text-sm font-semibold text-slate-900">
-                      {s.title}
-                    </div>
-                  </div>
-                  <div className="text-right text-xs text-slate-500">
-                    <div className="font-medium text-slate-800">
-                      {s.client_name}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <OverviewSlotsList slots={allSlots} />
           )}
         </section>
 
