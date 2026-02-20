@@ -11,9 +11,18 @@ type EventData = {
   slug: string;
   name: string;
   duration_minutes: number;
+  min_advance_minutes?: number;
   created_at: string;
   updated_at: string;
 };
+
+const MIN_ADVANCE_OPTIONS = [
+  { value: 0, label: "Okamžitě" },
+  { value: 720, label: "12 hodin dopředu" },
+  { value: 1440, label: "24 hodin (1 den) dopředu" },
+  { value: 4320, label: "3 dny dopředu" },
+  { value: 10080, label: "7 dní dopředu" },
+] as const;
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -27,6 +36,7 @@ export default function EventDetailPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(30);
+  const [minAdvanceMinutes, setMinAdvanceMinutes] = useState(0);
   const [copied, setCopied] = useState<"link" | "iframe" | null>(null);
 
   const fetchEvent = useCallback(async () => {
@@ -42,6 +52,7 @@ export default function EventDetailPage() {
       setName(data.name);
       setSlug(data.slug);
       setDurationMinutes(data.duration_minutes ?? 30);
+      setMinAdvanceMinutes(data.min_advance_minutes ?? 0);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -72,6 +83,7 @@ export default function EventDetailPage() {
           name: name.trim(),
           slug: slug.trim().toLowerCase(),
           duration_minutes: Math.min(120, Math.max(15, durationMinutes)),
+          min_advance_minutes: minAdvanceMinutes,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -170,6 +182,26 @@ export default function EventDetailPage() {
             onChange={(e) => setDurationMinutes(Number(e.target.value) || 30)}
             className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
           />
+        </div>
+        <div>
+          <label htmlFor="ev-min-advance" className="block text-sm font-medium text-slate-700">
+            Nejdříve bookovatelný
+          </label>
+          <select
+            id="ev-min-advance"
+            value={minAdvanceMinutes}
+            onChange={(e) => setMinAdvanceMinutes(Number(e.target.value))}
+            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
+          >
+            {MIN_ADVANCE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-0.5 text-xs text-slate-500">
+            Klient uvidí pouze termíny od tohoto času dopředu (např. 12 h = nelze bookovat na příštích 12 h).
+          </p>
         </div>
         <button
           type="submit"

@@ -9,7 +9,7 @@ export async function GET() {
   }
 
   const rows = await sql`
-    SELECT id, user_id, slug, name, duration_minutes, created_at, updated_at
+    SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, created_at, updated_at
     FROM events
     WHERE user_id = ${userId}
     ORDER BY name ASC
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { name?: string; slug?: string; duration_minutes?: number };
+  let body: { name?: string; slug?: string; duration_minutes?: number; min_advance_minutes?: number };
   try {
     body = await request.json();
   } catch {
@@ -51,6 +51,7 @@ export async function POST(request: Request) {
   }
 
   const durationMinutes = Math.min(120, Math.max(15, Number(body.duration_minutes) || 30));
+  const minAdvanceMinutes = Math.min(43200, Math.max(0, Number(body.min_advance_minutes) ?? 0)); // max 30 days
 
   const existing = await sql`
     SELECT 1 FROM events WHERE user_id = ${userId} AND slug = ${slug} LIMIT 1
@@ -61,8 +62,8 @@ export async function POST(request: Request) {
 
   const id = crypto.randomUUID();
   await sql`
-    INSERT INTO events (id, user_id, slug, name, duration_minutes, updated_at)
-    VALUES (${id}, ${userId}, ${slug}, ${name}, ${durationMinutes}, NOW())
+    INSERT INTO events (id, user_id, slug, name, duration_minutes, min_advance_minutes, updated_at)
+    VALUES (${id}, ${userId}, ${slug}, ${name}, ${durationMinutes}, ${minAdvanceMinutes}, NOW())
   `;
 
   return NextResponse.json({
@@ -71,5 +72,6 @@ export async function POST(request: Request) {
     slug,
     name,
     duration_minutes: durationMinutes,
+    min_advance_minutes: minAdvanceMinutes,
   });
 }

@@ -274,17 +274,18 @@ export async function getAvailableSlotsForEvent(
   toDate: string
 ): Promise<Slot[]> {
   const eventRows = (await sql`
-    SELECT e.id, e.user_id, e.duration_minutes,
+    SELECT e.id, e.user_id, e.duration_minutes, e.min_advance_minutes,
            ea.day_of_week, ea.start_time::text AS start_time, ea.end_time::text AS end_time
     FROM events e
     LEFT JOIN event_availability ea ON ea.event_id = e.id
     WHERE e.id = ${eventId}
-  `) as { id: string; user_id: string; duration_minutes: number; day_of_week: number; start_time: string; end_time: string }[];
+  `) as { id: string; user_id: string; duration_minutes: number; min_advance_minutes: number; day_of_week: number; start_time: string; end_time: string }[];
 
   if (!eventRows.length) return [];
   const first = eventRows[0];
   const userId = first.user_id;
   const durationMinutes = first.duration_minutes;
+  const minAdvanceMinutes = Math.max(0, first.min_advance_minutes ?? 0);
 
   const windows: WeeklyAvailabilityRow[] = eventRows
     .filter((r) => r.day_of_week != null)
@@ -364,6 +365,8 @@ export async function getAvailableSlotsForEvent(
     }
   }
 
-  out.sort((a, b) => a.slot_at.localeCompare(b.slot_at));
-  return out;
+  const minSlotTime = Date.now() + minAdvanceMinutes * 60 * 1000;
+  const filtered = out.filter((s) => new Date(s.slot_at).getTime() >= minSlotTime);
+  filtered.sort((a, b) => a.slot_at.localeCompare(b.slot_at));
+  return filtered;
 }

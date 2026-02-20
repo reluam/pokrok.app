@@ -221,7 +221,7 @@ export async function initializeCoachCrmDatabase() {
     `;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_user_booking_slug_slug ON user_booking_slug(slug)`;
 
-    // events (bookable event types: name, duration, per-user)
+    // events (bookable event types: name, duration, min advance booking, per-user)
     await sql`
       CREATE TABLE IF NOT EXISTS events (
         id TEXT PRIMARY KEY,
@@ -229,10 +229,12 @@ export async function initializeCoachCrmDatabase() {
         slug TEXT NOT NULL,
         name TEXT NOT NULL,
         duration_minutes INTEGER NOT NULL DEFAULT 30,
+        min_advance_minutes INTEGER NOT NULL DEFAULT 0,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS min_advance_minutes INTEGER NOT NULL DEFAULT 0`;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_events_user_slug ON events(user_id, slug)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)`;
 

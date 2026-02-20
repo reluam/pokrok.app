@@ -13,7 +13,7 @@ export async function GET(
 
   const { id } = await params;
   const rows = await sql`
-    SELECT id, user_id, slug, name, duration_minutes, created_at, updated_at
+    SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, created_at, updated_at
     FROM events
     WHERE id = ${id} AND user_id = ${userId}
     LIMIT 1
@@ -36,7 +36,7 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  let body: { name?: string; slug?: string; duration_minutes?: number };
+  let body: { name?: string; slug?: string; duration_minutes?: number; min_advance_minutes?: number };
   try {
     body = await request.json();
   } catch {
@@ -54,6 +54,9 @@ export async function PATCH(
   const slug = body.slug !== undefined ? String(body.slug).trim().toLowerCase() : undefined;
   const durationMinutes = body.duration_minutes !== undefined
     ? Math.min(120, Math.max(15, Number(body.duration_minutes) || 30))
+    : undefined;
+  const minAdvanceMinutes = body.min_advance_minutes !== undefined
+    ? Math.min(43200, Math.max(0, Number(body.min_advance_minutes) ?? 0))
     : undefined;
 
   if (slug !== undefined && !/^[a-z0-9-]+$/.test(slug)) {
@@ -74,12 +77,13 @@ export async function PATCH(
       name = COALESCE(${name ?? null}, name),
       slug = COALESCE(${slug ?? null}, slug),
       duration_minutes = COALESCE(${durationMinutes ?? null}, duration_minutes),
+      min_advance_minutes = COALESCE(${minAdvanceMinutes ?? null}, min_advance_minutes),
       updated_at = NOW()
     WHERE id = ${id} AND user_id = ${userId}
   `;
 
   const row = await sql`
-    SELECT id, user_id, slug, name, duration_minutes, created_at, updated_at
+    SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, created_at, updated_at
     FROM events WHERE id = ${id} LIMIT 1
   `;
   return NextResponse.json(row[0]);

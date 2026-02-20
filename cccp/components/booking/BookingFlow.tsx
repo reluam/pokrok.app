@@ -59,8 +59,8 @@ export function BookingFlow(props?: BookingFlowProps) {
   const nameFromUrl = searchParams.get("name")?.trim() ?? "";
   const emailFromUrl = searchParams.get("email")?.trim() ?? "";
 
-  const dates = getNextDays(14);
-  const [step, setStep] = useState<"date" | "slot" | "form">("date");
+  const dates = getNextDays(14); // 2 týdny = 2 řádky po 7 dnech
+  const [step, setStep] = useState<"pick" | "form">("pick");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -103,8 +103,8 @@ export function BookingFlow(props?: BookingFlowProps) {
       if (firstWithSlots && (byDate[firstWithSlots]?.length ?? 0) > 0) {
         setSelectedDate(firstWithSlots);
         setSlots(byDate[firstWithSlots]);
-        setStep("slot");
       }
+      setStep("pick");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -124,7 +124,6 @@ export function BookingFlow(props?: BookingFlowProps) {
       if (daySlots.length === 0) return;
       setSelectedDate(date);
       setSlots(daySlots);
-      setStep("slot");
       setError(null);
     },
     [slotsByDate]
@@ -132,10 +131,10 @@ export function BookingFlow(props?: BookingFlowProps) {
 
   useEffect(() => {
     if (success) return;
-    if (step === "slot" && selectedDate && slots.length === 0 && !loadingSlots) {
+    if (step === "pick" && selectedDate && slots.length === 0 && initialLoadDone && !loadingSlots) {
       setError("Pro tento den nejsou k dispozici žádné volné termíny.");
     }
-  }, [success, step, selectedDate, slots.length, loadingSlots]);
+  }, [success, step, selectedDate, slots.length, initialLoadDone, loadingSlots]);
 
   const handleSelectSlot = (slot: Slot) => {
     setSelectedSlot(slot);
@@ -180,18 +179,10 @@ export function BookingFlow(props?: BookingFlowProps) {
     }
   };
 
-  const backToDate = () => {
-    setStep("date");
-    setSelectedDate(null);
-    setSelectedSlot(null);
-    setSlots([]);
-    setError(null);
-  };
-
   const hasSlots = (date: string) => (slotsByDate[date]?.length ?? 0) > 0;
 
   const backToSlot = () => {
-    setStep("slot");
+    setStep("pick");
     setSelectedSlot(null);
     setError(null);
   };
@@ -244,75 +235,78 @@ export function BookingFlow(props?: BookingFlowProps) {
         </div>
       )}
 
-      {initialLoadDone && step === "date" && (
-        <div className="mt-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Vyber datum
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-            {dates.map((d) => {
-              const available = hasSlots(d);
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => selectDate(d)}
-                  disabled={!available}
-                  className={`rounded-xl border px-3 py-3 text-left text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
-                    available
-                      ? "border-slate-200 bg-white text-slate-800 shadow-sm hover:border-slate-300 hover:bg-slate-50 hover:shadow"
-                      : "cursor-not-allowed border-slate-100 bg-slate-50/60 text-slate-400 line-through"
-                  }`}
-                >
-                  <span className="block truncate">
-                    {new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </span>
-                  {!available && (
-                    <span className="mt-0.5 block text-[10px] font-normal normal-case not-italic text-slate-400">
-                      Bez volných termínů
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {initialLoadDone && step === "slot" && selectedDate && (
-        <div className="mt-6">
-          <button
-            type="button"
-            onClick={backToDate}
-            className="mb-3 text-sm text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 rounded px-1 -ml-1"
-          >
-            ← Zpět na výběr data
-          </button>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Volné termíny — {formatSlotDate(slots[0]?.slot_at ?? selectedDate + "T12:00:00")}
-          </p>
-          {slots.length === 0 ? (
-            <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Pro tento den nejsou volné termíny. Zvol jiný den.
+      {initialLoadDone && step === "pick" && (
+        <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-start">
+          {/* Kalendář: vždy 7 sloupců (týden v řádku), 2 řádky */}
+          <div className="shrink-0">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Datum
             </p>
-          ) : (
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-              {slots.map((slot) => (
-                <button
-                  key={slot.slot_at}
-                  type="button"
-                  onClick={() => handleSelectSlot(slot)}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:shadow focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
-                >
-                  {formatSlotTime(slot.slot_at)}
-                </button>
-              ))}
+            <div className="grid grid-cols-7 gap-1.5">
+              {dates.map((d) => {
+                const available = hasSlots(d);
+                const isSelected = selectedDate === d;
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => selectDate(d)}
+                    disabled={!available}
+                    className={`flex min-w-0 flex-col items-center justify-center rounded-lg border px-1.5 py-2 text-center text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
+                      !available
+                        ? "cursor-not-allowed border-slate-100 bg-slate-50/60 text-slate-400 line-through"
+                        : isSelected
+                          ? "border-slate-700 bg-slate-800 text-white shadow"
+                          : "border-slate-200 bg-white text-slate-800 shadow-sm hover:border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span className="block truncate w-full text-[10px] opacity-80">
+                      {new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", { weekday: "short" })}
+                    </span>
+                    <span className="mt-0.5 block text-sm font-semibold">
+                      {new Date(d + "T12:00:00").getDate()}
+                    </span>
+                    {!available && (
+                      <span className="mt-0.5 block text-[9px] font-normal normal-case not-italic opacity-70">
+                        —
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          )}
+          </div>
+
+          {/* Časové sloty: vedle na md+, pod na malých obrazovkách */}
+          <div className="min-w-0 flex-1">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {selectedDate
+                ? `Čas — ${formatSlotDate(selectedDate + "T12:00:00")}`
+                : "Čas"}
+            </p>
+            {!selectedDate ? (
+              <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                Vyber datum v kalendáři.
+              </p>
+            ) : slots.length === 0 ? (
+              <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                Pro tento den nejsou volné termíny. Zvol jiný den.
+              </p>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4">
+                {slots.map((slot) => (
+                  <button
+                    key={slot.slot_at}
+                    type="button"
+                    onClick={() => handleSelectSlot(slot)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:shadow focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                  >
+                    {formatSlotTime(slot.slot_at)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
