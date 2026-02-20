@@ -264,6 +264,7 @@ async function initializeCoachCrmDatabase() {
 
     await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS event_id TEXT`;
     await sql`CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id)`;
+    await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS note TEXT`;
 
     // Backfill user_id for existing rows (use DEFAULT_COACH_USER_ID from .env.local or first calendar_connections user)
     let backfillUserId = process.env.DEFAULT_COACH_USER_ID || null;

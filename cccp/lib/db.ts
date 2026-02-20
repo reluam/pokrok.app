@@ -262,6 +262,7 @@ export async function initializeCoachCrmDatabase() {
 
     await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS event_id TEXT`;
     await sql`CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id)`;
+    await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS note TEXT`;
 
     console.log("Coach CRM database initialized successfully");
   } catch (error) {

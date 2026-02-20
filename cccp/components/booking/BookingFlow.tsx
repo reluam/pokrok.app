@@ -91,6 +91,7 @@ export function BookingFlow(props?: BookingFlowProps) {
   const firstDayOfWeek = props?.firstDayOfWeek ?? 1;
   const nameFromUrl = searchParams.get("name")?.trim() ?? "";
   const emailFromUrl = searchParams.get("email")?.trim() ?? "";
+  const noteFromUrl = searchParams.get("note")?.trim() ?? "";
 
   const [offset, setOffset] = useState(0);
   const dates = useMemo(
@@ -109,7 +110,7 @@ export function BookingFlow(props?: BookingFlowProps) {
 
   const [name, setName] = useState(nameFromUrl);
   const [email, setEmail] = useState(emailFromUrl);
-  const [phone, setPhone] = useState("");
+  const [note, setNote] = useState(noteFromUrl);
 
   const fetchSlotsRange = useCallback(
     async (dateRange: string[]) => {
@@ -198,7 +199,7 @@ export function BookingFlow(props?: BookingFlowProps) {
         scheduled_at: selectedSlot.slot_at,
         email: email.trim(),
         name: name.trim(),
-        phone: phone.trim() || undefined,
+        note: note.trim() || undefined,
       };
       if (eventId) body.event_id = eventId;
       const res = await fetch("/api/bookings", {
@@ -454,15 +455,16 @@ export function BookingFlow(props?: BookingFlowProps) {
               />
             </div>
             <div>
-              <label htmlFor="book-phone" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Telefon
+              <label htmlFor="book-note" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Poznámka
               </label>
-              <input
-                id="book-phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+              <textarea
+                id="book-note"
+                rows={3}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Např. téma konzultace, dotaz…"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 resize-y min-h-[4.5rem]"
               />
             </div>
           </div>

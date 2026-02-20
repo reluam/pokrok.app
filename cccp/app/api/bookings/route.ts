@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     email?: string;
     name?: string;
     phone?: string;
+    note?: string;
   };
   try {
     body = await request.json();
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
   const email = (body.email ?? "").trim().toLowerCase();
   const name = (body.name ?? "").trim();
   const phone = (body.phone ?? "").trim() || null;
+  const note = typeof body.note === "string" ? body.note.trim().slice(0, 2000) || null : null;
 
   let resolvedCoach = coachUserId;
   let durationMinutes = DEFAULT_DURATION_MINUTES;
@@ -115,8 +117,8 @@ export async function POST(request: Request) {
     }
 
     await sql`
-      INSERT INTO bookings (id, user_id, scheduled_at, duration_minutes, email, name, phone, lead_id, status, source, event_id, created_at)
-      VALUES (${id}, ${resolvedCoach}, ${date.toISOString()}, ${durationMinutes}, ${email}, ${name}, ${phone}, ${leadId}, 'pending', ${source || null}, ${bookingEventId}, NOW())
+      INSERT INTO bookings (id, user_id, scheduled_at, duration_minutes, email, name, phone, note, lead_id, status, source, event_id, created_at)
+      VALUES (${id}, ${resolvedCoach}, ${date.toISOString()}, ${durationMinutes}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${source || null}, ${bookingEventId}, NOW())
     `;
 
     return NextResponse.json({
