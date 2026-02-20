@@ -358,29 +358,29 @@ export default function CoachingFunnel() {
               </div>
             </section>
 
-            {/* Ahoj, jsem Matěj */}
+            {/* Ahoj, jsem Matěj – nadpis, pak foto (později video), pak text */}
             <section className="max-w-lg mx-auto space-y-4">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
                 Ahoj, jsem Matěj
               </h2>
-              <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start text-left">
-                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden bg-gray-100 shrink-0">
+              <div className="flex justify-center">
+                <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-2xl overflow-hidden bg-gray-100">
                   <Image
                     src="/matej-photo.jpg"
                     alt="Matěj"
                     fill
                     className="object-cover"
-                    sizes="160px"
+                    sizes="224px"
                   />
                 </div>
-                <div className="space-y-2 text-foreground/85 text-sm sm:text-base">
-                  <p>
-                    Většinu života jsem strávil snahou pochopit, jak se tenhle život hraje. Experimentuji s vědou, technologiemi, biorytmy i meditací.
-                  </p>
-                  <p>
-                    Tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly – inspirace v textech, podpora v komunitě a individuální koučink, pokud to chceš vzít od podlahy.
-                  </p>
-                </div>
+              </div>
+              <div className="space-y-2 text-foreground/85 text-sm sm:text-base text-center">
+                <p>
+                  Většinu života jsem strávil snahou pochopit, jak se tenhle život hraje. Experimentuji s vědou, technologiemi, biorytmy i meditací.
+                </p>
+                <p>
+                  Tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly – inspirace v textech, podpora v komunitě a individuální koučink, pokud to chceš vzít od podlahy.
+                </p>
               </div>
             </section>
 
@@ -394,6 +394,36 @@ export default function CoachingFunnel() {
                 <li><strong className="text-foreground">Fokus na akci</strong> – konkrétní kroky, jak vzít život zpátky do rukou.</li>
                 <li><strong className="text-foreground">Hravost i v těžkých věcech</strong> – vážná témata bez ztráty radosti.</li>
               </ul>
+            </section>
+
+            {/* Inspirace k životu podle sebe */}
+            <section className="max-w-lg mx-auto space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
+                Inspirace k životu podle sebe
+              </h2>
+              {latestInspirace.length > 0 && (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {latestInspirace.map((item) => {
+                      const Icon = getTypeIcon(item.type);
+                      return (
+                        <Link
+                          key={item.id}
+                          href={`/inspirace/${item.id}`}
+                          className="block text-left bg-white rounded-xl p-4 border-2 border-black/5 hover:border-accent/40 transition-all"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Icon className="text-accent shrink-0" size={18} />
+                            <span className="text-xs font-medium text-foreground/70 uppercase">{item.type}</span>
+                          </div>
+                          <h3 className="font-semibold text-foreground line-clamp-2 text-sm">{item.title}</h3>
+                          <p className="text-foreground/70 text-xs line-clamp-2 mt-1">{item.description}</p>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
               <div className="pt-2">
                 <button
                   type="button"
@@ -404,39 +434,6 @@ export default function CoachingFunnel() {
                 </button>
               </div>
             </section>
-
-            {/* Poslední inspirace */}
-            {latestInspirace.length > 0 && (
-              <section className="max-w-lg mx-auto space-y-4">
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
-                  Poslední inspirace
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {latestInspirace.map((item) => {
-                    const Icon = getTypeIcon(item.type);
-                    return (
-                      <Link
-                        key={item.id}
-                        href={`/inspirace/${item.id}`}
-                        className="block text-left bg-white rounded-xl p-4 border-2 border-black/5 hover:border-accent/40 transition-all"
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <Icon className="text-accent shrink-0" size={18} />
-                          <span className="text-xs font-medium text-foreground/70 uppercase">{item.type}</span>
-                        </div>
-                        <h3 className="font-semibold text-foreground line-clamp-2 text-sm">{item.title}</h3>
-                        <p className="text-foreground/70 text-xs line-clamp-2 mt-1">{item.description}</p>
-                      </Link>
-                    );
-                  })}
-                </div>
-                <p className="text-center">
-                  <Link href="/inspirace" className="text-accent font-semibold hover:underline text-sm">
-                    Všechny inspirace →
-                  </Link>
-                </p>
-              </section>
-            )}
           </div>
         )}
 
