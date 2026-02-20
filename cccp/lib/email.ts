@@ -6,7 +6,11 @@ import {
 } from "./email-templates";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+const FROM_EMAIL_BASE = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+
+function formatFromEmail(name: string): string {
+  return `${name} <${FROM_EMAIL_BASE}>`;
+}
 
 export async function sendBookingConfirmation(params: {
   to: string;
@@ -30,7 +34,7 @@ export async function sendBookingConfirmation(params: {
     });
 
     const result = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: formatFromEmail("Potvrzení schůzky"),
       to: params.to,
       subject: `Rezervace potvrzena - ${params.eventName || "Konzultace"}`,
       html,
@@ -68,7 +72,7 @@ export async function sendBookingReminder(params: {
     });
 
     const result = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: formatFromEmail("Připomínka schůzky"),
       to: params.to,
       subject: `Připomínka rezervace - ${params.eventName || "Konzultace"}`,
       html,
@@ -110,7 +114,7 @@ export async function sendCoachNotification(params: {
     });
 
     const result = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: formatFromEmail("Nová rezervace"),
       to: params.coachEmail,
       replyTo: params.clientEmail,
       subject: `Nová rezervace - ${params.clientName}`,
