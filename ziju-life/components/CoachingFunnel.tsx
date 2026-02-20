@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useBookingPopup } from "@/components/BookingPopup";
+import { Circle } from "lucide-react";
 
 /** Oddělovač sekce ve stylu Perspective: čára – kroužek s číslem – čára */
 function FunnelSectionDivider({ number }: { number: number }) {
@@ -55,22 +55,44 @@ const STEPS = [
   {
     id: "q1",
     type: "question" as const,
-    question: "Poznáváš se v tom?",
+    question: "Jakou část dne dnes trávíš tím, co opravdu chceš?",
     options: [
-      "Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.",
-      "Máš všechno, co bys \"měl\" mít, ale cítíš, že ti život protéká mezi prsty.",
-      "Tvá vlastní mysl je tvůj největší kritik, ne spojenec.",
-      "Vidíš, jak reaguješ, ale neumíš to změnit.",
+      "Většinu. Jsem pánem svého času.",
+      "Půl na půl. Často bojuji s tím, co po mně chtějí ostatní.",
+      "Skoro žádnou. Dělám jen to, co se ode mě očekává.",
     ],
   },
   {
     id: "q2",
     type: "question" as const,
-    question: "Co od koučování očekáváš?",
+    question:
+      "Co tě nejvíce brzdí v tom, abys udělal zásadní změnu (kariéra, byznys, životní styl)?",
     options: [
-      "Konkrétní kroky – chci vědět, co mám dělat.",
-      "Porozumět sobě – proč reaguji tak, jak reaguji.",
-      "Obojí – nejdřív porozumět, pak jednat.",
+      "Strach z toho, co si o mně pomyslí rodina a okolí.",
+      "Nedostatek peněz nebo prostředků.",
+      "Vůbec nevím, kde začít.",
+    ],
+  },
+  {
+    id: "q3",
+    type: "question" as const,
+    question:
+      "Představ si, že za 3 měsíce žiješ život stoprocentně podle svých pravidel. Co je pro tebe největší odměna?",
+    options: [
+      "Svoboda. Dělám jen to, co mi dává smysl.",
+      "Klid. Už mě netrápí, co si myslí okolí.",
+      "Energie. Konečně se ráno těším na to, co vytvořím.",
+    ],
+    multi: true as const,
+  },
+  {
+    id: "q4",
+    type: "question" as const,
+    question: "Kolik času můžeš svým cílům věnovat?",
+    options: [
+      "Pár hodin týdně. Víc teď nevyčaruju.",
+      "Mám své povinnosti, ale zbytek volného času investuju do změny.",
+      "Jdu do toho naplno. Chci výsledky co nejrychleji.",
     ],
   },
   {
@@ -88,13 +110,34 @@ export default function CoachingFunnel() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [multiSelection, setMultiSelection] = useState<string[]>([]);
+  const benefitsRef = useRef<HTMLDivElement | null>(null);
 
   const step = STEPS[stepIndex];
   const progress = ((stepIndex + 1) / STEPS.length) * 100;
 
+  // Reset multi-selection když přejdeme na non-multi otázku
+  useEffect(() => {
+    if (step?.type === "question" && !(step as { multi?: boolean }).multi) {
+      setMultiSelection([]);
+    }
+  }, [stepIndex]);
+
   const handleAnswer = (key: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
     setStepIndex((i) => i + 1);
+    setMultiSelection([]);
+  };
+
+  const toggleMultiOption = (opt: string) => {
+    setMultiSelection((prev) =>
+      prev.includes(opt) ? prev.filter((o) => o !== opt) : [...prev, opt],
+    );
+  };
+
+  const handleMultiNext = (key: string) => {
+    if (!multiSelection.length) return;
+    handleAnswer(key, multiSelection.join(" | "));
   };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
@@ -156,8 +199,7 @@ export default function CoachingFunnel() {
         }`}
       >
         {step?.type === "welcome" && (
-          <div className="text-center pb-16">
-            {/* Sekce 1: Úvod */}
+          <div className="text-center pb-16 space-y-10">
             <div className="pt-4">
               <Image
                 src="/ziju-life-logo.png"
@@ -175,37 +217,7 @@ export default function CoachingFunnel() {
               </p>
             </div>
 
-            <FunnelSectionDivider number={1} />
-
-            {/* Sekce 2: Jak na to */}
-            <section className="text-left max-w-md mx-auto">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">
-                Jak na to
-              </h2>
-              <ol className="space-y-4 text-foreground/85">
-                <li className="flex gap-4 items-start">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-accent/20 text-accent font-bold shrink-0">1</span>
-                  <span>Odpověz na pár krátkých otázek, ať vím, s čím ti mám pomoct.</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-accent/20 text-accent font-bold shrink-0">2</span>
-                  <span>Vyplň jméno a e-mail a vyber si termín 30min sezení zdarma.</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-accent/20 text-accent font-bold shrink-0">3</span>
-                  <span>Na videohovoru probereme tvoji situaci a další kroky.</span>
-                </li>
-              </ol>
-            </section>
-
-            <FunnelSectionDivider number={2} />
-
-            {/* Sekce 3: Volba CTA */}
-            <section>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
-                Jsi připraven/a?
-              </h2>
-              <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto">
+            <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto">
                 <button
                   type="button"
                   onClick={() => setStepIndex(1)}
@@ -216,22 +228,22 @@ export default function CoachingFunnel() {
                     Chci převzít řízení
                   </span>
                 </button>
-                <Link
-                  href="/koucing"
-                  className="flex flex-col rounded-2xl overflow-hidden border-2 border-black/15 shadow-lg hover:shadow-xl transition-all text-left w-full"
+                <button
+                  type="button"
+                  onClick={() =>
+                    benefitsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
+                  className="flex flex-col rounded-2xl overflow-hidden border-2 border-black/15 shadow-lg hover:shadow-xl transition-all text-left w-full bg-white"
                 >
                   <FunnelCtaImage src="/form/btn-rozmyslim.png" />
                   <span className="w-full py-3 px-3 bg-accent/10 text-foreground font-bold text-center text-base sm:text-lg">
                     Ještě se rozmýšlím
                   </span>
-                </Link>
-              </div>
-            </section>
+                </button>
+            </div>
 
-            <FunnelSectionDivider number={3} />
-
-            {/* Sekce 4: Co z koučinku můžeš získat */}
-            <section className="text-left max-w-lg mx-auto">
+            {/* Co z koučinku můžeš získat */}
+            <section ref={benefitsRef} className="text-left max-w-lg mx-auto pt-8">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">
                 Co z koučinku můžeš získat
               </h2>
@@ -254,19 +266,6 @@ export default function CoachingFunnel() {
                 </li>
               </ul>
             </section>
-
-            <FunnelSectionDivider number={4} />
-
-            {/* Sekce 5: Hlavní CTA */}
-            <section>
-              <button
-                type="button"
-                onClick={() => setStepIndex(1)}
-                className="w-full max-w-md mx-auto block px-6 py-4 bg-accent text-white rounded-xl font-bold text-base sm:text-lg hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
-              >
-                Získej 30 minutovou konzultaci zdarma
-              </button>
-            </section>
           </div>
         )}
 
@@ -277,17 +276,46 @@ export default function CoachingFunnel() {
               {step.question}
             </h2>
             <div className="space-y-3">
-              {step.options.map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => handleAnswer(step.id, opt)}
-                  className="w-full text-left px-5 py-4 rounded-2xl border-2 border-black/10 bg-white hover:border-accent hover:bg-accent/5 transition-all font-medium text-foreground"
-                >
-                  {opt}
-                </button>
-              ))}
+              {step.options.map((opt) => {
+                const isMulti = (step as { multi?: boolean }).multi;
+                const isSelected = isMulti && multiSelection.includes(opt);
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() =>
+                      isMulti ? toggleMultiOption(opt) : handleAnswer(step.id, opt)
+                    }
+                    className={`w-full text-left px-5 py-4 rounded-2xl border-2 transition-all font-medium flex items-start gap-3 ${
+                      isSelected
+                        ? "border-accent bg-accent text-white"
+                        : "border-black/10 bg-white hover:border-accent hover:bg-accent/5 text-foreground"
+                    }`}
+                  >
+                    <Circle
+                      size={20}
+                      className={`shrink-0 mt-0.5 ${
+                        isSelected ? "text-white fill-white" : "text-accent"
+                      }`}
+                      strokeWidth={isSelected ? 0 : 2}
+                    />
+                    <span className="flex-1">{opt}</span>
+                  </button>
+                );
+              })}
             </div>
+            {(step as { multi?: boolean }).multi && (
+              <div className="pt-4">
+                <button
+                  type="button"
+                  onClick={() => handleMultiNext(step.id)}
+                  disabled={multiSelection.length === 0}
+                  className="w-full px-6 py-4 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Další
+                </button>
+              </div>
+            )}
           </div>
         )}
 
