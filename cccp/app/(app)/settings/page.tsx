@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookingSlugSettings } from "../../../components/settings/BookingSlugSettings";
 import { FirstDayOfWeekSettings } from "../../../components/settings/FirstDayOfWeekSettings";
+import { PrimaryContactSettings } from "../../../components/settings/PrimaryContactSettings";
 
 export default function SettingsPage() {
   return (
@@ -14,6 +15,7 @@ export default function SettingsPage() {
       <div className="mt-6 space-y-6">
         <BookingSlugSettings />
         <FirstDayOfWeekSettings />
+        <PrimaryContactSettings />
         <Link
           href="/settings/calendar"
           className="block rounded-xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-slate-100 hover:bg-white"

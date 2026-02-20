@@ -251,6 +251,8 @@ export async function initializeCoachCrmDatabase() {
       )
     `;
     await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS use_integrated_calendars BOOLEAN NOT NULL DEFAULT true`;
+    await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS primary_contact_type TEXT`;
+    await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS primary_contact_value TEXT`;
 
     // events (bookable event types: name, duration, min advance booking, per-user)
     await sql`

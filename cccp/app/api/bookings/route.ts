@@ -135,8 +135,24 @@ export async function POST(request: Request) {
       LIMIT 1
     ` as { id: string }[];
     if (existingSameEmail.length > 0) {
+      let errorMsg = "Jednu rezervaci u nás již máte vytvořenou. Pro změnu klikněte na link v mailu.";
+      const contactRows = await sql`
+        SELECT primary_contact_type, primary_contact_value
+        FROM user_settings WHERE user_id = ${resolvedCoach} LIMIT 1
+      ` as { primary_contact_type: string | null; primary_contact_value: string | null }[];
+      const ct = contactRows[0]?.primary_contact_type;
+      const cv = contactRows[0]?.primary_contact_value?.trim();
+      if (ct && cv) {
+        if (ct === "email") {
+          errorMsg = `Jednu rezervaci u nás již máte vytvořenou. Pro změnu klikněte na link v mailu nebo napište na ${cv}.`;
+        } else if (ct === "phone") {
+          errorMsg = `Jednu rezervaci u nás již máte vytvořenou. Pro změnu klikněte na link v mailu nebo zavolejte na ${cv}.`;
+        } else {
+          errorMsg = `Jednu rezervaci u nás již máte vytvořenou. Pro změnu klikněte na link v mailu nebo nás kontaktujte: ${cv}.`;
+        }
+      }
       return NextResponse.json(
-        { error: "S tímto e-mailem již máte u této nabídky rezervaci. Pro další termín použijte jiný e-mail nebo nás kontaktujte." },
+        { error: errorMsg },
         { status: 409 }
       );
     }
