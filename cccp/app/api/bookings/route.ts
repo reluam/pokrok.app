@@ -123,7 +123,8 @@ export async function POST(request: Request) {
   }
 
   const id = crypto.randomUUID();
-  const leadSource = source || "booking";
+  const leadSourceVal = String(source || "booking");
+  const leadNameVal = name.length > 0 ? name : null;
 
   let leadId: string | null = null;
   try {
@@ -140,7 +141,7 @@ export async function POST(request: Request) {
       try {
         await sql`
           INSERT INTO leads (id, email, name, source, status, created_at, updated_at)
-          VALUES (${leadId}, ${email}, ${name || null}, ${leadSource}, 'uvodni_call', NOW(), NOW())
+          VALUES (${leadId}, ${email}, ${leadNameVal}, ${leadSourceVal}, 'uvodni_call', NOW(), NOW())
         `;
       } catch (leadErr: unknown) {
         const msg = leadErr instanceof Error ? leadErr.message : String(leadErr);
@@ -168,10 +169,15 @@ export async function POST(request: Request) {
     console.warn("[Booking] Lead create/update failed, continuing without lead:", leadErr);
   }
 
+  const scheduledAtIso = date.toISOString();
+  const sourceParam = source.length > 0 ? source : null;
+  const eventIdParam = bookingEventId;
+  const durationMinsNum = Number(durationMins);
+
   try {
     await sql`
       INSERT INTO bookings (id, user_id, scheduled_at, duration_minutes, email, name, phone, note, lead_id, status, source, event_id, created_at)
-      VALUES (${id}, ${resolvedCoach}, ${date.toISOString()}, ${durationMins}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${source || null}, ${bookingEventId}, NOW())
+      VALUES (${id}, ${resolvedCoach}, ${scheduledAtIso}, ${durationMinsNum}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${sourceParam}, ${eventIdParam}, NOW())
     `;
 
     // Send confirmation email to client (async, don't block response)
