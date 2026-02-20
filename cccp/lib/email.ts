@@ -5,7 +5,7 @@ import {
   renderCoachNotificationEmail,
 } from "./email-templates";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM_EMAIL_BASE = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
 function formatFromEmail(name: string): string {
