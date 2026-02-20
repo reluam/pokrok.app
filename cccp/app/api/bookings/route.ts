@@ -138,12 +138,13 @@ export async function POST(request: Request) {
     });
 
     // Send notification email to coach (async, don't block response)
-    clerkClient.users
-      .getUser(resolvedCoach)
-      .then((user) => {
+    (async () => {
+      try {
+        const client = await clerkClient();
+        const user = await client.users.getUser(resolvedCoach);
         const coachEmail = user.emailAddresses[0]?.emailAddress;
         if (coachEmail) {
-          return sendCoachNotification({
+          const result = await sendCoachNotification({
             coachEmail,
             clientName: name,
             clientEmail: email,
@@ -152,17 +153,16 @@ export async function POST(request: Request) {
             eventName,
             note: note || undefined,
           });
+          if (!result.success) {
+            console.error("Failed to send coach notification:", result.error);
+          }
+        } else {
+          console.error("Coach email not found for user:", resolvedCoach);
         }
-        return { success: false, error: "Coach email not found" };
-      })
-      .then((result) => {
-        if (!result.success) {
-          console.error("Failed to send coach notification:", result.error);
-        }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Failed to get coach user or send notification:", err);
-      });
+      }
+    })();
 
     return NextResponse.json({
       ok: true,
