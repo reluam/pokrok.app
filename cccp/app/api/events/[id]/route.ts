@@ -99,6 +99,12 @@ export async function DELETE(
   }
 
   const { id } = await params;
+
+  // Odpojit rezervace od eventu (lead a klient zůstanou nedotčeni)
+  await sql`
+    UPDATE bookings SET event_id = NULL WHERE event_id = ${id} AND user_id = ${userId}
+  `;
+
   await sql`DELETE FROM events WHERE id = ${id} AND user_id = ${userId}`;
   return NextResponse.json({ ok: true });
 }
