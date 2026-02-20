@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { sql } from "../../../lib/db";
 import { getAvailableSlots, getAvailableSlotsForEvent, isSlotFree } from "../../../lib/bookings";
+import { sendBookingConfirmation, sendCoachNotification } from "../../../lib/email";
+import { clerkClient } from "@clerk/nextjs/server";
 
 const DEFAULT_DURATION_MINUTES = 30;
 
@@ -37,16 +39,18 @@ export async function POST(request: Request) {
   let resolvedCoach = coachUserId;
   let durationMinutes = DEFAULT_DURATION_MINUTES;
   let bookingEventId: string | null = null;
+  let eventName: string | undefined = undefined;
 
   if (eventId) {
     const eventRows = await sql`
-      SELECT id, user_id, duration_minutes FROM events WHERE id = ${eventId} LIMIT 1
-    ` as { id: string; user_id: string; duration_minutes: number }[];
+      SELECT id, user_id, duration_minutes, name FROM events WHERE id = ${eventId} LIMIT 1
+    ` as { id: string; user_id: string; duration_minutes: number; name: string }[];
     if (eventRows.length === 0) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
     resolvedCoach = eventRows[0].user_id;
     durationMinutes = eventRows[0].duration_minutes;
+    eventName = eventRows[0].name;
     bookingEventId = eventId;
   }
 
@@ -120,6 +124,45 @@ export async function POST(request: Request) {
       INSERT INTO bookings (id, user_id, scheduled_at, duration_minutes, email, name, phone, note, lead_id, status, source, event_id, created_at)
       VALUES (${id}, ${resolvedCoach}, ${date.toISOString()}, ${durationMinutes}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${source || null}, ${bookingEventId}, NOW())
     `;
+
+    // Send confirmation email to client (async, don't block response)
+    sendBookingConfirmation({
+      to: email,
+      name,
+      scheduledAt: scheduledAt,
+      durationMinutes,
+      eventName,
+      note: note || undefined,
+    }).catch((err) => {
+      console.error("Failed to send booking confirmation email:", err);
+    });
+
+    // Send notification email to coach (async, don't block response)
+    clerkClient.users
+      .getUser(resolvedCoach)
+      .then((user) => {
+        const coachEmail = user.emailAddresses[0]?.emailAddress;
+        if (coachEmail) {
+          return sendCoachNotification({
+            coachEmail,
+            clientName: name,
+            clientEmail: email,
+            scheduledAt: scheduledAt,
+            durationMinutes,
+            eventName,
+            note: note || undefined,
+          });
+        }
+        return { success: false, error: "Coach email not found" };
+      })
+      .then((result) => {
+        if (!result.success) {
+          console.error("Failed to send coach notification:", result.error);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to get coach user or send notification:", err);
+      });
 
     return NextResponse.json({
       ok: true,
