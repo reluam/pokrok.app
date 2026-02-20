@@ -10,8 +10,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim() || "";
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "").trim();
   const missing: string[] = [];
   if (!clientId) missing.push("GOOGLE_CLIENT_ID");
   if (!baseUrl) missing.push("NEXT_PUBLIC_APP_URL");
@@ -20,7 +20,11 @@ export async function GET() {
       {
         error: "Google Calendar is not configured",
         missing_env: missing,
-        hint: "Add these to .env.local and restart the dev server. See .env.example for values.",
+        check: {
+          GOOGLE_CLIENT_ID: clientId ? "set" : "missing",
+          NEXT_PUBLIC_APP_URL: baseUrl ? "set" : "missing",
+        },
+        hint: "Use .env.local in the cccp folder (same folder as package.json). Restart dev server after changes (npm run dev from cccp/).",
       },
       { status: 500 }
     );
@@ -30,7 +34,7 @@ export async function GET() {
   const state = Buffer.from(userId, "utf-8").toString("base64url");
 
   const params = new URLSearchParams({
-    client_id: clientId,
+    client_id: String(clientId),
     redirect_uri: redirectUri,
     response_type: "code",
     scope: CALENDAR_SCOPE,
