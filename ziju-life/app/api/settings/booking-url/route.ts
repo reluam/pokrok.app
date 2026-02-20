@@ -7,9 +7,9 @@ const DEFAULT_BOOKING_URL =
 /** Veřejné API – vrací URL iframe pro rezervaci (z admin_settings nebo env / default). Bez auth. */
 export async function GET() {
   try {
-    const result = await sql<{ booking_embed_url: string | null }[]>`
+    const result = (await sql`
       SELECT booking_embed_url FROM admin_settings LIMIT 1
-    `;
+    `) as { booking_embed_url: string | null }[];
     const url =
       result[0]?.booking_embed_url?.trim() ||
       process.env.NEXT_PUBLIC_BOOKING_EMBED_URL?.trim() ||
