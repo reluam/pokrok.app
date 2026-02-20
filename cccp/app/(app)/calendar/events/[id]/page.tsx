@@ -134,29 +134,33 @@ export default function EventDetailPage() {
 
   return (
     <div className="py-2">
-      <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-        {event.name}
-      </h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Uprav název, slug a délku. Nastav dostupnost a zkopíruj odkaz nebo iframe.
-      </p>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+        {/* Levý sloupec: název, nastavení eventu, odkaz/iframe */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+              {event.name}
+            </h1>
+            <p className="mt-1 text-sm text-slate-600">
+              Uprav název, slug a délku. Nastav dostupnost a zkopíruj odkaz nebo iframe.
+            </p>
+            <div className="mt-4">
+              <Link
+                href="/calendar/events"
+                className="text-sm font-medium text-slate-600 hover:text-slate-900"
+              >
+                ← Zpět na eventy
+              </Link>
+            </div>
+          </div>
 
-      <div className="mt-4">
-        <Link
-          href="/calendar/events"
-          className="text-sm font-medium text-slate-600 hover:text-slate-900"
-        >
-          ← Zpět na eventy
-        </Link>
-      </div>
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+              {error}
+            </p>
+          )}
 
-      {error && (
-        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
-      )}
-
-      <form onSubmit={saveEvent} className="mt-6 max-w-md space-y-4 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-100">
+          <form onSubmit={saveEvent} className="max-w-md space-y-4 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-100">
         <div>
           <label htmlFor="ev-name" className="block text-sm font-medium text-slate-700">
             Název *
@@ -276,11 +280,7 @@ export default function EventDetailPage() {
         </button>
       </form>
 
-      <div className="mt-8">
-        <EventAvailabilitySettings eventId={id} />
-      </div>
-
-      <section className="mt-8 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-100">
+          <section className="rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-100">
         <h2 className="text-sm font-semibold text-slate-900">Odkaz a iframe</h2>
         <p className="mt-1 text-xs text-slate-600">
           Nastav si v Nastavení → Obecné svůj „booking slug“ (např. jmeno). Odkaz pak bude obsahovat tvůj slug i slug eventu.
@@ -336,7 +336,14 @@ export default function EventDetailPage() {
             </div>
           </div>
         )}
-      </section>
+          </section>
+        </div>
+
+        {/* Pravý sloupec: dostupnost pro event */}
+        <div className="lg:min-w-0">
+          <EventAvailabilitySettings eventId={id} />
+        </div>
+      </div>
     </div>
   );
 }

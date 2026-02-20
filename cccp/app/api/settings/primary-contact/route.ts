@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { sql } from "../../../lib/db";
+import { sql } from "../../../../lib/db";
 
 const PRIMARY_CONTACT_TYPES = ["email", "phone", "other"] as const;
 export type PrimaryContactType = (typeof PRIMARY_CONTACT_TYPES)[number];
