@@ -234,6 +234,18 @@ export function BookingFlow(props?: BookingFlowProps) {
     setSlots([]);
   };
 
+  const goToPrevWeeks = () => {
+    setOffset((o) => Math.max(0, o - 1));
+    setSelectedDate(null);
+    setSlots([]);
+  };
+
+  const goToToday = () => {
+    setOffset(0);
+    setSelectedDate(null);
+    setSlots([]);
+  };
+
   const backToSlot = () => {
     setStep("pick");
     setSelectedSlot(null);
@@ -292,19 +304,42 @@ export function BookingFlow(props?: BookingFlowProps) {
         <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-start">
           {/* Kalendář: 7 sloupců (týden), 4 řádky (4 týdny), širší buňky */}
           <div className="shrink-0">
-            <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Datum
               </p>
-              <button
-                type="button"
-                onClick={goToNextWeeks}
-                className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
-                title="Další 4 týdny"
-              >
-                Další
-                <span aria-hidden>→</span>
-              </button>
+              <div className="flex items-center gap-1">
+                {offset > 0 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={goToPrevWeeks}
+                      className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                      title="Předchozí 4 týdny"
+                    >
+                      <span aria-hidden>←</span>
+                      Zpět
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToToday}
+                      className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                      title="Aktuální 4 týdny"
+                    >
+                      Dnes
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  onClick={goToNextWeeks}
+                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                  title="Další 4 týdny"
+                >
+                  Další
+                  <span aria-hidden>→</span>
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-7 gap-2" style={{ gridTemplateColumns: "repeat(7, minmax(2.75rem, 1fr))" }}>
               {dates.map((d) => {
