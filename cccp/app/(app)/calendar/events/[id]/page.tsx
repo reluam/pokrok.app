@@ -16,13 +16,16 @@ type EventData = {
   updated_at: string;
 };
 
-const MIN_ADVANCE_OPTIONS = [
-  { value: 0, label: "Okamžitě" },
-  { value: 720, label: "12 hodin dopředu" },
-  { value: 1440, label: "24 hodin (1 den) dopředu" },
-  { value: 4320, label: "3 dny dopředu" },
-  { value: 10080, label: "7 dní dopředu" },
-] as const;
+function minutesToAdvanceDisplay(minutes: number): { value: number; unit: "hours" | "days" } {
+  if (minutes <= 0) return { value: 24, unit: "hours" };
+  if (minutes >= 1440 && minutes % 1440 === 0) return { value: minutes / 1440, unit: "days" };
+  return { value: Math.round(minutes / 60), unit: "hours" };
+}
+
+function advanceToMinutes(value: number, unit: "hours" | "days"): number {
+  if (unit === "hours") return Math.min(43200, Math.max(0, value * 60));
+  return Math.min(43200, Math.max(0, value * 24 * 60));
+}
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -36,7 +39,9 @@ export default function EventDetailPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(30);
-  const [minAdvanceMinutes, setMinAdvanceMinutes] = useState(0);
+  const [minAdvanceImmediate, setMinAdvanceImmediate] = useState(true);
+  const [minAdvanceValue, setMinAdvanceValue] = useState(24);
+  const [minAdvanceUnit, setMinAdvanceUnit] = useState<"hours" | "days">("hours");
   const [copied, setCopied] = useState<"link" | "iframe" | null>(null);
 
   const fetchEvent = useCallback(async () => {
@@ -52,7 +57,11 @@ export default function EventDetailPage() {
       setName(data.name);
       setSlug(data.slug);
       setDurationMinutes(data.duration_minutes ?? 30);
-      setMinAdvanceMinutes(data.min_advance_minutes ?? 0);
+      const adv = data.min_advance_minutes ?? 0;
+      setMinAdvanceImmediate(adv === 0);
+      const { value, unit } = minutesToAdvanceDisplay(adv);
+      setMinAdvanceValue(value);
+      setMinAdvanceUnit(unit);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -83,7 +92,7 @@ export default function EventDetailPage() {
           name: name.trim(),
           slug: slug.trim().toLowerCase(),
           duration_minutes: Math.min(120, Math.max(15, durationMinutes)),
-          min_advance_minutes: minAdvanceMinutes,
+          min_advance_minutes: minAdvanceImmediate ? 0 : advanceToMinutes(minAdvanceValue, minAdvanceUnit),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -184,23 +193,58 @@ export default function EventDetailPage() {
           />
         </div>
         <div>
-          <label htmlFor="ev-min-advance" className="block text-sm font-medium text-slate-700">
+          <label className="block text-sm font-medium text-slate-700">
             Nejdříve bookovatelný
           </label>
-          <select
-            id="ev-min-advance"
-            value={minAdvanceMinutes}
-            onChange={(e) => setMinAdvanceMinutes(Number(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
-          >
-            {MIN_ADVANCE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Klient uvidí pouze termíny od tohoto času dopředu (např. 12 h = nelze bookovat na příštích 12 h).
+          <div className="mt-1 flex flex-wrap items-center gap-4">
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="radio"
+                name="min-advance-mode"
+                checked={minAdvanceImmediate}
+                onChange={() => setMinAdvanceImmediate(true)}
+                className="rounded-full border-slate-300 text-slate-800 focus:ring-slate-500"
+              />
+              <span className="text-sm text-slate-800">Okamžitě</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="radio"
+                name="min-advance-mode"
+                checked={!minAdvanceImmediate}
+                onChange={() => setMinAdvanceImmediate(false)}
+                className="rounded-full border-slate-300 text-slate-800 focus:ring-slate-500"
+              />
+              <span className="text-sm text-slate-800">Nastavit dopředu</span>
+            </label>
+          </div>
+          {!minAdvanceImmediate && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <input
+                id="ev-min-advance-value"
+                type="number"
+                min={1}
+                max={minAdvanceUnit === "hours" ? 720 : 30}
+                value={minAdvanceValue}
+                onChange={(e) => setMinAdvanceValue(Math.max(1, Number(e.target.value) || 1))}
+                className="w-20 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
+              />
+              <select
+                id="ev-min-advance-unit"
+                value={minAdvanceUnit}
+                onChange={(e) => setMinAdvanceUnit(e.target.value as "hours" | "days")}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
+              >
+                <option value="hours">hodin</option>
+                <option value="days">dní</option>
+              </select>
+              <span className="text-sm text-slate-500">dopředu</span>
+            </div>
+          )}
+          <p className="mt-1.5 text-xs text-slate-500">
+            {minAdvanceImmediate
+              ? "Klient může rezervovat jakýkoli volný termín včetně nejbližších minut."
+              : "Klient uvidí pouze termíny alespoň tolik hodin/dní v budoucnosti."}
           </p>
         </div>
         <button

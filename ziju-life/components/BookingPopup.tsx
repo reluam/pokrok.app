@@ -65,6 +65,7 @@ function BookingModal({
   const iframeSrc = (() => {
     try {
       const u = new URL(bookingUrl);
+      u.searchParams.set("embed", "1");
       if (prefill.email?.trim()) u.searchParams.set("email", prefill.email.trim());
       if (prefill.name?.trim()) u.searchParams.set("name", prefill.name.trim());
       return u.toString();
@@ -82,7 +83,7 @@ function BookingModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="relative w-full max-w-4xl h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="relative w-full max-w-5xl h-[88vh] min-h-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between shrink-0 px-4 py-3 border-b border-black/10">

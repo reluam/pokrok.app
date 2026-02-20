@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { BookingFlow } from "../../../../components/booking/BookingFlow";
 
@@ -16,11 +16,14 @@ type EventBySlug = {
 
 export default function BookBySlugPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const userSlug = params.userSlug as string;
   const eventSlug = params.eventSlug as string;
+  const isEmbed = searchParams.get("embed") === "1";
   const [event, setEvent] = useState<EventBySlug | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const containerClass = isEmbed ? "mx-auto w-full max-w-4xl px-4 py-4" : "mx-auto max-w-lg px-4 py-8";
 
   const fetchEvent = useCallback(async () => {
     if (!userSlug || !eventSlug) return;
@@ -48,8 +51,8 @@ export default function BookBySlugPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 py-8 px-4">
-        <div className="mx-auto max-w-lg">
+      <main className={`min-h-screen bg-slate-50 ${isEmbed ? "py-4" : "py-8"}`}>
+        <div className={containerClass}>
           <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
             <div className="h-8 w-48 animate-pulse rounded bg-slate-200" />
             <div className="mt-4 h-4 w-full animate-pulse rounded bg-slate-100" />
@@ -61,8 +64,8 @@ export default function BookBySlugPage() {
 
   if (error || !event) {
     return (
-      <main className="min-h-screen bg-slate-50 py-8 px-4">
-        <div className="mx-auto max-w-lg">
+      <main className={`min-h-screen bg-slate-50 ${isEmbed ? "py-4" : "py-8"}`}>
+        <div className={containerClass}>
           <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
             <h2 className="text-xl font-semibold text-slate-900">Rezervace není k dispozici</h2>
             <p className="mt-2 text-slate-600">{error ?? "Event nebyl nalezen."}</p>
@@ -73,8 +76,8 @@ export default function BookBySlugPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 py-8 px-4">
-      <div className="mx-auto max-w-lg">
+    <main className={`min-h-screen bg-slate-50 ${isEmbed ? "py-4" : "py-8"}`}>
+      <div className={containerClass}>
         <BookingFlow
           coach={event.user_id}
           eventId={event.id}
