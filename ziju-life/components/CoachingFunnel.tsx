@@ -528,13 +528,21 @@ export default function CoachingFunnel() {
           <div className="space-y-6">
             <FunnelSectionDivider number={STEPS.length} />
             {showPostBookingMessage ? (
-              <div className="text-center space-y-4">
+              <div className="text-center space-y-5 max-w-lg mx-auto">
                 <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-                  Děkujeme
+                  Díky za rezervaci!
                 </h2>
-                <p className="text-foreground/80">
-                  Vyberte si termín v kalendáři. Po dokončení rezervace vás zveme na inspiraci – články, videa, tipy.
-                </p>
+                <div className="text-foreground/85 text-left space-y-4 text-sm sm:text-base leading-relaxed">
+                  <p>
+                    Těším se na náš hovor. Probereme tvou aktuální situaci a jak ti mohu případně pomoct s koučovacím programem.
+                  </p>
+                  <p>
+                    Budu se těšit, až se uvidíme – a v mezičase můžeš kouknout na mé články a tipy na knihy, videa nebo hudbu, co zrovna poslouchám. Klikni na odkaz níže.
+                  </p>
+                  <p>
+                    Měj krásný den,<br />Matěj
+                  </p>
+                </div>
                 <Link
                   href="/inspirace"
                   className="inline-block px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors"
