@@ -344,7 +344,7 @@ export default function InspiracePage() {
             Inspiruj se články, knihami, videi a dalšími zdroji.
           </p>
         </div>
-
+        
         {/* Filtry: Vše | Články Knihy Videa Hudba Ostatní */}
         <div className="flex flex-wrap items-center justify-center gap-2">
           <button

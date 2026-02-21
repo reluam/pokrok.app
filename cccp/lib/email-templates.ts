@@ -1,6 +1,14 @@
 /**
  * Email templates for booking confirmations and reminders
+ * Styling inspired by Žiju life newsletter – čistá karta, jemný stín, výrazný levý pruh
  */
+
+const ACCENT_COLOR = "#FF8C42";
+const TEXT_DARK = "#171717";
+const TEXT_MUTED = "#666666";
+const BORDER_COLOR = "#e5e5e5";
+const BOX_BG = "#f5f5f5";
+const FOOTER_COLOR = "#999999";
 
 function formatDateTime(dateStr: string): string {
   const date = new Date(dateStr);
@@ -35,6 +43,47 @@ function formatTime(dateStr: string): string {
   });
 }
 
+function emailWrapper(title: string, content: string): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #ffffff;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="padding: 40px 40px 30px; text-align: center; background-color: #ffffff; border-bottom: 1px solid ${BORDER_COLOR};">
+              <h1 style="color: ${TEXT_DARK}; font-size: 26px; font-weight: bold; margin: 0; line-height: 1.3;">
+                ${title}
+              </h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px 40px 40px;">
+              ${content}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 24px 40px; background-color: #ffffff; border-top: 1px solid ${BORDER_COLOR};">
+              <p style="color: ${FOOTER_COLOR}; font-size: 12px; line-height: 1.5; margin: 0; text-align: center;">
+                Tento e-mail byl odeslán automaticky v rámci rezervačního systému.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+}
+
 export function renderBookingConfirmationEmail(params: {
   name: string;
   scheduledAt: string;
@@ -46,39 +95,41 @@ export function renderBookingConfirmationEmail(params: {
   const dateTime = formatDateTime(scheduledAt);
   const eventTitle = eventName || "Konzultace";
 
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <h1 style="margin: 0; font-size: 24px;">Rezervace potvrzena</h1>
-        </div>
-        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-          <p style="font-size: 16px; margin-top: 0;">Dobrý den ${name},</p>
-          <p style="font-size: 16px;">Vaše rezervace na <strong>${eventTitle}</strong> byla úspěšně potvrzena.</p>
-          
-          <div style="background: white; border-left: 4px solid #1e293b; padding: 20px; margin: 20px 0; border-radius: 4px;">
-            <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 16px;">Detaily rezervace:</p>
-            <p style="margin: 5px 0;"><strong>Datum a čas:</strong> ${dateTime}</p>
-            <p style="margin: 5px 0;"><strong>Délka:</strong> ${durationMinutes} minut</p>
-            ${eventName ? `<p style="margin: 5px 0;"><strong>Typ:</strong> ${eventName}</p>` : ""}
-            ${note ? `<p style="margin: 10px 0 0 0; padding-top: 10px; border-top: 1px solid #e5e7eb;"><strong>Poznámka:</strong><br>${note.replace(/\n/g, "<br>")}</p>` : ""}
-          </div>
+  const content = `
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+      Ahoj ${name},
+    </p>
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+      Rezervace na <strong>${eventTitle}</strong> je potvrzená. Tady máš přehled:
+    </p>
 
-          <p style="font-size: 16px;">Těšíme se na setkání s vámi.</p>
-          <p style="font-size: 16px;">Pokud potřebujete rezervaci změnit nebo zrušit, kontaktujte nás prosím co nejdříve.</p>
-          
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
-            <p style="margin: 0;">S pozdravem,<br>Tým rezervací</p>
-          </div>
-        </div>
-      </body>
-    </html>
+    <div style="height: 1px; background-color: ${BORDER_COLOR}; margin: 28px 0;"></div>
+
+    <div style="margin-bottom: 24px; padding: 24px; background-color: ${BOX_BG}; border-radius: 8px; border-left: 4px solid ${ACCENT_COLOR};">
+      <p style="color: ${TEXT_DARK}; font-size: 18px; font-weight: bold; margin: 0 0 16px;">
+        📅 Detaily rezervace
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">Datum a čas:</strong> ${dateTime}
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">Délka:</strong> ${durationMinutes} minut
+      </p>
+      ${eventName ? `<p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;"><strong style="color: ${TEXT_DARK};">Typ:</strong> ${eventName}</p>` : ""}
+      ${note ? `<p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 16px 0 0; padding-top: 16px; border-top: 1px solid ${BORDER_COLOR};"><strong style="color: ${TEXT_DARK};">Tvá poznámka:</strong><br>${note.replace(/\n/g, "<br>")}</p>` : ""}
+    </div>
+
+    <div style="height: 1px; background-color: ${BORDER_COLOR}; margin: 28px 0;"></div>
+
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 12px;">
+      Těšíme se na setkání. Pokud budeš potřebovat termín změnit nebo zrušit, napiš nám co nejdřív.
+    </p>
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0;">
+      S pozdravem,<br><strong>Rezervační tým</strong>
+    </p>
   `;
+
+  return emailWrapper("Rezervace potvrzena", content);
 }
 
 export function renderBookingReminderEmail(params: {
@@ -92,39 +143,43 @@ export function renderBookingReminderEmail(params: {
   const time = formatTime(scheduledAt);
   const eventTitle = eventName || "Konzultace";
 
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <h1 style="margin: 0; font-size: 24px;">Připomínka rezervace</h1>
-        </div>
-        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-          <p style="font-size: 16px; margin-top: 0;">Dobrý den ${name},</p>
-          <p style="font-size: 16px;">Rádi bychom vám připomněli, že máte zítra rezervaci na <strong>${eventTitle}</strong>.</p>
-          
-          <div style="background: white; border-left: 4px solid #1e293b; padding: 20px; margin: 20px 0; border-radius: 4px;">
-            <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 16px;">Detaily rezervace:</p>
-            <p style="margin: 5px 0;"><strong>Datum:</strong> ${date}</p>
-            <p style="margin: 5px 0;"><strong>Čas:</strong> ${time}</p>
-            <p style="margin: 5px 0;"><strong>Délka:</strong> ${durationMinutes} minut</p>
-            ${eventName ? `<p style="margin: 5px 0;"><strong>Typ:</strong> ${eventName}</p>` : ""}
-          </div>
+  const content = `
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+      Ahoj ${name},
+    </p>
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+      Připomínáme ti zítřejší rezervaci na <strong>${eventTitle}</strong>.
+    </p>
 
-          <p style="font-size: 16px;">Těšíme se na setkání s vámi zítra.</p>
-          <p style="font-size: 16px;">Pokud potřebujete rezervaci změnit nebo zrušit, kontaktujte nás prosím co nejdříve.</p>
-          
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
-            <p style="margin: 0;">S pozdravem,<br>Tým rezervací</p>
-          </div>
-        </div>
-      </body>
-    </html>
+    <div style="height: 1px; background-color: ${BORDER_COLOR}; margin: 28px 0;"></div>
+
+    <div style="margin-bottom: 24px; padding: 24px; background-color: ${BOX_BG}; border-radius: 8px; border-left: 4px solid ${ACCENT_COLOR};">
+      <p style="color: ${TEXT_DARK}; font-size: 18px; font-weight: bold; margin: 0 0 16px;">
+        📅 Detaily rezervace
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">Datum:</strong> ${date}
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">Čas:</strong> ${time}
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">Délka:</strong> ${durationMinutes} minut
+      </p>
+      ${eventName ? `<p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0;"><strong style="color: ${TEXT_DARK};">Typ:</strong> ${eventName}</p>` : ""}
+    </div>
+
+    <div style="height: 1px; background-color: ${BORDER_COLOR}; margin: 28px 0;"></div>
+
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 12px;">
+      Těšíme se na setkání zítra. Při změně plánů nás prosím co nejdříve kontaktuj.
+    </p>
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0;">
+      S pozdravem,<br><strong>Rezervační tým</strong>
+    </p>
   `;
+
+  return emailWrapper("Připomínka rezervace", content);
 }
 
 export function renderCoachNotificationEmail(params: {
@@ -139,38 +194,42 @@ export function renderCoachNotificationEmail(params: {
   const dateTime = formatDateTime(scheduledAt);
   const eventTitle = eventName || "Konzultace";
 
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <h1 style="margin: 0; font-size: 24px;">Nová rezervace</h1>
-        </div>
-        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-          <p style="font-size: 16px; margin-top: 0;">Dobrý den,</p>
-          <p style="font-size: 16px;">Máte novou rezervaci na <strong>${eventTitle}</strong>.</p>
-          
-          <div style="background: white; border-left: 4px solid #1e293b; padding: 20px; margin: 20px 0; border-radius: 4px;">
-            <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 16px;">Detaily rezervace:</p>
-            <p style="margin: 5px 0;"><strong>Klient:</strong> ${clientName}</p>
-            <p style="margin: 5px 0;"><strong>Email klienta:</strong> ${clientEmail}</p>
-            <p style="margin: 5px 0;"><strong>Datum a čas:</strong> ${dateTime}</p>
-            <p style="margin: 5px 0;"><strong>Délka:</strong> ${durationMinutes} minut</p>
-            ${eventName ? `<p style="margin: 5px 0;"><strong>Typ:</strong> ${eventName}</p>` : ""}
-            ${note ? `<p style="margin: 10px 0 0 0; padding-top: 10px; border-top: 1px solid #e5e7eb;"><strong>Poznámka od klienta:</strong><br>${note.replace(/\n/g, "<br>")}</p>` : ""}
-          </div>
+  const content = `
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+      Ahoj,
+    </p>
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+      Máš novou rezervaci na <strong>${eventTitle}</strong>. Shrnutí:
+    </p>
 
-          <p style="font-size: 16px;">Rezervace je zobrazena ve vašem kalendáři.</p>
-          
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
-            <p style="margin: 0;">S pozdravem,<br>Systém rezervací</p>
-          </div>
-        </div>
-      </body>
-    </html>
+    <div style="height: 1px; background-color: ${BORDER_COLOR}; margin: 28px 0;"></div>
+
+    <div style="margin-bottom: 24px; padding: 24px; background-color: ${BOX_BG}; border-radius: 8px; border-left: 4px solid ${ACCENT_COLOR};">
+      <p style="color: ${TEXT_DARK}; font-size: 18px; font-weight: bold; margin: 0 0 16px;">
+        📅 Nová rezervace
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">Klient:</strong> ${clientName}
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">E-mail:</strong> <a href="mailto:${clientEmail}" style="color: ${ACCENT_COLOR}; text-decoration: underline;">${clientEmail}</a>
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">Datum a čas:</strong> ${dateTime}
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        <strong style="color: ${TEXT_DARK};">Délka:</strong> ${durationMinutes} minut
+      </p>
+      ${eventName ? `<p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;"><strong style="color: ${TEXT_DARK};">Typ:</strong> ${eventName}</p>` : ""}
+      ${note ? `<p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 16px 0 0; padding-top: 16px; border-top: 1px solid ${BORDER_COLOR};"><strong style="color: ${TEXT_DARK};">Poznámka od klienta:</strong><br>${note.replace(/\n/g, "<br>")}</p>` : ""}
+    </div>
+
+    <div style="height: 1px; background-color: ${BORDER_COLOR}; margin: 28px 0;"></div>
+
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0;">
+      Rezervace je zobrazená ve tvém kalendáři. Odpověď na tento e-mail pošleš přímo klientovi.
+    </p>
   `;
+
+  return emailWrapper("Nová rezervace", content);
 }
