@@ -43,7 +43,15 @@ function formatTime(dateStr: string): string {
   });
 }
 
-function emailWrapper(title: string, content: string): string {
+function emailWrapper(title: string, content: string, logoUrl?: string): string {
+  const logoRow = logoUrl
+    ? `
+          <tr>
+            <td style="padding: 32px 40px 0; text-align: center; background-color: #ffffff;">
+              <img src="${logoUrl.replace(/"/g, "&quot;")}" alt="" width="200" height="80" style="max-width: 200px; max-height: 80px; width: auto; height: auto; display: block; margin: 0 auto; border: 0; outline: none; text-decoration: none;" />
+            </td>
+          </tr>`
+    : "";
   return `
 <!DOCTYPE html>
 <html>
@@ -56,8 +64,9 @@ function emailWrapper(title: string, content: string): string {
     <tr>
       <td style="padding: 40px 20px;">
         <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+          ${logoRow}
           <tr>
-            <td style="padding: 40px 40px 30px; text-align: center; background-color: #ffffff; border-bottom: 1px solid ${BORDER_COLOR};">
+            <td style="padding: ${logoUrl ? "24px" : "40px"} 40px 30px; text-align: center; background-color: #ffffff; border-bottom: 1px solid ${BORDER_COLOR};">
               <h1 style="color: ${TEXT_DARK}; font-size: 26px; font-weight: bold; margin: 0; line-height: 1.3;">
                 ${title}
               </h1>
@@ -90,17 +99,28 @@ export function renderBookingConfirmationEmail(params: {
   durationMinutes: number;
   eventName?: string;
   note?: string;
+  coachName?: string;
+  primaryContactDisplay?: string;
+  logoUrl?: string;
 }): string {
-  const { name, scheduledAt, durationMinutes, eventName, note } = params;
+  const { name, scheduledAt, durationMinutes, eventName, note, coachName, primaryContactDisplay, logoUrl } = params;
   const dateTime = formatDateTime(scheduledAt);
   const eventTitle = eventName || "Konzultace";
+  const introWithCoach = coachName
+    ? `Rezervace na <strong>${eventTitle}</strong> s ${coachName} je potvrzená. Tady máš přehled:`
+    : `Rezervace na <strong>${eventTitle}</strong> je potvrzená. Tady máš přehled:`;
+  const contactText = primaryContactDisplay
+    ? (coachName
+        ? `Pokud budeš potřebovat termín změnit nebo zrušit, kontaktuj ${coachName} na ${primaryContactDisplay}.`
+        : `Pokud budeš potřebovat termín změnit nebo zrušit, napiš nám na ${primaryContactDisplay}.`)
+    : "Pokud budeš potřebovat termín změnit nebo zrušit, napiš nám co nejdřív.";
 
   const content = `
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
       Ahoj ${name},
     </p>
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
-      Rezervace na <strong>${eventTitle}</strong> je potvrzená. Tady máš přehled:
+      ${introWithCoach}
     </p>
 
     <div style="height: 1px; background-color: ${BORDER_COLOR}; margin: 28px 0;"></div>
@@ -122,14 +142,14 @@ export function renderBookingConfirmationEmail(params: {
     <div style="height: 1px; background-color: ${BORDER_COLOR}; margin: 28px 0;"></div>
 
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 12px;">
-      Těšíme se na setkání. Pokud budeš potřebovat termín změnit nebo zrušit, napiš nám co nejdřív.
+      Těšíme se na setkání. ${contactText}
     </p>
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0;">
       S pozdravem,<br><strong>Rezervační tým</strong>
     </p>
   `;
 
-  return emailWrapper("Rezervace potvrzena", content);
+  return emailWrapper("Rezervace potvrzena", content, logoUrl);
 }
 
 export function renderBookingReminderEmail(params: {
@@ -137,8 +157,9 @@ export function renderBookingReminderEmail(params: {
   scheduledAt: string;
   durationMinutes: number;
   eventName?: string;
+  logoUrl?: string;
 }): string {
-  const { name, scheduledAt, durationMinutes, eventName } = params;
+  const { name, scheduledAt, durationMinutes, eventName, logoUrl } = params;
   const date = formatDate(scheduledAt);
   const time = formatTime(scheduledAt);
   const eventTitle = eventName || "Konzultace";
@@ -179,7 +200,7 @@ export function renderBookingReminderEmail(params: {
     </p>
   `;
 
-  return emailWrapper("Připomínka rezervace", content);
+  return emailWrapper("Připomínka rezervace", content, logoUrl);
 }
 
 export function renderCoachNotificationEmail(params: {

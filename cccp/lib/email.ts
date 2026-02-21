@@ -19,6 +19,9 @@ export async function sendBookingConfirmation(params: {
   durationMinutes: number;
   eventName?: string;
   note?: string;
+  coachName?: string;
+  primaryContactDisplay?: string;
+  logoUrl?: string;
 }): Promise<{ success: boolean; error?: string }> {
   console.log(`[Email] sendBookingConfirmation called for ${params.to}`);
   
@@ -37,6 +40,9 @@ export async function sendBookingConfirmation(params: {
       durationMinutes: params.durationMinutes,
       eventName: params.eventName,
       note: params.note,
+      coachName: params.coachName,
+      primaryContactDisplay: params.primaryContactDisplay,
+      logoUrl: params.logoUrl,
     });
 
     const fromEmail = formatFromEmail("Potvrzení schůzky");
@@ -132,6 +138,7 @@ export async function sendBookingReminder(params: {
   scheduledAt: string;
   durationMinutes: number;
   eventName?: string;
+  logoUrl?: string;
 }): Promise<{ success: boolean; error?: string }> {
   if (!resend) {
     return { success: false, error: "Resend client not initialized" };
@@ -143,6 +150,7 @@ export async function sendBookingReminder(params: {
       scheduledAt: params.scheduledAt,
       durationMinutes: params.durationMinutes,
       eventName: params.eventName,
+      logoUrl: params.logoUrl,
     });
 
     const result = await resend.emails.send({

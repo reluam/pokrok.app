@@ -12,11 +12,11 @@ export async function GET() {
   }
 
   const rows = await sql`
-    SELECT id, user_id, name, color, sort_order, created_at, updated_at
+    SELECT id, user_id, name, color, sort_order, logo_url, created_at, updated_at
     FROM projects
     WHERE user_id = ${userId}
     ORDER BY sort_order ASC, created_at ASC
-  ` as { id: string; user_id: string; name: string; color: string; sort_order: number; created_at: string; updated_at: string }[];
+  ` as { id: string; user_id: string; name: string; color: string; sort_order: number; logo_url: string | null; created_at: string; updated_at: string }[];
 
   return NextResponse.json(rows);
 }
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { name?: string; color?: string };
+  let body: { name?: string; color?: string; logo_url?: string | null };
   try {
     body = await request.json();
   } catch {
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
   if (!name) {
     return NextResponse.json({ error: "name is required" }, { status: 400 });
   }
+  const logoUrl = body.logo_url === null || body.logo_url === "" ? null : String(body.logo_url).trim().slice(0, 2000) || null;
 
   const countRows = await sql`
     SELECT COUNT(*)::int AS cnt FROM projects WHERE user_id = ${userId}
@@ -57,14 +58,14 @@ export async function POST(request: Request) {
   const sortOrder = countRows[0]?.cnt ?? 0;
 
   await sql`
-    INSERT INTO projects (id, user_id, name, color, sort_order, created_at, updated_at)
-    VALUES (${id}, ${userId}, ${name}, ${hexColor}, ${sortOrder}, NOW(), NOW())
+    INSERT INTO projects (id, user_id, name, color, sort_order, logo_url, created_at, updated_at)
+    VALUES (${id}, ${userId}, ${name}, ${hexColor}, ${sortOrder}, ${logoUrl}, NOW(), NOW())
   `;
 
   const rows = await sql`
-    SELECT id, user_id, name, color, sort_order, created_at, updated_at
+    SELECT id, user_id, name, color, sort_order, logo_url, created_at, updated_at
     FROM projects WHERE id = ${id}
-  ` as { id: string; user_id: string; name: string; color: string; sort_order: number; created_at: string; updated_at: string }[];
+  ` as { id: string; user_id: string; name: string; color: string; sort_order: number; logo_url: string | null; created_at: string; updated_at: string }[];
 
   return NextResponse.json(rows[0]);
 }

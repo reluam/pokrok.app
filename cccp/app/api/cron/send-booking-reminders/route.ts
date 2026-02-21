@@ -56,17 +56,38 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Get event names for bookings with event_id
+    // Get event names and project logos for bookings with event_id
     const eventIds = bookings
       .map((b) => b.event_id)
       .filter((id): id is string => id !== null);
     const eventMap = new Map<string, string>();
+    const eventProjectIdMap = new Map<string, string | null>();
     if (eventIds.length > 0) {
       const events = await sql`
-        SELECT id, name FROM events WHERE id = ANY(${eventIds})
-      ` as Array<{ id: string; name: string }>;
-      events.forEach((e) => eventMap.set(e.id, e.name));
+        SELECT id, name, project_id FROM events WHERE id = ANY(${eventIds})
+      ` as Array<{ id: string; name: string; project_id: string | null }>;
+      events.forEach((e) => {
+        eventMap.set(e.id, e.name);
+        eventProjectIdMap.set(e.id, e.project_id);
+      });
     }
+    const projectIds = [...new Set(eventProjectIdMap.values())].filter((id): id is string => id != null);
+    const projectLogoMap = new Map<string, string>();
+    if (projectIds.length > 0) {
+      const projects = await sql`
+        SELECT id, logo_url FROM projects WHERE id = ANY(${projectIds}) AND logo_url IS NOT NULL AND trim(logo_url) != ''
+      ` as Array<{ id: string; logo_url: string | null }>;
+      projects.forEach((p) => {
+        const url = p.logo_url?.trim();
+        if (url && url.startsWith("http")) projectLogoMap.set(p.id, url);
+      });
+    }
+    const eventLogoMap = new Map<string, string>();
+    eventProjectIdMap.forEach((projectId, eventId) => {
+      if (projectId && projectLogoMap.has(projectId)) {
+        eventLogoMap.set(eventId, projectLogoMap.get(projectId)!);
+      }
+    });
 
     let sent = 0;
     let failed = 0;
@@ -75,12 +96,14 @@ export async function GET(request: NextRequest) {
     for (const booking of bookings) {
       try {
         const eventName = booking.event_id ? eventMap.get(booking.event_id) : undefined;
+        const logoUrl = booking.event_id ? eventLogoMap.get(booking.event_id) : undefined;
         const result = await sendBookingReminder({
           to: booking.email,
           name: booking.name,
           scheduledAt: booking.scheduled_at,
           durationMinutes: booking.duration_minutes,
           eventName,
+          logoUrl,
         });
 
         if (result.success) {

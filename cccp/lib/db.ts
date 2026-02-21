@@ -260,7 +260,7 @@ export async function initializeCoachCrmDatabase() {
     await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS primary_contact_type TEXT`;
     await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS primary_contact_value TEXT`;
 
-    // projects (max 5 per user, each with name and color)
+    // projects (max 5 per user, each with name, color, optional logo)
     await sql`
       CREATE TABLE IF NOT EXISTS projects (
         id TEXT PRIMARY KEY,
@@ -272,6 +272,7 @@ export async function initializeCoachCrmDatabase() {
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS logo_url TEXT`;
     await sql`CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id)`;
 
     // events (bookable event types: name, duration, min advance booking, per-user)

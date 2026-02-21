@@ -259,6 +259,7 @@ async function initializeCoachCrmDatabase() {
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS logo_url TEXT`;
     await sql`CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id)`;
 
     // events (bookable event types)

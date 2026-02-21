@@ -46,13 +46,14 @@ export async function POST(request: Request) {
   let durationMinutes = durationMinutesFromBody ?? DEFAULT_DURATION_MINUTES;
   let bookingEventId: string | null = null;
   let eventName: string | undefined = undefined;
+  let eventProjectId: string | null = null;
 
   let oneBookingPerEmail = false;
   if (eventId) {
     const eventRows = await sql`
-      SELECT id, user_id, duration_minutes, name, COALESCE(one_booking_per_email, false) AS one_booking_per_email
+      SELECT id, user_id, duration_minutes, name, project_id, COALESCE(one_booking_per_email, false) AS one_booking_per_email
       FROM events WHERE id = ${eventId} LIMIT 1
-    ` as { id: string; user_id: string; duration_minutes: number; name: string; one_booking_per_email: boolean }[];
+    ` as { id: string; user_id: string; duration_minutes: number; name: string; project_id: string | null; one_booking_per_email: boolean }[];
     if (eventRows.length === 0) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
@@ -67,6 +68,7 @@ export async function POST(request: Request) {
       }
     }
     eventName = eventRows[0].name;
+    eventProjectId = eventRows[0].project_id ?? null;
     oneBookingPerEmail = eventRows[0].one_booking_per_email ?? false;
     bookingEventId = eventId;
   }
@@ -216,14 +218,19 @@ export async function POST(request: Request) {
       VALUES (${id}, ${resolvedCoach}, ${scheduledAtIso}, ${durationMinsNum}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${sourceParam}, ${eventIdParam}, NOW())
     `;
 
-    // Resolve coach email: Clerk first, then fallback to user_settings primary_contact (email)
+    // Resolve coach email, name and primary contact for confirmation email
     let coachEmail: string | null = null;
+    let coachName: string = "";
+    let primaryContactDisplay: string | null = null;
     try {
       const client = await clerkClient();
       const user = await client.users.getUser(resolvedCoach);
       coachEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress
         ?? user.emailAddresses[0]?.emailAddress
         ?? null;
+      const first = (user.firstName ?? "").trim();
+      const last = (user.lastName ?? "").trim();
+      coachName = [first, last].filter(Boolean).join(" ") || "";
     } catch (clerkErr) {
       console.warn("[Booking] Clerk lookup for coach email failed:", clerkErr);
     }
@@ -242,6 +249,29 @@ export async function POST(request: Request) {
       console.error("[Booking] No coach email for user:", resolvedCoach, "- nastav e-mail v Clerku nebo v Nastavení → Primární kontakt (typ E-mail).");
     }
 
+    // Primární kontakt kouče pro text v mailu (e-mail / telefon / jiné)
+    const contactRows = await sql`
+      SELECT primary_contact_type, primary_contact_value
+      FROM user_settings WHERE user_id = ${resolvedCoach} AND primary_contact_value IS NOT NULL AND trim(primary_contact_value) != '' LIMIT 1
+    ` as { primary_contact_type: string | null; primary_contact_value: string | null }[];
+    const pcType = contactRows[0]?.primary_contact_type;
+    const pcValue = contactRows[0]?.primary_contact_value?.trim();
+    if (pcType && pcValue) {
+      if (pcType === "email") primaryContactDisplay = `e-mail ${pcValue}`;
+      else if (pcType === "phone") primaryContactDisplay = `telefon ${pcValue}`;
+      else primaryContactDisplay = pcValue;
+    }
+
+    // Logo projektu pro e-mail (event → project → logo_url)
+    let projectLogoUrl: string | null = null;
+    if (eventProjectId) {
+      const projRows = await sql`
+        SELECT logo_url FROM projects WHERE id = ${eventProjectId} AND trim(logo_url) != '' LIMIT 1
+      ` as { logo_url: string | null }[];
+      const url = projRows[0]?.logo_url?.trim();
+      if (url && url.startsWith("http")) projectLogoUrl = url;
+    }
+
     // Odeslat oba maily před odpovědí, aby se chyby projevily a nefailovaly tiše
     const confResult = await sendBookingConfirmation({
       to: email,
@@ -250,6 +280,9 @@ export async function POST(request: Request) {
       durationMinutes: durationMins,
       eventName,
       note: note || undefined,
+      coachName: coachName || undefined,
+      primaryContactDisplay: primaryContactDisplay || undefined,
+      logoUrl: projectLogoUrl || undefined,
     });
     if (confResult.success) {
       console.log("[Booking] Confirmation email sent to", email);
