@@ -216,52 +216,63 @@ export async function POST(request: Request) {
       VALUES (${id}, ${resolvedCoach}, ${scheduledAtIso}, ${durationMinsNum}, ${email}, ${name}, ${phone}, ${note}, ${leadId}, 'pending', ${sourceParam}, ${eventIdParam}, NOW())
     `;
 
-    // Send confirmation email to client (async, don't block response)
-    sendBookingConfirmation({
+    // Resolve coach email: Clerk first, then fallback to user_settings primary_contact (email)
+    let coachEmail: string | null = null;
+    try {
+      const client = await clerkClient();
+      const user = await client.users.getUser(resolvedCoach);
+      coachEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress
+        ?? user.emailAddresses[0]?.emailAddress
+        ?? null;
+    } catch (clerkErr) {
+      console.warn("[Booking] Clerk lookup for coach email failed:", clerkErr);
+    }
+    if (!coachEmail) {
+      const settingsRows = await sql`
+        SELECT primary_contact_type, primary_contact_value
+        FROM user_settings WHERE user_id = ${resolvedCoach} AND primary_contact_type = 'email' AND primary_contact_value IS NOT NULL AND trim(primary_contact_value) != '' LIMIT 1
+      ` as { primary_contact_type: string; primary_contact_value: string }[];
+      const fallback = settingsRows[0]?.primary_contact_value?.trim();
+      if (fallback && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fallback)) {
+        coachEmail = fallback;
+        console.log("[Booking] Using coach email from Nastavení → Primární kontakt");
+      }
+    }
+    if (!coachEmail) {
+      console.error("[Booking] No coach email for user:", resolvedCoach, "- nastav e-mail v Clerku nebo v Nastavení → Primární kontakt (typ E-mail).");
+    }
+
+    // Odeslat oba maily před odpovědí, aby se chyby projevily a nefailovaly tiše
+    const confResult = await sendBookingConfirmation({
       to: email,
       name,
       scheduledAt: scheduledAt,
       durationMinutes: durationMins,
       eventName,
       note: note || undefined,
-    })
-      .then((result) => {
-        if (result.success) {
-          console.log(`[Booking] Confirmation email sent successfully to ${email}`);
-        } else {
-          console.error(`[Booking] Failed to send confirmation email to ${email}:`, result.error);
-        }
-      })
-      .catch((err) => {
-        console.error("[Booking] Exception sending confirmation email:", err);
-      });
+    });
+    if (confResult.success) {
+      console.log("[Booking] Confirmation email sent to", email);
+    } else {
+      console.error("[Booking] Confirmation email failed for", email, ":", confResult.error);
+    }
 
-    // Send notification email to coach (async, don't block response)
-    (async () => {
-      try {
-        const client = await clerkClient();
-        const user = await client.users.getUser(resolvedCoach);
-        const coachEmail = user.emailAddresses[0]?.emailAddress;
-        if (coachEmail) {
-          const result = await sendCoachNotification({
-            coachEmail,
-            clientName: name,
-            clientEmail: email,
-            scheduledAt: scheduledAt,
-            durationMinutes: durationMins,
-            eventName,
-            note: note || undefined,
-          });
-          if (!result.success) {
-            console.error("Failed to send coach notification:", result.error);
-          }
-        } else {
-          console.error("Coach email not found for user:", resolvedCoach);
-        }
-      } catch (err) {
-        console.error("Failed to get coach user or send notification:", err);
+    if (coachEmail) {
+      const coachResult = await sendCoachNotification({
+        coachEmail,
+        clientName: name,
+        clientEmail: email,
+        scheduledAt: scheduledAt,
+        durationMinutes: durationMins,
+        eventName,
+        note: note || undefined,
+      });
+      if (coachResult.success) {
+        console.log("[Booking] Coach notification sent to", coachEmail);
+      } else {
+        console.error("[Booking] Coach notification failed:", coachResult.error);
       }
-    })();
+    }
 
     return NextResponse.json({
       ok: true,
