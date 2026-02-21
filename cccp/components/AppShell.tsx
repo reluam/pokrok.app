@@ -4,6 +4,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { ProjectBar } from "./ProjectBar";
 
 type Props = {
   children: ReactNode;
@@ -59,7 +60,7 @@ export function AppShell({ children }: Props) {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
+      <header className="border-b border-slate-200 bg-white">
         <div className="flex items-center justify-between px-4 py-3 lg:px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
@@ -83,7 +84,7 @@ export function AppShell({ children }: Props) {
                   href={item.href}
                   className={`rounded-full px-3 py-1 font-medium transition ${
                     active
-                      ? "bg-slate-900 text-white shadow-sm"
+                      ? "bg-slate-900 text-white"
                       : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >
@@ -103,9 +104,11 @@ export function AppShell({ children }: Props) {
         </div>
       </header>
 
+      <ProjectBar />
+
       <div className="flex gap-6 px-4 py-6 lg:px-6">
         <aside className="w-56 shrink-0">
-          <div className="rounded-2xl bg-white/80 p-3 shadow-sm ring-1 ring-slate-100">
+          <div className="rounded-xl border border-slate-200 bg-white p-3">
             <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
               Navigace
             </div>

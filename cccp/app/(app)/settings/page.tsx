@@ -18,7 +18,7 @@ export default function SettingsPage() {
         <PrimaryContactSettings />
         <Link
           href="/settings/calendar"
-          className="block rounded-xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-slate-100 hover:bg-white"
+          className="block rounded-xl border border-slate-200 bg-white px-4 py-3 hover:bg-slate-50"
         >
           <span className="font-medium text-slate-900">Kalendář</span>
           <p className="mt-0.5 text-xs text-slate-500">Propojení s Google Kalendářem</p>

@@ -54,7 +54,7 @@ export default function BookBySlugPage() {
     return (
       <main className={`min-h-screen bg-slate-50 ${isEmbed ? "py-4" : "py-8"}`}>
         <div className={containerClass}>
-          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
             <div className="h-8 w-48 animate-pulse rounded bg-slate-200" />
             <div className="mt-4 h-4 w-full animate-pulse rounded bg-slate-100" />
           </div>
@@ -67,7 +67,7 @@ export default function BookBySlugPage() {
     return (
       <main className={`min-h-screen bg-slate-50 ${isEmbed ? "py-4" : "py-8"}`}>
         <div className={containerClass}>
-          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
             <h2 className="text-xl font-semibold text-slate-900">Rezervace není k dispozici</h2>
             <p className="mt-2 text-slate-600">{error ?? "Event nebyl nalezen."}</p>
           </div>

@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { sql } from "../../../../lib/db";
+import { ClientProjectSelect } from "../../../../components/ClientProjectSelect";
 
 type Client = {
   id: string;
@@ -9,6 +10,7 @@ type Client = {
   phone: string | null;
   main_goal: string | null;
   status: string;
+  project_id: string | null;
 };
 
 type SessionSummary = {
@@ -21,7 +23,7 @@ async function getClientWithSummary(id: string, userId: string) {
   try {
     const [clientRows, sessionRows] = await Promise.all([
       sql`
-        SELECT id, name, email, phone, main_goal, status
+        SELECT id, name, email, phone, main_goal, status, project_id
         FROM clients
         WHERE id = ${id} AND user_id = ${userId}
         LIMIT 1
@@ -43,7 +45,7 @@ async function getClientWithSummary(id: string, userId: string) {
     if (msg.includes("user_id") && msg.includes("does not exist")) {
       const [clientRows, sessionRows] = await Promise.all([
         sql`
-          SELECT id, name, email, phone, main_goal, status
+          SELECT id, name, email, phone, main_goal, status, project_id
           FROM clients
           WHERE id = ${id}
           LIMIT 1
@@ -90,7 +92,7 @@ export default async function ClientOverviewPage({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+        <section className="rounded-xl border border-slate-200 bg-white p-4">
           <h2 className="text-sm font-medium text-slate-900">Základní info</h2>
           <dl className="mt-3 space-y-2 text-sm text-slate-700">
             <div>
@@ -121,10 +123,18 @@ export default async function ClientOverviewPage({
               </dt>
               <dd>{client.main_goal ?? "Zatím nevyplněno"}</dd>
             </div>
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Projekt
+              </dt>
+              <dd>
+                <ClientProjectSelect clientId={client.id} projectId={client.project_id} />
+              </dd>
+            </div>
           </dl>
         </section>
 
-        <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+        <section className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-medium text-slate-900">
               Poslední schůzky

@@ -84,7 +84,7 @@ export default function CrmArchivPage() {
         </p>
       )}
 
-      <section className="mt-6 rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+      <section className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
         {loading ? (
           <p className="text-sm text-slate-500">Načítám archiv…</p>
         ) : leads.length === 0 ? (

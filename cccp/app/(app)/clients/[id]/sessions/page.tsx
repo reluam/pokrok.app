@@ -56,7 +56,7 @@ export default async function ClientSessionsPage({
       <p className="mt-1 text-sm text-slate-600">
         Historie a nadcházející schůzky s tímto klientem.
       </p>
-      <div className="mt-6 rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+      <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
         {sessions.length === 0 ? (
           <p className="text-sm text-slate-500">Zatím žádné schůzky.</p>
         ) : (

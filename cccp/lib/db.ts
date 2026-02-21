@@ -43,6 +43,10 @@ export async function initializeCoachCrmDatabase() {
     await sql`
       CREATE INDEX IF NOT EXISTS idx_leads_deleted_at ON leads(deleted_at)
     `;
+    await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS user_id TEXT`;
+    await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS project_id TEXT`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_leads_user_id ON leads(user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_leads_project_id ON leads(project_id)`;
 
     // clients
     await sql`
@@ -196,7 +200,9 @@ export async function initializeCoachCrmDatabase() {
 
     // clients (per coach)
     await sql`ALTER TABLE clients ADD COLUMN IF NOT EXISTS user_id TEXT`;
+    await sql`ALTER TABLE clients ADD COLUMN IF NOT EXISTS project_id TEXT`;
     await sql`CREATE INDEX IF NOT EXISTS idx_clients_user_id ON clients(user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_clients_project_id ON clients(project_id)`;
 
     // calendar_connections (OAuth tokens for Google Calendar)
     await sql`
@@ -254,6 +260,20 @@ export async function initializeCoachCrmDatabase() {
     await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS primary_contact_type TEXT`;
     await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS primary_contact_value TEXT`;
 
+    // projects (max 5 per user, each with name and color)
+    await sql`
+      CREATE TABLE IF NOT EXISTS projects (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        color TEXT NOT NULL,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id)`;
+
     // events (bookable event types: name, duration, min advance booking, per-user)
     await sql`
       CREATE TABLE IF NOT EXISTS events (
@@ -269,8 +289,10 @@ export async function initializeCoachCrmDatabase() {
     `;
     await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS min_advance_minutes INTEGER NOT NULL DEFAULT 0`;
     await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS one_booking_per_email BOOLEAN NOT NULL DEFAULT false`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS project_id TEXT`;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_events_user_slug ON events(user_id, slug)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_events_project_id ON events(project_id)`;
 
     // event_availability (weekly windows per event)
     await sql`

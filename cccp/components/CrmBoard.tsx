@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import type { Lead, LeadStatus } from "../lib/leads";
+import { useProjects } from "../contexts/ProjectsContext";
 
 type Column = { id: LeadStatus; title: string; description?: string };
 
@@ -13,6 +14,8 @@ type Props = {
 };
 
 export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
+  const projects = useProjects()?.projects ?? [];
+  const projectMap = Object.fromEntries(projects.map((p) => [p.id, p]));
   const hasBooking = (leadId: string) => leadIdsWithBooking.includes(leadId);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -77,7 +80,7 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
             return (
               <div
                 key={col.id}
-                className="flex min-h-[220px] flex-col rounded-2xl bg-white/80 p-3 shadow-sm ring-1 ring-slate-100"
+                className="flex min-h-[220px] flex-col rounded-xl border border-slate-200 bg-white p-3"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, col.id)}
               >
@@ -102,7 +105,9 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
                       Zatím žádný lead v tomto stavu.
                     </div>
                   ) : (
-                    colLeads.map((lead) => (
+                    colLeads.map((lead) => {
+                      const project = lead.project_id ? projectMap[lead.project_id] : null;
+                      return (
                       <article
                         key={lead.id}
                         draggable
@@ -110,7 +115,8 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
                           e.dataTransfer.setData("text/plain", lead.id)
                         }
                         onClick={() => setSelectedLead(lead)}
-                        className="cursor-pointer rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 shadow-[0_1px_0_rgba(15,23,42,0.04)] hover:border-slate-300 hover:bg-slate-50"
+                        className={`cursor-pointer rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 hover:border-slate-300 hover:bg-slate-50 ${project ? "border-l-4" : ""}`}
+                        style={project ? { borderLeftColor: project.color } : undefined}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div>
@@ -122,6 +128,14 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
                             </div>
                           </div>
                           <div className="flex flex-wrap items-center justify-end gap-1">
+                            {project ? (
+                              <span
+                                className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                style={{ backgroundColor: `${project.color}30`, color: project.color }}
+                              >
+                                {project.name}
+                              </span>
+                            ) : null}
                             {hasBooking(lead.id) ? (
                               <span className="rounded-full bg-amber-200/80 px-2 py-0.5 text-[10px] font-medium text-amber-900" title="Má zarezervovaný termín">
                                 Rezervace
@@ -140,7 +154,8 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
                           </p>
                         ) : null}
                       </article>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -155,7 +170,7 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
           onClick={() => setSelectedLead(null)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl ring-1 ring-slate-200"
+            className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-start justify-between gap-4">

@@ -3,15 +3,30 @@ import { sql } from "../../../lib/db";
 import { CrmBoard } from "../../../components/CrmBoard";
 import type { Lead, LeadStatus } from "../../../lib/leads";
 
-async function getLeads(): Promise<Lead[]> {
+async function getLeads(userId: string, projectIds: string[]): Promise<Lead[]> {
+  if (projectIds.length > 0) {
+    const rows = await sql`
+      SELECT id, email, name, source, status, notes, created_at, project_id
+      FROM leads
+      WHERE deleted_at IS NULL AND (user_id = ${userId} OR user_id IS NULL) AND project_id = ANY(${projectIds})
+      ORDER BY created_at DESC
+    `;
+    return rows as Lead[];
+  }
   const rows = await sql`
-    SELECT id, email, name, source, status, notes, created_at
+    SELECT id, email, name, source, status, notes, created_at, project_id
     FROM leads
-    WHERE deleted_at IS NULL
+    WHERE deleted_at IS NULL AND (user_id = ${userId} OR user_id IS NULL)
     ORDER BY created_at DESC
   `;
-
   return rows as Lead[];
+}
+
+async function getProjects(userId: string): Promise<{ id: string; name: string; color: string }[]> {
+  const rows = await sql`
+    SELECT id, name, color FROM projects WHERE user_id = ${userId} ORDER BY sort_order ASC, name ASC
+  `;
+  return rows as { id: string; name: string; color: string }[];
 }
 
 async function getLeadIdsWithBooking(): Promise<string[]> {
@@ -41,16 +56,17 @@ async function createLead(formData: FormData) {
   const finalStatus = validStatuses.includes(status) ? status : "novy";
 
   const id = crypto.randomUUID();
+  const projectId = String(formData.get("project_id") ?? "").trim() || null;
 
   await sql`
-    INSERT INTO leads (id, email, name, source, status)
-    VALUES (${id}, ${email}, ${name || null}, ${source}, ${finalStatus})
+    INSERT INTO leads (id, user_id, project_id, email, name, source, status)
+    VALUES (${id}, ${userId}, ${projectId}, ${email}, ${name || null}, ${source}, ${finalStatus})
   `;
 
   if (finalStatus === "spoluprace") {
     await sql`
-      INSERT INTO clients (id, user_id, lead_id, name, email, status, created_at, updated_at)
-      SELECT ${crypto.randomUUID()}, ${userId}, id, COALESCE(name, email), email, 'aktivni', NOW(), NOW()
+      INSERT INTO clients (id, user_id, lead_id, name, email, status, project_id, created_at, updated_at)
+      SELECT ${crypto.randomUUID()}, ${userId}, id, COALESCE(name, email), email, 'aktivni', project_id, NOW(), NOW()
       FROM leads
       WHERE id = ${id}
         AND NOT EXISTS (
@@ -79,11 +95,19 @@ async function updateLeadStatus(formData: FormData) {
 
 }
 
-export default async function CrmPage() {
+type PageProps = { searchParams?: Promise<{ projects?: string }> };
+
+export default async function CrmPage({ searchParams }: PageProps) {
+  const { userId } = await auth();
+  if (!userId) return null;
+  const params = (await searchParams?.catch(() => ({})) ?? {}) as { projects?: string };
+  const projectIds = params.projects ? params.projects.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
   const user = await currentUser();
-  const [leads, leadIdsWithBooking] = await Promise.all([
-    getLeads(),
-    getLeadIdsWithBooking()
+  const [leads, leadIdsWithBooking, projects] = await Promise.all([
+    getLeads(userId, projectIds),
+    getLeadIdsWithBooking(),
+    getProjects(userId),
   ]);
 
   const columns: { id: LeadStatus; title: string; description?: string }[] = [
@@ -130,7 +154,7 @@ export default async function CrmPage() {
         </div>
       </div>
 
-      <section className="mb-4 rounded-2zl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+      <section className="mb-4 rounded-xl border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-medium text-slate-900">
           Rychlé přidání leada
         </h2>
@@ -162,6 +186,15 @@ export default async function CrmPage() {
             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
           />
           <select
+            name="project_id"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none ring-0 focus:border-slate-400 focus:bg-white"
+          >
+            <option value="">— Bez projektu —</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+          <select
             name="status"
             defaultValue="novy"
             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none ring-0 focus:border-slate-400 focus:bg-white"
@@ -174,7 +207,7 @@ export default async function CrmPage() {
           </select>
           <button
             type="submit"
-            className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
+            className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
           >
             Přidat lead
           </button>

@@ -51,7 +51,7 @@ export default async function ClientLayout({
   return (
     <div className="flex gap-6">
       <aside className="w-56 shrink-0">
-        <div className="mb-3 rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+        <div className="mb-3 rounded-xl border border-slate-200 bg-white p-4">
           <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             Klient
           </div>
@@ -62,7 +62,7 @@ export default async function ClientLayout({
             {client?.email ?? "Bez emailu"}
           </div>
         </div>
-        <div className="rounded-2xl bg-white/80 p-3 shadow-sm ring-1 ring-slate-100">
+        <div className="rounded-xl border border-slate-200 bg-white p-3">
           <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
             Navigace klienta
           </div>

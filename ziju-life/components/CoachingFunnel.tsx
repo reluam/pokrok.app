@@ -274,10 +274,10 @@ export default function CoachingFunnel() {
               <button
                 type="button"
                 onClick={() => setStepIndex(1)}
-                className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border-0 text-left w-full bg-transparent"
+                className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border-0 text-left w-full bg-accent"
               >
                 <FunnelCtaImage src="/form/btn-prevzit-rizeni.png" wrapperClassName="bg-white/20" />
-                <span className="w-full py-3 px-3 bg-accent text-white font-bold text-center text-base sm:text-lg">
+                <span className="w-full py-3 px-3 bg-accent text-white font-bold text-center text-base sm:text-lg rounded-b-2xl">
                   Chci převzít řízení
                 </span>
               </button>
@@ -286,10 +286,10 @@ export default function CoachingFunnel() {
                 onClick={() =>
                   poznavasSeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }
-                className="flex flex-col rounded-2xl overflow-hidden border-2 border-black/15 shadow-lg hover:shadow-xl transition-all text-left w-full bg-white"
+                className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all text-left w-full bg-white"
               >
                 <FunnelCtaImage src="/form/btn-rozmyslim.png" />
-                <span className="w-full py-3 px-3 bg-accent/10 text-foreground font-bold text-center text-base sm:text-lg">
+                <span className="w-full py-3 px-3 bg-accent/10 text-foreground font-bold text-center text-base sm:text-lg rounded-b-2xl border-b-2 border-accent/10">
                   Ještě se rozmýšlím
                 </span>
               </button>

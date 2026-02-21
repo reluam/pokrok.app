@@ -51,13 +51,13 @@ export function FirstDayOfWeekSettings() {
   }
 
   return (
-    <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+    <section className="rounded-xl border border-slate-200 bg-white p-4">
       <h2 className="text-sm font-medium text-slate-900">První den týdne v kalendáři rezervací</h2>
       <p className="mt-0.5 text-xs text-slate-600">
         Jak se zobrazují týdny v rezervačním widgetu: Pondělí nebo Neděle.
       </p>
       <form onSubmit={save} className="mt-3">
-        <div className="inline-flex rounded-xl bg-slate-100 p-1 ring-1 ring-slate-200/80">
+        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1">
           <button
             type="button"
             onClick={() => setFirstDayOfWeek(1)}

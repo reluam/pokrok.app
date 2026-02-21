@@ -34,8 +34,8 @@ export async function POST(request: Request) {
   if (status === "spoluprace") {
     const clientId = crypto.randomUUID();
     await sql`
-      INSERT INTO clients (id, user_id, lead_id, name, email, status, created_at, updated_at)
-      SELECT ${clientId}, ${userId}, id, COALESCE(name, email), email, 'aktivni', NOW(), NOW()
+      INSERT INTO clients (id, user_id, lead_id, name, email, status, project_id, created_at, updated_at)
+      SELECT ${clientId}, ${userId}, id, COALESCE(name, email), email, 'aktivni', project_id, NOW(), NOW()
       FROM leads
       WHERE id = ${id}
         AND NOT EXISTS (

@@ -177,7 +177,7 @@ export default async function CalendarPage() {
         </div>
       </div>
 
-      <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+      <section className="rounded-xl border border-slate-200 bg-white p-4">
         {allItems.length === 0 ? (
           <p className="text-xs text-slate-500">
             Zatím tu nejsou žádné schůzky ani rezervace. Brzy sem přidáme tlačítko „Nová

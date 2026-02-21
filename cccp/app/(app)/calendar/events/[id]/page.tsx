@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { EventAvailabilitySettings } from "../../../../../components/calendar/EventAvailabilitySettings";
+import { useProjects } from "../../../../../contexts/ProjectsContext";
 
 type EventData = {
   id: string;
@@ -13,6 +14,7 @@ type EventData = {
   duration_minutes: number;
   min_advance_minutes?: number;
   one_booking_per_email?: boolean;
+  project_id?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -44,7 +46,9 @@ export default function EventDetailPage() {
   const [minAdvanceValue, setMinAdvanceValue] = useState(24);
   const [minAdvanceUnit, setMinAdvanceUnit] = useState<"hours" | "days">("hours");
   const [oneBookingPerEmail, setOneBookingPerEmail] = useState(false);
+  const [projectId, setProjectId] = useState<string>("");
   const [copied, setCopied] = useState<"link" | "iframe" | null>(null);
+  const projects = useProjects()?.projects ?? [];
 
   const fetchEvent = useCallback(async () => {
     try {
@@ -65,6 +69,7 @@ export default function EventDetailPage() {
       setMinAdvanceValue(value);
       setMinAdvanceUnit(unit);
       setOneBookingPerEmail(Boolean(data.one_booking_per_email));
+      setProjectId(data.project_id ?? "");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -97,6 +102,7 @@ export default function EventDetailPage() {
           duration_minutes: Math.min(120, Math.max(15, durationMinutes)),
           min_advance_minutes: minAdvanceImmediate ? 0 : advanceToMinutes(minAdvanceValue, minAdvanceUnit),
           one_booking_per_email: oneBookingPerEmail,
+          project_id: projectId.trim() || null,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -160,7 +166,7 @@ export default function EventDetailPage() {
             </p>
           )}
 
-          <form onSubmit={saveEvent} className="max-w-md space-y-4 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-100">
+          <form onSubmit={saveEvent} className="max-w-md space-y-4 rounded-xl border border-slate-200 bg-white p-6">
         <div>
           <label htmlFor="ev-name" className="block text-sm font-medium text-slate-700">
             Název *
@@ -256,6 +262,22 @@ export default function EventDetailPage() {
           </p>
         </div>
         <div>
+          <label htmlFor="ev-project" className="block text-sm font-medium text-slate-700">
+            Projekt
+          </label>
+          <select
+            id="ev-project"
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
+          >
+            <option value="">— Bez projektu —</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
           <label className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
@@ -280,7 +302,7 @@ export default function EventDetailPage() {
         </button>
       </form>
 
-          <section className="rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-100">
+          <section className="rounded-xl border border-slate-200 bg-white p-6">
         <h2 className="text-sm font-semibold text-slate-900">Odkaz a iframe</h2>
         <p className="mt-1 text-xs text-slate-600">
           Nastav si v Nastavení → Obecné svůj „booking slug“ (např. jmeno). Odkaz pak bude obsahovat tvůj slug i slug eventu.

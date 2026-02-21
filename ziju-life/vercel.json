@@ -1,8 +1,14 @@
 {
-  "crons": [
+  "crons": [{"path": "/api/cron/send-newsletters", "schedule": "33 11 * * *"}],
+  "headers": [
     {
-      "path": "/api/cron/send-newsletters",
-      "schedule": "33 11 * * *"
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), display-capture=(), fullscreen=()"
+        }
+      ]
     }
   ]
 }

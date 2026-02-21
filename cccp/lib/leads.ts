@@ -8,5 +8,6 @@ export type Lead = {
   status: LeadStatus;
   notes: string | null;
   created_at: string;
+  project_id?: string | null;
 };
 

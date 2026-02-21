@@ -13,7 +13,7 @@ export default async function ClientNotesPage({
       <p className="mt-1 text-sm text-slate-600">
         Poznámky k tomuto klientovi – připravujeme.
       </p>
-      <div className="mt-8 rounded-2xl bg-white/80 p-8 shadow-sm ring-1 ring-slate-100 text-center">
+      <div className="mt-8 rounded-xl border border-slate-200 bg-white p-8 text-center">
         <p className="text-slate-500">Tato sekce bude brzy k dispozici. Zatím můžeš přidávat poznámky u jednotlivých schůzek.</p>
       </div>
     </div>

@@ -262,7 +262,7 @@ export function BookingFlow(props?: BookingFlowProps) {
 
   if (!coach && !eventId) {
     return (
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
         <h2 className="text-xl font-semibold text-slate-900">
           Chybí údaj o kouči nebo eventu
         </h2>
@@ -275,7 +275,7 @@ export function BookingFlow(props?: BookingFlowProps) {
 
   if (success) {
     return (
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
         <h2 className="text-xl font-semibold text-slate-900">
           Termín je zarezervovaný
         </h2>
@@ -287,7 +287,7 @@ export function BookingFlow(props?: BookingFlowProps) {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200/60 md:p-8">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
       <h2 className="text-xl font-semibold tracking-tight text-slate-900">
         {props?.eventName ? `Rezervovat: ${props.eventName}` : "Rezervovat termín"}
       </h2>

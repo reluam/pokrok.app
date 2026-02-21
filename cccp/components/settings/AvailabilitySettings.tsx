@@ -102,7 +102,7 @@ export function AvailabilitySettings() {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
+    <section className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-medium text-slate-900">
           Týdenní dostupnost pro rezervace

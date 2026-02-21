@@ -65,7 +65,7 @@ export function PrimaryContactSettings() {
   }
 
   return (
-    <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+    <section className="rounded-xl border border-slate-200 bg-white p-4">
       <h2 className="text-sm font-medium text-slate-900">Primární kontakt</h2>
       <p className="mt-0.5 text-xs text-slate-600">
         Zobrazí se klientům u hlášky „už máte rezervaci“, aby věděli, jak vás kontaktovat (e-mail, telefon nebo jiný odkaz).

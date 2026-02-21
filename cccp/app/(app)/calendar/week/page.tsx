@@ -26,7 +26,7 @@ async function getWeekSessions(
 ): Promise<CalendarItem[]> {
   try {
     return (await sql`
-      SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, COALESCE(c.name, 'Bez klienta') AS client_name, c.email AS client_email
+      SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, COALESCE(c.name, 'Bez klienta') AS client_name, c.email AS client_email, c.project_id
       FROM sessions s
       LEFT JOIN clients c ON c.id = s.client_id
       WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
@@ -39,7 +39,7 @@ async function getWeekSessions(
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("user_id") && msg.includes("does not exist")) {
       return (await sql`
-        SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, COALESCE(c.name, 'Bez klienta') AS client_name, c.email AS client_email
+        SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, COALESCE(c.name, 'Bez klienta') AS client_name, c.email AS client_email, c.project_id
         FROM sessions s
         INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
         WHERE s.scheduled_at IS NOT NULL
@@ -56,25 +56,28 @@ async function getWeekItems(weekStart: string, weekEnd: string, userId: string):
   const [sessions, bookings] = await Promise.all([
     getWeekSessions(weekStart, weekEnd, userId),
     sql`
-      SELECT id, scheduled_at, duration_minutes, name, email
-      FROM bookings
-      WHERE user_id = ${userId}
-        AND status != 'cancelled'
-        AND scheduled_at::date >= ${weekStart}
-        AND scheduled_at::date < ${weekEnd}
-      ORDER BY scheduled_at ASC
+      SELECT b.id, b.scheduled_at, b.duration_minutes, b.name, b.email, e.project_id
+      FROM bookings b
+      LEFT JOIN events e ON e.id = b.event_id
+      WHERE b.user_id = ${userId}
+        AND b.status != 'cancelled'
+        AND b.scheduled_at::date >= ${weekStart}
+        AND b.scheduled_at::date < ${weekEnd}
+      ORDER BY b.scheduled_at ASC
     `
   ]);
 
   const sessionItems = (sessions as CalendarItem[]).map((s) => ({ ...s, type: "session" as const }));
-  const bookingItems = (bookings as { id: string; scheduled_at: string; duration_minutes: number; name: string; email: string }[]).map((b) => ({
+  const bookingRows = bookings as { id: string; scheduled_at: string; duration_minutes: number; name: string; email: string; project_id: string | null }[];
+  const bookingItems = bookingRows.map((b) => ({
     type: "booking" as const,
     id: b.id,
     title: "Úvodní call",
     scheduled_at: b.scheduled_at,
     duration_minutes: b.duration_minutes,
     client_name: b.name,
-    client_email: b.email
+    client_email: b.email,
+    project_id: b.project_id ?? undefined
   }));
   return [...sessionItems, ...bookingItems].sort((a, b) =>
     String(a.scheduled_at ?? "").localeCompare(String(b.scheduled_at ?? ""))
@@ -124,7 +127,7 @@ export default async function CalendarWeekPage({
       <p className="mt-1 text-sm text-slate-600">
         Pondělí až neděle. Schůzky a rezervace v zvoleném týdnu.
       </p>
-      <section className="mt-6 rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+      <section className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
         <WeekGrid
           items={items}
           weekStart={weekStart}

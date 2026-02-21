@@ -5,7 +5,7 @@ import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 export default function HomePage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-50 via-slate-50 to-emerald-50">
-      <div className="max-w-xl rounded-2xl bg-white/80 p-8 shadow-lg shadow-sky-100 ring-1 ring-slate-100">
+      <div className="max-w-xl rounded-xl border border-slate-200 bg-white p-8">
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
           Coach CRM & Klientský portál
         </h1>

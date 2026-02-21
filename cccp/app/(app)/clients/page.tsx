@@ -3,6 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { sql } from "../../../lib/db";
 
+type Project = { id: string; name: string; color: string };
+
 type Client = {
   id: string;
   lead_id: string | null;
@@ -10,12 +12,22 @@ type Client = {
   email: string | null;
   status: "aktivni" | "neaktivni";
   created_at: string;
+  project_id?: string | null;
 };
 
-async function getClients(userId: string): Promise<Client[]> {
+async function getClients(userId: string, projectIds: string[]): Promise<Client[]> {
   try {
+    if (projectIds.length > 0) {
+      const rows = await sql`
+        SELECT id, lead_id, name, email, status, created_at, project_id
+        FROM clients
+        WHERE user_id = ${userId} AND project_id = ANY(${projectIds})
+        ORDER BY status ASC, created_at DESC
+      `;
+      return rows as Client[];
+    }
     const rows = await sql`
-      SELECT id, lead_id, name, email, status, created_at
+      SELECT id, lead_id, name, email, status, created_at, project_id
       FROM clients
       WHERE user_id = ${userId}
       ORDER BY status ASC, created_at DESC
@@ -25,7 +37,7 @@ async function getClients(userId: string): Promise<Client[]> {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("user_id") && msg.includes("does not exist")) {
       const rows = await sql`
-        SELECT id, lead_id, name, email, status, created_at
+        SELECT id, lead_id, name, email, status, created_at, project_id
         FROM clients
         ORDER BY status ASC, created_at DESC
       `;
@@ -36,10 +48,25 @@ async function getClients(userId: string): Promise<Client[]> {
   }
 }
 
-export default async function ClientsPage() {
+async function getProjects(userId: string): Promise<Project[]> {
+  const rows = await sql`
+    SELECT id, name, color FROM projects WHERE user_id = ${userId} ORDER BY sort_order ASC, name ASC
+  `;
+  return rows as Project[];
+}
+
+type PageProps = { searchParams?: Promise<{ projects?: string }> };
+
+export default async function ClientsPage({ searchParams }: PageProps) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
-  const clients = await getClients(userId);
+  const params = (await searchParams?.catch(() => ({})) ?? {}) as { projects?: string };
+  const projectIds = params.projects ? params.projects.split(",").map((s) => s.trim()).filter(Boolean) : [];
+  const [clients, projects] = await Promise.all([
+    getClients(userId, projectIds),
+    getProjects(userId),
+  ]);
+  const projectMap = Object.fromEntries(projects.map((p) => [p.id, p]));
 
   const active = clients.filter((c) => c.status === "aktivni");
 
@@ -61,13 +88,28 @@ export default async function ClientsPage() {
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {active.map((client) => (
+          {active.map((client) => {
+            const project = client.project_id ? projectMap[client.project_id] : null;
+            return (
             <Link key={client.id} href={`/clients/${client.id}`}>
-              <article className="flex h-full flex-col justify-between rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:ring-slate-200">
+              <article
+                className={`flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-slate-300 ${project ? "border-l-4" : ""}`}
+                style={project ? { borderLeftColor: project.color } : undefined}
+              >
                 <div>
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    {client.name}
-                  </h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-sm font-semibold text-slate-900">
+                      {client.name}
+                    </h2>
+                    {project ? (
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                        style={{ backgroundColor: `${project.color}30`, color: project.color }}
+                      >
+                        {project.name}
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="mt-1 text-xs text-slate-500">
                     {client.email ?? "Bez emailu"}
                   </p>
@@ -83,7 +125,7 @@ export default async function ClientsPage() {
                 </div>
               </article>
             </Link>
-          ))}
+          ); })}
         </div>
       )}
     </div>

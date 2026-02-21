@@ -9,6 +9,7 @@ type TodaySession = {
   scheduled_at: string;
   duration_minutes: number | null;
   client_name: string;
+  project_id: string | null;
 };
 
 type TodayBooking = {
@@ -17,6 +18,7 @@ type TodayBooking = {
   duration_minutes: number;
   name: string;
   email: string;
+  project_id: string | null;
 };
 
 type TodayLead = {
@@ -27,15 +29,34 @@ type TodayLead = {
   source: string | null;
 };
 
-async function getTodaySessions(userId: string): Promise<TodaySession[]> {
+async function getTodaySessions(userId: string, projectIds: string[]): Promise<TodaySession[]> {
   try {
+    if (projectIds.length > 0) {
+      const rows = await sql`
+        SELECT
+          s.id,
+          s.title,
+          s.scheduled_at,
+          s.duration_minutes,
+          COALESCE(c.name, 'Bez klienta') AS client_name,
+          c.project_id
+        FROM sessions s
+        LEFT JOIN clients c ON c.id = s.client_id
+        WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
+          AND s.scheduled_at::date = CURRENT_DATE
+          AND (c.project_id = ANY(${projectIds}) OR c.id IS NULL)
+        ORDER BY s.scheduled_at ASC
+      `;
+      return rows as TodaySession[];
+    }
     const rows = await sql`
       SELECT
         s.id,
         s.title,
         s.scheduled_at,
         s.duration_minutes,
-        COALESCE(c.name, 'Bez klienta') AS client_name
+        COALESCE(c.name, 'Bez klienta') AS client_name,
+        c.project_id
       FROM sessions s
       LEFT JOIN clients c ON c.id = s.client_id
       WHERE (s.user_id = ${userId} OR (s.user_id IS NULL AND c.user_id = ${userId}))
@@ -52,7 +73,8 @@ async function getTodaySessions(userId: string): Promise<TodaySession[]> {
           s.title,
           s.scheduled_at,
           s.duration_minutes,
-          COALESCE(c.name, 'Bez klienta') AS client_name
+          COALESCE(c.name, 'Bez klienta') AS client_name,
+          c.project_id
         FROM sessions s
         INNER JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
         WHERE s.scheduled_at::date = CURRENT_DATE
@@ -64,43 +86,72 @@ async function getTodaySessions(userId: string): Promise<TodaySession[]> {
   }
 }
 
-async function getTodayBookings(userId: string): Promise<TodayBooking[]> {
+async function getTodayBookings(userId: string, projectIds: string[]): Promise<TodayBooking[]> {
+  if (projectIds.length > 0) {
+    const rows = await sql`
+      SELECT b.id, b.scheduled_at, b.duration_minutes, b.name, b.email, e.project_id
+      FROM bookings b
+      LEFT JOIN events e ON e.id = b.event_id
+      WHERE b.user_id = ${userId}
+        AND b.status != 'cancelled'
+        AND b.scheduled_at::date = CURRENT_DATE
+        AND (e.project_id = ANY(${projectIds}) OR (b.event_id IS NULL))
+      ORDER BY b.scheduled_at ASC
+    `;
+    return rows as TodayBooking[];
+  }
   const rows = await sql`
-    SELECT id, scheduled_at, duration_minutes, name, email
-    FROM bookings
-    WHERE user_id = ${userId}
-      AND status != 'cancelled'
-      AND scheduled_at::date = CURRENT_DATE
-    ORDER BY scheduled_at ASC
+    SELECT b.id, b.scheduled_at, b.duration_minutes, b.name, b.email, e.project_id
+    FROM bookings b
+    LEFT JOIN events e ON e.id = b.event_id
+    WHERE b.user_id = ${userId}
+      AND b.status != 'cancelled'
+      AND b.scheduled_at::date = CURRENT_DATE
+    ORDER BY b.scheduled_at ASC
   `;
   return rows as TodayBooking[];
 }
 
-async function getTodayLeadsActivities(): Promise<TodayLead[]> {
+async function getTodayLeadsActivities(userId: string, projectIds: string[]): Promise<TodayLead[]> {
+  if (projectIds.length > 0) {
+    const rows = await sql`
+      SELECT id, name, email, status, source
+      FROM leads
+      WHERE (user_id = ${userId} OR user_id IS NULL)
+        AND project_id = ANY(${projectIds})
+        AND (created_at::date = CURRENT_DATE OR updated_at::date = CURRENT_DATE)
+      ORDER BY updated_at DESC
+      LIMIT 20
+    `;
+    return rows as TodayLead[];
+  }
   const rows = await sql`
     SELECT id, name, email, status, source
     FROM leads
-    WHERE created_at::date = CURRENT_DATE
-      OR updated_at::date = CURRENT_DATE
+    WHERE (user_id = ${userId} OR user_id IS NULL)
+      AND (created_at::date = CURRENT_DATE OR updated_at::date = CURRENT_DATE)
     ORDER BY updated_at DESC
     LIMIT 20
   `;
-
   return rows as TodayLead[];
 }
 
-export default async function OverviewPage() {
+type PageProps = { searchParams?: Promise<{ projects?: string }> };
+
+export default async function OverviewPage({ searchParams }: PageProps) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
+  const params = (await searchParams?.catch(() => ({})) ?? {}) as { projects?: string };
+  const projectIds = params.projects ? params.projects.split(",").map((s) => s.trim()).filter(Boolean) : [];
   const [sessions, bookings, leads] = await Promise.all([
-    getTodaySessions(userId),
-    getTodayBookings(userId),
-    getTodayLeadsActivities()
+    getTodaySessions(userId, projectIds),
+    getTodayBookings(userId, projectIds),
+    getTodayLeadsActivities(userId, projectIds)
   ]);
 
   const allSlots = [
     ...sessions.map((s) => ({ type: "session" as const, ...s })),
-    ...bookings.map((b) => ({ type: "booking" as const, id: b.id, title: "Úvodní call", scheduled_at: b.scheduled_at, duration_minutes: b.duration_minutes, client_name: b.name }))
+    ...bookings.map((b) => ({ type: "booking" as const, id: b.id, title: "Úvodní call", scheduled_at: b.scheduled_at, duration_minutes: b.duration_minutes, client_name: b.name, project_id: b.project_id ?? undefined }))
   ].sort((a, b) => String(a.scheduled_at ?? "").localeCompare(String(b.scheduled_at ?? "")));
 
   return (
@@ -115,7 +166,7 @@ export default async function OverviewPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+        <section className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-medium text-slate-900">
               Dnešní schůzky a rezervace
@@ -133,7 +184,7 @@ export default async function OverviewPage() {
           )}
         </section>
 
-        <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+        <section className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-medium text-slate-900">
               Dnešní aktivita v CRM

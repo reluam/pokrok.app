@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useProjects } from "../../contexts/ProjectsContext";
 import { BookingDetailModal } from "./BookingDetailModal";
 import { SessionDetailModal } from "./SessionDetailModal";
 
@@ -12,6 +13,7 @@ export type OverviewSlotItem = {
   scheduled_at: string;
   duration_minutes?: number | null;
   client_name: string;
+  project_id?: string | null;
 };
 
 type OverviewSlotsListProps = {
@@ -20,8 +22,10 @@ type OverviewSlotsListProps = {
 
 export function OverviewSlotsList({ slots }: OverviewSlotsListProps) {
   const router = useRouter();
+  const projects = useProjects()?.projects ?? [];
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const projectMap = Object.fromEntries(projects.map((p) => [p.id, p]));
 
   function refresh() {
     router.refresh();
@@ -48,11 +52,19 @@ export function OverviewSlotsList({ slots }: OverviewSlotsListProps) {
                   : setSelectedSessionId(s.id);
               }
             }}
-            className={`flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 ${
+            className={`flex cursor-pointer items-center justify-between rounded-xl border-l-4 px-3 py-2 ${
               s.type === "booking"
-                ? "bg-amber-50 ring-1 ring-amber-200/60 hover:bg-amber-100/80"
-                : "bg-slate-50 ring-1 ring-slate-200/60 hover:bg-slate-100/80"
+                ? "bg-amber-50 border-amber-200/60 hover:bg-amber-100/80"
+                : "bg-slate-50 border-slate-200 hover:bg-slate-100"
             }`}
+          style={{
+              borderLeftColor:
+                s.project_id && projectMap[s.project_id]
+                  ? projectMap[s.project_id].color
+                  : s.type === "booking"
+                    ? "#fde68a"
+                    : "#e2e8f0",
+            }}
           >
             <div>
               <div className="text-xs font-medium uppercase tracking-wide text-slate-500">

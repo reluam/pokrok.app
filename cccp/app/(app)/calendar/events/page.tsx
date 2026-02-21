@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useProjects } from "../../../../contexts/ProjectsContext";
 
 type EventRow = {
   id: string;
@@ -10,15 +11,22 @@ type EventRow = {
   name: string;
   duration_minutes: number;
   created_at: string;
+  project_id?: string | null;
 };
 
 export default function CalendarEventsPage() {
+  const ctx = useProjects();
+  const selectedProjectIds = ctx?.selectedProjectIds ?? [];
+  const projects = ctx?.projects ?? [];
+  const projectMap = Object.fromEntries(projects.map((p) => [p.id, p]));
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchEvents = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch("/api/events");
+      const q = selectedProjectIds.length > 0 ? `?projectIds=${selectedProjectIds.join(",")}` : "";
+      const res = await fetch(`/api/events${q}`);
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setEvents(Array.isArray(data) ? data : []);
@@ -27,7 +35,7 @@ export default function CalendarEventsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedProjectIds]);
 
   useEffect(() => {
     fetchEvents();
@@ -51,7 +59,7 @@ export default function CalendarEventsPage() {
         </Link>
       </div>
 
-      <section className="mt-6 rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
+      <section className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
         {loading ? (
           <p className="text-sm text-slate-500">Načítám eventy…</p>
         ) : events.length === 0 ? (
@@ -60,19 +68,32 @@ export default function CalendarEventsPage() {
           </p>
         ) : (
           <ul className="space-y-2">
-            {events.map((ev) => (
+            {events.map((ev) => {
+              const project = ev.project_id ? projectMap[ev.project_id] : null;
+              return (
               <li key={ev.id}>
                 <Link
                   href={`/calendar/events/${ev.id}`}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm hover:bg-slate-50"
+                  className={`flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm hover:bg-slate-50 ${project ? "border-l-4" : ""}`}
+                  style={project ? { borderLeftColor: project.color } : undefined}
                 >
-                  <span className="font-medium text-slate-900">{ev.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-slate-900">{ev.name}</span>
+                    {project ? (
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                        style={{ backgroundColor: `${project.color}30`, color: project.color }}
+                      >
+                        {project.name}
+                      </span>
+                    ) : null}
+                  </div>
                   <span className="text-slate-500">
                     {ev.duration_minutes} min · /{ev.slug}
                   </span>
                 </Link>
               </li>
-            ))}
+            ); })}
           </ul>
         )}
       </section>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useProjects } from "../../../../../contexts/ProjectsContext";
 
 function slugify(s: string): string {
   return s
@@ -15,9 +16,11 @@ function slugify(s: string): string {
 
 export default function NewEventPage() {
   const router = useRouter();
+  const projects = useProjects()?.projects ?? [];
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(30);
+  const [projectId, setProjectId] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +41,7 @@ export default function NewEventPage() {
           name: name.trim(),
           slug: (slug || slugify(name)).trim() || slugify(name),
           duration_minutes: Math.min(120, Math.max(15, durationMinutes)),
+          project_id: projectId.trim() || null,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -68,7 +72,7 @@ export default function NewEventPage() {
         </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-6 max-w-md space-y-4 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-100">
+      <form onSubmit={handleSubmit} className="mt-6 max-w-md space-y-4 rounded-xl border border-slate-200 bg-white p-6">
         {error && (
           <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
@@ -117,6 +121,22 @@ export default function NewEventPage() {
             onChange={(e) => setDurationMinutes(Number(e.target.value) || 30)}
             className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
           />
+        </div>
+        <div>
+          <label htmlFor="ev-project" className="block text-sm font-medium text-slate-700">
+            Projekt
+          </label>
+          <select
+            id="ev-project"
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
+          >
+            <option value="">— Bez projektu —</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-2">
           <button

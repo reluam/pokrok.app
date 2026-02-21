@@ -91,14 +91,14 @@ export function GoogleCalendarConnect() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-white/80 p-8 shadow-sm ring-1 ring-slate-100">
+      <div className="rounded-xl border border-slate-200 bg-white p-8">
         <p className="text-slate-500">Načítám stav kalendáře…</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl bg-white/80 p-8 shadow-sm ring-1 ring-slate-100">
+    <div className="rounded-xl border border-slate-200 bg-white p-8">
       <h2 className="text-lg font-medium text-slate-900">Google Kalendář</h2>
       <p className="mt-1 text-sm text-slate-600">
         Propojením s Google Kalendářem se při výpočtu volných termínů zohlední vaše události a rezervace se nebudou nabízet v obsazených časech.

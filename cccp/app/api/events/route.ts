@@ -2,18 +2,32 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { sql } from "../../../lib/db";
 
-export async function GET() {
+export async function GET(request: Request) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const rows = await sql`
-    SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, created_at, updated_at
-    FROM events
-    WHERE user_id = ${userId}
-    ORDER BY name ASC
-  `;
+  const { searchParams } = new URL(request.url);
+  const projectIdsParam = searchParams.get("projectIds");
+  const projectIds = projectIdsParam ? projectIdsParam.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+  let rows;
+  if (projectIds.length > 0) {
+    rows = await sql`
+      SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, created_at, updated_at, project_id
+      FROM events
+      WHERE user_id = ${userId} AND project_id = ANY(${projectIds})
+      ORDER BY name ASC
+    `;
+  } else {
+    rows = await sql`
+      SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, created_at, updated_at, project_id
+      FROM events
+      WHERE user_id = ${userId}
+      ORDER BY name ASC
+    `;
+  }
 
   return NextResponse.json(rows);
 }
@@ -33,7 +47,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { name?: string; slug?: string; duration_minutes?: number; min_advance_minutes?: number };
+  let body: { name?: string; slug?: string; duration_minutes?: number; min_advance_minutes?: number; project_id?: string | null };
   try {
     body = await request.json();
   } catch {
@@ -60,10 +74,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Event with this slug already exists" }, { status: 400 });
   }
 
+  const projectId = (body.project_id ?? "").trim() || null;
   const id = crypto.randomUUID();
   await sql`
-    INSERT INTO events (id, user_id, slug, name, duration_minutes, min_advance_minutes, updated_at)
-    VALUES (${id}, ${userId}, ${slug}, ${name}, ${durationMinutes}, ${minAdvanceMinutes}, NOW())
+    INSERT INTO events (id, user_id, slug, name, duration_minutes, min_advance_minutes, project_id, updated_at)
+    VALUES (${id}, ${userId}, ${slug}, ${name}, ${durationMinutes}, ${minAdvanceMinutes}, ${projectId}, NOW())
   `;
 
   return NextResponse.json({
@@ -73,5 +88,6 @@ export async function POST(request: Request) {
     name,
     duration_minutes: durationMinutes,
     min_advance_minutes: minAdvanceMinutes,
+    project_id: projectId,
   });
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useProjects } from "../../contexts/ProjectsContext";
 import { BookingDetailModal } from "./BookingDetailModal";
 import { AddCalendarItemModal } from "./AddCalendarItemModal";
 
@@ -15,6 +16,7 @@ export type CalendarItem = {
   duration_minutes?: number | null;
   client_name: string;
   client_email?: string | null;
+  project_id?: string | null;
 };
 
 const DAY_LABELS = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
@@ -63,6 +65,8 @@ export function MonthGrid({
   monthLabel,
 }: MonthGridProps) {
   const router = useRouter();
+  const projects = useProjects()?.projects ?? [];
+  const projectMap = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p])), [projects]);
   const byDate = useMemo(() => groupByDate(items), [items]);
   const [popoverKey, setPopoverKey] = useState<string | null>(null);
   const [popoverPositions, setPopoverPositions] = useState<Map<string, "bottom" | "top">>(new Map());
@@ -239,11 +243,18 @@ export function MonthGrid({
                               }
                             : undefined
                         }
-                        className={`rounded-lg px-2 py-1 text-[11px] ${
+                        className={`rounded-lg border-l-4 px-2 py-1 text-[11px] ${
                           item.type === "booking"
                             ? "cursor-pointer bg-amber-100 text-amber-900 hover:bg-amber-200"
-                            : "bg-white shadow-sm ring-1 ring-slate-100"
+                            : "bg-white border border-slate-200"
                         }`}
+                      style={{
+                        borderLeftColor: item.project_id && projectMap[item.project_id]
+                          ? projectMap[item.project_id].color
+                          : item.type === "booking"
+                            ? "#fde68a"
+                            : "#e2e8f0",
+                      }}
                       >
                         <div className="truncate font-medium text-slate-900" title={item.title}>
                           {item.title}
@@ -345,11 +356,18 @@ export function MonthGrid({
                       }
                     : undefined
                 }
-                className={`flex items-center justify-between rounded-lg px-3 py-2 text-left ${
+                className={`flex items-center justify-between rounded-lg border-l-4 px-3 py-2 text-left ${
                   item.type === "booking"
-                    ? "cursor-pointer bg-amber-50 ring-1 ring-amber-200/60"
-                    : "bg-slate-50 ring-1 ring-slate-100"
+                    ? "cursor-pointer bg-amber-50 border-amber-200/60"
+                    : "bg-slate-50 border border-slate-200"
                 }`}
+                style={{
+                  borderLeftColor: item.project_id && projectMap[item.project_id]
+                    ? projectMap[item.project_id].color
+                    : item.type === "booking"
+                      ? "#fde68a"
+                      : "#e2e8f0",
+                }}
               >
                 <div>
                   <div className="text-sm font-medium text-slate-900">{item.title}</div>
@@ -420,11 +438,18 @@ export function MonthGrid({
                               }
                             : undefined
                         }
-                        className={`border-b border-slate-100 py-1.5 last:border-0 ${
+                        className={`border-b border-l-4 border-slate-100 py-1.5 pl-2 last:border-0 ${
                           item.type === "booking"
                             ? "cursor-pointer text-amber-800 hover:bg-amber-50"
                             : ""
                         }`}
+                        style={{
+                          borderLeftColor: item.project_id && projectMap[item.project_id]
+                            ? projectMap[item.project_id].color
+                            : item.type === "booking"
+                              ? "#fde68a"
+                              : "#e2e8f0",
+                        }}
                       >
                         <div className="font-medium">{item.title}</div>
                         <div className="text-xs text-slate-500">
