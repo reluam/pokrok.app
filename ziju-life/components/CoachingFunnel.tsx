@@ -146,6 +146,7 @@ export default function CoachingFunnel() {
   const [error, setError] = useState("");
   const [multiSelection, setMultiSelection] = useState<string[]>([]);
   const [latestInspirace, setLatestInspirace] = useState<InspirationItem[]>([]);
+  const [showPostBookingMessage, setShowPostBookingMessage] = useState(false);
   const poznavasSeRef = useRef<HTMLDivElement | null>(null);
 
   const step = STEPS[stepIndex];
@@ -222,6 +223,7 @@ export default function CoachingFunnel() {
       }
       setLoading(false);
       if (openBookingPopup) {
+        setShowPostBookingMessage(true);
         openBookingPopup({
           email: email.trim().toLowerCase(),
           name: name.trim() || undefined,
@@ -306,9 +308,9 @@ export default function CoachingFunnel() {
               </h2>
               <div className="grid grid-cols-1 gap-3">
                 {[
+                  "Víš, že máš co nabídnout, ale nevíš jak ani kde.",
                   "Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.",
                   "Máš všechno, co bys „měl\" mít, ale cítíš, že ti život protéká mezi prsty.",
-                  "Tvá vlastní mysl je tvůj největší kritik, ne spojenec.",
                   "Vidíš, jak reaguješ, ale neumíš to změnit.",
                 ].map((text, i) => (
                   <div
@@ -355,6 +357,36 @@ export default function CoachingFunnel() {
                 >
                   Chci změnu
                 </button>
+              </div>
+            </section>
+
+            {/* 3 kroky k úspěchu: – nad Ahoj, jsem Matěj */}
+            <section className="text-left max-w-lg mx-auto space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
+                3 kroky k úspěchu:
+              </h2>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">1</span>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-0.5">Přijetí reality</h3>
+                    <p className="text-foreground/85 text-sm">Pro smysluplnou změnu musíme znát naši výchozí pozici. A náš mozek má tendenci nám realitu zkreslovat.</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">2</span>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-0.5">Hledání cesty</h3>
+                    <p className="text-foreground/85 text-sm">Každý si musíme najít tu svou cestu. Což znamená sjet z té hlavní dálnice, po které jdou všichni.</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">3</span>
+                  <div>
+                    <h3 className="font-bold text-foreground mb-0.5">Žijem life</h3>
+                    <p className="text-foreground/85 text-sm">Když už víme kudy, tak se můžeme vydat na cestu. Místy to bude těžké, ale věřím, že ty výhledy stojí za to.</p>
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -495,6 +527,23 @@ export default function CoachingFunnel() {
         {step?.type === "contact" && (
           <div className="space-y-6">
             <FunnelSectionDivider number={STEPS.length} />
+            {showPostBookingMessage ? (
+              <div className="text-center space-y-4">
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+                  Děkujeme
+                </h2>
+                <p className="text-foreground/80">
+                  Vyberte si termín v kalendáři. Po dokončení rezervace vás zveme na inspiraci – články, videa, tipy.
+                </p>
+                <Link
+                  href="/inspirace"
+                  className="inline-block px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors"
+                >
+                  Přejít na inspirace
+                </Link>
+              </div>
+            ) : (
+              <>
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-center">
               Ještě krátce o vás
             </h2>
@@ -564,6 +613,8 @@ export default function CoachingFunnel() {
                 {loading ? "Odesílám…" : "Pokračovat k výběru termínu"}
               </button>
             </form>
+              </>
+            )}
           </div>
         )}
       </main>

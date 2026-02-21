@@ -42,7 +42,7 @@ export default function KoucingPage() {
         </div>
       </section>
 
-      {/* Pro koho to je? - Prominentní sekce */}
+      {/* Poznáváš se v tom? */}
       <section className="relative py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-white/50">
         <DecorativeShapes position="left" />
         <div className="max-w-6xl mx-auto space-y-12 relative z-10">
@@ -60,7 +60,7 @@ export default function KoucingPage() {
                 </div>
               </div>
               <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
-                Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.
+                Víš, že máš co nabídnout, ale nevíš jak ani kde.
               </p>
             </div>
 
@@ -72,7 +72,7 @@ export default function KoucingPage() {
                 </div>
               </div>
               <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
-                Máš všechno, co bys „měl" mít, ale cítíš, že ti život protéká mezi prsty.
+                Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.
               </p>
             </div>
 
@@ -84,7 +84,7 @@ export default function KoucingPage() {
                 </div>
               </div>
               <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
-                Tvá vlastní mysl je tvůj největší kritik, ne spojenec.
+                Máš všechno, co bys „měl" mít, ale cítíš, že ti život protéká mezi prsty.
               </p>
             </div>
 
@@ -137,6 +137,44 @@ export default function KoucingPage() {
               </h3>
               <p className="text-lg text-foreground/80 leading-relaxed">
                 I vážná témata se dají probrat bez toho, abychom ztratili radost ze života.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3 kroky k úspěchu: – pod Jak to u mě vypadá */}
+      <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
+              3 kroky k úspěchu:
+            </h2>
+          </div>
+          <div className="flex gap-4">
+            <span className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">1</span>
+            <div>
+              <h3 className="text-xl font-bold text-foreground mb-1">Přijetí reality</h3>
+              <p className="text-lg text-foreground/80 leading-relaxed">
+                Pro smysluplnou změnu musíme znát naši výchozí pozici. A náš mozek má tendenci nám realitu zkreslovat.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <span className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">2</span>
+            <div>
+              <h3 className="text-xl font-bold text-foreground mb-1">Hledání cesty</h3>
+              <p className="text-lg text-foreground/80 leading-relaxed">
+                Každý si musíme najít tu svou cestu. Což znamená sjet z té hlavní dálnice, po které jdou všichni.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <span className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-sm">3</span>
+            <div>
+              <h3 className="text-xl font-bold text-foreground mb-1">Žijem life</h3>
+              <p className="text-lg text-foreground/80 leading-relaxed">
+                Když už víme kudy, tak se můžeme vydat na cestu. Místy to bude těžké, ale věřím, že ty výhledy stojí za to.
               </p>
             </div>
           </div>
