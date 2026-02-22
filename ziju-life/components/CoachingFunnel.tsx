@@ -228,9 +228,9 @@ export default function CoachingFunnel() {
           email: email.trim().toLowerCase(),
           name: name.trim() || undefined,
           note: message?.trim() || undefined,
+          leadId: data.leadId,
+          source: "funnel",
         });
-      } else if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
       }
     } catch {
       setError("Nepodařilo se odeslat. Zkuste to prosím znovu.");

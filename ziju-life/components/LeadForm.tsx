@@ -62,9 +62,13 @@ export default function LeadForm({
       onSuccess?.();
       setLoading(false);
       if (openBookingPopup) {
-        openBookingPopup({ email, name: name || undefined, note: message?.trim() || undefined });
-      } else if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
+        openBookingPopup({
+          email,
+          name: name.trim() || undefined,
+          note: message?.trim() || undefined,
+          leadId: data.leadId,
+          source,
+        });
       }
     } catch {
       setError("Nepodařilo se odeslat. Zkuste to prosím znovu.");

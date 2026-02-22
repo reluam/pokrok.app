@@ -3,7 +3,7 @@
 ## Co je implementované
 
 - **Formulář** na stránce Koučink (`/koucing#rezervace`) a v sekci Koučink na homepage (ChooseYourPath).
-- Po vyplnění jména a e-mailu se lead uloží do DB (Neon) a odešle do Notionu (pokud jsou nastavené env proměnné). Následně se otevře **popup s cal.eu** pro výběr termínu (Rezervace běží přes cal.eu – viz níže).
+- Po vyplnění jména a e-mailu se lead uloží do DB (Neon) a odešle do Notionu (pokud jsou nastavené env proměnné). Následně se otevře **vlastní rezervační modál** na webu: uživatel vybere termín ze slotů definovaných v adminu. Po potvrzení se rezervace uloží a do ClickUp se vytvoří úkol s termínem (zobrazení v ClickUp kalendáři). Dostupné sloty se filtrují podle Google Kalendáře (konflikty s událostmi).
 
 ## Migrace databáze
 
@@ -14,6 +14,14 @@ GET /api/migrate-leads
 ```
 
 Tím se vytvoří tabulka `leads`.
+
+Pro rezervace spusť také:
+
+```
+GET /api/migrate-booking
+```
+
+Tím se vytvoří tabulky `booking_slots` a `bookings`.
 
 ## Notion – nastavení
 
@@ -40,15 +48,36 @@ NOTION_DATABASE_ID=...
 
 Bez těchto proměnných se leadi ukládají jen do Neonu, do Notionu se neposílají.
 
-## Rezervace termínu (Cal.com embed)
+## Rezervace termínu (vlastní modál + ClickUp + Google Kalendář)
 
-Bookovací tlačítka používají **@calcom/embed-react**: po odeslání formuláře se otevře Cal.com modal (month view, `matej-mauler/30min`). Konfigurace je v `components/BookingPopup.tsx` (namespace `30min`, `data-cal-link`). Volitelně můžeš v `.env.local` nastavit `NEXT_PUBLIC_CAL_EU_BOOKING_URL` pro redirect URL v API odpovědi.
+Po odeslání formuláře se otevře **vlastní modál** na webu: načtou se dostupné termíny z adminu (sekce Rezervace), přefiltrované podle obsazenosti v Google Kalendáři. Uživatel vybere slot a potvrdí rezervaci. Rezervace se uloží do DB a do **ClickUp** se vytvoří úkol s due date = termín (zobrazí se v ClickUp kalendáři).
+
+### ClickUp – nastavení
+
+1. V ClickUp vytvoř **List** (nebo použij existující) pro konzultace.
+2. Z URL listu zkopíruj **List ID** (číslo za `/list/`):  
+   `https://app.clickup.com/.../list/123456789` → List ID je `123456789`.
+3. V ClickUp: **Profil (avatar) → Settings → Apps → API Token** – vygeneruj **Personal API Token**.
+4. Do `.env.local` (a na Vercel) přidej:
+   ```
+   CLICKUP_API_TOKEN=tvůj_token
+   CLICKUP_LIST_ID=123456789
+   ```
+   List ID můžeš místo env nastavit v Admin → Nastavení → Rezervace (ClickUp List ID).
+
+### Google Kalendář – konflikty slotů
+
+Aby se v modálu nezobrazovaly sloty, kdy už máš v kalendáři událost (včetně osobních bloků), nastav **Google Service Account** a sdílení kalendáře. Kompletní krok-za-krokem návod je v **[GOOGLE_CALENDAR_NAVOD.md](./GOOGLE_CALENDAR_NAVOD.md)**.
+
+Stručně: projekt v [Google Cloud Console](https://console.cloud.google.com/) → povolit **Google Calendar API** → vytvořit **Service Account** a stáhnout JSON → celý JSON do env `GOOGLE_SERVICE_ACCOUNT_JSON` → kalendář sdílet na `client_email` z JSON s právem „See all event details“. V Admin → Nastavení můžeš nastavit **Google Calendar ID** (výchozí `primary`).
+
+Bez `GOOGLE_SERVICE_ACCOUNT_JSON` se sloty nefiltrují podle kalendáře (zobrazí se všechny z adminu).
 
 ---
 
 ## Funnel pro reklamy (`/form/koucing`)
 
-Mobile-first vícekrokový funnel (uvítání → 2 otázky → kontakt → popup cal.eu). Leady z funnelu mají `source: "funnel"`; v Notionu se zobrazí jako zdroj **Funnel**. Odpovědi z kroků se ukládají do pole Poznámka.
+Mobile-first vícekrokový funnel (uvítání → 2 otázky → kontakt → rezervační modál). Leady z funnelu mají `source: "funnel"`; v Notionu se zobrazí jako zdroj **Funnel**. Odpovědi z kroků se ukládají do pole Poznámka.
 
 **Subdomény pro funnel:** Aby na adresách `https://form.ziju.life` nebo `https://coaching.ziju.life` běžel funnel, postupuj takto:
 

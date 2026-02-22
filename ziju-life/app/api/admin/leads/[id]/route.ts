@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySession } from "@/lib/auth";
 import { sql } from "@/lib/database";
-import type { LeadStatus } from "@/lib/leads-db";
 
-export async function PATCH(
-  request: NextRequest,
+export async function DELETE(
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const isAuthenticated = await verifySession();
@@ -14,27 +13,24 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const body = await request.json();
-    const { status } = body;
 
-    if (!status || !["novy", "kontaktovan", "rezervovano", "odmitnuto"].includes(status)) {
-      return NextResponse.json(
-        { error: "Neplatný stav." },
-        { status: 400 }
-      );
+    const exists = await sql`SELECT 1 FROM leads WHERE id = ${id} LIMIT 1` as { "?column?": number }[];
+    if (exists.length === 0) {
+      return NextResponse.json({ error: "Kontakt nenalezen." }, { status: 404 });
     }
 
-    await sql`
-      UPDATE leads
-      SET status = ${status as LeadStatus}, updated_at = NOW()
-      WHERE id = ${id}
-    `;
+    try {
+      await sql`DELETE FROM bookings WHERE lead_id = ${id}`;
+    } catch {
+      /* bookings table may not exist */
+    }
+    await sql`DELETE FROM leads WHERE id = ${id}`;
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("PATCH /api/admin/leads/[id] error:", error);
+    console.error("DELETE /api/admin/leads/[id] error:", error);
     return NextResponse.json(
-      { error: "Nepodařilo se aktualizovat lead." },
+      { error: "Nepodařilo se odstranit kontakt." },
       { status: 500 }
     );
   }

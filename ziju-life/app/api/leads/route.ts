@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { addLead } from '@/lib/leads-db'
 import { createLeadInNotion } from '@/lib/notion'
 
-/** Redirect po odeslání leada (cal.com/cal.eu). Volitelně nastav NEXT_PUBLIC_CAL_EU_BOOKING_URL. */
-const BOOKING_PAGE_URL =
-  process.env.NEXT_PUBLIC_CAL_EU_BOOKING_URL || 'https://cal.com/matej-mauler/30min'
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -47,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, redirectUrl: BOOKING_PAGE_URL },
+      { success: true, leadId: lead.id },
       { status: 201 }
     )
   } catch (error) {

@@ -7,6 +7,7 @@ import NewsletterContent from "@/components/admin/NewsletterContent";
 import NewsletterCampaigns from "@/components/admin/NewsletterCampaigns";
 import SettingsContent from "@/components/admin/SettingsContent";
 import CrmContent from "@/components/admin/CrmContent";
+import BookingSlotsContent from "@/components/admin/BookingSlotsContent";
 
 function AdminContent() {
   const router = useRouter();
@@ -26,6 +27,7 @@ function AdminContent() {
       {section === "newsletter" && <NewsletterContent />}
       {section === "newsletter-campaigns" && <NewsletterCampaigns />}
       {section === "crm" && <CrmContent />}
+      {section === "rezervace" && <BookingSlotsContent />}
       {section === "settings" && <SettingsContent />}
     </div>
   );

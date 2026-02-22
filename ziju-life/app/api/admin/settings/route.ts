@@ -9,12 +9,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    type Row = { notion_api_key: string | null; notion_database_id: string | null; cal_link: string | null; booking_embed_url?: string | null };
+    type Row = { notion_api_key: string | null; notion_database_id: string | null; cal_link: string | null; booking_embed_url?: string | null; clickup_list_id?: string | null; google_calendar_id?: string | null; google_refresh_token?: string | null };
     let result: Row[];
     try {
-      result = await sql`SELECT notion_api_key, notion_database_id, cal_link, booking_embed_url FROM admin_settings LIMIT 1` as Row[];
+      result = await sql`SELECT notion_api_key, notion_database_id, cal_link, booking_embed_url, clickup_list_id, google_calendar_id, google_refresh_token FROM admin_settings LIMIT 1` as Row[];
     } catch {
-      result = await sql`SELECT notion_api_key, notion_database_id, cal_link FROM admin_settings LIMIT 1` as Row[];
+      result = await sql`SELECT notion_api_key, notion_database_id, cal_link, booking_embed_url FROM admin_settings LIMIT 1` as Row[];
     }
 
     if (result.length > 0) {
@@ -24,6 +24,9 @@ export async function GET(request: NextRequest) {
         notionDatabaseId: row.notion_database_id || process.env.NOTION_DATABASE_ID || "",
         calLink: row.cal_link || process.env.NEXT_PUBLIC_CAL_LINK || "",
         bookingEmbedUrl: row.booking_embed_url ?? process.env.NEXT_PUBLIC_BOOKING_EMBED_URL ?? "",
+        clickupListId: row.clickup_list_id ?? process.env.CLICKUP_LIST_ID ?? "",
+        googleCalendarId: row.google_calendar_id ?? process.env.GOOGLE_CALENDAR_ID ?? "primary",
+        googleCalendarConnected: Boolean(row?.google_refresh_token?.trim()),
       });
     }
 
@@ -32,6 +35,9 @@ export async function GET(request: NextRequest) {
       notionDatabaseId: process.env.NOTION_DATABASE_ID ? "••••••••••••••••" : "",
       calLink: process.env.NEXT_PUBLIC_CAL_LINK || "",
       bookingEmbedUrl: process.env.NEXT_PUBLIC_BOOKING_EMBED_URL || "",
+      clickupListId: process.env.CLICKUP_LIST_ID ?? "",
+      googleCalendarId: process.env.GOOGLE_CALENDAR_ID ?? "primary",
+      googleCalendarConnected: Boolean(process.env.GOOGLE_REFRESH_TOKEN?.trim()),
     });
   } catch (error) {
     console.error("GET /api/admin/settings error:", error);
@@ -50,7 +56,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { notionApiKey, notionDatabaseId, calLink, bookingEmbedUrl } = body;
+    const { notionApiKey, notionDatabaseId, calLink, bookingEmbedUrl, clickupListId, googleCalendarId } = body;
 
     // Vytvoř tabulku pokud neexistuje
     await sql`
@@ -65,11 +71,18 @@ export async function POST(request: NextRequest) {
     `;
     try {
       await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS booking_embed_url TEXT`;
-    } catch {
-      // sloupec už existuje
-    }
+    } catch { /* already exists */ }
+    try {
+      await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_list_id TEXT`;
+    } catch { /* already exists */ }
+    try {
+      await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS google_calendar_id TEXT`;
+    } catch { /* already exists */ }
+    try {
+      await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS google_refresh_token TEXT`;
+    } catch { /* already exists */ }
 
-    // Upsert settings - vždy aktualizuj první řádek nebo vytvoř nový
+    // Upsert settings
     const existing = await sql`SELECT id FROM admin_settings LIMIT 1`;
     if (existing.length > 0) {
       await sql`
@@ -78,13 +91,15 @@ export async function POST(request: NextRequest) {
           notion_database_id = ${notionDatabaseId ?? null},
           cal_link = ${calLink ?? null},
           booking_embed_url = ${bookingEmbedUrl?.trim() || null},
+          clickup_list_id = ${clickupListId?.trim() || null},
+          google_calendar_id = ${googleCalendarId?.trim() || null},
           updated_at = NOW()
         WHERE id = ${(existing[0] as { id: number }).id}
       `;
     } else {
       await sql`
-        INSERT INTO admin_settings (notion_api_key, notion_database_id, cal_link, booking_embed_url, updated_at)
-        VALUES (${notionApiKey ?? null}, ${notionDatabaseId ?? null}, ${calLink ?? null}, ${bookingEmbedUrl?.trim() || null}, NOW())
+        INSERT INTO admin_settings (notion_api_key, notion_database_id, cal_link, booking_embed_url, clickup_list_id, google_calendar_id, updated_at)
+        VALUES (${notionApiKey ?? null}, ${notionDatabaseId ?? null}, ${calLink ?? null}, ${bookingEmbedUrl?.trim() || null}, ${clickupListId?.trim() || null}, ${googleCalendarId?.trim() || null}, NOW())
       `;
     }
 

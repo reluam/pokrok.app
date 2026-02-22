@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Check } from "lucide-react";
+import { Save, Check, ExternalLink } from "lucide-react";
 
 export default function SettingsContent() {
   const [notionApiKey, setNotionApiKey] = useState("");
   const [notionDatabaseId, setNotionDatabaseId] = useState("");
   const [calLink, setCalLink] = useState("");
-  const [bookingEmbedUrl, setBookingEmbedUrl] = useState("");
+  const [clickupListId, setClickupListId] = useState("");
+  const [googleCalendarId, setGoogleCalendarId] = useState("primary");
+  const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -19,12 +21,23 @@ export default function SettingsContent() {
         if (data.notionApiKey) setNotionApiKey(data.notionApiKey);
         if (data.notionDatabaseId) setNotionDatabaseId(data.notionDatabaseId);
         if (data.calLink) setCalLink(data.calLink);
-        if (data.bookingEmbedUrl) setBookingEmbedUrl(data.bookingEmbedUrl);
+        if (data.clickupListId) setClickupListId(data.clickupListId);
+        if (data.googleCalendarId) setGoogleCalendarId(data.googleCalendarId);
+        if (data.googleCalendarConnected != null) setGoogleCalendarConnected(Boolean(data.googleCalendarConnected));
       })
       .catch(() => {
         setNotionApiKey("••••••••••••••••");
         setNotionDatabaseId("••••••••••••••••");
       });
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+    const g = params.get("google");
+    if (g === "connected") {
+      setGoogleCalendarConnected(true);
+      window.history.replaceState({}, "", "/admin");
+    }
   }, []);
 
   const handleSave = async () => {
@@ -40,7 +53,9 @@ export default function SettingsContent() {
           notionApiKey: notionApiKey.trim() || null,
           notionDatabaseId: notionDatabaseId.trim() || null,
           calLink: calLink.trim() || null,
-          bookingEmbedUrl: bookingEmbedUrl.trim() || null,
+          bookingEmbedUrl: null,
+          clickupListId: clickupListId.trim() || null,
+          googleCalendarId: googleCalendarId.trim() || "primary",
         }),
       });
 
@@ -121,30 +136,61 @@ export default function SettingsContent() {
         </div>
       </section>
 
-      {/* Rezervace – iframe / link */}
+      {/* Rezervace – ClickUp a Google Kalendář */}
       <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
-        <h3 className="text-xl font-bold text-foreground mb-4">Rezervace termínů (iframe)</h3>
+        <h3 className="text-xl font-bold text-foreground mb-4">Rezervace – ClickUp a Google Kalendář</h3>
         <p className="text-sm text-foreground/60 mb-4">
-          Po odeslání formuláře se otevře rezervační okno. Zadej celou URL iframe (např. Talentino nebo jiný rezervační systém).
+          Po potvrzení rezervace se vytvoří úkol v ClickUp (s termínem). Sloty se filtrují podle obsazenosti v Google Kalendáři. ClickUp token nastav v .env (CLICKUP_API_TOKEN). Google: stačí jednou kliknout na „Připojit Google Kalendář“ (bez JSON klíče) – viz návod.
         </p>
-        <div>
-          <label htmlFor="booking-embed-url" className="block text-sm font-medium text-foreground mb-2">
-            URL iframe pro rezervaci
-          </label>
-          <input
-            id="booking-embed-url"
-            type="url"
-            value={bookingEmbedUrl}
-            onChange={(e) => setBookingEmbedUrl(e.target.value)}
-            placeholder="https://talentino.app/book/matej/30-minutova-konzultace-zdarma?embed=1"
-            className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
-          />
-          <p className="text-xs text-foreground/50 mt-1">
-            Tato URL se zobrazí v rezervačním popup okně na webu. Můžeš měnit bez nutnosti úpravy kódu.
-          </p>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="clickup-list-id" className="block text-sm font-medium text-foreground mb-2">
+              ClickUp List ID
+            </label>
+            <input
+              id="clickup-list-id"
+              type="text"
+              value={clickupListId}
+              onChange={(e) => setClickupListId(e.target.value)}
+              placeholder="123456789 (z URL: .../list/123456789)"
+              className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+            />
+            <p className="text-xs text-foreground/50 mt-1">
+              List ID najdeš v URL listu v ClickUp. Token nastav v .env jako CLICKUP_API_TOKEN.
+            </p>
+          </div>
+          <div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <label htmlFor="google-calendar-id" className="block text-sm font-medium text-foreground">
+                Google Kalendář (konflikty slotů)
+              </label>
+              {googleCalendarConnected ? (
+                <span className="text-sm text-green-600 font-medium">Připojeno</span>
+              ) : (
+                <a
+                  href="/api/admin/google-auth"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Připojit Google Kalendář
+                </a>
+              )}
+            </div>
+            <input
+              id="google-calendar-id"
+              type="text"
+              value={googleCalendarId}
+              onChange={(e) => setGoogleCalendarId(e.target.value)}
+              placeholder="primary"
+              className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white mt-2"
+            />
+            <p className="text-xs text-foreground/50 mt-1">
+              Kalendář, podle kterého se filtrují obsazené časy. &quot;primary&quot; = hlavní kalendář. Pro připojení potřebuješ v .env nastavit GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET a GOOGLE_OAUTH_REDIRECT_URI (návod v GOOGLE_CALENDAR_NAVOD.md).
+            </p>
+          </div>
         </div>
         <div className="mt-4">
-          <label className="block text-sm font-medium text-foreground mb-2">Cal link (volitelné, pro API redirect)</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Cal link (volitelné)</label>
           <input
             id="cal-link"
             type="text"
