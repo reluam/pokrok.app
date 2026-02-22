@@ -188,6 +188,31 @@ export default function SettingsContent() {
               Kalendář, podle kterého se filtrují obsazené časy. &quot;primary&quot; = hlavní kalendář. Pro připojení potřebuješ v .env nastavit GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET a GOOGLE_OAUTH_REDIRECT_URI (návod v GOOGLE_CALENDAR_NAVOD.md).
             </p>
           </div>
+          <div className="pt-2 border-t border-black/10">
+            <p className="text-sm font-medium text-foreground mb-2">Připomínka 24 h před schůzkou (cron-job.org)</p>
+            <p className="text-xs text-foreground/60 mb-2">
+              Nastav v .env: <code className="bg-black/5 px-1 rounded">CRONJOB_ORG_API_KEY</code> (API klíč z cron-job.org → Settings), <code className="bg-black/5 px-1 rounded">CRON_SECRET</code>, <code className="bg-black/5 px-1 rounded">NEXT_PUBLIC_SITE_URL</code> (např. https://ziju.life). Pak klikni níže – vytvoří se job, který každou hodinu volá endpoint připomínek.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const res = await fetch("/api/admin/cron-job/setup-booking-reminders", { method: "POST" });
+                  const data = await res.json();
+                  if (res.ok) {
+                    alert(data.message + (data.jobId ? ` (jobId: ${data.jobId})` : ""));
+                  } else {
+                    alert("Chyba: " + (data.error || res.status));
+                  }
+                } catch (e) {
+                  alert("Chyba: " + (e instanceof Error ? e.message : "network"));
+                }
+              }}
+              className="px-4 py-2 text-sm font-medium bg-black/10 hover:bg-black/15 rounded-xl transition-colors"
+            >
+              Nastavit cron na cron-job.org
+            </button>
+          </div>
         </div>
         <div className="mt-4">
           <label className="block text-sm font-medium text-foreground mb-2">Cal link (volitelné)</label>

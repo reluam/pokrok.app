@@ -3,6 +3,7 @@ import { sql } from "@/lib/database";
 import { getSlotById, isSlotFree, createBooking } from "@/lib/booking-slots-db";
 import { createBookingTask } from "@/lib/clickup";
 import { getBookingSettings } from "@/lib/booking-settings";
+import { sendBookingConfirmationToClient, sendBookingConfirmationToAdmin } from "@/lib/booking-email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,18 +73,39 @@ export async function POST(request: NextRequest) {
     }
 
     await createBooking(resolvedLeadId, slot.id);
-    const { clickupListId: listId } = await getBookingSettings();
-    if (listId) {
-      const result = await createBookingTask({
-        listId,
+
+    // Potvrzovací e-maily: klient + admin (matej@ziju.life)
+    const [clientEmailResult, adminEmailResult] = await Promise.all([
+      sendBookingConfirmationToClient({
+        to: email,
         name,
-        email,
+        slotAt: slot.start_at,
+        durationMinutes: slot.duration_minutes,
+      }),
+      sendBookingConfirmationToAdmin({
+        clientName: name,
+        clientEmail: email,
+        slotAt: slot.start_at,
+        durationMinutes: slot.duration_minutes,
         note,
         source,
-        slotStartAt: slot.start_at,
-        durationMinutes: slot.duration_minutes,
-      });
-      if (!result.ok) console.warn("[reserve] ClickUp:", result.error);
+      }),
+    ]);
+    if (!clientEmailResult.ok) console.warn("[reserve] E-mail klientovi:", clientEmailResult.error);
+    if (!adminEmailResult.ok) console.warn("[reserve] E-mail admin:", adminEmailResult.error);
+
+    const { clickupListId: listId } = await getBookingSettings();
+    const result = await createBookingTask({
+      listId: listId ?? "",
+      name,
+      email,
+      note,
+      source,
+      slotStartAt: slot.start_at,
+      durationMinutes: slot.duration_minutes,
+    });
+    if (!result.ok) {
+      console.warn("[reserve] ClickUp úkol se nevytvořil:", result.error);
     }
 
     return NextResponse.json({ success: true });

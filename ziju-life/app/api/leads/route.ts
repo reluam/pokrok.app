@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { addLead } from '@/lib/leads-db'
 import { createLeadInNotion } from '@/lib/notion'
+import { createLeadTask } from '@/lib/clickup'
+import { getBookingSettings } from '@/lib/booking-settings'
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,6 +42,18 @@ export async function POST(request: NextRequest) {
     const notionResult = await createLeadInNotion(lead)
     if (!notionResult.ok) {
       console.warn('Notion sync failed (lead saved locally):', notionResult.error)
+    }
+
+    const { clickupListId: listId } = await getBookingSettings()
+    const clickUpResult = await createLeadTask({
+      listId: listId ?? '',
+      name: name ?? '',
+      email,
+      note: message,
+      source,
+    })
+    if (!clickUpResult.ok) {
+      console.warn('ClickUp lead task (no due date):', clickUpResult.error)
     }
 
     return NextResponse.json(

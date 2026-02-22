@@ -33,6 +33,9 @@ export async function GET() {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_bookings_slot_id ON bookings(slot_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_bookings_lead_id ON bookings(lead_id)`;
+    try {
+      await sql`ALTER TABLE bookings ADD COLUMN reminder_sent_at TIMESTAMP WITH TIME ZONE`;
+    } catch { /* column may already exist */ }
 
     await sql`
       CREATE TABLE IF NOT EXISTS weekly_availability (

@@ -65,6 +65,27 @@ Po odeslání formuláře se otevře **vlastní modál** na webu: načtou se dos
    ```
    List ID můžeš místo env nastavit v Admin → Nastavení → Rezervace (ClickUp List ID).
 
+**Když se úkol/event v ClickUp nevytvoří:** Zkontroluj, že máš v .env (nebo na Vercelu) nastavené `CLICKUP_API_TOKEN` i `CLICKUP_LIST_ID` (nebo List ID v Admin → Nastavení). Po rezervaci se v logu (Vercel → Deployment → Logs) objeví zpráva typu „ClickUp úkol se nevytvořil: …“ nebo „CLICKUP_LIST_ID není nastaven“.
+
+**Lead bez rezervace:** Když uživatel vyplní jméno a e-mail (a otevře se mu výběr termínu), ale rezervaci nedokončí, stejně se vytvoří lead v DB a v ClickUp úkol **bez due date**. V ClickUp si pak můžeš filtrovat úkoly s/bez termínu.
+
+### E-maily (Resend)
+
+Po **potvrzení rezervace** se odešlou dva e-maily:
+- **Klient** dostane potvrzení na svůj e-mail (termín, délka).
+- **Ty** dostaneš na `matej@ziju.life` (nebo na adresu z `BOOKING_ADMIN_EMAIL` / `CONTACT_EMAIL`) přehled o nové rezervaci.
+
+K odesílání se používá Resend (`RESEND_API_KEY`, `RESEND_FROM_EMAIL`). Bez nastaveného Resend se rezervace uloží, ale e-maily nepoletí.
+
+**Připomínka 24 h před schůzkou:** Klient dostane e-mail s připomínkou. Nastavení **programátorsky z adminu** (doporučeno):
+1. V [cron-job.org](https://console.cron-job.org/) → Settings zkopíruj **API key**.
+2. Do .env (a na Vercelu) přidej: `CRONJOB_ORG_API_KEY=tvůj_api_klíč`, `CRON_SECRET=náhodný_řetězec`, `NEXT_PUBLIC_SITE_URL=https://ziju.life` (nebo tvoje doména).
+3. V **Admin → Nastavení** v sekci Rezervace klikni na **„Nastavit cron na cron-job.org“**. Tím se přes API vytvoří (nebo aktualizuje) job, který každou hodinu volá `GET /api/cron/booking-reminders` s hlavičkou `Authorization: Bearer <CRON_SECRET>`.
+
+Ruční nastavení na cron-job.org: vytvoř job s URL `https://tvoje-domena.cz/api/cron/booking-reminders`, metoda GET, každou hodinu, hlavička `Authorization: Bearer <CRON_SECRET>` (nebo `?secret=<CRON_SECRET>`).
+
+Po první nasazení s připomínkami spusť znovu migraci rezervací (`GET /api/migrate-booking`), aby v tabulce `bookings` byl sloupec `reminder_sent_at`.
+
 ### Google Kalendář – konflikty slotů
 
 Aby se v modálu nezobrazovaly sloty, kdy už máš v kalendáři událost (včetně osobních bloků), nastav **Google Service Account** a sdílení kalendáře. Kompletní krok-za-krokem návod je v **[GOOGLE_CALENDAR_NAVOD.md](./GOOGLE_CALENDAR_NAVOD.md)**.
