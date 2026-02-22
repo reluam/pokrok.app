@@ -35,27 +35,44 @@ export default function BeforeAfterGallery({
 
   const current = slides[activeIndex];
 
+  const ArrowLeft = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 18l-6-6 6-6" />
+    </svg>
+  );
+  const ArrowRight = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 18l6-6-6-6" />
+    </svg>
+  );
+
   return (
     <>
-      <div className="mb-6 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={goPrev}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/15 bg-white/80 text-[var(--fg)] shadow-sm transition hover:bg-black/5 hover:border-black/25"
-          aria-label="Předchozí (Před)"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-        <div className="relative min-w-0 flex-1">
-          <p className="mb-1.5 text-center text-xs font-600 uppercase tracking-wider text-[var(--fg-muted)]">
+      <div className="mb-6">
+        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black/5">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); goPrev(); }}
+            className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[var(--fg)] shadow-md transition hover:bg-white hover:shadow-lg"
+            aria-label="Před (před rekonstrukcí)"
+          >
+            <ArrowLeft />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); goNext(); }}
+            className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[var(--fg)] shadow-md transition hover:bg-white hover:shadow-lg"
+            aria-label="Po (po rekonstrukci)"
+          >
+            <ArrowRight />
+          </button>
+          <span className="absolute bottom-2 left-2 z-10 rounded bg-black/50 px-2 py-1 text-xs font-600 uppercase tracking-wider text-white">
             {current.label}
-          </p>
+          </span>
           <button
             type="button"
             onClick={openLightbox}
-            className="relative block w-full overflow-hidden rounded-xl bg-black/5 aspect-video focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50"
+            className="relative block h-full w-full focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:ring-inset"
             aria-label={`Zvětšit ${current.label}`}
           >
             <Image
@@ -67,16 +84,6 @@ export default function BeforeAfterGallery({
             />
           </button>
         </div>
-        <button
-          type="button"
-          onClick={goNext}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/15 bg-white/80 text-[var(--fg)] shadow-sm transition hover:bg-black/5 hover:border-black/25"
-          aria-label="Další (Po)"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </button>
       </div>
 
       {lightboxOpen && (
