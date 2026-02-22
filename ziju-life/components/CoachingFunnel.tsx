@@ -31,7 +31,7 @@ function FunnelSectionDivider({ number }: { number: number }) {
   return (
     <div className="flex items-center justify-center gap-3 w-full py-6 sm:py-8">
       <div className="flex-1 h-px bg-black/15" />
-      <span className="flex items-center justify-center w-10 h-10 rounded-full bg-accent-button text-white font-bold text-lg shrink-0">
+      <span className="flex items-center justify-center w-10 h-10 rounded-full bg-accent text-white font-bold text-lg shrink-0">
         {number}
       </span>
       <div className="flex-1 h-px bg-black/15" />
@@ -261,9 +261,9 @@ export default function CoachingFunnel() {
               <Image
                 src="/ziju-life-logo.png"
                 alt="Žiju life"
-                width={128}
-                height={64}
-                sizes="(max-width: 640px) 56px, 64px"
+                width={212}
+                height={84}
+                sizes="(max-width: 640px) 141px, 160px"
                 className="h-14 w-auto sm:h-16 mx-auto"
                 priority
               />
@@ -279,10 +279,10 @@ export default function CoachingFunnel() {
               <button
                 type="button"
                 onClick={() => setStepIndex(1)}
-                className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border-0 text-left w-full bg-accent-button hover:bg-accent-button-hover"
+                className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border-0 text-left w-full bg-accent hover:bg-accent-hover"
               >
                 <FunnelCtaImage src="/form/btn-prevzit-rizeni.png" wrapperClassName="bg-white/20" />
-                <span className="w-full py-3 px-3 bg-accent-button text-white font-bold text-center text-base sm:text-lg rounded-b-2xl">
+                <span className="w-full py-3 px-3 bg-accent text-white font-bold text-center text-base sm:text-lg rounded-b-2xl">
                   Chci převzít řízení
                 </span>
               </button>
@@ -356,7 +356,7 @@ export default function CoachingFunnel() {
                 <button
                   type="button"
                   onClick={() => setStepIndex(1)}
-                  className="w-full px-6 py-3 bg-accent-button text-white rounded-xl font-bold text-base hover:bg-accent-button-hover transition-colors"
+                  className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
                 >
                   Chci změnu
                 </button>
@@ -405,7 +405,7 @@ export default function CoachingFunnel() {
                     alt="Matěj"
                     fill
                     className="object-cover"
-                    sizes="(max-width: 640px) 192px, 224px"
+                    sizes="(max-width: 640px) 192px, 248px"
                   />
                 </div>
               </div>
@@ -452,7 +452,7 @@ export default function CoachingFunnel() {
                 <button
                   type="button"
                   onClick={() => setStepIndex(1)}
-                  className="w-full px-6 py-3 bg-accent-button text-white rounded-xl font-bold text-base hover:bg-accent-button-hover transition-colors"
+                  className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
                 >
                   Převzít řízení
                 </button>
@@ -491,7 +491,7 @@ export default function CoachingFunnel() {
                     }
                     className={`aspect-square rounded-2xl border-2 transition-all font-medium flex flex-col items-center justify-center gap-2 p-3 text-center ${
                       isSelected
-                        ? "border-accent-button bg-accent-button text-white"
+                        ? "border-accent bg-accent text-white"
                         : "border-black/10 bg-white hover:border-accent hover:bg-accent/5 text-foreground"
                     }`}
                   >
@@ -519,7 +519,7 @@ export default function CoachingFunnel() {
                   type="button"
                   onClick={() => handleMultiNext(step.id)}
                   disabled={multiSelection.length === 0}
-                  className="w-full px-6 py-3 bg-accent-button text-white rounded-xl font-bold hover:bg-accent-button-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   Další
                 </button>
@@ -546,7 +546,7 @@ export default function CoachingFunnel() {
                 </div>
                 <Link
                   href="/inspirace"
-                  className="inline-block px-6 py-3 bg-accent-button text-white rounded-xl font-bold hover:bg-accent-button-hover transition-colors"
+                  className="inline-block px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors"
                 >
                   Přejít na inspirace
                 </Link>
@@ -617,7 +617,7 @@ export default function CoachingFunnel() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full px-6 py-4 bg-accent-button text-white rounded-xl font-bold hover:bg-accent-button-hover transition-colors disabled:opacity-70"
+                className="w-full px-6 py-4 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors disabled:opacity-70"
               >
                 {loading ? "Odesílám…" : "Pokračovat k výběru termínu"}
               </button>

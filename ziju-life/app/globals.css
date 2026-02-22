@@ -5,9 +5,6 @@
   --foreground: #171717;
   --accent-primary: #FF8C42;
   --accent-primary-hover: #FF6B1A;
-  /* Tmavší odstín pro CTA tlačítka s bílým textem (WCAG AA kontrast) */
-  --accent-button: #B33D00;
-  --accent-button-hover: #9A3400;
   --accent-secondary: #4ECDC4;
   --accent-secondary-hover: #3AB5AD;
   --accent-tertiary: #B0A7F5;
@@ -19,8 +16,6 @@
   --color-foreground: var(--foreground);
   --color-accent: var(--accent-primary);
   --color-accent-hover: var(--accent-primary-hover);
-  --color-accent-button: var(--accent-button);
-  --color-accent-button-hover: var(--accent-button-hover);
 }
 
 @layer base {
