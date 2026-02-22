@@ -12,7 +12,9 @@ export default function Hero() {
           fill
           className="object-cover"
           priority
+          fetchPriority="high"
           quality={90}
+          sizes="100vw"
         />
         {/* Overlay for better text readability */}
         <div className="absolute inset-0 bg-[#FDFDF7]/40 backdrop-blur-md" style={{ zIndex: 1 }}></div>

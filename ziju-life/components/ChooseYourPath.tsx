@@ -122,6 +122,7 @@ export default function ChooseYourPath() {
         });
 
         const sorted = items
+          .filter((i) => !i.imageUrl?.includes("knihydobrovsky") && !i.thumbnail?.includes("knihydobrovsky"))
           .filter((i) => i.date)
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
           .slice(0, 3);

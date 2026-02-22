@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/database";
 import { getSlotById, isSlotFree, createBooking } from "@/lib/booking-slots-db";
-import { createBookingTask } from "@/lib/clickup";
+import { createBookingTask, updateTaskToBooking } from "@/lib/clickup";
 import { getBookingSettings } from "@/lib/booking-settings";
 import { sendBookingConfirmationToClient, sendBookingConfirmationToAdmin } from "@/lib/booking-email";
+import { getLeadById } from "@/lib/leads-db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -95,17 +96,29 @@ export async function POST(request: NextRequest) {
     if (!adminEmailResult.ok) console.warn("[reserve] E-mail admin:", adminEmailResult.error);
 
     const { clickupListId: listId } = await getBookingSettings();
-    const result = await createBookingTask({
-      listId: listId ?? "",
-      name,
-      email,
-      note,
-      source,
-      slotStartAt: slot.start_at,
-      durationMinutes: slot.duration_minutes,
-    });
-    if (!result.ok) {
-      console.warn("[reserve] ClickUp úkol se nevytvořil:", result.error);
+    const lead = resolvedLeadId ? await getLeadById(resolvedLeadId) : null;
+    if (lead?.clickupTaskId) {
+      const result = await updateTaskToBooking({
+        taskId: lead.clickupTaskId,
+        name,
+        email,
+        source,
+        note,
+        slotStartAt: slot.start_at,
+        durationMinutes: slot.duration_minutes,
+      });
+      if (!result.ok) console.warn("[reserve] ClickUp update úkolu:", result.error);
+    } else {
+      const result = await createBookingTask({
+        listId: listId ?? "",
+        name,
+        email,
+        note,
+        source,
+        slotStartAt: slot.start_at,
+        durationMinutes: slot.duration_minutes,
+      });
+      if (!result.ok) console.warn("[reserve] ClickUp úkol se nevytvořil:", result.error);
     }
 
     return NextResponse.json({ success: true });

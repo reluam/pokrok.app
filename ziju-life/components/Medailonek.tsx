@@ -19,7 +19,8 @@ export default function Medailonek() {
                     fill
                     className="object-cover rounded-2xl"
                     priority
-                    sizes="(max-width: 768px) 100vw, 400px"
+                    fetchPriority="high"
+                    sizes="(max-width: 768px) 364px, 400px"
                   />
                 </div>
               </HandDrawnFrame>

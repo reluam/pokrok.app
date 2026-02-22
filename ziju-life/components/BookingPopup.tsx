@@ -118,6 +118,7 @@ function BookingModal({
   const [error, setError] = useState("");
   const [reserving, setReserving] = useState(false);
   const [reserveError, setReserveError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   const fromParam = dates[0];
@@ -166,6 +167,7 @@ function BookingModal({
 
   useEffect(() => {
     if (isOpen && fromParam && toParam) {
+      setSuccess(false);
       setReserveError("");
       setInitialLoadDone(false);
       loadSlots(fromParam, toParam, dates);
@@ -229,7 +231,7 @@ function BookingModal({
       .then((r) => r.json())
       .then((data) => {
         if (data.error) setReserveError(data.error);
-        else onClose();
+        else setSuccess(true);
       })
       .catch(() => setReserveError("Rezervaci se nepodařilo dokončit."))
       .finally(() => setReserving(false));
@@ -265,6 +267,21 @@ function BookingModal({
         </div>
 
         <div className="p-4">
+          {success ? (
+            <div className="text-center space-y-4 py-6">
+              <p className="text-xl font-semibold text-foreground">Rezervace proběhla úspěšně</p>
+              <p className="text-foreground/80 text-sm sm:text-base leading-relaxed">
+                Děkuji a těším se na náš hovor. Na tvůj e-mail ti přijde potvrzení s detaily termínu.
+              </p>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover"
+              >
+                Zavřít
+              </button>
+            </div>
+          ) : (
           <>
               {loading && !initialLoadDone && (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -378,6 +395,7 @@ function BookingModal({
                 <p className="py-4 text-center text-foreground/60 text-sm">Zatím nejsou k dispozici žádné termíny.</p>
               )}
           </>
+          )}
         </div>
       </div>
     </div>

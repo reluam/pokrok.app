@@ -15,6 +15,7 @@ export default function Footer() {
                   alt="Žiju life"
                   width={120}
                   height={48}
+                  sizes="(max-width: 768px) 100px, 120px"
                   className="h-10 md:h-12 w-auto mx-auto md:mx-0"
                 />
               </div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { addLead } from '@/lib/leads-db'
+import { addLead, setLeadClickUpTaskId } from '@/lib/leads-db'
 import { createLeadInNotion } from '@/lib/notion'
 import { createLeadTask } from '@/lib/clickup'
 import { getBookingSettings } from '@/lib/booking-settings'
@@ -52,8 +52,10 @@ export async function POST(request: NextRequest) {
       note: message,
       source,
     })
-    if (!clickUpResult.ok) {
-      console.warn('ClickUp lead task (no due date):', clickUpResult.error)
+    if (clickUpResult.ok && clickUpResult.taskId) {
+      await setLeadClickUpTaskId(lead.id, clickUpResult.taskId)
+    } else if (!clickUpResult.ok) {
+      console.warn('ClickUp lead task (Reach out):', clickUpResult.error)
     }
 
     return NextResponse.json(

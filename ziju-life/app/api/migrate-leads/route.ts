@@ -38,6 +38,10 @@ export async function GET() {
       CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status)
     `
 
+    await sql`
+      ALTER TABLE leads ADD COLUMN IF NOT EXISTS clickup_task_id TEXT
+    `
+
     return NextResponse.json({ message: 'Migration completed: leads table created' })
   } catch (error: any) {
     console.error('Migration error:', error)

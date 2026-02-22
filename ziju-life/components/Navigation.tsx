@@ -75,6 +75,7 @@ export default function Navigation() {
               alt="Žiju life"
               width={160}
               height={64}
+              sizes="(max-width: 768px) 120px, 140px"
               className="h-12 md:h-14 w-auto"
               priority
             />
