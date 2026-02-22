@@ -14,10 +14,11 @@ export async function GET(request: NextRequest) {
       clickup_list_id?: string | null; google_calendar_id?: string | null; google_refresh_token?: string | null;
       clickup_field_mail?: string | null; clickup_field_zdroj?: string | null; clickup_field_jmeno?: string | null;
       clickup_field_status?: string | null; clickup_status_reach_out?: string | null; clickup_status_meeting?: string | null;
+      clickup_status_name_reach_out?: string | null; clickup_status_name_meeting?: string | null;
     };
     let result: Row[];
     try {
-      result = await sql`SELECT notion_api_key, notion_database_id, cal_link, booking_embed_url, clickup_list_id, google_calendar_id, google_refresh_token, clickup_field_mail, clickup_field_zdroj, clickup_field_jmeno, clickup_field_status, clickup_status_reach_out, clickup_status_meeting FROM admin_settings LIMIT 1` as Row[];
+      result = await sql`SELECT notion_api_key, notion_database_id, cal_link, booking_embed_url, clickup_list_id, google_calendar_id, google_refresh_token, clickup_field_mail, clickup_field_zdroj, clickup_field_jmeno, clickup_field_status, clickup_status_reach_out, clickup_status_meeting, clickup_status_name_reach_out, clickup_status_name_meeting FROM admin_settings LIMIT 1` as Row[];
     } catch {
       result = await sql`SELECT notion_api_key, notion_database_id, cal_link, booking_embed_url, clickup_list_id, google_calendar_id, google_refresh_token FROM admin_settings LIMIT 1` as Row[];
     }
@@ -36,6 +37,8 @@ export async function GET(request: NextRequest) {
         clickupFieldStatus: row.clickup_field_status ?? "",
         clickupStatusReachOut: row.clickup_status_reach_out ?? "",
         clickupStatusMeeting: row.clickup_status_meeting ?? "",
+        clickupStatusNameReachOut: row.clickup_status_name_reach_out ?? "",
+        clickupStatusNameMeeting: row.clickup_status_name_meeting ?? "",
         googleCalendarId: row.google_calendar_id ?? process.env.GOOGLE_CALENDAR_ID ?? "primary",
         googleCalendarConnected: Boolean(row?.google_refresh_token?.trim()),
       });
@@ -53,6 +56,8 @@ export async function GET(request: NextRequest) {
       clickupFieldStatus: "",
       clickupStatusReachOut: "",
       clickupStatusMeeting: "",
+      clickupStatusNameReachOut: "",
+      clickupStatusNameMeeting: "",
       googleCalendarId: process.env.GOOGLE_CALENDAR_ID ?? "primary",
       googleCalendarConnected: Boolean(process.env.GOOGLE_REFRESH_TOKEN?.trim()),
     });
@@ -76,6 +81,7 @@ export async function POST(request: NextRequest) {
     const {
       notionApiKey, notionDatabaseId, calLink, bookingEmbedUrl, clickupListId, googleCalendarId,
       clickupFieldMail, clickupFieldZdroj, clickupFieldJmeno, clickupFieldStatus, clickupStatusReachOut, clickupStatusMeeting,
+      clickupStatusNameReachOut, clickupStatusNameMeeting,
     } = body;
 
     // Vytvoř tabulku pokud neexistuje
@@ -99,6 +105,8 @@ export async function POST(request: NextRequest) {
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_field_status TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_reach_out TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_meeting TEXT`; } catch { /* already exists */ }
+    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_name_reach_out TEXT`; } catch { /* already exists */ }
+    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_name_meeting TEXT`; } catch { /* already exists */ }
 
     const existing = await sql`SELECT id FROM admin_settings LIMIT 1`;
     if (existing.length > 0) {
@@ -116,13 +124,15 @@ export async function POST(request: NextRequest) {
           clickup_field_status = ${clickupFieldStatus?.trim() || null},
           clickup_status_reach_out = ${clickupStatusReachOut?.trim() || null},
           clickup_status_meeting = ${clickupStatusMeeting?.trim() || null},
+          clickup_status_name_reach_out = ${clickupStatusNameReachOut?.trim() || null},
+          clickup_status_name_meeting = ${clickupStatusNameMeeting?.trim() || null},
           updated_at = NOW()
         WHERE id = ${(existing[0] as { id: number }).id}
       `;
     } else {
       await sql`
-        INSERT INTO admin_settings (notion_api_key, notion_database_id, cal_link, booking_embed_url, clickup_list_id, google_calendar_id, clickup_field_mail, clickup_field_zdroj, clickup_field_jmeno, clickup_field_status, clickup_status_reach_out, clickup_status_meeting, updated_at)
-        VALUES (${notionApiKey ?? null}, ${notionDatabaseId ?? null}, ${calLink ?? null}, ${bookingEmbedUrl?.trim() || null}, ${clickupListId?.trim() || null}, ${googleCalendarId?.trim() || null}, ${clickupFieldMail?.trim() || null}, ${clickupFieldZdroj?.trim() || null}, ${clickupFieldJmeno?.trim() || null}, ${clickupFieldStatus?.trim() || null}, ${clickupStatusReachOut?.trim() || null}, ${clickupStatusMeeting?.trim() || null}, NOW())
+        INSERT INTO admin_settings (notion_api_key, notion_database_id, cal_link, booking_embed_url, clickup_list_id, google_calendar_id, clickup_field_mail, clickup_field_zdroj, clickup_field_jmeno, clickup_field_status, clickup_status_reach_out, clickup_status_meeting, clickup_status_name_reach_out, clickup_status_name_meeting, updated_at)
+        VALUES (${notionApiKey ?? null}, ${notionDatabaseId ?? null}, ${calLink ?? null}, ${bookingEmbedUrl?.trim() || null}, ${clickupListId?.trim() || null}, ${googleCalendarId?.trim() || null}, ${clickupFieldMail?.trim() || null}, ${clickupFieldZdroj?.trim() || null}, ${clickupFieldJmeno?.trim() || null}, ${clickupFieldStatus?.trim() || null}, ${clickupStatusReachOut?.trim() || null}, ${clickupStatusMeeting?.trim() || null}, ${clickupStatusNameReachOut?.trim() || null}, ${clickupStatusNameMeeting?.trim() || null}, NOW())
       `;
     }
 

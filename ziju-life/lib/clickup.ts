@@ -80,7 +80,8 @@ export async function createLeadTask(params: CreateLeadTaskParams): Promise<{ ok
 
   const title = `${name} – Reach out`;
   const description = buildDescription({ name, email, source, note });
-  const statusOpt = (fieldConfig?.statusReachOut?.trim() || process.env.CLICKUP_STATUS_NEDOKONCENE?.trim()) || null;
+  const statusNameReachOut = (fieldConfig?.statusNameReachOut?.trim() || process.env.CLICKUP_STATUS_NAME_REACH_OUT?.trim()) || null;
+  const statusOpt = statusNameReachOut ? undefined : (fieldConfig?.statusReachOut?.trim() || process.env.CLICKUP_STATUS_NEDOKONCENE?.trim()) || null;
   const customFields = getCustomFields(
     { name, email, source, statusOptionValue: statusOpt ? Number(statusOpt) : undefined },
     fieldConfig
@@ -91,6 +92,7 @@ export async function createLeadTask(params: CreateLeadTaskParams): Promise<{ ok
       name: title,
       description,
     };
+    if (statusNameReachOut) body.status = statusNameReachOut;
     if (customFields.length > 0) body.custom_fields = customFields;
 
     const res = await fetch(`https://api.clickup.com/api/v2/list/${listId.trim()}/task`, {
@@ -139,7 +141,20 @@ export async function updateTaskToBooking(params: {
   const { taskId, name, email, source, note, slotStartAt, durationMinutes, fieldConfig = null } = params;
   const title = `${name} – ${formatSlotShort(slotStartAt)}`;
   const description = buildDescription({ name, email, source, note, slotStartAt, durationMinutes });
-  const dueDate = slotStartAt.getTime();
+  const startDate = slotStartAt.getTime();
+  const dueDate = startDate + durationMinutes * 60 * 1000;
+
+  const statusName = (fieldConfig?.statusNameMeeting?.trim() || process.env.CLICKUP_STATUS_NAME_MEETING?.trim()) || null;
+
+  const body: Record<string, unknown> = {
+    name: title,
+    description,
+    start_date: startDate,
+    due_date: dueDate,
+    start_date_time: true,
+    due_date_time: true,
+  };
+  if (statusName) body.status = statusName;
 
   try {
     const res = await fetch(`https://api.clickup.com/api/v2/task/${taskId}`, {
@@ -148,12 +163,7 @@ export async function updateTaskToBooking(params: {
         Authorization: token()!,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        name: title,
-        description,
-        due_date: dueDate,
-        due_date_time: true,
-      }),
+      body: JSON.stringify(body),
     });
     const text = await res.text();
     if (!res.ok) {
@@ -161,19 +171,22 @@ export async function updateTaskToBooking(params: {
       return { ok: false, error: text };
     }
 
-    const statusId = (fieldConfig?.fieldStatus?.trim() || process.env.CLICKUP_FIELD_STATUS?.trim()) || null;
-    const konzultaceOpt = (fieldConfig?.statusMeeting?.trim() || process.env.CLICKUP_STATUS_KONZULTACE?.trim()) || null;
-    if (statusId && konzultaceOpt) {
-      const fieldRes = await fetch(`https://api.clickup.com/api/v2/task/${taskId}/field/${statusId}`, {
-        method: "POST",
-        headers: {
-          Authorization: token()!,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ value: Number(konzultaceOpt) }),
-      });
-      if (!fieldRes.ok) {
-        console.warn("[clickup] Set status field failed:", await fieldRes.text());
+    // Pokud není výchozí Status (status name), zkus nastavit custom field status
+    if (!statusName) {
+      const statusId = (fieldConfig?.fieldStatus?.trim() || process.env.CLICKUP_FIELD_STATUS?.trim()) || null;
+      const konzultaceOpt = (fieldConfig?.statusMeeting?.trim() || process.env.CLICKUP_STATUS_KONZULTACE?.trim()) || null;
+      if (statusId && konzultaceOpt) {
+        const fieldRes = await fetch(`https://api.clickup.com/api/v2/task/${taskId}/field/${statusId}`, {
+          method: "POST",
+          headers: {
+            Authorization: token()!,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ value: Number(konzultaceOpt) }),
+        });
+        if (!fieldRes.ok) {
+          console.warn("[clickup] Set status field failed:", await fieldRes.text());
+        }
       }
     }
     console.log("[clickup] Úkol aktualizován na MEETING, taskId:", taskId);
@@ -209,8 +222,10 @@ export async function createBookingTask(params: CreateBookingTaskParams): Promis
 
   const title = `${name} – ${formatSlotShort(slotStartAt)}`;
   const description = buildDescription({ name, email, source, note, slotStartAt, durationMinutes });
-  const dueDate = slotStartAt.getTime();
-  const statusOpt = (fieldConfig?.statusMeeting?.trim() || process.env.CLICKUP_STATUS_KONZULTACE?.trim()) || null;
+  const startDate = slotStartAt.getTime();
+  const dueDate = startDate + durationMinutes * 60 * 1000;
+  const statusNameMeeting = (fieldConfig?.statusNameMeeting?.trim() || process.env.CLICKUP_STATUS_NAME_MEETING?.trim()) || null;
+  const statusOpt = statusNameMeeting ? undefined : (fieldConfig?.statusMeeting?.trim() || process.env.CLICKUP_STATUS_KONZULTACE?.trim()) || null;
   const customFields = getCustomFields(
     { name, email, source, statusOptionValue: statusOpt ? Number(statusOpt) : undefined },
     fieldConfig
@@ -220,10 +235,13 @@ export async function createBookingTask(params: CreateBookingTaskParams): Promis
     const body: Record<string, unknown> = {
       name: title,
       description,
+      start_date: startDate,
       due_date: dueDate,
+      start_date_time: true,
       due_date_time: true,
       time_estimate: durationMinutes * 60 * 1000,
     };
+    if (statusNameMeeting) body.status = statusNameMeeting;
     if (customFields.length > 0) body.custom_fields = customFields;
 
     const res = await fetch(`https://api.clickup.com/api/v2/list/${listId.trim()}/task`, {

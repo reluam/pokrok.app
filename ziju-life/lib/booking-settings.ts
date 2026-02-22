@@ -5,8 +5,12 @@ export type ClickUpFieldConfig = {
   fieldZdroj: string | null;
   fieldJmeno: string | null;
   fieldStatus: string | null;
-  statusReachOut: string | null; // option id (number as string)
-  statusMeeting: string | null;  // option id (number as string)
+  statusReachOut: string | null; // option id (custom dropdown)
+  statusMeeting: string | null;  // option id (custom dropdown)
+  /** Název výchozího Status sloupce pro lead (např. "Reach out") – přesně jak v ClickUp boardu */
+  statusNameReachOut: string | null;
+  /** Název výchozího Status sloupce pro konzultaci (např. "Meeting") */
+  statusNameMeeting: string | null;
 };
 
 export async function getBookingSettings(): Promise<{
@@ -22,6 +26,8 @@ export async function getBookingSettings(): Promise<{
     fieldStatus: null,
     statusReachOut: null,
     statusMeeting: null,
+    statusNameReachOut: null,
+    statusNameMeeting: null,
   };
   try {
     let row: {
@@ -34,12 +40,15 @@ export async function getBookingSettings(): Promise<{
       clickup_field_status?: string | null;
       clickup_status_reach_out?: string | null;
       clickup_status_meeting?: string | null;
+      clickup_status_name_reach_out?: string | null;
+      clickup_status_name_meeting?: string | null;
     }[];
     try {
       row = await sql`
         SELECT clickup_list_id, google_calendar_id, google_refresh_token,
                clickup_field_mail, clickup_field_zdroj, clickup_field_jmeno,
-               clickup_field_status, clickup_status_reach_out, clickup_status_meeting
+               clickup_field_status, clickup_status_reach_out, clickup_status_meeting,
+               clickup_status_name_reach_out, clickup_status_name_meeting
         FROM admin_settings LIMIT 1
       ` as typeof row;
     } catch {
@@ -58,6 +67,8 @@ export async function getBookingSettings(): Promise<{
       clickup_field_status?: string | null;
       clickup_status_reach_out?: string | null;
       clickup_status_meeting?: string | null;
+      clickup_status_name_reach_out?: string | null;
+      clickup_status_name_meeting?: string | null;
     };
     return {
       clickupListId: (r?.clickup_list_id?.trim() || process.env.CLICKUP_LIST_ID?.trim()) ?? null,
@@ -68,6 +79,8 @@ export async function getBookingSettings(): Promise<{
         fieldStatus: r?.clickup_field_status?.trim() ?? null,
         statusReachOut: r?.clickup_status_reach_out?.trim() ?? null,
         statusMeeting: r?.clickup_status_meeting?.trim() ?? null,
+        statusNameReachOut: r?.clickup_status_name_reach_out?.trim() ?? null,
+        statusNameMeeting: r?.clickup_status_name_meeting?.trim() ?? null,
       },
       googleCalendarId: r?.google_calendar_id?.trim() || process.env.GOOGLE_CALENDAR_ID?.trim() || "primary",
       googleRefreshToken: r?.google_refresh_token?.trim() || process.env.GOOGLE_REFRESH_TOKEN?.trim() || null,

@@ -70,7 +70,11 @@ Po odeslání formuláře se otevře **vlastní modál** na webu: načtou se dos
 
 **Jeden úkol na lead:** Vždy jen **jeden** ClickUp úkol: při vyplnění jména a e-mailu bez rezervace → **„Jméno – Reach out“** (Status **REACH OUT**). Po dokončení rezervace se tentýž úkol aktualizuje na **„Jméno – datum“** a Status **MEETING**. Všechny údaje jsou i v popisu úkolu.
 
-**Custom pole (volitelné):** Nastav v **Admin → Nastavení → Rezervace – ClickUp**: pole E-mail, Zdroj, Jméno, Status (field ID) a option ID pro „Reach out“ a „Konzultace / Meeting“. Prázdné pole = fallback na .env (`CLICKUP_FIELD_MAIL`, `CLICKUP_FIELD_ZDROJ`, …). Bez nastavení se použije jen název a popis úkolu.
+**Čas úkolu:** U rezervace se úkolu nastaví začátek na čas rezervace a konec na začátek + délka slotu (např. 30 min), takže v ClickUp kalendáři sedí časový blok.
+
+**Status:** Výchozí sloupec **Status** v ClickUp nemá „field ID“ – nastavíš ho **názvem** přesně tak, jak je v záhlaví sloupce v boardu (např. „Reach out“, „Meeting“). V Admin → Nastavení vyplň „Název statusu pro lead“ a „Název statusu pro konzultaci“. Názvy jsou vidět přímo v boardu u listu.
+
+**Custom pole (volitelné):** V Adminu můžeš dále nastavit pole E-mail, Zdroj, Jméno a (pokud nepoužíváš výchozí Status) custom dropdown s option ID. Prázdné = fallback na .env.
 
 **Když se úkol nevytvoří:** Zkontroluj `CLICKUP_API_TOKEN` a `CLICKUP_LIST_ID`. V logu (Vercel) uvidíš chybu.
 

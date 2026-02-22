@@ -14,6 +14,8 @@ export default function SettingsContent() {
   const [clickupFieldStatus, setClickupFieldStatus] = useState("");
   const [clickupStatusReachOut, setClickupStatusReachOut] = useState("");
   const [clickupStatusMeeting, setClickupStatusMeeting] = useState("");
+  const [clickupStatusNameReachOut, setClickupStatusNameReachOut] = useState("");
+  const [clickupStatusNameMeeting, setClickupStatusNameMeeting] = useState("");
   const [googleCalendarId, setGoogleCalendarId] = useState("primary");
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,6 +36,8 @@ export default function SettingsContent() {
         if (data.clickupFieldStatus != null) setClickupFieldStatus(data.clickupFieldStatus);
         if (data.clickupStatusReachOut != null) setClickupStatusReachOut(data.clickupStatusReachOut);
         if (data.clickupStatusMeeting != null) setClickupStatusMeeting(data.clickupStatusMeeting);
+        if (data.clickupStatusNameReachOut != null) setClickupStatusNameReachOut(data.clickupStatusNameReachOut);
+        if (data.clickupStatusNameMeeting != null) setClickupStatusNameMeeting(data.clickupStatusNameMeeting);
         if (data.googleCalendarId) setGoogleCalendarId(data.googleCalendarId);
         if (data.googleCalendarConnected != null) setGoogleCalendarConnected(Boolean(data.googleCalendarConnected));
       })
@@ -73,6 +77,8 @@ export default function SettingsContent() {
           clickupFieldStatus: clickupFieldStatus.trim() || null,
           clickupStatusReachOut: clickupStatusReachOut.trim() || null,
           clickupStatusMeeting: clickupStatusMeeting.trim() || null,
+          clickupStatusNameReachOut: clickupStatusNameReachOut.trim() || null,
+          clickupStatusNameMeeting: clickupStatusNameMeeting.trim() || null,
           googleCalendarId: googleCalendarId.trim() || "primary",
         }),
       });
@@ -177,7 +183,21 @@ export default function SettingsContent() {
               List ID: v ClickUp u listu klikni na ⋮ (tři tečky) → Copy link. V URL je číslo za <code className="bg-black/5 px-1 rounded">/li/</code> (např. …/li/<strong>90123456789</strong>). Token nastav v .env jako CLICKUP_API_TOKEN.
             </p>
           </div>
-          <p className="text-sm font-medium text-foreground mt-4 mb-2">ClickUp custom pole (ID z API nebo z URL úkolu)</p>
+          <p className="text-sm font-medium text-foreground mt-4 mb-2">Výchozí Status (sloupec v boardu)</p>
+          <p className="text-xs text-foreground/60 mb-2">
+            Pokud používáte standardní sloupec <strong>Status</strong> v ClickUp, vyplňte přesně názvy, jak je vidíte v záhlaví sloupců (např. &quot;Reach out&quot;, &quot;Meeting&quot;). Názvy najdete přímo v boardu u listu.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label htmlFor="clickup-status-name-reach-out" className="block text-sm font-medium text-foreground mb-1">Název statusu pro lead (Reach out)</label>
+              <input id="clickup-status-name-reach-out" type="text" value={clickupStatusNameReachOut} onChange={(e) => setClickupStatusNameReachOut(e.target.value)} placeholder="např. Reach out" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
+            </div>
+            <div>
+              <label htmlFor="clickup-status-name-meeting" className="block text-sm font-medium text-foreground mb-1">Název statusu pro konzultaci (Meeting)</label>
+              <input id="clickup-status-name-meeting" type="text" value={clickupStatusNameMeeting} onChange={(e) => setClickupStatusNameMeeting(e.target.value)} placeholder="např. Meeting" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
+            </div>
+          </div>
+          <p className="text-sm font-medium text-foreground mt-4 mb-2">ClickUp custom pole (ID – jen pokud nepoužíváte výchozí Status)</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="clickup-field-mail" className="block text-sm font-medium text-foreground mb-1">Pole E-mail (field ID)</label>
@@ -192,20 +212,20 @@ export default function SettingsContent() {
               <input id="clickup-field-jmeno" type="text" value={clickupFieldJmeno} onChange={(e) => setClickupFieldJmeno(e.target.value)} placeholder="volitelné" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
             </div>
             <div>
-              <label htmlFor="clickup-field-status" className="block text-sm font-medium text-foreground mb-1">Pole Status (dropdown field ID)</label>
+              <label htmlFor="clickup-field-status" className="block text-sm font-medium text-foreground mb-1">Pole Status (custom dropdown – field ID)</label>
               <input id="clickup-field-status" type="text" value={clickupFieldStatus} onChange={(e) => setClickupFieldStatus(e.target.value)} placeholder="volitelné" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
             </div>
             <div>
-              <label htmlFor="clickup-status-reach-out" className="block text-sm font-medium text-foreground mb-1">Option ID: Reach out (lead)</label>
+              <label htmlFor="clickup-status-reach-out" className="block text-sm font-medium text-foreground mb-1">Option ID: Reach out (jen u custom pole)</label>
               <input id="clickup-status-reach-out" type="text" value={clickupStatusReachOut} onChange={(e) => setClickupStatusReachOut(e.target.value)} placeholder="číslo option" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
             </div>
             <div>
-              <label htmlFor="clickup-status-meeting" className="block text-sm font-medium text-foreground mb-1">Option ID: Konzultace / Meeting</label>
+              <label htmlFor="clickup-status-meeting" className="block text-sm font-medium text-foreground mb-1">Option ID: Konzultace (jen u custom pole)</label>
               <input id="clickup-status-meeting" type="text" value={clickupStatusMeeting} onChange={(e) => setClickupStatusMeeting(e.target.value)} placeholder="číslo option" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
             </div>
           </div>
           <p className="text-xs text-foreground/50 mt-1">
-            Field ID a option ID získáš v ClickUp přes API (GET list nebo task) nebo z URL custom pole. Prázdné = nepoužije se (fallback na .env, pokud tam máš CLICKUP_FIELD_*).
+            Custom pole: Field ID a option ID získáš v ClickUp přes API (GET list / task) nebo z URL custom pole. Pokud vyplníš &quot;Název statusu&quot; výše, tato pole nejsou potřeba.
           </p>
           <div>
             <div className="flex items-center gap-3 flex-wrap">
