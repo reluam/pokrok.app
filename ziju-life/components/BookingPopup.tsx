@@ -118,7 +118,6 @@ function BookingModal({
   const [error, setError] = useState("");
   const [reserving, setReserving] = useState(false);
   const [reserveError, setReserveError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   const fromParam = dates[0];
@@ -231,7 +230,7 @@ function BookingModal({
       .then((r) => r.json())
       .then((data) => {
         if (data.error) setReserveError(data.error);
-        else setSuccess(true);
+        else onClose();
       })
       .catch(() => setReserveError("Rezervaci se nepodařilo dokončit."))
       .finally(() => setReserving(false));
@@ -267,16 +266,7 @@ function BookingModal({
         </div>
 
         <div className="p-4">
-          {success ? (
-            <div className="text-center space-y-3 py-4">
-              <p className="text-xl font-semibold text-foreground">Díky za rezervaci!</p>
-              <p className="text-foreground/80 text-sm">Těším se na náš hovor. Měj krásný den.</p>
-              <button type="button" onClick={onClose} className="px-6 py-2 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover">
-                Zavřít
-              </button>
-            </div>
-          ) : (
-            <>
+          <>
               {loading && !initialLoadDone && (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-foreground/20 border-t-accent" />
@@ -388,8 +378,7 @@ function BookingModal({
               {initialLoadDone && !loading && allSlots.length === 0 && !error && (
                 <p className="py-4 text-center text-foreground/60 text-sm">Zatím nejsou k dispozici žádné termíny.</p>
               )}
-            </>
-          )}
+          </>
         </div>
       </div>
     </div>

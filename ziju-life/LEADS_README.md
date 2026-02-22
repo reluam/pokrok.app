@@ -55,8 +55,11 @@ Po odeslání formuláře se otevře **vlastní modál** na webu: načtou se dos
 ### ClickUp – nastavení
 
 1. V ClickUp vytvoř **List** (nebo použij existující) pro konzultace.
-2. Z URL listu zkopíruj **List ID** (číslo za `/list/`):  
-   `https://app.clickup.com/.../list/123456789` → List ID je `123456789`.
+2. **Kde najít List ID:**
+   - V levém sidebaru **najeď na název listu** → klikni na **tři tečky (...)** → **Copy link**.
+   - Nebo otevři list a v horní liště (breadcrumbs) klikni na **tři tečky** vedle názvu listu → **Copy link**.
+   - Zkopírovaná URL vypadá např.: `https://app.clickup.com/123456/v/li/90123456789`
+   - **List ID je číslo za `/li/`** → v příkladu je to `90123456789`. (Starší URL může mít `/list/90123456789` – použij číslo za `/list/`.)
 3. V ClickUp: **Profil (avatar) → Settings → Apps → API Token** – vygeneruj **Personal API Token**.
 4. Do `.env.local` (a na Vercel) přidej:
    ```

@@ -152,11 +152,11 @@ export default function SettingsContent() {
               type="text"
               value={clickupListId}
               onChange={(e) => setClickupListId(e.target.value)}
-              placeholder="123456789 (z URL: .../list/123456789)"
+              placeholder="90123456789"
               className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
             />
             <p className="text-xs text-foreground/50 mt-1">
-              List ID najdeš v URL listu v ClickUp. Token nastav v .env jako CLICKUP_API_TOKEN.
+              List ID: v ClickUp u listu klikni na ⋮ (tři tečky) → Copy link. V URL je číslo za <code className="bg-black/5 px-1 rounded">/li/</code> (např. …/li/<strong>90123456789</strong>). Token nastav v .env jako CLICKUP_API_TOKEN.
             </p>
           </div>
           <div>

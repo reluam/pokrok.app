@@ -530,17 +530,14 @@ export default function CoachingFunnel() {
             {showPostBookingMessage ? (
               <div className="text-center space-y-5 max-w-lg mx-auto">
                 <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-                  Díky za rezervaci!
+                  Díky za rezervaci a těším se na náš hovor!
                 </h2>
                 <div className="text-foreground/85 text-left space-y-4 text-sm sm:text-base leading-relaxed">
                   <p>
-                    Těším se na náš hovor. Probereme tvou aktuální situaci a jak ti mohu případně pomoct s koučovacím programem.
+                    V mezičase můžeš kouknout na různé inspirace na linku níže.
                   </p>
                   <p>
-                    Budu se těšit, až se uvidíme – a v mezičase můžeš kouknout na mé články a tipy na knihy, videa nebo hudbu, co zrovna poslouchám. Klikni na odkaz níže.
-                  </p>
-                  <p>
-                    Měj krásný den,<br />Matěj
+                    Měj pěkný den,<br />Matěj
                   </p>
                 </div>
                 <Link
