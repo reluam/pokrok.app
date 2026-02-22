@@ -166,7 +166,6 @@ function BookingModal({
 
   useEffect(() => {
     if (isOpen && fromParam && toParam) {
-      setSuccess(false);
       setReserveError("");
       setInitialLoadDone(false);
       loadSlots(fromParam, toParam, dates);
