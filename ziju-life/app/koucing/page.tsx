@@ -60,7 +60,7 @@ export default function KoucingPage() {
                 </div>
               </div>
               <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
-                Víš, že máš co nabídnout, ale nevíš jak ani kde.
+                Připadáš si, že ses do tohoto světa narodil omylem.
               </p>
             </div>
 

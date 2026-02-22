@@ -311,7 +311,7 @@ export default function CoachingFunnel() {
               </h2>
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  "Víš, že máš co nabídnout, ale nevíš jak ani kde.",
+                  "Připadáš si, že ses do tohoto světa narodil omylem.",
                   "Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.",
                   "Máš všechno, co bys „měl\" mít, ale cítíš, že ti život protéká mezi prsty.",
                   "Vidíš, jak reaguješ, ale neumíš to změnit.",
