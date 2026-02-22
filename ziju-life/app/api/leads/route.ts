@@ -44,13 +44,14 @@ export async function POST(request: NextRequest) {
       console.warn('Notion sync failed (lead saved locally):', notionResult.error)
     }
 
-    const { clickupListId: listId } = await getBookingSettings()
+    const { clickupListId: listId, clickupFieldConfig } = await getBookingSettings()
     const clickUpResult = await createLeadTask({
       listId: listId ?? '',
       name: name ?? '',
       email,
       note: message,
       source,
+      fieldConfig: clickupFieldConfig,
     })
     if (clickUpResult.ok && clickUpResult.taskId) {
       await setLeadClickUpTaskId(lead.id, clickUpResult.taskId)

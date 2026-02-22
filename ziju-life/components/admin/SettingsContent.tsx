@@ -8,6 +8,12 @@ export default function SettingsContent() {
   const [notionDatabaseId, setNotionDatabaseId] = useState("");
   const [calLink, setCalLink] = useState("");
   const [clickupListId, setClickupListId] = useState("");
+  const [clickupFieldMail, setClickupFieldMail] = useState("");
+  const [clickupFieldZdroj, setClickupFieldZdroj] = useState("");
+  const [clickupFieldJmeno, setClickupFieldJmeno] = useState("");
+  const [clickupFieldStatus, setClickupFieldStatus] = useState("");
+  const [clickupStatusReachOut, setClickupStatusReachOut] = useState("");
+  const [clickupStatusMeeting, setClickupStatusMeeting] = useState("");
   const [googleCalendarId, setGoogleCalendarId] = useState("primary");
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,6 +28,12 @@ export default function SettingsContent() {
         if (data.notionDatabaseId) setNotionDatabaseId(data.notionDatabaseId);
         if (data.calLink) setCalLink(data.calLink);
         if (data.clickupListId) setClickupListId(data.clickupListId);
+        if (data.clickupFieldMail != null) setClickupFieldMail(data.clickupFieldMail);
+        if (data.clickupFieldZdroj != null) setClickupFieldZdroj(data.clickupFieldZdroj);
+        if (data.clickupFieldJmeno != null) setClickupFieldJmeno(data.clickupFieldJmeno);
+        if (data.clickupFieldStatus != null) setClickupFieldStatus(data.clickupFieldStatus);
+        if (data.clickupStatusReachOut != null) setClickupStatusReachOut(data.clickupStatusReachOut);
+        if (data.clickupStatusMeeting != null) setClickupStatusMeeting(data.clickupStatusMeeting);
         if (data.googleCalendarId) setGoogleCalendarId(data.googleCalendarId);
         if (data.googleCalendarConnected != null) setGoogleCalendarConnected(Boolean(data.googleCalendarConnected));
       })
@@ -55,6 +67,12 @@ export default function SettingsContent() {
           calLink: calLink.trim() || null,
           bookingEmbedUrl: null,
           clickupListId: clickupListId.trim() || null,
+          clickupFieldMail: clickupFieldMail.trim() || null,
+          clickupFieldZdroj: clickupFieldZdroj.trim() || null,
+          clickupFieldJmeno: clickupFieldJmeno.trim() || null,
+          clickupFieldStatus: clickupFieldStatus.trim() || null,
+          clickupStatusReachOut: clickupStatusReachOut.trim() || null,
+          clickupStatusMeeting: clickupStatusMeeting.trim() || null,
           googleCalendarId: googleCalendarId.trim() || "primary",
         }),
       });
@@ -159,6 +177,36 @@ export default function SettingsContent() {
               List ID: v ClickUp u listu klikni na ⋮ (tři tečky) → Copy link. V URL je číslo za <code className="bg-black/5 px-1 rounded">/li/</code> (např. …/li/<strong>90123456789</strong>). Token nastav v .env jako CLICKUP_API_TOKEN.
             </p>
           </div>
+          <p className="text-sm font-medium text-foreground mt-4 mb-2">ClickUp custom pole (ID z API nebo z URL úkolu)</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="clickup-field-mail" className="block text-sm font-medium text-foreground mb-1">Pole E-mail (field ID)</label>
+              <input id="clickup-field-mail" type="text" value={clickupFieldMail} onChange={(e) => setClickupFieldMail(e.target.value)} placeholder="např. uuid" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
+            </div>
+            <div>
+              <label htmlFor="clickup-field-zdroj" className="block text-sm font-medium text-foreground mb-1">Pole Zdroj (field ID)</label>
+              <input id="clickup-field-zdroj" type="text" value={clickupFieldZdroj} onChange={(e) => setClickupFieldZdroj(e.target.value)} placeholder="volitelné" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
+            </div>
+            <div>
+              <label htmlFor="clickup-field-jmeno" className="block text-sm font-medium text-foreground mb-1">Pole Jméno (field ID)</label>
+              <input id="clickup-field-jmeno" type="text" value={clickupFieldJmeno} onChange={(e) => setClickupFieldJmeno(e.target.value)} placeholder="volitelné" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
+            </div>
+            <div>
+              <label htmlFor="clickup-field-status" className="block text-sm font-medium text-foreground mb-1">Pole Status (dropdown field ID)</label>
+              <input id="clickup-field-status" type="text" value={clickupFieldStatus} onChange={(e) => setClickupFieldStatus(e.target.value)} placeholder="volitelné" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
+            </div>
+            <div>
+              <label htmlFor="clickup-status-reach-out" className="block text-sm font-medium text-foreground mb-1">Option ID: Reach out (lead)</label>
+              <input id="clickup-status-reach-out" type="text" value={clickupStatusReachOut} onChange={(e) => setClickupStatusReachOut(e.target.value)} placeholder="číslo option" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
+            </div>
+            <div>
+              <label htmlFor="clickup-status-meeting" className="block text-sm font-medium text-foreground mb-1">Option ID: Konzultace / Meeting</label>
+              <input id="clickup-status-meeting" type="text" value={clickupStatusMeeting} onChange={(e) => setClickupStatusMeeting(e.target.value)} placeholder="číslo option" className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent bg-white" />
+            </div>
+          </div>
+          <p className="text-xs text-foreground/50 mt-1">
+            Field ID a option ID získáš v ClickUp přes API (GET list nebo task) nebo z URL custom pole. Prázdné = nepoužije se (fallback na .env, pokud tam máš CLICKUP_FIELD_*).
+          </p>
           <div>
             <div className="flex items-center gap-3 flex-wrap">
               <label htmlFor="google-calendar-id" className="block text-sm font-medium text-foreground">

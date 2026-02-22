@@ -68,9 +68,9 @@ Po odeslání formuláře se otevře **vlastní modál** na webu: načtou se dos
    ```
    List ID můžeš místo env nastavit v Admin → Nastavení → Rezervace (ClickUp List ID).
 
-**Jeden úkol na lead:** Vždy jen **jeden** ClickUp úkol: při vyplnění jména a e-mailu bez rezervace → **„Jméno – Reach out“** (dropdown Nedokončené). Po dokončení rezervace se tentýž úkol aktualizuje na **„Jméno – datum“** a dropdown Konzultace. Všechny údaje jsou i v popisu úkolu.
+**Jeden úkol na lead:** Vždy jen **jeden** ClickUp úkol: při vyplnění jména a e-mailu bez rezervace → **„Jméno – Reach out“** (Status **REACH OUT**). Po dokončení rezervace se tentýž úkol aktualizuje na **„Jméno – datum“** a Status **MEETING**. Všechny údaje jsou i v popisu úkolu.
 
-**Custom pole (volitelné):** Pro pole mail, Zdroj, Jméno a dropdown Status (Nedokončené / Konzultace) můžeš v .env nastavit `CLICKUP_FIELD_MAIL`, `CLICKUP_FIELD_ZDROJ`, `CLICKUP_FIELD_JMENO`, `CLICKUP_FIELD_STATUS` (UUID pole) a `CLICKUP_STATUS_NEDOKONCENE`, `CLICKUP_STATUS_KONZULTACE` (option id). Bez toho se použije jen název a popis.
+**Custom pole (volitelné):** Nastav v **Admin → Nastavení → Rezervace – ClickUp**: pole E-mail, Zdroj, Jméno, Status (field ID) a option ID pro „Reach out“ a „Konzultace / Meeting“. Prázdné pole = fallback na .env (`CLICKUP_FIELD_MAIL`, `CLICKUP_FIELD_ZDROJ`, …). Bez nastavení se použije jen název a popis úkolu.
 
 **Když se úkol nevytvoří:** Zkontroluj `CLICKUP_API_TOKEN` a `CLICKUP_LIST_ID`. V logu (Vercel) uvidíš chybu.
 

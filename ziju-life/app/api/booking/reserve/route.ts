@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     if (!clientEmailResult.ok) console.warn("[reserve] E-mail klientovi:", clientEmailResult.error);
     if (!adminEmailResult.ok) console.warn("[reserve] E-mail admin:", adminEmailResult.error);
 
-    const { clickupListId: listId } = await getBookingSettings();
+    const { clickupListId: listId, clickupFieldConfig } = await getBookingSettings();
     const lead = resolvedLeadId ? await getLeadById(resolvedLeadId) : null;
     if (lead?.clickupTaskId) {
       const result = await updateTaskToBooking({
@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
         note,
         slotStartAt: slot.start_at,
         durationMinutes: slot.duration_minutes,
+        fieldConfig: clickupFieldConfig,
       });
       if (!result.ok) console.warn("[reserve] ClickUp update úkolu:", result.error);
     } else {
@@ -117,6 +118,7 @@ export async function POST(request: NextRequest) {
         source,
         slotStartAt: slot.start_at,
         durationMinutes: slot.duration_minutes,
+        fieldConfig: clickupFieldConfig,
       });
       if (!result.ok) console.warn("[reserve] ClickUp úkol se nevytvořil:", result.error);
     }

@@ -1,7 +1,9 @@
 /**
- * ClickUp: jeden úkol na lead (Nedokončené / Reach out) nebo na konzultaci (Konzultace / Jméno - datum).
- * Při rezervaci se existující úkol aktualizuje na Konzultace s termínem.
+ * ClickUp: jeden úkol na lead (Status: REACH OUT) nebo na konzultaci (Status: MEETING / Jméno - datum).
+ * Při rezervaci se existující úkol aktualizuje na MEETING s termínem.
  */
+
+import type { ClickUpFieldConfig } from "./booking-settings";
 
 const token = () => process.env.CLICKUP_API_TOKEN?.trim();
 
@@ -30,18 +32,21 @@ function buildDescription(params: {
   return lines.join("\n");
 }
 
-/** Custom field IDs z env (volitelné). statusOptionValue = option id dropdownu v ClickUp. */
-function getCustomFields(params: {
-  name: string;
-  email: string;
-  source?: string;
-  statusOptionValue?: number; // option id pro dropdown (Nedokončené nebo Konzultace)
-}): { id: string; value: string | number }[] {
+/** Custom field IDs z fieldConfig nebo env. statusOptionValue = option id dropdownu v ClickUp. */
+function getCustomFields(
+  params: {
+    name: string;
+    email: string;
+    source?: string;
+    statusOptionValue?: number;
+  },
+  fieldConfig: ClickUpFieldConfig | null
+): { id: string; value: string | number }[] {
   const fields: { id: string; value: string | number }[] = [];
-  const mailId = process.env.CLICKUP_FIELD_MAIL?.trim();
-  const zdrojId = process.env.CLICKUP_FIELD_ZDROJ?.trim();
-  const jmenoId = process.env.CLICKUP_FIELD_JMENO?.trim();
-  const statusId = process.env.CLICKUP_FIELD_STATUS?.trim();
+  const mailId = (fieldConfig?.fieldMail?.trim() || process.env.CLICKUP_FIELD_MAIL?.trim()) || null;
+  const zdrojId = (fieldConfig?.fieldZdroj?.trim() || process.env.CLICKUP_FIELD_ZDROJ?.trim()) || null;
+  const jmenoId = (fieldConfig?.fieldJmeno?.trim() || process.env.CLICKUP_FIELD_JMENO?.trim()) || null;
+  const statusId = (fieldConfig?.fieldStatus?.trim() || process.env.CLICKUP_FIELD_STATUS?.trim()) || null;
 
   if (mailId) fields.push({ id: mailId, value: params.email });
   if (zdrojId && params.source) fields.push({ id: zdrojId, value: params.source });
@@ -52,13 +57,14 @@ function getCustomFields(params: {
   return fields;
 }
 
-/** Vytvořit úkol „Nedokončené“ (lead vyplnil jméno + mail, nerezervoval). Název: Jméno - Reach out */
+/** Vytvořit úkol Status REACH OUT (lead vyplnil jméno + mail, nerezervoval). Název: Jméno - Reach out */
 export interface CreateLeadTaskParams {
   listId: string;
   name: string;
   email: string;
   note?: string | null;
   source?: string;
+  fieldConfig?: ClickUpFieldConfig | null;
 }
 
 export async function createLeadTask(params: CreateLeadTaskParams): Promise<{ ok: boolean; taskId?: string; error?: string }> {
@@ -66,7 +72,7 @@ export async function createLeadTask(params: CreateLeadTaskParams): Promise<{ ok
     console.warn("[clickup] CLICKUP_API_TOKEN not set, skipping lead task");
     return { ok: false, error: "CLICKUP_API_TOKEN not set" };
   }
-  const { listId, name, email, note, source } = params;
+  const { listId, name, email, note, source, fieldConfig = null } = params;
   if (!listId?.trim()) {
     console.warn("[clickup] CLICKUP_LIST_ID not set, skipping lead task");
     return { ok: false, error: "CLICKUP_LIST_ID not set" };
@@ -74,13 +80,11 @@ export async function createLeadTask(params: CreateLeadTaskParams): Promise<{ ok
 
   const title = `${name} – Reach out`;
   const description = buildDescription({ name, email, source, note });
-  const statusOpt = process.env.CLICKUP_STATUS_NEDOKONCENE?.trim();
-  const customFields = getCustomFields({
-    name,
-    email,
-    source,
-    statusOptionValue: statusOpt ? Number(statusOpt) : undefined,
-  });
+  const statusOpt = (fieldConfig?.statusReachOut?.trim() || process.env.CLICKUP_STATUS_NEDOKONCENE?.trim()) || null;
+  const customFields = getCustomFields(
+    { name, email, source, statusOptionValue: statusOpt ? Number(statusOpt) : undefined },
+    fieldConfig
+  );
 
   try {
     const body: Record<string, unknown> = {
@@ -117,7 +121,7 @@ export async function createLeadTask(params: CreateLeadTaskParams): Promise<{ ok
   }
 }
 
-/** Aktualizovat existující úkol na „Konzultace“ s termínem. Název: Jméno - datum */
+/** Aktualizovat existující úkol na Status MEETING s termínem. Název: Jméno - datum */
 export async function updateTaskToBooking(params: {
   taskId: string;
   name: string;
@@ -126,12 +130,13 @@ export async function updateTaskToBooking(params: {
   note?: string | null;
   slotStartAt: Date;
   durationMinutes: number;
+  fieldConfig?: ClickUpFieldConfig | null;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!token()) {
     console.warn("[clickup] CLICKUP_API_TOKEN not set");
     return { ok: false, error: "CLICKUP_API_TOKEN not set" };
   }
-  const { taskId, name, email, source, note, slotStartAt, durationMinutes } = params;
+  const { taskId, name, email, source, note, slotStartAt, durationMinutes, fieldConfig = null } = params;
   const title = `${name} – ${formatSlotShort(slotStartAt)}`;
   const description = buildDescription({ name, email, source, note, slotStartAt, durationMinutes });
   const dueDate = slotStartAt.getTime();
@@ -156,9 +161,8 @@ export async function updateTaskToBooking(params: {
       return { ok: false, error: text };
     }
 
-    // Nastavit dropdown na Konzultace (custom field)
-    const statusId = process.env.CLICKUP_FIELD_STATUS?.trim();
-    const konzultaceOpt = process.env.CLICKUP_STATUS_KONZULTACE?.trim();
+    const statusId = (fieldConfig?.fieldStatus?.trim() || process.env.CLICKUP_FIELD_STATUS?.trim()) || null;
+    const konzultaceOpt = (fieldConfig?.statusMeeting?.trim() || process.env.CLICKUP_STATUS_KONZULTACE?.trim()) || null;
     if (statusId && konzultaceOpt) {
       const fieldRes = await fetch(`https://api.clickup.com/api/v2/task/${taskId}/field/${statusId}`, {
         method: "POST",
@@ -172,7 +176,7 @@ export async function updateTaskToBooking(params: {
         console.warn("[clickup] Set status field failed:", await fieldRes.text());
       }
     }
-    console.log("[clickup] Úkol aktualizován na Konzultace, taskId:", taskId);
+    console.log("[clickup] Úkol aktualizován na MEETING, taskId:", taskId);
     return { ok: true };
   } catch (err) {
     console.warn("[clickup] updateTaskToBooking error:", err);
@@ -180,7 +184,7 @@ export async function updateTaskToBooking(params: {
   }
 }
 
-/** Vytvořit nový úkol „Konzultace“ (když lead neměl úkol – např. rezervace bez předchozího leadu). Název: Jméno - datum */
+/** Vytvořit nový úkol Status MEETING (když lead neměl úkol – např. rezervace bez předchozího leadu). Název: Jméno - datum */
 export interface CreateBookingTaskParams {
   listId: string;
   name: string;
@@ -189,6 +193,7 @@ export interface CreateBookingTaskParams {
   source?: string;
   slotStartAt: Date;
   durationMinutes: number;
+  fieldConfig?: ClickUpFieldConfig | null;
 }
 
 export async function createBookingTask(params: CreateBookingTaskParams): Promise<{ ok: boolean; taskId?: string; error?: string }> {
@@ -196,7 +201,7 @@ export async function createBookingTask(params: CreateBookingTaskParams): Promis
     console.warn("[clickup] CLICKUP_API_TOKEN není nastaven – úkol v ClickUp se nevytvoří.");
     return { ok: false, error: "CLICKUP_API_TOKEN not set" };
   }
-  const { listId, name, email, note, source, slotStartAt, durationMinutes } = params;
+  const { listId, name, email, note, source, slotStartAt, durationMinutes, fieldConfig = null } = params;
   if (!listId?.trim()) {
     console.warn("[clickup] CLICKUP_LIST_ID není nastaven.");
     return { ok: false, error: "CLICKUP_LIST_ID not set" };
@@ -205,13 +210,11 @@ export async function createBookingTask(params: CreateBookingTaskParams): Promis
   const title = `${name} – ${formatSlotShort(slotStartAt)}`;
   const description = buildDescription({ name, email, source, note, slotStartAt, durationMinutes });
   const dueDate = slotStartAt.getTime();
-  const statusOpt = process.env.CLICKUP_STATUS_KONZULTACE?.trim();
-  const customFields = getCustomFields({
-    name,
-    email,
-    source,
-    statusOptionValue: statusOpt ? Number(statusOpt) : undefined,
-  });
+  const statusOpt = (fieldConfig?.statusMeeting?.trim() || process.env.CLICKUP_STATUS_KONZULTACE?.trim()) || null;
+  const customFields = getCustomFields(
+    { name, email, source, statusOptionValue: statusOpt ? Number(statusOpt) : undefined },
+    fieldConfig
+  );
 
   try {
     const body: Record<string, unknown> = {
@@ -243,7 +246,7 @@ export async function createBookingTask(params: CreateBookingTaskParams): Promis
     } catch {
       return { ok: false, error: "Invalid JSON response" };
     }
-    console.log("[clickup] Úkol (Konzultace) vytvořen, taskId:", data.id);
+    console.log("[clickup] Úkol (MEETING) vytvořen, taskId:", data.id);
     return { ok: true, taskId: data.id };
   } catch (err) {
     console.warn("[clickup] createBookingTask error:", err);
