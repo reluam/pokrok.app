@@ -108,7 +108,6 @@ const STEPS = [
       "Klid. Už mě netrápí, co si myslí okolí.",
       "Energie. Konečně se ráno těším na to, co vytvořím.",
     ],
-    multi: true as const,
     icons: [Zap, Heart, Sun],
   },
   {
