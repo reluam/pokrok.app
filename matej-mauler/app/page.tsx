@@ -28,7 +28,33 @@ export default function Home() {
 
       <main className="relative z-10 px-4 py-8 md:px-6 md:py-10">
         <ScrollReveal />
-        <div className="portfolio-grid mx-auto flex max-w-6xl flex-wrap gap-6 lg:gap-8">
+        {/* Rychlá navigace (hlavně pro mobilní zobrazení) */}
+        <nav
+          className="mt-3 mb-6 flex flex-wrap gap-2 text-sm text-[var(--fg-muted)] md:hidden"
+          aria-label="Rychlá navigace po stránce"
+        >
+          <a
+            href="#sluzby"
+            className="rounded-full border border-white/70 bg-white/70 px-3 py-1.5 shadow-sm backdrop-blur-sm"
+          >
+            Služby
+          </a>
+          <a
+            href="#projekty"
+            className="rounded-full border border-white/70 bg-white/60 px-3 py-1.5 shadow-sm backdrop-blur-sm"
+          >
+            Projekty
+          </a>
+          <a
+            href="#kontakt"
+            className="rounded-full border border-white/70 bg-white/50 px-3 py-1.5 shadow-sm backdrop-blur-sm"
+          >
+            Kontakt
+          </a>
+        </nav>
+        <div className="portfolio-grid mx-auto grid max-w-6xl gap-6 lg:gap-8 md:grid-cols-2">
+          {/* Levý sloupec: Matěj Mauler → Dokončené projekty */}
+          <div className="portfolio-column flex flex-col gap-6 lg:gap-8">
           {/* Box 1: Matěj Mauler + sociální média */}
           <div className="portfolio-card-wrap">
             <article className="portfolio-card flex flex-col rounded-2xl p-6 md:min-h-[320px] md:p-8">
@@ -43,7 +69,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <h2 className="mb-4 text-2xl font-700 text-[var(--fg)] md:text-3xl">
+            <h2 className="mb-4 text-2xl font-700 md:text-3xl gradient-text">
               Ahoj, vítej na mém webu!
             </h2>
             <p className="mb-6 flex-1 text-[var(--fg)] leading-relaxed">
@@ -75,13 +101,34 @@ export default function Home() {
           </article>
           </div>
 
+          {/* Box 3: Dokončené projekty (přepínání šipkama) */}
+          <div className="portfolio-card-wrap">
+            <article
+              id="projekty"
+              className="portfolio-card flex min-h-[380px] flex-col rounded-2xl p-6 md:min-h-[420px] md:p-8"
+            >
+            <h2 className="text-2xl font-700 text-[var(--fg)] md:text-3xl">
+              Dokončené projekty
+            </h2>
+            <p className="mb-4 text-sm text-[var(--fg-muted)]">
+              Školníjídelny.cz · Pokrok.app · Žiju life
+            </p>
+            <div className="mt-2 flex-1">
+              <ProjectsCarousel />
+            </div>
+          </article>
+          </div>
+          </div>
+
+          {/* Pravý sloupec: Co nabízím → Napište mi */}
+          <div className="portfolio-column flex flex-col gap-6 lg:gap-8">
           {/* Box 2: Co nabízím (služby) */}
           <div className="portfolio-card-wrap">
             <article className="portfolio-card rounded-2xl p-6 md:min-h-[320px] md:p-8" id="sluzby">
             <h2 className="mb-3 text-2xl font-700 text-[var(--fg)] md:text-3xl">
               Co nabízím
             </h2>
-            <p className="mb-4 text-[var(--fg-muted)]">
+            <p className="mb-4 text-base text-[var(--fg-muted)]">
               Pomáhám vám od nápadu po hotové řešení – od prvního návrhu až po spuštění a automatizaci.
             </p>
             <div className="mb-6 flex flex-wrap gap-2">
@@ -95,50 +142,35 @@ export default function Home() {
                 AI v praxi
               </span>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="group rounded-2xl bg-white/10 p-4 shadow-sm ring-1 ring-white/30 backdrop-blur-sm transition hover:bg-white/18">
+            <div className="flex flex-col gap-4">
+              <div className="group rounded-2xl bg-white/10 p-5 shadow-sm ring-1 ring-white/30 backdrop-blur-sm transition hover:bg-white/18">
                 <div className="mb-3 flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent)]/18 text-[var(--accent)]">
-                    <span className="text-sm font-700">W</span>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent)]/18 text-[var(--accent)]">
+                    <span className="text-base font-700">W</span>
                   </div>
-                  <h3 className="text-sm font-600 text-[var(--fg)]">
+                  <h3 className="text-lg font-600 text-[var(--fg)]">
                     Tvorba webových stránek
                   </h3>
                 </div>
-                <p className="text-xs text-[var(--fg-muted)]">
+                <p className="text-base leading-relaxed text-[var(--fg-muted)]">
                   Prezentační weby, landing pages i komplexnější aplikace. Důraz na rychlost,
                   responzivitu a čitelnost – aby váš web nejen vypadal dobře, ale i plnil cíle.
                 </p>
               </div>
-              <div className="group rounded-2xl bg-white/10 p-4 shadow-sm ring-1 ring-white/30 backdrop-blur-sm transition hover:bg-white/18">
+              <div className="group rounded-2xl bg-white/10 p-5 shadow-sm ring-1 ring-white/30 backdrop-blur-sm transition hover:bg-white/18">
                 <div className="mb-3 flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-2)]/18 text-[var(--accent-2)]">
-                    <span className="text-sm font-700">A</span>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-2)]/18 text-[var(--accent-2)]">
+                    <span className="text-base font-700">A</span>
                   </div>
-                  <h3 className="text-sm font-600 text-[var(--fg)]">
+                  <h3 className="text-lg font-600 text-[var(--fg)]">
                     Automatizace procesů
                   </h3>
                 </div>
-                <p className="text-xs text-[var(--fg-muted)]">
+                <p className="text-base leading-relaxed text-[var(--fg-muted)]">
                   Propojení nástrojů, zpracování dat a rutina bez ruční práce. Rezervace, e-maily,
                   reporty nebo integrace s CRM – nastavím tak, aby systém pracoval za vás.
                 </p>
               </div>
-            </div>
-          </article>
-          </div>
-
-          {/* Box 3: Dokončené projekty (přepínání šipkama) */}
-          <div className="portfolio-card-wrap">
-            <article className="portfolio-card flex min-h-[380px] flex-col rounded-2xl p-6 md:min-h-[420px] md:p-8">
-            <h2 className="text-2xl font-700 text-[var(--fg)] md:text-3xl">
-              Dokončené projekty
-            </h2>
-            <p className="mb-4 text-sm text-[var(--fg-muted)]">
-              Školníjídelny.cz · Pokrok.app · Žiju life
-            </p>
-            <div className="mt-2 flex-1">
-              <ProjectsCarousel />
             </div>
           </article>
           </div>
@@ -157,13 +189,14 @@ export default function Home() {
             </div>
           </section>
           </div>
+          </div>
         </div>
 
-        <footer className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-black/10 pt-8 md:flex-row">
-          <span className="text-sm text-[var(--fg-muted)]">
+        <footer className="mt-10 flex flex-col items-center justify-between gap-4 rounded-2xl bg-white/25 px-5 py-5 text-sm text-[var(--fg-muted)] shadow-sm ring-1 ring-white/70 backdrop-blur-md md:flex-row">
+          <span>
             © {new Date().getFullYear()} Matěj Mauler
           </span>
-          <a href="#top" className="text-sm text-[var(--fg-muted)] hover:text-[var(--fg)]">
+          <a href="#top" className="hover:text-[var(--fg)]">
             Nahoru
           </a>
         </footer>

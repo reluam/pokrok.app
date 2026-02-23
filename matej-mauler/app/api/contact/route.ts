@@ -22,15 +22,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const recipientEmail = process.env.CONTACT_EMAIL;
-    if (!recipientEmail) {
-      return NextResponse.json(
-        { error: "Chyba konfigurace serveru." },
-        { status: 500 }
-      );
-    }
-
-    const fromEmail = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
+    // Kam doručit poptávku (tvůj inbox)
+    const recipientEmail =
+      process.env.CONTACT_EMAIL?.trim() || "matej@ziju.life";
+    // Odkud se posílá (ověřená doména v Resend)
+    const fromEmail =
+      process.env.RESEND_FROM_EMAIL?.trim() || "automat@mail.ziju.life";
     const emailHtml = `
       <div style="font-family: system-ui, sans-serif; max-width: 560px;">
         <h2 style="color: #0a0a0c;">Nová zpráva z webu</h2>
