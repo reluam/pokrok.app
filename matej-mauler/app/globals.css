@@ -98,15 +98,15 @@
 @keyframes card-bump {
   0% {
     opacity: 0;
-    transform: translateY(32px) scale(0.94);
+    translate: 0 32px;
   }
   55% {
     opacity: 1;
-    transform: translateY(-12px) scale(1.04);
+    translate: 0 -12px;
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    translate: 0 0;
   }
 }
 
