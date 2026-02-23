@@ -49,9 +49,43 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="text-left">
-        <p className="text-lg text-[var(--fg-muted)]">
-          Formulář byl úspěšně odeslán. Ozvu se vám co nejdříve, nejpozději do 48 hodin.
+      <div className="contact-success text-center">
+        <div className="contact-success__icon">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden
+          >
+            <circle cx="32" cy="32" r="32" fill="var(--accent)" fillOpacity="0.15" />
+            <circle
+              cx="32"
+              cy="32"
+              r="28"
+              stroke="var(--accent)"
+              strokeWidth="2.5"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="contact-success__circle"
+            />
+            <path
+              d="M20 32l8 8 16-16"
+              stroke="var(--accent)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              className="contact-success__check"
+            />
+          </svg>
+        </div>
+        <h3 className="contact-success__title">Díky!</h3>
+        <p className="contact-success__text">
+          Tvá poptávka byla úspěšně odeslaná. Ozvu se ti co nejdříve budu moct, nejpozději do 48 hodin.
+          Zatím měj fajn den!
         </p>
       </div>
     );

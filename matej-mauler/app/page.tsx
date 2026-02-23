@@ -1,5 +1,6 @@
 import ContactForm from "@/components/ContactForm";
 import ProjectsCarousel from "@/components/ProjectsCarousel";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const MailIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -26,9 +27,11 @@ export default function Home() {
       </div>
 
       <main className="relative z-10 px-4 py-8 md:px-6 md:py-10">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:gap-8">
+        <ScrollReveal />
+        <div className="portfolio-grid mx-auto flex max-w-6xl flex-wrap gap-6 lg:gap-8">
           {/* Box 1: Matěj Mauler + sociální média */}
-          <article className="portfolio-card flex flex-col rounded-2xl p-6 md:min-h-[320px] md:p-8">
+          <div className="portfolio-card-wrap">
+            <article className="portfolio-card flex flex-col rounded-2xl p-6 md:min-h-[320px] md:p-8">
             <div className="mb-6 flex items-center gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/15 text-xl font-700 text-[var(--accent)]">
                 MM
@@ -70,9 +73,11 @@ export default function Home() {
               </div>
             </div>
           </article>
+          </div>
 
           {/* Box 2: Co nabízím (služby) */}
-          <article className="portfolio-card rounded-2xl p-6 md:min-h-[320px] md:p-8" id="sluzby">
+          <div className="portfolio-card-wrap">
+            <article className="portfolio-card rounded-2xl p-6 md:min-h-[320px] md:p-8" id="sluzby">
             <h2 className="mb-3 text-2xl font-700 text-[var(--fg)] md:text-3xl">
               Co nabízím
             </h2>
@@ -121,9 +126,11 @@ export default function Home() {
               </div>
             </div>
           </article>
+          </div>
 
           {/* Box 3: Dokončené projekty (přepínání šipkama) */}
-          <article className="portfolio-card flex min-h-[380px] flex-col rounded-2xl p-6 md:min-h-[420px] md:p-8">
+          <div className="portfolio-card-wrap">
+            <article className="portfolio-card flex min-h-[380px] flex-col rounded-2xl p-6 md:min-h-[420px] md:p-8">
             <h2 className="text-2xl font-700 text-[var(--fg)] md:text-3xl">
               Dokončené projekty
             </h2>
@@ -134,9 +141,11 @@ export default function Home() {
               <ProjectsCarousel />
             </div>
           </article>
+          </div>
 
           {/* Box 4: Kontaktní formulář */}
-          <section id="kontakt" className="portfolio-card flex min-h-[380px] flex-col rounded-2xl p-6 md:min-h-[420px] md:p-8">
+          <div className="portfolio-card-wrap">
+            <section id="kontakt" className="portfolio-card flex min-h-[380px] flex-col rounded-2xl p-6 md:min-h-[420px] md:p-8">
             <h2 className="mb-2 text-2xl font-700 text-[var(--fg)] md:text-3xl">
               Napište mi
             </h2>
@@ -147,6 +156,7 @@ export default function Home() {
               <ContactForm />
             </div>
           </section>
+          </div>
         </div>
 
         <footer className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-black/10 pt-8 md:flex-row">
