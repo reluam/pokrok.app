@@ -49,12 +49,9 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="rounded-2xl border border-black/10 bg-white/90 p-8 text-center shadow-sm md:p-12">
-        <h3 className="mb-3 text-2xl font-700 text-[var(--fg)] md:text-3xl">
-          Děkujeme za odeslání
-        </h3>
+      <div className="text-left">
         <p className="text-lg text-[var(--fg-muted)]">
-          Ozvu se vám co nejdříve, nejpozději do 48 hodin.
+          Formulář byl úspěšně odeslán. Ozvu se vám co nejdříve, nejpozději do 48 hodin.
         </p>
       </div>
     );
@@ -63,7 +60,7 @@ export default function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto max-w-xl space-y-5 rounded-2xl border border-black/10 bg-white/90 p-8 shadow-sm md:p-10"
+      className="mx-auto max-w-xl space-y-5"
     >
       <div>
         <label htmlFor="contact-name" className="mb-1.5 block text-sm font-500 text-[var(--fg)]">

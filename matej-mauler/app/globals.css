@@ -48,6 +48,16 @@
   background-clip: text;
 }
 
+/* Karty v portfolio layoutu – „mléčné“ boxy přes nebulu */
+.portfolio-card {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(15, 23, 42, 0.02);
+  backdrop-filter: blur(18px);
+}
+
 /* Nebula pozadí – plynulé přelévání barev */
 @keyframes nebula-drift-1 {
   0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
@@ -73,7 +83,7 @@
 }
 
 .bg-nebula {
-  background: linear-gradient(165deg, #e6eaf2 0%, #e0e4f0 35%, #ebe6f2 70%, #e4e8f0 100%);
+  background: linear-gradient(165deg, #d8deec 0%, #cfd6eb 35%, #dcd3ee 70%, #d4dae9 100%);
 }
 
 .nebula-blob {

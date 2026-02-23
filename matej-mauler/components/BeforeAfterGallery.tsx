@@ -16,8 +16,10 @@ export default function BeforeAfterGallery({
   const [activeIndex, setActiveIndex] = useState(1); // defaultně "Po"
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const goPrev = () => setActiveIndex(0); // Před
-  const goNext = () => setActiveIndex(1);   // Po
+  // Nekonečné přepínání mezi dvěma fotkami – obě šipky vždy přepnou na tu druhou
+  const toggle = () => setActiveIndex((i) => (i === 0 ? 1 : 0));
+  const goPrev = () => toggle();
+  const goNext = () => toggle();
 
   const openLightbox = () => setLightboxOpen(true);
   const closeLightbox = useCallback(() => setLightboxOpen(false), []);
