@@ -14,7 +14,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/60 shadow-xl backdrop-blur-xl backdrop-saturate-150">
+          <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/60 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain">
             <div className="absolute inset-0 -z-10">
               <Image
                 src="/hero-background.jpg"

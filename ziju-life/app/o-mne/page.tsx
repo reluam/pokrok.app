@@ -41,7 +41,7 @@ export default function OMnePage() {
         <section className="relative py-12 md:py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
           <DecorativeShapes position="left" />
           <div className="max-w-5xl mx-auto relative z-10">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-6 md:px-10 py-8 md:py-10">
+            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-6 md:px-10 py-8 md:py-10">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center">
                 <div className="md:col-span-2">
                   <h1
@@ -82,7 +82,7 @@ export default function OMnePage() {
         <section className="relative py-12 md:py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
           <DecorativeShapes position="right" />
           <div className="max-w-5xl mx-auto relative z-10">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-6 md:px-10 py-8 md:py-10">
+            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-6 md:px-10 py-8 md:py-10">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center">
                 <div className="order-2 md:order-1 relative w-full aspect-square washi-tape-photo">
                   <Image

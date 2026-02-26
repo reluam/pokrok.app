@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans } from "next/font/google";
+import { Baloo_2, DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const baloo = Baloo_2({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   variable: "--font-heading",
 });
@@ -15,7 +15,6 @@ const dmSans = DM_Sans({
   display: "swap",
   variable: "--font-body",
 });
-
 export const metadata: Metadata = {
   title: "Matěj Mauler | Služby s AI — weby & automatizace",
   description:
@@ -30,7 +29,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="cs" className={`${syne.variable} ${dmSans.variable}`}>
+    <html lang="cs" className={`${baloo.variable} ${dmSans.variable}`}>
       <body className="min-h-screen bg-[var(--bg)] font-[family-name:var(--font-body)] text-[var(--fg)] noise">
         {children}
       </body>

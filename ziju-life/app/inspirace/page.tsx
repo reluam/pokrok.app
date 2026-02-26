@@ -306,7 +306,7 @@ export default function InspiracePage() {
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Nadpis v boxu jako na HP */}
-        <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-6 py-10 md:px-10 md:py-12 max-w-4xl mx-auto">
+        <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-6 py-10 md:px-10 md:py-12 max-w-4xl mx-auto">
           <div className="text-center space-y-4">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
               Inspirace

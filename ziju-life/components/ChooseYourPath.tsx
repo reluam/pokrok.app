@@ -201,7 +201,7 @@ export default function ChooseYourPath() {
         {/* Koučink – box ve stylu hero sekce */}
         <div
           id="home-coaching"
-          className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/60 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-4 py-8 md:px-10 md:py-10 max-w-4xl mx-auto"
+          className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/60 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-4 py-8 md:px-10 md:py-10 max-w-4xl mx-auto"
         >
           <div className="absolute inset-0 pointer-events-none opacity-[0.08]">
             {/* lehké dekorace mohou být doplněny později, zatím prázdné pozadí */}

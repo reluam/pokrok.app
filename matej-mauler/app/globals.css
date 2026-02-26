@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f8f8f9;
-  --bg-elevated: #fff;
-  --fg: #0f0f11;
-  --fg-muted: #52525b;
-  --accent: #0891b2;
-  --accent-2: #7c3aed;
-  --accent-gradient: linear-gradient(135deg, #0891b2 0%, #7c3aed 50%, #db2777 100%);
-  --glow: rgba(8, 145, 178, 0.12);
-  --border: rgba(0, 0, 0, 0.08);
-  --surface: rgba(0, 0, 0, 0.04);
+  --bg: #fff7fb;
+  --bg-elevated: #ffffff;
+  --fg: #111827;
+  --fg-muted: #6b7280;
+  --accent: #ec4899;
+  --accent-2: #f97316;
+  --accent-gradient: linear-gradient(135deg, #f97316 0%, #ec4899 35%, #6366f1 70%, #22c55e 100%);
+  --glow: rgba(236, 72, 153, 0.18);
+  --border: rgba(15, 23, 42, 0.08);
+  --surface: rgba(15, 23, 42, 0.04);
 }
 
 @theme inline {
@@ -188,7 +188,7 @@
 }
 
 .bg-nebula {
-  background: linear-gradient(165deg, #d8deec 0%, #cfd6eb 35%, #dcd3ee 70%, #d4dae9 100%);
+  background: linear-gradient(155deg, #fff1f2 0%, #fde68a 26%, #e0f2fe 55%, #ede9fe 82%, #fee2f2 100%);
 }
 
 .nebula-blob {
@@ -203,24 +203,29 @@
 }
 
 .nebula-blob-1 {
-  background: radial-gradient(circle at 25% 25%, rgba(34, 211, 238, 0.4) 0%, transparent 45%);
+  background: radial-gradient(circle at 25% 25%, rgba(251, 113, 133, 0.7) 0%, transparent 50%);
   animation: nebula-drift-1 24s ease-in-out infinite;
 }
 .nebula-blob-2 {
-  background: radial-gradient(circle at 75% 70%, rgba(167, 139, 250, 0.38) 0%, transparent 48%);
+  background: radial-gradient(circle at 75% 70%, rgba(56, 189, 248, 0.65) 0%, transparent 50%);
   animation: nebula-drift-2 28s ease-in-out infinite;
 }
 .nebula-blob-3 {
-  background: radial-gradient(circle at 50% 85%, rgba(244, 114, 182, 0.3) 0%, transparent 45%);
+  background: radial-gradient(circle at 50% 85%, rgba(244, 114, 182, 0.7) 0%, transparent 50%);
   animation: nebula-drift-3 26s ease-in-out infinite;
 }
 .nebula-blob-4 {
-  background: radial-gradient(circle at 80% 20%, rgba(34, 211, 238, 0.25) 0%, transparent 42%);
+  background: radial-gradient(circle at 80% 20%, rgba(129, 140, 248, 0.6) 0%, transparent 48%);
   animation: nebula-drift-4 22s ease-in-out infinite;
 }
 .nebula-blob-5 {
-  background: radial-gradient(circle at 15% 60%, rgba(167, 139, 250, 0.28) 0%, transparent 45%);
+  background: radial-gradient(circle at 15% 60%, rgba(45, 212, 191, 0.6) 0%, transparent 48%);
   animation: nebula-drift-5 30s ease-in-out infinite;
+}
+
+/* V sekci Kontakt zobraz jen naše rezervační tlačítko – všechna ostatní (Google) skryj */
+#kontakt button:not([data-booking-button]) {
+  display: none !important;
 }
 
 /* Noise overlay */

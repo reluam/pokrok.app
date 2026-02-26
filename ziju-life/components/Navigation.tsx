@@ -97,13 +97,13 @@ export default function Navigation() {
   ];
 
   const isHome = pathname === "/";
-  const navBase = "sticky top-0 z-50";
+  const navBase = "sticky top-3 md:top-5 z-50";
   const navSurface = "";
 
   return (
     <nav className={`${navBase} ${navSurface}`}>
       <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-14 md:h-16 rounded-[32px] border border-white/40 bg-white/60 shadow-lg backdrop-blur-xl backdrop-saturate-150 px-4 md:px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-14 md:h-16 rounded-[32px] border border-white/40 bg-white/60 shadow-lg backdrop-blur-xl backdrop-saturate-150 px-4 md:px-6 glass-grain">
           <Link href="/" className="flex items-center h-10 md:h-12">
             <Image
               src="/ziju-life-logo.png"

@@ -11,7 +11,7 @@ export default function KoucingPage() {
       <section className="relative flex items-center justify-center pt-24 pb-12 overflow-hidden paper-texture -mt-4 md:-mt-6">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-7xl mx-auto relative z-10">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150">
+            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain">
               <DecorativeShapes variant="hero" />
 
               <div className="relative px-4 sm:px-8 py-10 md:py-14">
@@ -54,31 +54,7 @@ export default function KoucingPage() {
             </div>
             <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-stretch">
               {/* Box 1 */}
-              <div className="bg-white/85 rounded-[24px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl transition-all flex flex-col h-full backdrop-blur">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
-                    <span className="text-accent font-bold text-xl">✓</span>
-                  </div>
-                </div>
-                <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
-                  Připadáš si, že ses do tohoto světa narodil omylem.
-                </p>
-              </div>
-
-              {/* Box 2 */}
-              <div className="bg-white/85 rounded-[24px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl transition-all flex flex-col h-full backdrop-blur">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
-                    <span className="text-accent font-bold text-xl">✓</span>
-                  </div>
-                </div>
-                <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
-                  Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.
-                </p>
-              </div>
-
-              {/* Box 3 */}
-              <div className="bg-white/85 rounded-[24px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl transition-all flex flex-col h-full backdrop-blur">
+              <div className="bg-white/85 rounded-[24px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl transition-all flex flex-col h-full backdrop-blur glass-grain">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
                     <span className="text-accent font-bold text-xl">✓</span>
@@ -89,15 +65,39 @@ export default function KoucingPage() {
                 </p>
               </div>
 
-              {/* Box 4 */}
-              <div className="bg-white/85 rounded-[24px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl transition-all flex flex-col h-full backdrop-blur">
+              {/* Box 2 */}
+              <div className="bg-white/85 rounded-[24px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl transition-all flex flex-col h-full backdrop-blur glass-grain">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
                     <span className="text-accent font-bold text-xl">✓</span>
                   </div>
                 </div>
                 <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
-                  Vidíš, jak reaguješ, ale neumíš to změnit.
+                  Umíš si skvěle zorganizovat čas, ale večer jsi absolutně bez energie.
+                </p>
+              </div>
+
+              {/* Box 3 */}
+              <div className="bg-white/85 rounded-[24px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl transition-all flex flex-col h-full backdrop-blur glass-grain">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                    <span className="text-accent font-bold text-xl">✓</span>
+                  </div>
+                </div>
+                <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
+                  Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.
+                </p>
+              </div>
+
+              {/* Box 4 */}
+              <div className="bg-white/85 rounded-[24px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl transition-all flex flex-col h-full backdrop-blur glass-grain">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                    <span className="text-accent font-bold text-xl">✓</span>
+                  </div>
+                </div>
+                <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
+                  Víš, že potřebuješ změnu, ale vůbec netušíš, kde začít.
                 </p>
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function KoucingPage() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
-              <div className="bg-white/85 rounded-[24px] p-8 border border-white/60 shadow-md hover:shadow-xl transition-all backdrop-blur">
+              <div className="bg-white/85 rounded-[24px] p-8 border border-white/60 shadow-md hover:shadow-xl transition-all backdrop-blur glass-grain">
                 <h3 className="text-2xl font-bold text-foreground mb-4">
                   Žádné manuály
                 </h3>
@@ -125,7 +125,7 @@ export default function KoucingPage() {
                 </p>
               </div>
 
-              <div className="bg-white/85 rounded-[24px] p-8 border border-white/60 shadow-md hover:shadow-xl transition-all backdrop-blur">
+              <div className="bg-white/85 rounded-[24px] p-8 border border-white/60 shadow-md hover:shadow-xl transition-all backdrop-blur glass-grain">
                 <h3 className="text-2xl font-bold text-foreground mb-4">
                   Fokus na akci
                 </h3>
@@ -134,7 +134,7 @@ export default function KoucingPage() {
                 </p>
               </div>
 
-              <div className="bg-white/85 rounded-[24px] p-8 border border-white/60 shadow-md hover:shadow-xl transition-all backdrop-blur">
+              <div className="bg-white/85 rounded-[24px] p-8 border border-white/60 shadow-md hover:shadow-xl transition-all backdrop-blur glass-grain">
                 <h3 className="text-2xl font-bold text-foreground mb-4">
                   Hravost i v těžkých věcech
                 </h3>
@@ -200,7 +200,7 @@ export default function KoucingPage() {
       <RevealSection>
         <section id="rezervace" className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-7xl mx-auto">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/60 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-4 py-8 md:px-10 md:py-10 max-w-4xl mx-auto">
+            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/60 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-4 py-8 md:px-10 md:py-10 max-w-4xl mx-auto">
               <div className="relative space-y-6">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-center">
                   Zarezervuj si 30 minutové sezení zdarma

@@ -6,38 +6,22 @@ import ImageWithLightbox from "./ImageWithLightbox";
 
 const PROJECTS = [
   {
-    id: "skolnijidelny",
-    tag: "Web",
-    title: "Školníjídelny.cz",
-    description: "Kompletně nový web s administrací a napojením na rezervační systém.",
-    url: "https://skolnijidelny.vercel.app",
-    type: "before-after" as const,
-    before: {
-      src: "/projekty/skolnijidelny-pred.png",
-      alt: "Školníjídelny.cz před rekonstrukcí",
-      label: "Před",
-    },
-    after: {
-      src: "/projekty/skolnijidelny-po.png",
-      alt: "Školníjídelny.cz po rekonstrukci",
-      label: "Po",
-    },
-  },
-  {
     id: "pokrok",
-    tag: "Aplikace",
-    title: "Pokrok.app",
-    description: "Komplexní webová aplikace pro plánování. Multijazyčná, s uživatelskými účty a napojením na databáze.",
+    tag: "AI nástroj",
+    title: "Asistent plánování času s AI",
+    description:
+      "Experiment, kde AI pomáhá plánovat den tak, aby se střídala hluboká práce s pauzami a reálným kalendářem.",
     url: "https://pokrok.app",
     type: "image" as const,
     src: "/projekty/pokrok.png",
-    alt: "Náhled aplikace Pokrok.app",
+    alt: "Náhled AI asistenta pro plánování času",
   },
   {
     id: "ziju-life",
-    tag: "Blog",
-    title: "Žiju life",
-    description: "Můj osobní blog, jehož součástí je i administrace.",
+    tag: "AI blog",
+    title: "Blog, který mi pomáhá psát AI",
+    description:
+      "Psaní článků s pomocí AI – od brainstormingu přes osnovu až po editaci textu tak, aby pořád zůstal můj hlas.",
     url: "https://ziju.life",
     type: "image" as const,
     src: "/projekty/ziju-life.png",

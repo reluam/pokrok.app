@@ -1,6 +1,7 @@
-import ContactForm from "@/components/ContactForm";
 import ProjectsCarousel from "@/components/ProjectsCarousel";
 import ScrollReveal from "@/components/ScrollReveal";
+import Image from "next/image";
+import CalendarBookingButton from "@/components/CalendarBookingButton";
 
 const MailIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -59,23 +60,29 @@ export default function Home() {
           <div className="portfolio-card-wrap">
             <article className="portfolio-card flex flex-col rounded-2xl p-6 md:min-h-[320px] md:p-8">
             <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/15 text-xl font-700 text-[var(--accent)]">
-                MM
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-white/70 bg-[var(--accent)]/10">
+                <Image
+                  src="/matej.jpg"
+                  alt="Matěj Mauler"
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
               </div>
               <div>
                 <h1 className="text-xl font-700 text-[var(--fg)]">Matěj Mauler</h1>
                 <p className="text-sm font-500 text-[var(--fg-muted)]">
-                  Služby s AI · Weby & automatizace
+                  AI průzkumník · workshopy · kurzy · řešení
                 </p>
               </div>
             </div>
             <h2 className="mb-4 text-2xl font-700 md:text-3xl gradient-text">
-              Ahoj, vítej na mém webu!
+              Pomáhám lidem zkrotit AI
             </h2>
             <p className="mb-6 flex-1 text-[var(--fg)] leading-relaxed">
-              Tvořím moderní weby a automatizace, které šetří čas a vypadají skvěle.
-              S využitím umělé inteligence dodávám řešení na míru — rychle a spolehlivě.
-              Kombinuji technické znalosti s důrazem na to, aby výsledek skutečně sloužil.
+              Zkoumám, co všechno umělá inteligence dokáže – a pak to předávám dál.
+              Ukážu vám, jak AI zapojit do každodenní práce, jak vám může šetřit čas
+              a jak z nápadů udělat konkrétní řešení, která skutečně používáte.
             </p>
             <div>
               <p className="mb-3 text-sm font-600 text-[var(--fg-muted)]">Najdete mě</p>
@@ -101,17 +108,17 @@ export default function Home() {
           </article>
           </div>
 
-          {/* Box 3: Dokončené projekty (přepínání šipkama) */}
+          {/* Box 3: Projekty, o které se nikdo neprosil (AI hrátky) */}
           <div className="portfolio-card-wrap">
             <article
               id="projekty"
               className="portfolio-card flex min-h-[380px] flex-col rounded-2xl p-6 md:min-h-[420px] md:p-8"
             >
             <h2 className="text-2xl font-700 text-[var(--fg)] md:text-3xl">
-              Dokončené projekty
+              Projekty, o které se nikdo neprosil.
             </h2>
             <p className="mb-4 text-sm text-[var(--fg-muted)]">
-              Školníjídelny.cz · Pokrok.app · Žiju life
+              Moje vlastní AI experimenty, hračky a malé nástroje, které vznikly z čisté zvědavosti.
             </p>
             <div className="mt-2 flex-1">
               <ProjectsCarousel />
@@ -122,24 +129,21 @@ export default function Home() {
 
           {/* Pravý sloupec: Co nabízím → Napište mi */}
           <div className="portfolio-column flex flex-col gap-6 lg:gap-8">
-          {/* Box 2: Co nabízím (služby) */}
+          {/* Box 2: Co nabízím (AI workshopy, kurzy a řešení) */}
           <div className="portfolio-card-wrap">
             <article className="portfolio-card rounded-2xl p-6 md:min-h-[320px] md:p-8" id="sluzby">
             <h2 className="mb-3 text-2xl font-700 text-[var(--fg)] md:text-3xl">
               Co nabízím
             </h2>
             <p className="mb-4 text-base text-[var(--fg-muted)]">
-              Pomáhám vám od nápadu po hotové řešení – od prvního návrhu až po spuštění a automatizaci.
+              Pomáhám vám pochopit a využít AI v praxi – od prvních experimentů až po konkrétní systémy.
             </p>
             <div className="mb-6 flex flex-wrap gap-2">
               <span className="rounded-full bg-[var(--accent)]/12 px-3 py-1 text-xs font-600 uppercase tracking-wide text-[var(--accent)]">
-                Webové stránky
-              </span>
-              <span className="rounded-full bg-[var(--accent-2)]/10 px-3 py-1 text-xs font-600 uppercase tracking-wide text-[var(--accent-2)]">
-                Automatizace
+                Workshopy & konzultace
               </span>
               <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-600 uppercase tracking-wide text-[var(--fg-muted)]">
-                AI v praxi
+                Hotová řešení
               </span>
             </div>
             <div className="flex flex-col gap-4">
@@ -149,56 +153,61 @@ export default function Home() {
                     <span className="text-base font-700">W</span>
                   </div>
                   <h3 className="text-lg font-600 text-[var(--fg)]">
-                    Tvorba webových stránek
+                    Workshopy & konzultace na míru
                   </h3>
                 </div>
                 <p className="text-base leading-relaxed text-[var(--fg-muted)]">
-                  Prezentační weby, landing pages i komplexnější aplikace. Důraz na rychlost,
-                  responzivitu a čitelnost – aby váš web nejen vypadal dobře, ale i plnil cíle.
+                  Praktické workshopy pro týmy i jednotlivce, kde si AI rovnou zkoušíte na
+                  vlastních úkolech. Od \"jak se s tím vůbec bavit\" po konkrétní AI workflow
+                  ve vašem byznysu.
                 </p>
               </div>
               <div className="group rounded-2xl bg-white/10 p-5 shadow-sm ring-1 ring-white/30 backdrop-blur-sm transition hover:bg-white/18">
                 <div className="mb-3 flex items-center gap-2">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-2)]/18 text-[var(--accent-2)]">
-                    <span className="text-base font-700">A</span>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/8 text-[var(--fg)]">
+                    <span className="text-base font-700">R</span>
                   </div>
                   <h3 className="text-lg font-600 text-[var(--fg)]">
-                    Automatizace procesů
+                    Hotová AI řešení
                   </h3>
                 </div>
                 <p className="text-base leading-relaxed text-[var(--fg-muted)]">
-                  Propojení nástrojů, zpracování dat a rutina bez ruční práce. Rezervace, e-maily,
-                  reporty nebo integrace s CRM – nastavím tak, aby systém pracoval za vás.
+                  Když chcete výsledek, ne jen inspiraci. Pomůžu vám navrhnout a dodat
+                  weby, automatizace a AI asistenty, kteří zapadnou do vašich nástrojů
+                  a ušetří čas každý den.
                 </p>
               </div>
             </div>
           </article>
           </div>
 
-          {/* Box 4: Kontaktní formulář */}
+          {/* Box 4: Rezervace konzultace */}
           <div className="portfolio-card-wrap">
-            <section id="kontakt" className="portfolio-card flex min-h-[380px] flex-col rounded-2xl p-6 md:min-h-[420px] md:p-8">
-            <h2 className="mb-2 text-2xl font-700 text-[var(--fg)] md:text-3xl">
-              Napište mi
-            </h2>
-            <p className="mb-6 text-sm text-[var(--fg-muted)]">
-              Vyplňte formulář a ozvu se vám co nejdříve, nejpozději do 48 hodin.
-            </p>
-            <div className="flex-1">
-              <ContactForm />
-            </div>
-          </section>
+            <section
+              id="kontakt"
+              className="portfolio-card flex flex-col rounded-2xl p-6 md:p-8"
+            >
+              <h2 className="mb-3 text-2xl font-700 text-[var(--fg)] md:text-3xl">
+                Rezervujte si konzultaci
+              </h2>
+              <p className="mb-4 text-sm text-[var(--fg-muted)]">
+                30 minut zdarma, kde společně prozkoumáme, jak vám může AI konkrétně pomoct.
+              </p>
+              <CalendarBookingButton />
+            </section>
           </div>
           </div>
         </div>
 
-        <footer className="mt-10 flex flex-col items-center justify-between gap-4 rounded-2xl bg-white/25 px-5 py-5 text-sm text-[var(--fg-muted)] shadow-sm ring-1 ring-white/70 backdrop-blur-md md:flex-row">
-          <span>
-            © {new Date().getFullYear()} Matěj Mauler
-          </span>
-          <a href="#top" className="hover:text-[var(--fg)]">
-            Nahoru
-          </a>
+        <footer className="mt-10">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 rounded-2xl bg-white/25 px-5 py-5 text-sm text-[var(--fg-muted)] shadow-sm ring-1 ring-white/70 backdrop-blur-md md:flex-row">
+            <span>
+              © {new Date().getFullYear()} Matěj Mauler
+            </span>
+            <a href="#top" className="hover:text-[var(--fg)]">
+              Nahoru
+            </a>
+          </div>
         </footer>
       </main>
     </div>
