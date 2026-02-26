@@ -12,7 +12,7 @@ export default function Medailonek() {
           <div className="order-2 md:order-1 flex justify-center md:justify-start">
             <div className="max-w-md w-full">
               <HandDrawnFrame>
-                <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-gray-100">
+                <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-gray-100 shadow-xl shadow-black/10">
                   <Image
                     src="/matej-photo.jpg"
                     alt="Matěj"
