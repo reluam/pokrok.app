@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
-import type { NewsletterCampaign } from "@/lib/newsletter-campaigns-db";
 import { Book, Video, FileText, PenTool, HelpCircle, Mail, Music } from "lucide-react";
 
 type FilterType = "clanky" | "knihy" | "videa" | "ostatni" | "hudba";
@@ -158,19 +157,14 @@ function renderItemCard(
 export default function InspiracePage() {
   const router = useRouter();
   const [inspirationData, setInspirationData] = useState<InspirationData | null>(null);
-  const [newsletters, setNewsletters] = useState<NewsletterCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType | "vse">("vse");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [inspirationRes, newslettersRes] = await Promise.all([
-          fetch("/api/inspiration"),
-          fetch("/api/newsletters"),
-        ]);
+        const inspirationRes = await fetch("/api/inspiration");
         setInspirationData(await inspirationRes.json());
-        setNewsletters(await newslettersRes.json());
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -270,32 +264,7 @@ export default function InspiracePage() {
         });
     }
 
-    newsletters.forEach((n) => {
-      const title = n.sentAt
-        ? `Newsletter - ${new Date(n.sentAt).toLocaleDateString("cs-CZ", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}`
-        : n.subject;
-      items.push({
-        id: n.id,
-        type: "newsletter",
-        title,
-        description: (n.body || "").replace(/<[^>]+>/g, "").substring(0, 150) + "...",
-        author: "Matěj Mauler",
-        url: "",
-        href: `/newsletter/${n.id}`,
-        createdAt: typeof n.createdAt === "string" ? n.createdAt : n.createdAt?.toISOString?.() || "",
-        sentAt: n.sentAt ? (typeof n.sentAt === "string" ? n.sentAt : n.sentAt?.toISOString?.()) : undefined,
-      });
-    });
-
-    return items.sort((a, b) => {
-      const dateA = a.sentAt || a.createdAt;
-      const dateB = b.sentAt || b.createdAt;
-      return new Date(dateB).getTime() - new Date(dateA).getTime();
-    });
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
 
   const getFilteredItems = (): DisplayItem[] => {
@@ -304,7 +273,7 @@ export default function InspiracePage() {
     const music = getMusicItems();
     const all = [...inspirace, ...blog, ...music];
     if (filter === "vse" || filter === null) return all;
-    if (filter === "clanky") return all.filter((i) => i.type === "blog" || i.type === "newsletter");
+    if (filter === "clanky") return all.filter((i) => i.type === "blog");
     if (filter === "knihy") return all.filter((i) => i.type === "book");
     if (filter === "videa") return all.filter((i) => i.type === "video");
     if (filter === "hudba") return music;

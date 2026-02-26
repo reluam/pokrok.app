@@ -59,12 +59,8 @@ export default function ChooseYourPath() {
   useEffect(() => {
     const fetchLatest = async () => {
       try {
-        const [inspirationRes, newslettersRes] = await Promise.all([
-          fetch("/api/inspiration"),
-          fetch("/api/newsletters"),
-        ]);
+        const inspirationRes = await fetch("/api/inspiration");
         const inspirationData: InspirationData = await inspirationRes.json();
-        const newslettersData = await newslettersRes.json();
 
         const items: MixedItem[] = [];
 
@@ -105,22 +101,6 @@ export default function ChooseYourPath() {
               author: item.author,
             });
           });
-
-        // Newsletters
-        (newslettersData || []).forEach((n: { id: string; subject: string; body?: string; sentAt?: string; createdAt?: string }) => {
-          const date = n.sentAt || n.createdAt || "";
-          const title = n.sentAt
-            ? `Newsletter - ${new Date(n.sentAt).toLocaleDateString("cs-CZ", { year: "numeric", month: "long", day: "numeric" })}`
-            : n.subject;
-          items.push({
-            id: n.id,
-            title,
-            description: (n.body || "").replace(/<[^>]+>/g, "").substring(0, 150) + "...",
-            type: "newsletter",
-            date,
-            href: `/newsletter/${n.id}`,
-          });
-        });
 
         const sorted = items
           .filter((i) => i.date)
