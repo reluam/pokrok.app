@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     let rows: (Lead & { reservationDate?: string | null })[];
     try {
-      rows = await sql`
+      rows = (await sql`
         SELECT 
           l.id,
           l.email,
@@ -30,14 +30,14 @@ export async function GET(request: NextRequest) {
            LIMIT 1) as "reservationDate"
         FROM leads l
         ORDER BY l.created_at DESC
-      ` as (Lead & { reservationDate: string | null })[];
+      `) as (Lead & { reservationDate: string | null })[];
     } catch {
-      rows = await sql`
+      rows = (await sql`
         SELECT id, email, name, source, status, message,
           created_at::text as "createdAt", updated_at::text as "updatedAt"
         FROM leads
         ORDER BY created_at DESC
-      ` as (Lead & { reservationDate?: null })[];
+      `) as (Lead & { reservationDate?: null })[];
       rows = rows.map((r) => ({ ...r, reservationDate: null }));
     }
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { Book, Video, FileText, PenTool, HelpCircle, Mail } from "lucide-react";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
 import LeadForm from "@/components/LeadForm";
@@ -139,7 +140,7 @@ export default function ChooseYourPath() {
   return (
     <section
       id="choose-your-path"
-      className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden"
+      className="relative py-20 md:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       <div className="max-w-6xl mx-auto relative z-10 space-y-16">
         {/* Inspirace */}
@@ -157,15 +158,21 @@ export default function ChooseYourPath() {
                 const videoThumbnail = item.type === "video" ? (item.thumbnail || getVideoThumbnail(item.url || "")) : null;
 
                 return (
-                  <button
+                  <motion.div
                     key={`${item.type}-${item.id}`}
-                    onClick={() => router.push(item.href)}
-                    className="block text-left w-full cursor-pointer"
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.55, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <article
-                      className="bg-white rounded-2xl p-6 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 h-full"
-                      style={{ transform: `rotate(${index % 2 === 0 ? "-0.5deg" : "0.5deg"})` }}
+                    <button
+                      onClick={() => router.push(item.href)}
+                      className="block text-left w-full cursor-pointer"
                     >
+                      <article
+                        className="bg-white rounded-2xl p-6 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-2 h-full"
+                        style={{ transform: `rotate(${index % 2 === 0 ? "-0.5deg" : "0.5deg"})` }}
+                      >
                       {item.type === "video" && videoThumbnail && (
                         <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
                           <img src={videoThumbnail} alt={item.title} className="w-full h-full object-cover" />
@@ -186,6 +193,7 @@ export default function ChooseYourPath() {
                       <p className="text-foreground/70 text-sm line-clamp-2 leading-relaxed">{item.description}</p>
                     </article>
                   </button>
+                  </motion.div>
                 );
               })}
             </div>
@@ -210,19 +218,28 @@ export default function ChooseYourPath() {
           <div className="flex-1 h-px bg-black/10" />
         </div>
 
-        {/* Koučink */}
-        <div className="space-y-4">
-          <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center">
-            Nebo si zarezervuj 30 minutové koučovací sezení se mnou zdarma.
-          </h3>
-          <p className="text-lg md:text-xl text-foreground/70 leading-relaxed text-center max-w-3xl mx-auto">
-            Kde probereme jak ti můžu pomoct rozklíčovat tvé automatické reakce a pomoct vědomě přepsat programy, které tě doposud řídily.{" "}
-            <Link href="/koucing" className="text-accent font-semibold hover:underline">
-              Zjistit více
-            </Link>
-          </p>
-          <div className="bg-white rounded-2xl p-4 md:p-6 border-2 border-black/5 w-full max-w-xl mx-auto">
-            <LeadForm source="homepage" compact />
+        {/* Koučink – box ve stylu hero sekce */}
+        <div
+          id="home-coaching"
+          className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/60 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-4 py-8 md:px-10 md:py-10 max-w-4xl mx-auto"
+        >
+          <div className="absolute inset-0 pointer-events-none opacity-[0.08]">
+            {/* lehké dekorace mohou být doplněny později, zatím prázdné pozadí */}
+          </div>
+          <div className="relative space-y-4">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center">
+              Nebo si zarezervuj 30 minutové koučovací sezení se mnou zdarma.
+            </h3>
+            <p className="text-lg md:text-xl text-foreground/70 leading-relaxed text-center max-w-3xl mx-auto">
+              Kde probereme, jak ti můžu pomoct rozklíčovat tvé automatické reakce a pomoct vědomě
+              přepsat programy, které tě doposud řídily.{" "}
+              <Link href="/koucing" className="text-accent font-semibold hover:underline">
+                Zjistit více
+              </Link>
+            </p>
+            <div className="bg-white rounded-2xl p-4 md:p-6 border-2 border-black/5 w-full max-w-xl mx-auto">
+              <LeadForm source="homepage" compact />
+            </div>
           </div>
         </div>
       </div>

@@ -129,27 +129,29 @@ export default function InspiraceDetailPage() {
 
   return (
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-6">
         <button
           onClick={() => router.push("/inspirace")}
-          className="flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors mb-4"
+          className="flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors"
         >
           <ArrowLeft size={20} />
           <span>Zpět na inspirace</span>
         </button>
 
-        <div className="flex items-center gap-3 mb-4">
-          <Icon className="text-accent" size={24} />
-          <span className="px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full">
-            {item.type === "blog" ? "Blog" : 
-             item.type === "video" ? "Video" : 
-             item.type === "book" ? "Kniha" : 
-             item.type === "article" ? "Článek" : 
-             item.type === "music" ? "Hudba" : "Ostatní"}
-          </span>
-        </div>
+        <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-6 py-8 md:px-10 md:py-10">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <Icon className="text-accent" size={24} />
+              <span className="px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full">
+                {item.type === "blog" ? "Blog" : 
+                 item.type === "video" ? "Video" : 
+                 item.type === "book" ? "Kniha" : 
+                 item.type === "article" ? "Článek" : 
+                 item.type === "music" ? "Hudba" : "Ostatní"}
+              </span>
+            </div>
 
-        <h1 className="text-4xl md:text-5xl font-bold text-foreground">{item.title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground">{item.title}</h1>
 
         {(item.type === "blog" || item.author) && (
           <p className="text-lg text-foreground/60">Autor: {item.type === "blog" ? "Matěj Mauler" : item.author}</p>
@@ -265,6 +267,8 @@ export default function InspiraceDetailPage() {
             <span aria-hidden>→</span>
           </a>
         )}
+          </div>
+        </div>
       </div>
     </main>
   );

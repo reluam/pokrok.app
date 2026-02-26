@@ -299,6 +299,10 @@ export default function CoachingFunnel() {
               </button>
             </div>
 
+            <p className="pt-3 text-sm text-foreground/70 max-w-xl mx-auto">
+              Pro prvních 15 lidí nabízím zvýhodněnou cenu <strong>500 Kč za sezení</strong> na první 3 měsíce.
+            </p>
+
             <div className="flex justify-center pt-2">
               <ChevronDown className="text-foreground/50 w-8 h-8 animate-bounce" aria-hidden />
             </div>
@@ -612,6 +616,9 @@ export default function CoachingFunnel() {
                 <a href="/gdpr" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
                   Zásady ochrany údajů
                 </a>
+              </p>
+              <p className="text-sm text-foreground/80">
+                Pro prvních 15 lidí nabízím zvýhodněnou cenu <strong>500 Kč za sezení</strong> na první 3 měsíce.
               </p>
               <button
                 type="submit"

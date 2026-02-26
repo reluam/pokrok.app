@@ -97,7 +97,7 @@ function renderItemCard(
       className="block text-left w-full cursor-pointer"
     >
       <article
-        className="bg-white rounded-2xl p-6 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 space-y-4 h-full"
+        className="bg-white/85 rounded-[24px] p-6 border border-white/60 shadow-md hover:shadow-xl transition-all hover:-translate-y-1 backdrop-blur space-y-4 h-full"
         style={{
           transform: `rotate(${index % 2 === 0 ? "-0.5deg" : "0.5deg"})`,
         }}
@@ -335,24 +335,27 @@ export default function InspiracePage() {
 
   return (
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto space-y-12">
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
-            Inspirace
-          </h1>
-          <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
-            Inspiruj se články, knihami, videi a dalšími zdroji.
-          </p>
+      <div className="max-w-6xl mx-auto space-y-10">
+        {/* Nadpis v boxu jako na HP */}
+        <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-6 py-10 md:px-10 md:py-12 max-w-4xl mx-auto">
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
+              Inspirace
+            </h1>
+            <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
+              Inspiruj se články, knihami, videi a dalšími zdroji.
+            </p>
+          </div>
         </div>
-        
-        {/* Filtry: Vše | Články Knihy Videa Hudba Ostatní */}
+
+        {/* Filtry */}
         <div className="flex flex-wrap items-center justify-center gap-2">
           <button
             onClick={() => setFilter("vse")}
             className={`px-5 py-2.5 rounded-full font-semibold transition-colors ${
               filter === "vse" || filter === null
                 ? "bg-accent text-white"
-                : "bg-white border-2 border-black/10 hover:border-accent hover:text-accent"
+                : "bg-white/85 border border-white/60 shadow-sm hover:shadow-md hover:border-accent/30 hover:text-accent backdrop-blur"
             }`}
           >
             Vše
@@ -365,7 +368,7 @@ export default function InspiracePage() {
               className={`px-5 py-2.5 rounded-full font-semibold transition-colors ${
                 filter === f.value
                   ? "bg-accent text-white"
-                  : "bg-white border-2 border-black/10 hover:border-accent hover:text-accent"
+                  : "bg-white/85 border border-white/60 shadow-sm hover:shadow-md hover:border-accent/30 hover:text-accent backdrop-blur"
               }`}
             >
               {f.label}
@@ -374,7 +377,7 @@ export default function InspiracePage() {
         </div>
 
         {showSplitLayout ? (
-          /* Split layout: inspirace vlevo, články vpravo */
+          /* Split layout: inspirace vlevo, články vpravo – bez velkého boxu kolem */
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             <div className="lg:col-span-2 space-y-6">
               <h2 className="text-2xl font-semibold text-foreground">Knihovna</h2>
@@ -391,7 +394,7 @@ export default function InspiracePage() {
               {currentListening && (
                 <div className="space-y-3">
                   <h2 className="text-2xl font-semibold text-foreground">Co právě poslouchám</h2>
-                  <div className="rounded-2xl overflow-hidden border-2 border-black/5 bg-white">
+                  <div className="rounded-[24px] overflow-hidden border border-white/60 bg-white/85 shadow-md backdrop-blur">
                     {getYouTubeEmbedUrl(currentListening.url) ? (
                       <>
                         <div className="relative w-full aspect-video">
@@ -403,7 +406,7 @@ export default function InspiracePage() {
                             title={currentListening.title}
                           />
                         </div>
-                        <div className="p-4 border-t border-black/5">
+                        <div className="p-4 border-t border-black/5 bg-white/50">
                           <h3 className="font-semibold text-foreground">{currentListening.title}</h3>
                           {currentListening.author && (
                             <p className="text-sm text-foreground/60">{currentListening.author}</p>
@@ -451,7 +454,7 @@ export default function InspiracePage() {
                         onClick={() => router.push(item.href)}
                         className="block text-left w-full cursor-pointer"
                       >
-                        <article className="bg-white rounded-xl p-4 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-lg">
+                        <article className="bg-white/85 rounded-[20px] p-4 border border-white/60 shadow-sm hover:shadow-lg transition-all backdrop-blur">
                           <div className="flex items-start gap-3">
                             <Icon className="text-accent flex-shrink-0 mt-0.5" size={18} />
                             <div className="min-w-0">
@@ -471,7 +474,7 @@ export default function InspiracePage() {
             </div>
           </div>
         ) : (
-          /* Full-width filtered grid */
+          /* Full-width filtered grid – bez velkého boxu */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredItems.length === 0 ? (
               <p className="col-span-full text-center text-foreground/60 py-12">
