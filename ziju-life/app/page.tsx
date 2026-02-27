@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <Hero />
-      <RevealSection>
+      <RevealSection triggerOnMount>
         <Medailonek />
       </RevealSection>
       <RevealSection delay={0.1}>

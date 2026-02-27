@@ -149,7 +149,9 @@ export default function OMnePage() {
       </RevealSection>
 
       {/* Poslední inspirace */}
-      <PosledniInspirace />
+      <RevealSection>
+        <PosledniInspirace />
+      </RevealSection>
     </main>
   );
 }

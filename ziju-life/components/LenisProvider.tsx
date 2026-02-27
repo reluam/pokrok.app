@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 type Props = {
@@ -8,6 +9,9 @@ type Props = {
 };
 
 export default function LenisProvider({ children }: Props) {
+  const pathname = usePathname();
+  const lenisRef = useRef<Lenis | null>(null);
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 0.5, // kratší, svižnější dojezd
@@ -16,6 +20,8 @@ export default function LenisProvider({ children }: Props) {
       wheelMultiplier: 0.6, // menší vzdálenost na jedno „odscrollování“
       touchMultiplier: 1.0,
     });
+
+    lenisRef.current = lenis;
 
     function raf(time: number) {
       lenis.raf(time);
@@ -26,9 +32,20 @@ export default function LenisProvider({ children }: Props) {
 
     return () => {
       lenis.destroy();
+      lenisRef.current = null;
     };
   }, []);
 
+  // Po každé změně stránky vrať scroll na začátek
+  useEffect(() => {
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]);
+
   return <>{children}</>;
 }
+
 
