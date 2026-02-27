@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { sql } from "./database";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
@@ -28,12 +29,110 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+async function getMonthlyBookingsFor(slotAt: Date): Promise<MonthlyBookingRow[]> {
+  const monthStart = new Date(slotAt.getFullYear(), slotAt.getMonth(), 1, 0, 0, 0, 0);
+  const nextMonthStart = new Date(slotAt.getFullYear(), slotAt.getMonth() + 1, 1, 0, 0, 0, 0);
+
+  const rows = await sql`
+    SELECT l.name, l.email, bs.start_at, bs.duration_minutes
+    FROM bookings b
+    JOIN leads l ON l.id = b.lead_id
+    JOIN booking_slots bs ON bs.id = b.slot_id
+    WHERE bs.start_at >= ${monthStart}
+      AND bs.start_at < ${nextMonthStart}
+    ORDER BY bs.start_at ASC
+  ` as MonthlyBookingRow[];
+
+  return rows;
+}
+
+function renderMonthlyCalendarHtml(bookings: MonthlyBookingRow[], monthLabel: string): string {
+  if (bookings.length === 0) {
+    return `
+      <p style="color: ${TEXT_MUTED}; font-size: 14px; line-height: 1.6; margin: 24px 0 0;">
+        V tomto měsíci zatím nemáš žádné domluvené konzultace.
+      </p>
+    `;
+  }
+
+  const rowsHtml = bookings
+    .map((b) => {
+      const dateStr = b.start_at.toLocaleDateString("cs-CZ", {
+        weekday: "short",
+        day: "numeric",
+        month: "numeric",
+      });
+      const timeStr = b.start_at.toLocaleTimeString("cs-CZ", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const safeName = b.name ? escapeHtml(b.name) : "klient";
+      const safeEmail = escapeHtml(b.email);
+
+      return `
+        <tr>
+          <td style="padding: 8px 12px; border-bottom: 1px solid ${BORDER}; font-size: 14px; color: ${TEXT_MUTED}; white-space: nowrap;">
+            ${dateStr}
+          </td>
+          <td style="padding: 8px 12px; border-bottom: 1px solid ${BORDER}; font-size: 14px; color: ${TEXT_MUTED}; white-space: nowrap;">
+            ${timeStr}
+          </td>
+          <td style="padding: 8px 12px; border-bottom: 1px solid ${BORDER}; font-size: 14px; color: ${TEXT_DARK};">
+            ${safeName}
+            <span style="color: ${TEXT_MUTED}; font-size: 12px;"> &lt;${safeEmail}&gt;</span>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  return `
+    <div style="margin-top: 32px; padding: 24px; background-color: ${BOX_BG}; border-radius: 8px; border: 1px solid ${BORDER};">
+      <p style="color: ${TEXT_DARK}; font-size: 16px; font-weight: 600; margin: 0 0 16px;">
+        Kalendář konzultací – ${monthLabel}
+      </p>
+      <table role="presentation" style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+        <thead>
+          <tr>
+            <th align="left" style="padding: 8px 12px; border-bottom: 2px solid ${BORDER}; font-size: 13px; color: ${TEXT_MUTED}; font-weight: 600;">
+              Datum
+            </th>
+            <th align="left" style="padding: 8px 12px; border-bottom: 2px solid ${BORDER}; font-size: 13px; color: ${TEXT_MUTED}; font-weight: 600;">
+              Čas
+            </th>
+            <th align="left" style="padding: 8px 12px; border-bottom: 2px solid ${BORDER}; font-size: 13px; color: ${TEXT_MUTED}; font-weight: 600;">
+              Klient
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
 // Styling jako newsletter – čistá karta, logo, výrazný levý pruh
 const ACCENT = "#FF8C42";
 const TEXT_DARK = "#171717";
 const TEXT_MUTED = "#666666";
 const BORDER = "#e5e5e5";
 const BOX_BG = "#f5f5f5";
+
+type MonthlyBookingRow = {
+  name: string | null;
+  email: string;
+  start_at: Date;
+  duration_minutes: number;
+};
+
+function formatMonthLabel(d: Date): string {
+  return d.toLocaleDateString("cs-CZ", {
+    year: "numeric",
+    month: "long",
+  });
+}
 
 function emailWrapper(title: string, content: string): string {
   const siteUrl = getSiteUrl();
@@ -125,7 +224,8 @@ function renderAdminConfirmationHtml(
   slotStr: string,
   durationMinutes: number,
   note?: string | null,
-  source?: string
+  source?: string,
+  monthlyHtml?: string
 ): string {
   const safeName = escapeHtml(clientName);
   const safeNote = note ? escapeHtml(note) : "";
@@ -154,9 +254,7 @@ function renderAdminConfirmationHtml(
       ${safeNote ? `<p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 16px 0 0; padding-top: 16px; border-top: 1px solid ${BORDER};"><strong style="color: ${TEXT_DARK};">Poznámka:</strong><br>${safeNote.replace(/\n/g, "<br>")}</p>` : ""}
     </div>
 
-    <p style="color: ${TEXT_DARK}; font-size: 14px; line-height: 1.6; margin: 0;">
-      Odpověď na tento e-mail pošleš přímo klientovi.
-    </p>
+    ${monthlyHtml ?? ""}
   `;
   return emailWrapper("Nová rezervace", content);
 }
@@ -243,7 +341,18 @@ export async function sendBookingConfirmationToAdmin(params: {
   try {
     const { clientName, clientEmail, slotAt, durationMinutes, note, source } = params;
     const slotStr = formatSlot(slotAt);
-    const html = renderAdminConfirmationHtml(clientName, clientEmail, slotStr, durationMinutes, note, source);
+    const monthLabel = formatMonthLabel(slotAt);
+    const monthlyBookings = await getMonthlyBookingsFor(slotAt);
+    const monthlyHtml = renderMonthlyCalendarHtml(monthlyBookings, monthLabel);
+    const html = renderAdminConfirmationHtml(
+      clientName,
+      clientEmail,
+      slotStr,
+      durationMinutes,
+      note,
+      source,
+      monthlyHtml
+    );
     const { error } = await resend.emails.send({
       from: fromAdmin,
       to: [adminEmail],

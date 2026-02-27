@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, MouseEvent } from "react";
+import { useState, useEffect } from "react";
+import type React from "react";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -12,7 +13,7 @@ export default function Navigation() {
 
   useEffect(() => {
     // Smooth scroll s easing funkcí pro anchor odkazy
-    const handleSmoothScroll = (e: MouseEvent) => {
+    const handleSmoothScroll = (e: Event) => {
       const target = e.target as HTMLElement;
       const link = target.closest('a');
       
@@ -100,7 +101,7 @@ export default function Navigation() {
   const navBase = "sticky top-3 md:top-5 z-50";
   const navSurface = "";
 
-  const handleChciZmenuClick = (e: MouseEvent<HTMLAnchorElement>) => {
+  const handleChciZmenuClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (pathname === "/koucing") {
       e.preventDefault();
       const targetElement = document.getElementById("rezervace");
