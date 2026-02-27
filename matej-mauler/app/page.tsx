@@ -2,6 +2,7 @@ import ProjectsCarousel from "@/components/ProjectsCarousel";
 import ScrollReveal from "@/components/ScrollReveal";
 import Image from "next/image";
 import CalendarBookingButton from "@/components/CalendarBookingButton";
+import ContactForm from "@/components/ContactForm";
 
 const MailIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -181,19 +182,19 @@ export default function Home() {
           </article>
           </div>
 
-          {/* Box 4: Rezervace konzultace */}
+          {/* Box 4: Contact Form */}
           <div className="portfolio-card-wrap">
             <section
               id="kontakt"
               className="portfolio-card flex flex-col rounded-2xl p-6 md:p-8"
             >
               <h2 className="mb-3 text-2xl font-700 text-[var(--fg)] md:text-3xl">
-                Rezervujte si konzultaci
+                Napište mi
               </h2>
               <p className="mb-4 text-sm text-[var(--fg-muted)]">
-                30 minut zdarma, kde společně prozkoumáme, jak vám může AI konkrétně pomoct.
+                Máte zájem o spolupráci nebo se chcete něco zeptat? Napište mi zprávu a ozvu se vám co nejdříve.
               </p>
-              <CalendarBookingButton />
+              <ContactForm />
             </section>
           </div>
           </div>
