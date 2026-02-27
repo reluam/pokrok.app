@@ -5,6 +5,7 @@ import ConditionalShell from "@/components/ConditionalShell";
 import VercelScripts from "@/components/VercelScripts";
 import FixCzechTypography from "@/components/FixCzechTypography";
 import CookieConsent from "@/components/CookieConsent";
+import LenisProvider from "@/components/LenisProvider";
 
 const baloo2 = Baloo_2({
   subsets: ['latin', 'latin-ext'],
@@ -38,10 +39,12 @@ export default function RootLayout({
   return (
     <html lang="cs" className={`${baloo2.variable} ${nunito.variable}`}>
       <body className="antialiased bg-[#FDFDF7] text-foreground">
-        <FixCzechTypography />
-        <ConditionalShell>{children}</ConditionalShell>
-        <CookieConsent />
-        <VercelScripts />
+        <LenisProvider>
+          <FixCzechTypography />
+          <ConditionalShell>{children}</ConditionalShell>
+          <CookieConsent />
+          <VercelScripts />
+        </LenisProvider>
       </body>
     </html>
   );

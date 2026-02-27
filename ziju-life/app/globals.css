@@ -21,22 +21,22 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-}
+  }
 
-body {
-  background-color: var(--background);
-  background-image:
-    radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.04) 1px, transparent 0),
-    radial-gradient(circle at 100% 100%, rgba(15, 23, 42, 0.04) 1px, transparent 0);
-  background-size: 2px 2px;
-  background-attachment: fixed;
-  color: var(--foreground);
-  font-family: var(--font-baloo), system-ui, sans-serif;
-  font-weight: 600;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  body {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.04) 1px, transparent 0),
+      radial-gradient(circle at 100% 100%, rgba(15, 23, 42, 0.04) 1px, transparent 0);
+    background-size: 2px 2px;
+    background-attachment: fixed;
+    color: var(--foreground);
+    font-family: var(--font-baloo), system-ui, sans-serif;
+    font-weight: 600;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-nunito), system-ui, sans-serif;
@@ -60,7 +60,7 @@ body {
 
   nav, nav a, nav button {
     font-family: var(--font-nunito), system-ui, sans-serif;
-}
+  }
 
   footer, footer a {
     font-family: var(--font-nunito), system-ui, sans-serif;

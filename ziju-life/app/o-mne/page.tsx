@@ -48,8 +48,7 @@ export default function OMnePage() {
                     className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-6"
                     style={{ fontWeight: 600 }}
                   >
-                    Ten moment, kdy mi došlo, že{" "}
-                    <span className="hand-drawn-underline">už mi není dvacet</span>
+                    Už mi není dvacet
                   </h1>
                   <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
                     <p className="text-lg md:text-xl">
@@ -57,7 +56,7 @@ export default function OMnePage() {
                       sebou už jen dvě třetiny života. Tu první jsem strávil jako pozorovatel – učil jsem
                       se o lidech, o světě i o sobě, ale pořád jsem stál tak trochu bokem. Štvalo mě, že
                       ostatní mají tu sílu se světem hýbat a tvořit si ho podle sebe. Došlo mi, že už
-                      nechci jen doufat, že to \"nějak vytočím\". Chci s tím světem konečně začít
+                      nechci jen doufat, že to <em>nějak vytočím</em>. Chci s tím světem konečně začít
                       interagovat.
                     </p>
                   </div>
