@@ -209,7 +209,7 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-4 border-t border-black/5">
+          <div className="md:hidden py-4 space-y-4 border-t border-black/5 text-center">
             {navItems.map((item) => {
               const isActive = !item.external && (pathname === item.href || 
                 (item.href !== "/" && pathname?.startsWith(item.href)));

@@ -86,6 +86,8 @@ export default function LeadForm({
           <input
             id="lead-name"
             type="text"
+            inputMode="text"
+            autoComplete="name"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -101,6 +103,8 @@ export default function LeadForm({
           <input
             id="lead-email"
             type="email"
+            inputMode="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}

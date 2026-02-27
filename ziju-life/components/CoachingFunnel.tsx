@@ -570,6 +570,8 @@ export default function CoachingFunnel() {
                 <input
                   id="funnel-name"
                   type="text"
+                  inputMode="text"
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
@@ -584,6 +586,8 @@ export default function CoachingFunnel() {
                 <input
                   id="funnel-email"
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
