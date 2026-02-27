@@ -92,7 +92,7 @@ function renderClientConfirmationHtml(name: string, slotStr: string, durationMin
       Ahoj ${safeName},
     </p>
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
-      Rezervace konzultace je potvrzená. Tady máš přehled:
+      Je to tam. 30 minutovou konzultaci zdarma máš zarezervovanou. Níže najdeš shrnutí:
     </p>
 
     <div style="margin-bottom: 24px; padding: 24px; background-color: ${BOX_BG}; border-radius: 8px; border-left: 4px solid ${ACCENT};">
@@ -110,10 +110,10 @@ function renderClientConfirmationHtml(name: string, slotStr: string, durationMin
     <div style="height: 1px; background-color: ${BORDER}; margin: 28px 0;"></div>
 
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 12px;">
-      Těším se na setkání.
+      Klidně mi do odpovědi na tento email napiš co bys chtěl řešit nebo jaké máš dotazy, ať se na naši konzultaci lépe připravím. 
     </p>
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0;">
-      Měj pěkný den,<br><strong>Matěj</strong>
+      Těším se na setkání.<br><strong>Matěj</strong>
     </p>
   `;
   return emailWrapper("Rezervace potvrzena", content);
@@ -214,6 +214,7 @@ export async function sendBookingConfirmationToClient(params: {
       from: fromClient,
       to: [to],
       subject: `Rezervace potvrzena – ${slotStr}`,
+      replyTo: adminEmail,
       html,
     });
     if (error) {
@@ -246,7 +247,7 @@ export async function sendBookingConfirmationToAdmin(params: {
     const { error } = await resend.emails.send({
       from: fromAdmin,
       to: [adminEmail],
-      subject: `Nová rezervace – ${clientName} – ${slotStr}`,
+      subject: `Žiju life – Rezervace 30 min ZDARMA – ${clientName} – ${slotStr}`,
       html,
     });
     if (error) {
@@ -278,6 +279,7 @@ export async function sendBookingReminderToClient(params: {
       from: fromClient,
       to: [to],
       subject: `Připomínka: konzultace zítra – ${slotStr}`,
+      replyTo: adminEmail,
       html,
     });
     if (error) {

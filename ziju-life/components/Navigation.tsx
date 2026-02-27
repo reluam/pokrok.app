@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, MouseEvent } from "react";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -100,6 +100,24 @@ export default function Navigation() {
   const navBase = "sticky top-3 md:top-5 z-50";
   const navSurface = "";
 
+  const handleChciZmenuClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (pathname === "/koucing") {
+      e.preventDefault();
+      const targetElement = document.getElementById("rezervace");
+      if (targetElement) {
+        const prefersReducedMotion = window.matchMedia?.(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        if (prefersReducedMotion) {
+          targetElement.scrollIntoView({ behavior: "auto", block: "start" });
+        } else {
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }
+  };
+
   return (
     <nav className={`${navBase} ${navSurface}`}>
       <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
@@ -156,7 +174,8 @@ export default function Navigation() {
             })}
             
             <Link
-              href="/koucing"
+              href="/koucing#rezervace"
+              onClick={handleChciZmenuClick}
               className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
             >
               Chci změnu
@@ -229,8 +248,11 @@ export default function Navigation() {
               );
             })}
             <Link
-              href="/koucing"
-              onClick={() => setIsMenuOpen(false)}
+              href="/koucing#rezervace"
+              onClick={(e) => {
+                handleChciZmenuClick(e);
+                setIsMenuOpen(false);
+              }}
               className="block px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors text-center"
             >
               Chci změnu
