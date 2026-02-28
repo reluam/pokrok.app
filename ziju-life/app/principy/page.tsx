@@ -66,29 +66,25 @@ export default async function PrinciplesPage() {
   return (
     <main className="min-h-screen">
       <section className="pt-8 pb-12 md:pt-10 md:pb-16 lg:pt-12 lg:pb-20">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
           <RevealSection triggerOnMount>
-            <div className="bg-white/85 rounded-[32px] border border-white/60 shadow-md backdrop-blur glass-grain px-6 py-8 md:px-10 md:py-10 lg:px-12 lg:py-12 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-semibold">
-                <span>Principy</span>
-              </div>
-              <div className="space-y-4 max-w-3xl">
+            <div className="bg-white/85 rounded-[32px] border border-white/60 shadow-md backdrop-blur glass-grain px-6 py-8 md:px-10 md:py-10 lg:px-12 lg:py-12">
+              <div className="space-y-4 max-w-3xl mx-auto text-center">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
                   Principy, na kterých stavím{" "}
                   <span className="hand-drawn-underline">Žiju life</span>.
                 </h1>
                 <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
-                  Tohle není seznam univerzálních pravd, které musíš slepě
-                  následovat. Je to seznam principů, které jsem si sám odzkoušel
-                  a zjistil jsem, že když se jich držím, vedou k mnohem lepším
-                  výsledkům a většímu klidu než jakékoliv jiné strategie.
+                  Tohle nejsou univerzální pravdy. Jsou to mnou odzkoušené
+                  principy, které mi v praxi vedou k lepším výsledkům a
+                  většímu klidu než jakékoliv jiné strategie.
                 </p>
                 <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
-                  Celým tímhle systémem jsem se inspiroval u Raye Dalia a jeho
-                  knihy Principy. Dalio přistupuje k životu jako k sérii
-                  neustále se opakujících situací (takových životních
-                  algoritmů), které se dají pomocí jasně daných pravidel
-                  elegantně a s chladnou hlavou vyřešit.
+                  Celý koncept vychází z knihy Principy od Raye Dalia. Ten k
+                  životu přistupuje jako k sérii opakujících se situací
+                  (algoritmů), které se dají pomocí jasných pravidel řešit
+                  s chladnou hlavou. Zkus si je otestovat sám na sobě.
                 </p>
               </div>
             </div>
@@ -97,36 +93,27 @@ export default async function PrinciplesPage() {
           <RevealSection className="mt-10 md:mt-12 lg:mt-14" delay={0.05}>
             <div className="grid gap-6 md:gap-7 md:grid-cols-2">
               {principles.map((principle, index) => (
-                <article
+                <Link
                   key={principle.slug}
-                  className="bg-white/85 rounded-[24px] p-6 md:p-7 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all backdrop-blur glass-grain flex flex-col h-full"
+                  href={`/principy/${principle.slug}`}
+                  className="flex items-center min-h-[5rem] py-6 px-6 md:py-7 md:px-7 bg-white/85 rounded-[24px] border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all backdrop-blur glass-grain text-left"
                 >
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <div className="text-sm font-semibold text-foreground/60">
+                  <div className="flex items-center justify-between gap-4 w-full">
+                    <div className="text-sm font-semibold text-accent shrink-0">
                       {String(index + 1).padStart(2, "0")}
                     </div>
-                    <h2 className="text-xl md:text-2xl font-semibold text-foreground flex-1">
+                    <h2 className="text-xl md:text-2xl font-semibold text-foreground flex-1 min-w-0">
                       {principle.title}
                     </h2>
+                    <span className="text-foreground font-bold text-2xl shrink-0 leading-none" aria-hidden>
+                      →
+                    </span>
                   </div>
-                  <p className="text-foreground/75 leading-relaxed mb-4 flex-1">
-                    {principle.shortDescription}
-                  </p>
-                  <div>
-                    <Link
-                      href={`/principy/${principle.slug}`}
-                      className="inline-flex items-center text-accent font-semibold hover:underline"
-                    >
-                      Rozkliknout princip
-                      <span aria-hidden className="ml-1">
-                        →
-                      </span>
-                    </Link>
-                  </div>
-                </article>
+                </Link>
               ))}
             </div>
           </RevealSection>
+          </div>
         </div>
       </section>
     </main>

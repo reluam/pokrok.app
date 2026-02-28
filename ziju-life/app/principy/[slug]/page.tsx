@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { getAllPrinciples, getPrincipleBySlug } from "@/lib/principles";
 import { getInspirationData } from "@/lib/inspiration-db";
 import InspirationCard from "@/components/InspirationCard";
+import PrincipleShareBar from "@/components/PrincipleShareBar";
 import type { InspirationItem } from "@/lib/inspiration";
 
 const FALLBACK_PRINCIPLES = [
@@ -103,6 +104,9 @@ export default async function PrincipleDetailPage({
     principleFromDb?.shortDescription ?? fallback!.shortDescription;
   const content =
     principleFromDb?.contentMarkdown ?? fallback!.contentMarkdown;
+  const principleNumber = principleFromDb
+    ? principleFromDb.orderIndex + 1
+    : FALLBACK_PRINCIPLES.findIndex((p) => p.slug === slug) + 1;
 
   const relatedIds = principleFromDb?.relatedInspirationIds ?? [];
   let relatedItems: InspirationItem[] = [];
@@ -136,7 +140,7 @@ export default async function PrincipleDetailPage({
         <article className="relative overflow-hidden rounded-[32px] border border-white/60 bg-white/85 shadow-xl backdrop-blur glass-grain px-6 py-8 md:px-10 md:py-10 space-y-6">
           <header className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-semibold">
-              <span>Princip</span>
+              <span>#{principleNumber}</span>
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
               {title}
@@ -144,6 +148,7 @@ export default async function PrincipleDetailPage({
             <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
               {shortDescription}
             </p>
+            <PrincipleShareBar title={title} shortDescription={shortDescription} slug={slug} />
           </header>
 
           <div className="prose prose-lg max-w-none prose-headings:font-semibold prose-p:leading-relaxed prose-a:text-accent prose-a:font-semibold prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-em:text-foreground/90">
