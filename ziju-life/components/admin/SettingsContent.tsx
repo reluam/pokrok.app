@@ -18,6 +18,7 @@ export default function SettingsContent() {
   const [clickupStatusNameMeeting, setClickupStatusNameMeeting] = useState("");
   const [googleCalendarId, setGoogleCalendarId] = useState("primary");
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
+  const [showPrinciples, setShowPrinciples] = useState(true);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -40,6 +41,7 @@ export default function SettingsContent() {
         if (data.clickupStatusNameMeeting != null) setClickupStatusNameMeeting(data.clickupStatusNameMeeting);
         if (data.googleCalendarId) setGoogleCalendarId(data.googleCalendarId);
         if (data.googleCalendarConnected != null) setGoogleCalendarConnected(Boolean(data.googleCalendarConnected));
+        if (data.showPrinciples != null) setShowPrinciples(Boolean(data.showPrinciples));
       })
       .catch(() => {
         setNotionApiKey("••••••••••••••••");
@@ -80,6 +82,7 @@ export default function SettingsContent() {
           clickupStatusNameReachOut: clickupStatusNameReachOut.trim() || null,
           clickupStatusNameMeeting: clickupStatusNameMeeting.trim() || null,
           googleCalendarId: googleCalendarId.trim() || "primary",
+          showPrinciples,
         }),
       });
 
@@ -294,6 +297,7 @@ export default function SettingsContent() {
           />
         </div>
       </section>
+
 
       {/* Externí CRM služby */}
       <section className="bg-white rounded-2xl p-6 border-2 border-black/10">

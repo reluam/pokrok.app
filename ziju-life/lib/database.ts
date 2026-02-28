@@ -38,6 +38,33 @@ export async function initializeDatabase() {
       ADD COLUMN IF NOT EXISTS image_url TEXT
     `
 
+    // Create principles table
+    await sql`
+      CREATE TABLE IF NOT EXISTS principles (
+        id VARCHAR(255) PRIMARY KEY,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        short_description TEXT NOT NULL,
+        content_markdown TEXT NOT NULL DEFAULT '',
+        order_index INTEGER NOT NULL DEFAULT 0,
+        video_url TEXT,
+        related_inspiration_ids TEXT[] DEFAULT ARRAY[]::TEXT[],
+        is_active BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    // Index for ordering principles
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_principles_order_index ON principles(order_index, created_at DESC)
+    `
+
+    // Index for fast lookup by slug
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_principles_slug ON principles(slug)
+    `
+
     // Create newsletter_subscribers table
     await sql`
       CREATE TABLE IF NOT EXISTS newsletter_subscribers (

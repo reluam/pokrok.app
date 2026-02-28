@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import type React from "react";
+import { getAdminSettings } from "@/lib/admin-settings";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -91,8 +92,35 @@ export default function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const [showPrinciples, setShowPrinciples] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/settings");
+        const data = await res.json();
+        if (!cancelled) {
+          if (data.showPrinciples != null) {
+            setShowPrinciples(Boolean(data.showPrinciples));
+          } else {
+            setShowPrinciples(true);
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setShowPrinciples(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
     { href: "/inspirace", label: "Inspirace" },
+    ...(showPrinciples ? [{ href: "/principy", label: "Principy" }] : []),
     { href: "/koucing", label: "Koučing" },
     { href: "/o-mne", label: "O mně" },
   ];

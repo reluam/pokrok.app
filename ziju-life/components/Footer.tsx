@@ -1,8 +1,35 @@
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import Certificates from "./Certificates";
 
 export default function Footer() {
+  const [showPrinciples, setShowPrinciples] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/settings");
+        const data = await res.json();
+        if (!cancelled) {
+          if (data.showPrinciples != null) {
+            setShowPrinciples(Boolean(data.showPrinciples));
+          } else {
+            setShowPrinciples(true);
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setShowPrinciples(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <>
       <footer className="mt-16 border-t border-black/10 bg-transparent py-10 px-4 sm:px-6 lg:px-8">
@@ -36,6 +63,14 @@ export default function Footer() {
               >
                 Inspirace
               </Link>
+              {showPrinciples && (
+                <Link
+                  href="/principy"
+                  className="text-sm text-foreground/70 hover:text-accent transition-colors"
+                >
+                  Principy
+                </Link>
+              )}
               <Link
                 href="/o-mne"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
