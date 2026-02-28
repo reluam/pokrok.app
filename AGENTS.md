@@ -32,13 +32,55 @@ Each project runs independently via `npm run dev` from its own directory. Defaul
 - `smysluplne-ziti`: `npm run build` fails if `RESEND_API_KEY` is missing — the Resend client is instantiated at module scope. Dev server starts fine without it.
 - Projects needing Clerk (`pokrok-game-web`, `cccp`) will fail to build/run without `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
 
-### Environment variables
+### Environment variables (per-project secrets)
 
-Refer to `.env.example` / `.env.local.example` files in each project directory. Key secrets:
-- `DATABASE_URL` — Neon Postgres connection string (needed by `pokrok-game-web`, `cccp`, `ziju-life`, `smysluplne-ziti`)
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` — Clerk auth (needed by `pokrok-game-web`, `cccp`)
-- `RESEND_API_KEY` — email service (optional for dev; contact forms will 500 without it)
-- `GOOGLE_API_KEY` — Google Generative AI (optional; only `pokrok-game-web` AI assistant)
+Since each project has its own database and auth setup, Cursor Cloud secrets use project-prefixed names. The update script auto-generates `.env.local` files from these env vars.
+
+**Shared secrets:**
+
+| Secret name | Used by | Required? |
+|---|---|---|
+| `RESEND_API_KEY` | all projects | Optional (contact forms 500 without it; `smysluplne-ziti` build fails without it) |
+
+**`pokrok-game-web` secrets:**
+
+| Cursor Cloud secret | Maps to `.env.local` var | Required? |
+|---|---|---|
+| `POKROK_DATABASE_URL` | `DATABASE_URL` | Yes (DB queries fail without it, but dev server starts) |
+| `POKROK_CLERK_PUBLISHABLE_KEY` | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes (Clerk middleware blocks all routes) |
+| `POKROK_CLERK_SECRET_KEY` | `CLERK_SECRET_KEY` | Yes (Clerk middleware blocks all routes) |
+| `POKROK_ENCRYPTION_MASTER_KEY` | `ENCRYPTION_MASTER_KEY` | Optional (encryption features) |
+| `POKROK_GEMINI_API_KEY` | `GEMINI_API_KEY` | Optional (AI assistant) |
+
+**`cccp` secrets:**
+
+| Cursor Cloud secret | Maps to `.env.local` var | Required? |
+|---|---|---|
+| `CCCP_DATABASE_URL` | `DATABASE_URL` | Yes (DB queries fail without it, but dev server starts) |
+| `CCCP_CLERK_PUBLISHABLE_KEY` | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes (Clerk auth) |
+| `CCCP_CLERK_SECRET_KEY` | `CLERK_SECRET_KEY` | Yes (Clerk auth) |
+| `CCCP_GOOGLE_CLIENT_ID` | `GOOGLE_CLIENT_ID` | Optional (Google Calendar) |
+| `CCCP_GOOGLE_CLIENT_SECRET` | `GOOGLE_CLIENT_SECRET` | Optional (Google Calendar) |
+
+**`ziju-life` secrets:**
+
+| Cursor Cloud secret | Maps to `.env.local` var | Required? |
+|---|---|---|
+| `ZIJU_DATABASE_URL` | `DATABASE_URL` | Yes (DB queries fail without it, but dev server starts) |
+| `ZIJU_ADMIN_PASSWORD` | `ADMIN_PASSWORD` | Optional (admin panel) |
+| `ZIJU_GOOGLE_CLIENT_ID` | `GOOGLE_CLIENT_ID` | Optional (Google Calendar) |
+| `ZIJU_GOOGLE_CLIENT_SECRET` | `GOOGLE_CLIENT_SECRET` | Optional (Google Calendar) |
+
+**`smysluplne-ziti` secrets:**
+
+| Cursor Cloud secret | Maps to `.env.local` var | Required? |
+|---|---|---|
+| `SMYSLUPLNE_DATABASE_URL` | `DATABASE_URL` | Yes (throws error without it) |
+| `SMYSLUPLNE_ADMIN_PASSWORD` | `ADMIN_PASSWORD` | Optional (admin panel) |
+
+**`matej-mauler`** — no project-specific secrets needed (only shared `RESEND_API_KEY`).
+
+Refer also to `.env.example` / `.env.local.example` files in each project directory for the full list of available variables.
 
 ### `pokrok-shared` library
 
