@@ -4,13 +4,13 @@
 
 ### Codebase overview
 
-This is a monorepo with 3 core Next.js web projects + a shared TS library (no monorepo tooling — each has its own `package.json` + `package-lock.json`).
+This is a monorepo with 3 Next.js web projects + a shared TS library (no monorepo tooling — each has its own `package.json` + `package-lock.json`).
 
 | Project | Port | External deps | Notes |
 |---|---|---|---|
 | `pokrok-game-web` | 3000 | Neon Postgres, Clerk, Resend, Google AI | Main product; Next.js 16 with `next-intl` |
-| `cccp` | 3002 | Neon Postgres, Clerk, Google Calendar, Resend | Coach CRM; Next.js 16 |
 | `ziju-life` | 3003 | Neon Postgres, Google Calendar, Resend | Brand website; Next.js 16 |
+| `matej-mauler` | 3005 | Resend (optional) | Portfolio site; Next.js 16, no DB or auth |
 | `pokrok-shared` | — | None | Shared TypeScript types; must `npm run build` before other projects that import it |
 
 ### Running dev servers
@@ -19,12 +19,14 @@ Each project runs independently via `npm run dev` from its own directory. Defaul
 
 ### Linting
 
-- `pokrok-game-web`, `cccp`: `npm run lint` currently broken — `next lint` on Next.js 16 errors with "Invalid project directory" (pre-existing; needs ESLint flat config migration)
+- `pokrok-game-web`: `npm run lint` currently broken — `next lint` on Next.js 16 errors with "Invalid project directory" (pre-existing; needs ESLint flat config migration)
 - `ziju-life`: `npm run lint` runs `eslint` with no file args; needs `eslint.config.mjs` present (exists, but prints help output without file patterns)
+- `matej-mauler`: `npm run lint` works (`eslint .`)
 
 ### Build caveats
 
-- Projects needing Clerk (`pokrok-game-web`, `cccp`) will fail to build/run without `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
+- `pokrok-game-web` (uses Clerk) will fail to build/run without `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
+- `matej-mauler`: `npm run build` has a pre-existing TS error in `ProjectsCarousel.tsx`. Dev server is unaffected.
 
 ### Environment variables (per-project secrets)
 
@@ -46,16 +48,6 @@ Since each project has its own database and auth setup, Cursor Cloud secrets use
 | `POKROK_ENCRYPTION_MASTER_KEY` | `ENCRYPTION_MASTER_KEY` | Optional (encryption features) |
 | `POKROK_GEMINI_API_KEY` | `GEMINI_API_KEY` | Optional (AI assistant) |
 
-**`cccp` secrets:**
-
-| Cursor Cloud secret | Maps to `.env.local` var | Required? |
-|---|---|---|
-| `CCCP_DATABASE_URL` | `DATABASE_URL` | Yes (DB queries fail without it, but dev server starts) |
-| `CCCP_CLERK_PUBLISHABLE_KEY` | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes (Clerk auth) |
-| `CCCP_CLERK_SECRET_KEY` | `CLERK_SECRET_KEY` | Yes (Clerk auth) |
-| `CCCP_GOOGLE_CLIENT_ID` | `GOOGLE_CLIENT_ID` | Optional (Google Calendar) |
-| `CCCP_GOOGLE_CLIENT_SECRET` | `GOOGLE_CLIENT_SECRET` | Optional (Google Calendar) |
-
 **`ziju-life` secrets:**
 
 | Cursor Cloud secret | Maps to `.env.local` var | Required? |
@@ -65,7 +57,7 @@ Since each project has its own database and auth setup, Cursor Cloud secrets use
 | `ZIJU_GOOGLE_CLIENT_ID` | `GOOGLE_CLIENT_ID` | Optional (Google Calendar) |
 | `ZIJU_GOOGLE_CLIENT_SECRET` | `GOOGLE_CLIENT_SECRET` | Optional (Google Calendar) |
 
-Refer also to `.env.example` files in each project directory for the full list of available variables.
+**`matej-mauler`** — no project-specific secrets needed (only shared `RESEND_API_KEY`).
 
 ### `pokrok-shared` library
 
