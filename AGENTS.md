@@ -59,6 +59,11 @@ Since each project has its own database and auth setup, Cursor Cloud secrets use
 
 **`matej-mauler`** — no project-specific secrets needed (only shared `RESEND_API_KEY`).
 
+### Testing notes
+
+- `pokrok-game-web` sign-up requires Clerk email verification (6-digit code). To test authenticated features, you need a real email or a test account already set up in the Clerk dashboard.
+- When running multiple projects simultaneously, explicitly set `PORT` to avoid conflicts (e.g. `PORT=3003 npm run dev` for ziju-life).
+
 ### `pokrok-shared` library
 
 Run `npm run build` (or `npm run dev` for watch mode) inside `pokrok-shared/` before working on projects that import `@pokrok/shared`. The build output goes to `pokrok-shared/dist/`.
