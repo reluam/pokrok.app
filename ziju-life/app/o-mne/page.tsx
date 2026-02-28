@@ -141,7 +141,11 @@ export default function OMnePage() {
             
             <div className="mt-12 text-center">
               <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-                Takhle žiju life já. Pokud tě tenhle přístup baví, nech mi dole svůj mail a já ti dám vědět, na co jsem zrovna přišel. Nebo pojď rovnou do komunity a poděl se o to, jak se v tom chaosu snažíš žít ty.
+                Takhle žiju life já. Pokud tě tenhle přístup baví, načerpej více inspirace níže nebo si{" "}
+                <a href="/koucing#rezervace" className="text-accent font-semibold hover:underline">
+                  tady
+                </a>{" "}
+                zarezervuj 30 minutovou konzultaci, kde probereme, jestli ti můžu pomoct žít tvůj život více podle tebe.
               </p>
             </div>
           </div>

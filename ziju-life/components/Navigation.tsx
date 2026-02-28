@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import type React from "react";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -12,7 +13,7 @@ export default function Navigation() {
 
   useEffect(() => {
     // Smooth scroll s easing funkcí pro anchor odkazy
-    const handleSmoothScroll = (e: MouseEvent) => {
+    const handleSmoothScroll = (e: Event) => {
       const target = e.target as HTMLElement;
       const link = target.closest('a');
       
@@ -100,6 +101,24 @@ export default function Navigation() {
   const navBase = "sticky top-3 md:top-5 z-50";
   const navSurface = "";
 
+  const handleChciZmenuClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (pathname === "/koucing") {
+      e.preventDefault();
+      const targetElement = document.getElementById("rezervace");
+      if (targetElement) {
+        const prefersReducedMotion = window.matchMedia?.(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        if (prefersReducedMotion) {
+          targetElement.scrollIntoView({ behavior: "auto", block: "start" });
+        } else {
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }
+  };
+
   return (
     <nav className={`${navBase} ${navSurface}`}>
       <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
@@ -156,7 +175,8 @@ export default function Navigation() {
             })}
             
             <Link
-              href="/koucing"
+              href="/koucing#rezervace"
+              onClick={handleChciZmenuClick}
               className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
             >
               Chci změnu
@@ -189,7 +209,7 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-4 border-t border-black/5">
+          <div className="md:hidden mt-3 py-4 px-4 space-y-4 text-center rounded-3xl border border-white/60 bg-white/90 shadow-lg backdrop-blur-xl glass-grain">
             {navItems.map((item) => {
               const isActive = !item.external && (pathname === item.href || 
                 (item.href !== "/" && pathname?.startsWith(item.href)));
@@ -229,8 +249,11 @@ export default function Navigation() {
               );
             })}
             <Link
-              href="/koucing"
-              onClick={() => setIsMenuOpen(false)}
+              href="/koucing#rezervace"
+              onClick={(e) => {
+                handleChciZmenuClick(e);
+                setIsMenuOpen(false);
+              }}
               className="block px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors text-center"
             >
               Chci změnu

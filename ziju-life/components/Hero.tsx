@@ -66,10 +66,10 @@ function HeroContent() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
       >
-        Tvůj život by měl dávat smysl tobě. Pomůžu ti{" "}
-        <span className="font-semibold text-[#ff8c42]">zvědomit realitu</span>,{" "}
-        <span className="font-semibold text-[#ff8c42]">najít směr</span> a{" "}
-        <span className="font-semibold text-[#ff8c42]">začít žít Tvůj život</span>. Krok za krokem.
+        Tvůj život by měl dávat smysl tobě. Pomůžu ti se{" "}
+        <span className="text-accent font-semibold">zastavit</span>,{" "}
+        <span className="text-accent font-semibold">rozhlédnout</span> a začít{" "}
+        <span className="text-accent font-semibold">žít více podle sebe</span>. Krok za krokem.
       </motion.p>
 
       <motion.div

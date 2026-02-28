@@ -36,8 +36,24 @@ export default function LenisProvider({ children }: Props) {
     };
   }, []);
 
-  // Po každé změně stránky vrať scroll na začátek
+  // Po každé změně stránky vyřeš hash (např. #rezervace), jinak vrať scroll na začátek
   useEffect(() => {
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+
+    if (hash && hash.length > 1) {
+      const targetId = hash.substring(1);
+      const el = document.getElementById(targetId);
+
+      if (el) {
+        if (lenisRef.current) {
+          lenisRef.current.scrollTo(el, { immediate: true });
+        } else {
+          el.scrollIntoView({ behavior: "instant", block: "start" as ScrollLogicalPosition });
+        }
+        return;
+      }
+    }
+
     if (lenisRef.current) {
       lenisRef.current.scrollTo(0, { immediate: true });
     } else {
