@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
+import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
 import { Book, Video, FileText, PenTool, HelpCircle, Mail, Music } from "lucide-react";
 
 type FilterType = "clanky" | "knihy" | "videa" | "ostatni" | "hudba";
@@ -64,6 +65,10 @@ interface DisplayItem {
   author?: string;
   thumbnail?: string;
   imageUrl?: string;
+  bookCoverFit?: "cover" | "contain";
+  bookCoverPosition?: string;
+  bookCoverPositionX?: number;
+  bookCoverPositionY?: number;
   url: string;
   href: string;
   createdAt: string;
@@ -120,7 +125,12 @@ function renderItemCard(
             <img
               src={item.imageUrl}
               alt={item.title}
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${item.bookCoverFit === "contain" ? "object-contain" : "object-cover"}`}
+              style={
+                item.bookCoverFit !== "contain"
+                  ? { objectPosition: getBookCoverObjectPosition(item) }
+                  : undefined
+              }
             />
           </div>
         )}
@@ -235,6 +245,10 @@ export default function InspiracePage() {
             author: item.author,
             thumbnail: item.thumbnail,
             imageUrl: (item as InspirationItem).imageUrl,
+            bookCoverFit: (item as InspirationItem).bookCoverFit,
+            bookCoverPosition: (item as InspirationItem).bookCoverPosition,
+            bookCoverPositionX: (item as InspirationItem).bookCoverPositionX,
+            bookCoverPositionY: (item as InspirationItem).bookCoverPositionY,
             url: item.url,
             href: `/inspirace/${item.id}`,
             createdAt: item.createdAt,

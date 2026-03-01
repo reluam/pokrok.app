@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Book, Video, FileText, PenTool, HelpCircle, Mail } from "lucide-react";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
+import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
 import LeadForm from "@/components/LeadForm";
 
 interface MixedItem {
@@ -18,6 +19,10 @@ interface MixedItem {
   author?: string;
   thumbnail?: string;
   imageUrl?: string;
+  bookCoverFit?: "cover" | "contain";
+  bookCoverPosition?: string;
+  bookCoverPositionX?: number;
+  bookCoverPositionY?: number;
   url?: string;
 }
 
@@ -83,6 +88,10 @@ export default function ChooseYourPath() {
             author: item.author,
             thumbnail: item.thumbnail,
             imageUrl: (item as InspirationItem).imageUrl,
+            bookCoverFit: (item as InspirationItem).bookCoverFit,
+            bookCoverPosition: (item as InspirationItem).bookCoverPosition,
+            bookCoverPositionX: (item as InspirationItem).bookCoverPositionX,
+            bookCoverPositionY: (item as InspirationItem).bookCoverPositionY,
             url: item.url,
           });
         });
@@ -160,7 +169,16 @@ export default function ChooseYourPath() {
                       )}
                       {item.type === "book" && item.imageUrl && (
                         <div className="w-full aspect-[2/3] max-h-36 rounded-xl overflow-hidden bg-gray-100 mb-4">
-                          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className={`w-full h-full ${item.bookCoverFit === "contain" ? "object-contain" : "object-cover"}`}
+                            style={
+                              item.bookCoverFit !== "contain"
+                                ? { objectPosition: getBookCoverObjectPosition(item) }
+                                : undefined
+                            }
+                          />
                         </div>
                       )}
                       <div className="flex items-center gap-2 mb-2">

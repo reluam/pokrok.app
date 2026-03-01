@@ -38,6 +38,28 @@ export async function initializeDatabase() {
       ADD COLUMN IF NOT EXISTS image_url TEXT
     `
 
+    // Add book_cover_fit for books: 'cover' | 'contain' (how cover image fits in the box)
+    await sql`
+      ALTER TABLE inspirations 
+      ADD COLUMN IF NOT EXISTS book_cover_fit VARCHAR(20)
+    `
+
+    // Add book_cover_position for books: which part of image is visible when fit=cover
+    await sql`
+      ALTER TABLE inspirations 
+      ADD COLUMN IF NOT EXISTS book_cover_position VARCHAR(20)
+    `
+
+    // Custom crop position 0-100 for book covers (from graphical modal)
+    await sql`
+      ALTER TABLE inspirations 
+      ADD COLUMN IF NOT EXISTS book_cover_position_x INTEGER
+    `
+    await sql`
+      ALTER TABLE inspirations 
+      ADD COLUMN IF NOT EXISTS book_cover_position_y INTEGER
+    `
+
     // Create principles table
     await sql`
       CREATE TABLE IF NOT EXISTS principles (

@@ -7,6 +7,7 @@ import { SelectionShareBar } from "@/components/SelectionShareBar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { InspirationItem } from "@/lib/inspiration";
+import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
 
 const getTypeIcon = (type: string) => {
   switch (type) {
@@ -179,7 +180,12 @@ export default function InspiraceDetailPage() {
             <img
               src={item.imageUrl}
               alt={item.title}
-              className="w-40 sm:w-48 object-cover aspect-[2/3]"
+              className={`w-40 sm:w-48 aspect-[2/3] ${item.bookCoverFit === "contain" ? "object-contain" : "object-cover"}`}
+              style={
+                item.bookCoverFit !== "contain"
+                  ? { objectPosition: getBookCoverObjectPosition(item) }
+                  : undefined
+              }
             />
           </a>
         )}

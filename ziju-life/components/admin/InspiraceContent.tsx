@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LayoutGrid, Table2, Search, Music } from "lucide-react";
+import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LayoutGrid, Table2, Search, Music, Crop } from "lucide-react";
 import type { InspirationData, InspirationItem, InspirationType } from "@/lib/inspiration";
+import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
+import BookCoverCropModal from "./BookCoverCropModal";
 
 type ViewMode = "cards" | "table";
 
@@ -69,6 +71,7 @@ export default function InspiraceContent({
   const [editingItem, setEditingItem] = useState<{ item: InspirationItem; type: InspirationType } | null>(null);
   const [formData, setFormData] = useState<Partial<InspirationItem>>({});
   const [loadingThumbnail, setLoadingThumbnail] = useState(false);
+  const [showBookCoverCropModal, setShowBookCoverCropModal] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -736,12 +739,116 @@ export default function InspiraceContent({
                   <p className="text-xs text-foreground/60 mt-1">
                     Obrázek se zobrazí v detailu. Klik na obrázek vede na partnerskou URL.
                   </p>
+                  <div className="mt-2 space-y-2">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground/80 mb-1">
+                        Zobrazení v boxu
+                      </label>
+                      <select
+                        value={formData.bookCoverFit ?? "cover"}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            bookCoverFit: e.target.value as "cover" | "contain",
+                          })
+                        }
+                        className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+                      >
+                        <option value="cover">
+                          Vyplnit (oříznout) – obrázek vyplní box
+                        </option>
+                        <option value="contain">
+                          Vejít se – celý obrázek vidět v boxu
+                        </option>
+                      </select>
+                    </div>
+                    {(formData.bookCoverFit ?? "cover") === "cover" && (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-foreground/80 mb-1">
+                          Zobrazená část obálky
+                        </label>
+                        <div className="flex flex-wrap gap-2 items-center">
+                          <select
+                            value={formData.bookCoverPosition ?? "center"}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                bookCoverPosition: e.target.value as
+                                  | "center"
+                                  | "top"
+                                  | "bottom"
+                                  | "left"
+                                  | "right"
+                                  | "top left"
+                                  | "top right"
+                                  | "bottom left"
+                                  | "bottom right",
+                                bookCoverPositionX: undefined,
+                                bookCoverPositionY: undefined,
+                              })
+                            }
+                            className="px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+                          >
+                            <option value="center">Střed</option>
+                            <option value="top">Nahoru</option>
+                            <option value="bottom">Dolů</option>
+                            <option value="left">Doleva</option>
+                            <option value="right">Doprava</option>
+                            <option value="top left">Levý horní roh</option>
+                            <option value="top right">Pravý horní roh</option>
+                            <option value="bottom left">Levý dolní roh</option>
+                            <option value="bottom right">Pravý dolní roh</option>
+                          </select>
+                          <span className="text-foreground/50 text-sm">nebo</span>
+                          <button
+                            type="button"
+                            onClick={() => setShowBookCoverCropModal(true)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-accent/50 text-accent font-semibold hover:bg-accent/10 transition-colors"
+                          >
+                            <Crop size={18} />
+                            Zvolit v obrázku
+                          </button>
+                        </div>
+                        <p className="text-xs text-foreground/60">
+                          Přednastavené pozice nebo vlastní výběr v grafickém náhledu.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                   {formData.imageUrl && (
-                    <img
-                      src={formData.imageUrl}
-                      alt="Náhled obálky"
-                      className="mt-2 rounded-lg max-w-[120px] object-cover aspect-[2/3]"
-                    />
+                    <>
+                      <img
+                        src={formData.imageUrl}
+                        alt="Náhled obálky"
+                        className={`mt-2 rounded-lg max-w-[120px] aspect-[2/3] bg-gray-100 ${
+                          (formData.bookCoverFit ?? "cover") === "contain"
+                            ? "object-contain"
+                            : "object-cover"
+                        }`}
+                        style={
+                          (formData.bookCoverFit ?? "cover") === "cover"
+                            ? { objectPosition: getBookCoverObjectPosition(formData) }
+                            : undefined
+                        }
+                      />
+                      {showBookCoverCropModal && (
+                        <BookCoverCropModal
+                          imageUrl={formData.imageUrl}
+                          initialPositionX={formData.bookCoverPositionX ?? 50}
+                          initialPositionY={formData.bookCoverPositionY ?? 50}
+                          onSave={(x, y) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              bookCoverPositionX: x,
+                              bookCoverPositionY: y,
+                              bookCoverPosition: undefined,
+                            }));
+                            setShowBookCoverCropModal(false);
+                          }}
+                          onClose={() => setShowBookCoverCropModal(false)}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               )}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
+import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
 import { Book, Video, FileText, HelpCircle, ArrowRight } from "lucide-react";
 
 const getTypeLabel = (type: string): string => {
@@ -111,7 +112,12 @@ export default function PosledniInspirace() {
                       <img
                         src={item.imageUrl}
                         alt={item.title}
-                        className="w-full h-full object-cover"
+                        className={`w-full h-full ${item.bookCoverFit === "contain" ? "object-contain" : "object-cover"}`}
+                        style={
+                          item.bookCoverFit !== "contain"
+                            ? { objectPosition: getBookCoverObjectPosition(item) }
+                            : undefined
+                        }
                       />
                     </div>
                   )}

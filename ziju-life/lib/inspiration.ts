@@ -13,6 +13,13 @@ export interface InspirationItem {
   content?: string // For blog posts
   thumbnail?: string // For videos
   imageUrl?: string // For books – obálka knihy (klik vede na url)
+  /** For books: how the cover image fits in the box – cover = oříznout, contain = vejít celou */
+  bookCoverFit?: 'cover' | 'contain'
+  /** For books with fit=cover: which part of the image is visible (object-position) */
+  bookCoverPosition?: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top left' | 'top right' | 'bottom left' | 'bottom right'
+  /** Custom focus point 0–100 (used when set; else bookCoverPosition keyword) */
+  bookCoverPositionX?: number
+  bookCoverPositionY?: number
   isActive?: boolean // Whether the inspiration is visible on the website
   isCurrentListening?: boolean // For music – zobrazit v sekci Co právě poslouchám (jen jeden)
   createdAt: string

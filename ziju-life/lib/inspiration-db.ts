@@ -37,6 +37,10 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
         content: item.content || undefined,
         thumbnail: item.thumbnail || undefined,
         imageUrl: item.image_url || undefined,
+        bookCoverFit: (item.book_cover_fit === 'contain' || item.book_cover_fit === 'cover') ? item.book_cover_fit : undefined,
+        bookCoverPosition: item.book_cover_position && /^(center|top|bottom|left|right|top left|top right|bottom left|bottom right)$/.test(item.book_cover_position) ? item.book_cover_position : undefined,
+        bookCoverPositionX: item.book_cover_position_x != null ? Number(item.book_cover_position_x) : undefined,
+        bookCoverPositionY: item.book_cover_position_y != null ? Number(item.book_cover_position_y) : undefined,
         isActive: item.is_active ?? true,
         isCurrentListening: item.is_current_listening ?? false,
         createdAt: item.created_at.toISOString(),
@@ -93,7 +97,7 @@ export async function addInspirationItem(
 
   await sql`
     INSERT INTO inspirations (
-      id, type, title, description, url, author, content, thumbnail, image_url, is_active, is_current_listening, created_at, updated_at
+      id, type, title, description, url, author, content, thumbnail, image_url, book_cover_fit, book_cover_position, book_cover_position_x, book_cover_position_y, is_active, is_current_listening, created_at, updated_at
     ) VALUES (
       ${id},
       ${type},
@@ -104,6 +108,10 @@ export async function addInspirationItem(
       ${item.content || null},
       ${item.thumbnail || null},
       ${item.imageUrl || null},
+      ${item.bookCoverFit || null},
+      ${item.bookCoverPosition || null},
+      ${item.bookCoverPositionX ?? null},
+      ${item.bookCoverPositionY ?? null},
       ${item.isActive ?? true},
       ${item.isCurrentListening ?? false},
       ${now},
@@ -160,6 +168,10 @@ export async function updateInspirationItem(
       content = ${updates.content ?? currentItem.content},
       thumbnail = ${updates.thumbnail ?? currentItem.thumbnail},
       image_url = ${itemUpdates.imageUrl ?? currentItem.image_url ?? null},
+      book_cover_fit = ${itemUpdates.bookCoverFit !== undefined ? itemUpdates.bookCoverFit : (currentItem.book_cover_fit ?? null)},
+      book_cover_position = ${itemUpdates.bookCoverPosition !== undefined ? itemUpdates.bookCoverPosition : (currentItem.book_cover_position ?? null)},
+      book_cover_position_x = ${itemUpdates.bookCoverPositionX !== undefined ? itemUpdates.bookCoverPositionX : (currentItem.book_cover_position_x ?? null)},
+      book_cover_position_y = ${itemUpdates.bookCoverPositionY !== undefined ? itemUpdates.bookCoverPositionY : (currentItem.book_cover_position_y ?? null)},
       is_active = ${updates.isActive !== undefined ? updates.isActive : (currentItem.is_active ?? true)},
       is_current_listening = ${itemUpdates.isCurrentListening !== undefined ? itemUpdates.isCurrentListening : (currentItem.is_current_listening ?? false)},
       updated_at = ${now}
@@ -182,6 +194,10 @@ export async function updateInspirationItem(
     content: item.content || undefined,
     thumbnail: item.thumbnail || undefined,
     imageUrl: item.image_url || undefined,
+    bookCoverFit: (item.book_cover_fit === 'contain' || item.book_cover_fit === 'cover') ? item.book_cover_fit : undefined,
+    bookCoverPosition: item.book_cover_position && /^(center|top|bottom|left|right|top left|top right|bottom left|bottom right)$/.test(item.book_cover_position) ? item.book_cover_position : undefined,
+    bookCoverPositionX: item.book_cover_position_x != null ? Number(item.book_cover_position_x) : undefined,
+    bookCoverPositionY: item.book_cover_position_y != null ? Number(item.book_cover_position_y) : undefined,
     isActive: item.is_active ?? true,
     isCurrentListening: item.is_current_listening ?? false,
     createdAt: item.created_at.toISOString(),
