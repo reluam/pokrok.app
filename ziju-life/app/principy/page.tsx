@@ -81,8 +81,14 @@ export default async function PrinciplesPage() {
                   většímu klidu než jakékoliv jiné strategie.
                 </p>
                 <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
-                  Celý koncept vychází z knihy Principy od Raye Dalia. Ten k
-                  životu přistupuje jako k sérii opakujících se situací
+                  Celý koncept vychází z knihy{" "}
+                  <Link
+                    href="/inspirace/1772386949683"
+                    className="text-accent font-semibold hover:underline"
+                  >
+                    Principy od Raye Dalia
+                  </Link>
+                  . Ten k životu přistupuje jako k sérii opakujících se situací
                   (algoritmů), které se dají pomocí jasných pravidel řešit
                   s chladnou hlavou. Zkus si je otestovat sám na sobě.
                 </p>

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { getAllPrinciples, getPrincipleBySlug } from "@/lib/principles";
 import { getInspirationData } from "@/lib/inspiration-db";
 import InspirationCard from "@/components/InspirationCard";
@@ -102,11 +100,21 @@ export default async function PrincipleDetailPage({
   const title = principleFromDb?.title ?? fallback!.title;
   const shortDescription =
     principleFromDb?.shortDescription ?? fallback!.shortDescription;
-  const content =
-    principleFromDb?.contentMarkdown ?? fallback!.contentMarkdown;
   const principleNumber = principleFromDb
-    ? principleFromDb.orderIndex + 1
+    ? principleFromDb.orderIndex
     : FALLBACK_PRINCIPLES.findIndex((p) => p.slug === slug) + 1;
+
+  const allPrinciples: { slug: string; title: string }[] =
+    principleFromDb !== null
+      ? (await getAllPrinciples()).map((p) => ({ slug: p.slug, title: p.title }))
+      : FALLBACK_PRINCIPLES.map((p) => ({ slug: p.slug, title: p.title }));
+  const currentIndex = allPrinciples.findIndex((p) => p.slug === slug);
+  const prevPrinciple =
+    currentIndex > 0 ? allPrinciples[currentIndex - 1] : null;
+  const nextPrinciple =
+    currentIndex >= 0 && currentIndex < allPrinciples.length - 1
+      ? allPrinciples[currentIndex + 1]
+      : null;
 
   const relatedIds = principleFromDb?.relatedInspirationIds ?? [];
   let relatedItems: InspirationItem[] = [];
@@ -151,25 +159,105 @@ export default async function PrincipleDetailPage({
             <PrincipleShareBar title={title} shortDescription={shortDescription} slug={slug} />
           </header>
 
-          <div className="prose prose-lg max-w-none prose-headings:font-semibold prose-p:leading-relaxed prose-a:text-accent prose-a:font-semibold prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-em:text-foreground/90">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {content}
-            </ReactMarkdown>
-          </div>
-
           {relatedItems.length > 0 && (
             <div className="pt-6 border-t border-black/10 space-y-4">
-              <h2 className="text-lg font-semibold text-foreground">
-                Související inspirace
-              </h2>
-              <div className="grid gap-4 md:gap-5 md:grid-cols-3">
-                {relatedItems.map((item, index) => (
-                  <InspirationCard key={item.id} item={item} index={index} />
-                ))}
-              </div>
+              {(() => {
+                const webArticles = relatedItems.filter(
+                  (item) => item.type === "article" || item.type === "blog"
+                );
+                const otherItems = relatedItems.filter(
+                  (item) => item.type !== "article" && item.type !== "blog"
+                );
+                return (
+                  <>
+                    {webArticles.length > 0 && (
+                      <div className="space-y-2">
+                        <h2 className="text-lg font-semibold text-foreground">
+                          Články
+                        </h2>
+                        <ul className="space-y-1">
+                          {webArticles.map((item) => {
+                            const isExternal =
+                              item.url.startsWith("http://") ||
+                              item.url.startsWith("https://");
+                            return (
+                              <li key={item.id}>
+                                {isExternal ? (
+                                  <a
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-accent font-semibold hover:underline"
+                                  >
+                                    {item.title}
+                                    <span className="ml-1 text-foreground/60" aria-hidden>
+                                      ↗
+                                    </span>
+                                  </a>
+                                ) : (
+                                  <Link
+                                    href={`/inspirace/${item.id}`}
+                                    className="text-accent font-semibold hover:underline"
+                                  >
+                                    {item.title}
+                                  </Link>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    )}
+                    {otherItems.length > 0 && (
+                      <div className="space-y-4">
+                        <h2 className="text-lg font-semibold text-foreground">
+                          Ostatní inspirace
+                        </h2>
+                        <div className="grid gap-4 md:gap-5 md:grid-cols-3">
+                          {otherItems.map((item, index) => (
+                            <InspirationCard key={item.id} item={item} index={index} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
         </article>
+
+        <nav
+          className="flex items-center justify-between gap-4"
+          aria-label="Předchozí a další princip"
+        >
+          {prevPrinciple ? (
+            <Link
+              href={`/principy/${prevPrinciple.slug}`}
+              className="group flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors min-w-0 flex-1"
+            >
+              <span className="text-foreground font-bold text-2xl shrink-0 leading-none" aria-hidden>
+                ←
+              </span>
+              <span className="truncate font-semibold">{prevPrinciple.title}</span>
+            </Link>
+          ) : (
+            <span className="flex-1" />
+          )}
+          {nextPrinciple ? (
+            <Link
+              href={`/principy/${nextPrinciple.slug}`}
+              className="group flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors min-w-0 flex-1 justify-end text-right"
+            >
+              <span className="truncate font-semibold">{nextPrinciple.title}</span>
+              <span className="text-foreground font-bold text-2xl shrink-0 leading-none" aria-hidden>
+                →
+              </span>
+            </Link>
+          ) : (
+            <span className="flex-1" />
+          )}
+        </nav>
       </div>
     </main>
   );
