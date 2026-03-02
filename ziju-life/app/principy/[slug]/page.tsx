@@ -177,14 +177,15 @@ export default async function PrincipleDetailPage({
                         </h2>
                         <ul className="space-y-1">
                           {webArticles.map((item) => {
+                            const url = item.url ?? "";
                             const isExternal =
-                              item.url.startsWith("http://") ||
-                              item.url.startsWith("https://");
+                              url.startsWith("http://") ||
+                              url.startsWith("https://");
                             return (
                               <li key={item.id}>
                                 {isExternal ? (
                                   <a
-                                    href={item.url}
+                                    href={url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-accent font-semibold hover:underline"
