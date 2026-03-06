@@ -49,11 +49,15 @@ export async function isSlotFree(slotId: string): Promise<boolean> {
   return rows.length === 0;
 }
 
-export async function createBooking(leadId: string, slotId: string): Promise<string> {
+export async function createBooking(
+  leadId: string,
+  slotId: string,
+  meetingType?: string | null
+): Promise<string> {
   const id = `booking_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
   await sql`
-    INSERT INTO bookings (id, lead_id, slot_id, created_at)
-    VALUES (${id}, ${leadId}, ${slotId}, NOW())
+    INSERT INTO bookings (id, lead_id, slot_id, meeting_type, created_at)
+    VALUES (${id}, ${leadId}, ${slotId}, ${meetingType ?? null}, NOW())
   `;
   return id;
 }

@@ -184,14 +184,89 @@ function emailWrapper(title: string, content: string): string {
   `.trim();
 }
 
-function renderClientConfirmationHtml(name: string, slotStr: string, durationMinutes: number): string {
+function renderClientConfirmationHtml(
+  name: string,
+  slotStr: string,
+  durationMinutes: number,
+  isPaidMeeting: boolean
+): string {
   const safeName = escapeHtml(name);
+  const amount = process.env.NEXT_PUBLIC_BOOKING_PAID_PRICE_CZK;
+  const bankIban = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_BANK_IBAN;
+  const bankName = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_BANK_NAME;
+  const qrUrl = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_QR_IMAGE_URL;
+  const stripeLink = process.env.NEXT_PUBLIC_BOOKING_STRIPE_PAYMENT_LINK_URL;
+
+  const paymentBlock = !isPaidMeeting
+    ? ""
+    : `
+    <div style="height: 1px; background-color: ${BORDER}; margin: 28px 0;"></div>
+
+    <div style="margin-bottom: 24px; padding: 20px; background-color: ${BOX_BG}; border-radius: 8px; border-left: 4px solid ${ACCENT};">
+      <p style="color: ${TEXT_DARK}; font-size: 16px; font-weight: 600; margin: 0 0 12px;">
+        💳 Platba za konzultaci
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
+        Tato konzultace je <strong style="color: ${TEXT_DARK};">placená</strong>. Prosím zaplať${
+          amount ? ` částku <strong style="color: ${TEXT_DARK};">${amount} Kč</strong>` : ""
+        } nejpozději <strong style="color: ${TEXT_DARK};">48 hodin po vytvoření rezervace</strong>, aby zůstala v platnosti.
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 14px; line-height: 1.5; margin: 0 0 12px;">
+        Změna termínu je možná nejpozději 48 hodin před konáním.
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 14px; line-height: 1.5; margin: 0 0 12px; font-style: italic;">
+        Pokud jsi již zaplatil/a, uvedené údaje k platbě můžeš ignorovat.
+      </p>
+      <div style="margin: 16px 0 0; padding: 14px 16px; background-color: #fff; border-radius: 8px; border: 1px solid ${BORDER};">
+        <p style="color: ${TEXT_DARK}; font-size: 15px; font-weight: 600; margin: 0 0 8px;">
+          Platba převodem
+        </p>
+        ${
+          bankName
+            ? `<p style="color: ${TEXT_MUTED}; font-size: 14px; margin: 0 0 4px;">Banka: ${escapeHtml(
+                bankName
+              )}</p>`
+            : ""
+        }
+        ${
+          bankIban
+            ? `<p style="color: ${TEXT_MUTED}; font-size: 14px; margin: 0 0 4px;">IBAN / číslo účtu: <strong style="color: ${TEXT_DARK};">${escapeHtml(
+                bankIban
+              )}</strong></p>`
+            : ""
+        }
+        <p style="color: ${TEXT_MUTED}; font-size: 14px; margin: 0;">
+          Zpráva pro příjemce: <span style="font-family: monospace;">${safeName} – konzultace</span>
+        </p>
+      </div>
+      ${
+        qrUrl
+          ? `<div style="margin-top: 16px;">
+              <p style="color: ${TEXT_MUTED}; font-size: 14px; margin: 0 0 8px;">
+                Pro rychlou platbu můžeš použít QR kód:
+              </p>
+              <img src="${qrUrl}" alt="QR kód pro platbu" style="max-width: 200px; height: auto; border-radius: 8px; border: 1px solid ${BORDER};" />
+            </div>`
+          : ""
+      }
+      ${
+        stripeLink
+          ? `<div style="margin-top: 16px;">
+              <a href="${stripeLink}" target="_blank" rel="noreferrer" style="display: inline-block; padding: 10px 18px; border-radius: 999px; background-color: ${ACCENT}; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none;">
+                Zaplatit kartou přes Stripe
+              </a>
+            </div>`
+          : ""
+      }
+    </div>
+  `;
+
   const content = `
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
       Ahoj ${safeName},
     </p>
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
-      Je to tam. 30 minutovou konzultaci zdarma máš zarezervovanou. Níže najdeš shrnutí:
+      Je to tam. Konzultaci máš zarezervovanou. Níže najdeš shrnutí:
     </p>
 
     <div style="margin-bottom: 24px; padding: 24px; background-color: ${BOX_BG}; border-radius: 8px; border-left: 4px solid ${ACCENT};">
@@ -205,6 +280,8 @@ function renderClientConfirmationHtml(name: string, slotStr: string, durationMin
         <strong style="color: ${TEXT_DARK};">Délka:</strong> ${durationMinutes} min
       </p>
     </div>
+
+    ${paymentBlock}
 
     <div style="height: 1px; background-color: ${BORDER}; margin: 28px 0;"></div>
 
@@ -299,19 +376,27 @@ export async function sendBookingConfirmationToClient(params: {
   name: string;
   slotAt: Date;
   durationMinutes: number;
+  meetingTypeLabel?: string | null;
+  isPaidMeeting?: boolean;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!process.env.RESEND_API_KEY?.trim()) {
     console.warn("[booking-email] RESEND_API_KEY not set, skipping client confirmation");
     return { ok: false, error: "Resend not configured" };
   }
   try {
-    const { to, name, slotAt, durationMinutes } = params;
+    const { to, name, slotAt, durationMinutes, meetingTypeLabel, isPaidMeeting } = params;
     const slotStr = formatSlot(slotAt);
-    const html = renderClientConfirmationHtml(name, slotStr, durationMinutes);
+    const label = meetingTypeLabel || "Konzultace";
+    const html = renderClientConfirmationHtml(
+      name,
+      `${label} – ${slotStr}`,
+      durationMinutes,
+      Boolean(isPaidMeeting)
+    );
     const { error } = await resend.emails.send({
       from: fromClient,
       to: [to],
-      subject: `Rezervace potvrzena – ${slotStr}`,
+      subject: `Rezervace potvrzena – ${label} – ${slotStr}`,
       replyTo: adminEmail,
       html,
     });
@@ -334,20 +419,23 @@ export async function sendBookingConfirmationToAdmin(params: {
   durationMinutes: number;
   note?: string | null;
   source?: string;
+  meetingTypeLabel?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!process.env.RESEND_API_KEY?.trim()) {
     return { ok: false, error: "Resend not configured" };
   }
   try {
-    const { clientName, clientEmail, slotAt, durationMinutes, note, source } = params;
+    const { clientName, clientEmail, slotAt, durationMinutes, note, source, meetingTypeLabel } =
+      params;
     const slotStr = formatSlot(slotAt);
+    const label = meetingTypeLabel || "Konzultace";
     const monthLabel = formatMonthLabel(slotAt);
     const monthlyBookings = await getMonthlyBookingsFor(slotAt);
     const monthlyHtml = renderMonthlyCalendarHtml(monthlyBookings, monthLabel);
     const html = renderAdminConfirmationHtml(
       clientName,
       clientEmail,
-      slotStr,
+      `${label} – ${slotStr}`,
       durationMinutes,
       note,
       source,
@@ -356,7 +444,7 @@ export async function sendBookingConfirmationToAdmin(params: {
     const { error } = await resend.emails.send({
       from: fromAdmin,
       to: [adminEmail],
-      subject: `Žiju life – Rezervace 30 min ZDARMA – ${clientName} – ${slotStr}`,
+      subject: `Žiju life – ${label} – ${clientName} – ${slotStr}`,
       html,
     });
     if (error) {

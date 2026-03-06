@@ -108,16 +108,12 @@ export default function PosledniInspirace() {
                     </div>
                   )}
                   {item.type === "book" && item.imageUrl && (
-                    <div className="w-full aspect-[2/3] max-h-40 rounded-xl overflow-hidden bg-gray-100 mb-4">
+                    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100 mb-4">
                       <img
                         src={item.imageUrl}
                         alt={item.title}
-                        className={`w-full h-full ${item.bookCoverFit === "contain" ? "object-contain" : "object-cover"}`}
-                        style={
-                          item.bookCoverFit !== "contain"
-                            ? { objectPosition: getBookCoverObjectPosition(item) }
-                            : undefined
-                        }
+                        className="w-full h-full object-cover"
+                        style={{ objectPosition: getBookCoverObjectPosition(item) }}
                       />
                     </div>
                   )}

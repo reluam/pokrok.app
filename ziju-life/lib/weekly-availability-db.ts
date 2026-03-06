@@ -6,27 +6,56 @@ export interface WeeklyBlockRow {
   start_time: string;
   end_time: string;
   slot_duration_minutes: number;
+  meeting_type_id?: string | null;
 }
 
 /** 0=Sunday, 1=Monday, ... 6=Saturday */
-export async function getWeeklyAvailability(): Promise<WeeklyBlockRow[]> {
-  const rows = await sql`
-    SELECT id, day_of_week, start_time, end_time, slot_duration_minutes
-    FROM weekly_availability
-    ORDER BY day_of_week ASC, start_time ASC
-  `;
+export async function getWeeklyAvailability(
+  meetingTypeId?: string | null
+): Promise<WeeklyBlockRow[]> {
+  const rows = meetingTypeId
+    ? await sql`
+        SELECT id, day_of_week, start_time, end_time, slot_duration_minutes, meeting_type_id
+        FROM weekly_availability
+        WHERE meeting_type_id = ${meetingTypeId}
+        ORDER BY day_of_week ASC, start_time ASC
+      `
+    : await sql`
+        SELECT id, day_of_week, start_time, end_time, slot_duration_minutes, meeting_type_id
+        FROM weekly_availability
+        ORDER BY day_of_week ASC, start_time ASC
+      `;
   return rows as WeeklyBlockRow[];
 }
 
 export async function saveWeeklyAvailability(
-  blocks: { dayOfWeek: number; startTime: string; endTime: string; slotDurationMinutes: number }[]
+  blocks: {
+    dayOfWeek: number;
+    startTime: string;
+    endTime: string;
+    slotDurationMinutes: number;
+  }[],
+  meetingTypeId?: string | null
 ): Promise<void> {
-  await sql`DELETE FROM weekly_availability`;
+  // Ensure new column exists even pokud neproběhla migrační route
+  try {
+    await sql`ALTER TABLE weekly_availability ADD COLUMN IF NOT EXISTS meeting_type_id TEXT`;
+  } catch {
+    // ignore
+  }
+  if (meetingTypeId) {
+    await sql`
+      DELETE FROM weekly_availability
+      WHERE meeting_type_id = ${meetingTypeId}
+    `;
+  } else {
+    await sql`DELETE FROM weekly_availability`;
+  }
   for (const b of blocks) {
     const id = `wa_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
     await sql`
-      INSERT INTO weekly_availability (id, day_of_week, start_time, end_time, slot_duration_minutes, created_at)
-      VALUES (${id}, ${b.dayOfWeek}, ${b.startTime}, ${b.endTime}, ${b.slotDurationMinutes}, NOW())
+      INSERT INTO weekly_availability (id, day_of_week, start_time, end_time, slot_duration_minutes, meeting_type_id, created_at)
+      VALUES (${id}, ${b.dayOfWeek}, ${b.startTime}, ${b.endTime}, ${b.slotDurationMinutes}, ${meetingTypeId ?? null}, NOW())
     `;
   }
 }
@@ -95,9 +124,10 @@ export interface GeneratedSlot {
 /** Generate available slots from weekly availability for date range. Excludes times that are already booked. */
 export async function generateWeeklySlots(
   fromDate: Date,
-  toDate: Date
+  toDate: Date,
+  meetingTypeId?: string | null
 ): Promise<GeneratedSlot[]> {
-  const blocks = await getWeeklyAvailability();
+  const blocks = await getWeeklyAvailability(meetingTypeId);
   if (blocks.length === 0) return [];
 
   const booked = await getBookedSlotIntervals(fromDate, toDate);

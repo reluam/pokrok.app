@@ -31,9 +31,11 @@ export async function GET(request: NextRequest) {
       toDate.setDate(toDate.getDate() + DEFAULT_DAYS_AHEAD);
     }
 
+    const meetingTypeId = searchParams.get("meetingType") || undefined;
+
     const [raw, weekly] = await Promise.all([
       getRawAvailableSlots(now, toDate),
-      generateWeeklySlots(now, toDate),
+      generateWeeklySlots(now, toDate, meetingTypeId),
     ]);
 
     const { googleCalendarId, googleRefreshToken } = await getBookingSettings();

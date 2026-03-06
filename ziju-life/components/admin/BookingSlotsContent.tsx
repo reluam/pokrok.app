@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 
 type Block = {
@@ -24,9 +25,35 @@ type Slot = {
   isBooked: boolean;
 };
 
+type AdminBooking = {
+  id: string;
+  createdAt: string;
+  slotAt: string;
+  durationMinutes: number;
+  meetingType?: string | null;
+  leadId: string;
+  email: string;
+  name: string | null;
+  source: string;
+  status: string;
+  note: string | null;
+};
+
+type MeetingType = {
+  id: string;
+  label: string;
+  description?: string;
+  isPaid?: boolean;
+  startDate?: string;
+  endDate?: string;
+  defaultDurationMinutes?: number;
+  priceId?: string;
+};
+
 const DEFAULT_SLOT_DURATION = 30;
 
 export default function BookingSlotsContent() {
+  const router = useRouter();
   const [days, setDays] = useState<DayEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,9 +64,18 @@ export default function BookingSlotsContent() {
   const [addDuration, setAddDuration] = useState(30);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [bookings, setBookings] = useState<AdminBooking[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [bookingsError, setBookingsError] = useState("");
+  const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
+  const [meetingTypes, setMeetingTypes] = useState<MeetingType[]>([]);
+  const [selectedMeetingTypeId, setSelectedMeetingTypeId] = useState<string | null>(null);
 
-  const loadWeekly = () => {
-    fetch("/api/admin/weekly-availability")
+  const loadWeekly = (meetingTypeId: string | null) => {
+    const url = meetingTypeId
+      ? `/api/admin/weekly-availability?meetingTypeId=${encodeURIComponent(meetingTypeId)}`
+      : "/api/admin/weekly-availability";
+    fetch(url)
       .then((r) => r.json())
       .then((data) => {
         if (data.days) setDays(data.days);
@@ -58,12 +94,55 @@ export default function BookingSlotsContent() {
       .finally(() => setSlotsLoading(false));
   };
 
+  const loadBookings = () => {
+    setBookingsLoading(true);
+    setBookingsError("");
+    fetch("/api/admin/bookings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) setBookingsError(data.error);
+        else setBookings(data.bookings ?? []);
+      })
+      .catch(() => setBookingsError("Chyba načtení schůzek"))
+      .finally(() => setBookingsLoading(false));
+  };
+
   useEffect(() => {
     setLoading(true);
-    loadWeekly();
     loadSlots();
     setLoading(false);
+    loadBookings();
   }, []);
+
+  useEffect(() => {
+    fetch("/api/admin/booking-meeting-types")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.meetingTypes)) {
+          setMeetingTypes(data.meetingTypes);
+          if (!selectedMeetingTypeId && data.meetingTypes.length > 0) {
+            setSelectedMeetingTypeId(data.meetingTypes[0].id);
+          }
+        }
+      })
+      .catch(() => {
+        /* ignore */
+      });
+  }, [selectedMeetingTypeId]);
+
+  useEffect(() => {
+    if (selectedMeetingTypeId) {
+      setLoading(true);
+      loadWeekly(selectedMeetingTypeId);
+      setLoading(false);
+    }
+  }, [selectedMeetingTypeId]);
+
+  const resolveMeetingTypeLabel = (meetingType?: string | null): string | null => {
+    if (!meetingType) return null;
+    const mt = meetingTypes.find((t) => t.id === meetingType);
+    return mt?.label ?? meetingType;
+  };
 
   const addBlock = (dayOfWeek: number) => {
     setDays((prev) =>
@@ -125,12 +204,12 @@ export default function BookingSlotsContent() {
     fetch("/api/admin/weekly-availability", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ blocks }),
+      body: JSON.stringify({ blocks, meetingTypeId: selectedMeetingType?.id ?? null }),
     })
       .then((r) => r.json())
       .then((data) => {
         if (data.error) setError(data.error);
-        else loadWeekly();
+        else if (selectedMeetingTypeId) loadWeekly(selectedMeetingTypeId);
       })
       .catch(() => setError("Chyba ukládání"))
       .finally(() => setSaving(false));
@@ -185,14 +264,322 @@ export default function BookingSlotsContent() {
     return <p className="text-foreground/60">Načítání…</p>;
   }
 
+  const hasMeetingTypes = meetingTypes.length > 0;
+  const selectedMeetingType = hasMeetingTypes
+    ? meetingTypes.find((t) => t.id === selectedMeetingTypeId) ?? null
+    : null;
+  const visibleBookings =
+    selectedMeetingType != null
+      ? bookings.filter((b) => b.meetingType === selectedMeetingType.id)
+      : bookings;
+
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-3xl font-bold text-foreground mb-2">Rezervace</h2>
         <p className="text-foreground/70">
-          Nastav dostupnost po dnech (bloky od–do) a případně přidej jednorázové termíny.
+          Typy schůzek sdílí stejnou dostupnost (časy v kalendáři). Nejprve vyber typ schůzky, pak
+          spravuj dostupnost a sleduj konkrétní rezervace.
         </p>
       </div>
+
+      {/* Typy schůzek */}
+      {hasMeetingTypes ? (
+        <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h3 className="text-xl font-bold text-foreground">Typy schůzek</h3>
+            <button
+              type="button"
+              onClick={() => router.push("/admin?section=settings")}
+              className="text-xs font-medium text-accent hover:underline"
+            >
+              Spravovat typy v Nastavení
+            </button>
+          </div>
+          <p className="text-sm text-foreground/60 mb-3">
+            Vyber typ schůzky pro zobrazení detailů, dostupnosti a rezervací. Sloty v kalendáři se
+            blokují sdíleně pro všechny typy.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {meetingTypes.map((t) => {
+              const isActive = selectedMeetingTypeId === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setSelectedMeetingTypeId(t.id)}
+                  className={`min-w-[180px] text-left rounded-2xl border px-4 py-3 text-sm transition-colors ${
+                    isActive
+                      ? "border-accent bg-accent text-white"
+                      : "border-black/10 bg-white text-foreground hover:border-accent/50 hover:bg-accent/5"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="font-semibold truncate">{t.label}</span>
+                    {t.isPaid && (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide bg-white/20 px-2 py-0.5 rounded-full border border-white/40">
+                        Placené
+                      </span>
+                    )}
+                  </div>
+                  {t.description && (
+                    <p
+                      className={`text-xs line-clamp-2 ${
+                        isActive ? "text-white/80" : "text-foreground/60"
+                      }`}
+                    >
+                      {t.description}
+                    </p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ) : (
+        <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
+          <h3 className="text-xl font-bold text-foreground mb-2">Typy schůzek</h3>
+          <p className="text-sm text-foreground/60 mb-2">
+            Zatím nemáš definované žádné typy schůzek. Nastav je v Nastavení, sekce „Rezervace –
+            ClickUp a Google Kalendář“.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/admin?section=settings")}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent-hover"
+          >
+            Otevřít Nastavení
+          </button>
+        </section>
+      )}
+
+      {/* Pokud existují typy, ale žádný není zvolen, ukončíme zde */}
+      {hasMeetingTypes && !selectedMeetingType && (
+        <p className="text-sm text-foreground/60">
+          Vyber typ schůzky výše, aby se zobrazila dostupnost a konkrétní rezervace.
+        </p>
+      )}
+
+      {/* Zbytek obsahu se zobrazuje jen pokud nejsou typy vůbec, nebo pokud je nějaký vybraný */}
+      {(!hasMeetingTypes || selectedMeetingType) && (
+        <>
+          {/* Detail vybraného typu schůzky */}
+          {selectedMeetingType && (
+            <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
+              <h3 className="text-xl font-bold text-foreground mb-3">
+                Nastavení typu: {selectedMeetingType.label}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Název schůzky
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedMeetingType.label}
+                    onChange={(e) => {
+                      const label = e.target.value;
+                      setMeetingTypes((prev) =>
+                        prev.map((mt) =>
+                          mt.id === selectedMeetingType.id ? { ...mt, label } : mt
+                        )
+                      );
+                    }}
+                    className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white text-sm"
+                  />
+                  <p className="text-xs text-foreground/60">
+                    Tento název se použije v potvrzovacích e-mailech a v přehledu schůzek.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Popis (volitelné)
+                  </label>
+                  <textarea
+                    value={selectedMeetingType.description ?? ""}
+                    onChange={(e) => {
+                      const description = e.target.value;
+                      setMeetingTypes((prev) =>
+                        prev.map((mt) =>
+                          mt.id === selectedMeetingType.id ? { ...mt, description } : mt
+                        )
+                      );
+                    }}
+                    className="w-full px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white text-sm"
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Výchozí délka schůzky (min)
+                  </label>
+                  <input
+                    type="number"
+                    min={5}
+                    max={480}
+                    step={5}
+                    value={selectedMeetingType.defaultDurationMinutes ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const num = Number(val);
+                      const defaultDurationMinutes =
+                        !val || Number.isNaN(num) || num <= 0 ? undefined : num;
+                      setMeetingTypes((prev) =>
+                        prev.map((mt) =>
+                          mt.id === selectedMeetingType.id
+                            ? { ...mt, defaultDurationMinutes }
+                            : mt
+                        )
+                      );
+                    }}
+                    className="w-full px-4 py-2 border-2 border-black/10 rounded-xl bg-white text-sm"
+                  />
+                  <p className="text-xs text-foreground/60">
+                    Informativní – zatím neřídí generování slotů, ale můžeš podle něj nastavovat
+                    bloky a do budoucna Stripe.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Rezervovatelné od
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedMeetingType.startDate ?? ""}
+                    onChange={(e) => {
+                      const startDate = e.target.value || undefined;
+                      setMeetingTypes((prev) =>
+                        prev.map((mt) =>
+                          mt.id === selectedMeetingType.id ? { ...mt, startDate } : mt
+                        )
+                      );
+                    }}
+                    className="px-4 py-2 border-2 border-black/10 rounded-xl bg-white text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Rezervovatelné do
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedMeetingType.endDate ?? ""}
+                    onChange={(e) => {
+                      const endDate = e.target.value || undefined;
+                      setMeetingTypes((prev) =>
+                        prev.map((mt) =>
+                          mt.id === selectedMeetingType.id ? { ...mt, endDate } : mt
+                        )
+                      );
+                    }}
+                    className="px-4 py-2 border-2 border-black/10 rounded-xl bg-white text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Platba
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-sm text-foreground/80">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(selectedMeetingType.isPaid)}
+                      onChange={(e) => {
+                        const isPaid = e.target.checked;
+                        setMeetingTypes((prev) =>
+                          prev.map((mt) =>
+                            mt.id === selectedMeetingType.id ? { ...mt, isPaid } : mt
+                          )
+                        );
+                      }}
+                    />
+                    <span>Placené (napojíme na Stripe)</span>
+                  </label>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Stripe Price ID (pro placené schůzky)
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedMeetingType.priceId ?? ""}
+                    onChange={(e) => {
+                      const priceId = e.target.value || undefined;
+                      setMeetingTypes((prev) =>
+                        prev.map((mt) =>
+                          mt.id === selectedMeetingType.id ? { ...mt, priceId } : mt
+                        )
+                      );
+                    }}
+                    placeholder="např. price_123..."
+                    className="w-full px-4 py-2 border-2 border-black/10 rounded-xl bg-white text-sm"
+                  />
+                  <p className="text-xs text-foreground/60">
+                    ID ceny z Stripe (Products → Price). Pokud není vyplněné, typ se chová jako
+                    neplacený.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-3 flex-wrap">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/admin/booking-meeting-types", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ meetingTypes }),
+                      });
+                      const data = await res.json();
+                      if (!res.ok) {
+                        alert(data.error || "Nepodařilo se uložit typy schůzek.");
+                        return;
+                      }
+                      setMeetingTypes(data.meetingTypes ?? meetingTypes);
+                      alert("Typy schůzek byly uloženy.");
+                    } catch (e) {
+                      alert(
+                        "Chyba ukládání typů schůzek: " +
+                          (e instanceof Error ? e.message : "network")
+                      );
+                    }
+                  }}
+                  className="px-5 py-2 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-accent-hover"
+                >
+                  Uložit typy schůzek
+                </button>
+                {meetingTypes.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (
+                        !confirm(
+                          `Opravdu smazat typ „${selectedMeetingType.label}“? Existující rezervace zůstanou, ale bez typu.`
+                        )
+                      )
+                        return;
+                      const next = meetingTypes.filter(
+                        (mt) => mt.id !== selectedMeetingType.id
+                      );
+                      setMeetingTypes(next);
+                      setSelectedMeetingTypeId(next[0]?.id ?? null);
+                      try {
+                        await fetch("/api/admin/booking-meeting-types", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ meetingTypes: next }),
+                        });
+                      } catch {
+                        // ignore; už je v lokálním stavu
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl border-2 border-red-200 text-red-700 text-xs font-semibold hover:bg-red-50"
+                  >
+                    Smazat tento typ
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
 
       {/* Dostupnost po dnech (Po–Ne) */}
       <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
@@ -230,23 +617,23 @@ export default function BookingSlotsContent() {
                         }
                         className="px-3 py-2 border border-black/10 rounded-lg bg-white"
                       />
-                      <select
+                      <input
+                        type="number"
+                        min={5}
+                        max={480}
+                        step={5}
                         value={block.slotDurationMinutes}
                         onChange={(e) =>
                           updateBlock(
                             day.dayOfWeek,
                             idx,
                             "slotDurationMinutes",
-                            Number(e.target.value)
+                            Number(e.target.value) || DEFAULT_SLOT_DURATION
                           )
                         }
-                        className="px-3 py-2 border border-black/10 rounded-lg bg-white"
-                      >
-                        <option value={15}>15 min</option>
-                        <option value={30}>30 min</option>
-                        <option value={45}>45 min</option>
-                        <option value={60}>60 min</option>
-                      </select>
+                        className="w-24 px-3 py-2 border border-black/10 rounded-lg bg-white"
+                      />
+                      <span className="text-xs text-foreground/60">min</span>
                       <button
                         type="button"
                         onClick={() => removeBlock(day.dayOfWeek, idx)}
@@ -372,6 +759,103 @@ export default function BookingSlotsContent() {
           </ul>
         )}
       </section>
+
+      {/* Schůzky */}
+      <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <h3 className="text-xl font-bold text-foreground">Schůzky</h3>
+          <button
+            type="button"
+            onClick={loadBookings}
+            className="text-xs font-medium text-accent hover:underline"
+          >
+            Obnovit
+          </button>
+        </div>
+        <p className="text-sm text-foreground/60 mb-4">
+          {selectedMeetingType
+            ? `Rezervace pro typ „${selectedMeetingType.label}“. Klikni na řádek pro detaily.`
+            : "Seznam rezervovaných schůzek (podle nejbližšího termínu). Klikni na řádek pro detaily."}
+        </p>
+        {bookingsLoading ? (
+          <p className="text-foreground/60 text-sm">Načítání schůzek…</p>
+        ) : bookingsError ? (
+          <p className="text-sm text-red-600">{bookingsError}</p>
+        ) : visibleBookings.length === 0 ? (
+          <p className="text-foreground/60 text-sm">Zatím nemáš žádné schůzky.</p>
+        ) : (
+          <ul className="divide-y divide-black/5">
+            {visibleBookings.map((b) => {
+              const slotDate = new Date(b.slotAt);
+              const created = new Date(b.createdAt);
+              const label = resolveMeetingTypeLabel(b.meetingType);
+              const isExpanded = expandedBookingId === b.id;
+              return (
+                <li key={b.id} className="py-2">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedBookingId((prev) => (prev === b.id ? null : b.id))}
+                    className="w-full text-left flex items-start justify-between gap-3"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground">
+                          {slotDate.toLocaleString("cs-CZ", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        <span className="text-xs text-foreground/60">
+                          ({b.durationMinutes} min)
+                        </span>
+                        {label && (
+                          <span className="inline-flex items-center rounded-full bg-accent/10 border border-accent/20 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                            {label}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-foreground mt-0.5 truncate">
+                        {b.name || "Neznámé jméno"} · {b.email}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-xs text-foreground/50 flex flex-col items-end">
+                      <span>{created.toLocaleDateString("cs-CZ")}</span>
+                      <span className="mt-0.5">status: {b.status}</span>
+                      <span className="mt-1">{isExpanded ? "▲" : "▼"}</span>
+                    </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="mt-2 rounded-lg bg-black/3 px-3 py-2 text-xs text-foreground/80 space-y-1">
+                      <p>
+                        <span className="font-semibold">Zdroj:</span> {b.source}
+                      </p>
+                      {b.note && (
+                        <p className="whitespace-pre-line">
+                          <span className="font-semibold">Zpráva / poznámka:</span>{" "}
+                          {b.note}
+                        </p>
+                      )}
+                      <p>
+                        <span className="font-semibold">Lead ID:</span> {b.leadId}
+                      </p>
+                      {b.meetingType && (
+                        <p>
+                          <span className="font-semibold">meeting_type:</span> {b.meetingType}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+        </>
+      )}
     </div>
   );
 }

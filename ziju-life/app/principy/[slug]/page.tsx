@@ -6,6 +6,8 @@ import { getInspirationData } from "@/lib/inspiration-db";
 import InspirationCard from "@/components/InspirationCard";
 import PrincipleShareBar from "@/components/PrincipleShareBar";
 import type { InspirationItem } from "@/lib/inspiration";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const FALLBACK_PRINCIPLES = [
   {
@@ -100,6 +102,8 @@ export default async function PrincipleDetailPage({
   const title = principleFromDb?.title ?? fallback!.title;
   const shortDescription =
     principleFromDb?.shortDescription ?? fallback!.shortDescription;
+  const contentMarkdown =
+    principleFromDb?.contentMarkdown ?? fallback!.contentMarkdown;
   const principleNumber = principleFromDb
     ? principleFromDb.orderIndex
     : FALLBACK_PRINCIPLES.findIndex((p) => p.slug === slug) + 1;
@@ -159,6 +163,14 @@ export default async function PrincipleDetailPage({
             <PrincipleShareBar title={title} shortDescription={shortDescription} slug={slug} />
           </header>
 
+          {contentMarkdown && (
+            <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed pt-4 border-t border-black/10">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {contentMarkdown}
+              </ReactMarkdown>
+            </div>
+          )}
+
           {relatedItems.length > 0 && (
             <div className="pt-6 border-t border-black/10 space-y-4">
               {(() => {
@@ -173,40 +185,42 @@ export default async function PrincipleDetailPage({
                     {webArticles.length > 0 && (
                       <div className="space-y-2">
                         <h2 className="text-lg font-semibold text-foreground">
-                          Články
+                          Související článek
                         </h2>
-                        <ul className="space-y-1">
-                          {webArticles.map((item) => {
-                            const url = item.url ?? "";
-                            const isExternal =
-                              url.startsWith("http://") ||
-                              url.startsWith("https://");
-                            return (
-                              <li key={item.id}>
-                                {isExternal ? (
-                                  <a
-                                    href={url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-accent font-semibold hover:underline"
-                                  >
-                                    {item.title}
-                                    <span className="ml-1 text-foreground/60" aria-hidden>
-                                      ↗
-                                    </span>
-                                  </a>
-                                ) : (
-                                  <Link
-                                    href={`/inspirace/${item.id}`}
-                                    className="text-accent font-semibold hover:underline"
-                                  >
-                                    {item.title}
-                                  </Link>
-                                )}
-                              </li>
-                            );
-                          })}
-                        </ul>
+                        {(() => {
+                          const article = webArticles[0];
+                          const url = article.url ?? "";
+                          const isExternal =
+                            url.startsWith("http://") || url.startsWith("https://");
+
+                          const content = (
+                            <div className="w-full rounded-2xl border border-black/10 bg-black/5 px-4 py-3 hover:border-accent/40 transition-colors">
+                              <div className="text-sm font-semibold text-accent mb-1">
+                                {article.title}
+                              </div>
+                              {article.description && (
+                                <p className="text-sm text-foreground/80 leading-relaxed">
+                                  {article.description}
+                                </p>
+                              )}
+                            </div>
+                          );
+
+                          return isExternal ? (
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block"
+                            >
+                              {content}
+                            </a>
+                          ) : (
+                            <Link href={`/inspirace/${article.id}`} className="block">
+                              {content}
+                            </Link>
+                          );
+                        })()}
                       </div>
                     )}
                     {otherItems.length > 0 && (

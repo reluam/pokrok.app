@@ -16,6 +16,10 @@ export async function POST(request: NextRequest) {
     const name = typeof body.name === "string" ? body.name.trim() : "";
     const note = typeof body.note === "string" ? body.note.trim() || undefined : undefined;
     const source = typeof body.source === "string" ? body.source : "koucing";
+    const meetingType =
+      typeof body.meetingType === "string" && body.meetingType.trim()
+        ? body.meetingType.trim()
+        : null;
     const leadId = typeof body.leadId === "string" ? body.leadId.trim() || undefined : undefined;
 
     if (!slotId || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !name) {
@@ -73,7 +77,74 @@ export async function POST(request: NextRequest) {
       resolvedLeadId = id;
     }
 
-    await createBooking(resolvedLeadId, slot.id);
+    const bookingId = await createBooking(resolvedLeadId, slot.id, meetingType);
+
+    // Resolve meeting type label for e-maily
+    let meetingTypeLabel: string | null = null;
+    if (meetingType) {
+      try {
+        const rows = (await sql`
+          SELECT booking_meeting_types
+          FROM admin_settings
+          LIMIT 1
+        `) as { booking_meeting_types: string | null }[];
+        const raw = rows[0]?.booking_meeting_types;
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            const mt = parsed.find(
+              (item: any) => item && typeof item.id === "string" && item.id === meetingType
+            );
+            if (mt && typeof mt.label === "string" && mt.label.trim()) {
+              meetingTypeLabel = mt.label.trim();
+            }
+          }
+        }
+      } catch {
+        // ignore, fall back to null
+      }
+    }
+
+    // Zjisti, zda je typ schůzky placený
+    let isPaidMeeting = false;
+    if (meetingType) {
+      try {
+        const rows = (await sql`
+          SELECT booking_meeting_types
+          FROM admin_settings
+          LIMIT 1
+        `) as { booking_meeting_types: string | null }[];
+        const raw = rows[0]?.booking_meeting_types;
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            const mt = parsed.find(
+              (item: any) => item && typeof item.id === "string" && item.id === meetingType
+            );
+            if (mt && mt.isPaid) {
+              isPaidMeeting = true;
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    // Nastav due date pro platbu (48 h před termínem) – jen pro placené schůzky
+    if (isPaidMeeting && bookingId) {
+      const dueAt = new Date(slot.start_at.getTime() - 48 * 60 * 60 * 1000);
+      try {
+        await sql`
+          UPDATE bookings
+          SET payment_status = 'unpaid',
+              payment_due_at = ${dueAt}
+          WHERE id = ${bookingId}
+        `;
+      } catch {
+        // ignore
+      }
+    }
 
     // Potvrzovací e-maily: klient + admin (matej@ziju.life)
     const [clientEmailResult, adminEmailResult] = await Promise.all([
@@ -82,6 +153,8 @@ export async function POST(request: NextRequest) {
         name,
         slotAt: slot.start_at,
         durationMinutes: slot.duration_minutes,
+        meetingTypeLabel,
+        isPaidMeeting,
       }),
       sendBookingConfirmationToAdmin({
         clientName: name,
@@ -90,6 +163,7 @@ export async function POST(request: NextRequest) {
         durationMinutes: slot.duration_minutes,
         note,
         source,
+        meetingTypeLabel,
       }),
     ]);
     if (!clientEmailResult.ok) console.warn("[reserve] E-mail klientovi:", clientEmailResult.error);

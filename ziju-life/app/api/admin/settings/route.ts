@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
       clickup_status_name_reach_out?: string | null;
       clickup_status_name_meeting?: string | null;
       show_principles?: boolean | null;
+      booking_meeting_types?: string | null;
     };
     let result: Row[];
     try {
@@ -46,7 +47,8 @@ export async function GET(request: NextRequest) {
           clickup_status_meeting,
           clickup_status_name_reach_out,
           clickup_status_name_meeting,
-          show_principles
+          show_principles,
+          booking_meeting_types
         FROM admin_settings
         LIMIT 1
       ` as Row[];
@@ -67,6 +69,14 @@ export async function GET(request: NextRequest) {
 
     if (result.length > 0) {
       const row = result[0];
+      let bookingMeetingTypes: unknown = [];
+      if (row.booking_meeting_types) {
+        try {
+          bookingMeetingTypes = JSON.parse(row.booking_meeting_types);
+        } catch {
+          bookingMeetingTypes = [];
+        }
+      }
       return NextResponse.json({
         notionApiKey: row.notion_api_key || process.env.NOTION_API_KEY || "",
         notionDatabaseId: row.notion_database_id || process.env.NOTION_DATABASE_ID || "",
@@ -84,6 +94,7 @@ export async function GET(request: NextRequest) {
         googleCalendarId: row.google_calendar_id ?? process.env.GOOGLE_CALENDAR_ID ?? "primary",
         googleCalendarConnected: Boolean(row?.google_refresh_token?.trim()),
         showPrinciples: row.show_principles ?? true,
+        bookingMeetingTypes,
       });
     }
 
@@ -104,6 +115,7 @@ export async function GET(request: NextRequest) {
       googleCalendarId: process.env.GOOGLE_CALENDAR_ID ?? "primary",
       googleCalendarConnected: Boolean(process.env.GOOGLE_REFRESH_TOKEN?.trim()),
       showPrinciples: true,
+      bookingMeetingTypes: [],
     });
   } catch (error) {
     console.error("GET /api/admin/settings error:", error);
@@ -138,6 +150,7 @@ export async function POST(request: NextRequest) {
       clickupStatusNameReachOut,
       clickupStatusNameMeeting,
       showPrinciples,
+      bookingMeetingTypes,
     } = body;
 
     // Vytvoř tabulku pokud neexistuje
@@ -164,6 +177,7 @@ export async function POST(request: NextRequest) {
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_name_reach_out TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_name_meeting TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS show_principles BOOLEAN`; } catch { /* already exists */ }
+    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS booking_meeting_types TEXT`; } catch { /* already exists */ }
 
     const existing = await sql`SELECT id FROM admin_settings LIMIT 1`;
     if (existing.length > 0) {
@@ -184,6 +198,7 @@ export async function POST(request: NextRequest) {
           clickup_status_name_reach_out = ${clickupStatusNameReachOut?.trim() || null},
           clickup_status_name_meeting = ${clickupStatusNameMeeting?.trim() || null},
           show_principles = ${typeof showPrinciples === "boolean" ? showPrinciples : null},
+          booking_meeting_types = ${Array.isArray(bookingMeetingTypes) ? JSON.stringify(bookingMeetingTypes) : null},
           updated_at = NOW()
         WHERE id = ${(existing[0] as { id: number }).id}
       `;
@@ -205,6 +220,7 @@ export async function POST(request: NextRequest) {
           clickup_status_name_reach_out,
           clickup_status_name_meeting,
           show_principles,
+          booking_meeting_types,
           updated_at
         )
         VALUES (
@@ -223,6 +239,7 @@ export async function POST(request: NextRequest) {
           ${clickupStatusNameReachOut?.trim() || null},
           ${clickupStatusNameMeeting?.trim() || null},
           ${typeof showPrinciples === "boolean" ? showPrinciples : null},
+          ${Array.isArray(bookingMeetingTypes) ? JSON.stringify(bookingMeetingTypes) : null},
           NOW()
         )
       `;

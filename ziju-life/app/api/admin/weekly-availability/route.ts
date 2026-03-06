@@ -4,11 +4,13 @@ import { getWeeklyAvailability, saveWeeklyAvailability } from "@/lib/weekly-avai
 
 const DAY_NAMES = ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const ok = await verifySession();
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
-    const rows = await getWeeklyAvailability();
+    const { searchParams } = new URL(request.url);
+    const meetingTypeId = searchParams.get("meetingTypeId");
+    const rows = await getWeeklyAvailability(meetingTypeId || undefined);
     const byDay: Record<number, { id: string; startTime: string; endTime: string; slotDurationMinutes: number }[]> = {};
     for (let d = 0; d <= 6; d++) byDay[d] = [];
     for (const r of rows) {
@@ -43,6 +45,10 @@ export async function POST(request: NextRequest) {
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const body = await request.json();
+    const meetingTypeId: string | null =
+      typeof body.meetingTypeId === "string" && body.meetingTypeId.trim()
+        ? body.meetingTypeId.trim()
+        : null;
     const blocks = Array.isArray(body.blocks) ? body.blocks : [];
     const parsed: { dayOfWeek: number; startTime: string; endTime: string; slotDurationMinutes: number }[] = [];
     for (const b of blocks) {
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest) {
       const slotDurationMinutes = Number(b.slotDurationMinutes ?? b.slot_duration_minutes ?? 30) || 30;
       parsed.push({ dayOfWeek, startTime, endTime, slotDurationMinutes });
     }
-    await saveWeeklyAvailability(parsed);
+    await saveWeeklyAvailability(parsed, meetingTypeId || undefined);
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error(e);

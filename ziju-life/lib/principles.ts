@@ -123,6 +123,31 @@ export async function createPrinciple(input: PrincipleInput): Promise<Principle>
   const id = `princip_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
   const now = new Date();
 
+  // Nejprve spočítáme, na jaké pozici má nový princip být,
+  // a tomu přizpůsobíme pořadí ostatních tak, aby bylo vždy 1..X bez duplicit.
+  const [{ max_order_index }] = (await sql`
+    SELECT COALESCE(MAX(order_index), 0) AS max_order_index
+    FROM principles
+  `) as { max_order_index: number }[];
+
+  const currentMax = Number(max_order_index) || 0;
+  let targetIndex = input.orderIndex ?? currentMax + 1;
+  if (!Number.isFinite(targetIndex) || targetIndex < 1) {
+    targetIndex = 1;
+  }
+  if (targetIndex > currentMax + 1) {
+    targetIndex = currentMax + 1;
+  }
+
+  // Posuň všechny existující principy od targetIndex výše o 1, aby se pozice neopakovaly.
+  if (currentMax > 0) {
+    await sql`
+      UPDATE principles
+      SET order_index = order_index + 1
+      WHERE order_index >= ${targetIndex}
+    `;
+  }
+
   await sql`
     INSERT INTO principles (
       id,
@@ -142,7 +167,7 @@ export async function createPrinciple(input: PrincipleInput): Promise<Principle>
       ${input.title},
       ${input.shortDescription},
       ${input.contentMarkdown},
-      ${input.orderIndex ?? 0},
+      ${targetIndex},
       ${input.videoUrl ?? null},
       ${input.relatedInspirationIds ?? []},
       ${input.isActive ?? true},
@@ -151,13 +176,15 @@ export async function createPrinciple(input: PrincipleInput): Promise<Principle>
     )
   `;
 
+  await resequencePrinciples();
+
   return {
     id,
     slug: input.slug,
     title: input.title,
     shortDescription: input.shortDescription,
     contentMarkdown: input.contentMarkdown,
-    orderIndex: input.orderIndex ?? 0,
+    orderIndex: targetIndex,
     videoUrl: input.videoUrl ?? null,
     relatedInspirationIds: input.relatedInspirationIds ?? [],
     isActive: input.isActive ?? true,
@@ -173,12 +200,53 @@ export async function updatePrinciple(
   const existing = await getPrincipleById(id);
   if (!existing) return null;
 
+  // Pokud se mění pořadí, musíme posunout ostatní tak, aby pořadí bylo 1..X bez duplicit.
+  let targetOrderIndex = existing.orderIndex;
+  if (updates.orderIndex !== undefined) {
+    const [{ max_order_index }] = (await sql`
+      SELECT COALESCE(MAX(order_index), 0) AS max_order_index
+      FROM principles
+    `) as { max_order_index: number }[];
+
+    const currentMax = Number(max_order_index) || 0;
+    targetOrderIndex = updates.orderIndex ?? existing.orderIndex;
+
+    if (!Number.isFinite(targetOrderIndex) || targetOrderIndex < 1) {
+      targetOrderIndex = 1;
+    }
+    if (targetOrderIndex > currentMax) {
+      targetOrderIndex = currentMax;
+    }
+
+    if (targetOrderIndex !== existing.orderIndex && currentMax > 0) {
+      if (targetOrderIndex < existing.orderIndex) {
+        // Posun nahoru: ostatní mezi novou a původní pozicí +1
+        await sql`
+          UPDATE principles
+          SET order_index = order_index + 1
+          WHERE id <> ${id}
+            AND order_index >= ${targetOrderIndex}
+            AND order_index < ${existing.orderIndex}
+        `;
+      } else {
+        // Posun dolů: ostatní mezi původní a novou pozicí -1
+        await sql`
+          UPDATE principles
+          SET order_index = order_index - 1
+          WHERE id <> ${id}
+            AND order_index <= ${targetOrderIndex}
+            AND order_index > ${existing.orderIndex}
+        `;
+      }
+    }
+  }
+
   const next: PrincipleInput = {
     slug: updates.slug ?? existing.slug,
     title: updates.title ?? existing.title,
     shortDescription: updates.shortDescription ?? existing.shortDescription,
     contentMarkdown: updates.contentMarkdown ?? existing.contentMarkdown,
-    orderIndex: updates.orderIndex ?? existing.orderIndex,
+    orderIndex: targetOrderIndex,
     videoUrl: updates.videoUrl ?? existing.videoUrl ?? undefined,
     relatedInspirationIds: updates.relatedInspirationIds ?? existing.relatedInspirationIds,
     isActive: updates.isActive ?? existing.isActive,
@@ -201,6 +269,8 @@ export async function updatePrinciple(
     WHERE id = ${id}
   `;
 
+  await resequencePrinciples();
+
   return {
     id,
     ...next,
@@ -213,13 +283,39 @@ export async function updatePrinciple(
 }
 
 export async function deletePrinciple(id: string): Promise<boolean> {
-  const result = await sql`
+  const existing = await getPrincipleById(id);
+  if (!existing) return false;
+
+  await sql`
     DELETE FROM principles
     WHERE id = ${id}
   `;
 
-  // neon returns void; we can re-check existence instead
-  const stillExists = await getPrincipleById(id);
-  return !stillExists;
+  // Srovnat pořadí tak, aby po smazání nebyla díra (1..X bez mezer).
+  await sql`
+    UPDATE principles
+    SET order_index = order_index - 1
+    WHERE order_index > ${existing.orderIndex}
+  `;
+
+  await resequencePrinciples();
+
+  return true;
+}
+
+async function resequencePrinciples() {
+  await sql`
+    WITH ordered AS (
+      SELECT
+        id,
+        ROW_NUMBER() OVER (ORDER BY order_index ASC, created_at ASC) AS new_order_index
+      FROM principles
+    )
+    UPDATE principles p
+    SET order_index = o.new_order_index
+    FROM ordered o
+    WHERE p.id = o.id
+      AND p.order_index <> o.new_order_index
+  `;
 }
 

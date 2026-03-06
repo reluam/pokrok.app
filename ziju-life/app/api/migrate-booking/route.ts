@@ -36,6 +36,9 @@ export async function GET() {
     try {
       await sql`ALTER TABLE bookings ADD COLUMN reminder_sent_at TIMESTAMP WITH TIME ZONE`;
     } catch { /* column may already exist */ }
+    try {
+      await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS meeting_type TEXT`;
+    } catch { /* column may already exist */ }
 
     await sql`
       CREATE TABLE IF NOT EXISTS weekly_availability (
@@ -48,6 +51,9 @@ export async function GET() {
       )
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_weekly_availability_day ON weekly_availability(day_of_week)`;
+    try {
+      await sql`ALTER TABLE weekly_availability ADD COLUMN IF NOT EXISTS meeting_type_id TEXT`;
+    } catch {/* already exists */}
 
     return NextResponse.json({
       message: "Migration completed: booking_slots, bookings and weekly_availability tables created",

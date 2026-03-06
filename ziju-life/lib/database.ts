@@ -60,6 +60,20 @@ export async function initializeDatabase() {
       ADD COLUMN IF NOT EXISTS book_cover_position_y INTEGER
     `
 
+    // Booking payments metadata
+    await sql`
+      ALTER TABLE bookings
+      ADD COLUMN IF NOT EXISTS payment_status TEXT
+    `
+    await sql`
+      ALTER TABLE bookings
+      ADD COLUMN IF NOT EXISTS payment_due_at TIMESTAMP
+    `
+    await sql`
+      ALTER TABLE bookings
+      ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP
+    `
+
     // Create principles table
     await sql`
       CREATE TABLE IF NOT EXISTS principles (

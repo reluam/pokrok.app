@@ -148,7 +148,9 @@ export default function CoachingFunnel() {
   const [multiSelection, setMultiSelection] = useState<string[]>([]);
   const [latestInspirace, setLatestInspirace] = useState<InspirationItem[]>([]);
   const [showPostBookingMessage, setShowPostBookingMessage] = useState(false);
+  const [pathChoice, setPathChoice] = useState<"audit" | "free" | null>(null);
   const poznavasSeRef = useRef<HTMLDivElement | null>(null);
+  const choiceSectionRef = useRef<HTMLDivElement | null>(null);
 
   const step = STEPS[stepIndex];
 
@@ -224,6 +226,7 @@ export default function CoachingFunnel() {
       }
       setLoading(false);
       if (openBookingPopup) {
+        const choice = pathChoice ?? "free";
         setShowPostBookingMessage(true);
         openBookingPopup({
           email: email.trim().toLowerCase(),
@@ -231,6 +234,8 @@ export default function CoachingFunnel() {
           note: message?.trim() || undefined,
           leadId: data.leadId,
           source: "funnel",
+          preferredKind: choice === "audit" ? "paid" : "free",
+          lockMeetingType: true,
         });
       }
     } catch {
@@ -256,7 +261,7 @@ export default function CoachingFunnel() {
       >
         {step?.type === "welcome" && (
           <div className="text-center pb-16 space-y-14">
-            <div className="pt-4">
+            <div ref={choiceSectionRef} className="pt-4">
               <Image
                 src="/ziju-life-logo.png"
                 alt="Žiju life"
@@ -274,34 +279,45 @@ export default function CoachingFunnel() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto">
-              <button
-                type="button"
-                onClick={() => setStepIndex(1)}
-                className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border-0 text-left w-full bg-accent hover:bg-accent-hover"
-              >
-                <FunnelCtaImage src="/form/btn-prevzit-rizeni.png" wrapperClassName="bg-white/20" />
-                <span className="w-full py-3 px-3 bg-accent text-white font-bold text-center text-base sm:text-lg rounded-b-2xl">
-                  Chci převzít řízení
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  poznavasSeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-                }
-                className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all text-left w-full bg-white"
-              >
-                <FunnelCtaImage src="/form/btn-rozmyslim.png" />
-                <span className="w-full py-3 px-3 bg-accent/10 text-foreground font-bold text-center text-base sm:text-lg rounded-b-2xl border-b-2 border-accent/10">
-                  Ještě se rozmýšlím
-                </span>
-              </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPathChoice("audit");
+                    setStepIndex(1);
+                  }}
+                  className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border-0 text-left w-full bg-accent hover:bg-accent-hover"
+                >
+                  <FunnelCtaImage src="/form/btn-prevzit-rizeni.png" wrapperClassName="bg-white/20" />
+                  <span className="w-full py-3 px-3 bg-accent text-white font-bold text-center text-base sm:text-lg rounded-b-2xl">
+                    Chci audit života
+                  </span>
+                </button>
+                <p className="text-sm text-foreground/70 text-left sm:text-center">
+                  Pro prvních 15 lidí nabízím zvýhodněnou cenu{" "}
+                  <strong>900 Kč za 90 minut</strong> koučování.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPathChoice("free");
+                    setStepIndex(1);
+                  }}
+                  className="flex flex-col rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all text-left w-full bg-white"
+                >
+                  <FunnelCtaImage src="/form/btn-rozmyslim.png" />
+                  <span className="w-full py-3 px-3 bg-accent/10 text-foreground font-bold text-center text-base sm:text-lg rounded-b-2xl border-b-2 border-accent/10">
+                    Ještě se rozmýšlím
+                  </span>
+                </button>
+                <p className="text-sm text-foreground/70 text-left sm:text-center">
+                  20 minutová <strong>konzultace zdarma</strong>, kde zjistíme, jestli ti koučing může pomoct.
+                </p>
+              </div>
             </div>
-
-            <p className="pt-3 text-sm text-foreground/70 max-w-xl mx-auto">
-              Pro prvních 15 lidí nabízím zvýhodněnou cenu <strong>500 Kč za sezení</strong> na první 3 měsíce.
-            </p>
 
             <div className="flex justify-center pt-2">
               <ChevronDown className="text-foreground/50 w-8 h-8 animate-bounce" aria-hidden />
@@ -314,10 +330,10 @@ export default function CoachingFunnel() {
               </h2>
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  "Připadáš si, že ses do tohoto světa narodil omylem.",
-                  "Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.",
                   "Máš všechno, co bys „měl\" mít, ale cítíš, že ti život protéká mezi prsty.",
-                  "Vidíš, jak reaguješ, ale neumíš to změnit.",
+                  "Umíš si skvěle zorganizovat čas, ale večer jsi absolutně bez energie.",
+                  "Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.",
+                  "Víš, že potřebuješ změnu, ale vůbec netušíš, kde začít.",
                 ].map((text, i) => (
                   <div
                     key={i}
@@ -358,7 +374,9 @@ export default function CoachingFunnel() {
               <div className="pt-2">
                 <button
                   type="button"
-                  onClick={() => setStepIndex(1)}
+                  onClick={() =>
+                    choiceSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
                   className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
                 >
                   Chci změnu
@@ -454,7 +472,9 @@ export default function CoachingFunnel() {
               <div className="pt-2">
                 <button
                   type="button"
-                  onClick={() => setStepIndex(1)}
+                  onClick={() =>
+                    choiceSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
                   className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
                 >
                   Převzít řízení
@@ -479,7 +499,7 @@ export default function CoachingFunnel() {
                 {step.question}
               </h2>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-3">
               {step.options.map((opt, idx) => {
                 const stepWithIcons = step as { multi?: boolean; icons?: LucideIcon[] };
                 const isMulti = stepWithIcons.multi;
@@ -492,26 +512,28 @@ export default function CoachingFunnel() {
                     onClick={() =>
                       isMulti ? toggleMultiOption(opt) : handleAnswer(step.id, opt)
                     }
-                    className={`aspect-square rounded-2xl border-2 transition-all font-medium flex flex-col items-center justify-center gap-2 p-3 text-center ${
+                    className={`w-full rounded-2xl border-2 transition-all font-medium flex items-center gap-3 px-4 py-3 text-left ${
                       isSelected
                         ? "border-accent bg-accent text-white"
                         : "border-black/10 bg-white hover:border-accent hover:bg-accent/5 text-foreground"
                     }`}
                   >
-                    {IconComponent ? (
-                      <IconComponent
-                        size={28}
-                        className={isSelected ? "text-white" : "text-accent"}
-                        strokeWidth={1.5}
-                      />
-                    ) : (
-                      <Circle
-                        size={24}
-                        className={isSelected ? "text-white fill-white" : "text-accent"}
-                        strokeWidth={isSelected ? 0 : 2}
-                      />
-                    )}
-                    <span className="text-xs sm:text-sm leading-tight line-clamp-4">{opt}</span>
+                    <span className="flex-shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full bg-accent/10">
+                      {IconComponent ? (
+                        <IconComponent
+                          size={20}
+                          className={isSelected ? "text-white" : "text-accent"}
+                          strokeWidth={1.6}
+                        />
+                      ) : (
+                        <Circle
+                          size={18}
+                          className={isSelected ? "text-white fill-white" : "text-accent"}
+                          strokeWidth={isSelected ? 0 : 2}
+                        />
+                      )}
+                    </span>
+                    <span className="text-sm sm:text-base leading-snug">{opt}</span>
                   </button>
                 );
               })}
@@ -560,7 +582,9 @@ export default function CoachingFunnel() {
               Ještě krátce o vás
             </h2>
             <p className="text-foreground/70 text-center">
-              Vyplňte údaje a hned poté si vyberte termín 30min sezení zdarma.
+              {pathChoice === "audit"
+                ? "Vyplňte údaje a hned poté si vyberte termín 90min auditu života."
+                : "Vyplňte údaje a hned poté si vyberte termín 20min konzultace zdarma, kde zjistíme, jestli ti koučing může pomoct."}
             </p>
             <form onSubmit={handleContactSubmit} className="space-y-4">
               <div>
@@ -622,7 +646,9 @@ export default function CoachingFunnel() {
                 </a>
               </p>
               <p className="text-sm text-foreground/80">
-                Pro prvních 15 lidí nabízím zvýhodněnou cenu <strong>500 Kč za sezení</strong> na první 3 měsíce.
+                {pathChoice === "audit"
+                  ? <>Pro prvních 15 lidí nabízím zvýhodněnou cenu <strong>900 Kč za 90 minut koučování.</strong></>
+                  : <>20 minutová konzultace zdarma, kde zjistíme, jestli ti koučing může pomoct.</>}
               </p>
               <button
                 type="submit"
