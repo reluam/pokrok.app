@@ -48,6 +48,8 @@ type MeetingType = {
   endDate?: string;
   defaultDurationMinutes?: number;
   priceId?: string;
+  priceCzk?: number;
+  stripePaymentLinkUrl?: string;
 };
 
 const DEFAULT_SLOT_DURATION = 30;
@@ -492,30 +494,59 @@ export default function BookingSlotsContent() {
                         );
                       }}
                     />
-                    <span>Placené (napojíme na Stripe)</span>
+                    <span>Placené (vyžaduje platbu před schůzkou)</span>
                   </label>
                 </div>
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
-                    Stripe Price ID (pro placené schůzky)
+                    Cena schůzky (Kč)
                   </label>
                   <input
-                    type="text"
-                    value={selectedMeetingType.priceId ?? ""}
+                    type="number"
+                    min={0}
+                    step={50}
+                    value={selectedMeetingType.priceCzk ?? ""}
                     onChange={(e) => {
-                      const priceId = e.target.value || undefined;
+                      const val = e.target.value;
+                      const num = Number(val);
+                      const priceCzk =
+                        !val || Number.isNaN(num) || num <= 0 ? undefined : Math.round(num);
                       setMeetingTypes((prev) =>
                         prev.map((mt) =>
-                          mt.id === selectedMeetingType.id ? { ...mt, priceId } : mt
+                          mt.id === selectedMeetingType.id ? { ...mt, priceCzk } : mt
                         )
                       );
                     }}
-                    placeholder="např. price_123..."
+                    placeholder="např. 900"
                     className="w-full px-4 py-2 border-2 border-black/10 rounded-xl bg-white text-sm"
                   />
                   <p className="text-xs text-foreground/60">
-                    ID ceny z Stripe (Products → Price). Pokud není vyplněné, typ se chová jako
-                    neplacený.
+                    Tato částka se použije v platebním boxu a v QR kódu pro tento typ schůzky.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-foreground">
+                    Stripe Payment Link (volitelné)
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedMeetingType.stripePaymentLinkUrl ?? ""}
+                    onChange={(e) => {
+                      const stripePaymentLinkUrl = e.target.value.trim() || undefined;
+                      setMeetingTypes((prev) =>
+                        prev.map((mt) =>
+                          mt.id === selectedMeetingType.id
+                            ? { ...mt, stripePaymentLinkUrl }
+                            : mt
+                        )
+                      );
+                    }}
+                    placeholder="https://buy.stripe.com/..."
+                    className="w-full px-4 py-2 border-2 border-black/10 rounded-xl bg-white text-sm"
+                  />
+                  <p className="text-xs text-foreground/60">
+                    Odkaz na platbu kartou pro tento konkrétní typ schůzky. Pokud není vyplněný,
+                    použije se případný globální Stripe Payment Link z prostředí.
                   </p>
                 </div>
               </div>

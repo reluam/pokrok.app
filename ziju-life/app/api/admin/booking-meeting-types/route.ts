@@ -11,6 +11,8 @@ type MeetingType = {
   endDate?: string;
   defaultDurationMinutes?: number;
   priceId?: string;
+  priceCzk?: number;
+  stripePaymentLinkUrl?: string;
 };
 
 export async function GET() {
@@ -86,6 +88,15 @@ export async function POST(request: NextRequest) {
       const priceIdRaw = (item as any).priceId;
       if (typeof priceIdRaw === "string" && priceIdRaw.trim()) {
         mt.priceId = priceIdRaw.trim();
+      }
+      const priceCzkRaw = (item as any).priceCzk;
+      const priceNum = Number(priceCzkRaw);
+      if (!Number.isNaN(priceNum) && priceNum > 0) {
+        mt.priceCzk = Math.round(priceNum);
+      }
+      const stripePaymentLinkUrlRaw = (item as any).stripePaymentLinkUrl;
+      if (typeof stripePaymentLinkUrlRaw === "string" && stripePaymentLinkUrlRaw.trim()) {
+        mt.stripePaymentLinkUrl = stripePaymentLinkUrlRaw.trim();
       }
       cleaned.push(mt);
     }
