@@ -15,6 +15,8 @@ export type BookingPopupParams = {
   lockMeetingType?: boolean;
   /** Preferovaný typ podle charakteru schůzky – použije se, pokud preferredMeetingTypeId neexistuje. */
   preferredKind?: "paid" | "free";
+  /** Callback, který se zavolá po úspěšném dokončení rezervace. */
+  onSuccess?: () => void;
 };
 
 type BookingPopupContextValue = {
@@ -369,8 +371,12 @@ function BookingModal({
     })
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) setReserveError(data.error);
-        else setSuccess(true);
+        if (data.error) {
+          setReserveError(data.error);
+        } else {
+          setSuccess(true);
+          prefill.onSuccess?.();
+        }
       })
       .catch(() => setReserveError("Rezervaci se nepodařilo dokončit."))
       .finally(() => setReserving(false));
@@ -387,7 +393,7 @@ function BookingModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="relative w-full max-w-2xl h-[90vh] max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        className="relative w-full max-w-2xl max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between shrink-0 px-4 py-3 border-b border-black/10">
@@ -425,6 +431,8 @@ function BookingModal({
                   : undefined;
               const amount = amountFromType ?? process.env.NEXT_PUBLIC_BOOKING_PAID_PRICE_CZK;
               const bankIban = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_BANK_IBAN;
+              const bankAccountCz =
+                process.env.NEXT_PUBLIC_BOOKING_PAYMENT_ACCOUNT_CZ || bankIban;
               const bankName = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_BANK_NAME;
               const stripeLink =
                 mt?.stripePaymentLinkUrl || process.env.NEXT_PUBLIC_BOOKING_STRIPE_PAYMENT_LINK_URL;
@@ -478,101 +486,104 @@ function BookingModal({
                       <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
                         Platba převodem
                       </p>
-                      <dl className="space-y-3 text-sm text-foreground/85">
-                        {amount && (
-                          <div className="flex items-center justify-between gap-2">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                        <dl className="space-y-3 text-sm text-foreground/85 flex-1">
+                          {amount && (
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                <dt className="text-foreground/55 text-xs">Částka</dt>
+                                <dd className="font-medium text-foreground">{amount} Kč</dd>
+                              </div>
+                              <div className="w-9 flex justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy("amount", `${amount} Kč`)}
+                                  className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
+                                  title="Zkopírovat částku"
+                                >
+                                  {copiedField === "amount" ? (
+                                    <span className="text-[11px] font-medium text-green-600">✓</span>
+                                  ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          {bankName && (
                             <div>
-                              <dt className="text-foreground/55 text-xs">Částka</dt>
-                              <dd className="font-medium text-foreground">{amount} Kč</dd>
+                              <dt className="text-foreground/55 text-xs">Banka</dt>
+                              <dd className="font-medium text-foreground">{bankName}</dd>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => handleCopy("amount", `${amount} Kč`)}
-                              className="shrink-0 p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
-                              title="Zkopírovat částku"
-                            >
-                              {copiedField === "amount" ? (
-                                <span className="text-xs font-medium text-green-600">Zkopírováno</span>
-                              ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                              )}
-                            </button>
-                          </div>
-                        )}
-                        {bankName && (
-                          <div>
-                            <dt className="text-foreground/55 text-xs">Banka</dt>
-                            <dd className="font-medium text-foreground">{bankName}</dd>
-                          </div>
-                        )}
-                        {bankIban && (
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <dt className="text-foreground/55 text-xs">Číslo účtu / IBAN</dt>
-                              <dd className="font-mono text-foreground break-all">{bankIban}</dd>
+                          )}
+                          {bankAccountCz && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex-1 min-w-0">
+                                <dt className="text-foreground/55 text-xs">Číslo účtu</dt>
+                                <dd className="font-mono text-foreground break-all">{bankAccountCz}</dd>
+                              </div>
+                              <div className="w-9 flex justify-center mt-4">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy("iban", bankAccountCz)}
+                                  className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
+                                  title="Zkopírovat číslo účtu"
+                                >
+                                  {copiedField === "iban" ? (
+                                    <span className="text-[11px] font-medium text-green-600">✓</span>
+                                  ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                  )}
+                                </button>
+                              </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => handleCopy("iban", bankIban)}
-                              className="shrink-0 p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
-                              title="Zkopírovat číslo účtu"
-                            >
-                              {copiedField === "iban" ? (
-                                <span className="text-xs font-medium text-green-600">Zkopírováno</span>
-                              ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                              )}
-                            </button>
+                          )}
+                          <div className="flex items-start gap-2">
+                            <div className="flex-1 min-w-0">
+                              <dt className="text-foreground/55 text-xs">Zpráva pro příjemce</dt>
+                              <dd className="font-mono text-foreground break-all">
+                                {prefill.name || "Jméno + termín konzultace"}
+                              </dd>
+                            </div>
+                            <div className="w-9 flex justify-center mt-4">
+                              <button
+                                type="button"
+                                onClick={() => handleCopy("message", prefill.name || "Jméno + termín konzultace")}
+                                className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
+                                title="Zkopírovat zprávu"
+                              >
+                                {copiedField === "message" ? (
+                                  <span className="text-[11px] font-medium text-green-600">✓</span>
+                                ) : (
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                )}
+                              </button>
+                            </div>
                           </div>
-                        )}
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <dt className="text-foreground/55 text-xs">Zpráva pro příjemce</dt>
-                            <dd className="font-mono text-foreground break-all">
-                              {prefill.name || "Jméno + termín konzultace"}
-                            </dd>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy("message", prefill.name || "Jméno + termín konzultace")}
-                            className="shrink-0 p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
-                            title="Zkopírovat zprávu"
-                          >
-                            {copiedField === "message" ? (
-                              <span className="text-xs font-medium text-green-600">Zkopírováno</span>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                            )}
-                          </button>
-                        </div>
-                      </dl>
-                    </div>
-                  )}
+                        </dl>
 
-                  {(spaydString || amount) && (
-                    <div className="rounded-xl border border-black/10 bg-black/[0.04] p-4 space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
-                        Platba QR kódem
-                      </p>
-                      <p className="text-sm text-foreground/70">
-                        Naskenuj QR kód v bance a zaplatíš rychle bez přepisování údajů.
-                      </p>
-                      {spaydString ? (
-                        <div className="flex justify-center py-2">
-                          <QRCodeSVG
-                            value={spaydString}
-                            size={180}
-                            level="M"
-                            includeMargin
-                            className="rounded-lg border border-black/10 bg-white p-2"
-                            aria-label="QR kód pro platbu"
-                          />
-                        </div>
-                      ) : (
-                        <p className="text-sm text-foreground/60 italic">
-                          Pro generování QR kódu nastav v administraci částku a číslo účtu (IBAN).
-                        </p>
-                      )}
+                        {(spaydString || amount) && (
+                          <div className="sm:w-52 flex flex-col items-center justify-center gap-2">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
+                              QR platba
+                            </p>
+                            {spaydString ? (
+                              <QRCodeSVG
+                                value={spaydString}
+                                size={180}
+                                level="M"
+                                includeMargin
+                                className="rounded-lg border border-black/10 bg-white p-2"
+                                aria-label="QR kód pro platbu"
+                              />
+                            ) : (
+                              <p className="text-[11px] text-foreground/60 text-center italic">
+                                Pro generování QR kódu nastav v administraci částku a číslo účtu.
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -595,20 +606,37 @@ function BookingModal({
                     </div>
                   )}
 
-                  <div className="pt-2">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="w-full px-6 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover"
-                    >
-                      Zavřít
-                    </button>
+                  {prefill.source === "funnel" && (
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="w-full px-6 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover"
+                      >
+                        Zavřít
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="mt-3 pt-3 border-t border-black/10 flex items-center justify-center gap-5 sm:gap-6 text-[11px] sm:text-xs text-foreground/60">
+                    <div className="flex items-center gap-2 opacity-70">
+                      <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
+                      <span>Krok 1: Údaje</span>
+                    </div>
+                    <div className="flex items-center gap-2 opacity-70">
+                      <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
+                      <span>Krok 2: Výběr termínu</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
+                      <span>Krok 3: Platba</span>
+                    </div>
                   </div>
                 </div>
               );
             })()
           ) : (
-          <>
+            <>
               {loading && !initialLoadDone && (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-foreground/20 border-t-accent" />
@@ -764,11 +792,37 @@ function BookingModal({
               )}
 
               {initialLoadDone && !loading && allSlots.length === 0 && !error && (
-                <p className="py-4 text-center text-foreground/60 text-sm">Zatím nejsou k dispozici žádné termíny.</p>
+                <p className="py-4 text-center text-foreground/60 text-sm">
+                  Zatím nejsou k dispozici žádné termíny.
+                </p>
               )}
-          </>
+            </>
           )}
         </div>
+
+        {!success && (
+          <div className="shrink-0 border-t border-black/10 px-4 py-3 flex items-center justify-center gap-5 sm:gap-6 text-[11px] sm:text-xs text-foreground/60">
+            <div className="flex items-center gap-2 opacity-70">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
+              <span>Krok 1: Údaje</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
+              <span>Krok 2: Výběr termínu</span>
+            </div>
+            {(() => {
+              const selected =
+                meetingTypes.find((t) => t.id === selectedMeetingTypeId) ?? meetingTypes[0];
+              if (!selected?.isPaid) return null;
+              return (
+                <div className="flex items-center gap-2 opacity-70">
+                  <span className="flex h-2.5 w-2.5 rounded-full border border-accent/40" />
+                  <span>Krok 3: Platba</span>
+                </div>
+              );
+            })()}
+          </div>
+        )}
       </div>
     </div>
   );

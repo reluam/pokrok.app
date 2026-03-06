@@ -60,6 +60,9 @@ export default function ChooseYourPath() {
   const router = useRouter();
   const [latestItems, setLatestItems] = useState<MixedItem[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
+  const [pathChoice, setPathChoice] = useState<"audit" | "free" | null>(null);
+  const [auditPromoRemaining, setAuditPromoRemaining] = useState<number | null>(null);
+  const auditPromoTotal = 20;
 
   useEffect(() => {
     const fetchLatest = async () => {
@@ -126,6 +129,22 @@ export default function ChooseYourPath() {
     fetchLatest();
   }, []);
 
+  useEffect(() => {
+    const fetchPromo = async () => {
+      try {
+        const res = await fetch("/api/booking/audit-promo-stats");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (typeof data.remaining === "number") {
+          setAuditPromoRemaining(data.remaining);
+        }
+      } catch {
+        // ignore, necháme null
+      }
+    };
+    fetchPromo();
+  }, []);
+
   return (
     <section
       id="choose-your-path"
@@ -159,7 +178,7 @@ export default function ChooseYourPath() {
                       className="block text-left w-full cursor-pointer"
                     >
                       <article
-                        className="bg-white rounded-2xl p-6 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-2 h-full"
+                        className="bg-white rounded-2xl p-6 border-2 border-black/5 shadow-sm hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-2 h-full"
                         style={{ transform: `rotate(${index % 2 === 0 ? "-0.5deg" : "0.5deg"})` }}
                       >
                       {item.type === "video" && videoThumbnail && (
@@ -216,29 +235,143 @@ export default function ChooseYourPath() {
           <div className="flex-1 h-px bg-black/10" />
         </div>
 
-        {/* Koučink – box ve stylu hero sekce */}
-        <div
-          id="home-coaching"
-          className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/60 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-4 py-8 md:px-10 md:py-10 max-w-4xl mx-auto"
-        >
-          <div className="absolute inset-0 pointer-events-none opacity-[0.08]">
-            {/* lehké dekorace mohou být doplněny později, zatím prázdné pozadí */}
-          </div>
-          <div className="relative space-y-4">
-            <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center">
-              Nebo si zarezervuj 30 minutové koučovací sezení se mnou zdarma.
-            </h3>
-            <p className="text-lg md:text-xl text-foreground/70 leading-relaxed text-center max-w-3xl mx-auto">
-              Kde probereme, jak ti můžu pomoct rozklíčovat tvé automatické reakce a pomoct vědomě
-              přepsat programy, které tě doposud řídily.{" "}
-              <Link href="/koucing" className="text-accent font-semibold hover:underline">
-                Zjistit více
-              </Link>
-            </p>
-            <div className="bg-white rounded-2xl p-4 md:p-6 border-2 border-black/5 w-full max-w-xl mx-auto">
-              <LeadForm source="homepage" compact />
+        {/* Koučink CTA – nadpis na pozadí + karty */}
+        <div id="home-coaching" className="max-w-4xl mx-auto space-y-6 md:space-y-8">
+          <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center max-w-3xl mx-auto">
+            Zarezervuj si koučingové sezení, kde projdeme, jak můžeš začít žít život více podle sebe.
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto items-start">
+            {/* Audit karta */}
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setPathChoice("audit")}
+                className="group text-left rounded-2xl border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 hover:shadow-2xl hover:-translate-y-2 transition-all px-5 py-5 flex flex-col gap-4 cursor-pointer"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="text-lg md:text-xl font-semibold text-foreground">
+                    Audit života (90 min)
+                  </h4>
+                </div>
+                <ul className="space-y-2 text-sm md:text-base text-foreground/85">
+                  <li className="flex gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent" />
+                    <span>Jasná mapa tvojí situace</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent" />
+                    <span>Priority, kam dávat energii</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent" />
+                    <span>Konkrétní první kroky do praxe</span>
+                  </li>
+                </ul>
+                <div className="pt-2">
+                  <div className="w-full py-3 px-5 bg-accent text-white font-bold text-center text-sm md:text-base rounded-full group-hover:bg-accent-hover transition-colors">
+                    Chci audit života
+                  </div>
+                </div>
+              </button>
+              <p className="text-xs md:text-sm text-foreground/70 px-1">
+                Pro prvních {auditPromoTotal} lidí nabízím zvýhodněnou cenu{" "}
+                <strong>900 Kč za 90 minut auditu života</strong>.
+                <br />
+                Zbývá:{" "}
+                <strong>
+                  {auditPromoRemaining !== null
+                    ? Math.max(auditPromoRemaining, 0)
+                    : auditPromoTotal}{" "}
+                  / {auditPromoTotal}
+                </strong>{" "}
+                míst.
+              </p>
             </div>
+
+            {/* Free konzultace karta */}
+            <button
+              type="button"
+              onClick={() => setPathChoice("free")}
+              className="group text-left rounded-2xl border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 hover:shadow-2xl hover:-translate-y-2 transition-all px-5 py-5 flex flex-col gap-4 cursor-pointer"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="text-lg md:text-xl font-semibold text-foreground/80">
+                  20min konzultace zdarma
+                </h4>
+              </div>
+              <ul className="space-y-2 text-sm md:text-base text-foreground/70">
+                <li className="flex gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-black/20" />
+                  <span>Krátký 20min call, kde zjistíme, jestli ti můžu s koučingem reálně pomoct.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-black/20" />
+                  <span>Bez závazku – vyzkoušíš si, jak spolupráce se mnou vypadá v praxi.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-black/20" />
+                  <span>Domluvíme případné další kroky, jen pokud ti to bude dávat smysl.</span>
+                </li>
+              </ul>
+              <div className="pt-2">
+                <div className="w-full py-3 px-5 bg-black/[0.03] text-foreground font-semibold text-center text-sm md:text-base rounded-full border border-black/10 transition-colors group-hover:bg-black/10 group-hover:border-black/40">
+                  Ještě se rozmýšlím
+                </div>
+              </div>
+            </button>
           </div>
+
+          {pathChoice && (
+            <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4 py-8">
+              <div className="w-full max-w-md md:max-w-lg bg-white rounded-3xl shadow-2xl border border-black/5 p-5 md:p-7 relative">
+                <button
+                  type="button"
+                  onClick={() => setPathChoice(null)}
+                  className="absolute right-4 top-4 text-foreground/50 hover:text-foreground text-sm"
+                  aria-label="Zavřít"
+                >
+                  Zavřít
+                </button>
+                <div className="space-y-4 pt-2">
+                  <h4 className="text-lg md:text-xl font-semibold text-foreground text-center">
+                    {pathChoice === "audit"
+                      ? "Nejprve vyplň své údaje"
+                      : "Nejprve vyplň své údaje"}
+                  </h4>
+                  <p className="text-sm md:text-base text-foreground/75 text-center">
+                    {pathChoice === "audit"
+                      ? "Vyplň své údaje a vyber si termín 90min auditu života."
+                      : "Vyplň své údaje a vyber si termín 20min konzultace zdarma."}
+                  </p>
+                  <LeadForm
+                    source={pathChoice === "audit" ? "homepage_audit" : "homepage_free"}
+                    compact
+                    preferredKind={pathChoice === "audit" ? "paid" : "free"}
+                    preferredMeetingTypeId={pathChoice === "audit" ? "coaching_paid" : "intro_free"}
+                    lockMeetingType
+                    onSuccess={() => setPathChoice(null)}
+                  />
+                  <div className="mt-4 pt-4 border-t border-black/5 flex items-center justify-center gap-5 md:gap-6 text-[11px] md:text-xs text-foreground/60">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
+                      <span>Krok 1: Údaje</span>
+                    </div>
+                    <div className="flex items-center gap-2 opacity-70">
+                      <span className="flex h-2.5 w-2.5 rounded-full border border-accent/40" />
+                      <span>Krok 2: Výběr termínu</span>
+                    </div>
+                    {pathChoice === "audit" && (
+                      <div className="flex items-center gap-2 opacity-70">
+                        <span className="flex h-2.5 w-2.5 rounded-full border border-accent/40" />
+                        <span>Krok 3: Platba</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

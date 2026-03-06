@@ -13,6 +13,12 @@ type LeadFormProps = {
   className?: string;
   /** Kompaktní varianta (např. pro ChooseYourPath) */
   compact?: boolean;
+  /** Preferovaný typ schůzky (placený / free) při otevření popupu. */
+  preferredKind?: "paid" | "free";
+  /** Konkrétní id typu schůzky pro popup (např. intro_free, coaching_paid). */
+  preferredMeetingTypeId?: string;
+  /** Zamknout výběr typu schůzky v popupu. */
+  lockMeetingType?: boolean;
 };
 
 export default function LeadForm({
@@ -23,6 +29,9 @@ export default function LeadForm({
   onSuccess,
   className = "",
   compact = false,
+  preferredKind,
+  preferredMeetingTypeId,
+  lockMeetingType,
 }: LeadFormProps) {
   const { openBookingPopup } = useBookingPopup() ?? {};
   const [name, setName] = useState("");
@@ -68,6 +77,9 @@ export default function LeadForm({
           note: message?.trim() || undefined,
           leadId: data.leadId,
           source,
+          preferredKind,
+          preferredMeetingTypeId,
+          lockMeetingType,
         });
       }
     } catch {

@@ -149,6 +149,8 @@ export default function CoachingFunnel() {
   const [latestInspirace, setLatestInspirace] = useState<InspirationItem[]>([]);
   const [showPostBookingMessage, setShowPostBookingMessage] = useState(false);
   const [pathChoice, setPathChoice] = useState<"audit" | "free" | null>(null);
+  const [auditPromoRemaining, setAuditPromoRemaining] = useState<number | null>(null);
+  const auditPromoTotal = 20;
   const poznavasSeRef = useRef<HTMLDivElement | null>(null);
   const choiceSectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -170,6 +172,22 @@ export default function CoachingFunnel() {
         setLatestInspirace(sorted);
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const fetchPromo = async () => {
+      try {
+        const res = await fetch("/api/booking/audit-promo-stats");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (typeof data.remaining === "number") {
+          setAuditPromoRemaining(data.remaining);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    fetchPromo();
   }, []);
   const progress = ((stepIndex + 1) / STEPS.length) * 100;
 
@@ -200,6 +218,10 @@ export default function CoachingFunnel() {
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!name.trim()) {
+      setError("Vyplňte prosím jméno.");
+      return;
+    }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Vyplňte prosím platný e-mail.");
       return;
@@ -227,7 +249,6 @@ export default function CoachingFunnel() {
       setLoading(false);
       if (openBookingPopup) {
         const choice = pathChoice ?? "free";
-        setShowPostBookingMessage(true);
         openBookingPopup({
           email: email.trim().toLowerCase(),
           name: name.trim() || undefined,
@@ -235,7 +256,11 @@ export default function CoachingFunnel() {
           leadId: data.leadId,
           source: "funnel",
           preferredKind: choice === "audit" ? "paid" : "free",
+          preferredMeetingTypeId: choice === "audit" ? "coaching_paid" : "intro_free",
           lockMeetingType: true,
+          onSuccess: () => {
+            setShowPostBookingMessage(true);
+          },
         });
       }
     } catch {
@@ -295,8 +320,17 @@ export default function CoachingFunnel() {
                   </span>
                 </button>
                 <p className="text-sm text-foreground/70 text-left sm:text-center">
-                  Pro prvních 15 lidí nabízím zvýhodněnou cenu{" "}
-                  <strong>900 Kč za 90 minut</strong> koučování.
+                  Pro prvních {auditPromoTotal} lidí nabízím zvýhodněnou cenu{" "}
+                  <strong>900 Kč za 90 minut auditu života</strong>.
+                  <br />
+                  Zbývá:{" "}
+                  <strong>
+                    {auditPromoRemaining !== null
+                      ? Math.max(auditPromoRemaining, 0)
+                      : auditPromoTotal}{" "}
+                    / {auditPromoTotal}
+                  </strong>{" "}
+                  míst.
                 </p>
               </div>
               <div className="flex flex-col gap-2">
@@ -596,6 +630,7 @@ export default function CoachingFunnel() {
                   type="text"
                   inputMode="text"
                   autoComplete="name"
+                  required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
@@ -647,7 +682,19 @@ export default function CoachingFunnel() {
               </p>
               <p className="text-sm text-foreground/80">
                 {pathChoice === "audit"
-                  ? <>Pro prvních 15 lidí nabízím zvýhodněnou cenu <strong>900 Kč za 90 minut koučování.</strong></>
+                  ? <>
+                      Pro prvních {auditPromoTotal} lidí nabízím zvýhodněnou cenu{" "}
+                      <strong>900 Kč za 90 minut auditu života</strong>.
+                      <br />
+                      Zbývá:{" "}
+                      <strong>
+                        {auditPromoRemaining !== null
+                          ? Math.max(auditPromoRemaining, 0)
+                          : auditPromoTotal}{" "}
+                        / {auditPromoTotal}
+                      </strong>{" "}
+                      míst.
+                    </>
                   : <>20 minutová konzultace zdarma, kde zjistíme, jestli ti koučing může pomoct.</>}
               </p>
               <button

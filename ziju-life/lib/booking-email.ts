@@ -188,14 +188,22 @@ function renderClientConfirmationHtml(
   name: string,
   slotStr: string,
   durationMinutes: number,
-  isPaidMeeting: boolean
+  isPaidMeeting: boolean,
+  options?: { amountCzk?: number | null; stripePaymentLinkUrl?: string | null }
 ): string {
   const safeName = escapeHtml(name);
-  const amount = process.env.NEXT_PUBLIC_BOOKING_PAID_PRICE_CZK;
+  const amountFromOptions =
+    typeof options?.amountCzk === "number" && options.amountCzk > 0
+      ? String(options.amountCzk)
+      : undefined;
+  const amount = amountFromOptions ?? process.env.NEXT_PUBLIC_BOOKING_PAID_PRICE_CZK;
   const bankIban = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_BANK_IBAN;
+  const bankAccountCz =
+    process.env.NEXT_PUBLIC_BOOKING_PAYMENT_ACCOUNT_CZ || bankIban || "";
   const bankName = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_BANK_NAME;
   const qrUrl = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_QR_IMAGE_URL;
-  const stripeLink = process.env.NEXT_PUBLIC_BOOKING_STRIPE_PAYMENT_LINK_URL;
+  const stripeLink =
+    options?.stripePaymentLinkUrl || process.env.NEXT_PUBLIC_BOOKING_STRIPE_PAYMENT_LINK_URL;
 
   const paymentBlock = !isPaidMeeting
     ? ""
@@ -229,9 +237,9 @@ function renderClientConfirmationHtml(
             : ""
         }
         ${
-          bankIban
-            ? `<p style="color: ${TEXT_MUTED}; font-size: 14px; margin: 0 0 4px;">IBAN / číslo účtu: <strong style="color: ${TEXT_DARK};">${escapeHtml(
-                bankIban
+          bankAccountCz
+            ? `<p style="color: ${TEXT_MUTED}; font-size: 14px; margin: 0 0 4px;">Číslo účtu: <strong style="color: ${TEXT_DARK};">${escapeHtml(
+                bankAccountCz
               )}</strong></p>`
             : ""
         }
@@ -378,21 +386,30 @@ export async function sendBookingConfirmationToClient(params: {
   durationMinutes: number;
   meetingTypeLabel?: string | null;
   isPaidMeeting?: boolean;
+  amountCzk?: number | null;
+  stripePaymentLinkUrl?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!process.env.RESEND_API_KEY?.trim()) {
     console.warn("[booking-email] RESEND_API_KEY not set, skipping client confirmation");
     return { ok: false, error: "Resend not configured" };
   }
   try {
-    const { to, name, slotAt, durationMinutes, meetingTypeLabel, isPaidMeeting } = params;
+    const {
+      to,
+      name,
+      slotAt,
+      durationMinutes,
+      meetingTypeLabel,
+      isPaidMeeting,
+      amountCzk,
+      stripePaymentLinkUrl,
+    } = params;
     const slotStr = formatSlot(slotAt);
     const label = meetingTypeLabel || "Konzultace";
-    const html = renderClientConfirmationHtml(
-      name,
-      `${label} – ${slotStr}`,
-      durationMinutes,
-      Boolean(isPaidMeeting)
-    );
+    const html = renderClientConfirmationHtml(name, `${label} – ${slotStr}`, durationMinutes, Boolean(isPaidMeeting), {
+      amountCzk,
+      stripePaymentLinkUrl,
+    });
     const { error } = await resend.emails.send({
       from: fromClient,
       to: [to],

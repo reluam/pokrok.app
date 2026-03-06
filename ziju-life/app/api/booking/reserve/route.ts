@@ -105,8 +105,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Zjisti, zda je typ schůzky placený
+    // Zjisti, zda je typ schůzky placený + případná cena a Stripe link
     let isPaidMeeting = false;
+    let meetingPriceCzk: number | null = null;
+    let meetingStripePaymentLinkUrl: string | null = null;
     if (meetingType) {
       try {
         const rows = (await sql`
@@ -123,6 +125,14 @@ export async function POST(request: NextRequest) {
             );
             if (mt && mt.isPaid) {
               isPaidMeeting = true;
+            }
+            const priceNum = Number((mt as any)?.priceCzk);
+            if (!Number.isNaN(priceNum) && priceNum > 0) {
+              meetingPriceCzk = Math.round(priceNum);
+            }
+            const stripeLinkRaw = (mt as any)?.stripePaymentLinkUrl;
+            if (typeof stripeLinkRaw === "string" && stripeLinkRaw.trim()) {
+              meetingStripePaymentLinkUrl = stripeLinkRaw.trim();
             }
           }
         }
@@ -155,6 +165,8 @@ export async function POST(request: NextRequest) {
         durationMinutes: slot.duration_minutes,
         meetingTypeLabel,
         isPaidMeeting,
+        amountCzk: meetingPriceCzk,
+        stripePaymentLinkUrl: meetingStripePaymentLinkUrl,
       }),
       sendBookingConfirmationToAdmin({
         clientName: name,
