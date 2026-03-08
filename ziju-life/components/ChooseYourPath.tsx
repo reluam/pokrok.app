@@ -303,15 +303,15 @@ export default function ChooseYourPath() {
               <ul className="space-y-2 text-sm md:text-base text-foreground/70">
                 <li className="flex gap-2">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-black/20" />
-                  <span>Krátký 20min call, kde zjistíme, jestli ti můžu s koučingem reálně pomoct.</span>
+                  <span>Rychlá ochutnávka koučingu</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-black/20" />
-                  <span>Bez závazku – vyzkoušíš si, jak spolupráce se mnou vypadá v praxi.</span>
+                  <span>Bez závazku, jen 20 minut</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-black/20" />
-                  <span>Domluvíme případné další kroky, jen pokud ti to bude dávat smysl.</span>
+                  <span>Rozhodneš se, jestli pokračovat</span>
                 </li>
               </ul>
               <div className="pt-2">

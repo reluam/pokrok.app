@@ -37,14 +37,12 @@ export default function KoucingPage() {
               <DecorativeShapes variant="hero" />
 
               <div className="relative px-4 sm:px-8 py-10 md:py-14">
-                <div className="max-w-3xl mx-auto text-center space-y-6">
+                <div className="max-w-5xl mx-auto text-center space-y-6">
                   <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight text-foreground font-bold">
-                    Zarezervuj si sezení zdarma a vezmi si{" "}
-                    <span className="hand-drawn-underline">svůj život</span> zpět.
+                    Najdi znovu směr, který ti dává smysl.
                   </h1>
-                  <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mx-auto">
-                    Nebudu tě učit, jak máš žít. Pomůžu ti rozklíčovat tvé automatické reakce a najít
-                    cestu, jak vědomě přepsat programy, které tě doposud řídily.
+                  <p className="text-xl md:text-2xl text-foreground/80 leading-relaxed max-w-4xl mx-auto">
+                    Máš pocit, že tvůj život tak trochu běží bez tebe? Pojďme se na chvíli zastavit. Společně si uděláme pořádek v tom, kde právě jsi a kam vlastně chceš jít. Ukážu ti, jak se pohnout z místa bez zbytečného tlaku a s čistou hlavou.
                   </p>
                   <button
                     onClick={() => {
@@ -55,7 +53,7 @@ export default function KoucingPage() {
                     }}
                     className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
                   >
-                    Chci změnu
+                    Jak můžeme začít
                   </button>
                 </div>
               </div>
