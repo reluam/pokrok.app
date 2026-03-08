@@ -121,6 +121,7 @@ export default function Navigation() {
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
     { href: "/inspirace", label: "Inspirace" },
     ...(showPrinciples ? [{ href: "/principy", label: "Principy" }] : []),
+    { href: "/manual", label: "Jak žít?" },
     { href: "/koucing", label: "Koučing" },
     { href: "/o-mne", label: "O mně" },
   ];
