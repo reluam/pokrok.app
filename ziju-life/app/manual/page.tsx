@@ -727,7 +727,7 @@ export default function ManualPage() {
               <section id="sekce-4-pilulky">
                 <header className="space-y-3 md:space-y-4">
                   <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-                    Sekce 4: Pilulky hořké jako pelyněk
+                    Sekce 4: Hořké pilulky (jako pelyněk)
                   </h2>
                   <p className="text-base md:text-lg text-foreground/80 leading-relaxed max-w-3xl">
                     Některé věci se neříkají snadno, ale je lepší je slyšet včas. Tohle jsou pilulky hořké
