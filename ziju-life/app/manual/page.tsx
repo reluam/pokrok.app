@@ -15,7 +15,7 @@ export default function ManualPage() {
                   </div>
                   <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
                     Jak žít?{" "}
-                    <span className="whitespace-nowrap">(Manuál pro žití)</span>
+                    <span className="whitespace-nowrap">(Můj manuál pro život)</span>
                   </h1>
                   <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
                     Manuál pro žití v moderní době, který bych si přál dostat k narození.
@@ -27,6 +27,7 @@ export default function ManualPage() {
                     posbíral ze svých vlastních chyb a z příběhů chytřejších lidí. Napsal jsem ho hlavně
                     proto, abych měl sám kompas, podle kterého se chci v životě rozvíjet.
                   </p>
+                  <p>Tenhle manuál se neboj použít jako inspiraci pro vytvoření svého vlastního taháku.</p>
                 </div>
               </div>
             </RevealSection>
@@ -165,7 +166,7 @@ export default function ManualPage() {
                             className="group flex items-center gap-2 rounded-xl px-2 py-1.5 text-foreground/70 hover:text-foreground transition-colors hover:bg-black/[0.04]"
                           >
                             <span className="h-1.5 w-1.5 rounded-full bg-foreground/25 group-hover:bg-accent/70 transition-colors" />
-                            <span className="leading-snug">Pilulky hořké jako pelyněk</span>
+                            <span className="leading-snug">Hořké pilulky (jako pelyněk)</span>
                           </a>
                         </li>
                         {[
