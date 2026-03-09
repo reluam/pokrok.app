@@ -19,6 +19,7 @@ export default function Navigation() {
       const link = target.closest('a');
       
       if (link && link.getAttribute('href')?.startsWith('#')) {
+        const SCROLL_OFFSET = 120; // víc prostoru pod sticky navigací
         e.preventDefault();
         e.stopPropagation(); // Zastaví další event handlery
         
@@ -35,14 +36,14 @@ export default function Navigation() {
             const y =
               targetElement.getBoundingClientRect().top +
               window.pageYOffset -
-              80;
+              SCROLL_OFFSET;
             window.scrollTo(0, y);
             return;
           }
 
           const startPosition = window.pageYOffset;
           const targetPosition =
-            targetElement.getBoundingClientRect().top + startPosition - 80; // Offset pro sticky header
+            targetElement.getBoundingClientRect().top + startPosition - SCROLL_OFFSET; // Offset pro sticky header
           const distance = targetPosition - startPosition;
 
           // Jemnější časování (podobně plynulé jako na designingyour.life)
@@ -119,9 +120,8 @@ export default function Navigation() {
   }, []);
 
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
-    { href: "/inspirace", label: "Inspirace" },
-    ...(showPrinciples ? [{ href: "/principy", label: "Principy" }] : []),
     { href: "/manual", label: "Jak žít?" },
+    { href: "/inspirace", label: "Inspirace" },
     { href: "/koucing", label: "Koučing" },
     { href: "/o-mne", label: "O mně" },
   ];
