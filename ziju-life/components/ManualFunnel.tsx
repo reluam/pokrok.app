@@ -497,13 +497,13 @@ export default function ManualFunnel() {
               <p className="text-3xl sm:text-4xl font-extrabold text-foreground">
                 {totalScore} / 18
               </p>
-              {totalScore <= 10 && (
+              {totalScore <= 6 && (
                 <>
                   <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                    Dobrý základ. Ale je tu prostor pro víc.
+                    Zřejmě už nějaký manual máš.
                   </h2>
                   <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">
-                    Žiješ celkem podle sebe — a to není málo. Ale tady buď upřímný: je to opravdu tvůj život, nebo jen dobře fungující autopilot? 30 minut spolu může odhalit věci, které ani nevíš, že ti chybí.
+                    Zvládáš to dobře — a je vidět, že o sobě přemýšlíš. Pokud máš pocit, že je ještě co vylepšit, zarezervuj si 30 minutovou konzultaci zdarma na tlačítku níže. Jinak se neboj tuhle stránku zavřít. A třeba se k ní někdy v budoucnu vrátit.
                   </p>
                   <button
                     type="button"
@@ -516,13 +516,13 @@ export default function ManualFunnel() {
                   </button>
                 </>
               )}
-              {totalScore >= 11 && totalScore <= 15 && (
+              {totalScore >= 7 && totalScore <= 12 && (
                 <>
                   <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                    Tušíš, že něco není v pořádku. A máš pravdu.
+                    Tušíš, že něco není v pořádku.
                   </h2>
                   <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">
-                    Část tebe žije podle sebe. Ale druhá část stále hraje hry, které sis nevybral. Cítíš to jako mírný diskomfort, který nikdy úplně nezmizí. Na konzultaci to spolu pojmenujeme a najdeme, kde začít.
+                    Část tebe žije podle sebe. Ale druhá část stále hraje hry, které sis nevybral. Pokud to chceš změnit, zarezervuj si 30 minutovou konzultaci na tlačítku níže. Na konzultaci to spolu pojmenujeme a najdeme, kde a jak začít.
                   </p>
                   <button
                     type="button"
@@ -535,7 +535,7 @@ export default function ManualFunnel() {
                   </button>
                 </>
               )}
-              {totalScore >= 16 && (
+              {totalScore >= 13 && (
                 <>
                   <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                     Je čas začít žít podle sebe.
