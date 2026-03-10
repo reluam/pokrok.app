@@ -7,7 +7,7 @@ export default function ManualTeaser() {
       <div className="max-w-6xl mx-auto">
 
         {/* Stoh stránek pod dokumentem */}
-        <div className="relative paper-hover">
+        <div className="relative paper-hover cursor-pointer">
           <div
             className="absolute inset-x-3 bottom-0 top-3 rounded-[26px]"
             style={{ background: "#E8DDB8", opacity: 0.7 }}

@@ -239,7 +239,7 @@ export default function ManualPage() {
                   {/* Spánek */}
                   <article
                     id="spanek"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
                   >
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-lg">
@@ -315,7 +315,7 @@ export default function ManualPage() {
                   {/* Strava */}
                   <article
                     id="strava"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
                   >
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-lg">
@@ -386,7 +386,7 @@ export default function ManualPage() {
                   {/* Pohyb */}
                   <article
                     id="pohyb"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
                   >
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-lg">
@@ -450,7 +450,7 @@ export default function ManualPage() {
                   {/* Odpočinek */}
                   <article
                     id="odpocinek"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
                   >
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-lg">
@@ -553,7 +553,7 @@ export default function ManualPage() {
                   {/* Co se ve škole neučí? */}
                   <article
                     id="co-se-ve-skole-neuci"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Co se ve škole neučí?
@@ -578,7 +578,7 @@ export default function ManualPage() {
                   {/* Za svůj život jsi zodpovědný pouze ty sám. */}
                   <article
                     id="zodpovednost-za-zivot"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Za svůj život jsi zodpovědný pouze ty sám.
@@ -603,7 +603,7 @@ export default function ManualPage() {
                   {/* Skoro nic není pouze černobílé. */}
                   <article
                     id="skoro-nic-neni-cernobile"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Skoro nic není pouze černobílé.
@@ -627,7 +627,7 @@ export default function ManualPage() {
                   {/* Svůj životní smysl tvoříš každodenními kroky a rozhodnutími. */}
                   <article
                     id="smysl-kazdodenni-kroky"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Svůj životní smysl tvoříš každodenními kroky a rozhodnutími.
@@ -652,7 +652,7 @@ export default function ManualPage() {
                   {/* Opravdové sebevědomí si vybuduješ děláním těžkých věcí. */}
                   <article
                     id="sebevedomi-tezke-veci"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Opravdové sebevědomí si vybuduješ děláním těžkých věcí.
@@ -676,7 +676,7 @@ export default function ManualPage() {
                   {/* Hotové je lepší než dokonalé. */}
                   <article
                     id="hotove-lepsi-nez-dokonale"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Hotové je lepší než dokonalé.
@@ -701,7 +701,7 @@ export default function ManualPage() {
                   {/* Intuice pracuje ve tvůj prospěch. */}
                   <article
                     id="intuice"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Intuice pracuje ve tvůj prospěch.
@@ -765,7 +765,7 @@ export default function ManualPage() {
                 <div className="mt-7 md:mt-8 space-y-6 md:space-y-7">
                   <article
                     id="pilulka-mozek-hloupejsi"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Tvůj mozek je hloupější, než si myslíš.
@@ -788,7 +788,7 @@ export default function ManualPage() {
 
                   <article
                     id="pilulka-neber-se-vazne"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">Neber se tak vážně.</h3>
                     <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
@@ -808,7 +808,7 @@ export default function ManualPage() {
 
                   <article
                     id="pilulka-neber-svet-vazne"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       A neber svět okolo tak vážně.
@@ -830,7 +830,7 @@ export default function ManualPage() {
 
                   <article
                     id="pilulka-jsme-zvirata"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Pod povrchem jsme stále jen zvířata.
@@ -852,7 +852,7 @@ export default function ManualPage() {
 
                   <article
                     id="pilulka-neni-jedna-vec"
-                    className="paper-card rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
+                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
                   >
                     <h3 className="text-lg md:text-xl font-semibold text-foreground">
                       Neexistuje žádná jedna věc, která zázračně vyřeší tvůj život.
