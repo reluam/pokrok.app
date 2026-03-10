@@ -1,5 +1,6 @@
 import Hero from "@/components/Hero";
 import Medailonek from "@/components/Medailonek";
+import ManualTeaser from "@/components/ManualTeaser";
 import ChooseYourPath from "@/components/ChooseYourPath";
 import RevealSection from "@/components/RevealSection";
 
@@ -12,7 +13,10 @@ export default function Home() {
       <RevealSection triggerOnMount>
         <Medailonek />
       </RevealSection>
-      <RevealSection delay={0.1}>
+      <RevealSection delay={0.08}>
+        <ManualTeaser />
+      </RevealSection>
+      <RevealSection delay={0.12}>
         <ChooseYourPath />
       </RevealSection>
     </main>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import HandDrawnFrame from "./HandDrawnFrame";
 import DecorativeShapes from "./DecorativeShapes";
@@ -43,7 +44,19 @@ export default function Medailonek() {
               </p>
               
               <p>
-                A tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly. Najdeš tady inspiraci v nejrůznějších knihách a videích a občas i v mých myšlenkách. A pokud to se změnou myslíš vážně, můžeme se potkat na individuálním koučingu. 
+                A tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly. Najdeš tady{" "}
+                <Link href="/inspirace" className="text-accent hover:text-accent-hover transition-colors">
+                  inspiraci v knihách a videích
+                </Link>
+                , sepsal jsem{" "}
+                <Link href="/manual" className="text-accent hover:text-accent-hover transition-colors">
+                  manuál pro život
+                </Link>
+                {" "}se vším, co mi reálně funguje, a pokud to se změnou myslíš vážně, můžeme se potkat na{" "}
+                <Link href="/koucing" className="text-accent hover:text-accent-hover transition-colors">
+                  individuálním koučingu
+                </Link>
+                .
               </p>
             </div>
           </div>

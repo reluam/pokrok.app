@@ -544,3 +544,24 @@
 .czech-conjunction-a {
   white-space: nowrap;
 }
+
+/* Paper manual design */
+.paper-card {
+  background-color: #FFFFFF;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05), 0 1px 6px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.25s ease;
+}
+
+.paper-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.paper-hover {
+  transition: transform 0.3s ease, filter 0.3s ease;
+  cursor: pointer;
+}
+
+.paper-hover:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.08));
+}

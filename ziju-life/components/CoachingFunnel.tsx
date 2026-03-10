@@ -8,20 +8,26 @@ import {
   Circle,
   ChevronDown,
   Clock,
-  Scale,
-  CalendarCheck,
-  Users,
-  Wallet,
-  Compass,
-  Zap,
-  Heart,
-  Sun,
   Coffee,
-  Rocket,
+  Brain,
+  BatteryFull,
+  BatteryMedium,
+  BatteryLow,
+  Shield,
+  AlertTriangle,
+  Flame,
+  HelpCircle,
+  Leaf,
+  CheckCircle2,
+  Smile,
+  MessageCircle,
+  TrendingDown,
+  ThumbsUp,
+  Eye,
+  Sparkles,
   Book,
   Video,
   FileText,
-  HelpCircle,
   type LucideIcon,
 } from "lucide-react";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
@@ -70,62 +76,119 @@ const STEPS = [
   {
     id: "welcome",
     type: "welcome" as const,
-    title: "Začni žít life podle sebe.",
+    title: "Klid, který nezávisí na okolnostech.",
     subtitle:
-      "Většinu dne neřídíš ty, ale tvoje podvědomí. Ukážu ti, jak převzít řízení a nastavit mysl, aby tě vedla, kam chceš ty. Jsi připraven/a?",
-    cta: "Chci převzít řízení",
+      "Vědecky ověřená cesta k vnitřní stabilitě — pro lidi, kteří toho zvládají hodně, ale cítí, že to takhle nejde dál.",
+    cta: "Chci získat klid →",
   },
   {
     id: "q1",
     type: "question" as const,
-    question: "Jakou část dne dnes trávíš tím, co opravdu chceš?",
+    question: "Jak vypadá tvůj typický večer po práci?",
     options: [
-      "Většinu. Jsem pánem svého času.",
-      "Půl na půl. Často bojuji s tím, co po mně chtějí ostatní.",
-      "Skoro žádnou. Dělám jen to, co se ode mě očekává.",
+      "Dokážu se relativně rychle přepnout a v klidu odpočívat.",
+      "Chvíli to trvá, ale nakonec se uklidním.",
+      "Myšlenky na práci mi krouží hlavou ještě dlouho do noci.",
     ],
-    icons: [Clock, Scale, CalendarCheck],
+    icons: [Coffee, Clock, Brain],
   },
   {
     id: "q2",
     type: "question" as const,
-    question:
-      "Co tě nejvíce brzdí v tom, abys udělal zásadní změnu (kariéra, byznys, životní styl)?",
+    question: "Kolik hodin týdně věnuješ věcem, které tě skutečně dobíjejí?",
     options: [
-      "Strach z toho, co si o mně pomyslí rodina a okolí.",
-      "Nedostatek peněz nebo prostředků.",
-      "Vůbec nevím, kde začít.",
+      "Víc než 5 hodin — to mám dobře nastavené.",
+      "Tak 2–5 hodin, ale rád bych víc.",
+      "Sotva pár hodin, nebo vůbec.",
     ],
-    icons: [Users, Wallet, Compass],
+    icons: [BatteryFull, BatteryMedium, BatteryLow],
   },
   {
     id: "q3",
     type: "question" as const,
-    question:
-      "Představ si, že za 3 měsíce žiješ život stoprocentně podle svých pravidel. Co je pro tebe největší odměna?",
+    question: "Když přijde nečekaná komplikace, tvá první reakce je...",
     options: [
-      "Svoboda. Dělám jen to, co mi dává smysl.",
-      "Klid. Už mě netrápí, co si myslí okolí.",
-      "Energie. Konečně se ráno těším na to, co vytvořím.",
+      "Klid — vyřeším to, jak vždy.",
+      "Frustrace, ale nakonec to zvládnu.",
+      "Přetečení — tohle už je opravdu moc.",
     ],
-    icons: [Zap, Heart, Sun],
+    icons: [Shield, AlertTriangle, Flame],
   },
   {
     id: "q4",
     type: "question" as const,
-    question: "Kolik času můžeš svým cílům věnovat?",
+    question: "Zkoušel jsi už něco se stresem dělat?",
     options: [
-      "Pár hodin týdně. Víc teď nevyčaruju.",
-      "Mám své povinnosti, ale zbytek volného času investuju do změny.",
-      "Jdu do toho naplno. Chci výsledky co nejrychleji.",
+      "Zatím ne — hledám první řešení.",
+      "Ano — meditace, sport nebo podobně. Pomohlo to, ale jen chvíli.",
+      "Mám zavedené návyky a celkem mi fungují.",
     ],
-    icons: [Clock, Coffee, Rocket],
+    icons: [HelpCircle, Leaf, CheckCircle2],
+  },
+  {
+    id: "q5",
+    type: "question" as const,
+    question: "Jak dlouho cítíš, že tohle není udržitelné?",
+    options: [
+      "Moc ne — celkem to zvládám.",
+      "Párkrát jsem o tom přemýšlel, ale zase to přešlo.",
+      "Tohle cítím už delší dobu a je to čím dál silnější.",
+    ],
+    icons: [Smile, MessageCircle, TrendingDown],
+  },
+  {
+    id: "q6",
+    type: "question" as const,
+    question: "Kdybys měl vnitřní klid za každých okolností, co by se změnilo?",
+    options: [
+      "Asi moc ne — jsem celkem spokojený.",
+      "Byl bych víc přítomný a méně reaktivní.",
+      "Úplně všechno — energie, rozhodování, vztahy, zdraví.",
+    ],
+    icons: [ThumbsUp, Eye, Sparkles],
+  },
+  {
+    id: "result",
+    type: "result" as const,
   },
   {
     id: "contact",
     type: "contact" as const,
   },
 ];
+
+const ANSWER_SCORES: Record<string, Record<string, number>> = {
+  q1: {
+    "Dokážu se relativně rychle přepnout a v klidu odpočívat.": 1,
+    "Chvíli to trvá, ale nakonec se uklidním.": 2,
+    "Myšlenky na práci mi krouží hlavou ještě dlouho do noci.": 3,
+  },
+  q2: {
+    "Víc než 5 hodin — to mám dobře nastavené.": 1,
+    "Tak 2–5 hodin, ale rád bych víc.": 2,
+    "Sotva pár hodin, nebo vůbec.": 3,
+  },
+  q3: {
+    "Klid — vyřeším to, jak vždy.": 1,
+    "Frustrace, ale nakonec to zvládnu.": 2,
+    "Přetečení — tohle už je opravdu moc.": 3,
+  },
+  q4: {
+    "Mám zavedené návyky a celkem mi fungují.": 1,
+    "Zatím ne — hledám první řešení.": 2,
+    "Ano — meditace, sport nebo podobně. Pomohlo to, ale jen chvíli.": 3,
+  },
+  q5: {
+    "Moc ne — celkem to zvládám.": 1,
+    "Párkrát jsem o tom přemýšlel, ale zase to přešlo.": 2,
+    "Tohle cítím už delší dobu a je to čím dál silnější.": 3,
+  },
+  q6: {
+    "Asi moc ne — jsem celkem spokojený.": 1,
+    "Byl bych víc přítomný a méně reaktivní.": 2,
+    "Úplně všechno — energie, rozhodování, vztahy, zdraví.": 3,
+  },
+};
 
 const getTypeIcon = (type: string): LucideIcon => {
   switch (type) {
@@ -155,6 +218,7 @@ export default function CoachingFunnel() {
   const choiceSectionRef = useRef<HTMLDivElement | null>(null);
 
   const step = STEPS[stepIndex];
+  const contactStepIndex = STEPS.findIndex((s) => s.id === "contact");
 
   useEffect(() => {
     fetch("/api/inspiration")
@@ -248,15 +312,15 @@ export default function CoachingFunnel() {
       }
       setLoading(false);
       if (openBookingPopup) {
-        const choice = pathChoice ?? "free";
+          const choice = "free";
         openBookingPopup({
           email: email.trim().toLowerCase(),
           name: name.trim() || undefined,
           note: message?.trim() || undefined,
           leadId: data.leadId,
-          source: "funnel",
-          preferredKind: choice === "audit" ? "paid" : "free",
-          preferredMeetingTypeId: choice === "audit" ? "coaching_paid" : "intro_free",
+            source: "funnel",
+            preferredKind: "free",
+            preferredMeetingTypeId: "intro_free",
           lockMeetingType: true,
           onSuccess: () => {
             setShowPostBookingMessage(true);
@@ -268,6 +332,13 @@ export default function CoachingFunnel() {
       setLoading(false);
     }
   };
+
+  const totalScore = Object.entries(answers).reduce((sum, [questionId, answer]) => {
+    const mapping = ANSWER_SCORES[questionId];
+    if (!mapping) return sum;
+    const score = mapping[answer];
+    return sum + (score || 0);
+  }, 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -316,22 +387,9 @@ export default function CoachingFunnel() {
                 >
                   <FunnelCtaImage src="/form/btn-prevzit-rizeni.png" wrapperClassName="bg-white/20" />
                   <span className="w-full py-3 px-3 bg-accent text-white font-bold text-center text-base sm:text-lg rounded-b-2xl">
-                    Chci audit života
+                    Chci získat klid
                   </span>
                 </button>
-                <p className="text-sm text-foreground/70 text-left sm:text-center">
-                  Pro prvních {auditPromoTotal} lidí nabízím zvýhodněnou cenu{" "}
-                  <strong>900 Kč za 90 minut auditu života</strong>.
-                  <br />
-                  Zbývá:{" "}
-                  <strong>
-                    {auditPromoRemaining !== null
-                      ? Math.max(auditPromoRemaining, 0)
-                      : auditPromoTotal}{" "}
-                    / {auditPromoTotal}
-                  </strong>{" "}
-                  míst.
-                </p>
               </div>
               <div className="flex flex-col gap-2">
                 <button
@@ -347,9 +405,6 @@ export default function CoachingFunnel() {
                     Ještě se rozmýšlím
                   </span>
                 </button>
-                <p className="text-sm text-foreground/70 text-left sm:text-center">
-                  20 minutová <strong>konzultace zdarma</strong>, kde zjistíme, jestli ti koučing může pomoct.
-                </p>
               </div>
             </div>
 
@@ -364,10 +419,11 @@ export default function CoachingFunnel() {
               </h2>
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  "Máš všechno, co bys „měl\" mít, ale cítíš, že ti život protéká mezi prsty.",
-                  "Umíš si skvěle zorganizovat čas, ale večer jsi absolutně bez energie.",
-                  "Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.",
-                  "Víš, že potřebuješ změnu, ale vůbec netušíš, kde začít.",
+                  "Snažíš se zvládat všechno — a přitom máš pocit, že pořádně nezvládáš nic.",
+                  "Večer nedokážeš vypnout. Myšlenky jedou dál, i když ty chceš odpočívat.",
+                  "Výkon máš. Ale energie, klid a radost se někam vytrácejí.",
+                  "Žiješ od úkolu k úkolu. Přítomný okamžik skoro neexistuje.",
+                  "Zkoušel jsi meditaci, sport, více spánku. Pomohlo to — ale jen na chvíli.",
                 ].map((text, i) => (
                   <div
                     key={i}
@@ -385,24 +441,20 @@ export default function CoachingFunnel() {
             {/* Co s koučingem můžeš získat */}
             <section className="text-left max-w-lg mx-auto space-y-4">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
-                Co s koučingem můžeš získat
+                Co získáš?
               </h2>
               <ul className="space-y-2 text-foreground/85 leading-relaxed text-sm sm:text-base">
                 <li className="flex gap-2">
                   <span className="text-accent shrink-0">•</span>
-                  <span><strong className="text-foreground">Jasno v tom, co chceš a proč</strong> – místo „mělo by se" přijdeme na to, co je opravdu tvoje.</span>
+                  <span><strong className="text-foreground">Konkrétní nástroje. </strong>Za 30 minut odejdeš s praktickými technikami, které můžeš použít ještě ten den.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-accent shrink-0">•</span>
-                  <span><strong className="text-foreground">Fokus na akci</strong> – Najdeme konkrétní kroky, jak vzít život zpátky do tvých rukou.</span>
+                  <span><strong className="text-foreground">Pochopíš, proč dosavadní řešení fungovala jen napůl. </strong>Meditace, sport, produktivita — to jsou nástroje. Ale bez správného základu řeší jen příznaky. Na konzultaci pojmenujeme, co ti skutečně chybí.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-accent shrink-0">•</span>
-                  <span><strong className="text-foreground">Žádné manuály</strong> – Budeme spolu řešit tvoji unikátní situaci.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-accent shrink-0">•</span>
-                  <span><strong className="text-foreground">Hravost i v těžkých věcech</strong> – I vážná témata se dají probrat bez toho, abychom ztratili radost ze života.</span>
+                  <span><strong className="text-foreground">Odejdeš s jasným směrem, ne s dalším seznamem úkolů. </strong> Žádné obecné rady. Žádné přetížení informacemi. Jeden jasný směr, který dává smysl právě tobě.</span>
                 </li>
               </ul>
               <div className="pt-2">
@@ -515,6 +567,90 @@ export default function CoachingFunnel() {
                 </button>
               </div>
             </section>
+          </div>
+        )}
+
+        {step?.type === "result" && (
+          <div className="space-y-6 w-full">
+            <FunnelSectionDivider number={STEPS.findIndex((s) => s.id === "result") + 1} />
+            <div className="bg-white rounded-3xl border-2 border-accent/15 shadow-lg px-6 py-6 sm:px-8 sm:py-8 space-y-4">
+              <p className="text-sm text-foreground/60 uppercase tracking-[0.18em]">
+                Výsledek kvízu
+              </p>
+              <p className="text-3xl sm:text-4xl font-extrabold text-foreground">
+                {totalScore} / 18
+              </p>
+              {totalScore <= 5 && (
+                <>
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                    Máš to dobře nastavené.
+                  </h2>
+                  <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">
+                  Zvládáš to dobře — a je vidět, že o sobě přemýšlíš. Pokud máš pocit, že je ještě co vylepšit, zarezervuj si 30 minutovou konzultaci zdarma na tlačítku níže. Jinak se neboj tuhle stránku zavřít. A třeba se k ní někdy v budoucnu vrátit.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPathChoice("free");
+                      if (contactStepIndex !== -1) {
+                        setStepIndex(contactStepIndex);
+                      }
+                    }}
+                    className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
+                  >
+                    Rezervovat konzultaci zdarma →
+                  </button>
+                </>
+              )}
+              {totalScore >= 6 && totalScore <= 12 && (
+                <>
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                    Zvládáš to. Ale za jakou cenu?
+                  </h2>
+                  <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">
+                    Navenek funguje všechno dobře. Ale uvnitř cítíš, že ta energie a lehkost, kterou jsi
+                    míval, se někam vytrácí. Tohle není slabost — je to signál. A ten signál má konkrétní
+                    příčinu, kterou spolu pojmenujeme.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPathChoice("free");
+                      if (contactStepIndex !== -1) {
+                        setStepIndex(contactStepIndex);
+                      }
+                    }}
+                    className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
+                  >
+                    Chci vědět, co za tím je →
+                  </button>
+                </>
+              )}
+              {totalScore >= 13 && (
+                <>
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                    Tvůj systém tě dožene dřív, než čekáš.
+                  </h2>
+                  <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">
+                    Jsi výkonný člověk, který si zvykl tlačit dál. Ale tělo i mysl mají hranici — a ty ji
+                    pravděpodobně už cítíš. Přesně tady jsem byl já před dvěma lety. A přesně proto vím,
+                    kudy vede cesta ven.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPathChoice("free");
+                      if (contactStepIndex !== -1) {
+                        setStepIndex(contactStepIndex);
+                      }
+                    }}
+                    className="w-full px-6 py-3 bg-accent text-white rounded-xl font-bold text-base hover:bg-accent-hover transition-colors"
+                  >
+                    Zarezervovat konzultaci teď →
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         )}
 
