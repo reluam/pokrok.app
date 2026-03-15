@@ -120,7 +120,7 @@ export default function Navigation() {
   }, []);
 
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
-    { href: "/jak-zit", label: "Jak žiju" },
+    { href: "/jak-ziju", label: "Jak žiju" },
     { href: "/manual", label: "Průvodce" },
     { href: "/inspirace", label: "Inspirace" },
     { href: "/koucing", label: "Koučink" },

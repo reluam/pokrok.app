@@ -6,8 +6,8 @@ export default function ManualTeaser() {
     <section className="relative py-6 md:py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-5 md:gap-6">
 
-        {/* Jak žiju */}
-        <div className="relative paper-hover cursor-pointer">
+        {/* Jak žiju life */}
+        <Link href="/jak-ziju" className="relative paper-hover cursor-pointer block group">
           <div
             className="absolute inset-x-3 bottom-0 top-3 rounded-[26px]"
             style={{ background: "#E8DDB8", opacity: 0.7 }}
@@ -48,37 +48,31 @@ export default function ManualTeaser() {
                   className="text-[10px] font-bold uppercase tracking-[0.22em]"
                   style={{ color: "rgba(239, 68, 68, 0.5)", fontFamily: "monospace" }}
                 >
-                  Tahák
+                  Principy
                 </div>
                 <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
-                  Jak žiju
+                  Jak žiju life
                 </h2>
                 <p className="text-sm md:text-base text-foreground/55">
                   Návod k použití člověka v moderní době, který bych si přál dostat k narození.
                 </p>
               </div>
-              <Link
-                href="/jak-zit"
-                className="hidden sm:inline-flex shrink-0 items-center gap-2 text-base font-semibold text-foreground/70 hover:text-accent transition-colors"
-              >
+              <span className="hidden sm:inline-flex shrink-0 items-center gap-2 text-base font-semibold text-foreground/70 group-hover:text-accent transition-colors">
                 Přečíst
                 <ArrowRight size={18} />
-              </Link>
+              </span>
             </div>
             <div className="sm:hidden pl-20 pr-7 pb-6 md:pl-24">
-              <Link
-                href="/jak-zit"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/70 hover:text-accent transition-colors"
-              >
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/70 group-hover:text-accent transition-colors">
                 Přečíst
                 <ArrowRight size={16} />
-              </Link>
+              </span>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Průvodce */}
-        <div className="relative paper-hover cursor-pointer">
+        <Link href="/manual" className="relative paper-hover cursor-pointer block group">
           <div
             className="absolute inset-x-3 bottom-0 top-3 rounded-[26px]"
             style={{ background: "#C8D8C0", opacity: 0.7 }}
@@ -122,31 +116,25 @@ export default function ManualTeaser() {
                   Průvodce
                 </div>
                 <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
-                  Tvoje cesta
+                  Vytvoř si tvůj manuál života
                 </h2>
                 <p className="text-sm md:text-base text-foreground/55">
                   Sedm zastávek od &quot;kde jsem&quot; po &quot;žiju podle sebe&quot;. Se cvičeními a šablonami.
                 </p>
               </div>
-              <Link
-                href="/manual"
-                className="hidden sm:inline-flex shrink-0 items-center gap-2 text-base font-semibold text-foreground/70 hover:text-accent transition-colors"
-              >
+              <span className="hidden sm:inline-flex shrink-0 items-center gap-2 text-base font-semibold text-foreground/70 group-hover:text-accent transition-colors">
                 Projít
                 <ArrowRight size={18} />
-              </Link>
+              </span>
             </div>
             <div className="sm:hidden pl-20 pr-7 pb-6 md:pl-24">
-              <Link
-                href="/manual"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/70 hover:text-accent transition-colors"
-              >
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/70 group-hover:text-accent transition-colors">
                 Projít
                 <ArrowRight size={16} />
-              </Link>
+              </span>
             </div>
           </div>
-        </div>
+        </Link>
 
       </div>
     </section>

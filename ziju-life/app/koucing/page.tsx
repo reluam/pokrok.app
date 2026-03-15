@@ -30,8 +30,8 @@ export default function KoucingPage() {
                     <a href="/inspirace" className="underline underline-offset-2 decoration-accent/50 hover:text-accent transition-colors">inspiraci</a>,{" "}
                     <a href="/manual" className="underline underline-offset-2 decoration-accent/50 hover:text-accent transition-colors">cvičení</a>{" "}
                     i{" "}
-                    <a href="/jak-zit" className="underline underline-offset-2 decoration-accent/50 hover:text-accent transition-colors">průvodce</a>.{" "}
-                    Věřím, že spousta lidí dokáže dosáhnout změny, jaké chce, i bez mé pomoci.
+                    <a href="/jak-ziju" className="underline underline-offset-2 decoration-accent/50 hover:text-accent transition-colors">průvodce</a>{" "}
+                    pro vytvoření svého vlastního manuálu pro život.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <button

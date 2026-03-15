@@ -31,10 +31,16 @@ export default function Footer() {
             
             <div className="flex flex-col md:flex-row items-center gap-6">
               <Link
+                href="/jak-ziju"
+                className="text-sm text-foreground/70 hover:text-accent transition-colors"
+              >
+                Jak žiju
+              </Link>
+              <Link
                 href="/manual"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
-                Jak žít?
+                Průvodce
               </Link>
               <Link
                 href="/inspirace"
@@ -43,16 +49,16 @@ export default function Footer() {
                 Inspirace
               </Link>
               <Link
+                href="/koucing"
+                className="text-sm text-foreground/70 hover:text-accent transition-colors"
+              >
+                Koučink
+              </Link>
+              <Link
                 href="/o-mne"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
                 O mně
-              </Link>
-              <Link
-                href="/kontakt"
-                className="text-sm text-foreground/70 hover:text-accent transition-colors"
-              >
-                Kontakt
               </Link>
               <div className="h-6 w-px bg-black/20 hidden md:block" />
               <div className="flex items-center gap-4">
