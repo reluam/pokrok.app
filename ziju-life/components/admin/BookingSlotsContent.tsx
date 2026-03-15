@@ -526,27 +526,24 @@ export default function BookingSlotsContent() {
                 </div>
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
-                    Stripe Payment Link (volitelné)
+                    Stripe Price ID
                   </label>
                   <input
                     type="text"
-                    value={selectedMeetingType.stripePaymentLinkUrl ?? ""}
+                    value={selectedMeetingType.priceId ?? ""}
                     onChange={(e) => {
-                      const stripePaymentLinkUrl = e.target.value.trim() || undefined;
+                      const priceId = e.target.value.trim() || undefined;
                       setMeetingTypes((prev) =>
                         prev.map((mt) =>
-                          mt.id === selectedMeetingType.id
-                            ? { ...mt, stripePaymentLinkUrl }
-                            : mt
+                          mt.id === selectedMeetingType.id ? { ...mt, priceId } : mt
                         )
                       );
                     }}
-                    placeholder="https://buy.stripe.com/..."
-                    className="w-full px-4 py-2 border-2 border-black/10 rounded-xl bg-white text-sm"
+                    placeholder="price_..."
+                    className="w-full px-4 py-2 border-2 border-black/10 rounded-xl bg-white text-sm font-mono"
                   />
                   <p className="text-xs text-foreground/60">
-                    Odkaz na platbu kartou pro tento konkrétní typ schůzky. Pokud není vyplněný,
-                    použije se případný globální Stripe Payment Link z prostředí.
+                    Stripe Price ID (začíná <code>price_</code>). Najdeš ho v Stripe Dashboard → Products. Pokud je vyplněné, platba proběhne přímo v modálu kartou.
                   </p>
                 </div>
               </div>

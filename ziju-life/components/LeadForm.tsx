@@ -19,6 +19,14 @@ type LeadFormProps = {
   preferredMeetingTypeId?: string;
   /** Zamknout výběr typu schůzky v popupu. */
   lockMeetingType?: boolean;
+  /** Přeskočit booking popup a místo toho zobrazit zprávu o úspěchu (např. pro lead magnet). */
+  skipBooking?: boolean;
+  /** Text úspěšného odeslání (jen při skipBooking=true). */
+  successMessage?: string;
+  /** Popisek tlačítka. Výchozí: "Pokračovat k výběru termínu". */
+  submitLabel?: string;
+  /** Text souhlasu se zpracováním (výchozí: pro domluvení konzultace). */
+  consentText?: string;
 };
 
 export default function LeadForm({
@@ -32,6 +40,10 @@ export default function LeadForm({
   preferredKind,
   preferredMeetingTypeId,
   lockMeetingType,
+  skipBooking = false,
+  successMessage = "Hotovo! Brzy ti pošleme vše na email.",
+  submitLabel,
+  consentText,
 }: LeadFormProps) {
   const { openBookingPopup } = useBookingPopup() ?? {};
   const [name, setName] = useState("");
@@ -39,6 +51,7 @@ export default function LeadForm({
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +83,10 @@ export default function LeadForm({
       }
       onSuccess?.();
       setLoading(false);
+      if (skipBooking) {
+        setSubmitted(true);
+        return;
+      }
       if (openBookingPopup) {
         openBookingPopup({
           email,
@@ -87,6 +104,15 @@ export default function LeadForm({
       setLoading(false);
     }
   };
+
+  if (submitted) {
+    return (
+      <div className="text-center py-6 space-y-2">
+        <div className="text-3xl">✅</div>
+        <p className="text-lg font-semibold text-foreground">{successMessage}</p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className={className}>
@@ -147,7 +173,7 @@ export default function LeadForm({
           </p>
         )}
         <p className="text-xs text-foreground/60">
-          Odesláním souhlasíte se zpracováním údajů pro domluvení konzultace.{" "}
+          {consentText ?? "Odesláním souhlasíte se zpracováním údajů pro domluvení konzultace."}{" "}
           <a href="/gdpr" className="text-accent hover:underline">
             Zásady ochrany osobních údajů
           </a>
@@ -158,7 +184,7 @@ export default function LeadForm({
           disabled={loading}
           className="w-full px-6 py-4 bg-accent text-white rounded-xl font-semibold hover:bg-accent-hover transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {loading ? "Odesílám…" : "Pokračovat k výběru termínu"}
+          {loading ? "Odesílám…" : (submitLabel ?? "Pokračovat k výběru termínu")}
         </button>
       </div>
     </form>

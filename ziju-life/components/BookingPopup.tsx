@@ -2,6 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+
+// Stripe instance – inicializuj jednou mimo komponentu
+const stripePromise =
+  typeof process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY === "string" &&
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.length > 0
+    ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+    : null;
 
 export type BookingPopupParams = {
   email?: string;
@@ -9,13 +18,9 @@ export type BookingPopupParams = {
   note?: string;
   leadId?: string;
   source?: string;
-  /** Preferovaný (nebo zamknutý) typ schůzky – id z adminu (např. intro_free / coaching_paid) */
   preferredMeetingTypeId?: string;
-  /** Pokud true, uživatel si typ v popupu nepřepíná (funnel). */
   lockMeetingType?: boolean;
-  /** Preferovaný typ podle charakteru schůzky – použije se, pokud preferredMeetingTypeId neexistuje. */
   preferredKind?: "paid" | "free";
-  /** Callback, který se zavolá po úspěšném dokončení rezervace. */
   onSuccess?: () => void;
 };
 
@@ -51,6 +56,8 @@ export function BookingPopupProvider({ children }: { children: React.ReactNode }
   );
 }
 
+// ── Typy ────────────────────────────────────────────────────────────────────
+
 type Slot = { id: string; startAt: string; durationMinutes: number; title?: string | null };
 
 type MeetingType = {
@@ -62,26 +69,18 @@ type MeetingType = {
   endDate?: string;
   defaultDurationMinutes?: number;
   priceId?: string;
-  /** Cena schůzky v Kč pro daný typ (pokud je nastavená v administraci). */
   priceCzk?: number;
-  /** Volitelný Stripe Payment Link specifický pro tento typ schůzky. */
   stripePaymentLinkUrl?: string;
 };
 
 const DEFAULT_MEETING_TYPES: MeetingType[] = [
-  {
-    id: "intro_free",
-    label: "Úvodní 30min sezení zdarma",
-    isPaid: false,
-  },
-  {
-    id: "coaching_paid",
-    label: "Koučovací sezení (placené)",
-    isPaid: true,
-  },
+  { id: "intro_free", label: "Úvodní 30min sezení zdarma", isPaid: false },
+  { id: "coaching_paid", label: "Koučovací sezení (placené)", isPaid: true },
 ];
 
-const FIRST_DAY_OF_WEEK = 1; // Pondělí
+const FIRST_DAY_OF_WEEK = 1;
+
+// ── Pomocné funkce ───────────────────────────────────────────────────────────
 
 function getWeekStart(d: Date): Date {
   const copy = new Date(d);
@@ -135,17 +134,76 @@ function formatSlotTime(iso: string): string {
   });
 }
 
-/** Sestaví SPAYD řetězec pro QR platbu (český formát). */
 function buildSpaydString(amountCzk: string, ibanOrAccount: string, message: string): string {
   const amount = amountCzk.replace(/\s/g, "").replace(/[^\d.,]/g, "").replace(",", ".");
   const am = Number.parseFloat(amount) || 0;
   const amStr = am.toFixed(2);
-  // Příjemce necháme ve formátu, který zadáš v administraci (IBAN nebo 123456789/0600),
-  // pouze odstraníme mezery.
   const acc = ibanOrAccount.replace(/\s/g, "");
   const msg = message.slice(0, 60).replace(/[^a-zA-Z0-9 $%+\-]/g, " ");
   return `SPD*1.0*ACC:${acc}*AM:${amStr}*CC:CZK*MSG:${msg}*`;
 }
+
+// ── Stripe platební formulář (musí být uvnitř <Elements>) ────────────────────
+
+function CardPaymentForm({
+  amount,
+  onSuccess,
+}: {
+  amount?: number;
+  onSuccess: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [submitting, setSubmitting] = useState(false);
+  const [cardError, setCardError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+    setSubmitting(true);
+    setCardError("");
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: typeof window !== "undefined" ? window.location.href : "/",
+      },
+      redirect: "if_required",
+    });
+
+    if (error) {
+      setCardError(error.message ?? "Platba se nezdařila. Zkuste to prosím znovu.");
+      setSubmitting(false);
+    } else if (paymentIntent?.status === "succeeded") {
+      onSuccess();
+    } else {
+      setCardError("Platba nebyla dokončena. Zkuste to prosím znovu.");
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <PaymentElement options={{ layout: "tabs" }} />
+      {cardError && (
+        <p className="text-sm text-red-600 rounded-lg bg-red-50 px-3 py-2" role="alert">
+          {cardError}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={!stripe || !elements || submitting}
+        className="w-full px-6 py-3.5 bg-accent text-white rounded-xl font-semibold hover:bg-accent-hover disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+      >
+        {submitting ? "Zpracovávám platbu…" : `Zaplatit${amount ? ` ${amount} Kč` : ""}`}
+      </button>
+    </form>
+  );
+}
+
+// ── Hlavní modální okno ──────────────────────────────────────────────────────
+
+type PaymentStep = "idle" | "intent-loading" | "card-form" | "paid" | "intent-error";
 
 function BookingModal({
   isOpen,
@@ -176,6 +234,11 @@ function BookingModal({
   const lockMeetingType = prefill.lockMeetingType ?? false;
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const modalScrollRef = useRef<HTMLDivElement>(null);
+
+  // Stav platebního procesu
+  const [paymentStep, setPaymentStep] = useState<PaymentStep>("idle");
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [intentError, setIntentError] = useState("");
 
   const handleCopy = useCallback((field: string, text: string) => {
     navigator.clipboard.writeText(text).then(
@@ -208,7 +271,6 @@ function BookingModal({
           setSlotsByDate({});
         } else {
           const slots: Slot[] = data.slots ?? [];
-          // Filtrovat sloty podle datumového okna vybraného typu schůzky (pokud je nastavené)
           let filteredSlots = slots;
           const mt = meetingTypes.find((t) => t.id === selectedMeetingTypeId);
           if (mt && (mt.startDate || mt.endDate)) {
@@ -246,7 +308,6 @@ function BookingModal({
   }, [meetingTypes, selectedMeetingTypeId]);
 
   useEffect(() => {
-    // Načti typy schůzek z nastavení (bez autentizace)
     fetch("/api/settings/meeting-types")
       .then((r) => r.json())
       .then((data) => {
@@ -270,12 +331,9 @@ function BookingModal({
           setSelectedMeetingTypeId(hasPreferred ? (preferred as string) : fallbackId);
         }
       })
-      .catch(() => {
-        // fallback na výchozí typy
-      });
+      .catch(() => {});
   }, [prefill.preferredMeetingTypeId, prefill.preferredKind]);
 
-  // Pokud se preferovaný typ změní po načtení typů (např. při opětovném otevření popupu)
   useEffect(() => {
     const preferred = prefill.preferredMeetingTypeId;
     if (!preferred) return;
@@ -288,6 +346,9 @@ function BookingModal({
     if (isOpen && fromParam && toParam) {
       setSuccess(false);
       setReserveError("");
+      setPaymentStep("idle");
+      setClientSecret(null);
+      setIntentError("");
       setInitialLoadDone(false);
       loadSlots(fromParam, toParam, dates);
     }
@@ -328,32 +389,15 @@ function BookingModal({
   const hasSlots = (date: string) => (slotsByDate[date]?.length ?? 0) > 0;
   const canSelectDate = (date: string) => !isPast(date) && hasSlots(date);
 
-  const goToPrevWeeks = () => {
-    setOffset((o) => Math.max(0, o - 1));
-    setSelectedDate(null);
-    setSlotsForDay([]);
-    setSelected(null);
-  };
+  const goToPrevWeeks = () => { setOffset((o) => Math.max(0, o - 1)); setSelectedDate(null); setSlotsForDay([]); setSelected(null); };
+  const goToNextWeeks = () => { setOffset((o) => o + 1); setSelectedDate(null); setSlotsForDay([]); setSelected(null); };
+  const goToToday = () => { setOffset(0); setSelectedDate(null); setSlotsForDay([]); setSelected(null); };
 
-  const goToNextWeeks = () => {
-    setOffset((o) => o + 1);
-    setSelectedDate(null);
-    setSlotsForDay([]);
-    setSelected(null);
-  };
-
-  const goToToday = () => {
-    setOffset(0);
-    setSelectedDate(null);
-    setSlotsForDay([]);
-    setSelected(null);
-  };
-
-  const handleReserve = () => {
+  // Rezervace pro zdarma nebo placené bez priceId (stávající tok)
+  const handleReserveFree = () => {
     if (!selected || !prefill.email || !prefill.name) return;
     setReserving(true);
     setReserveError("");
-
     fetch("/api/booking/reserve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -382,6 +426,60 @@ function BookingModal({
       .finally(() => setReserving(false));
   };
 
+  // Platba kartou přes Stripe Payment Intent
+  const handleInitiatePayment = () => {
+    if (!selected || !prefill.email || !prefill.name) return;
+    setPaymentStep("intent-loading");
+    setIntentError("");
+
+    fetch("/api/booking/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slotId: selected.id,
+        startAt: selected.startAt,
+        durationMinutes: selected.durationMinutes,
+        email: prefill.email,
+        name: prefill.name,
+        note: prefill.note ?? undefined,
+        source: prefill.source ?? "koucing",
+        leadId: prefill.leadId ?? undefined,
+        meetingType: selectedMeetingTypeId,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.clientSecret) {
+          setClientSecret(data.clientSecret);
+          setPaymentStep("card-form");
+        } else {
+          setIntentError(data.error ?? "Nepodařilo se inicializovat platbu.");
+          setPaymentStep("intent-error");
+        }
+      })
+      .catch(() => {
+        setIntentError("Nepodařilo se připojit k platební bráně.");
+        setPaymentStep("intent-error");
+      });
+  };
+
+  // Hlavní handler potvrzení rezervace
+  const handleConfirm = () => {
+    const mt = meetingTypes.find((t) => t.id === selectedMeetingTypeId);
+    if (mt?.isPaid && mt?.priceId && stripePromise) {
+      handleInitiatePayment();
+    } else {
+      handleReserveFree();
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentStep("paid");
+    prefill.onSuccess?.();
+  };
+
+  const currentMeetingType = meetingTypes.find((t) => t.id === selectedMeetingTypeId);
+
   if (!isOpen) return null;
 
   return (
@@ -396,8 +494,11 @@ function BookingModal({
         className="relative w-full max-w-2xl max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="flex items-center justify-between shrink-0 px-4 py-3 border-b border-black/10">
-          <span className="font-semibold text-foreground">Vyber si termín</span>
+          <span className="font-semibold text-foreground">
+            {paymentStep === "card-form" ? "Platba kartou" : "Vyber si termín"}
+          </span>
           <button
             type="button"
             onClick={onClose}
@@ -405,12 +506,12 @@ function BookingModal({
             aria-label="Zavřít"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
 
+        {/* Content */}
         <div
           ref={modalScrollRef}
           className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4"
@@ -421,26 +522,118 @@ function BookingModal({
             el.scrollTop += e.deltaY;
           }}
         >
-          {success ? (
+
+          {/* ── Platba proběhla úspěšně ─────────────────────────────────── */}
+          {paymentStep === "paid" ? (
+            <div className="text-center space-y-5 py-8">
+              <div className="text-5xl">✅</div>
+              <div className="space-y-2">
+                <p className="text-xl font-semibold text-foreground">Platba proběhla úspěšně!</p>
+                <p className="text-foreground/70 text-sm leading-relaxed max-w-xs mx-auto">
+                  Termín je potvrzený. Potvrzení s detaily sezení ti přijde na e-mail.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2.5 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover transition-colors"
+              >
+                Zavřít
+              </button>
+            </div>
+
+          /* ── Inicializace platby – spinner ─────────────────────────────── */
+          ) : paymentStep === "intent-loading" ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-foreground/20 border-t-accent" />
+              <p className="text-sm text-foreground/60">Připravuji platební formulář…</p>
+            </div>
+
+          /* ── Chyba inicializace ─────────────────────────────────────────── */
+          ) : paymentStep === "intent-error" ? (
+            <div className="text-center space-y-4 py-8">
+              <p className="text-lg font-semibold text-foreground">Platbu se nepodařilo zahájit</p>
+              <p className="text-sm text-foreground/70">{intentError}</p>
+              <div className="flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setPaymentStep("idle"); setIntentError(""); }}
+                  className="px-5 py-2 border border-black/10 rounded-xl text-sm font-medium hover:bg-black/5 transition-colors"
+                >
+                  ← Zpět
+                </button>
+                <button
+                  type="button"
+                  onClick={handleInitiatePayment}
+                  className="px-5 py-2 bg-accent text-white rounded-xl text-sm font-medium hover:bg-accent-hover transition-colors"
+                >
+                  Zkusit znovu
+                </button>
+              </div>
+            </div>
+
+          /* ── Platební formulář (Stripe Elements) ───────────────────────── */
+          ) : paymentStep === "card-form" ? (
+            <div className="space-y-5">
+              {clientSecret && stripePromise ? (
+                <>
+                  {/* Souhrn */}
+                  <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4 space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-foreground/55">Souhrn objednávky</p>
+                    <p className="text-sm text-foreground/80">
+                      {currentMeetingType?.label ?? "Sezení"}
+                    </p>
+                    {selected && (
+                      <p className="text-sm text-foreground/70">
+                        {formatSlotDate(selected.startAt)} v {formatSlotTime(selected.startAt)}
+                        {selected.durationMinutes ? ` (${selected.durationMinutes} min)` : ""}
+                      </p>
+                    )}
+                    {currentMeetingType?.priceCzk ? (
+                      <p className="text-2xl font-bold text-accent pt-1">{currentMeetingType.priceCzk} Kč</p>
+                    ) : null}
+                  </div>
+
+                  <Elements
+                    stripe={stripePromise}
+                    options={{ clientSecret, locale: "cs" }}
+                  >
+                    <CardPaymentForm
+                      amount={currentMeetingType?.priceCzk}
+                      onSuccess={handlePaymentSuccess}
+                    />
+                  </Elements>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-foreground/20 border-t-accent" />
+                  <p className="text-sm text-foreground/60">Připravuji platební formulář…</p>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => { setPaymentStep("idle"); setClientSecret(null); }}
+                className="w-full text-sm text-foreground/60 hover:text-foreground transition-colors py-1"
+              >
+                ← Zpět na výběr termínu
+              </button>
+            </div>
+
+          /* ── Stávající úspěšná rezervace (free nebo banka) ─────────────── */
+          ) : success ? (
             (() => {
               const mt = meetingTypes.find((t) => t.id === selectedMeetingTypeId);
               const isPaidSuccess = Boolean(mt?.isPaid);
-              const amountFromType =
+              const amount =
                 typeof mt?.priceCzk === "number" && mt.priceCzk > 0
                   ? String(mt.priceCzk)
                   : undefined;
-              const amount = amountFromType ?? process.env.NEXT_PUBLIC_BOOKING_PAID_PRICE_CZK;
               const bankIban = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_BANK_IBAN;
-              const bankAccountCz =
-                process.env.NEXT_PUBLIC_BOOKING_PAYMENT_ACCOUNT_CZ || bankIban;
+              const bankAccountCz = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_ACCOUNT_CZ || bankIban;
               const bankName = process.env.NEXT_PUBLIC_BOOKING_PAYMENT_BANK_NAME;
-              const stripeLink =
-                mt?.stripePaymentLinkUrl || process.env.NEXT_PUBLIC_BOOKING_STRIPE_PAYMENT_LINK_URL;
               const paymentMessage = prefill.name || "Platba konzultace";
-              const spaydString =
-                amount && bankIban
-                  ? buildSpaydString(amount, bankIban, paymentMessage)
-                  : "";
+              const spaydString = amount && bankIban ? buildSpaydString(amount, bankIban, paymentMessage) : "";
 
               if (!isPaidSuccess) {
                 return (
@@ -449,11 +642,7 @@ function BookingModal({
                     <p className="text-foreground/80 text-sm sm:text-base leading-relaxed">
                       Děkuji a těším se na náš hovor. Na tvůj e-mail ti přijde potvrzení s detaily termínu.
                     </p>
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="px-6 py-2 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover"
-                    >
+                    <button type="button" onClick={onClose} className="px-6 py-2 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover">
                       Zavřít
                     </button>
                   </div>
@@ -464,28 +653,17 @@ function BookingModal({
                 <div className="space-y-6">
                   <div className="text-center space-y-2">
                     <p className="text-xl font-semibold text-foreground">Rezervace proběhla úspěšně</p>
-                    <p className="text-foreground/80 text-sm leading-relaxed">
-                      Na tvůj e-mail ti přijde potvrzení s detaily termínu.
-                    </p>
+                    <p className="text-foreground/80 text-sm leading-relaxed">Na tvůj e-mail ti přijde potvrzení s detaily termínu.</p>
                   </div>
-
                   <div className="rounded-xl border-2 border-accent/30 bg-accent/5 p-4 space-y-2">
-                    <p className="text-sm font-semibold text-foreground">
-                      Schůzka je placená
-                    </p>
+                    <p className="text-sm font-semibold text-foreground">Schůzka je placená</p>
                     <p className="text-sm text-foreground/85 leading-relaxed">
                       Je potřeba ji zaplatit nejpozději <strong>48 hodin po vytvoření rezervace</strong>, aby zůstala v platnosti.
                     </p>
-                    <p className="text-sm text-foreground/85 leading-relaxed">
-                      Změna termínu schůzky je možná nejpozději <strong>48 hodin před konáním</strong>.
-                    </p>
                   </div>
-
                   {(bankName || bankIban || amount) && (
                     <div className="rounded-xl border border-black/10 bg-black/[0.04] p-4 space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
-                        Platba převodem
-                      </p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Platba převodem</p>
                       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                         <dl className="space-y-3 text-sm text-foreground/85 flex-1">
                           {amount && (
@@ -494,147 +672,50 @@ function BookingModal({
                                 <dt className="text-foreground/55 text-xs">Částka</dt>
                                 <dd className="font-medium text-foreground">{amount} Kč</dd>
                               </div>
-                              <div className="w-9 flex justify-center">
-                                <button
-                                  type="button"
-                                  onClick={() => handleCopy("amount", `${amount} Kč`)}
-                                  className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
-                                  title="Zkopírovat částku"
-                                >
-                                  {copiedField === "amount" ? (
-                                    <span className="text-[11px] font-medium text-green-600">✓</span>
-                                  ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                                  )}
-                                </button>
-                              </div>
+                              <button type="button" onClick={() => handleCopy("amount", `${amount} Kč`)} className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors" title="Zkopírovat částku">
+                                {copiedField === "amount" ? <span className="text-[11px] font-medium text-green-600">✓</span> : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>}
+                              </button>
                             </div>
                           )}
-                          {bankName && (
-                            <div>
-                              <dt className="text-foreground/55 text-xs">Banka</dt>
-                              <dd className="font-medium text-foreground">{bankName}</dd>
-                            </div>
-                          )}
+                          {bankName && (<div><dt className="text-foreground/55 text-xs">Banka</dt><dd className="font-medium text-foreground">{bankName}</dd></div>)}
                           {bankAccountCz && (
                             <div className="flex items-start gap-2">
-                              <div className="flex-1 min-w-0">
-                                <dt className="text-foreground/55 text-xs">Číslo účtu</dt>
-                                <dd className="font-mono text-foreground break-all">{bankAccountCz}</dd>
-                              </div>
-                              <div className="w-9 flex justify-center mt-4">
-                                <button
-                                  type="button"
-                                  onClick={() => handleCopy("iban", bankAccountCz)}
-                                  className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
-                                  title="Zkopírovat číslo účtu"
-                                >
-                                  {copiedField === "iban" ? (
-                                    <span className="text-[11px] font-medium text-green-600">✓</span>
-                                  ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                                  )}
-                                </button>
-                              </div>
+                              <div className="flex-1 min-w-0"><dt className="text-foreground/55 text-xs">Číslo účtu</dt><dd className="font-mono text-foreground break-all">{bankAccountCz}</dd></div>
+                              <button type="button" onClick={() => handleCopy("iban", bankAccountCz)} className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors mt-4" title="Zkopírovat číslo účtu">
+                                {copiedField === "iban" ? <span className="text-[11px] font-medium text-green-600">✓</span> : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>}
+                              </button>
                             </div>
                           )}
                           <div className="flex items-start gap-2">
-                            <div className="flex-1 min-w-0">
-                              <dt className="text-foreground/55 text-xs">Zpráva pro příjemce</dt>
-                              <dd className="font-mono text-foreground break-all">
-                                {prefill.name || "Jméno + termín konzultace"}
-                              </dd>
-                            </div>
-                            <div className="w-9 flex justify-center mt-4">
-                              <button
-                                type="button"
-                                onClick={() => handleCopy("message", prefill.name || "Jméno + termín konzultace")}
-                                className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors"
-                                title="Zkopírovat zprávu"
-                              >
-                                {copiedField === "message" ? (
-                                  <span className="text-[11px] font-medium text-green-600">✓</span>
-                                ) : (
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                                )}
-                              </button>
-                            </div>
+                            <div className="flex-1 min-w-0"><dt className="text-foreground/55 text-xs">Zpráva pro příjemce</dt><dd className="font-mono text-foreground break-all">{prefill.name || "Jméno + termín konzultace"}</dd></div>
+                            <button type="button" onClick={() => handleCopy("message", prefill.name || "Jméno + termín konzultace")} className="p-2 rounded-lg border border-black/10 bg-white hover:bg-black/5 text-foreground/70 hover:text-foreground transition-colors mt-4" title="Zkopírovat zprávu">
+                              {copiedField === "message" ? <span className="text-[11px] font-medium text-green-600">✓</span> : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>}
+                            </button>
                           </div>
                         </dl>
-
                         {(spaydString || amount) && (
                           <div className="sm:w-52 flex flex-col items-center justify-center gap-2">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
-                              QR platba
-                            </p>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">QR platba</p>
                             {spaydString ? (
-                              <QRCodeSVG
-                                value={spaydString}
-                                size={180}
-                                level="M"
-                                includeMargin
-                                className="rounded-lg border border-black/10 bg-white p-2"
-                                aria-label="QR kód pro platbu"
-                              />
+                              <QRCodeSVG value={spaydString} size={180} level="M" includeMargin className="rounded-lg border border-black/10 bg-white p-2" aria-label="QR kód pro platbu" />
                             ) : (
-                              <p className="text-[11px] text-foreground/60 text-center italic">
-                                Pro generování QR kódu nastav v administraci částku a číslo účtu.
-                              </p>
+                              <p className="text-[11px] text-foreground/60 text-center italic">Pro generování QR kódu nastav v administraci částku a číslo účtu.</p>
                             )}
                           </div>
                         )}
                       </div>
                     </div>
                   )}
-
-                  {stripeLink && (
-                    <div className="rounded-xl border border-black/10 bg-black/[0.04] p-4 space-y-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
-                        Platba kartou
-                      </p>
-                      <p className="text-sm text-foreground/70">
-                        Bezpečná platba kartou přes Stripe (otevře se v novém okně).
-                      </p>
-                      <a
-                        href={stripeLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center justify-center w-full sm:w-auto min-w-[200px] rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white hover:bg-accent-hover transition-colors"
-                      >
-                        Zaplatit kartou přes Stripe
-                      </a>
-                    </div>
-                  )}
-
-                  {prefill.source === "funnel" && (
-                    <div className="pt-2">
-                      <button
-                        type="button"
-                        onClick={onClose}
-                        className="w-full px-6 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover"
-                      >
-                        Zavřít
-                      </button>
-                    </div>
-                  )}
-
                   <div className="mt-3 pt-3 border-t border-black/10 flex items-center justify-center gap-5 sm:gap-6 text-[11px] sm:text-xs text-foreground/60">
-                    <div className="flex items-center gap-2 opacity-70">
-                      <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
-                      <span>Krok 1: Údaje</span>
-                    </div>
-                    <div className="flex items-center gap-2 opacity-70">
-                      <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
-                      <span>Krok 2: Výběr termínu</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
-                      <span>Krok 3: Platba</span>
-                    </div>
+                    <div className="flex items-center gap-2 opacity-70"><span className="flex h-2.5 w-2.5 rounded-full bg-accent" /><span>Krok 1: Údaje</span></div>
+                    <div className="flex items-center gap-2 opacity-70"><span className="flex h-2.5 w-2.5 rounded-full bg-accent" /><span>Krok 2: Výběr termínu</span></div>
+                    <div className="flex items-center gap-2"><span className="flex h-2.5 w-2.5 rounded-full bg-accent" /><span>Krok 3: Platba</span></div>
                   </div>
                 </div>
               );
             })()
+
+          /* ── Výběr termínu (hlavní zobrazení) ──────────────────────────── */
           ) : (
             <>
               {loading && !initialLoadDone && (
@@ -651,37 +732,23 @@ function BookingModal({
                   {/* Typ schůzky */}
                   {meetingTypes.length > 0 && (
                     <div className="rounded-xl border border-black/10 bg-black/3 px-3 py-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60 mb-1">
-                        Typ schůzky
-                      </p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60 mb-1">Typ schůzky</p>
                       {(() => {
-                        const selected =
-                          meetingTypes.find((t) => t.id === selectedMeetingTypeId) ??
-                          meetingTypes[0];
-                        if (!selected) return null;
+                        const selMt = meetingTypes.find((t) => t.id === selectedMeetingTypeId) ?? meetingTypes[0];
+                        if (!selMt) return null;
                         if (lockMeetingType || meetingTypes.length === 1) {
                           return (
                             <p className="text-sm text-foreground">
-                              {selected.label}
-                              {selected.isPaid && (
-                                <span className="ml-2 text-xs text-foreground/60">(placené)</span>
-                              )}
+                              {selMt.label}
+                              {selMt.isPaid && <span className="ml-2 text-xs text-foreground/60">(placené)</span>}
                             </p>
                           );
                         }
                         return (
                           <div className="flex flex-wrap gap-2">
                             {meetingTypes.map((t) => (
-                              <button
-                                key={t.id}
-                                type="button"
-                                onClick={() => setSelectedMeetingTypeId(t.id)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                                  selectedMeetingTypeId === t.id
-                                    ? "bg-accent text-white border-accent"
-                                    : "bg-white text-foreground border-black/10 hover:border-accent/50 hover:bg-accent/5"
-                                }`}
-                              >
+                              <button key={t.id} type="button" onClick={() => setSelectedMeetingTypeId(t.id)}
+                                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedMeetingTypeId === t.id ? "bg-accent text-white border-accent" : "bg-white text-foreground border-black/10 hover:border-accent/50 hover:bg-accent/5"}`}>
                                 {t.label}
                               </button>
                             ))}
@@ -692,131 +759,103 @@ function BookingModal({
                   )}
 
                   <div className="flex flex-col gap-6 md:flex-row md:items-start">
-                  {/* Kalendář: 4 týdny, řádky Po–Ne */}
-                  <div className="shrink-0">
-                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">Datum</p>
-                      <div className="flex items-center gap-1">
-                        {offset > 0 && (
-                          <>
-                            <button type="button" onClick={goToPrevWeeks} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">
-                              ← Zpět
+                    {/* Kalendář */}
+                    <div className="shrink-0">
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">Datum</p>
+                        <div className="flex items-center gap-1">
+                          {offset > 0 && (
+                            <>
+                              <button type="button" onClick={goToPrevWeeks} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">← Zpět</button>
+                              <button type="button" onClick={goToToday} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">Dnes</button>
+                            </>
+                          )}
+                          <button type="button" onClick={goToNextWeeks} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">Další →</button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-7 gap-1.5" style={{ gridTemplateColumns: "repeat(7, minmax(2.25rem, 1fr))" }}>
+                        {dates.map((d) => {
+                          const past = isPast(d);
+                          const selectable = canSelectDate(d);
+                          const isSelected = selectedDate === d;
+                          return (
+                            <button key={d} type="button" onClick={() => selectDate(d)} disabled={!selectable}
+                              className={`flex min-w-0 flex-col items-center justify-center rounded-lg border px-1.5 py-2 text-center text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-accent ${
+                                past ? "cursor-default border-black/5 bg-black/5 text-foreground/40" :
+                                !selectable ? "cursor-not-allowed border-black/5 bg-black/5 text-foreground/40" :
+                                isSelected ? "border-accent bg-accent text-white" :
+                                "border-black/10 bg-white text-foreground hover:border-accent/50 hover:bg-accent/10"
+                              }`}>
+                              <span className="block w-full truncate text-[10px] opacity-80">{new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", { weekday: "short" })}</span>
+                              <span className="mt-0.5 block font-semibold">{new Date(d + "T12:00:00").getDate()}</span>
                             </button>
-                            <button type="button" onClick={goToToday} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">
-                              Dnes
-                            </button>
-                          </>
-                        )}
-                        <button type="button" onClick={goToNextWeeks} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">
-                          Další →
-                        </button>
+                          );
+                        })}
                       </div>
                     </div>
-                    <div className="grid grid-cols-7 gap-1.5" style={{ gridTemplateColumns: "repeat(7, minmax(2.25rem, 1fr))" }}>
-                      {dates.map((d) => {
-                        const past = isPast(d);
-                        const selectable = canSelectDate(d);
-                        const isSelected = selectedDate === d;
-                        return (
+
+                    {/* Časy */}
+                    <div className="min-w-0 flex-1">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground/60">
+                        {selectedDate ? `Čas — ${formatSlotDate(selectedDate + "T12:00:00")}` : "Čas"}
+                      </p>
+                      {!selectedDate ? (
+                        <p className="rounded-xl bg-black/5 px-4 py-3 text-sm text-foreground/60">Vyber datum v kalendáři.</p>
+                      ) : slotsForDay.length === 0 ? (
+                        <p className="rounded-xl bg-black/5 px-4 py-3 text-sm text-foreground/60">Pro tento den nejsou volné termíny.</p>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-3">
+                          {slotsForDay.map((slot) => (
+                            <button key={slot.id} type="button" onClick={() => setSelected(slot)}
+                              className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-accent ${selected?.id === slot.id ? "border-accent bg-accent text-white" : "border-black/10 bg-white text-foreground hover:border-accent/50 hover:bg-accent/10"}`}>
+                              {formatSlotTime(slot.startAt)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {selected && (
+                        <div className="mt-4 pt-4 border-t border-black/10 space-y-4">
+                          <p className="text-sm text-foreground/70">
+                            Vybráno: {formatSlotDate(selected.startAt)} v {formatSlotTime(selected.startAt)}
+                            {selected.durationMinutes ? ` (${selected.durationMinutes} min)` : ""}
+                          </p>
+                          {reserveError && <p className="text-sm text-red-600">{reserveError}</p>}
                           <button
-                            key={d}
                             type="button"
-                            onClick={() => selectDate(d)}
-                            disabled={!selectable}
-                            className={`flex min-w-0 flex-col items-center justify-center rounded-lg border px-1.5 py-2 text-center text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-accent ${
-                              past ? "cursor-default border-black/5 bg-black/5 text-foreground/40" :
-                              !selectable ? "cursor-not-allowed border-black/5 bg-black/5 text-foreground/40" :
-                              isSelected ? "border-accent bg-accent text-white" :
-                              "border-black/10 bg-white text-foreground hover:border-accent/50 hover:bg-accent/10"
-                            }`}
+                            onClick={handleConfirm}
+                            disabled={reserving}
+                            className="w-full px-6 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-accent-hover disabled:opacity-70 transition-colors"
                           >
-                            <span className="block w-full truncate text-[10px] opacity-80">
-                              {new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", { weekday: "short" })}
-                            </span>
-                            <span className="mt-0.5 block font-semibold">{new Date(d + "T12:00:00").getDate()}</span>
+                            {reserving ? "Zpracovávám…" : currentMeetingType?.isPaid && currentMeetingType?.priceId && stripePromise ? "Pokračovat k platbě" : "Potvrdit rezervaci"}
                           </button>
-                        );
-                      })}
+                        </div>
+                      )}
                     </div>
-                  </div>
-
-                  {/* Časy: vedle na md+, pod na mobilu */}
-                  <div className="min-w-0 flex-1">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground/60">
-                      {selectedDate ? `Čas — ${formatSlotDate(selectedDate + "T12:00:00")}` : "Čas"}
-                    </p>
-                    {!selectedDate ? (
-                      <p className="rounded-xl bg-black/5 px-4 py-3 text-sm text-foreground/60">Vyber datum v kalendáři.</p>
-                    ) : slotsForDay.length === 0 ? (
-                      <p className="rounded-xl bg-black/5 px-4 py-3 text-sm text-foreground/60">Pro tento den nejsou volné termíny.</p>
-                    ) : (
-                      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-3">
-                        {slotsForDay.map((slot) => (
-                          <button
-                            key={slot.id}
-                            type="button"
-                            onClick={() => setSelected(slot)}
-                            className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-accent ${
-                              selected?.id === slot.id
-                                ? "border-accent bg-accent text-white"
-                                : "border-black/10 bg-white text-foreground hover:border-accent/50 hover:bg-accent/10"
-                            }`}
-                          >
-                            {formatSlotTime(slot.startAt)}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {selected && (
-                      <div className="mt-4 pt-4 border-t border-black/10 space-y-4">
-                        <p className="text-sm text-foreground/70">
-                          Vybráno: {formatSlotDate(selected.startAt)} v {formatSlotTime(selected.startAt)}
-                          {selected.durationMinutes ? ` (${selected.durationMinutes} min)` : ""}
-                        </p>
-
-                        {reserveError && <p className="text-sm text-red-600">{reserveError}</p>}
-                        <button
-                          type="button"
-                          onClick={handleReserve}
-                          disabled={reserving}
-                          className="w-full px-6 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-accent-hover disabled:opacity-70"
-                        >
-                          {reserving ? "Zpracovávám…" : "Potvrdit rezervaci"}
-                        </button>
-                      </div>
-                    )}
-                  </div>
                   </div>
                 </div>
               )}
 
               {initialLoadDone && !loading && allSlots.length === 0 && !error && (
-                <p className="py-4 text-center text-foreground/60 text-sm">
-                  Zatím nejsou k dispozici žádné termíny.
-                </p>
+                <p className="py-4 text-center text-foreground/60 text-sm">Zatím nejsou k dispozici žádné termíny.</p>
               )}
             </>
           )}
         </div>
 
-        {!success && (
+        {/* Footer – kroky */}
+        {!success && paymentStep !== "paid" && (
           <div className="shrink-0 border-t border-black/10 px-4 py-3 flex items-center justify-center gap-5 sm:gap-6 text-[11px] sm:text-xs text-foreground/60">
-            <div className="flex items-center gap-2 opacity-70">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
-              <span>Krok 1: Údaje</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-accent" />
-              <span>Krok 2: Výběr termínu</span>
+            <div className="flex items-center gap-2 opacity-70"><span className="flex h-2.5 w-2.5 rounded-full bg-accent" /><span>Krok 1: Údaje</span></div>
+            <div className={`flex items-center gap-2 ${paymentStep !== "idle" ? "opacity-70" : ""}`}>
+              <span className="flex h-2.5 w-2.5 rounded-full bg-accent" /><span>Krok 2: Termín</span>
             </div>
             {(() => {
-              const selected =
-                meetingTypes.find((t) => t.id === selectedMeetingTypeId) ?? meetingTypes[0];
-              if (!selected?.isPaid) return null;
+              const mt = meetingTypes.find((t) => t.id === selectedMeetingTypeId) ?? meetingTypes[0];
+              if (!mt?.isPaid) return null;
               return (
-                <div className="flex items-center gap-2 opacity-70">
-                  <span className="flex h-2.5 w-2.5 rounded-full border border-accent/40" />
+                <div className={`flex items-center gap-2 ${paymentStep === "card-form" || paymentStep === "intent-loading" ? "" : "opacity-50"}`}>
+                  <span className={`flex h-2.5 w-2.5 rounded-full ${paymentStep === "card-form" || paymentStep === "intent-loading" ? "bg-accent" : "border border-accent/40"}`} />
                   <span>Krok 3: Platba</span>
                 </div>
               );
