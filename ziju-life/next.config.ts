@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/blog", destination: "/inspirace", permanent: true },
       { source: "/blog/:path*", destination: "/inspirace/:path*", permanent: true },
+      { source: "/jak-ziju", destination: "/navod-na-zivot", permanent: true },
+      { source: "/manual", destination: "/audit-zivota", permanent: true },
+      { source: "/manual/:path*", destination: "/audit-zivota/:path*", permanent: true },
     ];
   },
   async rewrites() {

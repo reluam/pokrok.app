@@ -49,7 +49,7 @@ export default function Medailonek() {
                   inspiraci v knihách a videích
                 </Link>
                 , sepsal jsem{" "}
-                <Link href="/manual" className="text-accent hover:text-accent-hover transition-colors">
+                <Link href="/audit-zivota" className="text-accent hover:text-accent-hover transition-colors">
                   manuál pro život
                 </Link>
                 {" "}se vším, co mi reálně funguje, a pokud to se změnou myslíš vážně, můžeme se potkat na{" "}

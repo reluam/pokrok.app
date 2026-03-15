@@ -8,7 +8,7 @@ export default function ManualTeaser() {
 
         {/* Návod na život */}
         <Link
-          href="/jak-ziju"
+          href="/navod-na-zivot"
           className="group flex flex-col gap-4 bg-white/85 rounded-[24px] p-7 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
         >
           <span className="text-3xl">📖</span>
@@ -25,7 +25,7 @@ export default function ManualTeaser() {
 
         {/* Audit života */}
         <Link
-          href="/manual"
+          href="/audit-zivota"
           className="group flex flex-col gap-4 bg-white/85 rounded-[24px] p-7 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
         >
           <span className="text-3xl">🗺️</span>

@@ -177,7 +177,7 @@ function PracticeCard({ practice, onClick }: { practice: Practice; onClick: () =
 // ── Share modal ───────────────────────────────
 function ShareValuesModal({ values, onClose }: { values: string[]; onClose: () => void }) {
   const [copied, setCopied] = useState(false)
-  const pageUrl = "https://ziju.life/manual"
+  const pageUrl = "https://ziju.life/audit-zivota"
   const shareText = `Moje životní hodnoty:\n${values.join(" · ")}\n\nZjisti jaké jsou tvoje: ${pageUrl}\n#mojehodnoty #seberozvoj #zijulife`
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`
@@ -1772,14 +1772,14 @@ export default function JourneyFlow() {
     return () => window.removeEventListener("beforeunload", handler)
   }, [hasData])
 
-  // Zachycení kliknutí na odkaz mimo /manual
+  // Zachycení kliknutí na odkaz mimo /audit-zivota
   useEffect(() => {
     if (!hasData) return
     const handleClick = (e: MouseEvent) => {
       const anchor = (e.target as Element).closest("a[href]") as HTMLAnchorElement | null
       if (!anchor) return
       const href = anchor.getAttribute("href") ?? ""
-      if (!href || href.startsWith("#") || href.startsWith("/manual")) return
+      if (!href || href.startsWith("#") || href.startsWith("/audit-zivota")) return
       e.preventDefault()
       e.stopPropagation()
       setLeaveTarget("nav:" + href)
