@@ -34,13 +34,13 @@ export default function Footer() {
                 href="/jak-ziju"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
-                Jak žiju
+                Návod na život
               </Link>
               <Link
                 href="/manual"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
-                Průvodce
+                Audit života
               </Link>
               <Link
                 href="/inspirace"

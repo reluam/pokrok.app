@@ -6,134 +6,38 @@ export default function ManualTeaser() {
     <section className="relative py-6 md:py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-5 md:gap-6">
 
-        {/* Jak žiju life */}
-        <Link href="/jak-ziju" className="relative paper-hover cursor-pointer block group">
-          <div
-            className="absolute inset-x-3 bottom-0 top-3 rounded-[26px]"
-            style={{ background: "#E8DDB8", opacity: 0.7 }}
-            aria-hidden
-          />
-          <div
-            className="absolute inset-x-6 bottom-0 top-6 rounded-[24px]"
-            style={{ background: "#DDD4A8", opacity: 0.5 }}
-            aria-hidden
-          />
-          <div
-            className="relative rounded-[28px] overflow-hidden"
-            style={{
-              background: "#FFFFFF",
-              boxShadow: "0 4px 32px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.04)",
-            }}
-          >
-            <div
-              className="absolute left-16 top-0 bottom-0 w-0 border-l-2 border-dashed"
-              style={{ borderColor: "rgba(239, 68, 68, 0.28)" }}
-              aria-hidden
-            />
-            <div className="absolute left-0 top-0 bottom-0 w-16 flex flex-col items-center justify-around py-8" aria-hidden>
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="w-5 h-5 rounded-full"
-                  style={{
-                    background: "#FDFDF7",
-                    boxShadow: "inset 0 2px 5px rgba(0,0,0,0.18), inset 0 -1px 2px rgba(0,0,0,0.06)",
-                  }}
-                />
-              ))}
-            </div>
-            <div className="pl-20 pr-7 py-7 md:pl-24 md:pr-10 md:py-8 flex items-center justify-between gap-8">
-              <div className="space-y-1.5">
-                <div
-                  className="text-[10px] font-bold uppercase tracking-[0.22em]"
-                  style={{ color: "rgba(239, 68, 68, 0.5)", fontFamily: "monospace" }}
-                >
-                  Principy
-                </div>
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
-                  Jak žiju life
-                </h2>
-                <p className="text-sm md:text-base text-foreground/55">
-                  Návod k použití člověka v moderní době, který bych si přál dostat k narození.
-                </p>
-              </div>
-              <span className="hidden sm:inline-flex shrink-0 items-center gap-2 text-base font-semibold text-foreground/70 group-hover:text-accent transition-colors">
-                Přečíst
-                <ArrowRight size={18} />
-              </span>
-            </div>
-            <div className="sm:hidden pl-20 pr-7 pb-6 md:pl-24">
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/70 group-hover:text-accent transition-colors">
-                Přečíst
-                <ArrowRight size={16} />
-              </span>
-            </div>
+        {/* Návod na život */}
+        <Link
+          href="/jak-ziju"
+          className="group flex flex-col gap-4 bg-white/85 rounded-[24px] p-7 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
+        >
+          <span className="text-3xl">📖</span>
+          <div className="flex-1">
+            <p className="text-lg font-bold text-foreground group-hover:text-accent transition-colors mb-1">Návod na život</p>
+            <p className="text-sm text-foreground/65 leading-relaxed">
+              Matějův osobní soubor principů, hodnot a lekcí. Není to dogma — je to inspirace pro tvůj vlastní kompas.
+            </p>
           </div>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent mt-auto">
+            Přečíst <ArrowRight size={15} />
+          </span>
         </Link>
 
-        {/* Průvodce */}
-        <Link href="/manual" className="relative paper-hover cursor-pointer block group">
-          <div
-            className="absolute inset-x-3 bottom-0 top-3 rounded-[26px]"
-            style={{ background: "#C8D8C0", opacity: 0.7 }}
-            aria-hidden
-          />
-          <div
-            className="absolute inset-x-6 bottom-0 top-6 rounded-[24px]"
-            style={{ background: "#BBCEB3", opacity: 0.5 }}
-            aria-hidden
-          />
-          <div
-            className="relative rounded-[28px] overflow-hidden"
-            style={{
-              background: "#FFFFFF",
-              boxShadow: "0 4px 32px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.04)",
-            }}
-          >
-            <div
-              className="absolute left-16 top-0 bottom-0 w-0 border-l-2 border-dashed"
-              style={{ borderColor: "rgba(34, 197, 94, 0.3)" }}
-              aria-hidden
-            />
-            <div className="absolute left-0 top-0 bottom-0 w-16 flex flex-col items-center justify-around py-8" aria-hidden>
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="w-5 h-5 rounded-full"
-                  style={{
-                    background: "#FDFDF7",
-                    boxShadow: "inset 0 2px 5px rgba(0,0,0,0.18), inset 0 -1px 2px rgba(0,0,0,0.06)",
-                  }}
-                />
-              ))}
-            </div>
-            <div className="pl-20 pr-7 py-7 md:pl-24 md:pr-10 md:py-8 flex items-center justify-between gap-8">
-              <div className="space-y-1.5">
-                <div
-                  className="text-[10px] font-bold uppercase tracking-[0.22em]"
-                  style={{ color: "rgba(34, 197, 94, 0.6)", fontFamily: "monospace" }}
-                >
-                  Průvodce
-                </div>
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
-                  Vytvoř si tvůj manuál života
-                </h2>
-                <p className="text-sm md:text-base text-foreground/55">
-                  Sedm zastávek od &quot;kde jsem&quot; po &quot;žiju podle sebe&quot;. Se cvičeními a šablonami.
-                </p>
-              </div>
-              <span className="hidden sm:inline-flex shrink-0 items-center gap-2 text-base font-semibold text-foreground/70 group-hover:text-accent transition-colors">
-                Projít
-                <ArrowRight size={18} />
-              </span>
-            </div>
-            <div className="sm:hidden pl-20 pr-7 pb-6 md:pl-24">
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/70 group-hover:text-accent transition-colors">
-                Projít
-                <ArrowRight size={16} />
-              </span>
-            </div>
+        {/* Audit života */}
+        <Link
+          href="/manual"
+          className="group flex flex-col gap-4 bg-white/85 rounded-[24px] p-7 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
+        >
+          <span className="text-3xl">🗺️</span>
+          <div className="flex-1">
+            <p className="text-lg font-bold text-foreground group-hover:text-accent transition-colors mb-1">Audit života</p>
+            <p className="text-sm text-foreground/65 leading-relaxed">
+              Sedm zastávek od &quot;kde jsem&quot; po &quot;žiju podle sebe&quot;. Se cvičeními a šablonami.
+            </p>
           </div>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent mt-auto">
+            Projít <ArrowRight size={15} />
+          </span>
         </Link>
 
       </div>

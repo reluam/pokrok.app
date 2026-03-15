@@ -8,218 +8,24 @@ export default function JakZitPage() {
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <RevealSection triggerOnMount>
-              <div className="relative paper-hover">
-                {/* Stoh stránek */}
-                <div className="absolute inset-x-3 bottom-0 top-3 rounded-[30px]" style={{ background: "#E8DDB8", opacity: 0.7 }} aria-hidden />
-                <div className="absolute inset-x-6 bottom-0 top-6 rounded-[28px]" style={{ background: "#DDD4A8", opacity: 0.5 }} aria-hidden />
-                {/* Papírová stránka */}
-                <div
-                  className="relative rounded-[32px] overflow-hidden"
-                  style={{
-                    background: "#FFFFFF",
-                    boxShadow: "0 4px 32px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.04)",
-                  }}
-                >
-                  {/* Perforace – dělicí čára */}
-                  <div className="absolute left-16 top-0 bottom-0 w-0 border-l-2 border-dashed" style={{ borderColor: "rgba(239,68,68,0.28)" }} aria-hidden />
-                  {/* Dírky */}
-                  <div className="absolute left-0 top-0 bottom-0 w-16 flex flex-col items-center justify-around py-10" aria-hidden>
-                    {[0,1,2,3].map((i) => (
-                      <div key={i} className="w-5 h-5 rounded-full" style={{ background: "#FDFDF7", boxShadow: "inset 0 2px 5px rgba(0,0,0,0.18), inset 0 -1px 2px rgba(0,0,0,0.06)" }} />
-                    ))}
-                  </div>
-                  <div className="pl-20 pr-6 py-8 md:pl-24 md:pr-10 md:py-10">
-                    <div className="flex items-start justify-between gap-6">
-                      <div className="space-y-5 md:space-y-6">
-                        <div className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: "rgba(239,68,68,0.5)", fontFamily: "monospace" }}>
-                          Tahák
-                        </div>
-                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
-                          Jak žiju
-                        </h1>
-                        <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
-                          Návod k použití člověka v moderní době, který bych si přál dostat k narození.
-                        </p>
-                        <p className="text-base md:text-lg text-foreground/75 leading-relaxed">
-                          Dnešní svět je složitý, ale my jsme v jádru pořád stejní lovci a sběrači. Jen jsme
-                          džungli vyměnili za open space a stres z predátorů za stres z notifikací. Tato
-                          stránka je můj osobní tahák. Je to soubor principů, hodnot a lekcí, které jsem
-                          posbíral ze svých vlastních chyb a z příběhů chytřejších lidí. Napsal jsem ho hlavně
-                          proto, abych měl sám kompas, podle kterého se chci v životě rozvíjet.
-                        </p>
-                      </div>
-                      <div className="hidden md:flex flex-col items-end shrink-0 text-right gap-0.5 pt-1" style={{ fontFamily: "monospace", fontSize: "10px", color: "rgba(0,0,0,0.25)" }}>
-                        <span>verze 1.0</span>
-                        <span>živý dokument</span>
-                        <span>strana 1</span>
-                      </div>
-                    </div>
-                  </div>
+              <div className="paper-card rounded-[28px] px-6 py-8 md:px-10 md:py-10 space-y-5">
+                <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-foreground/40">
+                  Matějův osobní tahák
                 </div>
-              </div>
-            </RevealSection>
-
-            {/* Callout / upozornění */}
-            <RevealSection delay={0.03} className="mt-6">
-              <div className="rounded-2xl border border-amber-200/80 bg-amber-50/80 text-amber-950 px-4 py-4 md:px-6 md:py-5 flex gap-3 items-start shadow-sm">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 border border-amber-200 text-lg">
-                  <span aria-hidden>⚠️</span>
-                  <span className="sr-only">Upozornění</span>
-                </div>
-                <p className="text-sm md:text-base leading-relaxed">
-                  <span className="font-semibold">Důležité upozornění před čtením:</span>{" "}
-                  Tohle není dogma. Je to neúplný a neustále se vyvíjející dokument. Určitě obsahuje
-                  věci, ve kterých se mýlím. Jak budu sbírat nová data a zkušenosti z reality, budu
-                  tento manuál přepisovat a upravovat. Neber to jako svatý grál, ber to jako inspiraci
-                  pro svůj vlastní systém.
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
+                  Návod na život
+                </h1>
+                <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
+                  Toto je <strong>můj</strong> návod — soubor principů, hodnot a lekcí, podle kterých se snažím žít. Není to dogma ani univerzální recept. Je to zrcadlo toho, co mi funguje.
+                </p>
+                <p className="text-base text-foreground/65 leading-relaxed max-w-3xl">
+                  Posbíral jsem ho z vlastních chyb, z příběhů chytřejších lidí a z let experimentování. Sdílím ho proto, aby ti mohl posloužit jako inspirace — ne jako návod k okopírování. Tvůj život potřebuje tvůj vlastní kompas.
                 </p>
               </div>
             </RevealSection>
 
-            <div className="mt-10 md:mt-12 lg:mt-14 grid gap-8 lg:gap-10 md:grid-cols-12 items-start">
-              {/* Levé menu – obsah manuálu */}
-              <aside className="hidden md:block md:col-span-3 sticky top-28 lg:top-32">
-                <div className="paper-card rounded-3xl p-4 lg:p-5">
-                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-black/5">
-                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/50">
-                      Obsah
-                    </div>
-                    <div className="text-[11px] font-semibold text-foreground/40">
-                      Jak žiju
-                    </div>
-                  </div>
-
-                  <nav className="mt-4 space-y-5 text-sm">
-                    <div className="space-y-2">
-                      <a
-                        href="#sekce-1-zaklad"
-                        className="group flex items-center justify-between gap-2 rounded-xl px-2 py-1.5 text-[12px] font-semibold text-foreground/80 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                      >
-                        <span>Sekce 1: Základ těla</span>
-                        <span className="text-foreground/40 group-hover:text-foreground/70 transition-colors" aria-hidden>
-                          →
-                        </span>
-                      </a>
-                      <ul className="space-y-1">
-                        {[
-                          { href: "#spanek", label: "1. Spánek" },
-                          { href: "#strava", label: "2. Strava" },
-                          { href: "#pohyb", label: "3. Pohyb" },
-                          { href: "#odpocinek", label: "4. Odpočinek" },
-                        ].map((item) => (
-                          <li key={item.href}>
-                            <a
-                              href={item.href}
-                              className="group flex items-center gap-2 rounded-xl px-2 py-1.5 text-foreground/70 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-foreground/25 group-hover:bg-accent/70 transition-colors" />
-                              <span className="leading-snug">{item.label}</span>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="space-y-2">
-                      <a
-                        href="#sekce-2-principy"
-                        className="group flex items-center justify-between gap-2 rounded-xl px-2 py-1.5 text-[12px] font-semibold text-foreground/80 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                      >
-                        <span>Sekce 2: Principy pro život</span>
-                        <span className="text-foreground/40 group-hover:text-foreground/70 transition-colors" aria-hidden>
-                          →
-                        </span>
-                      </a>
-                      <ul className="space-y-1">
-                        {[
-                          { href: "#co-se-ve-skole-neuci", label: "Co se ve škole neučí?" },
-                          { href: "#zodpovednost-za-zivot", label: "Zodpovědnost za život" },
-                          { href: "#skoro-nic-neni-cernobile", label: "Nic není černobílé" },
-                          { href: "#smysl-kazdodenni-kroky", label: "Smysl = každodenní kroky" },
-                          { href: "#sebevedomi-tezke-veci", label: "Sebevědomí a těžké věci" },
-                          { href: "#hotove-lepsi-nez-dokonale", label: "Hotové > dokonalé" },
-                          { href: "#intuice", label: "Intuice" },
-                        ].map((item) => (
-                          <li key={item.href}>
-                            <a
-                              href={item.href}
-                              className="group flex items-center gap-2 rounded-xl px-2 py-1.5 text-foreground/70 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-foreground/25 group-hover:bg-accent/70 transition-colors" />
-                              <span className="leading-snug">{item.label}</span>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="space-y-2">
-                      <a
-                        href="#sekce-3-technologie"
-                        className="group flex items-center justify-between gap-2 rounded-xl px-2 py-1.5 text-[12px] font-semibold text-foreground/80 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                      >
-                        <span>Sekce 3: Technologie</span>
-                        <span className="text-foreground/40 group-hover:text-foreground/70 transition-colors" aria-hidden>
-                          →
-                        </span>
-                      </a>
-                      <ul className="space-y-1">
-                        <li>
-                          <a
-                            href="#sekce-3-technologie"
-                            className="group flex items-center gap-2 rounded-xl px-2 py-1.5 text-foreground/70 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                          >
-                            <span className="h-1.5 w-1.5 rounded-full bg-foreground/25 group-hover:bg-accent/70 transition-colors" />
-                            <span className="leading-snug">Dobří sluhové, zlí páni</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="space-y-2">
-                      <a
-                        href="#sekce-4-pilulky"
-                        className="group flex items-center justify-between gap-2 rounded-xl px-2 py-1.5 text-[12px] font-semibold text-foreground/80 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                      >
-                        <span>Sekce 4: Hořké pilulky</span>
-                        <span className="text-foreground/40 group-hover:text-foreground/70 transition-colors" aria-hidden>
-                          →
-                        </span>
-                      </a>
-                      <ul className="space-y-1">
-                        <li>
-                          <a
-                            href="#sekce-4-pilulky"
-                            className="group flex items-center gap-2 rounded-xl px-2 py-1.5 text-foreground/70 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                          >
-                            <span className="h-1.5 w-1.5 rounded-full bg-foreground/25 group-hover:bg-accent/70 transition-colors" />
-                            <span className="leading-snug">Pilulky hořké jako pelyněk</span>
-                          </a>
-                        </li>
-                        {[
-                          { href: "#pilulka-mozek-hloupejsi", label: "Mozek je hloupější" },
-                          { href: "#pilulka-neber-se-vazne", label: "Neber se tak vážně" },
-                          { href: "#pilulka-neber-svet-vazne", label: "Neber svět tak vážně" },
-                          { href: "#pilulka-jsme-zvirata", label: "Jsme pořád zvířata" },
-                          { href: "#pilulka-neni-jedna-vec", label: "Neexistuje jeden zázrak" },
-                        ].map((item) => (
-                          <li key={item.href}>
-                            <a
-                              href={item.href}
-                              className="group flex items-center gap-2 rounded-xl px-2 py-1.5 text-foreground/70 hover:text-foreground transition-colors hover:bg-black/[0.04]"
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-foreground/25 group-hover:bg-accent/70 transition-colors" />
-                              <span className="leading-snug">{item.label}</span>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </nav>
-                </div>
-              </aside>
-
-              <div className="md:col-span-9 space-y-10">
+            <div className="mt-10 md:mt-12 lg:mt-14">
+              <div className="space-y-10">
             {/* Sekce 1 */}
             <RevealSection delay={0.06}>
               <section id="sekce-1-zaklad">

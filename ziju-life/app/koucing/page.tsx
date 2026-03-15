@@ -27,10 +27,10 @@ export default function KoucingPage() {
                   </h1>
                   <p className="text-xl md:text-2xl text-foreground/70 leading-relaxed max-w-3xl mx-auto">
                     Na Žiju.life najdeš{" "}
-                    <a href="/inspirace" className="underline underline-offset-2 decoration-accent/50 hover:text-accent transition-colors">inspiraci</a>,{" "}
-                    <a href="/manual" className="underline underline-offset-2 decoration-accent/50 hover:text-accent transition-colors">cvičení</a>{" "}
+                    <a href="/inspirace" className="text-accent hover:opacity-80 transition-opacity">inspiraci</a>,{" "}
+                    <a href="/manual" className="text-accent hover:opacity-80 transition-opacity">cvičení</a>{" "}
                     i{" "}
-                    <a href="/jak-ziju" className="underline underline-offset-2 decoration-accent/50 hover:text-accent transition-colors">průvodce</a>{" "}
+                    <a href="/jak-ziju" className="text-accent hover:opacity-80 transition-opacity">průvodce</a>{" "}
                     pro vytvoření svého vlastního manuálu pro život.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -78,7 +78,7 @@ export default function KoucingPage() {
                 },
                 {
                   href: "/manual",
-                  label: "Průvodce",
+                  label: "Audit života",
                   icon: "🗺️",
                   desc: "Sedm zastávek od 'kde jsem' po 'žiju podle sebe'. Ke každé najdeš cvičení, šablony a materiály.",
                 },
@@ -125,7 +125,7 @@ export default function KoucingPage() {
                 Koučink není o dalších informacích. Je o tom, dostat se pod povrch — zjistit, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracovat na akci, ne jen na pochopení.
               </p>
               <p className="text-base text-foreground/65 leading-relaxed">
-                Pracuju vždy na konkrétní životní oblasti: kariéra, vztahy, energie, směr, identita. Jdeme do hloubky a pak se soustředíme výhradně na konkrétní kroky dopředu.
+                Pracuju vždy na konkrétní životní oblasti: kariéra, finance, zdraví, vztahy, přátelství, osobní rozvoj, volný čas nebo smysl. Jdeme do hloubky a pak se soustředíme výhradně na konkrétní kroky dopředu.
               </p>
               <div className="pt-2">
                 <button

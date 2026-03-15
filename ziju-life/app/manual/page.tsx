@@ -3,7 +3,7 @@ import Link from "next/link";
 import JourneyFlow from "@/components/JourneyFlow";
 
 export const metadata: Metadata = {
-  title: "Průvodce | Žiju life",
+  title: "Audit života | Žiju life",
   description:
     "Projdi životní cestu zastávku po zastávce. Ke každé najdeš cvičení, šablony a materiály.",
 };
@@ -16,7 +16,7 @@ export default function ManualPage() {
       <section className="pt-10 pb-2 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-2">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-            Průvodce
+            Audit života
           </h1>
           <p className="text-base text-foreground/55 max-w-xl mx-auto">
             Sedm zastávek od „kde jsem" po „žiju podle sebe". Ke každé najdeš cvičení, šablony a materiály.
