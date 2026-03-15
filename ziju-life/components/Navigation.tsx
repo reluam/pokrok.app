@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import type React from "react";
-import { Lock } from "lucide-react";
+import { Lock, LockOpen } from "lucide-react";
 import { getAdminSettings } from "@/lib/admin-settings";
 
 export default function Navigation() {
@@ -93,6 +93,15 @@ export default function Navigation() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((d) => setIsUserLoggedIn(!!d.loggedIn))
+      .catch(() => {})
+  }, [pathname])
 
   const [showPrinciples, setShowPrinciples] = useState(true);
 
@@ -222,7 +231,7 @@ export default function Navigation() {
                   : "text-foreground/50 hover:text-foreground"
               }`}
             >
-              <Lock className="w-5 h-5" />
+              {isUserLoggedIn ? <LockOpen className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
             </Link>
           </div>
 
