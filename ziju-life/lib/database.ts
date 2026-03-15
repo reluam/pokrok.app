@@ -207,6 +207,53 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_campaigns_created_at ON newsletter_campaigns(created_at DESC)
     `
 
+    // ── User accounts ─────────────────────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(255) PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)
+    `
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS magic_link_tokens (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        used_at TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_magic_link_token ON magic_link_tokens(token)
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_magic_link_expires ON magic_link_tokens(expires_at)
+    `
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS purchases (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        product_slug VARCHAR(255) NOT NULL,
+        stripe_payment_id TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_purchases_user_id ON purchases(user_id)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

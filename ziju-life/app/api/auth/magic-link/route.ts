@@ -1,0 +1,36 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { initializeDatabase } from '@/lib/database'
+import { getOrCreateUser, createMagicToken } from '@/lib/user-auth'
+import { sendMagicLinkEmail } from '@/lib/user-email'
+
+export const dynamic = 'force-dynamic'
+
+export async function POST(req: NextRequest) {
+  try {
+    const { email } = await req.json()
+
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return NextResponse.json({ error: 'Neplatný e-mail.' }, { status: 400 })
+    }
+
+    const normalizedEmail = email.trim().toLowerCase()
+
+    await initializeDatabase()
+    const user = await getOrCreateUser(normalizedEmail)
+    const token = await createMagicToken(user.id)
+
+    const result = await sendMagicLinkEmail(normalizedEmail, token)
+    if (!result.ok) {
+      console.error('[magic-link] Email send failed:', result.error)
+      return NextResponse.json(
+        { error: 'Nepodařilo se odeslat e-mail. Zkus to prosím znovu.' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error('[magic-link] Error:', err)
+    return NextResponse.json({ error: 'Interní chyba serveru.' }, { status: 500 })
+  }
+}

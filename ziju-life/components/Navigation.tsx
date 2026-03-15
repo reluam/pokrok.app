@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import type React from "react";
+import { Lock } from "lucide-react";
 import { getAdminSettings } from "@/lib/admin-settings";
 
 export default function Navigation() {
@@ -120,8 +121,8 @@ export default function Navigation() {
   }, []);
 
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
-    { href: "/jak-ziju", label: "Jak žiju" },
-    { href: "/manual", label: "Průvodce" },
+    { href: "/jak-ziju", label: "Návod na život" },
+    { href: "/manual", label: "Audit života" },
     { href: "/inspirace", label: "Inspirace" },
     { href: "/koucing", label: "Koučink" },
     { href: "/o-mne", label: "O mně" },
@@ -211,12 +212,39 @@ export default function Navigation() {
             >
               Chci změnu
             </Link>
+
+            <Link
+              href="/ucet"
+              aria-label="Můj účet"
+              className={`p-2 rounded-full transition-colors ${
+                pathname === "/ucet"
+                  ? "text-accent"
+                  : "text-foreground/50 hover:text-foreground"
+              }`}
+            >
+              <Lock className="w-5 h-5" />
+            </Link>
           </div>
+
+          {/* Mobile: account + menu */}
+          <div className="md:hidden flex items-center gap-1">
+          <Link
+            href="/ucet"
+            aria-label="Můj účet"
+            onClick={() => setIsMenuOpen(false)}
+            className={`p-2 rounded-full transition-colors ${
+              pathname === "/ucet"
+                ? "text-accent"
+                : "text-foreground/50 hover:text-foreground"
+            }`}
+          >
+            <Lock className="w-5 h-5" />
+          </Link>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-foreground"
+            className="p-2 text-foreground"
             aria-label="Toggle menu"
           >
             <svg
@@ -235,6 +263,7 @@ export default function Navigation() {
               )}
             </svg>
           </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
