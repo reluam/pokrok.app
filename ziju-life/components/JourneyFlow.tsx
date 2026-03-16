@@ -1,9 +1,20 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { steps, type Step, type Practice, type Resource } from "@/data/manualData"
+
+// ── Sdílený typ stavu průvodce ─────────────────
+export type JourneyState = {
+  active?: number
+  wheelVals?: Record<string, number>
+  wheelAnswers?: Record<string, string>
+  finalValues?: string[]
+  visionData?: VisionData
+  oblastiData?: OblastiData
+  actionData?: ActionData
+}
 
 // ── Konstanty ─────────────────────────────────
 const COLOR_DONE   = "#B8CBBF"
@@ -277,8 +288,8 @@ type Rating = "strong" | "somewhat" | "no"
 type ValuesPhase = "swipe" | "arrange" | "done"
 
 // ── Vision ────────────────────────────────────
-type VisionAnnotation = { id: string; start: number; end: number; text: string; note: string }
-type VisionData = { q1: string; q2: string; q3: string; annotations: VisionAnnotation[] }
+export type VisionAnnotation = { id: string; start: number; end: number; text: string; note: string }
+export type VisionData = { q1: string; q2: string; q3: string; annotations: VisionAnnotation[] }
 
 // ── Oblasti ───────────────────────────────────
 const OBLASTI_QUESTIONS = [
@@ -286,12 +297,12 @@ const OBLASTI_QUESTIONS = [
   "Co nefunguje nebo mě tíží? Co chci změnit?",
   "Co konkrétně chci místo toho? Jak by to vypadalo, kdyby to fungovalo?",
 ]
-type OblastiData = { idealVals: Record<string, number>; answers: Record<string, string[]> }
+export type OblastiData = { idealVals: Record<string, number>; answers: Record<string, string[]> }
 const isOblastiComplete = (d: OblastiData) =>
   Object.values(d.idealVals).reduce((a, b) => a + b, 0) === 64
 
 // ── Action ────────────────────────────────────
-type ActionData = { week: string[]; month: string[]; year: string[] }
+export type ActionData = { week: string[]; month: string[]; year: string[] }
 const EMPTY_ACTION: ActionData = { week: ["", "", ""], month: ["", "", "", ""], year: ["", "", "", "", ""] }
 const isActionComplete = (d: ActionData) =>
   d.week.every(s => s.trim()) && d.month.every(s => s.trim()) && d.year.every(s => s.trim())
@@ -301,18 +312,34 @@ const STRONG_MAX = 7
 function StepValuesGame({
   step,
   onFinalValues,
+  initialFinalValues,
 }: {
   step: Step
   onFinalValues?: (values: string[]) => void
+  initialFinalValues?: string[]
 }) {
-  const [swipeIndex, setSwipeIndex]   = useState(0)
-  const [cols, setCols]               = useState<Record<Rating, string[]>>({ strong: [], somewhat: [], no: [] })
+  const [swipeIndex, setSwipeIndex]   = useState(() => initialFinalValues?.length ? (step.values?.length ?? 0) : 0)
+  const [cols, setCols]               = useState<Record<Rating, string[]>>(() =>
+    initialFinalValues?.length
+      ? { strong: initialFinalValues, somewhat: [], no: [] }
+      : { strong: [], somewhat: [], no: [] }
+  )
   const [dragVal, setDragVal]         = useState<string | null>(null)
   const [dragOver, setDragOver]       = useState<Rating | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
-  const [final, setFinal]             = useState<string[]>([])
+  const [final, setFinal]             = useState<string[]>(initialFinalValues ?? [])
   const [valueCopied, setValueCopied] = useState(false)
   const dragRef                       = useRef<string | null>(null)
+
+  // Report initial values to parent on first mount if restored
+  const onFinalValuesRef = useRef(onFinalValues)
+  useEffect(() => { onFinalValuesRef.current = onFinalValues }, [onFinalValues])
+  useEffect(() => {
+    if (initialFinalValues?.length) {
+      onFinalValuesRef.current?.(initialFinalValues)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const reset = useCallback(() => {
     setSwipeIndex(0)
@@ -566,16 +593,18 @@ function StepValuesBox({ step }: { step: Step }) {
 function StepVisionBox({
   step,
   onDataChange,
+  initialData,
 }: {
   step: Step
   onDataChange?: (data: VisionData) => void
+  initialData?: VisionData
 }) {
   if (step.id !== "vize") return null
 
-  const [q1, setQ1] = useState("")
-  const [q2, setQ2] = useState("")
-  const [q3, setQ3] = useState("")
-  const [annotations, setAnnotations] = useState<VisionAnnotation[]>([])
+  const [q1, setQ1] = useState(initialData?.q1 ?? "")
+  const [q2, setQ2] = useState(initialData?.q2 ?? "")
+  const [q3, setQ3] = useState(initialData?.q3 ?? "")
+  const [annotations, setAnnotations] = useState<VisionAnnotation[]>(initialData?.annotations ?? [])
   const [mode, setMode] = useState<"edit" | "annotate">("edit")
   const [pending, setPending] = useState<{ x: number; y: number; start: number; end: number; text: string } | null>(null)
   const [pendingNote, setPendingNote] = useState("")
@@ -850,9 +879,13 @@ const WHEEL_QUESTIONS = [
 function StepWheelBox({
   step,
   onDataChange,
+  initialVals,
+  initialAnswers,
 }: {
   step: Step
   onDataChange?: (vals: Record<string, number>, answers: Record<string, string>) => void
+  initialVals?: Record<string, number>
+  initialAnswers?: Record<string, string>
 }) {
   if (step.id !== "start") return null
 
@@ -862,10 +895,10 @@ function StepWheelBox({
   const RADIUS = CENTER - 38
 
   const [vals, setVals] = useState<Record<string, number>>(
-    Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 5]))
+    initialVals ?? Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 5]))
   )
   const [answers, setAnswers] = useState<Record<string, string>>(
-    Object.fromEntries(WHEEL_QUESTIONS.map(q => [q.id, ""]))
+    initialAnswers ?? Object.fromEntries(WHEEL_QUESTIONS.map(q => [q.id, ""]))
   )
 
   // Lift data nahoru pro export
@@ -1092,18 +1125,20 @@ function StepOblastiBox({
   step,
   currentVals,
   onDataChange,
+  initialData,
 }: {
   step: Step
   currentVals: Record<string, number>
   onDataChange?: (data: OblastiData) => void
+  initialData?: OblastiData
 }) {
   if (step.id !== "oblasti") return null
 
   const [idealVals, setIdealVals] = useState<Record<string, number>>(
-    () => Object.fromEntries(WHEEL_AREAS.map(a => [a.key, currentVals[a.key] ?? 5]))
+    () => initialData?.idealVals ?? Object.fromEntries(WHEEL_AREAS.map(a => [a.key, currentVals[a.key] ?? 5]))
   )
   const [answers, setAnswers] = useState<Record<string, string[]>>(
-    () => Object.fromEntries(WHEEL_AREAS.map(a => [a.key, ["", "", ""]]))
+    () => initialData?.answers ?? Object.fromEntries(WHEEL_AREAS.map(a => [a.key, ["", "", ""]]))
   )
 
   const cbRef = useRef(onDataChange)
@@ -1295,13 +1330,15 @@ function StepOblastiBox({
 function StepActionBox({
   step,
   onDataChange,
+  initialData,
 }: {
   step: Step
   onDataChange?: (data: ActionData) => void
+  initialData?: ActionData
 }) {
   if (step.id !== "akce") return null
 
-  const [data, setData] = useState<ActionData>(EMPTY_ACTION)
+  const [data, setData] = useState<ActionData>(initialData ?? EMPTY_ACTION)
 
   const cbRef = useRef(onDataChange)
   useEffect(() => { cbRef.current = onDataChange }, [onDataChange])
@@ -1397,7 +1434,7 @@ function StepActionBox({
 }
 
 // ── Generátor HTML dokumentu ──────────────────
-function generateHtml(
+export function generateHtml(
   wheelVals: Record<string, number>,
   wheelAnswers: Record<string, string>,
   finalValues: string[],
@@ -1516,10 +1553,15 @@ function generateHtml(
     .sub{color:#aaa;font-size:14px;margin:0 0 40px}
     h2{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin:36px 0 14px;padding-bottom:8px;border-bottom:1px solid #eee}
     footer{margin-top:48px;padding-top:16px;border-top:1px solid #eee;font-size:12px;color:#ccc;text-align:center}
-    @media print{body{padding:24px}}
+    .close-btn{position:fixed;top:20px;right:24px;width:36px;height:36px;border-radius:50%;background:#f3ede4;border:none;cursor:pointer;font-size:18px;color:#888;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s}
+    .close-btn:hover{background:#e8e0d4;color:#333}
+    .back-btn{display:inline-block;margin-top:32px;padding:12px 28px;background:#FF8C42;color:#fff;border-radius:100px;font-size:14px;font-weight:600;text-decoration:none;transition:opacity .15s}
+    .back-btn:hover{opacity:.85}
+    @media print{body{padding:24px}.close-btn,.back-btn{display:none!important}}
   </style>
 </head>
 <body>
+  <button class="close-btn" onclick="window.close()" title="Zavřít">✕</button>
   <h1>Průvodce životem</h1>
   <p class="sub">Vytvořeno ${date} na <a href="https://ziju.life" style="color:#FF8C42;text-decoration:none">ziju.life</a></p>
   <h2>Kolo života — dnes vs. ideál</h2>
@@ -1535,7 +1577,12 @@ function generateHtml(
   <h2>Moje hodnoty</h2>
   ${valuesBlock}
   ${actionSection}
-  <footer>Tento dokument je tvůj osobní průvodce. Vrať se k němu, aktualizuj ho a žij podle sebe.</footer>
+  <footer>
+    Tento dokument je tvůj osobní průvodce. Vrať se k němu, aktualizuj ho a žij podle sebe.
+    <div style="margin-top:20px">
+      <a href="https://ziju.life/audit-zivota" class="back-btn">← Zpět na web</a>
+    </div>
+  </footer>
 </body>
 </html>`
 }
@@ -1604,6 +1651,7 @@ function StepExportBox({
   visionData,
   oblastiData,
   actionData,
+  purchaseId,
 }: {
   step: Step
   wheelVals: Record<string, number>
@@ -1612,7 +1660,12 @@ function StepExportBox({
   visionData: VisionData
   oblastiData: OblastiData
   actionData: ActionData
+  purchaseId?: string
 }) {
+  const router = useRouter()
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [completing, setCompleting] = useState(false)
+
   if (step.id !== "export") return null
 
   const hasAnyContent =
@@ -1620,7 +1673,7 @@ function StepExportBox({
     Object.values(wheelAnswers).some(a => a.trim() !== "") ||
     visionData.q1.trim() !== "" || visionData.q2.trim() !== "" || visionData.q3.trim() !== ""
 
-  const handleOpen = () => {
+  const openDocument = () => {
     const html = generateHtml(wheelVals, wheelAnswers, finalValues, visionData, oblastiData, actionData)
     const win = window.open("", "_blank")
     if (win) {
@@ -1630,15 +1683,19 @@ function StepExportBox({
     }
   }
 
-  const handleDownload = () => {
-    const html = generateHtml(wheelVals, wheelAnswers, finalValues, visionData, oblastiData, actionData)
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "pruvodce-zivota.html"
-    a.click()
-    URL.revokeObjectURL(url)
+  const handleComplete = async () => {
+    setCompleting(true)
+    try {
+      await fetch("/api/user/journey-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ purchaseId }),
+      })
+      openDocument()
+      router.refresh()
+    } catch {
+      setCompleting(false)
+    }
   }
 
   return (
@@ -1683,26 +1740,49 @@ function StepExportBox({
             )}
           </div>
 
-          {/* Akce */}
-          <div className="flex gap-3">
-            <button
-              onClick={handleOpen}
-              className="flex-1 px-4 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:shadow-md active:scale-[0.98]"
-              style={{ background: COLOR_ACTIVE }}
-            >
-              Otevřít a vytisknout / PDF
-            </button>
-            <button
-              onClick={handleDownload}
-              className="px-4 py-3 rounded-xl border border-black/10 bg-white text-sm font-medium text-foreground/55 hover:bg-black/[0.03] transition-all"
-              title="Stáhnout jako HTML"
-            >
-              ↓ HTML
-            </button>
-          </div>
+          {/* Dokončit */}
+          <button
+            onClick={() => setShowConfirm(true)}
+            disabled={completing}
+            className="w-full px-4 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:shadow-md active:scale-[0.98] disabled:opacity-60"
+            style={{ background: COLOR_ACTIVE }}
+          >
+            {completing ? "Generuji dokument…" : "Dokončit a vygenerovat dokument →"}
+          </button>
           <p className="text-xs text-foreground/30 text-center">
-            V prohlížeči zvol Tisk → Uložit jako PDF
+            Po dokončení se vygeneruje tvůj osobní dokument
           </p>
+        </div>
+      )}
+
+      {/* Potvrzovací modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full px-7 py-7 space-y-5">
+            <div className="text-center space-y-2">
+              <p className="text-2xl">📄</p>
+              <h3 className="text-lg font-bold text-foreground">Dokončit audit?</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Kliknutím na <strong>Dokončit</strong> se vygeneruje tvůj dokument a přijdeš o přístup k úpravám.
+                Chceš audit zopakovat? Koupíš znovu za zvýhodněnou cenu 100 Kč.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-black/10 bg-white text-sm font-medium text-foreground/55 hover:bg-black/[0.03] transition-all"
+              >
+                Zpět
+              </button>
+              <button
+                onClick={() => { setShowConfirm(false); handleComplete() }}
+                className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-semibold transition-all hover:shadow-md"
+                style={{ background: COLOR_ACTIVE }}
+              >
+                Dokončit
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -1710,28 +1790,50 @@ function StepExportBox({
 }
 
 // ── Hlavní komponenta ─────────────────────────
-export default function JourneyFlow() {
-  const router = useRouter()
-  const [active, setActive] = useState(0)
-  const goTo = (i: number) => setActive(Math.max(0, Math.min(steps.length - 1, i)))
+export default function JourneyFlow({ initialData, purchaseId }: { initialData?: JourneyState | null; purchaseId?: string }) {
+  const [active, setActive] = useState(initialData?.active ?? 0)
+  const topRef = useRef<HTMLDivElement>(null)
+  const goTo = (i: number) => {
+    setActive(Math.max(0, Math.min(steps.length - 1, i)))
+    setTimeout(() => topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0)
+  }
   const step = steps[active]
 
   // Stav pro export
   const [wheelVals, setWheelVals] = useState<Record<string, number>>(
-    Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 5]))
+    initialData?.wheelVals ?? Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 5]))
   )
   const [wheelAnswers, setWheelAnswers] = useState<Record<string, string>>(
-    Object.fromEntries(WHEEL_QUESTIONS.map(q => [q.id, ""]))
+    initialData?.wheelAnswers ?? Object.fromEntries(WHEEL_QUESTIONS.map(q => [q.id, ""]))
   )
-  const [finalValues, setFinalValues] = useState<string[]>([])
-  const [visionData, setVisionData] = useState<VisionData>({ q1: "", q2: "", q3: "", annotations: [] })
-  const [actionData, setActionData] = useState<ActionData>(EMPTY_ACTION)
-  const [oblastiData, setOblastiData] = useState<OblastiData>({
+  const [finalValues, setFinalValues] = useState<string[]>(initialData?.finalValues ?? [])
+  const [visionData, setVisionData] = useState<VisionData>(initialData?.visionData ?? { q1: "", q2: "", q3: "", annotations: [] })
+  const [actionData, setActionData] = useState<ActionData>(initialData?.actionData ?? EMPTY_ACTION)
+  const [oblastiData, setOblastiData] = useState<OblastiData>(initialData?.oblastiData ?? {
     idealVals: Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 5])),
     answers: Object.fromEntries(WHEEL_AREAS.map(a => [a.key, ["", "", ""]])),
   })
-  // null = zavřeno, "nav:href" = odkaz, "refresh" = klávesový refresh
-  const [leaveTarget, setLeaveTarget] = useState<string | null>(null)
+
+  // ── Autosave (debounced 2 s) ───────────────
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isMountedRef = useRef(false)
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true
+      return
+    }
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    if (!purchaseId) return
+    saveTimerRef.current = setTimeout(() => {
+      fetch("/api/user/journey-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ purchaseId, active, wheelVals, wheelAnswers, finalValues, visionData, oblastiData, actionData }),
+      }).catch(() => { /* silent fail */ })
+    }, 2000)
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, wheelVals, wheelAnswers, finalValues, visionData, oblastiData, actionData])
 
   const handleWheelChange = useCallback(
     (v: Record<string, number>, a: Record<string, string>) => {
@@ -1741,71 +1843,12 @@ export default function JourneyFlow() {
     []
   )
 
-  const hasData = useMemo(
-    () =>
-      finalValues.length > 0 ||
-      Object.values(wheelAnswers).some(a => a.trim() !== "") ||
-      visionData.q1.trim() !== "" || visionData.q2.trim() !== "" || visionData.q3.trim() !== "",
-    [finalValues, wheelAnswers, visionData]
-  )
-
-  // Zachycení klávesových zkratek pro refresh (F5, Ctrl+R, Cmd+R)
-  useEffect(() => {
-    if (!hasData) return
-    const onKey = (e: KeyboardEvent) => {
-      const isRefresh =
-        e.key === "F5" ||
-        ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r")
-      if (!isRefresh) return
-      e.preventDefault()
-      setLeaveTarget("refresh")
-    }
-    document.addEventListener("keydown", onKey, true)
-    return () => document.removeEventListener("keydown", onKey, true)
-  }, [hasData])
-
-  // Záchranná síť pro refresh tlačítkem v prohlížeči
-  useEffect(() => {
-    if (!hasData) return
-    const handler = (e: BeforeUnloadEvent) => { e.preventDefault() }
-    window.addEventListener("beforeunload", handler)
-    return () => window.removeEventListener("beforeunload", handler)
-  }, [hasData])
-
-  // Zachycení kliknutí na odkaz mimo /audit-zivota
-  useEffect(() => {
-    if (!hasData) return
-    const handleClick = (e: MouseEvent) => {
-      const anchor = (e.target as Element).closest("a[href]") as HTMLAnchorElement | null
-      if (!anchor) return
-      const href = anchor.getAttribute("href") ?? ""
-      if (!href || href.startsWith("#") || href.startsWith("/audit-zivota")) return
-      e.preventDefault()
-      e.stopPropagation()
-      setLeaveTarget("nav:" + href)
-    }
-    document.addEventListener("click", handleClick, true)
-    return () => document.removeEventListener("click", handleClick, true)
-  }, [hasData])
-
-  const handleLeave = useCallback(() => {
-    if (!leaveTarget) return
-    const target = leaveTarget
-    setLeaveTarget(null)
-    if (target === "refresh") {
-      window.location.reload()
-    } else {
-      const href = target.replace(/^nav:/, "")
-      if (href.startsWith("http")) window.location.href = href
-      else router.push(href)
-    }
-  }, [leaveTarget, router])
 
   return (
     <div className="w-full space-y-4">
 
       {/* Progress */}
-      <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5">
+      <div ref={topRef} className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5">
         <JourneyPath active={active} onSelect={goTo} />
       </div>
 
@@ -1816,22 +1859,22 @@ export default function JourneyFlow() {
       <StepPracticesBox step={step} />
 
       {/* Kolo života (jen pro první krok) */}
-      <StepWheelBox step={step} onDataChange={handleWheelChange} />
+      <StepWheelBox step={step} onDataChange={handleWheelChange} initialVals={wheelVals} initialAnswers={wheelAnswers} />
 
       {/* Hra s hodnotami (jen pro step s values) */}
-      <StepValuesGame step={step} onFinalValues={setFinalValues} />
+      <StepValuesGame step={step} onFinalValues={setFinalValues} initialFinalValues={finalValues} />
 
       {/* Seznam hodnot */}
       <StepValuesBox step={step} />
 
       {/* Oblasti — ideální pavučák + reflexe */}
-      <StepOblastiBox step={step} currentVals={wheelVals} onDataChange={setOblastiData} />
+      <StepOblastiBox step={step} currentVals={wheelVals} onDataChange={setOblastiData} initialData={oblastiData} />
 
       {/* Vize (jen pro krok vize) */}
-      <StepVisionBox step={step} onDataChange={setVisionData} />
+      <StepVisionBox step={step} onDataChange={setVisionData} initialData={visionData} />
 
       {/* Akční plán (jen pro krok akce) */}
-      <StepActionBox step={step} onDataChange={setActionData} />
+      <StepActionBox step={step} onDataChange={setActionData} initialData={actionData} />
 
       {/* Export / finální krok */}
       <StepExportBox
@@ -1842,6 +1885,7 @@ export default function JourneyFlow() {
         visionData={visionData}
         oblastiData={oblastiData}
         actionData={actionData}
+        purchaseId={purchaseId}
       />
 
       {/* Šipky */}
@@ -1864,13 +1908,6 @@ export default function JourneyFlow() {
         </button>
       </div>
 
-      {/* Modal při odchodu */}
-      {leaveTarget && (
-        <LeaveConfirmModal
-          onStay={() => setLeaveTarget(null)}
-          onLeave={handleLeave}
-        />
-      )}
 
     </div>
   )

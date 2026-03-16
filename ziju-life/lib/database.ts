@@ -258,6 +258,10 @@ export async function initializeDatabase() {
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_price_id TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_discount_price_id TEXT`; } catch { /* already exists */ }
 
+    // Audit života journey persistence
+    try { await sql`ALTER TABLE purchases ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP WITH TIME ZONE`; } catch { /* already exists */ }
+    try { await sql`ALTER TABLE purchases ADD COLUMN IF NOT EXISTS journey_data JSONB`; } catch { /* already exists */ }
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

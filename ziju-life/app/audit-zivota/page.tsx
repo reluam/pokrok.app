@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { verifyUserSession, getUserPurchases } from "@/lib/user-auth";
-import JourneyFlow from "@/components/JourneyFlow";
+import { verifyUserSession, getUserPurchases, getJourneyData } from "@/lib/user-auth";
+import JourneyFlow, { type JourneyState } from "@/components/JourneyFlow";
 import AuditCheckoutButton from "./AuditCheckoutButton";
 
 export const metadata: Metadata = {
@@ -30,12 +30,39 @@ export default async function AuditZivotaPage({
 
   const user = await verifyUserSession();
   const purchases = user ? await getUserPurchases(user.id) : [];
-  const hasPurchased = purchases.some((p) => p.product_slug === "audit-zivota");
-  // Vrátí true i pro nepřihlášené — cenu určuje checkout route dle emailu
-  const isReturning = hasPurchased;
+  const auditPurchases = purchases.filter((p) => p.product_slug === "audit-zivota");
+  const activePurchases = auditPurchases.filter((p) => !p.completed_at);
+  const activeCount = activePurchases.length;
+  const hasActivePurchase = activeCount > 0;
+  const hasAnyPurchase = auditPurchases.length > 0;
+  // Cenu určuje checkout route dle emailu; tato hodnota ovlivňuje jen UI tlačítka
+  const isReturning = hasAnyPurchase;
 
-  // Přihlášen + zakoupeno → zobraz průvodce
-  if (hasPurchased) {
+  // Přihlášen + všechny licence dokončeny → zobraz stav "dokončeno, koupit znovu"
+  if (hasAnyPurchase && !hasActivePurchase) {
+    return (
+      <main className="min-h-screen">
+        <section className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md mx-auto text-center space-y-6">
+            <p className="text-4xl">✅</p>
+            <h1 className="text-2xl font-bold text-foreground">Audit dokončen</h1>
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Tvůj audit života je dokončen a přístup byl uzavřen. Chceš ho zopakovat?
+              Koupíš znovu za zvýhodněnou cenu 100 Kč.
+            </p>
+            <AuditCheckoutButton isReturning={true} userEmail={user?.email} />
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  // Přihlášen + aktivní licence → načti uložená data a zobraz průvodce
+  if (hasActivePurchase) {
+    const journeyResult = user ? await getJourneyData(user.id) : null;
+    const initialData = journeyResult?.data as JourneyState | null;
+    const purchaseId = journeyResult?.purchaseId ?? activePurchases[0]?.id ?? "";
+
     return (
       <main className="min-h-screen">
         {paymentSuccess && (
@@ -61,29 +88,29 @@ export default async function AuditZivotaPage({
         </section>
 
         <section className="px-4 sm:px-6 lg:px-8 pb-2">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200/80 text-sm text-amber-800">
+          <div className="max-w-4xl mx-auto space-y-2">
+            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-green-50 border border-green-200/80 text-sm text-green-800">
               <span className="flex-shrink-0 mt-0.5">💾</span>
               <p>
-                <strong>Data se nikam neukládají.</strong>{" "}
-                Vše co vyplníš slouží jen k vygenerování dokumentu na konci průvodce.
-                Po obnovení stránky přijdeš o všechna zapsaná data.
+                <strong>Tvůj postup se průběžně ukládá.</strong>{" "}
+                Kdykoli se můžeš vrátit a pokračovat tam, kde jsi skončil/a.
               </p>
             </div>
+            {activeCount > 1 && (
+              <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-blue-50 border border-blue-200/80 text-sm text-blue-800">
+                <span className="flex-shrink-0 mt-0.5">🎟️</span>
+                <p>
+                  Máš celkem <strong>{activeCount} volné {activeCount === 2 ? "licence" : activeCount <= 4 ? "licence" : "licencí"}</strong>.
+                  Po dokončení tohoto auditu ti zbyde ještě {activeCount - 1} {activeCount - 1 === 1 ? "volná" : activeCount - 1 <= 4 ? "volné" : "volných"}.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
         <section className="relative py-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <JourneyFlow />
-          </div>
-        </section>
-
-        <section className="py-8 px-4 sm:px-6 lg:px-8 border-t border-black/5">
-          <div className="max-w-3xl mx-auto text-center space-y-3">
-            <p className="text-sm text-foreground/50">
-              Chceš audit zopakovat za rok? Vrátíš se sem a koupíš znovu za zvýhodněnou cenu 100 Kč.
-            </p>
+            <JourneyFlow initialData={initialData} purchaseId={purchaseId} />
           </div>
         </section>
       </main>
@@ -107,7 +134,7 @@ export default async function AuditZivotaPage({
             Sedm řízených kroků, které ti pomohou upřímně zmapovat život, pojmenovat co tě brzdí a sestavit plán, jak žít víc podle sebe.
           </p>
           <div className="pt-2">
-            <AuditCheckoutButton isReturning={isReturning} />
+            <AuditCheckoutButton isReturning={isReturning} userEmail={user?.email} />
           </div>
           <p className="text-xs text-foreground/40">
             Platba kartou přes Stripe · Okamžitý přístup po zaplacení
@@ -189,7 +216,7 @@ export default async function AuditZivotaPage({
             <div className="text-xs text-foreground/40 bg-black/4 rounded-xl px-4 py-2">
               Opakovaný nákup (pro vracející se zákazníky): <strong>100 Kč</strong>
             </div>
-            <AuditCheckoutButton isReturning={isReturning} />
+            <AuditCheckoutButton isReturning={isReturning} userEmail={user?.email} />
             <p className="text-xs text-foreground/35">
               Okamžitý přístup po zaplacení · Platba kartou přes Stripe
             </p>

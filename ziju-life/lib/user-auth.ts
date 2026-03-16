@@ -15,6 +15,7 @@ export type Purchase = {
   product_slug: string
   stripe_payment_id: string | null
   created_at: Date
+  completed_at: Date | null
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
@@ -96,10 +97,23 @@ export async function destroyUserSession(): Promise<void> {
 
 export async function getUserPurchases(userId: string): Promise<Purchase[]> {
   const rows = await sql`
-    SELECT id, user_id, product_slug, stripe_payment_id, created_at
+    SELECT id, user_id, product_slug, stripe_payment_id, created_at, completed_at
     FROM purchases
     WHERE user_id = ${userId}
     ORDER BY created_at DESC
   `
   return rows as unknown as Purchase[]
+}
+
+export async function getJourneyData(userId: string): Promise<{ purchaseId: string; data: Record<string, unknown> | null } | null> {
+  const rows = await sql`
+    SELECT id, journey_data
+    FROM purchases
+    WHERE user_id = ${userId} AND product_slug = 'audit-zivota' AND completed_at IS NULL
+    ORDER BY created_at DESC
+    LIMIT 1
+  `
+  const row = rows[0] as { id: string; journey_data: Record<string, unknown> | null } | undefined
+  if (!row) return null
+  return { purchaseId: row.id, data: row.journey_data ?? null }
 }

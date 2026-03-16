@@ -1,6 +1,7 @@
 import { verifyUserSession, getUserPurchases, type Purchase } from '@/lib/user-auth'
 import LoginForm from './LoginForm'
 import LogoutButton from './LogoutButton'
+import AuditPurchaseActions from './AuditPurchaseActions'
 
 const PRODUCT_LABELS: Record<string, { name: string; description: string; emoji: string }> = {
   'audit-zivota': {
@@ -16,11 +17,15 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
     description: '',
     emoji: '📦',
   }
-  const date = new Date(purchase.created_at).toLocaleDateString('cs-CZ', {
+  const purchaseDate = new Date(purchase.created_at).toLocaleDateString('cs-CZ', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   })
+  const completedDate = purchase.completed_at
+    ? new Date(purchase.completed_at).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null
+  const isCompleted = !!purchase.completed_at
 
   return (
     <div className="paper-card rounded-[20px] px-6 py-6 flex items-start gap-4">
@@ -29,18 +34,24 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3 flex-wrap">
-          <h3 className="text-lg font-bold text-foreground">{product.name}</h3>
-          <span className="text-xs text-foreground/45 shrink-0 mt-1">Zakoupeno {date}</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-lg font-bold text-foreground">{product.name}</h3>
+            {isCompleted ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-foreground/8 text-foreground/50">
+                Dokončeno {completedDate}
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
+                Aktivní
+              </span>
+            )}
+          </div>
+          <span className="text-xs text-foreground/45 shrink-0 mt-1">Zakoupeno {purchaseDate}</span>
         </div>
         {product.description && (
           <p className="text-sm text-foreground/65 mt-1 leading-relaxed">{product.description}</p>
         )}
-        <a
-          href={`/${purchase.product_slug}`}
-          className="inline-block mt-3 px-4 py-1.5 bg-accent text-white text-sm font-semibold rounded-full hover:bg-accent-hover transition-colors"
-        >
-          Otevřít
-        </a>
+        <AuditPurchaseActions purchaseId={purchase.id} isCompleted={isCompleted} />
       </div>
     </div>
   )

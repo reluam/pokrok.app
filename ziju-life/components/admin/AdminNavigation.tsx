@@ -10,6 +10,7 @@ import {
   Users,
   Calendar,
   Compass,
+  ShieldCheck,
 } from "lucide-react";
 
 type AdminSection =
@@ -20,6 +21,7 @@ type AdminSection =
   | "crm"
   | "rezervace"
   | "principy"
+  | "audit-access"
   | "settings";
 
 interface NavItem {
@@ -68,6 +70,11 @@ export default function AdminNavigation() {
       id: "principy",
       label: "Principy",
       icon: Compass,
+    },
+    {
+      id: "audit-access",
+      label: "Audit — přístupy",
+      icon: ShieldCheck,
     },
     {
       id: "settings",

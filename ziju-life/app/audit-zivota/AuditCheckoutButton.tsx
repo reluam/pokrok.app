@@ -4,17 +4,18 @@ import { useState } from "react";
 
 interface Props {
   isReturning: boolean;
+  userEmail?: string;
 }
 
-export default function AuditCheckoutButton({ isReturning }: Props) {
+export default function AuditCheckoutButton({ isReturning, userEmail }: Props) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleBuy = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    const resolved = (userEmail ?? email).trim().toLowerCase();
+    if (!resolved || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resolved)) {
       setError("Zadej prosím platný e-mail.");
       return;
     }
@@ -24,7 +25,7 @@ export default function AuditCheckoutButton({ isReturning }: Props) {
       const res = await fetch("/api/products/audit-zivota/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed }),
+        body: JSON.stringify({ email: resolved }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -41,15 +42,17 @@ export default function AuditCheckoutButton({ isReturning }: Props) {
 
   return (
     <form onSubmit={handleBuy} className="space-y-3">
-      <div className="flex flex-col sm:flex-row gap-2 max-w-sm mx-auto">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="tvuj@email.cz"
-          required
-          className="flex-1 px-4 py-3 rounded-full border-2 border-black/15 bg-white text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-accent text-sm"
-        />
+      <div className={`flex flex-col sm:flex-row gap-2 max-w-sm mx-auto${userEmail ? " justify-center" : ""}`}>
+        {!userEmail && (
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="tvuj@email.cz"
+            required
+            className="flex-1 px-4 py-3 rounded-full border-2 border-black/15 bg-white text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-accent text-sm"
+          />
+        )}
         <button
           type="submit"
           disabled={loading}
@@ -63,9 +66,11 @@ export default function AuditCheckoutButton({ isReturning }: Props) {
         </button>
       </div>
       {error && <p className="text-sm text-red-600 text-center">{error}</p>}
-      <p className="text-xs text-foreground/40 text-center">
-        Na tento e-mail ti přijde odkaz pro přístup ihned po zaplacení
-      </p>
+      {!userEmail && (
+        <p className="text-xs text-foreground/40 text-center">
+          Na tento e-mail ti přijde odkaz pro přístup ihned po zaplacení
+        </p>
+      )}
     </form>
   );
 }
