@@ -254,6 +254,10 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_purchases_user_id ON purchases(user_id)
     `
 
+    // Audit života product price IDs
+    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_price_id TEXT`; } catch { /* already exists */ }
+    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_discount_price_id TEXT`; } catch { /* already exists */ }
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

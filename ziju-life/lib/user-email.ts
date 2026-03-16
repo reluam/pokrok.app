@@ -64,6 +64,68 @@ function emailWrapper(title: string, content: string): string {
   `.trim()
 }
 
+export async function sendAuditZivotaAccessEmail(
+  to: string,
+  token: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (!process.env.RESEND_API_KEY?.trim()) {
+    console.warn('[user-email] RESEND_API_KEY not set, skipping audit access email')
+    return { ok: false, error: 'Resend not configured' }
+  }
+
+  const siteUrl = getSiteUrl()
+  const next = encodeURIComponent('/audit-zivota')
+  const accessUrl = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}&next=${next}`
+
+  const content = `
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
+      Ahoj,
+    </p>
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 8px;">
+      Platba proběhla úspěšně — Audit života je tvůj!
+    </p>
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 32px;">
+      Klikni na tlačítko níže a dostaneš se přímo do průvodce.
+      Odkaz je platný <strong>5 minut</strong>.
+    </p>
+
+    <div style="text-align: center; margin-bottom: 32px;">
+      <a href="${accessUrl}" target="_blank" rel="noreferrer"
+         style="display: inline-block; padding: 14px 32px; border-radius: 999px; background-color: ${ACCENT}; color: #ffffff; font-size: 16px; font-weight: 700; text-decoration: none; letter-spacing: 0.01em;">
+        Otevřít Audit života →
+      </a>
+    </div>
+
+    <div style="padding: 16px 20px; background-color: ${BOX_BG}; border-radius: 8px; margin-bottom: 24px;">
+      <p style="color: ${TEXT_MUTED}; font-size: 13px; line-height: 1.6; margin: 0;">
+        Nebo zkopíruj tento odkaz do prohlížeče:<br>
+        <span style="font-family: monospace; font-size: 12px; word-break: break-all; color: ${TEXT_DARK};">${accessUrl}</span>
+      </p>
+    </div>
+
+    <p style="color: ${TEXT_MUTED}; font-size: 14px; line-height: 1.6; margin: 0;">
+      Odkaz je jednorázový. Pokud vyprší, přihlas se přes <a href="${siteUrl}/ucet" style="color: ${ACCENT}; text-decoration: none;">svůj účet</a> a průvodce najdeš v sekci Moje produkty.
+    </p>
+  `
+
+  try {
+    const { error } = await resend.emails.send({
+      from,
+      to: [to],
+      subject: 'Audit života — tvůj přístup je ready',
+      html: emailWrapper('Platba proběhla!', content),
+    })
+    if (error) {
+      console.warn('[user-email] Audit access email send failed:', error)
+      return { ok: false, error: String(error) }
+    }
+    return { ok: true }
+  } catch (err) {
+    console.warn('[user-email] sendAuditZivotaAccessEmail error:', err)
+    return { ok: false, error: err instanceof Error ? err.message : String(err) }
+  }
+}
+
 export async function sendMagicLinkEmail(
   to: string,
   token: string

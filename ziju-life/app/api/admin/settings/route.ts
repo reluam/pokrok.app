@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
       clickup_status_name_meeting?: string | null;
       show_principles?: boolean | null;
       booking_meeting_types?: string | null;
+      audit_zivota_price_id?: string | null;
+      audit_zivota_discount_price_id?: string | null;
     };
     let result: Row[];
     try {
@@ -48,7 +50,9 @@ export async function GET(request: NextRequest) {
           clickup_status_name_reach_out,
           clickup_status_name_meeting,
           show_principles,
-          booking_meeting_types
+          booking_meeting_types,
+          audit_zivota_price_id,
+          audit_zivota_discount_price_id
         FROM admin_settings
         LIMIT 1
       ` as Row[];
@@ -95,6 +99,8 @@ export async function GET(request: NextRequest) {
         googleCalendarConnected: Boolean(row?.google_refresh_token?.trim()),
         showPrinciples: row.show_principles ?? true,
         bookingMeetingTypes,
+        auditZivotaPriceId: row.audit_zivota_price_id ?? "",
+        auditZivotaDiscountPriceId: row.audit_zivota_discount_price_id ?? "",
       });
     }
 
@@ -116,6 +122,8 @@ export async function GET(request: NextRequest) {
       googleCalendarConnected: Boolean(process.env.GOOGLE_REFRESH_TOKEN?.trim()),
       showPrinciples: true,
       bookingMeetingTypes: [],
+      auditZivotaPriceId: "",
+      auditZivotaDiscountPriceId: "",
     });
   } catch (error) {
     console.error("GET /api/admin/settings error:", error);
@@ -151,6 +159,8 @@ export async function POST(request: NextRequest) {
       clickupStatusNameMeeting,
       showPrinciples,
       bookingMeetingTypes,
+      auditZivotaPriceId,
+      auditZivotaDiscountPriceId,
     } = body;
 
     // Vytvoř tabulku pokud neexistuje
@@ -178,6 +188,8 @@ export async function POST(request: NextRequest) {
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_name_meeting TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS show_principles BOOLEAN`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS booking_meeting_types TEXT`; } catch { /* already exists */ }
+    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_price_id TEXT`; } catch { /* already exists */ }
+    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_discount_price_id TEXT`; } catch { /* already exists */ }
 
     const existing = await sql`SELECT id FROM admin_settings LIMIT 1`;
     if (existing.length > 0) {
@@ -199,6 +211,8 @@ export async function POST(request: NextRequest) {
           clickup_status_name_meeting = ${clickupStatusNameMeeting?.trim() || null},
           show_principles = ${typeof showPrinciples === "boolean" ? showPrinciples : null},
           booking_meeting_types = ${Array.isArray(bookingMeetingTypes) ? JSON.stringify(bookingMeetingTypes) : null},
+          audit_zivota_price_id = ${auditZivotaPriceId?.trim() || null},
+          audit_zivota_discount_price_id = ${auditZivotaDiscountPriceId?.trim() || null},
           updated_at = NOW()
         WHERE id = ${(existing[0] as { id: number }).id}
       `;
@@ -221,6 +235,8 @@ export async function POST(request: NextRequest) {
           clickup_status_name_meeting,
           show_principles,
           booking_meeting_types,
+          audit_zivota_price_id,
+          audit_zivota_discount_price_id,
           updated_at
         )
         VALUES (
@@ -240,6 +256,8 @@ export async function POST(request: NextRequest) {
           ${clickupStatusNameMeeting?.trim() || null},
           ${typeof showPrinciples === "boolean" ? showPrinciples : null},
           ${Array.isArray(bookingMeetingTypes) ? JSON.stringify(bookingMeetingTypes) : null},
+          ${auditZivotaPriceId?.trim() || null},
+          ${auditZivotaDiscountPriceId?.trim() || null},
           NOW()
         )
       `;

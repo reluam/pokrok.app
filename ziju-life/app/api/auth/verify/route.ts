@@ -17,5 +17,7 @@ export async function GET(req: NextRequest) {
   }
 
   await createUserSession(user.id)
-  return NextResponse.redirect(new URL('/ucet', req.url))
+  const next = req.nextUrl.searchParams.get('next')
+  const redirectTo = next && next.startsWith('/') ? next : '/ucet'
+  return NextResponse.redirect(new URL(redirectTo, req.url))
 }

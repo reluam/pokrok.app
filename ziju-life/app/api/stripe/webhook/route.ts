@@ -7,6 +7,7 @@ import {
   sendBookingConfirmationToClient,
   sendBookingConfirmationToAdmin,
 } from "@/lib/booking-email";
+import { sendAuditZivotaAccessEmail } from "@/lib/user-email";
 import { getLeadById } from "@/lib/leads-db";
 import { createBookingTask, updateTaskToBooking } from "@/lib/clickup";
 
@@ -44,6 +45,58 @@ export async function POST(req: NextRequest) {
   if (event.type === "checkout.session.completed" || event.type === "payment_intent.succeeded") {
     const obj = event.data.object as Stripe.Checkout.Session | Stripe.PaymentIntent;
     const m = obj.metadata || {};
+
+    // ── Audit života – nákup produktu ────────────────────────────────────────
+    if (m.productType === "audit-zivota") {
+      const userEmail = (m.userEmail as string | undefined)?.trim().toLowerCase() ?? "";
+      const stripePaymentId =
+        event.type === "checkout.session.completed"
+          ? ((obj as Stripe.Checkout.Session).payment_intent as string | null) ?? null
+          : (obj as Stripe.PaymentIntent).id ?? null;
+
+      if (userEmail) {
+        try {
+          // Vytvoř nebo načti uživatele
+          const userId = `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+          const userRows = (await sql`
+            INSERT INTO users (id, email, created_at)
+            VALUES (${userId}, ${userEmail}, NOW())
+            ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+            RETURNING id
+          `) as { id: string }[];
+          const resolvedUserId = userRows[0]?.id ?? userId;
+
+          // Zaznamenej nákup
+          const purchaseId = `purchase_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+          await sql`
+            INSERT INTO purchases (id, user_id, product_slug, stripe_payment_id, created_at)
+            VALUES (${purchaseId}, ${resolvedUserId}, 'audit-zivota', ${stripePaymentId}, NOW())
+          `;
+          console.log("[stripe webhook] Audit života purchase created:", purchaseId);
+
+          // Vygeneruj magic token a pošli přístupový email
+          const token = `${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+          const tokenId = `mlt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+          const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minut
+          await sql`
+            INSERT INTO magic_link_tokens (id, user_id, token, expires_at, created_at)
+            VALUES (${tokenId}, ${resolvedUserId}, ${token}, ${expiresAt}, NOW())
+          `;
+
+          const emailResult = await sendAuditZivotaAccessEmail(userEmail, token);
+          if (!emailResult.ok) {
+            console.warn("[stripe webhook] Audit access email failed:", emailResult.error);
+          }
+        } catch (err) {
+          console.error("[stripe webhook] Audit života purchase error:", err);
+        }
+      } else {
+        console.error("[stripe webhook] Audit života: missing userEmail in metadata", m);
+      }
+      return NextResponse.json({ received: true });
+    }
+
+    // ── Rezervace koučinku ───────────────────────────────────────────────────
 
     const slotId = (m.slotId as string | undefined) ?? "";
     const startAt = (m.startAt as string | undefined) ?? "";
