@@ -268,9 +268,9 @@ export default function NavodNaZivotPage() {
           <div className="max-w-7xl mx-auto space-y-8">
 
             {/* Hero: intro + sales card */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Intro (2/3) */}
-              <div className="lg:col-span-2 paper-card rounded-[28px] px-6 py-8 md:px-10 md:py-10 space-y-4">
+              <div className="lg:col-span-2 paper-card rounded-[28px] px-6 py-8 md:px-10 md:py-10 flex flex-col gap-4">
                 <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-foreground/40">
                   Matějův osobní tahák
                 </div>
@@ -289,7 +289,7 @@ export default function NavodNaZivotPage() {
               </div>
 
               {/* Sales card (1/3) */}
-              <div className="paper-card rounded-[24px] px-6 py-7 space-y-4 border-2 border-accent/15">
+              <div className="paper-card rounded-[24px] px-6 py-7 flex flex-col gap-4 border-2 border-accent/15">
                 <div className="text-2xl">🗺️</div>
                 <div className="space-y-1">
                   <h2 className="text-lg font-extrabold text-foreground leading-snug">
@@ -311,16 +311,18 @@ export default function NavodNaZivotPage() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="/audit-zivota"
-                  className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
-                >
-                  Začít audit
-                  <ArrowRight size={16} />
-                </Link>
-                <p className="text-center text-xs text-foreground/40">
-                  Průvodce, cvičení a šablony v jednom
-                </p>
+                <div className="mt-auto flex flex-col gap-2">
+                  <Link
+                    href="/audit-zivota"
+                    className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
+                  >
+                    Začít audit
+                    <ArrowRight size={16} />
+                  </Link>
+                  <p className="text-center text-xs text-foreground/40">
+                    Průvodce, cvičení a šablony v jednom
+                  </p>
+                </div>
               </div>
             </div>
 
