@@ -1,60 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { InspirationData, InspirationItem } from "@/lib/inspiration";
+import Script from "next/script";
+import type { InspirationData, InspirationItem, InspirationCategory } from "@/lib/inspiration";
 import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
-import { Book, Video, FileText, PenTool, HelpCircle, Mail, Music } from "lucide-react";
-
-type FilterType = "clanky" | "knihy" | "videa" | "ostatni" | "hudba";
-
-const getTypeLabel = (type: string): string => {
-  switch (type) {
-    case "blog": return "Blog";
-    case "video": return "Video";
-    case "book": return "Kniha";
-    case "article": return "Článek";
-    case "other": return "Ostatní";
-    case "music": return "Hudba";
-    case "newsletter": return "Newsletter";
-    default: return type;
-  }
-};
-
-const getTypeIcon = (type: string) => {
-  switch (type) {
-    case "blog": return PenTool;
-    case "video": return Video;
-    case "book": return Book;
-    case "article": return FileText;
-    case "other": return HelpCircle;
-    case "music": return Music;
-    case "newsletter": return Mail;
-    default: return FileText;
-  }
-};
+import { Book, Video, ChevronLeft, ChevronRight, Instagram, FileText } from "lucide-react";
 
 const getVideoId = (url: string): string | null => {
   const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
-  if (youtubeMatch) return youtubeMatch[1];
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) return vimeoMatch[1];
-  return null;
+  return youtubeMatch ? youtubeMatch[1] : null;
 };
 
 const getVideoThumbnail = (url: string): string | null => {
   const videoId = getVideoId(url);
   if (!videoId) return null;
-  if (url.includes("youtube.com") || url.includes("youtu.be")) {
+  if (url.includes("youtube.com") || url.includes("youtu.be"))
     return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-  }
   return null;
 };
 
-const getYouTubeEmbedUrl = (url: string): string | null => {
-  const videoId = getVideoId(url);
-  if (!videoId || (!url.includes("youtube.com") && !url.includes("youtu.be"))) return null;
-  return `https://www.youtube.com/embed/${videoId}`;
+type ReelPlatform = "instagram" | "tiktok" | "youtube";
+
+interface ReelEmbed {
+  platform: ReelPlatform;
+  embedUrl: string;
+  vertical: boolean;
+}
+
+const getReelEmbed = (url: string): ReelEmbed | null => {
+  // Instagram
+  const igMatch = url.match(/instagram\.com\/(?:reel|p)\/([A-Za-z0-9_-]+)/);
+  if (igMatch) return { platform: "instagram", embedUrl: `https://www.instagram.com/reel/${igMatch[1]}/embed/`, vertical: true };
+
+  // TikTok
+  const ttMatch = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+  if (ttMatch) return { platform: "tiktok", embedUrl: `https://www.tiktok.com/embed/v2/${ttMatch[1]}`, vertical: true };
+
+  // YouTube Shorts – vertikální
+  const ytShortsMatch = url.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]+)/);
+  if (ytShortsMatch) return { platform: "youtube", embedUrl: `https://www.youtube.com/embed/${ytShortsMatch[1]}`, vertical: true };
+
+  // Klasické YouTube video – landscape
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]+)/);
+  if (ytMatch) return { platform: "youtube", embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}`, vertical: false };
+
+  return null;
+};
+
+const PLATFORM_ICON_COLOR: Record<ReelPlatform, string> = {
+  instagram: "text-pink-500",
+  tiktok: "text-foreground",
+  youtube: "text-red-600",
 };
 
 interface DisplayItem {
@@ -72,239 +69,316 @@ interface DisplayItem {
   url: string;
   href: string;
   createdAt: string;
-  sentAt?: string;
+  categoryId?: string;
+  secondaryCategoryIds?: string[];
 }
 
-const TYPE_FILTERS: { value: FilterType; label: string }[] = [
-  { value: "clanky", label: "Články" },
-  { value: "knihy", label: "Knihy" },
-  { value: "videa", label: "Videa" },
-  { value: "hudba", label: "Hudba" },
-  { value: "ostatni", label: "Ostatní" },
-];
+type ActiveSection = "vse" | "books" | "videos" | "reels" | "articles";
 
-function renderItemCard(
-  item: DisplayItem,
-  index: number,
-  router: ReturnType<typeof useRouter>
-) {
-  const Icon = getTypeIcon(item.type);
-  const videoThumbnail =
-    item.type === "video"
-      ? (item.thumbnail || getVideoThumbnail(item.url))
-      : null;
+// ── Scroll Row ───────────────────────────────────────────────────────────────
+
+function ScrollRow({
+  title,
+  onTitleClick,
+  children,
+  empty,
+}: {
+  title?: string;
+  onTitleClick?: () => void;
+  children?: React.ReactNode;
+  empty?: boolean;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 2);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Small delay ensures content is rendered and measured
+    const t = setTimeout(updateScrollState, 80);
+    window.addEventListener("resize", updateScrollState);
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", updateScrollState);
+      el.removeEventListener("scroll", updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  const scroll = (dir: "left" | "right") =>
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -340 : 340, behavior: "smooth" });
 
   return (
-    <button
-      key={`${item.type}-${item.id}`}
-      onClick={() => router.push(item.href)}
-      className="block text-left w-full cursor-pointer"
-    >
-      <article
-        className="bg-white/85 rounded-[24px] p-6 border border-white/60 shadow-md hover:shadow-xl transition-all hover:-translate-y-1 backdrop-blur space-y-4 h-full"
-        style={{
-          transform: `rotate(${index % 2 === 0 ? "-0.5deg" : "0.5deg"})`,
-        }}
-      >
-        {item.type === "video" && videoThumbnail && (
-          <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
-            <img
-              src={videoThumbnail}
-              alt={item.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-              <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
-                <Video className="w-6 h-6 text-accent ml-1" />
-              </div>
-            </div>
+    <div className="space-y-3">
+      {title && (
+        onTitleClick ? (
+          <button
+            onClick={onTitleClick}
+            className="group flex items-center gap-3 text-2xl font-bold text-foreground hover:text-accent transition-colors"
+          >
+            {title}
+            <span className="text-accent text-sm font-normal opacity-0 group-hover:opacity-100 transition-opacity">
+              zobrazit vše →
+            </span>
+          </button>
+        ) : (
+          <h3 className="text-base font-semibold text-foreground/55 uppercase tracking-wide">{title}</h3>
+        )
+      )}
+      {empty ? (
+        <p className="text-foreground/50 text-sm py-2">Zatím žádné položky.</p>
+      ) : (
+        <div className="relative">
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll("left")}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 p-1.5 rounded-full bg-white/90 border border-white/60 shadow-md hover:shadow-lg hover:border-accent/30 transition-all backdrop-blur"
+            >
+              <ChevronLeft size={16} />
+            </button>
+          )}
+          <div
+            ref={scrollRef}
+            className="flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 scroll-smooth [&::-webkit-scrollbar]:hidden"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {children}
           </div>
-        )}
-        {item.type === "book" && item.imageUrl && (
-          <div className="w-full aspect-[2/3] max-h-48 rounded-xl overflow-hidden bg-gray-100 mb-4">
-            <img
-              src={item.imageUrl}
-              alt={item.title}
-              className={`w-full h-full ${item.bookCoverFit === "contain" ? "object-contain" : "object-cover"}`}
-              style={
-                item.bookCoverFit !== "contain"
-                  ? { objectPosition: getBookCoverObjectPosition(item) }
-                  : undefined
-              }
-            />
-          </div>
-        )}
-        {item.type === "music" && (item.thumbnail || getVideoThumbnail(item.url)) && (
-          <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
-            <img
-              src={item.thumbnail || getVideoThumbnail(item.url)!}
-              alt={item.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-              <Music className="w-12 h-12 text-white" />
-            </div>
-          </div>
-        )}
-        <div className="flex items-center gap-2">
-          <Icon className="text-accent" size={18} />
-          <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full border border-accent/20">
-            {getTypeLabel(item.type)}
-          </span>
+          {canScrollRight && (
+            <button
+              onClick={() => scroll("right")}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 p-1.5 rounded-full bg-white/90 border border-white/60 shadow-md hover:shadow-lg hover:border-accent/30 transition-all backdrop-blur"
+            >
+              <ChevronRight size={16} />
+            </button>
+          )}
         </div>
-        <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
-        {item.author && (
-          <p className="text-sm text-foreground/60">Autor: {item.author}</p>
+      )}
+    </div>
+  );
+}
+
+// ── Cards ────────────────────────────────────────────────────────────────────
+
+function BookCard({ item, onClick }: { item: DisplayItem; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="flex-shrink-0 w-36 text-left cursor-pointer group">
+      <div className="w-36 h-52 rounded-xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-xl transition-all duration-200 group-hover:-translate-y-1 mb-2">
+        {item.imageUrl ? (
+          <img
+            src={item.imageUrl}
+            alt={item.title}
+            className={`w-full h-full ${item.bookCoverFit === "contain" ? "object-contain" : "object-cover"}`}
+            style={item.bookCoverFit !== "contain" ? { objectPosition: getBookCoverObjectPosition(item) } : undefined}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
+            <Book className="text-accent/50" size={36} />
+          </div>
         )}
-        <p className="text-foreground/70 leading-relaxed line-clamp-2">
-          {item.description}
-        </p>
-      </article>
+      </div>
+      <div className="min-h-[3.5rem]">
+        <p className="text-sm font-semibold text-foreground line-clamp-2 leading-tight">{item.title}</p>
+        {item.author && <p className="text-xs text-foreground/55 mt-0.5 line-clamp-1">{item.author}</p>}
+      </div>
     </button>
   );
 }
 
+function VideoCard({ item, onClick }: { item: DisplayItem; onClick: () => void }) {
+  const thumb = item.thumbnail || getVideoThumbnail(item.url);
+  return (
+    <button onClick={onClick} className="flex-shrink-0 w-64 text-left cursor-pointer group">
+      <div className="w-64 aspect-video rounded-xl overflow-hidden bg-gray-100 shadow-md group-hover:shadow-xl transition-all duration-200 group-hover:-translate-y-1 mb-2 relative">
+        {thumb ? (
+          <>
+            <img src={thumb} alt={item.title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
+                <Video className="w-5 h-5 text-accent ml-0.5" />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
+            <Video className="text-accent/50" size={36} />
+          </div>
+        )}
+      </div>
+      <div className="min-h-[3.5rem]">
+        <p className="text-sm font-semibold text-foreground line-clamp-2 leading-tight">{item.title}</p>
+        {item.author && <p className="text-xs text-foreground/55 mt-0.5 line-clamp-1">{item.author}</p>}
+      </div>
+    </button>
+  );
+}
+
+// Ikona platformy
+function PlatformIcon({ platform, size = 24 }: { platform: ReelPlatform; size?: number }) {
+  const cls = `${PLATFORM_ICON_COLOR[platform]} flex-shrink-0`;
+  if (platform === "tiktok") {
+    // TikTok SVG (lucide nemá)
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={cls}>
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.3 6.3 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
+      </svg>
+    );
+  }
+  if (platform === "youtube") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={cls}>
+        <path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.1 2.7 12 2.7 12 2.7s-4.1 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.3.3 4.3s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.8 12 21.8 12 21.8s4.1 0 6.8-.3c.6-.1 1.9-.1 3-1.2.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.3v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.2l8.1 3.7-8.1 3.6z"/>
+      </svg>
+    );
+  }
+  return <Instagram size={size} className={cls} />;
+}
+
+// Inline embedded reel – přímý embed bez náhledu
+function ReelEmbedCard({ item }: { item: DisplayItem }) {
+  const embed = getReelEmbed(item.url);
+  if (!embed) {
+    return (
+      <div className="flex-shrink-0 w-[197px]">
+        <a href={item.url} target="_blank" rel="noopener noreferrer"
+          className="flex w-full h-[350px] rounded-xl bg-gray-100 flex-col items-center justify-center gap-3 hover:opacity-80 transition-opacity">
+          <Instagram className="text-pink-500/70" size={40} />
+          <span className="text-sm text-foreground/60">Otevřít</span>
+        </a>
+        <p className="mt-2 text-sm font-semibold text-foreground line-clamp-2">{item.title}</p>
+      </div>
+    );
+  }
+  const isVertical = embed.vertical;
+  const w = isVertical ? 197 : 336;
+  const h = isVertical ? 350 : 189;
+  return (
+    <div className="flex-shrink-0" style={{ width: w }}>
+      <iframe
+        src={embed.embedUrl}
+        width={w}
+        height={h}
+        style={{ border: 0, borderRadius: 12, overflow: "hidden" }}
+        scrolling="no"
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        allowFullScreen
+        title={item.title}
+      />
+      {item.title && (
+        <p className="mt-2 text-sm font-semibold text-foreground line-clamp-2 px-1">{item.title}</p>
+      )}
+    </div>
+  );
+}
+
+function ArticleCard({ item }: { item: DisplayItem }) {
+  return (
+    <a
+      href={item.url || item.href}
+      target={item.url ? "_blank" : undefined}
+      rel={item.url ? "noopener noreferrer" : undefined}
+      className="flex-shrink-0 w-64 text-left group"
+    >
+      <div className="w-64 h-36 rounded-xl overflow-hidden bg-gradient-to-br from-accent/10 to-accent/5 shadow-md group-hover:shadow-xl transition-all duration-200 group-hover:-translate-y-1 mb-2 flex items-center justify-center">
+        {item.thumbnail ? (
+          <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
+        ) : (
+          <FileText className="text-accent/40" size={36} />
+        )}
+      </div>
+      <div className="min-h-[3.5rem]">
+        <p className="text-sm font-semibold text-foreground line-clamp-2 leading-tight">{item.title}</p>
+        {item.author && <p className="text-xs text-foreground/55 mt-0.5 line-clamp-1">{item.author}</p>}
+      </div>
+    </a>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+
+const FILTERS: { value: ActiveSection; label: string }[] = [
+  { value: "vse", label: "Vše" },
+  { value: "books", label: "Knihy" },
+  { value: "videos", label: "Videa" },
+  { value: "reels", label: "Reelska" },
+  { value: "articles", label: "Články" },
+];
+
 export default function InspiracePage() {
   const router = useRouter();
   const [inspirationData, setInspirationData] = useState<InspirationData | null>(null);
+  const [categories, setCategories] = useState<InspirationCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterType | "vse">("vse");
+  const [activeSection, setActiveSection] = useState<ActiveSection>("vse");
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
-        const inspirationRes = await fetch("/api/inspiration");
-        setInspirationData(await inspirationRes.json());
-      } catch (error) {
-        console.error("Error fetching data:", error);
+        const [inspRes, catRes] = await Promise.all([
+          fetch("/api/inspiration"),
+          fetch("/api/inspiration-categories"),
+        ]);
+        setInspirationData(await inspRes.json());
+        const catData = await catRes.json();
+        setCategories(Array.isArray(catData) ? catData : []);
+      } catch (e) {
+        console.error(e);
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
+    })();
   }, []);
 
-  const getMusicItems = (): DisplayItem[] => {
-    const items: DisplayItem[] = [];
-    if (!inspirationData?.music) return items;
-    (inspirationData.music)
-      .filter((i) => i.isActive !== false)
-      .forEach((item) => {
-        items.push({
-          id: item.id,
-          type: "music",
-          title: item.title,
-          description: item.description,
-          author: item.author,
-          thumbnail: item.thumbnail,
-          imageUrl: (item as InspirationItem).imageUrl,
-          url: item.url,
-          href: `/inspirace/${item.id}`,
-          createdAt: item.createdAt,
-        });
-      });
-    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  };
+  const active = (item: InspirationItem) => item.isActive !== false;
 
-  const getCurrentListeningMusic = (): DisplayItem | null => {
-    if (!inspirationData?.music) return null;
-    const current = inspirationData.music.find(
-      (i) => i.isActive !== false && (i as InspirationItem & { isCurrentListening?: boolean }).isCurrentListening === true
+  const toDisplay = (item: InspirationItem): DisplayItem => ({
+    id: item.id,
+    type: item.type,
+    title: item.title,
+    description: item.description,
+    author: item.author,
+    thumbnail: item.thumbnail,
+    imageUrl: item.imageUrl,
+    bookCoverFit: item.bookCoverFit,
+    bookCoverPosition: item.bookCoverPosition,
+    bookCoverPositionX: item.bookCoverPositionX,
+    bookCoverPositionY: item.bookCoverPositionY,
+    url: item.url,
+    href: `/inspirace/${item.id}`,
+    createdAt: item.createdAt,
+    categoryId: item.categoryId,
+    secondaryCategoryIds: item.secondaryCategoryIds,
+  });
+
+  const books = (inspirationData?.books || []).filter(active).map(toDisplay);
+  const videos = (inspirationData?.videos || []).filter(active).map(toDisplay);
+  const reels = (inspirationData?.reels || []).filter(active).map(toDisplay);
+  const articles = [
+    ...(inspirationData?.articles || []),
+    ...(inspirationData?.blogs || []),
+    ...(inspirationData?.other || []),
+  ].filter(active).map(toDisplay);
+
+  const groupByCategory = (items: DisplayItem[]) => {
+    const groups: { id: string; label: string; items: DisplayItem[] }[] = [];
+    for (const cat of categories) {
+      const catItems = items.filter((i) => i.categoryId === cat.id);
+      if (catItems.length > 0) groups.push({ id: cat.id, label: cat.name, items: catItems });
+    }
+    const uncategorized = items.filter(
+      (i) => !i.categoryId || !categories.some((c) => c.id === i.categoryId)
     );
-    if (!current) return null;
-    return {
-      id: current.id,
-      type: "music",
-      title: current.title,
-      description: current.description,
-      author: current.author,
-      thumbnail: current.thumbnail,
-      imageUrl: (current as InspirationItem).imageUrl,
-      url: current.url,
-      href: `/inspirace/${current.id}`,
-      createdAt: current.createdAt,
-    };
+    if (uncategorized.length > 0) groups.push({ id: "none", label: "Ostatní", items: uncategorized });
+    return groups;
   };
-
-  const getInspiraceItems = (): DisplayItem[] => {
-    const items: DisplayItem[] = [];
-    if (!inspirationData) return items;
-
-    // Doporučení: video, book, article, other – BEZ hudby
-    const inspiraceTypes = ["video", "book", "article", "other"] as const;
-    for (const type of inspiraceTypes) {
-      const arr = inspirationData[type === "video" ? "videos" : type === "book" ? "books" : type === "article" ? "articles" : "other"];
-      (arr || [])
-        .filter((i) => i.isActive !== false)
-        .forEach((item) => {
-          items.push({
-            id: item.id,
-            type: item.type,
-            title: item.title,
-            description: item.description,
-            author: item.author,
-            thumbnail: item.thumbnail,
-            imageUrl: (item as InspirationItem).imageUrl,
-            bookCoverFit: (item as InspirationItem).bookCoverFit,
-            bookCoverPosition: (item as InspirationItem).bookCoverPosition,
-            bookCoverPositionX: (item as InspirationItem).bookCoverPositionX,
-            bookCoverPositionY: (item as InspirationItem).bookCoverPositionY,
-            url: item.url,
-            href: `/inspirace/${item.id}`,
-            createdAt: item.createdAt,
-          });
-        });
-    }
-    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  };
-
-  const getBlogItems = (): DisplayItem[] => {
-    const items: DisplayItem[] = [];
-
-    if (inspirationData) {
-      (inspirationData.blogs || [])
-        .filter((i) => i.isActive !== false)
-        .forEach((item) => {
-          items.push({
-            id: item.id,
-            type: "blog",
-            title: item.title,
-            description: item.description,
-            author: "Matěj Mauler",
-            url: "",
-            href: `/inspirace/${item.id}`,
-            createdAt: item.createdAt,
-          });
-        });
-    }
-
-    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  };
-
-  const getFilteredItems = (): DisplayItem[] => {
-    const inspirace = getInspiraceItems();
-    const blog = getBlogItems();
-    const music = getMusicItems();
-    const all = [...inspirace, ...blog, ...music];
-    if (filter === "vse" || filter === null) return all;
-    if (filter === "clanky") return all.filter((i) => i.type === "blog");
-    if (filter === "knihy") return all.filter((i) => i.type === "book");
-    if (filter === "videa") return all.filter((i) => i.type === "video");
-    if (filter === "hudba") return music;
-    if (filter === "ostatni") return all.filter((i) => i.type === "article" || i.type === "other");
-    return all;
-  };
-
-  const inspiraceItems = getInspiraceItems();
-  const blogItems = getBlogItems();
-  const currentListening = getCurrentListeningMusic();
-  const filteredItems = getFilteredItems();
-
-  const handleFilterClick = (f: FilterType) => {
-    setFilter((prev) => (prev === f ? "vse" : f));
-  };
-
-  const showSplitLayout = filter === "vse" || filter === null;
 
   if (loading) {
     return (
@@ -316,40 +390,33 @@ export default function InspiracePage() {
     );
   }
 
+  const sectionItems = { books, videos, reels, articles };
+  const sectionLabel = { books: "Knihy", videos: "Videa", reels: "Reelska", articles: "Články" };
+
   return (
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
+      {/* Instagram embed script – načte se jen pokud jsou reelska */}
+      {(activeSection === "reels" || (activeSection === "vse" && reels.length > 0)) && (
+        <Script src="//www.instagram.com/embed.js" strategy="lazyOnload" />
+      )}
+
       <div className="max-w-6xl mx-auto space-y-10">
-        {/* Nadpis v boxu jako na HP */}
-        <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-6 py-10 md:px-10 md:py-12 max-w-4xl mx-auto">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
-              Inspirace
-            </h1>
-            <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
-              Inspiruj se články, knihami, videi a dalšími zdroji.
-            </p>
-          </div>
+        {/* Header – prostý nadpis */}
+        <div className="space-y-3">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">Inspirace</h1>
+          <p className="text-lg md:text-xl text-foreground/65 max-w-xl">
+            Knihy, videa, reelska a články, které mě formují.
+          </p>
         </div>
 
         {/* Filtry */}
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <button
-            onClick={() => setFilter("vse")}
-            className={`px-5 py-2.5 rounded-full font-semibold transition-colors ${
-              filter === "vse" || filter === null
-                ? "bg-accent text-white"
-                : "bg-white/85 border border-white/60 shadow-sm hover:shadow-md hover:border-accent/30 hover:text-accent backdrop-blur"
-            }`}
-          >
-            Vše
-          </button>
-          <span className="hidden sm:inline w-px h-6 bg-black/15" aria-hidden />
-          {TYPE_FILTERS.map((f) => (
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map((f) => (
             <button
               key={f.value}
-              onClick={() => handleFilterClick(f.value)}
+              onClick={() => setActiveSection(f.value)}
               className={`px-5 py-2.5 rounded-full font-semibold transition-colors ${
-                filter === f.value
+                activeSection === f.value
                   ? "bg-accent text-white"
                   : "bg-white/85 border border-white/60 shadow-sm hover:shadow-md hover:border-accent/30 hover:text-accent backdrop-blur"
               }`}
@@ -359,112 +426,109 @@ export default function InspiracePage() {
           ))}
         </div>
 
-        {showSplitLayout ? (
-          /* Split layout: inspirace vlevo, články vpravo – bez velkého boxu kolem */
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-            <div className="lg:col-span-2 space-y-6">
-              <h2 className="text-2xl font-semibold text-foreground">Knihovna</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {inspiraceItems.length === 0 ? (
-                  <p className="text-foreground/60 col-span-full">Zatím žádná doporučení.</p>
-                ) : (
-                  inspiraceItems.map((item, index) => renderItemCard(item, index, router))
-                )}
-              </div>
-            </div>
-            <div className="space-y-6">
-              {/* Co právě poslouchám – jeden vybraný song s YouTube playerem */}
-              {currentListening && (
-                <div className="space-y-3">
-                  <h2 className="text-2xl font-semibold text-foreground">Co právě poslouchám</h2>
-                  <div className="rounded-[24px] overflow-hidden border border-white/60 bg-white/85 shadow-md backdrop-blur">
-                    {getYouTubeEmbedUrl(currentListening.url) ? (
-                      <>
-                        <div className="relative w-full aspect-video">
-                          <iframe
-                            src={getYouTubeEmbedUrl(currentListening.url)!}
-                            className="absolute inset-0 w-full h-full"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            title={currentListening.title}
-                          />
-                        </div>
-                        <div className="p-4 border-t border-black/5 bg-white/50">
-                          <h3 className="font-semibold text-foreground">{currentListening.title}</h3>
-                          {currentListening.author && (
-                            <p className="text-sm text-foreground/60">{currentListening.author}</p>
-                          )}
-                          <button
-                            onClick={() => router.push(currentListening.href)}
-                            className="mt-2 text-sm text-accent font-semibold hover:underline"
-                          >
-                            Detail →
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <a
-                        href={currentListening.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block p-4 hover:bg-black/5 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Music className="text-accent flex-shrink-0" size={28} />
-                          <div>
-                            <h3 className="font-semibold text-foreground">{currentListening.title}</h3>
-                            {currentListening.author && (
-                              <p className="text-sm text-foreground/60">{currentListening.author}</p>
-                            )}
-                            <span className="text-sm text-accent font-semibold">Otevřít v přehrávači →</span>
-                          </div>
-                        </div>
-                      </a>
+        {activeSection === "vse" ? (
+          /* Hlavní knihovna: 4 řádky */
+          <div className="space-y-10">
+            <ScrollRow
+              title="Knihy"
+              onTitleClick={() => setActiveSection("books")}
+              empty={books.length === 0}
+            >
+              {books.map((item) => (
+                <BookCard key={item.id} item={item} onClick={() => router.push(item.href)} />
+              ))}
+            </ScrollRow>
+
+            <ScrollRow
+              title="Videa"
+              onTitleClick={() => setActiveSection("videos")}
+              empty={videos.length === 0}
+            >
+              {videos.map((item) => (
+                <VideoCard key={item.id} item={item} onClick={() => router.push(item.href)} />
+              ))}
+            </ScrollRow>
+
+            <ScrollRow
+              title="Reelska"
+              onTitleClick={() => setActiveSection("reels")}
+              empty={reels.length === 0}
+            >
+              {reels.map((item) => (
+                <ReelEmbedCard key={item.id} item={item} />
+              ))}
+            </ScrollRow>
+
+            <ScrollRow
+              title="Články"
+              onTitleClick={() => setActiveSection("articles")}
+              empty={articles.length === 0}
+            >
+              {articles.map((item) => (
+                <ArticleCard key={item.id} item={item} />
+              ))}
+            </ScrollRow>
+          </div>
+        ) : activeSection === "reels" ? (
+          /* Reelska – inline embedy skupinami podle kategorií */
+          <div className="space-y-10">
+            {reels.length === 0 ? (
+              <p className="text-foreground/50">Zatím žádná reelska.</p>
+            ) : (
+              (() => {
+                const reelGroups = groupByCategory(reels);
+                return reelGroups.map((group) => (
+                  <div key={group.id} className="space-y-4">
+                    {(reelGroups.length > 1 || group.id !== "none") && (
+                      <h3 className="text-base font-semibold text-foreground/55 uppercase tracking-wide">
+                        {group.label}
+                      </h3>
                     )}
+                    <div
+                      className="flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 scroll-smooth [&::-webkit-scrollbar]:hidden"
+                      style={{ scrollbarWidth: "none" }}
+                    >
+                      {group.items.map((item) => (
+                        <ReelEmbedCard key={item.id} item={item} />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-              <h2 className="text-2xl font-semibold text-foreground">Články</h2>
-              <div className="flex flex-col gap-4">
-                {blogItems.length === 0 ? (
-                  <p className="text-foreground/60">Zatím žádné články.</p>
-                ) : (
-                  blogItems.map((item) => {
-                    const Icon = getTypeIcon(item.type);
-                    return (
-                      <button
-                        key={`${item.type}-${item.id}`}
-                        onClick={() => router.push(item.href)}
-                        className="block text-left w-full cursor-pointer"
-                      >
-                        <article className="bg-white/85 rounded-[20px] p-4 border border-white/60 shadow-sm hover:shadow-lg transition-all backdrop-blur">
-                          <div className="flex items-start gap-3">
-                            <Icon className="text-accent flex-shrink-0 mt-0.5" size={18} />
-                            <div className="min-w-0">
-                              <h3 className="font-semibold text-foreground line-clamp-2">{item.title}</h3>
-                              {item.author && (
-                                <p className="text-sm text-foreground/60 mt-0.5">Autor: {item.author}</p>
-                              )}
-                              <p className="text-sm text-foreground/60 mt-1 line-clamp-2">{item.description}</p>
-                            </div>
-                          </div>
-                        </article>
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-            </div>
+                ));
+              })()
+            )}
+          </div>
+        ) : activeSection === "articles" ? (
+          /* Články – kategorie s horizontálním scrollem */
+          <div className="space-y-8">
+            {articles.length === 0 ? (
+              <p className="text-foreground/50">Zatím žádné články.</p>
+            ) : (
+              groupByCategory(articles).map((group) => (
+                <ScrollRow key={group.id} title={group.label}>
+                  {group.items.map((item) => (
+                    <ArticleCard key={item.id} item={item} />
+                  ))}
+                </ScrollRow>
+              ))
+            )}
           </div>
         ) : (
-          /* Full-width filtered grid – bez velkého boxu */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredItems.length === 0 ? (
-              <p className="col-span-full text-center text-foreground/60 py-12">
-                Zatím žádné položky.
-              </p>
+          /* Knihy nebo Videa – kategorie s horizontálním scrollem */
+          <div className="space-y-8">
+            {sectionItems[activeSection as "books" | "videos"].length === 0 ? (
+              <p className="text-foreground/50">Zatím žádné položky.</p>
             ) : (
-              filteredItems.map((item, index) => renderItemCard(item, index, router))
+              groupByCategory(sectionItems[activeSection as "books" | "videos"]).map((group) => (
+                <ScrollRow key={group.id} title={group.label}>
+                  {group.items.map((item) =>
+                    activeSection === "books" ? (
+                      <BookCard key={item.id} item={item} onClick={() => router.push(item.href)} />
+                    ) : (
+                      <VideoCard key={item.id} item={item} onClick={() => router.push(item.href)} />
+                    )
+                  )}
+                </ScrollRow>
+              ))
             )}
           </div>
         )}

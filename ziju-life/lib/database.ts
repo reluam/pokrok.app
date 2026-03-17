@@ -262,6 +262,34 @@ export async function initializeDatabase() {
     try { await sql`ALTER TABLE purchases ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP WITH TIME ZONE`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE purchases ADD COLUMN IF NOT EXISTS journey_data JSONB`; } catch { /* already exists */ }
 
+    // Update type check constraint to include 'reel' (drop old, add new)
+    try {
+      await sql`ALTER TABLE inspirations DROP CONSTRAINT IF EXISTS inspirations_type_check`
+    } catch { /* ignore */ }
+    try {
+      await sql`ALTER TABLE inspirations ADD CONSTRAINT inspirations_type_check CHECK (type IN ('blog', 'video', 'book', 'article', 'other', 'music', 'reel'))`
+    } catch { /* already up to date */ }
+
+    // Secondary categories (array of category IDs for filtering)
+    try {
+      await sql`ALTER TABLE inspirations ADD COLUMN IF NOT EXISTS secondary_category_ids TEXT[] DEFAULT ARRAY[]::TEXT[]`
+    } catch { /* ignore */ }
+
+    // Inspiration categories
+    await sql`
+      CREATE TABLE IF NOT EXISTS inspiration_categories (
+        id VARCHAR(255) PRIMARY KEY,
+        name TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      ALTER TABLE inspirations
+      ADD COLUMN IF NOT EXISTS category_id VARCHAR(255) REFERENCES inspiration_categories(id) ON DELETE SET NULL
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

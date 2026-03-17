@@ -1,7 +1,14 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-export type InspirationType = 'blog' | 'video' | 'book' | 'article' | 'other' | 'music'
+export type InspirationType = 'blog' | 'video' | 'book' | 'article' | 'other' | 'music' | 'reel'
+
+export interface InspirationCategory {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
 
 export interface InspirationItem {
   id: string
@@ -22,6 +29,8 @@ export interface InspirationItem {
   bookCoverPositionY?: number
   isActive?: boolean // Whether the inspiration is visible on the website
   isCurrentListening?: boolean // For music – zobrazit v sekci Co právě poslouchám (jen jeden)
+  categoryId?: string // ID of the primary inspiration category (determines shelf grouping)
+  secondaryCategoryIds?: string[] // IDs of secondary categories (for filtering only)
   createdAt: string
   updatedAt: string
 }
@@ -33,6 +42,7 @@ export interface InspirationData {
   articles: InspirationItem[]
   other: InspirationItem[]
   music: InspirationItem[]
+  reels: InspirationItem[]
 }
 
 const DATA_FILE = join(process.cwd(), 'data', 'inspiration.json')
@@ -50,6 +60,7 @@ export async function getInspirationData(): Promise<InspirationData> {
       articles: [],
       other: [],
       music: [],
+      reels: [],
     }
   }
 }

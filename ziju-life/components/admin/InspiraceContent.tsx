@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LayoutGrid, Table2, Search, Music, Crop } from "lucide-react";
-import type { InspirationData, InspirationItem, InspirationType } from "@/lib/inspiration";
+import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LayoutGrid, Table2, Search, Music, Crop, Tag, Instagram } from "lucide-react";
+import type { InspirationData, InspirationItem, InspirationType, InspirationCategory } from "@/lib/inspiration";
 import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
 import BookCoverCropModal from "./BookCoverCropModal";
+
+type AdminTab = "inspirations" | "categories";
 
 type ViewMode = "cards" | "table";
 
@@ -16,6 +18,7 @@ const getTypeLabel = (type: InspirationType): string => {
     case "article": return "Článek";
     case "other": return "Ostatní";
     case "music": return "Hudba";
+    case "reel": return "Reel";
     default: return type;
   }
 };
@@ -28,11 +31,12 @@ const getTypeIcon = (type: InspirationType) => {
     case "article": return FileText;
     case "other": return HelpCircle;
     case "music": return Music;
+    case "reel": return Instagram;
     default: return FileText;
   }
 };
 
-const INSPIRATION_TYPES: InspirationType[] = ["video", "book", "article", "other", "music"];
+const INSPIRATION_TYPES: InspirationType[] = ["video", "book", "article", "other", "music", "reel"];
 const BLOG_TYPES: InspirationType[] = ["blog"];
 
 const getVideoThumbnailFromUrl = (url: string): string | null => {
@@ -62,6 +66,7 @@ export default function InspiraceContent({
 
   const [data, setData] = useState<InspirationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adminTab, setAdminTab] = useState<AdminTab>("inspirations");
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<InspirationType | "all">("all");
@@ -72,9 +77,15 @@ export default function InspiraceContent({
   const [formData, setFormData] = useState<Partial<InspirationItem>>({});
   const [loadingThumbnail, setLoadingThumbnail] = useState(false);
   const [showBookCoverCropModal, setShowBookCoverCropModal] = useState(false);
+  // Categories
+  const [categories, setCategories] = useState<InspirationCategory[]>([]);
+  const [categoryInput, setCategoryInput] = useState("");
+  const [editingCategory, setEditingCategory] = useState<InspirationCategory | null>(null);
+  const [categoryEditName, setCategoryEditName] = useState("");
 
   useEffect(() => {
     fetchData();
+    fetchCategories();
   }, []);
 
   // Auto-vyplnění thumbnails pro YouTube při změně URL (video i hudba)
@@ -110,6 +121,72 @@ export default function InspiraceContent({
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/inspiration-categories");
+      const data = await res.json();
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const handleAddCategory = async () => {
+    const name = categoryInput.trim();
+    if (!name) return;
+    try {
+      const res = await fetch("/api/inspiration-categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (res.ok) {
+        setCategoryInput("");
+        await fetchCategories();
+      } else {
+        alert("Chyba při přidávání kategorie");
+      }
+    } catch {
+      alert("Chyba při přidávání kategorie");
+    }
+  };
+
+  const handleUpdateCategory = async () => {
+    if (!editingCategory) return;
+    const name = categoryEditName.trim();
+    if (!name) return;
+    try {
+      const res = await fetch("/api/inspiration-categories", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingCategory.id, name }),
+      });
+      if (res.ok) {
+        setEditingCategory(null);
+        setCategoryEditName("");
+        await fetchCategories();
+      } else {
+        alert("Chyba při úpravě kategorie");
+      }
+    } catch {
+      alert("Chyba při úpravě kategorie");
+    }
+  };
+
+  const handleDeleteCategory = async (id: string, name: string) => {
+    if (!confirm(`Opravdu smazat kategorii "${name}"? Inspirace v ní zůstanou, jen ztratí přiřazení.`)) return;
+    try {
+      const res = await fetch(`/api/inspiration-categories?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        await fetchCategories();
+      } else {
+        alert("Chyba při mazání kategorie");
+      }
+    } catch {
+      alert("Chyba při mazání kategorie");
     }
   };
 
@@ -256,6 +333,9 @@ export default function InspiraceContent({
     if (allowedTypes.includes("music")) {
       items.push(...(data.music || []).map((item) => ({ ...item, category: "music" as InspirationType })));
     }
+    if (allowedTypes.includes("reel")) {
+      items.push(...(data.reels || []).map((item) => ({ ...item, category: "reel" as InspirationType })));
+    }
     return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
 
@@ -303,14 +383,138 @@ export default function InspiraceContent({
               : "Tipy na knihy, videa a články zobrazené na /inspirace"}
           </p>
         </div>
-        <button
-          onClick={openTypeSelector}
-          className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
-        >
-          <Plus size={20} />
-          {mode === "blog" ? "Přidat článek" : "Přidat inspiraci"}
-        </button>
+        {adminTab === "inspirations" && (
+          <button
+            onClick={openTypeSelector}
+            className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
+          >
+            <Plus size={20} />
+            {mode === "blog" ? "Přidat článek" : "Přidat inspiraci"}
+          </button>
+        )}
       </div>
+
+      {/* Tabs – only for inspirace mode */}
+      {mode === "inspirace" && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => setAdminTab("inspirations")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-colors ${
+              adminTab === "inspirations"
+                ? "bg-accent text-white"
+                : "bg-white border border-black/10 text-foreground/70 hover:border-accent/40 hover:text-accent"
+            }`}
+          >
+            <LayoutGrid size={16} />
+            Inspirace
+          </button>
+          <button
+            onClick={() => setAdminTab("categories")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-colors ${
+              adminTab === "categories"
+                ? "bg-accent text-white"
+                : "bg-white border border-black/10 text-foreground/70 hover:border-accent/40 hover:text-accent"
+            }`}
+          >
+            <Tag size={16} />
+            Kategorie
+          </button>
+        </div>
+      )}
+
+      {/* Categories Management */}
+      {adminTab === "categories" && (
+        <div className="space-y-4">
+          {/* Add category */}
+          <div className="bg-white rounded-2xl border border-black/5 p-6">
+            <h2 className="text-lg font-bold text-foreground mb-4">Přidat kategorii</h2>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={categoryInput}
+                onChange={(e) => setCategoryInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+                placeholder="Název kategorie (např. Osobní rozvoj)"
+                className="flex-1 px-4 py-2.5 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+              />
+              <button
+                onClick={handleAddCategory}
+                className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-xl font-semibold hover:bg-accent-hover transition-colors"
+              >
+                <Plus size={18} />
+                Přidat
+              </button>
+            </div>
+          </div>
+
+          {/* Categories list */}
+          <div className="bg-white rounded-2xl border border-black/5 overflow-hidden">
+            {categories.length === 0 ? (
+              <div className="p-12 text-center text-foreground/50">
+                Zatím žádné kategorie. Přidejte první kategorii výše.
+              </div>
+            ) : (
+              <div className="divide-y divide-black/5">
+                {categories.map((cat) => (
+                  <div key={cat.id} className="p-4 flex items-center gap-4">
+                    <Tag className="text-accent flex-shrink-0" size={18} />
+                    {editingCategory?.id === cat.id ? (
+                      <div className="flex-1 flex items-center gap-3">
+                        <input
+                          type="text"
+                          value={categoryEditName}
+                          onChange={(e) => setCategoryEditName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleUpdateCategory();
+                            if (e.key === "Escape") { setEditingCategory(null); setCategoryEditName(""); }
+                          }}
+                          autoFocus
+                          className="flex-1 px-3 py-1.5 border-2 border-accent rounded-lg focus:ring-2 focus:ring-accent bg-white text-sm"
+                        />
+                        <button
+                          onClick={handleUpdateCategory}
+                          className="px-3 py-1.5 bg-accent text-white rounded-lg text-sm font-semibold hover:bg-accent-hover"
+                        >
+                          Uložit
+                        </button>
+                        <button
+                          onClick={() => { setEditingCategory(null); setCategoryEditName(""); }}
+                          className="p-1.5 text-foreground/50 hover:text-foreground rounded-lg"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="flex-1 font-semibold text-foreground">{cat.name}</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => { setEditingCategory(cat); setCategoryEditName(cat.name); }}
+                            className="p-2 text-accent hover:bg-accent/10 rounded-lg transition-colors"
+                            title="Upravit"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Smazat"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Inspirations tab content */}
+      {adminTab === "inspirations" && (<>
 
       {/* View Mode Toggle and Filters */}
       <div className="bg-white rounded-2xl border border-black/5 p-6">
@@ -395,11 +599,16 @@ export default function InspiraceContent({
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
                           <Icon className="text-accent" size={20} />
                           <span className="text-sm font-semibold text-accent">
                             {getTypeLabel(item.category)}
                           </span>
+                          {item.categoryId && categories.find(c => c.id === item.categoryId) && (
+                            <span className="text-xs px-2 py-1 bg-accent/10 text-accent rounded-full border border-accent/20">
+                              {categories.find(c => c.id === item.categoryId)!.name}
+                            </span>
+                          )}
                           {!isActive && (
                             <span className="text-xs px-2 py-1 bg-gray-200 text-gray-600 rounded-full">
                               Neaktivní
@@ -475,6 +684,7 @@ export default function InspiraceContent({
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Typ</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Název</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Kategorie</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Autor</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Popis</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-foreground">Aktivní</th>
@@ -498,6 +708,9 @@ export default function InspiraceContent({
                         </td>
                         <td className="px-6 py-4">
                           <div className="font-semibold text-foreground">{item.title}</div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-foreground/70">
+                          {item.categoryId ? (categories.find(c => c.id === item.categoryId)?.name || "-") : "-"}
                         </td>
                         <td className="px-6 py-4 text-sm text-foreground/70">
                           {item.author || "-"}
@@ -547,6 +760,8 @@ export default function InspiraceContent({
         </div>
       )}
 
+      </>)}
+
       {/* Type Selector Modal */}
       {showTypeSelector && (
         <div
@@ -572,6 +787,7 @@ export default function InspiraceContent({
                 { type: "article" as InspirationType, icon: FileText, label: "Článek" },
                 { type: "other" as InspirationType, icon: HelpCircle, label: "Ostatní" },
                 { type: "music" as InspirationType, icon: Music, label: "Hudba" },
+                { type: "reel" as InspirationType, icon: Instagram, label: "Reel (Instagram)" },
               ])
                 .filter(({ type }) => allowedTypes.includes(type))
                 .map(({ type, icon: Icon, label }) => (
@@ -640,6 +856,71 @@ export default function InspiraceContent({
                 </div>
               )}
 
+              {/* Primary Category */}
+              {categories.length > 0 && (
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Hlavní kategorie
+                    <span className="ml-2 text-xs font-normal text-foreground/50">určuje skupinu v detailním filtru</span>
+                  </label>
+                  <select
+                    value={formData.categoryId || ""}
+                    onChange={(e) => {
+                      const newPrimary = e.target.value || undefined;
+                      // Remove new primary from secondary if it was there
+                      const secondary = (formData.secondaryCategoryIds || []).filter(id => id !== newPrimary);
+                      setFormData({ ...formData, categoryId: newPrimary, secondaryCategoryIds: secondary });
+                    }}
+                    className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+                  >
+                    <option value="">Bez kategorie</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Secondary Categories */}
+              {categories.length > 1 && (
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Vedlejší kategorie
+                    <span className="ml-2 text-xs font-normal text-foreground/50">slouží jen k filtrování</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {categories
+                      .filter(cat => cat.id !== formData.categoryId)
+                      .map(cat => {
+                        const selected = (formData.secondaryCategoryIds || []).includes(cat.id);
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                              const current = formData.secondaryCategoryIds || [];
+                              setFormData({
+                                ...formData,
+                                secondaryCategoryIds: selected
+                                  ? current.filter(id => id !== cat.id)
+                                  : [...current, cat.id],
+                              });
+                            }}
+                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                              selected
+                                ? "bg-accent/15 border-accent/40 text-accent"
+                                : "bg-white border-black/10 text-foreground/60 hover:border-accent/30 hover:text-accent"
+                            }`}
+                          >
+                            {selected && <span className="mr-1">✓</span>}
+                            {cat.name}
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
               {/* Description */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
@@ -704,6 +985,28 @@ export default function InspiraceContent({
                       className="mt-2 rounded-lg max-w-xs"
                     />
                   )}
+                </div>
+              )}
+
+              {/* Reel Thumbnail */}
+              {selectedType === "reel" && (
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Thumbnail (volitelný náhledový obrázek)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.thumbnail || ""}
+                    onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+                    placeholder="https://..."
+                  />
+                  {formData.thumbnail && (
+                    <img src={formData.thumbnail} alt="Thumbnail" className="mt-2 rounded-lg max-w-xs aspect-[9/16] object-cover" />
+                  )}
+                  <p className="text-xs text-foreground/60 mt-1">
+                    Zobrazí se v náhledové kartě v knihovně. Pokud nevyplníte, zobrazí se Instagram ikona.
+                  </p>
                 </div>
               )}
 
