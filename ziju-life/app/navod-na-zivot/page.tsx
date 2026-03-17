@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Category = "zaklad" | "principy" | "pilulky";
-type Filter = Category | "vse";
 
 interface Resource {
   label: string;
@@ -111,7 +110,7 @@ const PRINCIPLES: Principle[] = [
   {
     id: "zodpovednost", category: "principy", emoji: "🎯",
     title: "Za svůj život jsi zodpovědný pouze ty sám.",
-    lead: "Nikdo jiný nemůže žít tvůj život za tebe. V určitém bodě si prostě musíš říct: „Je to na mně.”",
+    lead: "Nikdo jiný nemůže žít tvůj život za tebe. V určitém bodě si prostě musíš říct: \u201EJe to na mně.\u201C",
     body: [
       "Můžeš mít podporu, kouče, partnera, komunitu. Ale rozhodnutí, která děláš každé ráno, večer i mezi tím, za tebe nikdo neudělá.",
       "To není tlak, ale svoboda. Jakmile to přijmeš, můžeš s vlastním životem mnohem víc experimentovat.",
@@ -129,9 +128,9 @@ const PRINCIPLES: Principle[] = [
   {
     id: "smysl", category: "principy", emoji: "✨",
     title: "Svůj životní smysl tvoříš každodenními kroky.",
-    lead: "Smysl nepřijde shora jako jeden velký „aha moment”. Vzniká z malých voleb, které děláš dnes a zítra.",
+    lead: "Smysl nepřijde shora jako jeden velký \u201Eaha moment\u201D. Vzniká z malých voleb, které děláš dnes a zítra.",
     body: [
-      "Často čekáme na jeden zlomový okamžik, který nám „vysvětlí život”. V praxi smysl vzniká z drobných rozhodnutí — čemu říkáš ano, čemu ne, kam dáváš energii.",
+      "Často čekáme na jeden zlomový okamžik, který nám \u201Evysvětlí život\u201D. V praxi smysl vzniká z drobných rozhodnutí — čemu říkáš ano, čemu ne, kam dáváš energii.",
       "Můžeš začít maličkostmi: jedním projektem, jedním návykem, jedním rozhovorem, který už dlouho odkládáš.",
     ],
   },
@@ -141,7 +140,7 @@ const PRINCIPLES: Principle[] = [
     lead: "Sebevědomí není afirmace v zrcadle, ale důkaz. Přichází, když děláš kroky, do kterých se ti nechce — a ustojíš je.",
     body: [
       "Můžeš si opakovat, že na to máš. Ale dokud si to neověříš v reálném světě, hlava tomu stejně úplně nevěří.",
-      "Každý malý „těžký krok” — nepříjemný hovor, odmítnutí, nový projekt — je malý důkaz pro sebevědomí: „Zvládl jsem to. Dám i další věc.”",
+      "Každý malý \u201Etěžký krok\u201D — nepříjemný hovor, odmítnutí, nový projekt — je malý důkaz pro sebevědomí: \u201EZvládl jsem to. Dám i další věc.\u201C",
     ],
   },
   {
@@ -150,7 +149,7 @@ const PRINCIPLES: Principle[] = [
     lead: "Perfekcionismus je chytře maskovaný strach. Dokončené věci mění život — ne ty rozdělané.",
     body: [
       "Můžeš měsíce ladit detaily projektu nebo newsletteru — ale dokud to nepublikuješ, realita ti nedá žádnou zpětnou vazbu. Zůstaneš v bezpečí vlastní hlavy.",
-      "Když začneš cílit na „dost dobré na odeslání” místo dokonalosti, posuneš se násobně rychleji. Učíš se z reálných reakcí, ne z hypotetických scénářů.",
+      "Když začneš cílit na \u201Edost dobré na odeslání\u201D místo dokonalosti, posuneš se násobně rychleji. Učíš se z reálných reakcí, ne z hypotetických scénářů.",
     ],
   },
   {
@@ -158,8 +157,8 @@ const PRINCIPLES: Principle[] = [
     title: "Intuice pracuje ve tvůj prospěch.",
     lead: "Intuice není magie. Je to zhuštěná zkušenost tvého mozku, která se ozývá dřív, než ji stihneš rozumově vysvětlit.",
     body: [
-      "Když máš z člověka, spolupráce nebo rozhodnutí „divný pocit”, v pozadí běží spousta drobných signálů, které tvůj mozek dávno viděl — jen je neumíš hned pojmenovat.",
-      "Intuici se vyplatí brát vážně, ale ne slepě. Použij ji jako první kompas a doplň rozumem: „Co přesně na téhle situaci mi nesedí?”",
+      "Když máš z člověka, spolupráce nebo rozhodnutí \u201Edivný pocit\u201D, v pozadí běží spousta drobných signálů, které tvůj mozek dávno viděl — jen je neumíš hned pojmenovat.",
+      "Intuici se vyplatí brát vážně, ale ne slepě. Použij ji jako první kompas a doplň rozumem: \u201ECo přesně na téhle situaci mi nesedí?\u201C",
     ],
   },
   // PILULKY
@@ -168,7 +167,7 @@ const PRINCIPLES: Principle[] = [
     title: "Tvůj mozek je hloupější, než si myslíš.",
     lead: "Většinu času jedeš na autopilota — zkratky, emoce a příběhy v hlavě často vyhrávají nad realitou.",
     body: [
-      "Mozek není nástroj na „pravdu”. Je to nástroj na přežití: šetřit energii, držet se známého, vyhýbat se riziku a mít pravdu za každou cenu.",
+      "Mozek není nástroj na \u201Epravdu\u201D. Je to nástroj na přežití: šetřit energii, držet se známého, vyhýbat se riziku a mít pravdu za každou cenu.",
       "Když s tím začneš počítat, přestaneš se divit vlastním přešlapům. Místo sebemrskání začneš stavět systémy, které s autopilotem umí pracovat.",
     ],
   },
@@ -178,31 +177,31 @@ const PRINCIPLES: Principle[] = [
     lead: "Ego miluje drama. Humor a lehkost ti vrátí nadhled — a často i odvahu.",
     body: [
       "Když bereš všechno smrtelně vážně, každá chyba je katastrofa a každý pohled ostatních je soud. Tím si zbytečně přidáváš tlak.",
-      "Lehkovážnost není nezodpovědnost. Je to schopnost udržet si odstup: „Tohle jsem udělal špatně. Neznamená to, že jsem špatný.”",
+      "Lehkovážnost není nezodpovědnost. Je to schopnost udržet si odstup: \u201ETohle jsem udělal špatně. Neznamená to, že jsem špatný.\u201C",
     ],
   },
   {
     id: "vazne-svet", category: "pilulky", emoji: "🌍",
     title: "A neber svět okolo tak vážně.",
-    lead: "Spousta „pravidel” je jen společenská hra. Když to uvidíš, přestaneš se bát pohybu.",
+    lead: "Spousta \u201Epravidel\u201D je jen společenská hra. Když to uvidíš, přestaneš se bát pohybu.",
     body: [
       "Lidé často působí sebejistě, ale uvnitř řeší podobné věci jako ty: nejistotu, porovnávání, strach z odmítnutí. Svět není tak pevný a soudný, jak se tváří.",
-      "Když přestaneš čekat „povolení”, začneš tvořit. A zjistíš, že většina bariér byla jen v hlavě.",
+      "Když přestaneš čekat \u201Epovolení\u201D, začneš tvořit. A zjistíš, že většina bariér byla jen v hlavě.",
     ],
   },
   {
     id: "zvirata", category: "pilulky", emoji: "🦁",
     title: "Pod povrchem jsme stále jen zvířata.",
-    lead: "V úplném základu jsme biologické mašiny. Často si myslíme, že „jsme nad tím”, ale nejsme.",
+    lead: "V úplném základu jsme biologické mašiny. Často si myslíme, že \u201Ejsme nad tím\u201D, ale nejsme.",
     body: [
-      "Nálada, motivace i sebeovládání nejsou jen „síla vůle”. Jsou to hormony, spánek, jídlo, pohyb, stres a prostředí. Proto sekce Základ není „self-care”, ale infrastruktura.",
+      "Nálada, motivace i sebeovládání nejsou jen \u201Esíla vůle\u201D. Jsou to hormony, spánek, jídlo, pohyb, stres a prostředí. Proto sekce Základ není \u201Eself-care\u201D, ale infrastruktura.",
       "Když tohle přijmeš, přestaneš moralizovat vlastní výkyvy a začneš je řídit jako systém — ne jako charakterovou vadu.",
     ],
   },
   {
     id: "jedna-vec", category: "pilulky", emoji: "🪄",
     title: "Žádná jedna věc to zázračně nevyřeší.",
-    lead: "Žádný „hack” to za tebe neodžije. Funguje jen kombinace malých kroků v čase.",
+    lead: "Žádný \u201Ehack\u201D to za tebe neodžije. Funguje jen kombinace malých kroků v čase.",
     body: [
       "Je lákavé věřit, že existuje jeden kurz, jedna kniha nebo jedna metoda, která všechno přepne. Realita je střízlivější — a zároveň mnohem víc pod tvojí kontrolou.",
       "Když přestaneš hledat zázrak a začneš skládat systém (spánek, jídlo, pohyb, vztahy, práce, pozornost), život se začne zlepšovat bez magie.",
@@ -234,142 +233,27 @@ const CATEGORY_META: Record<Category, { label: string; emoji: string; color: str
   },
 };
 
-// ── Carousel ──────────────────────────────────────────────────────────────────
-
-function Carousel({ filter }: { filter: Filter }) {
-  const items = filter === "vse" ? PRINCIPLES : PRINCIPLES.filter((p) => p.category === filter);
-  const [index, setIndex] = useState(0);
-
-  const clampedIndex = Math.min(index, items.length - 1);
-  const principle = items[clampedIndex];
-
-  const prev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
-  const next = useCallback(() => setIndex((i) => Math.min(items.length - 1, i + 1)), [items.length]);
-
-  if (!principle) return null;
-
-  const meta = CATEGORY_META[principle.category];
-  const hasPrev = clampedIndex > 0;
-  const hasNext = clampedIndex < items.length - 1;
-
-  return (
-    <div className="flex flex-col gap-4">
-      {/* Progress + nav */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-foreground/50">
-          {clampedIndex + 1} / {items.length}
-        </span>
-        <div className="flex gap-2">
-          <button
-            onClick={prev}
-            disabled={!hasPrev}
-            className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            aria-label="Předchozí"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            onClick={next}
-            disabled={!hasNext}
-            className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            aria-label="Další"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* Principle card */}
-      <article className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5">
-        {/* Category badge */}
-        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${meta.bg} ${meta.color}`}>
-          <span>{meta.emoji}</span>
-          {meta.label}
-        </span>
-
-        {/* Title */}
-        <div className="space-y-1">
-          <div className="flex items-start gap-3">
-            <span className="text-3xl leading-none mt-0.5">{principle.emoji}</span>
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-foreground leading-snug">{principle.title}</h2>
-              {principle.subtitle && (
-                <p className="text-sm text-foreground/50 mt-0.5">{principle.subtitle}</p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Lead */}
-        <p className="text-base md:text-lg text-foreground/80 leading-relaxed font-medium">{principle.lead}</p>
-
-        {/* Body */}
-        {principle.body.map((p, i) => (
-          <p key={i} className="text-sm md:text-base text-foreground/70 leading-relaxed">{p}</p>
-        ))}
-
-        {/* Tips */}
-        {principle.tips && (
-          <div className="space-y-2">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Tipy</h4>
-            <ul className="space-y-2">
-              {principle.tips.map((tip, i) => (
-                <li key={i} className="flex gap-2.5 text-sm md:text-base text-foreground/75">
-                  <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent/60" />
-                  {tip}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Resources */}
-        {principle.resources && (
-          <div className="space-y-1.5">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Zdroje</h4>
-            <ul className="space-y-1">
-              {principle.resources.map((r, i) => (
-                <li key={i} className="text-sm text-foreground/70">
-                  {r.prefix && <span>{r.prefix}: </span>}
-                  {r.external ? (
-                    <a href={r.href} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold hover:underline">{r.label}</a>
-                  ) : (
-                    <Link href={r.href} className="text-accent font-semibold hover:underline">{r.label}</Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </article>
-
-      {/* Bottom nav (duplicate for mobile convenience) */}
-      <div className="flex justify-between">
-        <button
-          onClick={prev}
-          disabled={!hasPrev}
-          className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          <ChevronLeft size={16} />
-          {hasPrev && items[clampedIndex - 1]?.title.slice(0, 30)}{hasPrev && items[clampedIndex - 1]?.title.length > 30 ? "…" : ""}
-        </button>
-        <button
-          onClick={next}
-          disabled={!hasNext}
-          className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-right"
-        >
-          {hasNext && items[clampedIndex + 1]?.title.slice(0, 30)}{hasNext && items[clampedIndex + 1]?.title.length > 30 ? "…" : ""}
-          <ChevronRight size={16} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function NavodNaZivotPage() {
-  const [filter, setFilter] = useState<Filter>("vse");
+  const [index, setIndex] = useState(0);
+
+  const principle = PRINCIPLES[index];
+  const currentCategory = principle.category;
+  const meta = CATEGORY_META[currentCategory];
+
+  const hasPrev = index > 0;
+  const hasNext = index < PRINCIPLES.length - 1;
+
+  const prev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
+  const next = useCallback(() => setIndex((i) => Math.min(PRINCIPLES.length - 1, i + 1)), []);
+
+  const jumpToCategory = (cat: Category) => {
+    const idx = PRINCIPLES.findIndex((p) => p.category === cat);
+    if (idx !== -1) setIndex(idx);
+  };
+
+  const categoryPrinciples = PRINCIPLES.filter((p) => p.category === currentCategory);
 
   const counts: Record<Category, number> = {
     zaklad: PRINCIPLES.filter((p) => p.category === "zaklad").length,
@@ -383,43 +267,81 @@ export default function NavodNaZivotPage() {
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto space-y-8">
 
-            {/* Intro card */}
-            <div className="paper-card rounded-[28px] px-6 py-8 md:px-10 md:py-10 space-y-4">
-              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-foreground/40">
-                Matějův osobní tahák
+            {/* Hero: intro + sales card */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+              {/* Intro (2/3) */}
+              <div className="lg:col-span-2 paper-card rounded-[28px] px-6 py-8 md:px-10 md:py-10 space-y-4">
+                <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-foreground/40">
+                  Matějův osobní tahák
+                </div>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
+                  Návod na život
+                </h1>
+                <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
+                  Toto je <strong>můj</strong> návod — soubor principů, hodnot a lekcí, podle kterých se snažím žít.
+                  Není to dogma ani univerzální recept. Je to zrcadlo toho, co mi funguje.
+                </p>
+                <p className="text-base text-foreground/60 leading-relaxed max-w-3xl">
+                  Posbíral jsem ho z vlastních chyb, z příběhů chytřejších lidí a z let experimentování.
+                  Sdílím ho proto, aby ti mohl posloužit jako inspirace — ne jako návod k okopírování.
+                  Tvůj život potřebuje tvůj vlastní kompas.
+                </p>
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
-                Návod na život
-              </h1>
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
-                Toto je <strong>můj</strong> návod — soubor principů, hodnot a lekcí, podle kterých se snažím žít.
-                Není to dogma ani univerzální recept. Je to zrcadlo toho, co mi funguje.
-              </p>
-              <p className="text-base text-foreground/60 leading-relaxed max-w-3xl">
-                Posbíral jsem ho z vlastních chyb, z příběhů chytřejších lidí a z let experimentování.
-                Sdílím ho proto, aby ti mohl posloužit jako inspirace — ne jako návod k okopírování.
-                Tvůj život potřebuje tvůj vlastní kompas.
-              </p>
+
+              {/* Sales card (1/3) */}
+              <div className="paper-card rounded-[24px] px-6 py-7 space-y-4 border-2 border-accent/15">
+                <div className="text-2xl">🗺️</div>
+                <div className="space-y-1">
+                  <h2 className="text-lg font-extrabold text-foreground leading-snug">
+                    Sestav si svůj návod pro život
+                  </h2>
+                  <p className="text-sm text-foreground/60 leading-relaxed">
+                    Tento návod je Matějův. Tvůj život ale potřebuje tvůj vlastní kompas.
+                  </p>
+                </div>
+                <p className="text-sm text-foreground/70 leading-relaxed">
+                  Audit života ti v 7 krocích pomůže zjistit, kde teď jsi, co skutečně chceš
+                  a co tě brzdí. Na konci dostaneš vlastní dokument — tvůj osobní návod.
+                </p>
+                <ul className="space-y-2">
+                  {["Kde teď jsi?", "Energie & hodnoty", "Co skutečně chceš", "Co tě brzdí", "Tvůj vlastní plán"].map((step) => (
+                    <li key={step} className="flex items-center gap-2 text-xs text-foreground/70">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/audit-zivota"
+                  className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
+                >
+                  Začít audit
+                  <ArrowRight size={16} />
+                </Link>
+                <p className="text-center text-xs text-foreground/40">
+                  Průvodce, cvičení a šablony v jednom
+                </p>
+              </div>
             </div>
 
             {/* Category columns */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {(Object.entries(CATEGORY_META) as [Category, typeof CATEGORY_META[Category]][]).map(([key, meta]) => (
+              {(Object.entries(CATEGORY_META) as [Category, typeof CATEGORY_META[Category]][]).map(([key, m]) => (
                 <button
                   key={key}
-                  onClick={() => setFilter((f) => f === key ? "vse" : key)}
+                  onClick={() => jumpToCategory(key)}
                   className={`text-left p-4 md:p-5 rounded-2xl border-2 transition-all ${
-                    filter === key
-                      ? `${meta.bg} border-current ${meta.color} shadow-md`
+                    currentCategory === key
+                      ? `${m.bg} border-current ${m.color} shadow-md`
                       : "bg-white/70 border-black/8 hover:border-black/15 hover:shadow-md"
                   }`}
                 >
-                  <div className="text-2xl mb-2">{meta.emoji}</div>
-                  <div className={`font-bold text-sm md:text-base ${filter === key ? meta.color : "text-foreground"}`}>
-                    {meta.label}
+                  <div className="text-2xl mb-2">{m.emoji}</div>
+                  <div className={`font-bold text-sm md:text-base ${currentCategory === key ? m.color : "text-foreground"}`}>
+                    {m.label}
                   </div>
-                  <div className="text-xs text-foreground/55 mt-0.5 leading-snug hidden sm:block">{meta.description}</div>
-                  <div className={`text-xs font-semibold mt-2 ${filter === key ? meta.color : "text-foreground/40"}`}>
+                  <div className="text-xs text-foreground/55 mt-0.5 leading-snug hidden sm:block">{m.description}</div>
+                  <div className={`text-xs font-semibold mt-2 ${currentCategory === key ? m.color : "text-foreground/40"}`}>
                     {counts[key]} {counts[key] === 1 ? "princip" : counts[key] < 5 ? "principy" : "principů"}
                   </div>
                 </button>
@@ -437,55 +359,154 @@ export default function NavodNaZivotPage() {
               </button>
             </div>
 
-            {/* Main layout: left sales column + right carousel */}
-            <div className="flex flex-col lg:flex-row gap-6">
+            {/* Main: left sidebar + right principle */}
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-              {/* Left: Sales card */}
-              <aside className="w-full lg:w-72 flex-shrink-0">
-                <div className="lg:sticky lg:top-24 paper-card rounded-[24px] px-6 py-7 space-y-4 border-2 border-accent/15">
-                  <div className="text-2xl">🗺️</div>
-                  <div className="space-y-1">
-                    <h2 className="text-lg font-extrabold text-foreground leading-snug">
-                      Sestav si svůj návod pro život
-                    </h2>
-                    <p className="text-sm text-foreground/60 leading-relaxed">
-                      Tento návod je Matějův. Tvůj život ale potřebuje tvůj vlastní kompas.
-                    </p>
+              {/* Left: current category principle list */}
+              <aside className="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-24">
+                <div className="paper-card rounded-[24px] px-4 py-5 space-y-3">
+                  <div className={`flex items-center gap-2 text-sm font-bold px-1 ${meta.color}`}>
+                    <span>{meta.emoji}</span>
+                    {meta.label}
                   </div>
-                  <p className="text-sm text-foreground/70 leading-relaxed">
-                    Audit života ti v 7 krocích pomůže zjistit, kde teď jsi, co skutečně chceš
-                    a co tě brzdí. Na konci dostaneš vlastní dokument — tvůj osobní návod.
-                  </p>
-                  <ul className="space-y-2">
-                    {[
-                      "Kde teď jsi?",
-                      "Energie & hodnoty",
-                      "Co skutečně chceš",
-                      "Co tě brzdí",
-                      "Tvůj vlastní plán",
-                    ].map((step) => (
-                      <li key={step} className="flex items-center gap-2 text-xs text-foreground/70">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-                        {step}
-                      </li>
-                    ))}
+                  <ul className="space-y-0.5">
+                    {categoryPrinciples.map((p) => {
+                      const isActive = p.id === principle.id;
+                      const pIndex = PRINCIPLES.findIndex((pr) => pr.id === p.id);
+                      return (
+                        <li key={p.id}>
+                          <button
+                            onClick={() => setIndex(pIndex)}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all flex items-start gap-2.5 ${
+                              isActive
+                                ? `${meta.bg} ${meta.color} font-semibold`
+                                : "hover:bg-black/5 text-foreground/65 hover:text-foreground"
+                            }`}
+                          >
+                            <span className="text-base leading-none mt-0.5 flex-shrink-0">{p.emoji}</span>
+                            <span className="leading-snug">{p.title}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
-                  <Link
-                    href="/audit-zivota"
-                    className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
-                  >
-                    Začít audit
-                    <ArrowRight size={16} />
-                  </Link>
-                  <p className="text-center text-xs text-foreground/40">
-                    Průvodce, cvičení a šablony v jednom
-                  </p>
                 </div>
               </aside>
 
-              {/* Right: Carousel */}
-              <div className="flex-1 min-w-0">
-                <Carousel filter={filter} />
+              {/* Right: principle */}
+              <div className="flex-1 min-w-0 flex flex-col gap-4">
+
+                {/* Nav bar */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-foreground/50">
+                    {index + 1} / {PRINCIPLES.length}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={prev}
+                      disabled={!hasPrev}
+                      className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      aria-label="Předchozí"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      onClick={next}
+                      disabled={!hasNext}
+                      className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      aria-label="Další"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Principle card */}
+                <article className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5">
+                  {/* Category badge */}
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${meta.bg} ${meta.color}`}>
+                    <span>{meta.emoji}</span>
+                    {meta.label}
+                  </span>
+
+                  {/* Title */}
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl leading-none mt-0.5">{principle.emoji}</span>
+                    <div>
+                      <h2 className="text-xl md:text-2xl font-bold text-foreground leading-snug">{principle.title}</h2>
+                      {principle.subtitle && (
+                        <p className="text-sm text-foreground/50 mt-0.5">{principle.subtitle}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Lead */}
+                  <p className="text-base md:text-lg text-foreground/80 leading-relaxed font-medium">{principle.lead}</p>
+
+                  {/* Body */}
+                  {principle.body.map((p, i) => (
+                    <p key={i} className="text-sm md:text-base text-foreground/70 leading-relaxed">{p}</p>
+                  ))}
+
+                  {/* Tips */}
+                  {principle.tips && (
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Tipy</h4>
+                      <ul className="space-y-2">
+                        {principle.tips.map((tip, i) => (
+                          <li key={i} className="flex gap-2.5 text-sm md:text-base text-foreground/75">
+                            <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent/60" />
+                            {tip}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Resources */}
+                  {principle.resources && (
+                    <div className="space-y-1.5">
+                      <h4 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Zdroje</h4>
+                      <ul className="space-y-1">
+                        {principle.resources.map((r, i) => (
+                          <li key={i} className="text-sm text-foreground/70">
+                            {r.prefix && <span>{r.prefix}: </span>}
+                            {r.external ? (
+                              <a href={r.href} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold hover:underline">{r.label}</a>
+                            ) : (
+                              <Link href={r.href} className="text-accent font-semibold hover:underline">{r.label}</Link>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </article>
+
+                {/* Bottom prev/next */}
+                <div className="flex justify-between">
+                  <button
+                    onClick={prev}
+                    disabled={!hasPrev}
+                    className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft size={16} />
+                    {hasPrev && (
+                      <span>{PRINCIPLES[index - 1].title.length > 32 ? PRINCIPLES[index - 1].title.slice(0, 32) + "…" : PRINCIPLES[index - 1].title}</span>
+                    )}
+                  </button>
+                  <button
+                    onClick={next}
+                    disabled={!hasNext}
+                    className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-right"
+                  >
+                    {hasNext && (
+                      <span>{PRINCIPLES[index + 1].title.length > 32 ? PRINCIPLES[index + 1].title.slice(0, 32) + "…" : PRINCIPLES[index + 1].title}</span>
+                    )}
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+
               </div>
             </div>
 
