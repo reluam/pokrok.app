@@ -1,691 +1,497 @@
-import Link from "next/link";
-import RevealSection from "@/components/RevealSection";
+"use client";
 
-export default function JakZitPage() {
+import { useState, useCallback } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+type Category = "zaklad" | "principy" | "pilulky";
+type Filter = Category | "vse";
+
+interface Resource {
+  label: string;
+  href: string;
+  external?: boolean;
+  prefix?: string;
+}
+
+interface Principle {
+  id: string;
+  category: Category;
+  emoji: string;
+  title: string;
+  subtitle?: string;
+  lead: string;
+  body: string[];
+  tips?: string[];
+  resources?: Resource[];
+}
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+const PRINCIPLES: Principle[] = [
+  // ZÁKLAD
+  {
+    id: "spanek", category: "zaklad", emoji: "🌙",
+    title: "Spánek", subtitle: "Aktualizace systému",
+    lead: "Spánek není luxus — je to naprostý základ. Mozek není izolovaný od těla. Žádný time management tě nezachrání, pokud ignoruješ základní fyzické potřeby.",
+    body: [
+      "Osobně jsem nikdy neměl velký problém s usínáním nebo vstáváním. Důvod je ten, že jsem pravděpodobně od mala přirozeně dodržoval dobrou spánkovou hygienu.",
+    ],
+    tips: [
+      "Vstávej každý den ve stejnou dobu — i o víkendu.",
+      "Hodinu před spánkem nepoužívej obrazovky.",
+      "Poslední kávu (kofein) pij nejpozději kolem 15:00.",
+    ],
+    resources: [
+      { label: "Andrew Huberman: Nástroje pro lepší spánek", href: "https://www.hubermanlab.com/newsletter/improve-your-sleep", external: true },
+      { label: "Proč spíme", href: "https://go.dognet.com/?cid=173&chid=hfEhyNSd&refid=698ee425434f4&url=https%3A%2F%2Fwww.melvil.cz%2Fkniha-proc-spime%2F", external: true, prefix: "Kniha" },
+    ],
+  },
+  {
+    id: "strava", category: "zaklad", emoji: "🥩",
+    title: "Strava", subtitle: "Palivo",
+    lead: "Naše tělo si miliony let zvykalo na určitý způsob stravování. Abychom se o tělo starali dobře, musíme mu dávat správný typ paliva.",
+    body: [
+      "Pak jsme před 10 000 lety zdomestikovali zvířata a začali pěstovat plodiny pro masy. V posledních 60 letech jsme to dotáhli do extrému ve formě rafinovaných cukrů.",
+    ],
+    tips: [
+      "Kompletně odstraň rafinované cukry (sladkosti, zákusky, limonády).",
+      "Sniž příjem sacharidů — méně brambor, rýže, ideálně ven s pečivem.",
+      "Zvyš příjem zdravých tuků a zeleniny (tučné ryby, avokádo, ořechy, brokolice...).",
+    ],
+    resources: [
+      { label: "Geniální potraviny", href: "/inspirace/1772998750188", prefix: "Moje inspirace" },
+    ],
+  },
+  {
+    id: "pohyb", category: "zaklad", emoji: "🚶‍♂️",
+    title: "Pohyb", subtitle: "Čištění hlavy",
+    lead: "Jako lovci a sběrači jsme byli většinu dne na nohách. Tak se naše tělo vyvíjelo. Dnes jsme přikováni k židlím — a platíme za to.",
+    body: [
+      "S domestikací a specializací se pohyb omezil. V posledním století jsme to dotáhli do extrému — většinu dne se vůbec nehýbeme.",
+    ],
+    tips: [
+      "Zahaj den protažením nebo cvičením — jóga je naprosto ideální.",
+      "Každé 2 hodiny se na 5 minut projdi.",
+      "Nachoď za den minimálně 10 000 kroků (20 000 je ještě lepších).",
+    ],
+    resources: [
+      { label: "Čtyřhodinové tělo", href: "/inspirace/1772999485170", prefix: "Moje inspirace" },
+    ],
+  },
+  {
+    id: "odpocinek", category: "zaklad", emoji: "🛑",
+    title: "Odpočinek", subtitle: "Regenerace",
+    lead: "Aby náš mozek i tělo fungovaly optimálně, potřebují dostatek odpočinku. Minimem je alespoň jeden celý den v týdnu bez práce.",
+    body: [
+      "Míra odpočinku závisí na mnoha faktorech — jak moc se hýbeme, jíme a spíme. Jako naprosté minimum se od biblických dob doporučuje alespoň jeden celý volný den.",
+    ],
+    tips: [
+      "Vyhraď si jeden den v týdnu s absolutním zákazem jakékoliv práce.",
+      "V době odpočinku buď v přítomném okamžiku — nepřemýšlej nad minulostí ani budoucností.",
+      "Když se přes den cítíš vyčerpaně, dej si 30–60 minut aktivity nesouvisející s prací.",
+    ],
+    resources: [
+      { label: "Moc přítomného okamžiku", href: "https://www.knihydobrovsky.cz/kniha/moc-pritomneho-okamziku-5423462", external: true, prefix: "Kniha" },
+      { label: "Šťastnější", href: "https://go.dognet.com/?cid=173&chid=hfEhyNSd&refid=698ee425434f4&url=https%3A%2F%2Fwww.melvil.cz%2Fkniha-stastnejsi%2F", external: true, prefix: "Kniha" },
+    ],
+  },
+  // PRINCIPY
+  {
+    id: "skola", category: "principy", emoji: "🎓",
+    title: "Co se ve škole neučí?",
+    lead: "Ve škole tě připravovali na testy, ne na hru jménem život. Neučili tě, jak zacházet s penězi, emocemi, vlastní energií ani vztahy.",
+    body: [
+      "Většinu důležitých dovedností se učíš až za pochodu — v práci, ve vztazích, v krizi. Je to náročné, ale má to jednu výhodu: můžeš si nastavit vlastní pravidla hry.",
+      "Čím dřív přijmeš, že \u201Eškolní hru\u201D máš za sebou a teď hraješ tu vlastní, tím snáz si dovolíš hledat lepší systém pro sebe — ne pro vysvědčení.",
+    ],
+  },
+  {
+    id: "zodpovednost", category: "principy", emoji: "🎯",
+    title: "Za svůj život jsi zodpovědný pouze ty sám.",
+    lead: "Nikdo jiný nemůže žít tvůj život za tebe. V určitém bodě si prostě musíš říct: „Je to na mně.”",
+    body: [
+      "Můžeš mít podporu, kouče, partnera, komunitu. Ale rozhodnutí, která děláš každé ráno, večer i mezi tím, za tebe nikdo neudělá.",
+      "To není tlak, ale svoboda. Jakmile to přijmeš, můžeš s vlastním životem mnohem víc experimentovat.",
+    ],
+  },
+  {
+    id: "cernobile", category: "principy", emoji: "🌈",
+    title: "Skoro nic není pouze černobílé.",
+    lead: "Život se nedá žít jen v režimu ano/ne. Mezi tím je obrovský prostor, kde si můžeš nastavit vlastní pravidla.",
+    body: [
+      "Buď práce, nebo svoboda. Buď rodina, nebo kariéra. Buď stabilita, nebo zážitky. Tenhle způsob přemýšlení tě zbytečně zamyká.",
+      "Mezi černou a bílou je spousta odstínů. A právě tam si můžeš začít skládat život podle sebe — ne podle škatulek ostatních.",
+    ],
+  },
+  {
+    id: "smysl", category: "principy", emoji: "✨",
+    title: "Svůj životní smysl tvoříš každodenními kroky.",
+    lead: "Smysl nepřijde shora jako jeden velký „aha moment”. Vzniká z malých voleb, které děláš dnes a zítra.",
+    body: [
+      "Často čekáme na jeden zlomový okamžik, který nám „vysvětlí život”. V praxi smysl vzniká z drobných rozhodnutí — čemu říkáš ano, čemu ne, kam dáváš energii.",
+      "Můžeš začít maličkostmi: jedním projektem, jedním návykem, jedním rozhovorem, který už dlouho odkládáš.",
+    ],
+  },
+  {
+    id: "sebevedomi", category: "principy", emoji: "💪",
+    title: "Sebevědomí si vybuduješ děláním těžkých věcí.",
+    lead: "Sebevědomí není afirmace v zrcadle, ale důkaz. Přichází, když děláš kroky, do kterých se ti nechce — a ustojíš je.",
+    body: [
+      "Můžeš si opakovat, že na to máš. Ale dokud si to neověříš v reálném světě, hlava tomu stejně úplně nevěří.",
+      "Každý malý „těžký krok” — nepříjemný hovor, odmítnutí, nový projekt — je malý důkaz pro sebevědomí: „Zvládl jsem to. Dám i další věc.”",
+    ],
+  },
+  {
+    id: "hotove", category: "principy", emoji: "✅",
+    title: "Hotové je lepší než dokonalé.",
+    lead: "Perfekcionismus je chytře maskovaný strach. Dokončené věci mění život — ne ty rozdělané.",
+    body: [
+      "Můžeš měsíce ladit detaily projektu nebo newsletteru — ale dokud to nepublikuješ, realita ti nedá žádnou zpětnou vazbu. Zůstaneš v bezpečí vlastní hlavy.",
+      "Když začneš cílit na „dost dobré na odeslání” místo dokonalosti, posuneš se násobně rychleji. Učíš se z reálných reakcí, ne z hypotetických scénářů.",
+    ],
+  },
+  {
+    id: "intuice", category: "principy", emoji: "🔮",
+    title: "Intuice pracuje ve tvůj prospěch.",
+    lead: "Intuice není magie. Je to zhuštěná zkušenost tvého mozku, která se ozývá dřív, než ji stihneš rozumově vysvětlit.",
+    body: [
+      "Když máš z člověka, spolupráce nebo rozhodnutí „divný pocit”, v pozadí běží spousta drobných signálů, které tvůj mozek dávno viděl — jen je neumíš hned pojmenovat.",
+      "Intuici se vyplatí brát vážně, ale ne slepě. Použij ji jako první kompas a doplň rozumem: „Co přesně na téhle situaci mi nesedí?”",
+    ],
+  },
+  // PILULKY
+  {
+    id: "mozek", category: "pilulky", emoji: "🧠",
+    title: "Tvůj mozek je hloupější, než si myslíš.",
+    lead: "Většinu času jedeš na autopilota — zkratky, emoce a příběhy v hlavě často vyhrávají nad realitou.",
+    body: [
+      "Mozek není nástroj na „pravdu”. Je to nástroj na přežití: šetřit energii, držet se známého, vyhýbat se riziku a mít pravdu za každou cenu.",
+      "Když s tím začneš počítat, přestaneš se divit vlastním přešlapům. Místo sebemrskání začneš stavět systémy, které s autopilotem umí pracovat.",
+    ],
+  },
+  {
+    id: "vazne-sebe", category: "pilulky", emoji: "😄",
+    title: "Neber se tak vážně.",
+    lead: "Ego miluje drama. Humor a lehkost ti vrátí nadhled — a často i odvahu.",
+    body: [
+      "Když bereš všechno smrtelně vážně, každá chyba je katastrofa a každý pohled ostatních je soud. Tím si zbytečně přidáváš tlak.",
+      "Lehkovážnost není nezodpovědnost. Je to schopnost udržet si odstup: „Tohle jsem udělal špatně. Neznamená to, že jsem špatný.”",
+    ],
+  },
+  {
+    id: "vazne-svet", category: "pilulky", emoji: "🌍",
+    title: "A neber svět okolo tak vážně.",
+    lead: "Spousta „pravidel” je jen společenská hra. Když to uvidíš, přestaneš se bát pohybu.",
+    body: [
+      "Lidé často působí sebejistě, ale uvnitř řeší podobné věci jako ty: nejistotu, porovnávání, strach z odmítnutí. Svět není tak pevný a soudný, jak se tváří.",
+      "Když přestaneš čekat „povolení”, začneš tvořit. A zjistíš, že většina bariér byla jen v hlavě.",
+    ],
+  },
+  {
+    id: "zvirata", category: "pilulky", emoji: "🦁",
+    title: "Pod povrchem jsme stále jen zvířata.",
+    lead: "V úplném základu jsme biologické mašiny. Často si myslíme, že „jsme nad tím”, ale nejsme.",
+    body: [
+      "Nálada, motivace i sebeovládání nejsou jen „síla vůle”. Jsou to hormony, spánek, jídlo, pohyb, stres a prostředí. Proto sekce Základ není „self-care”, ale infrastruktura.",
+      "Když tohle přijmeš, přestaneš moralizovat vlastní výkyvy a začneš je řídit jako systém — ne jako charakterovou vadu.",
+    ],
+  },
+  {
+    id: "jedna-vec", category: "pilulky", emoji: "🪄",
+    title: "Žádná jedna věc to zázračně nevyřeší.",
+    lead: "Žádný „hack” to za tebe neodžije. Funguje jen kombinace malých kroků v čase.",
+    body: [
+      "Je lákavé věřit, že existuje jeden kurz, jedna kniha nebo jedna metoda, která všechno přepne. Realita je střízlivější — a zároveň mnohem víc pod tvojí kontrolou.",
+      "Když přestaneš hledat zázrak a začneš skládat systém (spánek, jídlo, pohyb, vztahy, práce, pozornost), život se začne zlepšovat bez magie.",
+    ],
+  },
+];
+
+const CATEGORY_META: Record<Category, { label: string; emoji: string; color: string; bg: string; description: string }> = {
+  zaklad: {
+    label: "Základ",
+    emoji: "🧬",
+    color: "text-blue-700",
+    bg: "bg-blue-50 border-blue-200",
+    description: "Fyziologická mašina — spánek, strava, pohyb, odpočinek",
+  },
+  principy: {
+    label: "Principy",
+    emoji: "💡",
+    color: "text-amber-700",
+    bg: "bg-amber-50 border-amber-200",
+    description: "Jak o sobě a světě přemýšlíš",
+  },
+  pilulky: {
+    label: "Pilulky",
+    emoji: "💊",
+    color: "text-red-700",
+    bg: "bg-red-50 border-red-200",
+    description: "Hořké pravdy, které ti pomůžou",
+  },
+};
+
+// ── Carousel ──────────────────────────────────────────────────────────────────
+
+function Carousel({ filter }: { filter: Filter }) {
+  const items = filter === "vse" ? PRINCIPLES : PRINCIPLES.filter((p) => p.category === filter);
+  const [index, setIndex] = useState(0);
+
+  const clampedIndex = Math.min(index, items.length - 1);
+  const principle = items[clampedIndex];
+
+  const prev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
+  const next = useCallback(() => setIndex((i) => Math.min(items.length - 1, i + 1)), [items.length]);
+
+  if (!principle) return null;
+
+  const meta = CATEGORY_META[principle.category];
+  const hasPrev = clampedIndex > 0;
+  const hasNext = clampedIndex < items.length - 1;
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Progress + nav */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-foreground/50">
+          {clampedIndex + 1} / {items.length}
+        </span>
+        <div className="flex gap-2">
+          <button
+            onClick={prev}
+            disabled={!hasPrev}
+            className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            aria-label="Předchozí"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={next}
+            disabled={!hasNext}
+            className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            aria-label="Další"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Principle card */}
+      <article className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5">
+        {/* Category badge */}
+        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${meta.bg} ${meta.color}`}>
+          <span>{meta.emoji}</span>
+          {meta.label}
+        </span>
+
+        {/* Title */}
+        <div className="space-y-1">
+          <div className="flex items-start gap-3">
+            <span className="text-3xl leading-none mt-0.5">{principle.emoji}</span>
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground leading-snug">{principle.title}</h2>
+              {principle.subtitle && (
+                <p className="text-sm text-foreground/50 mt-0.5">{principle.subtitle}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Lead */}
+        <p className="text-base md:text-lg text-foreground/80 leading-relaxed font-medium">{principle.lead}</p>
+
+        {/* Body */}
+        {principle.body.map((p, i) => (
+          <p key={i} className="text-sm md:text-base text-foreground/70 leading-relaxed">{p}</p>
+        ))}
+
+        {/* Tips */}
+        {principle.tips && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Tipy</h4>
+            <ul className="space-y-2">
+              {principle.tips.map((tip, i) => (
+                <li key={i} className="flex gap-2.5 text-sm md:text-base text-foreground/75">
+                  <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent/60" />
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Resources */}
+        {principle.resources && (
+          <div className="space-y-1.5">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Zdroje</h4>
+            <ul className="space-y-1">
+              {principle.resources.map((r, i) => (
+                <li key={i} className="text-sm text-foreground/70">
+                  {r.prefix && <span>{r.prefix}: </span>}
+                  {r.external ? (
+                    <a href={r.href} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold hover:underline">{r.label}</a>
+                  ) : (
+                    <Link href={r.href} className="text-accent font-semibold hover:underline">{r.label}</Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </article>
+
+      {/* Bottom nav (duplicate for mobile convenience) */}
+      <div className="flex justify-between">
+        <button
+          onClick={prev}
+          disabled={!hasPrev}
+          className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft size={16} />
+          {hasPrev && items[clampedIndex - 1]?.title.slice(0, 30)}{hasPrev && items[clampedIndex - 1]?.title.length > 30 ? "…" : ""}
+        </button>
+        <button
+          onClick={next}
+          disabled={!hasNext}
+          className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-right"
+        >
+          {hasNext && items[clampedIndex + 1]?.title.slice(0, 30)}{hasNext && items[clampedIndex + 1]?.title.length > 30 ? "…" : ""}
+          <ChevronRight size={16} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+export default function NavodNaZivotPage() {
+  const [filter, setFilter] = useState<Filter>("vse");
+
+  const counts: Record<Category, number> = {
+    zaklad: PRINCIPLES.filter((p) => p.category === "zaklad").length,
+    principy: PRINCIPLES.filter((p) => p.category === "principy").length,
+    pilulky: PRINCIPLES.filter((p) => p.category === "pilulky").length,
+  };
+
   return (
     <main className="min-h-screen">
       <section className="pt-8 pb-16 md:pt-10 md:pb-20">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <RevealSection triggerOnMount>
-              <div className="paper-card rounded-[28px] px-6 py-8 md:px-10 md:py-10 space-y-5">
-                <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-foreground/40">
-                  Matějův osobní tahák
-                </div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
-                  Návod na život
-                </h1>
-                <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
-                  Toto je <strong>můj</strong> návod — soubor principů, hodnot a lekcí, podle kterých se snažím žít. Není to dogma ani univerzální recept. Je to zrcadlo toho, co mi funguje.
-                </p>
-                <p className="text-base text-foreground/65 leading-relaxed max-w-3xl">
-                  Posbíral jsem ho z vlastních chyb, z příběhů chytřejších lidí a z let experimentování. Sdílím ho proto, aby ti mohl posloužit jako inspirace — ne jako návod k okopírování. Tvůj život potřebuje tvůj vlastní kompas.
-                </p>
+          <div className="max-w-7xl mx-auto space-y-8">
+
+            {/* Intro card */}
+            <div className="paper-card rounded-[28px] px-6 py-8 md:px-10 md:py-10 space-y-4">
+              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-foreground/40">
+                Matějův osobní tahák
               </div>
-            </RevealSection>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
+                Návod na život
+              </h1>
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
+                Toto je <strong>můj</strong> návod — soubor principů, hodnot a lekcí, podle kterých se snažím žít.
+                Není to dogma ani univerzální recept. Je to zrcadlo toho, co mi funguje.
+              </p>
+              <p className="text-base text-foreground/60 leading-relaxed max-w-3xl">
+                Posbíral jsem ho z vlastních chyb, z příběhů chytřejších lidí a z let experimentování.
+                Sdílím ho proto, aby ti mohl posloužit jako inspirace — ne jako návod k okopírování.
+                Tvůj život potřebuje tvůj vlastní kompas.
+              </p>
+            </div>
 
-            <div className="mt-10 md:mt-12 lg:mt-14">
-              <div className="space-y-10">
-            {/* Sekce 1 */}
-            <RevealSection delay={0.06}>
-              <section id="sekce-1-zaklad">
-                <header className="space-y-3 md:space-y-4">
-                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-                    Sekce 1: Naprostý základ{" "}
-                    <span className="text-foreground/60">(Fyziologická mašina)</span>
-                  </h2>
-                  <p className="text-base md:text-lg text-foreground/80 leading-relaxed max-w-3xl">
-                    Mozek není izolovaný od těla – je to jeho součást. Abys mohl řešit složité mentální
-                    úkoly, nesmíš ignorovat své fyzické potřeby. Žádný time management tě nezachrání,
-                    pokud ignoruješ tyto čtyři základní pilíře.
-                  </p>
-                </header>
-
-                <div className="mt-7 md:mt-8 space-y-6 md:space-y-7">
-                  {/* Spánek */}
-                  <article
-                    id="spanek"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-lg">
-                        <span aria-hidden>🌙</span>
-                        <span className="sr-only">Spánek</span>
-                      </div>
-                      <div className="space-y-3">
-                        <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                          1. Spánek{" "}
-                          <span className="text-foreground/60 font-normal">(Aktualizace systému)</span>
-                        </h3>
-                        <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                          Osobně jsem nikdy neměl velký problém s usínáním, vstáváním nebo posouváním
-                          režimů. Důvod je ten, že jsem pravděpodobně od mala přirozeně dodržoval dobrou
-                          spánkovou hygienu. Spánek není luxus, je to naprostý základ.
-                        </p>
-
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/60">
-                            Tipy
-                          </h4>
-                          <ul className="space-y-1.5 text-sm md:text-base text-foreground/80">
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>Vstávej ideálně každý den ve stejnou dobu.</span>
-                            </li>
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>Hodinu před spánkem nepoužívej obrazovky.</span>
-                            </li>
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>Poslední kávu (kofein) pij kolem 15:00.</span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/60">
-                            Zdroje / Kde začít
-                          </h4>
-                          <ul className="space-y-1.5 text-sm md:text-base text-foreground/80">
-                            <li>
-                              <a
-                                href="https://www.hubermanlab.com/newsletter/improve-your-sleep"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-accent font-semibold hover:underline"
-                              >
-                                Andrew Huberman: Nástroje pro lepší spánek
-                              </a>
-                            </li>
-                            <li>
-                              Kniha{" "}
-                              <a
-                                href="https://go.dognet.com/?cid=173&chid=hfEhyNSd&refid=698ee425434f4&url=https%3A%2F%2Fwww.melvil.cz%2Fkniha-proc-spime%2F"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-accent font-semibold hover:underline"
-                              >
-                                Proč spíme
-                              </a>
-                              : Osobně jsem ji nečetl (nepotřeboval jsem to), ale slyšel jsem na ni tolik
-                              chvály, že je to pravděpodobně to nejlepší místo, kde začít, pokud se spánkem
-                              bojuješ.
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-
-                  {/* Strava */}
-                  <article
-                    id="strava"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-lg">
-                        <span aria-hidden>🥩</span>
-                        <span className="sr-only">Strava</span>
-                      </div>
-                      <div className="space-y-3">
-                        <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                          2. Strava <span className="text-foreground/60 font-normal">(Palivo)</span>
-                        </h3>
-                        <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                          Naše tělo si miliony let zvykalo na určitý způsob stravování. Pak jsme před
-                          10&nbsp;000 lety zdomestikovali zvířata (a tím i sebe) a začali pěstovat plodiny
-                          pro masy. V posledních 60 letech jsme to dotáhli do absolutního extrému ve formě
-                          rafinovaných cukrů. Abychom se o tělo starali dobře, musíme mu dávat správný typ
-                          paliva.
-                        </p>
-
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/60">
-                            Tipy
-                          </h4>
-                          <ul className="space-y-1.5 text-sm md:text-base text-foreground/80">
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>
-                                Kompletně odstraň z jídelníčku rafinované cukry (sladkosti, zákusky,
-                                limonády...).
-                              </span>
-                            </li>
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>
-                                Sniž celkový příjem sacharidů (méně brambor, rýže, ideálně úplně vypustit
-                                pečivo).
-                              </span>
-                            </li>
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>
-                                Zvyš příjem zdravých tuků a zeleniny (tučné ryby, avokádo, ořechy, semínka,
-                                brokolice, celer atd.).
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/60">
-                            Zdroje / Kde začít
-                          </h4>
-                          <ul className="space-y-1.5 text-sm md:text-base text-foreground/80">
-                            <li>
-                              Moje inspirace:{" "}
-                              <Link
-                                href="/inspirace/1772998750188"
-                                className="text-accent font-semibold hover:underline"
-                              >
-                                Geniální potraviny
-                              </Link>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-
-                  {/* Pohyb */}
-                  <article
-                    id="pohyb"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-lg">
-                        <span aria-hidden>🚶‍♂️</span>
-                        <span className="sr-only">Pohyb</span>
-                      </div>
-                      <div className="space-y-3">
-                        <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                          3. Pohyb <span className="text-foreground/60 font-normal">(Čištění hlavy)</span>
-                        </h3>
-                        <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                          Jako lovci a sběrači jsme byli většinu dne na nohách. Tak se naše tělo vyvíjelo a
-                          na to bylo zvyklé. S domestikací a specializací se pohyb omezil a v posledním
-                          století jsme to opět dotáhli do extrému – většinu dne se vůbec nehýbeme. Jsme
-                          přikováni k židlím.
-                        </p>
-
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/60">
-                            Tipy
-                          </h4>
-                          <ul className="space-y-1.5 text-sm md:text-base text-foreground/80">
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>Zahaj den protažením nebo cvičením (jóga je naprosto ideální).</span>
-                            </li>
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>
-                                V průběhu dne se minimálně každé 2 hodiny (klidně i častěji) na 5 minut
-                                projdi.
-                              </span>
-                            </li>
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>Nachoď za den minimálně 10&nbsp;000 kroků (20&nbsp;000 je ještě lepších).</span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/60">
-                            Zdroje / Kde začít
-                          </h4>
-                          <ul className="space-y-1.5 text-sm md:text-base text-foreground/80">
-                            <li>
-                              Moje inspirace:{" "}
-                              <Link
-                                href="/inspirace/1772999485170"
-                                className="text-accent font-semibold hover:underline"
-                              >
-                                Čtyřhodinové tělo
-                              </Link>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-
-                  {/* Odpočinek */}
-                  <article
-                    id="odpocinek"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 flex flex-col gap-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-lg">
-                        <span aria-hidden>🛑</span>
-                        <span className="sr-only">Odpočinek</span>
-                      </div>
-                      <div className="space-y-3">
-                        <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                          4. Odpočinek{" "}
-                          <span className="text-foreground/60 font-normal">(Regenerace)</span>
-                        </h3>
-                        <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                          Aby náš mozek i tělo fungovaly optimálně, potřebují dostatek odpočinku. Míra
-                          odpočinku závisí na mnoha faktorech (jak moc se hýbeme, jíme a spíme), ale jako
-                          naprosté minimum se už od biblických dob doporučuje alespoň jeden celý den v týdnu.
-                        </p>
-
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/60">
-                            Tipy
-                          </h4>
-                          <ul className="space-y-1.5 text-sm md:text-base text-foreground/80">
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>
-                                Vyhraď si jeden den v týdnu, kdy máš absolutní zákaz dělat jakoukoliv práci.
-                              </span>
-                            </li>
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>
-                                V době odpočinku buď v přítomném okamžiku. Nepřemýšlej nad minulostí ani nad
-                                budoucností.
-                              </span>
-                            </li>
-                            <li className="flex gap-2">
-                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-foreground/30" />
-                              <span>
-                                Když se cítíš přes den vyčerpaně, dej si 30–60 minut aktivity nesouvisející
-                                s prací. Pokud ti chybí energie i poté, pro dnešek už nepracuj.
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="space-y-2">
-                          <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/60">
-                            Zdroje / Kde začít
-                          </h4>
-                          <ul className="space-y-1.5 text-sm md:text-base text-foreground/80">
-                            <li>
-                              Kniha{" "}
-                              <a
-                                href="https://www.knihydobrovsky.cz/kniha/moc-pritomneho-okamziku-5423462"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-accent font-semibold hover:underline"
-                              >
-                                Moc přítomného okamžiku
-                              </a>
-                              : Na první pohled nesouvisející, ale naprosto zásadní kniha pro to, abys vůbec
-                              dokázal při odpočinku vypnout hlavu.
-                            </li>
-                            <li>
-                              Kniha{" "}
-                              <a
-                                href="https://go.dognet.com/?cid=173&chid=hfEhyNSd&refid=698ee425434f4&url=https%3A%2F%2Fwww.melvil.cz%2Fkniha-stastnejsi%2F"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-accent font-semibold hover:underline"
-                              >
-                                Šťastnější
-                              </a>
-                              : Pokud ti dělá problém si vůbec vyhradit čas na odpočinek a důležité věci,
-                              Cassie Holmes ti v tomhle pomůže.
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                </div>
-              </section>
-            </RevealSection>
-
-            {/* Sekce 2 – Principy pro život */}
-            <RevealSection delay={0.09} className="mt-10 md:mt-12">
-              <section id="sekce-2-principy">
-                <header className="space-y-3 md:space-y-4">
-                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-                    Sekce 2: Principy pro život
-                  </h2>
-                  <p className="text-base md:text-lg text-foreground/80 leading-relaxed max-w-3xl">
-                    Jak o sobě a světě přemýšlíš, určuje, jaké kroky děláš. Tohle jsou principy, které mi
-                    dlouhodobě pomáhají držet kurz – i když se okolnosti mění.
-                  </p>
-                </header>
-
-                <div className="mt-7 md:mt-8 space-y-6 md:space-y-7">
-                  {/* Co se ve škole neučí? */}
-                  <article
-                    id="co-se-ve-skole-neuci"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Co se ve škole neučí?
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Ve škole tě většinou připravovali na testy, ne na hru jménem život. Neučili tě, jak
-                      zacházet s penězi, emocemi, vlastní energií ani vztahy.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Většinu důležitých dovedností se učíš až za pochodu – v práci, ve vztazích, v
-                        krizi. Je to náročné, ale má to jednu výhodu: můžeš si nastavit vlastní pravidla
-                        hry místo těch, která ti někdo nadiktoval.
-                      </p>
-                      <p>
-                        Čím dřív přijmeš, že „školní hru“ máš dávno za sebou a teď hraješ tu vlastní, tím
-                        snáz si dovolíš hledat lepší systém pro sebe – ne pro vysvědčení.
-                      </p>
-                    </div>
-                  </article>
-
-                  {/* Za svůj život jsi zodpovědný pouze ty sám. */}
-                  <article
-                    id="zodpovednost-za-zivot"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Za svůj život jsi zodpovědný pouze ty sám.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Nikdo jiný nemůže žít tvůj život za tebe. V určitém bodě si prostě musíš říct:
-                      „Je to na mně.“
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Můžeš mít podporu, kouče, partnera, komunitu. Ale rozhodnutí, které děláš každé
-                        ráno, večer i mezi tím, za tebe nikdo neudělá. V určitém bodě si prostě musíš
-                        přiznat: <em>„Je to na mně.“</em>
-                      </p>
-                      <p>
-                        To není tlak, ale svoboda. Jakmile to přijmeš, můžeš s vlastním životem mnohem víc
-                        experimentovat.
-                      </p>
-                    </div>
-                  </article>
-
-                  {/* Skoro nic není pouze černobílé. */}
-                  <article
-                    id="skoro-nic-neni-cernobile"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Skoro nic není pouze černobílé.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Život se nedá žít jen v režimu ano/ne. Mezi tím je obrovský prostor, kde si můžeš
-                      nastavit vlastní pravidla.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Buď práce, nebo svoboda. Buď rodina, nebo kariéra. Buď stabilita, nebo zážitky.
-                        Tenhle způsob přemýšlení tě často zbytečně zamyká.
-                      </p>
-                      <p>
-                        Mezi černou a bílou je spousta odstínů. A právě tam si můžeš začít skládat život
-                        podle sebe – ne podle škatulek ostatních.
-                      </p>
-                    </div>
-                  </article>
-
-                  {/* Svůj životní smysl tvoříš každodenními kroky a rozhodnutími. */}
-                  <article
-                    id="smysl-kazdodenni-kroky"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Svůj životní smysl tvoříš každodenními kroky a rozhodnutími.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Smysl nepřijde shora jako jeden velký „aha moment“. Vzniká z malých voleb, které
-                      děláš dnes a zítra.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Často čekáme na jeden zlomový okamžik, který nám „vysvětlí život“. V praxi ale
-                        smysl vzniká z drobných rozhodnutí – čemu říkáš ano, čemu ne, kam dáváš energii a
-                        pozornost.
-                      </p>
-                      <p>
-                        Můžeš začít maličkostmi: jedním projektem, jedním návykem, jedním rozhovorem,
-                        který už dlouho odkládáš.
-                      </p>
-                    </div>
-                  </article>
-
-                  {/* Opravdové sebevědomí si vybuduješ děláním těžkých věcí. */}
-                  <article
-                    id="sebevedomi-tezke-veci"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Opravdové sebevědomí si vybuduješ děláním těžkých věcí.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Sebevědomí není afirmace v zrcadle, ale důkaz. Přichází, když děláš kroky, do
-                      kterých se ti nechce – a ustojíš je.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Můžeš si opakovat, že na to máš. Ale dokud si to neověříš v reálném světě, hlava
-                        tomu stejně úplně nevěří.
-                      </p>
-                      <p>
-                        Každý malý „těžký krok“, který zvládneš – nepříjemný hovor, odmítnutí, nový projekt
-                        – je malý důkaz pro tvé sebevědomí: <em>„Zvládl jsem to. Dám i další věc.“</em>
-                      </p>
-                    </div>
-                  </article>
-
-                  {/* Hotové je lepší než dokonalé. */}
-                  <article
-                    id="hotove-lepsi-nez-dokonale"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Hotové je lepší než dokonalé.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Perfekcionismus je často jen chytře maskovaný strach. Dokončené věci mění život, ne
-                      ty rozdělané.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Můžeš měsíce ladit detaily webu, projektu nebo newsletteru – ale dokud to
-                        nepublikuješ, realita ti nedá žádnou zpětnou vazbu. Zůstaneš v bezpečí vlastní
-                        hlavy.
-                      </p>
-                      <p>
-                        Když místo dokonalosti začneš cílit na „dost dobré na odeslání“, posuneš se
-                        násobně rychleji. Učíš se z reálných reakcí, ne z hypotetických scénářů.
-                      </p>
-                    </div>
-                  </article>
-
-                  {/* Intuice pracuje ve tvůj prospěch. */}
-                  <article
-                    id="intuice"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Intuice pracuje ve tvůj prospěch.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Intuice není magie. Je to zhuštěná zkušenost tvého mozku, která se ozývá dřív, než
-                      ji stihneš rozumově vysvětlit.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Když máš z člověka, spolupráce nebo rozhodnutí „divný pocit“, často v pozadí běží
-                        spousta drobných signálů, které tvůj mozek dávno viděl – jen je neumíš hned pojmenovat.
-                      </p>
-                      <p>
-                        Intuici se vyplatí brát vážně, ale ne slepě. Můžeš ji použít jako první kompas a
-                        pak ji doplnit rozumem a daty: „Co přesně na téhle situaci mi nesedí?“
-                      </p>
-                    </div>
-                  </article>
-                </div>
-              </section>
-            </RevealSection>
-
-            {/* Sekce 3 – Technologie */}
-            <RevealSection delay={0.12} className="mt-10 md:mt-14">
-              <section
-                id="sekce-3-technologie"
-                className="paper-card relative overflow-hidden rounded-[28px] border border-foreground/10 border-dashed px-6 py-8 md:px-8 md:py-10 text-foreground/55 opacity-70"
-              >
-                <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(circle_at_top,_rgba(0,0,0,0.04),_transparent_55%)]" />
-                <div className="relative space-y-4 text-foreground/80">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-foreground/15 bg-foreground/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
-                    <span>Coming soon</span>
+            {/* Category columns */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {(Object.entries(CATEGORY_META) as [Category, typeof CATEGORY_META[Category]][]).map(([key, meta]) => (
+                <button
+                  key={key}
+                  onClick={() => setFilter((f) => f === key ? "vse" : key)}
+                  className={`text-left p-4 md:p-5 rounded-2xl border-2 transition-all ${
+                    filter === key
+                      ? `${meta.bg} border-current ${meta.color} shadow-md`
+                      : "bg-white/70 border-black/8 hover:border-black/15 hover:shadow-md"
+                  }`}
+                >
+                  <div className="text-2xl mb-2">{meta.emoji}</div>
+                  <div className={`font-bold text-sm md:text-base ${filter === key ? meta.color : "text-foreground"}`}>
+                    {meta.label}
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground/80">
-                    Sekce 3: Technologie. Dobří sluhové, ale zlí páni.
-                  </h2>
-                  <p className="text-base md:text-lg leading-relaxed">
-                    (Jak nastavit technologie tak, aby ti pomáhaly žít lepší život – a ne ti nenápadně
-                    sežraly pozornost, vztahy i mozek. Sociální sítě, notifikace, emaily i AI...
-                    Připravuji.)
+                  <div className="text-xs text-foreground/55 mt-0.5 leading-snug hidden sm:block">{meta.description}</div>
+                  <div className={`text-xs font-semibold mt-2 ${filter === key ? meta.color : "text-foreground/40"}`}>
+                    {counts[key]} {counts[key] === 1 ? "princip" : counts[key] < 5 ? "principy" : "principů"}
+                  </div>
+                </button>
+              ))}
+
+              {/* Technologie – coming soon */}
+              <button
+                disabled
+                className="text-left p-4 md:p-5 rounded-2xl border-2 border-dashed border-black/10 bg-white/40 opacity-60 cursor-not-allowed hidden lg:block"
+              >
+                <div className="text-2xl mb-2">📱</div>
+                <div className="font-bold text-sm md:text-base text-foreground/50">Technologie</div>
+                <div className="text-xs text-foreground/40 mt-0.5 leading-snug hidden sm:block">Dobří sluhové, ale zlí páni</div>
+                <div className="text-xs font-semibold mt-2 text-foreground/30">Připravuji</div>
+              </button>
+            </div>
+
+            {/* Main layout: left sales column + right carousel */}
+            <div className="flex flex-col lg:flex-row gap-6">
+
+              {/* Left: Sales card */}
+              <aside className="w-full lg:w-72 flex-shrink-0">
+                <div className="lg:sticky lg:top-24 paper-card rounded-[24px] px-6 py-7 space-y-4 border-2 border-accent/15">
+                  <div className="text-2xl">🗺️</div>
+                  <div className="space-y-1">
+                    <h2 className="text-lg font-extrabold text-foreground leading-snug">
+                      Sestav si svůj návod pro život
+                    </h2>
+                    <p className="text-sm text-foreground/60 leading-relaxed">
+                      Tento návod je Matějův. Tvůj život ale potřebuje tvůj vlastní kompas.
+                    </p>
+                  </div>
+                  <p className="text-sm text-foreground/70 leading-relaxed">
+                    Audit života ti v 7 krocích pomůže zjistit, kde teď jsi, co skutečně chceš
+                    a co tě brzdí. Na konci dostaneš vlastní dokument — tvůj osobní návod.
+                  </p>
+                  <ul className="space-y-2">
+                    {[
+                      "Kde teď jsi?",
+                      "Energie & hodnoty",
+                      "Co skutečně chceš",
+                      "Co tě brzdí",
+                      "Tvůj vlastní plán",
+                    ].map((step) => (
+                      <li key={step} className="flex items-center gap-2 text-xs text-foreground/70">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+                        {step}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/audit-zivota"
+                    className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
+                  >
+                    Začít audit
+                    <ArrowRight size={16} />
+                  </Link>
+                  <p className="text-center text-xs text-foreground/40">
+                    Průvodce, cvičení a šablony v jednom
                   </p>
                 </div>
-              </section>
-            </RevealSection>
+              </aside>
 
-            {/* Sekce 4 – Pilulky hořké jako pelyněk */}
-            <RevealSection delay={0.15} className="mt-10 md:mt-12">
-              <section id="sekce-4-pilulky">
-                <header className="space-y-3 md:space-y-4">
-                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-                    Sekce 4: Pilulky hořké jako pelyněk
-                  </h2>
-                  <p className="text-base md:text-lg text-foreground/80 leading-relaxed max-w-3xl">
-                    Některé věci se neříkají snadno, ale je lepší je slyšet včas. Tohle jsou pilulky hořké
-                    jako pelyněk – ale pokud je přijmeš, může se ti s vlastním životem mnohem líp pracovat.
-                  </p>
-                </header>
-
-                <div className="mt-7 md:mt-8 space-y-6 md:space-y-7">
-                  <article
-                    id="pilulka-mozek-hloupejsi"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Tvůj mozek je hloupější, než si myslíš.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Většinu času jedeš na autopilota – zkratky, emoce a příběhy v hlavě často vyhrávají nad
-                      realitou.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Mozek není nástroj na „pravdu“. Je to nástroj na přežití. A přežití často znamená:
-                        šetřit energii, držet se známého, vyhýbat se riziku a mít pravdu za každou cenu.
-                      </p>
-                      <p>
-                        Když s tím začneš počítat, přestaneš se divit vlastním přešlapům. A místo sebemrskání
-                        začneš stavět prostředí a systémy, které s autopilotem umí pracovat.
-                      </p>
-                    </div>
-                  </article>
-
-                  <article
-                    id="pilulka-neber-se-vazne"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">Neber se tak vážně.</h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Ego miluje drama. Humor a lehkost ti vrátí nadhled – a často i odvahu.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Když bereš všechno smrtelně vážně, každá chyba je katastrofa a každý pohled ostatních
-                        soud. Tím si zbytečně přidáváš tlak a paradoxně se pak hůř hýbeš.
-                      </p>
-                      <p>
-                        Lehkovážnost není nezodpovědnost. Je to schopnost udržet si odstup: „Tohle jsem udělal
-                        špatně. Neznamená to, že jsem špatný.“
-                      </p>
-                    </div>
-                  </article>
-
-                  <article
-                    id="pilulka-neber-svet-vazne"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      A neber svět okolo tak vážně.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Spousta „pravidel“ je jen společenská hra. Když to uvidíš, přestaneš se bát pohybu.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Lidé často působí sebejistě, ale uvnitř řeší podobné věci jako ty: nejistotu,
-                        porovnávání, strach z odmítnutí. Svět není tak pevný a soudný, jak se tváří.
-                      </p>
-                      <p>
-                        Když přestaneš čekat „povolení“, začneš tvořit. A zjistíš, že většina bariér byla jen v
-                        hlavě.
-                      </p>
-                    </div>
-                  </article>
-
-                  <article
-                    id="pilulka-jsme-zvirata"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Pod povrchem jsme stále jen zvířata.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      V úplném základu jsme biologické mašiny. Často si myslíme, že „jsme nad tím“, ale nejsme.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Nálada, motivace i schopnost se ovládat nejsou jen „síla vůle“. Jsou to hormony, spánek,
-                        jídlo, pohyb, stres a prostředí. Proto sekce 1 není „self-care“, ale infrastruktura.
-                      </p>
-                      <p>
-                        Když tohle přijmeš, přestaneš moralizovat svoje výkyvy a začneš je řídit jako systém. Ne
-                        jako charakterovou vadu.
-                      </p>
-                    </div>
-                  </article>
-
-                  <article
-                    id="pilulka-neni-jedna-vec"
-                    className="paper-card paper-hover rounded-[24px] px-5 py-6 md:px-6 md:py-7 space-y-3"
-                  >
-                    <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                      Neexistuje žádná jedna věc, která zázračně vyřeší tvůj život.
-                    </h3>
-                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                      Žádný „hack“ to za tebe neodžije. Funguje jen kombinace malých kroků v čase.
-                    </p>
-                    <div className="space-y-2 text-sm md:text-base text-foreground/80 leading-relaxed">
-                      <p>
-                        Je lákavé věřit, že existuje jeden kurz, jedna kniha nebo jedna metoda, která všechno
-                        přepne. Realita je střízlivější – a zároveň mnohem víc pod tvojí kontrolou.
-                      </p>
-                      <p>
-                        Když přestaneš hledat zázrak a začneš skládat systém (spánek, jídlo, pohyb, vztahy,
-                        práce, pozornost), život se začne zlepšovat bez magie.
-                      </p>
-                    </div>
-                  </article>
-                </div>
-              </section>
-            </RevealSection>
+              {/* Right: Carousel */}
+              <div className="flex-1 min-w-0">
+                <Carousel filter={filter} />
               </div>
             </div>
+
+          </div>
         </div>
-      </div>
       </section>
     </main>
   );
 }
-
