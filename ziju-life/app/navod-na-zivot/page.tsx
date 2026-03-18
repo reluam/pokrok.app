@@ -361,6 +361,31 @@ export default function NavodNaZivotPage() {
               </button>
             </div>
 
+            {/* Nav bar — above both columns */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-foreground/50">
+                {index + 1} / {PRINCIPLES.length}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={prev}
+                  disabled={!hasPrev}
+                  className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  aria-label="Předchozí"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  onClick={next}
+                  disabled={!hasNext}
+                  className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  aria-label="Další"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+
             {/* Main: left sidebar + right principle */}
             <div className="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -397,31 +422,6 @@ export default function NavodNaZivotPage() {
 
               {/* Right: principle */}
               <div className="flex-1 min-w-0 flex flex-col gap-4">
-
-                {/* Nav bar */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-foreground/50">
-                    {index + 1} / {PRINCIPLES.length}
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={prev}
-                      disabled={!hasPrev}
-                      className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                      aria-label="Předchozí"
-                    >
-                      <ChevronLeft size={18} />
-                    </button>
-                    <button
-                      onClick={next}
-                      disabled={!hasNext}
-                      className="p-2 rounded-full border border-black/10 bg-white shadow-sm hover:shadow-md hover:border-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                      aria-label="Další"
-                    >
-                      <ChevronRight size={18} />
-                    </button>
-                  </div>
-                </div>
 
                 {/* Principle card */}
                 <article className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5">
