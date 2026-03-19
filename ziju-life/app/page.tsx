@@ -3,7 +3,6 @@ import Medailonek from "@/components/Medailonek";
 import ManualTeaser from "@/components/ManualTeaser";
 import ChooseYourPath from "@/components/ChooseYourPath";
 import RevealSection from "@/components/RevealSection";
-import PosledniInspirace from "@/components/PosledniInspirace";
 
 export const dynamic = "force-static";
 
@@ -19,9 +18,6 @@ export default function Home() {
       </RevealSection>
       <RevealSection delay={0.12}>
         <ChooseYourPath />
-      </RevealSection>
-      <RevealSection delay={0.16}>
-        <PosledniInspirace />
       </RevealSection>
     </main>
   );
