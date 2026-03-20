@@ -1763,8 +1763,8 @@ function StepExportBox({
               <p className="text-2xl">📄</p>
               <h3 className="text-lg font-bold text-foreground">Dokončit audit?</h3>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                Kliknutím na <strong>Dokončit</strong> se vygeneruje tvůj dokument a přijdeš o přístup k úpravám.
-                Chceš audit zopakovat? Koupíš znovu za zvýhodněnou cenu 100 Kč.
+                Dokončením se tato cesta uzavře a vygeneruje se tvůj osobní dokument.
+                Kdykoli si ho můžeš stáhnout ze svého účtu — a audit můžeš znovu projít kdykoliv chceš, zdarma.
               </p>
             </div>
             <div className="flex gap-3">
