@@ -17,6 +17,7 @@ const STEPS = [
 export default function AuditIntroCard({ userEmail }: { userEmail?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState(userEmail ?? "");
+  const [newsletter, setNewsletter] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,7 +32,7 @@ export default function AuditIntroCard({ userEmail }: { userEmail?: string }) {
       const res = await fetch("/api/user/start-free-audit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, newsletter }),
       });
       if (!res.ok) {
         const d = await res.json();
@@ -115,6 +116,29 @@ export default function AuditIntroCard({ userEmail }: { userEmail?: string }) {
               disabled={loading}
               autoComplete="email"
             />
+            {/* Newsletter checkbox */}
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative flex-shrink-0 mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={newsletter}
+                  onChange={(e) => setNewsletter(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-5 h-5 rounded-md border-2 border-black/15 bg-white peer-checked:bg-accent peer-checked:border-accent transition-all group-hover:border-accent/40 flex items-center justify-center">
+                  {newsletter && (
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2 6l3 3 5-5" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-xs text-foreground/60 leading-relaxed">
+                Souhlasím s uložením e-mailu a občasným zasláním novinek od Matěje.{" "}
+                <span className="text-foreground/40">Žádný spam — jen to, co stojí za přečtení. Odhlásit se můžeš kdykoliv.</span>
+              </span>
+            </label>
+
             {error && <p className="text-xs text-red-600">{error}</p>}
             <button
               onClick={handleStart}
