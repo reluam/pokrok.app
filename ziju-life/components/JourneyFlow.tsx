@@ -1665,6 +1665,7 @@ function StepExportBox({
   const router = useRouter()
   const [showConfirm, setShowConfirm] = useState(false)
   const [completing, setCompleting] = useState(false)
+  const [completed, setCompleted] = useState(false)
 
   if (step.id !== "export") return null
 
@@ -1692,8 +1693,9 @@ function StepExportBox({
         body: JSON.stringify({ purchaseId }),
       })
       openDocument()
+      setCompleted(true)
       router.refresh()
-    } catch {
+    } finally {
       setCompleting(false)
     }
   }
@@ -1740,18 +1742,45 @@ function StepExportBox({
             )}
           </div>
 
-          {/* Dokončit */}
-          <button
-            onClick={() => setShowConfirm(true)}
-            disabled={completing}
-            className="w-full px-4 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:shadow-md active:scale-[0.98] disabled:opacity-60"
-            style={{ background: COLOR_ACTIVE }}
-          >
-            {completing ? "Generuji dokument…" : "Dokončit a vygenerovat dokument →"}
-          </button>
-          <p className="text-xs text-foreground/30 text-center">
-            Po dokončení se vygeneruje tvůj osobní dokument
-          </p>
+          {/* Dokončit / success */}
+          {completed ? (
+            <div className="rounded-2xl bg-green-50 border border-green-200 px-5 py-5 space-y-3 text-center">
+              <p className="text-2xl">✅</p>
+              <p className="text-sm font-semibold text-green-800">Audit dokončen!</p>
+              <p className="text-xs text-green-700/80 leading-relaxed">
+                Dokument by se měl otevřít v novém okně. Pokud ne, otevři ho znovu níže.
+              </p>
+              <div className="flex flex-col gap-2 pt-1">
+                <button
+                  onClick={openDocument}
+                  className="w-full px-4 py-2.5 rounded-xl border border-green-300 bg-white text-green-800 text-sm font-semibold hover:bg-green-50 transition-colors"
+                >
+                  ↓ Otevřít dokument znovu
+                </button>
+                <a
+                  href="/ucet"
+                  className="w-full px-4 py-2.5 rounded-xl text-white text-sm font-semibold text-center transition-all hover:shadow-md"
+                  style={{ background: COLOR_ACTIVE }}
+                >
+                  Přejít na účet →
+                </a>
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={() => setShowConfirm(true)}
+                disabled={completing}
+                className="w-full px-4 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:shadow-md active:scale-[0.98] disabled:opacity-60"
+                style={{ background: COLOR_ACTIVE }}
+              >
+                {completing ? "Dokončuji…" : "Dokončit a vygenerovat dokument →"}
+              </button>
+              <p className="text-xs text-foreground/30 text-center">
+                Po dokončení se vygeneruje tvůj osobní dokument
+              </p>
+            </>
+          )}
         </div>
       )}
 
