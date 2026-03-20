@@ -2,55 +2,42 @@ import { verifyUserSession, getUserPurchases, type Purchase } from '@/lib/user-a
 import LoginForm from './LoginForm'
 import LogoutButton from './LogoutButton'
 import AuditPurchaseActions from './AuditPurchaseActions'
+import Link from 'next/link'
 
-const PRODUCT_LABELS: Record<string, { name: string; description: string; emoji: string }> = {
-  'audit-zivota': {
-    name: 'Audit života',
-    description: 'Interaktivní průvodce, který ti pomůže zmapovat a zhodnotit klíčové oblasti tvého života.',
-    emoji: '🔍',
-  },
-}
-
-function PurchaseCard({ purchase }: { purchase: Purchase }) {
-  const product = PRODUCT_LABELS[purchase.product_slug] ?? {
-    name: purchase.product_slug,
-    description: '',
-    emoji: '📦',
-  }
-  const purchaseDate = new Date(purchase.created_at).toLocaleDateString('cs-CZ', {
+function formatDate(date: Date) {
+  return new Date(date).toLocaleDateString('cs-CZ', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   })
-  const completedDate = purchase.completed_at
-    ? new Date(purchase.completed_at).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })
-    : null
+}
+
+function AuditCard({ purchase }: { purchase: Purchase }) {
   const isCompleted = !!purchase.completed_at
 
   return (
-    <div className="paper-card rounded-[20px] px-6 py-6 flex items-start gap-4">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-2xl">
-        {product.emoji}
+    <div className="paper-card rounded-[20px] px-6 py-5 flex items-start gap-4">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xl">
+        🔍
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-lg font-bold text-foreground">{product.name}</h3>
-            {isCompleted ? (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-foreground/8 text-foreground/50">
-                Dokončeno {completedDate}
-              </span>
-            ) : (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
-                Aktivní
-              </span>
-            )}
-          </div>
-          <span className="text-xs text-foreground/45 shrink-0 mt-1">Zakoupeno {purchaseDate}</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="text-base font-bold text-foreground">Audit života</h3>
+          {isCompleted ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-foreground/8 text-foreground/50">
+              Dokončeno
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+              Probíhá
+            </span>
+          )}
         </div>
-        {product.description && (
-          <p className="text-sm text-foreground/65 mt-1 leading-relaxed">{product.description}</p>
-        )}
+        <p className="text-xs text-foreground/40 mt-0.5">
+          {isCompleted
+            ? `Dokončeno ${formatDate(purchase.completed_at!)}`
+            : `Zahájeno ${formatDate(purchase.created_at)}`}
+        </p>
         <AuditPurchaseActions purchaseId={purchase.id} isCompleted={isCompleted} />
       </div>
     </div>
@@ -74,12 +61,10 @@ export default async function UcetPage({
           <div className="max-w-2xl mx-auto">
 
             {!user ? (
-              /* ── Přihlášení ────────────────────────────────────── */
               <div className="paper-card rounded-[28px] px-6 py-8 md:px-10 md:py-10">
                 <LoginForm tokenError={tokenError} />
               </div>
             ) : (
-              /* ── Dashboard ─────────────────────────────────────── */
               <Dashboard userId={user.id} email={user.email} />
             )}
 
@@ -92,6 +77,9 @@ export default async function UcetPage({
 
 async function Dashboard({ userId, email }: { userId: string; email: string }) {
   const purchases = await getUserPurchases(userId)
+  const audits = purchases.filter((p) => p.product_slug === 'audit-zivota')
+  const activeAudit = audits.find((p) => !p.completed_at)
+  const completedAudits = audits.filter((p) => !!p.completed_at)
 
   return (
     <div className="space-y-6">
@@ -106,24 +94,55 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
         <LogoutButton />
       </div>
 
-      {/* Produkty */}
-      <div className="space-y-4">
+      {/* Audit života */}
+      <div className="space-y-3">
         <h2 className="text-xl font-extrabold tracking-tight text-foreground px-1">
-          Moje produkty
+          Audit života
         </h2>
 
-        {purchases.length === 0 ? (
-          <div className="paper-card rounded-[24px] px-6 py-10 text-center space-y-3">
-            <div className="text-4xl">📭</div>
-            <p className="text-foreground/60 leading-relaxed">
-              Zatím nemáš žádné zakoupené produkty.
-            </p>
-          </div>
-        ) : (
+        {/* Aktivní cesta */}
+        {activeAudit && <AuditCard purchase={activeAudit} />}
+
+        {/* Dokončené cesty */}
+        {completedAudits.length > 0 && (
           <div className="space-y-3">
-            {purchases.map((p) => (
-              <PurchaseCard key={p.id} purchase={p} />
+            {completedAudits.map((p) => (
+              <AuditCard key={p.id} purchase={p} />
             ))}
+          </div>
+        )}
+
+        {/* Žádný audit */}
+        {audits.length === 0 && (
+          <div className="paper-card rounded-[24px] px-6 py-10 text-center space-y-4">
+            <div className="text-4xl">🗺️</div>
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground">Zatím jsi nezahájil/a žádný audit</p>
+              <p className="text-sm text-foreground/55 leading-relaxed">
+                Audit života tě provede sedmi kroky od upřímného pohledu na sebe až po vlastní plán.
+              </p>
+            </div>
+            <Link
+              href="/audit-zivota"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
+            >
+              Zahájit audit →
+            </Link>
+          </div>
+        )}
+
+        {/* Po dokončení – nabídka nové cesty */}
+        {!activeAudit && completedAudits.length > 0 && (
+          <div className="paper-card rounded-[20px] px-5 py-4 flex items-center justify-between gap-4 border border-dashed border-black/10 bg-transparent">
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Chceš projít audit znovu — s čistým listem?
+            </p>
+            <Link
+              href="/audit-zivota"
+              className="flex-shrink-0 px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
+            >
+              Zahájit nový
+            </Link>
           </div>
         )}
       </div>
