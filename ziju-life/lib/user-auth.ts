@@ -105,6 +105,15 @@ export async function getUserPurchases(userId: string): Promise<Purchase[]> {
   return rows as unknown as Purchase[]
 }
 
+export async function createFreePurchase(userId: string): Promise<string> {
+  const id = `purchase_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+  await sql`
+    INSERT INTO purchases (id, user_id, product_slug, stripe_payment_id, created_at)
+    VALUES (${id}, ${userId}, 'audit-zivota', NULL, NOW())
+  `
+  return id
+}
+
 export async function getJourneyData(userId: string): Promise<{ purchaseId: string; data: Record<string, unknown> | null } | null> {
   const rows = await sql`
     SELECT id, journey_data
