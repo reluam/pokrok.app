@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-// ── Interstitiální text nad sekcí ─────────────────────────────────────────────
+// ── Interstitiální sekce (velký citát + odstavec) ─────────────────────────────
 
 function Interstitial({
   quote,
@@ -13,7 +13,7 @@ function Interstitial({
   body: string;
 }) {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 pt-20 md:pt-28 pb-10 md:pb-12">
+    <section className="px-4 sm:px-6 lg:px-8 py-20 md:py-28">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight tracking-tight">
           „{quote}"
@@ -27,7 +27,7 @@ function Interstitial({
           </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -119,58 +119,39 @@ function CardSection({
 export default function ManualTeaser() {
   return (
     <>
-      {/* Sekce 1: Tvoje mapa */}
-      <section>
-        <Interstitial
-          quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
-          lead="Tohle není o motivaci ani disciplíně."
-          body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvoje mapa."
-        />
-        <CardSection
-          emoji="🗺️"
-          title="Tvoje mapa"
-          quick="Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš. Interaktivní průvodce zdarma."
-          detail="Sedm strukturovaných kroků — od kola života přes hodnoty, vizi a překážky až po akční plán. Ke každému kroku jsou cvičení a šablony. Na konci si vygeneruješ vlastní dokument."
-          bullets={[
-            "Vyzkoušel/a jsi pár cest, ale v ničem ses nenašel/nenašla.",
-            "Máš v hlavě chaos a potřebuješ si to srovnat.",
-            "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
-          ]}
-          cta="Začít zdarma"
-          href="/tvoje-mapa"
-          primary
-        />
-      </section>
+      {/* Karta 1: Tvoje mapa */}
+      <CardSection
+        emoji="🗺️"
+        title="Tvoje mapa"
+        quick="Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš. Interaktivní průvodce zdarma."
+        detail="Sedm strukturovaných kroků — od kola života přes hodnoty, vizi a překážky až po akční plán. Ke každému kroku jsou cvičení a šablony. Na konci si vygeneruješ vlastní dokument."
+        bullets={[
+          "Vyzkoušel/a jsi pár cest, ale v ničem ses nenašel/nenašla.",
+          "Máš v hlavě chaos a potřebuješ si to srovnat.",
+          "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
+        ]}
+        cta="Začít zdarma"
+        href="/tvoje-mapa"
+        primary
+      />
 
-      {/* Sekce 2: Můj kompas */}
-      <section>
-        <Interstitial
-          quote="Nemůžeš naplánovat svůj život jednou a provždy. Ale můžeš si nastavit kompas."
-          lead="Principy a hodnoty nejsou dogma."
-          body="Jsou to nástroje. Pomůžou ti dělat lepší rozhodnutí, i když nemáš všechny odpovědi. Takhle to funguje u mě — a proto jsem sepsal svůj kompas."
-        />
-        <CardSection
-          emoji="📖"
-          title="Můj kompas"
-          quick="Matějův osobní soubor principů, hodnot a lekcí. Inspirace pro tvůj vlastní kompas."
-          detail="16 principů ve třech kategoriích — Základ (fyzická mašinérie), Principy (jak přemýšlet) a Pilulky (hořké pravdy). Každý princip je okomentovaný a doplněný tipy a zdroji. Není to dogma — je to inspirace."
-          cta="Prozkoumat"
-          href="/muj-kompas"
-          reverse
-        />
-      </section>
+      {/* Přechod 1 */}
+      <Interstitial
+        quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
+        lead="Tohle není o motivaci ani disciplíně."
+        body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvoje mapa."
+      />
 
-      {/* Sekce 3: Inspirace */}
-      <section className="pb-4">
-        <CardSection
-          emoji="✨"
-          title="Inspirace"
-          quick="Knihy, podcasty, články a nápady, které mě formovaly a můžou být užitečné i pro tebe."
-          detail="Knihy, videa, reelsky a články, které Matěje formovaly. Roztříděné do kategorií — od osobního rozvoje přes zdraví po mindset. Průběžně doplňováno."
-          cta="Prozkoumat"
-          href="/inspirace"
-        />
-      </section>
+      {/* Karta 2: Můj kompas */}
+      <CardSection
+        emoji="📖"
+        title="Můj kompas"
+        quick="Matějův osobní soubor principů, hodnot a lekcí. Inspirace pro tvůj vlastní kompas."
+        detail="16 principů ve třech kategoriích — Základ (fyzická mašinérie), Principy (jak přemýšlet) a Pilulky (hořké pravdy). Každý princip je okomentovaný a doplněný tipy a zdroji. Není to dogma — je to inspirace."
+        cta="Prozkoumat"
+        href="/muj-kompas"
+        reverse
+      />
     </>
   );
 }
