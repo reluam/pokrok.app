@@ -40,11 +40,11 @@ export default function Medailonek() {
               </p>
 
               <p>
-                Časem jsem zjistil, že právě toto zkoumání je to, co mi dává smysl. Experimentuji s tím, jak funguje naše tělo i hlava — od spánku a stravy přes mentální modely až po meditaci. Ne proto, abych našel jeden zázračný hack, ale abych zjistil, které věci vedou k více prožitému životu.
+                Časem jsem zjistil, že právě toto zkoumání mi dává smysl. Experimentuji s tím, jak funguje naše tělo i hlava — od spánku a stravy přes mentální modely až po meditaci. Abych zjistil, které věci vedou k více prožitému životu.
               </p>
 
               <p>
-                Tenhle kousek internetu jsem vytvořil, abych mohl sdílet, co jsem objevil — a pomoct ti najít to, co funguje pro tebe. Sepsal jsem{" "}
+                Tenhle kousek internetu jsem vytvořil, abych mohl sdílet, co jsem objevil — a pomoct ti najít, co funguje pro tebe. Sepsal jsem{" "}
                 <Link href="/muj-kompas" className="text-accent hover:text-accent-hover transition-colors">
                   svůj kompas
                 </Link>
@@ -52,9 +52,9 @@ export default function Medailonek() {
                 <Link href="/tvoje-mapa" className="text-accent hover:text-accent-hover transition-colors">
                   Tvoji mapu
                 </Link>
-                {" "}— průvodce, který ti pomůže zmapovat, kde jsi a kam chceš. A pokud nechceš tu cestu jít sám, můžeme ji jít spolu v rámci{" "}
+                {" "}— průvodce, který ti pomůže zmapovat, kde jsi a kam chceš jít. A pokud nechceš tu cestu jít sám, můžeme ji jít spolu v rámci{" "}
                 <Link href="/koucing" className="text-accent hover:text-accent-hover transition-colors">
-                  koučinku
+                  koučingu
                 </Link>
                 .
               </p>
