@@ -51,7 +51,7 @@ function FlipCard({
           style={{ gridArea: "1/1", backfaceVisibility: "hidden" }}
           className="flex flex-col justify-between gap-8 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-lg bg-white/80 backdrop-blur select-none"
         >
-          <p className="text-2xl md:text-3xl font-extrabold text-foreground leading-snug tracking-tight">
+          <p className="text-3xl md:text-4xl font-extrabold text-foreground leading-snug tracking-tight">
             „{quote}"
           </p>
           <div className="flex items-center gap-4">
