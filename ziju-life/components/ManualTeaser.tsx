@@ -14,11 +14,11 @@ function Interstitial({
 }) {
   return (
     <section className="px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+      <div className="max-w-6xl mx-auto space-y-6">
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight tracking-tight">
           „{quote}"
         </h2>
-        <div className="space-y-4 pt-2">
+        <div className="space-y-3 max-w-3xl">
           <p className="text-lg md:text-xl font-bold text-foreground/85 leading-relaxed">
             {lead}
           </p>
@@ -140,6 +140,13 @@ export default function ManualTeaser() {
         quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
         lead="Tohle není o motivaci ani disciplíně."
         body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvoje mapa."
+      />
+
+      {/* Přechod 2 */}
+      <Interstitial
+        quote="Nemůžeš naplánovat svůj život jednou a provždy. Ale můžeš si nastavit kompas."
+        lead="Principy a hodnoty nejsou dogma."
+        body="Jsou to nástroje. Pomůžou ti dělat lepší rozhodnutí, i když nemáš všechny odpovědi. Takhle to funguje u mě — a proto jsem sepsal svůj kompas."
       />
 
       {/* Karta 2: Můj kompas */}
