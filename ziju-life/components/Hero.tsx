@@ -57,7 +57,7 @@ function HeroContent() {
         {...fadeInUp}
         transition={{ ...fadeInUp.transition, delay: 0.1 }}
       >
-        Začni <span className="hand-drawn-underline">žít life</span> podle sebe.
+        Nevíš, kam <span className="hand-drawn-underline">směřuješ</span>? Tady si to vyjasníme.
       </motion.h1>
 
       <motion.p
@@ -66,10 +66,7 @@ function HeroContent() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
       >
-        Tvůj život by měl dávat smysl tobě. Pomůžu ti se{" "}
-        <span className="text-accent font-semibold">zastavit</span>,{" "}
-        <span className="text-accent font-semibold">rozhlédnout</span> a začít{" "}
-        <span className="text-accent font-semibold">žít více podle sebe</span>. Krok za krokem.
+        Pomůžu ti poskládat si vlastní návod na život. Bez keců, bez vzdušných zámků. Krok za krokem.
       </motion.p>
 
       <motion.div
@@ -79,10 +76,10 @@ function HeroContent() {
         transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}
       >
         <a
-          href="#home-coaching"
+          href="/audit-zivota"
           className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-all w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
         >
-          Chci převzít řízení
+          Udělej si Audit života — zdarma →
         </a>
       </motion.div>
     </>
