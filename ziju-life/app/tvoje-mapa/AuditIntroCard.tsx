@@ -98,6 +98,24 @@ export default function AuditIntroCard({ userEmail }: { userEmail?: string }) {
             </ul>
           </div>
 
+          {/* Pro koho je */}
+          <div className="paper-card rounded-[24px] px-6 py-6 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-foreground/40">Pro koho je Tvoje mapa</p>
+            <ul className="space-y-2">
+              {[
+                "Vyzkoušel/a jsi pár cest, ale v ničem ses nenašel/nenašla.",
+                "Máš v hlavě chaos a potřebuješ si to srovnat.",
+                "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
+                "Chceš přestat přemýšlet a začít dělat — ale potřebuješ první krok.",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-foreground/70">
+                  <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-accent/60" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Email + start box */}
           <div className="paper-card rounded-[24px] px-6 py-6 space-y-4">
             <div className="space-y-1">

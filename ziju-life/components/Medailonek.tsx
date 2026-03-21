@@ -36,19 +36,23 @@ export default function Medailonek() {
             
             <div className="space-y-4 text-lg md:text-xl text-foreground/80 leading-relaxed">
               <p>
-                Dlouho jsem hledal návod na život. Zkoušel jsem spoustu cest — hudbu, e-commerce, festivaly — a nic nesedlo. Pak jsem pochopil, že ten návod si musím poskládat sám. Ne z jednoho zázračného niche, ale ze správné kombinace věcí.
+                Většinu života jsem strávil snahou pochopit, jak se tenhle život vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, ale pomalu — a často s rozpaky — jsem se to začal učit.
               </p>
 
               <p>
-                Tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly. Najdeš tady{" "}
+                Časem jsem zjistil, že právě toto zkoumání je to, co mi dává smysl. Experimentuji s tím, jak funguje naše tělo i hlava — od spánku a stravy přes mentální modely až po meditaci. Ne proto, abych našel jeden zázračný hack, ale abych zjistil, které věci vedou k více prožitému životu.
+              </p>
+
+              <p>
+                Tenhle kousek internetu jsem vytvořil, abych mohl sdílet, co jsem objevil — a pomoct ti najít to, co funguje pro tebe. Sepsal jsem{" "}
                 <Link href="/muj-kompas" className="text-accent hover:text-accent-hover transition-colors">
-                  můj kompas
+                  svůj kompas
                 </Link>
-                {" "}— principy a lekce, které mi fungují. Můžeš si{" "}
+                {" "}s principy a lekcemi, které mě vedou. Vytvořil jsem{" "}
                 <Link href="/tvoje-mapa" className="text-accent hover:text-accent-hover transition-colors">
-                  nakreslit svou vlastní mapu
+                  Tvoji mapu
                 </Link>
-                , kde zmapuješ kde jsi a kam chceš. A pokud chceš průvodce na cestu, můžeme se potkat na{" "}
+                {" "}— průvodce, který ti pomůže zmapovat, kde jsi a kam chceš. A pokud nechceš tu cestu jít sám, můžeme ji jít spolu v rámci{" "}
                 <Link href="/koucing" className="text-accent hover:text-accent-hover transition-colors">
                   koučinku
                 </Link>
