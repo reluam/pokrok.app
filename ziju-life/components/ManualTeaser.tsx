@@ -103,7 +103,7 @@ export default function ManualTeaser() {
       <CardSection
         emoji="🗺️"
         title="Tvoje mapa"
-        quick="Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš. Interaktivní průvodce zdarma."
+        quick="Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš jít. Interaktivní průvodce zdarma."
         lead="Tohle není o motivaci ani disciplíně."
         body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvoje mapa."
         detail="Sedm strukturovaných kroků — od kola života přes hodnoty, vizi a překážky až po akční plán. Ke každému kroku jsou cvičení a šablony. Na konci si vygeneruješ vlastní dokument."
