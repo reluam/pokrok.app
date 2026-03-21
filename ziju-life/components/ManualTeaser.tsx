@@ -31,7 +31,6 @@ function FlipCard({
 
   return (
     <div
-      className="min-h-[420px]"
       style={{ perspective: "1200px" }}
       onMouseEnter={() => setFlipped(true)}
       onMouseLeave={() => setFlipped(false)}
@@ -42,24 +41,21 @@ function FlipCard({
           transformStyle: "preserve-3d",
           transition: "transform 0.65s cubic-bezier(0.4, 0, 0.2, 1)",
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          position: "relative",
-          width: "100%",
-          height: "100%",
-          minHeight: "inherit",
+          display: "grid",
         }}
       >
         {/* Přední strana */}
         <div
-          style={{ backfaceVisibility: "hidden", position: "absolute", inset: 0 }}
-          className="flex flex-col justify-between gap-6 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-lg bg-white/80 backdrop-blur select-none"
+          style={{ gridArea: "1/1", backfaceVisibility: "hidden" }}
+          className="flex flex-col justify-between gap-8 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-lg bg-white/80 backdrop-blur select-none"
         >
-          <p className="text-xl md:text-2xl font-extrabold text-foreground leading-snug tracking-tight">
+          <p className="text-2xl md:text-3xl font-extrabold text-foreground leading-snug tracking-tight">
             „{quote}"
           </p>
-          <div className="flex items-center gap-3">
-            <span className="text-3xl leading-none">{emoji}</span>
+          <div className="flex items-center gap-4">
+            <span className="text-5xl leading-none">{emoji}</span>
             <div>
-              <p className="text-base font-bold text-foreground leading-tight">{title}</p>
+              <p className="text-lg font-bold text-foreground leading-tight">{title}</p>
               <p className="text-sm text-foreground/55 leading-snug">{quick}</p>
             </div>
           </div>
@@ -68,12 +64,11 @@ function FlipCard({
         {/* Zadní strana */}
         <div
           style={{
+            gridArea: "1/1",
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
-            position: "absolute",
-            inset: 0,
           }}
-          className="flex flex-col gap-5 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-md bg-white/60 backdrop-blur select-none overflow-auto"
+          className="flex flex-col gap-5 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-md bg-white/60 backdrop-blur select-none"
         >
           <div className="flex items-center gap-2.5">
             <span className="text-2xl leading-none">{emoji}</span>
