@@ -31,6 +31,7 @@ function FlipCard({
 
   return (
     <div
+      className="h-full"
       style={{ perspective: "1200px" }}
       onMouseEnter={() => setFlipped(true)}
       onMouseLeave={() => setFlipped(false)}
@@ -42,6 +43,7 @@ function FlipCard({
           transition: "transform 0.65s cubic-bezier(0.4, 0, 0.2, 1)",
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
           display: "grid",
+          height: "100%",
         }}
       >
         {/* Přední strana */}
