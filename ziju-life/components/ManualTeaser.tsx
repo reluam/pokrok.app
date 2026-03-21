@@ -1,23 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-// ── Interstitiální citát (jen velký text) ─────────────────────────────────────
+// ── Sekce: citát + dva boxy ───────────────────────────────────────────────────
 
-function Interstitial({ quote }: { quote: string }) {
-  return (
-    <section className="px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight tracking-tight">
-          „{quote}"
-        </h2>
-      </div>
-    </section>
-  );
-}
-
-// ── Sekce se dvěma samostatnými boxy vedle sebe ───────────────────────────────
-
-function CardSection({
+function Section({
+  quote,
   emoji,
   title,
   quick,
@@ -29,6 +16,7 @@ function CardSection({
   href,
   reverse,
 }: {
+  quote: string;
   emoji: string;
   title: string;
   quick: string;
@@ -41,8 +29,15 @@ function CardSection({
   reverse?: boolean;
 }) {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 pb-20 md:pb-28">
-      <div className="max-w-6xl mx-auto">
+    <section className="px-4 sm:px-6 lg:px-8 py-20 md:py-28">
+      <div className="max-w-6xl mx-auto space-y-10">
+
+        {/* Citát */}
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight tracking-tight max-w-4xl">
+          „{quote}"
+        </h2>
+
+        {/* Boxy */}
         <div className="grid lg:grid-cols-2 gap-5 lg:gap-6">
 
           {/* Box 1: Přehled */}
@@ -87,7 +82,7 @@ function CardSection({
 
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -96,11 +91,8 @@ function CardSection({
 export default function ManualTeaser() {
   return (
     <>
-      {/* Přechod 1 */}
-      <Interstitial quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci." />
-
-      {/* Karta 1: Tvoje mapa */}
-      <CardSection
+      <Section
+        quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
         emoji="🗺️"
         title="Tvoje mapa"
         quick="Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš jít. Interaktivní průvodce zdarma."
@@ -116,11 +108,8 @@ export default function ManualTeaser() {
         href="/tvoje-mapa"
       />
 
-      {/* Přechod 2 */}
-      <Interstitial quote="Nemůžeš naplánovat svůj život jednou a provždy. Ale můžeš si nastavit kompas." />
-
-      {/* Karta 2: Můj kompas */}
-      <CardSection
+      <Section
+        quote="Nemůžeš naplánovat svůj život jednou a provždy. Ale můžeš si nastavit kompas."
         emoji="📖"
         title="Můj kompas"
         quick="Matějův osobní soubor principů, hodnot a lekcí. Inspirace pro tvůj vlastní kompas."
