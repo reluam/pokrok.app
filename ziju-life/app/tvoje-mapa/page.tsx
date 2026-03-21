@@ -6,7 +6,7 @@ import AuditIntroCard from "./AuditIntroCard";
 export const metadata: Metadata = {
   title: "Tvoje mapa | Žiju life",
   description:
-    "Interaktivní průvodce, který ti pomůže zmapovat kde jsi a naplánovat kam chceš. Zdarma.",
+    "Projdi životní cestu zastávku po zastávce. Sedm kroků, cvičení, šablony a materiály — vše v jednom průvodci.",
 };
 
 export default async function AuditZivotaPage({

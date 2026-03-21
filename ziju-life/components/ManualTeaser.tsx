@@ -1,174 +1,168 @@
-"use client";
-
 import Link from "next/link";
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-// Každá karta má 2 stránky: rychlý přehled + detail.
-// Navigace je lineární přes všech 6 slidů.
-const SLIDES = [
-  {
-    card: 0, type: "quick",
-    emoji: "🗺️", title: "Tvoje mapa",
-    text: "Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš. Interaktivní průvodce zdarma.",
-    cta: "Začít zdarma", href: "/tvoje-mapa", primary: true,
-  },
-  {
-    card: 0, type: "detail",
-    emoji: "🗺️", title: "Tvoje mapa",
-    text: "Sedm strukturovaných kroků — od kola života přes hodnoty, vizi a překážky až po akční plán. Ke každému kroku jsou cvičení a šablony. Na konci si vygeneruješ vlastní dokument.",
-    bullets: [
-      "Vyzkoušel/a jsi pár cest, ale v ničem ses nenašel/nenašla.",
-      "Máš v hlavě chaos a potřebuješ si to srovnat.",
-      "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
-    ],
-    cta: "Začít zdarma", href: "/tvoje-mapa", primary: true,
-  },
-  {
-    card: 1, type: "quick",
-    emoji: "📖", title: "Můj kompas",
-    text: "Matějův osobní soubor principů, hodnot a lekcí. Inspirace pro tvůj vlastní kompas.",
-    cta: "Prozkoumat", href: "/muj-kompas", primary: false,
-  },
-  {
-    card: 1, type: "detail",
-    emoji: "📖", title: "Můj kompas",
-    text: "16 principů ve třech kategoriích — Základ (fyzická mašinérie), Principy (jak přemýšlet) a Pilulky (hořké pravdy). Každý princip je okomentovaný a doplněný tipy a zdroji. Není to dogma — je to inspirace.",
-    cta: "Prozkoumat", href: "/muj-kompas", primary: false,
-  },
-  {
-    card: 2, type: "quick",
-    emoji: "✨", title: "Inspirace",
-    text: "Knihy, podcasty, články a nápady, které mě formovaly a můžou být užitečné i pro tebe.",
-    cta: "Prozkoumat", href: "/inspirace", primary: false,
-  },
-  {
-    card: 2, type: "detail",
-    emoji: "✨", title: "Inspirace",
-    text: "Knihy, videa, reelsky a články, které Matěje formovaly. Roztříděné do kategorií — od osobního rozvoje přes zdraví po mindset. Průběžně doplňováno.",
-    cta: "Prozkoumat", href: "/inspirace", primary: false,
-  },
-] as const;
+// ── Interstitiální sekce (velký citát + odstavec) ─────────────────────────────
 
-export default function ManualTeaser() {
-  const [slide, setSlide] = useState(0);
-  const total = SLIDES.length;
-  const current = SLIDES[slide];
-
-  const prev = () => setSlide((s) => (s - 1 + total) % total);
-  const next = () => setSlide((s) => (s + 1) % total);
-
-  const bullets = "bullets" in current ? (current.bullets as readonly string[]) : undefined;
-
+function Interstitial({
+  quote,
+  lead,
+  body,
+}: {
+  quote: string;
+  lead: string;
+  body: string;
+}) {
   return (
-    <section className="relative py-6 md:py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="relative">
+    <section className="px-4 sm:px-6 lg:px-8 py-20 md:py-28">
+      <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight tracking-tight">
+          „{quote}"
+        </h2>
+        <div className="space-y-4 pt-2">
+          <p className="text-lg md:text-xl font-bold text-foreground/85 leading-relaxed">
+            {lead}
+          </p>
+          <p className="text-base md:text-lg text-foreground/60 leading-relaxed">
+            {body}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-          {/* Karta */}
-          <div
-            key={slide}
-            className={`rounded-[28px] border-2 px-8 py-10 md:px-12 md:py-12 flex flex-col gap-6 transition-all duration-300 ${
-              current.primary
-                ? "bg-accent/5 border-accent/25"
-                : "bg-white/85 border-white/60 backdrop-blur"
-            } shadow-md`}
-          >
-            {/* Badge: rychlý / detail */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-widest text-foreground/30">
-                {current.type === "quick" ? "Přehled" : "Více info"}
-              </span>
-              <span className="text-xs text-foreground/30">
-                {current.card + 1} / 3 · {current.type === "quick" ? "1" : "2"} ze 2
-              </span>
-            </div>
+// ── Karta se dvěma stranami v jedné sekci ─────────────────────────────────────
 
-            {/* Obsah */}
+function CardSection({
+  emoji,
+  title,
+  quick,
+  detail,
+  bullets,
+  cta,
+  href,
+  primary,
+  reverse,
+}: {
+  emoji: string;
+  title: string;
+  quick: string;
+  detail: string;
+  bullets?: string[];
+  cta: string;
+  href: string;
+  primary?: boolean;
+  reverse?: boolean;
+}) {
+  return (
+    <section className={`px-4 sm:px-6 lg:px-8 py-16 md:py-20 ${primary ? "bg-accent/4" : ""}`}>
+      <div className="max-w-6xl mx-auto">
+        <div className={`grid lg:grid-cols-2 gap-0 rounded-[32px] overflow-hidden border ${primary ? "border-accent/20" : "border-black/6"} shadow-lg`}>
+
+          {/* Levá / přední strana */}
+          <div className={`flex flex-col gap-6 px-8 py-10 md:px-10 md:py-12 ${reverse ? "order-2 lg:order-2" : ""} ${primary ? "bg-accent/8" : "bg-white/80 backdrop-blur"}`}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/35">Přehled</p>
             <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <span className="text-5xl leading-none flex-shrink-0">{current.emoji}</span>
-                <div>
-                  <h3 className="text-2xl md:text-3xl font-extrabold text-foreground leading-snug">
-                    {current.title}
-                  </h3>
-                </div>
-              </div>
-
-              <p className="text-base md:text-lg text-foreground/70 leading-relaxed">
-                {current.text}
-              </p>
-
-              {bullets && bullets.length > 0 && (
-                <ul className="space-y-2 pt-1">
-                  {bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2.5 text-sm text-foreground/65">
-                      <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-accent/60" />
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <span className="text-6xl leading-none block">{emoji}</span>
+              <h3 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight">{title}</h3>
+              <p className="text-base md:text-lg text-foreground/65 leading-relaxed">{quick}</p>
             </div>
-
-            {/* CTA */}
-            <div className="flex items-center gap-4">
+            <div className="mt-auto">
               <Link
-                href={current.href}
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-lg ${
-                  current.primary
+                href={href}
+                className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-bold transition-all shadow-md hover:shadow-lg ${
+                  primary
                     ? "bg-accent text-white hover:bg-accent-hover"
                     : "bg-foreground text-white hover:opacity-90"
                 }`}
               >
-                {current.cta} <ArrowRight size={15} />
+                {cta} <ArrowRight size={16} />
               </Link>
             </div>
           </div>
 
-          {/* Šipky */}
-          <button
-            onClick={prev}
-            aria-label="Předchozí"
-            className="absolute -left-4 md:-left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-black/10 shadow-md flex items-center justify-center hover:shadow-lg hover:border-accent/30 transition-all"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            onClick={next}
-            aria-label="Další"
-            className="absolute -right-4 md:-right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-black/10 shadow-md flex items-center justify-center hover:shadow-lg hover:border-accent/30 transition-all"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
+          {/* Pravá / zadní strana */}
+          <div className={`flex flex-col gap-6 px-8 py-10 md:px-10 md:py-12 border-t lg:border-t-0 lg:border-l border-black/6 ${reverse ? "order-1 lg:order-1" : ""} bg-white/60 backdrop-blur`}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/35">Více info</p>
+            <p className="text-base md:text-lg text-foreground/70 leading-relaxed">{detail}</p>
+            {bullets && bullets.length > 0 && (
+              <ul className="space-y-2.5">
+                {bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-3 text-sm text-foreground/60">
+                    <span className="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-accent/50" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-auto">
+              <Link href={href} className="text-sm font-semibold text-accent hover:underline underline-offset-2 transition-colors inline-flex items-center gap-1.5">
+                {cta} <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
 
-        {/* Dots — 3 páry */}
-        <div className="flex justify-center gap-2 mt-5">
-          {[0, 1, 2].map((card) => {
-            const isActiveCard = current.card === card;
-            const isDetail = isActiveCard && current.type === "detail";
-            return (
-              <div key={card} className="flex gap-1">
-                <button
-                  onClick={() => setSlide(card * 2)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    isActiveCard && !isDetail ? "bg-accent w-4" : "bg-black/20"
-                  }`}
-                  aria-label={`Karta ${card + 1} přehled`}
-                />
-                <button
-                  onClick={() => setSlide(card * 2 + 1)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    isDetail ? "bg-accent w-4" : "bg-black/10"
-                  }`}
-                  aria-label={`Karta ${card + 1} detail`}
-                />
-              </div>
-            );
-          })}
         </div>
       </div>
     </section>
+  );
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+
+export default function ManualTeaser() {
+  return (
+    <>
+      {/* Karta 1: Tvoje mapa */}
+      <CardSection
+        emoji="🗺️"
+        title="Tvoje mapa"
+        quick="Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš. Interaktivní průvodce zdarma."
+        detail="Sedm strukturovaných kroků — od kola života přes hodnoty, vizi a překážky až po akční plán. Ke každému kroku jsou cvičení a šablony. Na konci si vygeneruješ vlastní dokument."
+        bullets={[
+          "Vyzkoušel/a jsi pár cest, ale v ničem ses nenašel/nenašla.",
+          "Máš v hlavě chaos a potřebuješ si to srovnat.",
+          "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
+        ]}
+        cta="Začít zdarma"
+        href="/tvoje-mapa"
+        primary
+      />
+
+      {/* Přechod 1 */}
+      <Interstitial
+        quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
+        lead="Tohle není o motivaci ani disciplíně."
+        body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvoje mapa."
+      />
+
+      {/* Karta 2: Můj kompas */}
+      <CardSection
+        emoji="📖"
+        title="Můj kompas"
+        quick="Matějův osobní soubor principů, hodnot a lekcí. Inspirace pro tvůj vlastní kompas."
+        detail="16 principů ve třech kategoriích — Základ (fyzická mašinérie), Principy (jak přemýšlet) a Pilulky (hořké pravdy). Každý princip je okomentovaný a doplněný tipy a zdroji. Není to dogma — je to inspirace."
+        cta="Prozkoumat"
+        href="/muj-kompas"
+        reverse
+      />
+
+      {/* Přechod 2 */}
+      <Interstitial
+        quote="Nemůžeš naplánovat svůj život jednou a provždy. Ale můžeš si nastavit kompas."
+        lead="Principy a hodnoty nejsou dogma."
+        body="Jsou to nástroje. Pomůžou ti dělat lepší rozhodnutí, i když nemáš všechny odpovědi. Takhle to funguje u mě — a proto jsem sepsal svůj kompas."
+      />
+
+      {/* Karta 3: Inspirace */}
+      <CardSection
+        emoji="✨"
+        title="Inspirace"
+        quick="Knihy, podcasty, články a nápady, které mě formovaly a můžou být užitečné i pro tebe."
+        detail="Knihy, videa, reelsky a články, které Matěje formovaly. Roztříděné do kategorií — od osobního rozvoje přes zdraví po mindset. Průběžně doplňováno."
+        cta="Prozkoumat"
+        href="/inspirace"
+      />
+    </>
   );
 }
