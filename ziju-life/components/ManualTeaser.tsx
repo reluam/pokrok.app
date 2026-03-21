@@ -83,11 +83,6 @@ function CardSection({
                 ))}
               </ul>
             )}
-            <div className="mt-auto">
-              <Link href={href} className="text-sm font-semibold text-accent hover:underline underline-offset-2 transition-colors inline-flex items-center gap-1.5">
-                {cta} <ArrowRight size={14} />
-              </Link>
-            </div>
           </div>
 
         </div>
