@@ -278,13 +278,16 @@ export default function NavodNaZivotPage() {
                   Můj kompas
                 </h1>
                 <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
-                  Toto je <strong>můj</strong> návod — soubor principů, hodnot a lekcí, podle kterých se snažím žít.
+                  Můj kompas je soubor principů, hodnot a lekcí, podle kterých se snažím žít.
                   Není to dogma ani univerzální recept. Je to zrcadlo toho, co mi funguje.
                 </p>
                 <p className="text-base text-foreground/60 leading-relaxed max-w-3xl">
                   Posbíral jsem ho z vlastních chyb, z příběhů chytřejších lidí a z let experimentování.
                   Sdílím ho proto, aby ti mohl posloužit jako inspirace — ne jako návod k okopírování.
-                  Tvůj život potřebuje tvůj vlastní kompas.
+                  Tvůj život potřebuje tvůj vlastní kompas a tvou mapu.{" "}
+                  <span className="inline-flex items-center gap-1 text-accent font-semibold">
+                    <Link href="/tvoje-mapa" className="hover:underline">Nakresli si ji →</Link>
+                  </span>
                 </p>
               </div>
 
@@ -293,15 +296,15 @@ export default function NavodNaZivotPage() {
                 <div className="text-2xl">🗺️</div>
                 <div className="space-y-1">
                   <h2 className="text-lg font-extrabold text-foreground leading-snug">
-                    Sestav si svůj návod pro život
+                    Nakresli si svou mapu
                   </h2>
                   <p className="text-sm text-foreground/60 leading-relaxed">
-                    Tento návod je Matějův. Tvůj život ale potřebuje tvůj vlastní kompas.
+                    Můj kompas je Matějův. Tvůj život potřebuje tvůj vlastní.
                   </p>
                 </div>
                 <p className="text-sm text-foreground/70 leading-relaxed">
                   Tvoje mapa ti v 7 krocích pomůže zjistit, kde teď jsi, co skutečně chceš
-                  a co tě brzdí. Na konci dostaneš vlastní dokument — tvůj osobní návod.
+                  a co tě brzdí. Na konci dostaneš vlastní dokument — tvůj osobní kompas.
                 </p>
                 <ul className="space-y-2">
                   {["Kde teď jsi?", "Energie & hodnoty", "Co skutečně chceš", "Co tě brzdí", "Tvůj vlastní plán"].map((step) => (
@@ -316,8 +319,7 @@ export default function NavodNaZivotPage() {
                     href="/tvoje-mapa"
                     className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
                   >
-                    Začít audit
-                    <ArrowRight size={16} />
+                    Nakresli si svou mapu →
                   </Link>
                   <p className="text-center text-xs text-foreground/40">
                     Průvodce, cvičení a šablony v jednom
