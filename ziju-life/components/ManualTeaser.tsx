@@ -119,6 +119,13 @@ function CardSection({
 export default function ManualTeaser() {
   return (
     <>
+      {/* Přechod 1 */}
+      <Interstitial
+        quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
+        lead="Tohle není o motivaci ani disciplíně."
+        body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvoje mapa."
+      />
+
       {/* Karta 1: Tvoje mapa */}
       <CardSection
         emoji="🗺️"
@@ -133,13 +140,6 @@ export default function ManualTeaser() {
         cta="Začít zdarma"
         href="/tvoje-mapa"
         primary
-      />
-
-      {/* Přechod */}
-      <Interstitial
-        quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
-        lead="Tohle není o motivaci ani disciplíně."
-        body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvoje mapa."
       />
 
       {/* Přechod 2 */}
