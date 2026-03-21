@@ -76,10 +76,10 @@ function HeroContent() {
         transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}
       >
         <a
-          href="/audit-zivota"
+          href="/tvoje-mapa"
           className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-all w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
         >
-          Udělej si Audit života — zdarma →
+          Nakresli si svou mapu — zdarma →
         </a>
       </motion.div>
     </>

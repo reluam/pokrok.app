@@ -6,14 +6,14 @@ export default function ManualTeaser() {
     <section className="relative py-6 md:py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-5 md:gap-6">
 
-        {/* Návod na život */}
+        {/* Můj kompas */}
         <Link
-          href="/navod-na-zivot"
+          href="/muj-kompas"
           className="group flex flex-col gap-4 bg-white/85 rounded-[24px] p-7 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
         >
           <span className="text-3xl">📖</span>
           <div className="flex-1">
-            <p className="text-lg font-bold text-foreground group-hover:text-accent transition-colors mb-1">Návod na život</p>
+            <p className="text-lg font-bold text-foreground group-hover:text-accent transition-colors mb-1">Můj kompas</p>
             <p className="text-sm text-foreground/65 leading-relaxed">
               Matějův osobní soubor principů, hodnot a lekcí. Není to dogma — je to inspirace pro tvůj vlastní kompas.
             </p>
@@ -23,14 +23,14 @@ export default function ManualTeaser() {
           </span>
         </Link>
 
-        {/* Audit života */}
+        {/* Tvoje mapa */}
         <Link
-          href="/audit-zivota"
+          href="/tvoje-mapa"
           className="group flex flex-col gap-4 bg-white/85 rounded-[24px] p-7 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
         >
           <span className="text-3xl">🗺️</span>
           <div className="flex-1">
-            <p className="text-lg font-bold text-foreground group-hover:text-accent transition-colors mb-1">Audit života</p>
+            <p className="text-lg font-bold text-foreground group-hover:text-accent transition-colors mb-1">Tvoje mapa</p>
             <p className="text-sm text-foreground/65 leading-relaxed">
               Sedm zastávek od &quot;kde jsem&quot; po &quot;žiju podle sebe&quot;. Se cvičeními a šablonami.
             </p>

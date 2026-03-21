@@ -22,7 +22,7 @@ function AuditCard({ purchase }: { purchase: Purchase }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <h3 className="text-base font-bold text-foreground">Audit života</h3>
+          <h3 className="text-base font-bold text-foreground">Tvoje mapa</h3>
           {isCompleted ? (
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-foreground/8 text-foreground/50">
               Dokončeno
@@ -94,10 +94,10 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
         <LogoutButton />
       </div>
 
-      {/* Audit života */}
+      {/* Tvoje mapa */}
       <div className="space-y-3">
         <h2 className="text-xl font-extrabold tracking-tight text-foreground px-1">
-          Audit života
+          Tvoje mapa
         </h2>
 
         {/* Aktivní cesta */}
@@ -119,11 +119,11 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
             <div className="space-y-1">
               <p className="font-semibold text-foreground">Zatím jsi nezahájil/a žádný audit</p>
               <p className="text-sm text-foreground/55 leading-relaxed">
-                Audit života tě provede sedmi kroky od upřímného pohledu na sebe až po vlastní plán.
+                Tvoje mapa tě provede sedmi kroky od upřímného pohledu na sebe až po vlastní plán.
               </p>
             </div>
             <Link
-              href="/audit-zivota"
+              href="/tvoje-mapa"
               className="inline-flex items-center gap-2 px-6 py-2.5 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
             >
               Zahájit audit →
@@ -138,7 +138,7 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
               Chceš projít audit znovu — s čistým listem?
             </p>
             <Link
-              href="/audit-zivota"
+              href="/tvoje-mapa"
               className="flex-shrink-0 px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
             >
               Zahájit nový

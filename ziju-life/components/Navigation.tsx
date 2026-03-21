@@ -67,8 +67,8 @@ export default function Navigation() {
   }, [pathname]);
 
   const navItems: Array<{ href: string; label: string }> = [
-    { href: "/audit-zivota", label: "Audit života" },
-    { href: "/navod-na-zivot", label: "Návod na život" },
+    { href: "/tvoje-mapa", label: "Tvoje mapa" },
+    { href: "/muj-kompas", label: "Můj kompas" },
     { href: "/inspirace", label: "Inspirace" },
     { href: "/koucing", label: "Koučink" },
     { href: "/o-mne", label: "O mně" },

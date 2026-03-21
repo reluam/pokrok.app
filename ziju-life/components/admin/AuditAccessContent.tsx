@@ -80,7 +80,7 @@ export default function AuditAccessContent() {
   return (
     <div className="p-8 space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground">Audit života — přístupy</h2>
+        <h2 className="text-2xl font-bold text-foreground">Tvoje mapa — přístupy</h2>
         <p className="text-sm text-foreground/50 mt-1">Přiděluj přístupy zadarmo. Uživatelům přijde magic link e-mailem (platný 7 dní).</p>
       </div>
 

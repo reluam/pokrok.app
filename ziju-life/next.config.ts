@@ -22,9 +22,12 @@ const nextConfig: NextConfig = {
     return [
       { source: "/blog", destination: "/inspirace", permanent: true },
       { source: "/blog/:path*", destination: "/inspirace/:path*", permanent: true },
-      { source: "/jak-ziju", destination: "/navod-na-zivot", permanent: true },
-      { source: "/manual", destination: "/audit-zivota", permanent: true },
-      { source: "/manual/:path*", destination: "/audit-zivota/:path*", permanent: true },
+      { source: "/jak-ziju", destination: "/muj-kompas", permanent: true },
+      { source: "/manual", destination: "/tvoje-mapa", permanent: true },
+      { source: "/manual/:path*", destination: "/tvoje-mapa/:path*", permanent: true },
+      { source: "/audit-zivota", destination: "/tvoje-mapa", permanent: true },
+      { source: "/audit-zivota/:path*", destination: "/tvoje-mapa/:path*", permanent: true },
+      { source: "/navod-na-zivot", destination: "/muj-kompas", permanent: true },
     ];
   },
   async rewrites() {

@@ -188,7 +188,7 @@ function PracticeCard({ practice, onClick }: { practice: Practice; onClick: () =
 // ── Share modal ───────────────────────────────
 function ShareValuesModal({ values, onClose }: { values: string[]; onClose: () => void }) {
   const [copied, setCopied] = useState(false)
-  const pageUrl = "https://ziju.life/audit-zivota"
+  const pageUrl = "https://ziju.life/tvoje-mapa"
   const shareText = `Moje životní hodnoty:\n${values.join(" · ")}\n\nZjisti jaké jsou tvoje: ${pageUrl}\n#mojehodnoty #seberozvoj #zijulife`
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`
@@ -1580,7 +1580,7 @@ export function generateHtml(
   <footer>
     Tento dokument je tvůj osobní průvodce. Vrať se k němu, aktualizuj ho a žij podle sebe.
     <div style="margin-top:20px">
-      <a href="https://ziju.life/audit-zivota" class="back-btn">← Zpět na web</a>
+      <a href="https://ziju.life/tvoje-mapa" class="back-btn">← Zpět na web</a>
     </div>
   </footer>
 </body>

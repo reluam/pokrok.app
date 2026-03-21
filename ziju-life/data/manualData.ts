@@ -102,7 +102,7 @@ export const steps: Step[] = [
       },
     ],
     resources: [
-      { label: "Audit života", type: "Cvičení", free: true, href: "/audit-zivota/audit" },
+      { label: "Tvoje mapa", type: "Cvičení", free: true, href: "/tvoje-mapa/audit" },
       { label: "Jak najít směr", type: "Článek", free: true, href: "/inspirace" },
     ],
   },
@@ -183,8 +183,8 @@ export const steps: Step[] = [
       "Zvědavost",
     ],
     resources: [
-      { label: "Hodnotový kompas", type: "Cvičení", free: true, href: "/audit-zivota/hodnoty" },
-      { label: "Seznam hodnot", type: "Šablona", free: true, href: "/audit-zivota/seznam-hodnot" },
+      { label: "Hodnotový kompas", type: "Cvičení", free: true, href: "/tvoje-mapa/hodnoty" },
+      { label: "Seznam hodnot", type: "Šablona", free: true, href: "/tvoje-mapa/seznam-hodnot" },
     ],
   },
 
@@ -253,7 +253,7 @@ export const steps: Step[] = [
       },
     ],
     resources: [
-      { label: "Vizualizace budoucnosti", type: "Cvičení", free: true, href: "/audit-zivota/vize" },
+      { label: "Vizualizace budoucnosti", type: "Cvičení", free: true, href: "/tvoje-mapa/vize" },
       { label: "Průvodce vizí", type: "Článek", free: true, href: "/inspirace" },
     ],
   },
@@ -324,10 +324,10 @@ export const steps: Step[] = [
       },
     ],
     resources: [
-      { label: "Kariérní audit", type: "Cvičení", free: true, href: "/audit-zivota/kariera" },
-      { label: "Finanční návyky", type: "Cvičení", free: true, href: "/audit-zivota/finance" },
-      { label: "Ranní rutina", type: "Šablona", free: true, href: "/audit-zivota/zdravi" },
-      { label: "Vztahový audit", type: "Cvičení", free: false, href: "/audit-zivota/vztahy" },
+      { label: "Kariérní audit", type: "Cvičení", free: true, href: "/tvoje-mapa/kariera" },
+      { label: "Finanční návyky", type: "Cvičení", free: true, href: "/tvoje-mapa/finance" },
+      { label: "Ranní rutina", type: "Šablona", free: true, href: "/tvoje-mapa/zdravi" },
+      { label: "Vztahový audit", type: "Cvičení", free: false, href: "/tvoje-mapa/vztahy" },
     ],
   },
 
@@ -396,7 +396,7 @@ export const steps: Step[] = [
       },
     ],
     resources: [
-      { label: "Týdenní plánování", type: "Šablona", free: true, href: "/audit-zivota/tyden" },
+      { label: "Týdenní plánování", type: "Šablona", free: true, href: "/tvoje-mapa/tyden" },
       { label: "Návyková smyčka", type: "Článek", free: true, href: "/inspirace" },
     ],
   },
@@ -466,8 +466,8 @@ export const steps: Step[] = [
       },
     ],
     resources: [
-      { label: "Quarterly check-in", type: "Šablona", free: true, href: "/audit-zivota/checkin" },
-      { label: "Roční review", type: "Cvičení", free: false, href: "/audit-zivota/review" },
+      { label: "Quarterly check-in", type: "Šablona", free: true, href: "/tvoje-mapa/checkin" },
+      { label: "Roční review", type: "Cvičení", free: false, href: "/tvoje-mapa/review" },
     ],
   },
 

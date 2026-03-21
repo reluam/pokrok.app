@@ -28,9 +28,9 @@ export default function KoucingPage() {
                   <p className="text-xl md:text-2xl text-foreground/70 leading-relaxed max-w-3xl mx-auto">
                     Na Žiju.life najdeš{" "}
                     <a href="/inspirace" className="text-accent hover:opacity-80 transition-opacity">inspiraci</a>,{" "}
-                    <a href="/audit-zivota" className="text-accent hover:opacity-80 transition-opacity">cvičení</a>{" "}
+                    <a href="/tvoje-mapa" className="text-accent hover:opacity-80 transition-opacity">cvičení</a>{" "}
                     i{" "}
-                    <a href="/navod-na-zivot" className="text-accent hover:opacity-80 transition-opacity">průvodce</a>{" "}
+                    <a href="/muj-kompas" className="text-accent hover:opacity-80 transition-opacity">průvodce</a>{" "}
                     pro vytvoření svého vlastního manuálu pro život.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -77,8 +77,8 @@ export default function KoucingPage() {
                   desc: "Základní otázky o směru, hodnotách a tom, co vlastně od života chceš. Dobrý začátek pro každého.",
                 },
                 {
-                  href: "/audit-zivota",
-                  label: "Audit života",
+                  href: "/tvoje-mapa",
+                  label: "Tvoje mapa",
                   icon: "🗺️",
                   desc: "Sedm zastávek od 'kde jsem' po 'žiju podle sebe'. Ke každé najdeš cvičení, šablony a materiály.",
                 },

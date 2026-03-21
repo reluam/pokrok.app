@@ -413,11 +413,11 @@ export default function SettingsContent() {
       </section>
 
 
-      {/* Audit života – Stripe ceny */}
+      {/* Tvoje mapa – Stripe ceny */}
       <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
-        <h3 className="text-xl font-bold text-foreground mb-2">Audit života – Stripe ceny</h3>
+        <h3 className="text-xl font-bold text-foreground mb-2">Tvoje mapa – Stripe ceny</h3>
         <p className="text-sm text-foreground/60 mb-5">
-          Nastav Stripe Price ID pro produkt Audit života. Standardní cena (250 Kč) se použije pro nové zákazníky, zvýhodněná (100 Kč) pro ty, kteří už Audit jednou zakoupili. Price ID vytvoříš v Stripe Dashboardu (Products → Add product).
+          Nastav Stripe Price ID pro produkt Tvoje mapa. Standardní cena (250 Kč) se použije pro nové zákazníky, zvýhodněná (100 Kč) pro ty, kteří už Audit jednou zakoupili. Price ID vytvoříš v Stripe Dashboardu (Products → Add product).
         </p>
         <div className="space-y-4">
           <div>
