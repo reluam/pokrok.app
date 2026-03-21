@@ -38,13 +38,13 @@ export default function KoucingPage() {
                       onClick={() => scrollTo("zdroje")}
                       className="px-8 py-4 bg-white border-2 border-accent text-accent rounded-full text-lg font-semibold hover:bg-accent/5 transition-colors shadow-md"
                     >
-                      Prozkoumat zdroje zdarma
+                      Zdroje zdarma
                     </button>
                     <button
-                      onClick={() => scrollTo("rezervace")}
+                      onClick={() => scrollTo("jak-to-funguje")}
                       className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
                     >
-                      Konzultace zdarma
+                      O koučingu
                     </button>
                   </div>
                 </div>
