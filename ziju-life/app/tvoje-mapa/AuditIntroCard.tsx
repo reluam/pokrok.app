@@ -57,7 +57,7 @@ export default function AuditIntroCard({ userEmail }: { userEmail?: string }) {
             <p className="text-xs font-bold uppercase tracking-widest text-foreground/40">Průvodce</p>
             <h1 className="text-3xl md:text-4xl font-extrabold text-foreground">Tvoje mapa</h1>
             <p className="text-base text-foreground/60 leading-relaxed max-w-xl mx-auto">
-              Sedm řízených kroků, které ti pomohou zmapovat život, pojmenovat co tě brzdí a sestavit plán jak žít víc podle sebe.
+              Sedm kroků, které ti pomohou zmapovat kde teď jsi, pojmenovat co tě brzdí a naplánovat kam chceš. Zdarma.
             </p>
           </div>
 
@@ -103,7 +103,7 @@ export default function AuditIntroCard({ userEmail }: { userEmail?: string }) {
             <div className="space-y-1">
               <p className="text-sm font-semibold text-foreground">Zadej e-mail pro uložení postupu</p>
               <p className="text-xs text-foreground/50">
-                Pošleme ti odkaz, díky kterému se k auditu kdykoliv vrátíš.
+                Pošleme ti odkaz, díky kterému se ke své mapě kdykoliv vrátíš.
               </p>
             </div>
             <input
@@ -145,7 +145,7 @@ export default function AuditIntroCard({ userEmail }: { userEmail?: string }) {
               disabled={loading}
               className="flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-accent text-white rounded-full text-base font-bold hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-md hover:shadow-lg"
             >
-              {loading ? "Připravuji…" : "Začít audit"}
+              {loading ? "Připravuji…" : "Začít zdarma"}
               {!loading && <ArrowRight size={18} />}
             </button>
           </div>

@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { Book, Video, FileText, PenTool, HelpCircle, Mail } from "lucide-react";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
 import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
-import LeadForm from "@/components/LeadForm";
 
 interface MixedItem {
   id: string;
@@ -207,57 +206,14 @@ export default function ChooseYourPath() {
           </div>
         </div>
 
-        {/* Koučink CTA – pouze 30min konzultace zdarma */}
-        <div id="home-coaching" className="max-w-3xl mx-auto">
-          <div className="rounded-[28px] border-2 border-accent/40 bg-white/90 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-8 py-10 space-y-7 flex flex-col relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-              <span className="bg-accent text-white text-xs font-bold px-4 py-1 rounded-full">Zdarma</span>
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-foreground">Pojďme se nejdřív potkat</h3>
-              <p className="text-foreground/65 leading-relaxed">
-                Na 30 minutách zjistíme, co tě trápí, jaké jsou možnosti — a hlavně jestli ti vůbec mohu pomoct. Bez tlaku, bez závazku.
-              </p>
-            </div>
-
-            <div className="text-4xl font-extrabold text-accent">Zdarma</div>
-
-            <ul className="space-y-2">
-              {[
-                "30 minut jeden na jednoho",
-                "Projdeme tvoji situaci bez příkras",
-                "Zjistíme, jestli a jak mohu pomoct",
-                "Žádný závazek ani tlak",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mt-0.5">
-                    <span className="text-accent font-bold text-xs">✓</span>
-                  </span>
-                  <span className="text-base text-foreground/80">{item}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="space-y-2">
-              <LeadForm
-                source="homepage_free"
-                compact
-                preferredKind="free"
-                preferredMeetingTypeId="intro_free"
-                lockMeetingType
-              />
-              <p className="text-[11px] text-foreground/50 text-center">
-                Nejprve vyplníš údaje, hned poté si vybereš termín.
-              </p>
-            </div>
-
-            <div className="text-center pt-1">
-              <Link href="/koucing" className="text-sm text-accent font-medium hover:underline underline-offset-2 transition-colors">
-                Více o koučinku →
-              </Link>
-            </div>
-          </div>
+        {/* Koučink — prostý odkaz */}
+        <div id="home-coaching" className="text-center">
+          <p className="text-base text-foreground/55">
+            Chceš průvodce na cestu?{" "}
+            <Link href="/koucing" className="text-accent font-semibold hover:underline underline-offset-2 transition-colors">
+              Koučink →
+            </Link>
+          </p>
         </div>
       </div>
     </section>

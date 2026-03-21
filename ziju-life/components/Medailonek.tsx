@@ -36,25 +36,21 @@ export default function Medailonek() {
             
             <div className="space-y-4 text-lg md:text-xl text-foreground/80 leading-relaxed">
               <p>
-                Většinu života jsem strávil snahou pochopit, jak se tenhle život vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, ale pomalu (a často s rozpaky) jsem se to začal učit.
+                Dlouho jsem hledal návod na život. Zkoušel jsem spoustu cest — hudbu, e-commerce, festivaly — a nic nesedlo. Pak jsem pochopil, že ten návod si musím poskládat sám. Ne z jednoho zázračného niche, ale ze správné kombinace věcí.
               </p>
-              
+
               <p>
-                To učení mi zůstalo a i dnes neustále hledám, co reálně funguje. Experimentuji s vědou a technologiemi, biorytmy a stravou i meditací a hledáním vnitřního klidu.
-              </p>
-              
-              <p>
-                A tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly. Najdeš tady{" "}
-                <Link href="/inspirace" className="text-accent hover:text-accent-hover transition-colors">
-                  inspiraci v knihách a videích
+                Tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly. Najdeš tady{" "}
+                <Link href="/muj-kompas" className="text-accent hover:text-accent-hover transition-colors">
+                  můj kompas
                 </Link>
-                , sepsal jsem{" "}
+                {" "}— principy a lekce, které mi fungují. Můžeš si{" "}
                 <Link href="/tvoje-mapa" className="text-accent hover:text-accent-hover transition-colors">
-                  manuál pro život
+                  nakreslit svou vlastní mapu
                 </Link>
-                {" "}se vším, co mi reálně funguje, a pokud to se změnou myslíš vážně, můžeme se potkat na{" "}
+                , kde zmapuješ kde jsi a kam chceš. A pokud chceš průvodce na cestu, můžeme se potkat na{" "}
                 <Link href="/koucing" className="text-accent hover:text-accent-hover transition-colors">
-                  individuálním koučingu
+                  koučinku
                 </Link>
                 .
               </p>

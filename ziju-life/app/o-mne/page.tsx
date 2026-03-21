@@ -151,6 +151,34 @@ export default function OMnePage() {
         </section>
       </RevealSection>
 
+      {/* CTA */}
+      <RevealSection>
+        <section className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center space-y-5">
+            <p className="text-2xl md:text-3xl font-bold text-foreground leading-snug">
+              Chceš zjistit, kde teď jsi a kam chceš?
+            </p>
+            <p className="text-lg text-foreground/60 leading-relaxed">
+              Nakresli si svou mapu — zdarma.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href="/tvoje-mapa"
+                className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
+              >
+                Tvoje mapa →
+              </a>
+              <a
+                href="/koucing"
+                className="text-base text-foreground/55 hover:text-foreground transition-colors"
+              >
+                Nebo se potkejme na koučinku
+              </a>
+            </div>
+          </div>
+        </section>
+      </RevealSection>
+
     </main>
   );
 }

@@ -113,14 +113,26 @@ export default function KoucingPage() {
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Ale pokud jsi to už zkoušel…
+                Poznáváš se v tom?
               </h2>
-              <p className="text-lg text-foreground/65 max-w-2xl mx-auto leading-relaxed">
-                Čet jsi knihy. Dělal cvičení. Možná jsi zkusil i nějaký koučink nebo mentoring. A přesto — výsledky nedorazily, nebo nevydržely. Pak možná potřebuješ něco jiného.
-              </p>
             </div>
 
             <div className="bg-white/85 rounded-[28px] border border-white/60 shadow-md backdrop-blur p-8 md:p-10 space-y-6">
+              <ul className="space-y-3">
+                {[
+                  "Vyzkoušel/a jsi pár věcí, ale v ničem ses nenašel/nenašla.",
+                  "Máš pocit, že všichni kolem vědí, co chtějí — jen ty ne.",
+                  "Žiješ hodně v hlavě a neumíš to přetavit do akce.",
+                  "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mt-0.5">
+                      <span className="text-accent font-bold text-xs">→</span>
+                    </span>
+                    <span className="text-base text-foreground/80">{item}</span>
+                  </li>
+                ))}
+              </ul>
               <p className="text-xl text-foreground/80 leading-relaxed">
                 Koučink není o dalších informacích. Je o tom, dostat se pod povrch — zjistit, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracovat na akci, ne jen na pochopení.
               </p>
