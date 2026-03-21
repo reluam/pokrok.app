@@ -1,6 +1,5 @@
 import Image from "next/image";
 import DecorativeShapes from "@/components/DecorativeShapes";
-import PosledniInspirace from "@/components/PosledniInspirace";
 import RevealSection from "@/components/RevealSection";
 
 export const dynamic = "force-static";
@@ -152,10 +151,6 @@ export default function OMnePage() {
         </section>
       </RevealSection>
 
-      {/* Poslední inspirace */}
-      <RevealSection>
-        <PosledniInspirace />
-      </RevealSection>
     </main>
   );
 }
