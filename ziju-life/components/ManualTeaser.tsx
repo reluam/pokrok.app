@@ -135,7 +135,7 @@ export default function ManualTeaser() {
         primary
       />
 
-      {/* Přechod 1 */}
+      {/* Přechod */}
       <Interstitial
         quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
         lead="Tohle není o motivaci ani disciplíně."
