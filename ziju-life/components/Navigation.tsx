@@ -68,7 +68,6 @@ export default function Navigation() {
 
   const navItems: Array<{ href: string; label: string }> = [
     { href: "/tvuj-kompas", label: "Tvůj kompas" },
-    { href: "/muj-kompas", label: "Můj kompas" },
     { href: "/inspirace", label: "Inspirace" },
     { href: "/koucing", label: "Koučink" },
     { href: "/o-mne", label: "O mně" },
