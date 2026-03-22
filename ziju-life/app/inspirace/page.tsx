@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -374,7 +374,7 @@ function Sidebar({
 
 // ── Main page ────────────────────────────────────────────────────────────────
 
-export default function InspiracePage() {
+function InspiracePageInner() {
   const searchParams = useSearchParams();
   const initialType = useMemo(() => searchParams.get("type"), [searchParams]);
 
@@ -644,5 +644,13 @@ export default function InspiracePage() {
 
       </div>
     </main>
+  );
+}
+
+export default function InspiracePage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8" />}>
+      <InspiracePageInner />
+    </Suspense>
   );
 }
