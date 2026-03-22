@@ -83,6 +83,20 @@ const getVideoThumbnail = (url: string): string | null => {
   return null;
 };
 
+interface ReelEmbed { embedUrl: string; vertical: boolean }
+
+const getReelEmbed = (url: string): ReelEmbed | null => {
+  const igMatch = url.match(/instagram\.com\/(?:reel|p)\/([A-Za-z0-9_-]+)/);
+  if (igMatch) return { embedUrl: `https://www.instagram.com/reel/${igMatch[1]}/embed/`, vertical: true };
+  const ttMatch = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+  if (ttMatch) return { embedUrl: `https://www.tiktok.com/embed/v2/${ttMatch[1]}`, vertical: true };
+  const ytShortsMatch = url.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]+)/);
+  if (ytShortsMatch) return { embedUrl: `https://www.youtube.com/embed/${ytShortsMatch[1]}`, vertical: true };
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]+)/);
+  if (ytMatch) return { embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}`, vertical: false };
+  return null;
+};
+
 // ── InlineCard ───────────────────────────────────────────────────────────────
 
 function TypeBadge({ type }: { type: string }) {
@@ -193,12 +207,30 @@ function InlineCard({ item }: { item: InspirationItem }) {
         </a>
       )}
 
-      {/* Reel placeholder */}
-      {item.type === "reel" && (
-        <div className="w-full max-w-xs aspect-[9/16] bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl flex items-center justify-center">
-          <Play className="text-pink-400/60" size={48} />
-        </div>
-      )}
+      {/* Reel embed */}
+      {item.type === "reel" && (() => {
+        const embed = getReelEmbed(item.url);
+        if (!embed) return (
+          <a href={item.url} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors text-sm">
+            Otevřít →
+          </a>
+        );
+        const w = embed.vertical ? 320 : 560;
+        const h = embed.vertical ? 568 : 315;
+        return (
+          <iframe
+            src={embed.embedUrl}
+            width={w}
+            height={h}
+            style={{ border: 0, borderRadius: 16, maxWidth: "100%" }}
+            scrolling="no"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            title={item.title}
+          />
+        );
+      })()}
 
       {/* Blog content */}
       {item.type === "blog" && item.content && (
