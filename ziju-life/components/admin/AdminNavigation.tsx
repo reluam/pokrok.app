@@ -9,7 +9,6 @@ import {
   Settings,
   Users,
   Calendar,
-  Compass,
   ShieldCheck,
 } from "lucide-react";
 
@@ -20,7 +19,6 @@ type AdminSection =
   | "newsletter-campaigns"
   | "crm"
   | "rezervace"
-  | "principy"
   | "audit-access"
   | "settings";
 
@@ -65,11 +63,6 @@ export default function AdminNavigation() {
       id: "rezervace",
       label: "Rezervace",
       icon: Calendar,
-    },
-    {
-      id: "principy",
-      label: "Principy",
-      icon: Compass,
     },
     {
       id: "audit-access",

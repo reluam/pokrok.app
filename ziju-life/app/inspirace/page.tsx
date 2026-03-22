@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Book,
@@ -374,8 +375,11 @@ function Sidebar({
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export default function InspiracePage() {
+  const searchParams = useSearchParams();
+  const initialType = useMemo(() => searchParams.get("type"), [searchParams]);
+
   // Filter state
-  const [activeType, setActiveType] = useState<string | null>(null);
+  const [activeType, setActiveType] = useState<string | null>(initialType);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
 

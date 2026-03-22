@@ -9,7 +9,6 @@ import SettingsContent from "@/components/admin/SettingsContent";
 import CrmContent from "@/components/admin/CrmContent";
 import AuditAccessContent from "@/components/admin/AuditAccessContent";
 import BookingSlotsContent from "@/components/admin/BookingSlotsContent";
-import PrinciplesContent from "@/components/admin/PrinciplesContent";
 
 function AdminContent() {
   const router = useRouter();
@@ -30,8 +29,7 @@ function AdminContent() {
       {section === "newsletter-campaigns" && <NewsletterCampaigns />}
       {section === "crm" && <CrmContent />}
       {section === "rezervace" && <BookingSlotsContent />}
-      {section === "principy" && <PrinciplesContent />}
-      {section === "audit-access" && <AuditAccessContent />}
+{section === "audit-access" && <AuditAccessContent />}
       {section === "settings" && <SettingsContent />}
     </div>
   );

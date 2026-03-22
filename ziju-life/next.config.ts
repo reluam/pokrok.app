@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
       { source: "/audit-zivota/:path*", destination: "/tvuj-kompas/:path*", permanent: true },
       { source: "/navod-na-zivot", destination: "/muj-kompas", permanent: true },
       { source: "/muj-kompas", destination: "/inspirace", permanent: false },
+      { source: "/principy", destination: "/inspirace?type=princip", permanent: false },
+      { source: "/principy/:path*", destination: "/inspirace?type=princip", permanent: false },
     ];
   },
   async rewrites() {
