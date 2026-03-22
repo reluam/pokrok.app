@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Book, Video, FileText, PenTool, HelpCircle, Music, Compass } from "lucide-react";
 import { SelectionShareBar } from "@/components/SelectionShareBar";
@@ -81,6 +81,8 @@ interface CategoryTab {
 export default function InspiraceDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromKnihovna = searchParams.get("from") === "knihovna";
 
   const [allItems, setAllItems] = useState<InspirationItem[]>([]);
   const [categories, setCategories] = useState<InspirationCategory[]>([]);
@@ -195,8 +197,8 @@ export default function InspiraceDetailPage() {
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6">
 
-        {/* Category tabs */}
-        {categoryTabs.length > 0 && (
+        {/* Category tabs — skryté při příchodu z knihovny */}
+        {!fromKnihovna && categoryTabs.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {categoryTabs.map((tab) => (
               <Link
@@ -217,8 +219,8 @@ export default function InspiraceDetailPage() {
         {/* Two-column layout */}
         <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-          {/* LEFT sidebar */}
-          {sidebarGroups.length > 0 && (
+          {/* LEFT sidebar — skryté při příchodu z knihovny */}
+          {!fromKnihovna && sidebarGroups.length > 0 && (
             <aside className="w-full lg:w-72 flex-shrink-0 lg:sticky lg:top-24">
               <div className="paper-card rounded-[24px] px-4 py-5 space-y-4">
                 {sidebarGroups.map((group) => {
@@ -405,10 +407,10 @@ export default function InspiraceDetailPage() {
         {/* Back link */}
         <div className="pt-2">
           <Link
-            href="/inspirace"
+            href={fromKnihovna ? "/inspirace/knihovna" : "/inspirace"}
             className="text-sm text-foreground/55 hover:text-foreground transition-colors"
           >
-            ← Zpět na Inspirace
+            ← {fromKnihovna ? "Zpět do knihovny" : "Zpět na Inspirace"}
           </Link>
         </div>
 

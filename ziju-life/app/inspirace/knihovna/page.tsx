@@ -353,7 +353,7 @@ export default function InspiraceKnihovnaPage() {
     bookCoverPositionX: item.bookCoverPositionX,
     bookCoverPositionY: item.bookCoverPositionY,
     url: item.url,
-    href: `/inspirace/${item.id}`,
+    href: `/inspirace/${item.id}?from=knihovna`,
     createdAt: item.createdAt,
     categoryId: item.categoryId,
     secondaryCategoryIds: item.secondaryCategoryIds,

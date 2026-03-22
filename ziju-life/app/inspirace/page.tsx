@@ -25,8 +25,7 @@ const LIMIT = 20;
 const TYPE_LABEL: Record<string, string> = {
   book: "Kniha",
   video: "Video",
-  article: "Článek",
-  blog: "Blog",
+  blog: "Článek",
   reel: "Reel",
   music: "Hudba",
   other: "Ostatní",
@@ -36,8 +35,7 @@ const TYPE_LABEL: Record<string, string> = {
 const TYPE_PLURAL: Record<string, string> = {
   book: "Knihy",
   video: "Videa",
-  article: "Články",
-  blog: "Blogy",
+  blog: "Články",
   reel: "Reelska",
   music: "Hudba",
   other: "Ostatní",
@@ -56,7 +54,7 @@ const TYPE_ICON: Record<string, React.ElementType> = {
 };
 
 // Types to show in the type tab bar (in order)
-const TYPE_TABS = ["book", "video", "article", "blog", "reel", "music", "princip", "other"];
+const TYPE_TABS = ["book", "video", "blog", "reel", "music", "princip", "other"];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -264,7 +262,7 @@ function InlineCard({ item }: { item: InspirationItem }) {
 
       {/* Date */}
       <p className="text-xs text-foreground/35 pt-1">
-        Přidáno {new Date(item.createdAt).toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" })}
+        {new Date(item.createdAt).toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" })}
       </p>
     </article>
   );
