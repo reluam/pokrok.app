@@ -114,11 +114,11 @@ export default function ManualTeaser() {
       <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-5 lg:gap-6">
         <FlipCard
           quote="Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
-          emoji="🗺️"
-          title="Tvoje mapa"
+          emoji="🧭"
+          title="Tvůj kompas"
           quick="Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš jít."
           lead="Tohle není o motivaci ani disciplíně."
-          body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvoje mapa."
+          body="Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvůj kompas."
           detail="Sedm strukturovaných kroků — od kola života přes hodnoty, vizi a překážky až po akční plán. Ke každému kroku jsou cvičení a šablony. Na konci si vygeneruješ vlastní dokument."
           bullets={[
             "Vyzkoušel/a jsi pár cest, ale v ničem ses nenašel/nenašla.",
