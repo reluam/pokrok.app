@@ -304,18 +304,6 @@ function Sidebar({
   return (
     <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0 lg:sticky lg:top-24 self-start">
       <div className="paper-card rounded-[24px] px-4 py-5 space-y-1">
-        {/* All in type */}
-        <button
-          onClick={() => onCategoryClick(null)}
-          className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
-            activeCategory === null && activeItemId === null
-              ? "bg-accent/10 text-accent"
-              : "hover:bg-black/5 text-foreground/60 hover:text-foreground"
-          }`}
-        >
-          Vše — {TYPE_PLURAL[activeType] || activeType}
-        </button>
-
         {catItems.map(({ id, label, items }) => (
           <div key={id ?? "none"} className="pt-1">
             <button
