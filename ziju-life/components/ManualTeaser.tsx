@@ -11,7 +11,7 @@ export default function ManualTeaser() {
         {/* Levý box — citát */}
         <div className="flex flex-col justify-between gap-8 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-lg bg-white/80 backdrop-blur">
           <p className="text-3xl md:text-4xl font-extrabold text-foreground leading-snug tracking-tight">
-            „Zkoušel jsem různé věci. Přečetl si knihy. Měl plány. A přesto jsem nevěděl, co vlastně chci."
+            Hledal jsem smysl života. A zjistil jsem, že se nehledá — že se tvoří. Každý den. Každým rozhodnutím. Ale abych ho tvořil tak, jak chci já, musel jsem nejdřív vědět, na čem mi záleží. Tak vznikl můj kompas — a dneska pomáhám ostatním nastavit ten jejich.
           </p>
           <div className="flex items-center gap-4">
             <span className="text-5xl leading-none">🧭</span>
