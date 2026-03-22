@@ -12,7 +12,34 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     // Only include inactive items if explicitly requested (for admin)
     const includeInactive = searchParams.get('includeInactive') === 'true'
-    
+
+    // Feed mode: return flat sorted array with pagination
+    if (searchParams.get('feed') === 'true') {
+      const offset = parseInt(searchParams.get('offset') || '0', 10)
+      const limit = parseInt(searchParams.get('limit') || '20', 10)
+
+      const data = await getInspirationData(false) // only active
+      const all = [
+        ...data.blogs,
+        ...data.videos,
+        ...data.books,
+        ...data.articles,
+        ...data.other,
+        ...data.music,
+        ...data.reels,
+        ...data.princips,
+      ]
+        .filter((i) => i.isActive !== false)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+      const page = all.slice(offset, offset + limit)
+      return NextResponse.json({
+        items: page,
+        total: all.length,
+        hasMore: offset + limit < all.length,
+      })
+    }
+
     const data = await getInspirationData(includeInactive)
     return NextResponse.json(data)
   } catch (error) {
@@ -29,7 +56,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { type, ...item } = body
 
-    if (!type || !['blog', 'video', 'book', 'article', 'other', 'music', 'reel'].includes(type)) {
+    if (!type || !['blog', 'video', 'book', 'article', 'other', 'music', 'reel', 'princip'].includes(type)) {
       return NextResponse.json(
         { error: 'Invalid type' },
         { status: 400 }

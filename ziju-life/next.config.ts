@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
       { source: "/audit-zivota", destination: "/tvuj-kompas", permanent: true },
       { source: "/audit-zivota/:path*", destination: "/tvuj-kompas/:path*", permanent: true },
       { source: "/navod-na-zivot", destination: "/muj-kompas", permanent: true },
+      { source: "/muj-kompas", destination: "/inspirace", permanent: false },
     ];
   },
   async rewrites() {

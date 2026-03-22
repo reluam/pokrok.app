@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-export type InspirationType = 'blog' | 'video' | 'book' | 'article' | 'other' | 'music' | 'reel'
+export type InspirationType = 'blog' | 'video' | 'book' | 'article' | 'other' | 'music' | 'reel' | 'princip'
 
 export interface InspirationCategory {
   id: string
@@ -43,6 +43,7 @@ export interface InspirationData {
   other: InspirationItem[]
   music: InspirationItem[]
   reels: InspirationItem[]
+  princips: InspirationItem[]
 }
 
 const DATA_FILE = join(process.cwd(), 'data', 'inspiration.json')
@@ -61,6 +62,7 @@ export async function getInspirationData(): Promise<InspirationData> {
       other: [],
       music: [],
       reels: [],
+      princips: [],
     }
   }
 }

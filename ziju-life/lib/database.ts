@@ -267,7 +267,7 @@ export async function initializeDatabase() {
       await sql`ALTER TABLE inspirations DROP CONSTRAINT IF EXISTS inspirations_type_check`
     } catch { /* ignore */ }
     try {
-      await sql`ALTER TABLE inspirations ADD CONSTRAINT inspirations_type_check CHECK (type IN ('blog', 'video', 'book', 'article', 'other', 'music', 'reel'))`
+      await sql`ALTER TABLE inspirations ADD CONSTRAINT inspirations_type_check CHECK (type IN ('blog', 'video', 'book', 'article', 'other', 'music', 'reel', 'princip'))`
     } catch { /* already up to date */ }
 
     // Secondary categories (array of category IDs for filtering)

@@ -25,6 +25,7 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
       other: [],
       music: [],
       reels: [],
+      princips: [],
     }
 
     for (const item of items) {
@@ -74,6 +75,9 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
         case 'reel':
           result.reels.push(inspirationItem)
           break
+        case 'princip':
+          result.princips.push(inspirationItem)
+          break
       }
     }
 
@@ -88,6 +92,7 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
       other: [],
       music: [],
       reels: [],
+      princips: [],
     }
   }
 }
