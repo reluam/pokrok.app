@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LayoutGrid, Table2, Search, Music, Crop, Tag, Instagram } from "lucide-react";
+import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LayoutGrid, Table2, Search, Music, Crop, Tag, Instagram, Compass } from "lucide-react";
 import type { InspirationData, InspirationItem, InspirationType, InspirationCategory } from "@/lib/inspiration";
 import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
 import BookCoverCropModal from "./BookCoverCropModal";
@@ -19,6 +19,7 @@ const getTypeLabel = (type: InspirationType): string => {
     case "other": return "Ostatní";
     case "music": return "Hudba";
     case "reel": return "Reel";
+    case "princip": return "Princip";
     default: return type;
   }
 };
@@ -32,11 +33,12 @@ const getTypeIcon = (type: InspirationType) => {
     case "other": return HelpCircle;
     case "music": return Music;
     case "reel": return Instagram;
+    case "princip": return Compass;
     default: return FileText;
   }
 };
 
-const INSPIRATION_TYPES: InspirationType[] = ["video", "book", "article", "other", "music", "reel"];
+const INSPIRATION_TYPES: InspirationType[] = ["video", "book", "article", "other", "music", "reel", "princip"];
 const BLOG_TYPES: InspirationType[] = ["blog"];
 
 const getVideoThumbnailFromUrl = (url: string): string | null => {
@@ -335,6 +337,9 @@ export default function InspiraceContent({
     }
     if (allowedTypes.includes("reel")) {
       items.push(...(data.reels || []).map((item) => ({ ...item, category: "reel" as InspirationType })));
+    }
+    if (allowedTypes.includes("princip")) {
+      items.push(...(data.princips || []).map((item) => ({ ...item, category: "princip" as InspirationType })));
     }
     return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
