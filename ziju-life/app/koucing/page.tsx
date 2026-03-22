@@ -137,7 +137,7 @@ export default function KoucingPage() {
                 Koučink není o dalších informacích. Je o tom, dostat se pod povrch — zjistit, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracovat na akci, ne jen na pochopení.
               </p>
               <p className="text-base text-foreground/65 leading-relaxed">
-                Pracuju vždy na konkrétní životní oblasti: kariéra, finance, zdraví, vztahy, přátelství, osobní rozvoj, volný čas nebo smysl. Jdeme do hloubky a pak se soustředíme výhradně na konkrétní kroky dopředu.
+                Nedívám se na jednu izolovanou oblast — dívám se na tvůj život jako celek. Kariéra, vztahy, zdraví, energie, smysl — všechno se vzájemně ovlivňuje. Společně hledáme tu správnou kombinaci věcí, která ti začne dávat smysl. A pak ji krok za krokem přetavíme do reality.
               </p>
               <div className="pt-2">
                 <button
@@ -258,12 +258,12 @@ export default function KoucingPage() {
             <div className="rounded-[24px] border border-white/60 bg-white/70 backdrop-blur shadow-md px-8 py-8 space-y-5">
               <h3 className="text-xl font-bold text-foreground">Jak koučink vypadá dál?</h3>
               <p className="text-base text-foreground/65 leading-relaxed">
-                Pokud se po konzultaci rozhodneme pokračovat, pracujeme vždy na jedné konkrétní životní oblasti — do hloubky. Každé sezení má jasný výstup a konkrétní kroky k akci.
+                Pokud se po konzultaci rozhodneme pokračovat, díváme se na tvůj život jako na celek — a pracujeme na tom, co je právě teď nejdůležitější. Každé sezení má jasný výstup a konkrétní kroky k akci.
               </p>
               <div className="grid sm:grid-cols-3 gap-4 pt-1">
                 {[
                   { label: "Krátký sprint", desc: "3 sezení na konkrétní problém nebo rozhodnutí." },
-                  { label: "Hloubková práce", desc: "10 sezení na jednu životní oblast — od základů po změnu." },
+                  { label: "Hloubková práce", desc: "10 sezení na proměnu toho, jak žiješ — od porozumění po reálnou změnu." },
                   { label: "Celý rok", desc: "Průběžná práce na tom, co přichází — týden za týdnem." },
                 ].map((opt) => (
                   <div key={opt.label} className="rounded-xl bg-accent/5 border border-accent/15 p-4 space-y-1">
