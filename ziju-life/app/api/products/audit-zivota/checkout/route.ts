@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email,
-      success_url: `${siteUrl}/tvoje-mapa?payment=pending`,
-      cancel_url: `${siteUrl}/tvoje-mapa`,
+      success_url: `${siteUrl}/tvuj-kompas?payment=pending`,
+      cancel_url: `${siteUrl}/tvuj-kompas`,
       metadata: {
         productType: "audit-zivota",
         userEmail: email,

@@ -126,7 +126,7 @@ export default function ManualTeaser() {
             "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
           ]}
           cta="Začít zdarma"
-          href="/tvoje-mapa"
+          href="/tvuj-kompas"
         />
         <FlipCard
           quote="Nemůžeš naplánovat svůj život jednou a provždy. Ale můžeš si nastavit kompas."

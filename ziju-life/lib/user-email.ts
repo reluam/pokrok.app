@@ -74,7 +74,7 @@ export async function sendAuditZivotaAccessEmail(
   }
 
   const siteUrl = getSiteUrl()
-  const next = encodeURIComponent('/tvoje-mapa')
+  const next = encodeURIComponent('/tvuj-kompas')
   const accessUrl = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}&next=${next}`
 
   const content = `
@@ -82,7 +82,7 @@ export async function sendAuditZivotaAccessEmail(
       Ahoj,
     </p>
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 8px;">
-      Platba proběhla úspěšně — Tvoje mapa je tvoje!
+      Platba proběhla úspěšně — Tvůj kompas je tvůj!
     </p>
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 32px;">
       Klikni na tlačítko níže a dostaneš se přímo do průvodce.
@@ -92,7 +92,7 @@ export async function sendAuditZivotaAccessEmail(
     <div style="text-align: center; margin-bottom: 32px;">
       <a href="${accessUrl}" target="_blank" rel="noreferrer"
          style="display: inline-block; padding: 14px 32px; border-radius: 999px; background-color: ${ACCENT}; color: #ffffff; font-size: 16px; font-weight: 700; text-decoration: none; letter-spacing: 0.01em;">
-        Otevřít Tvoje mapa →
+        Otevřít Tvůj kompas →
       </a>
     </div>
 
@@ -112,7 +112,7 @@ export async function sendAuditZivotaAccessEmail(
     const { error } = await resend.emails.send({
       from,
       to: [to],
-      subject: 'Tvoje mapa — tvůj přístup je ready',
+      subject: 'Tvůj kompas — tvůj přístup je ready',
       html: emailWrapper('Platba proběhla!', content),
     })
     if (error) {

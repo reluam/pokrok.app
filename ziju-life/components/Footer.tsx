@@ -37,10 +37,10 @@ export default function Footer() {
                 Můj kompas
               </Link>
               <Link
-                href="/tvoje-mapa"
+                href="/tvuj-kompas"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
-                Tvoje mapa
+                Tvůj kompas
               </Link>
               <Link
                 href="/inspirace"

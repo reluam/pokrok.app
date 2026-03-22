@@ -18,11 +18,11 @@ function AuditCard({ purchase }: { purchase: Purchase }) {
   return (
     <div className="paper-card rounded-[20px] px-6 py-5 flex items-start gap-4">
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xl">
-        🔍
+        🧭
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <h3 className="text-base font-bold text-foreground">Tvoje mapa</h3>
+          <h3 className="text-base font-bold text-foreground">Tvůj kompas</h3>
           {isCompleted ? (
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-foreground/8 text-foreground/50">
               Dokončeno
@@ -94,10 +94,10 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
         <LogoutButton />
       </div>
 
-      {/* Tvoje mapa */}
+      {/* Tvůj kompas */}
       <div className="space-y-3">
         <h2 className="text-xl font-extrabold tracking-tight text-foreground px-1">
-          Tvoje mapa
+          Tvůj kompas
         </h2>
 
         {/* Aktivní cesta */}
@@ -117,16 +117,16 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
           <div className="paper-card rounded-[24px] px-6 py-10 text-center space-y-4">
             <div className="text-4xl">🗺️</div>
             <div className="space-y-1">
-              <p className="font-semibold text-foreground">Zatím jsi nezahájil/a žádný audit</p>
+              <p className="font-semibold text-foreground">Zatím jsi nezahájil/a žádný Tvůj kompas</p>
               <p className="text-sm text-foreground/55 leading-relaxed">
-                Tvoje mapa tě provede sedmi kroky od upřímného pohledu na sebe až po vlastní plán.
+                Tvůj kompas tě provede sedmi kroky od upřímného pohledu na sebe až po vlastní plán.
               </p>
             </div>
             <Link
-              href="/tvoje-mapa"
+              href="/tvuj-kompas"
               className="inline-flex items-center gap-2 px-6 py-2.5 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
             >
-              Zahájit audit →
+              Zahájit →
             </Link>
           </div>
         )}
@@ -138,7 +138,7 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
               Chceš projít audit znovu — s čistým listem?
             </p>
             <Link
-              href="/tvoje-mapa"
+              href="/tvuj-kompas"
               className="flex-shrink-0 px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
             >
               Zahájit nový
