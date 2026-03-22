@@ -397,15 +397,41 @@ export default function InspiracePage() {
   const [typeItems, setTypeItems] = useState<InspirationItem[]>([]);
   const [typeLoading, setTypeLoading] = useState(false);
 
+  // Available types (types that have at least 1 active item)
+  const [availableTypes, setAvailableTypes] = useState<Set<string>>(new Set());
+
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Load categories once
+  // Load categories + available types once
   useEffect(() => {
     fetch("/api/inspiration-categories")
       .then((r) => r.json())
       .then((d) => setCategories(Array.isArray(d) ? d : []))
       .catch(console.error);
-  }, []);
+
+    fetch("/api/inspiration")
+      .then((r) => r.json())
+      .then((data) => {
+        const all: InspirationItem[] = [
+          ...(data.blogs || []),
+          ...(data.videos || []),
+          ...(data.books || []),
+          ...(data.articles || []),
+          ...(data.other || []),
+          ...(data.music || []),
+          ...(data.reels || []),
+          ...(data.princips || []),
+        ].filter((i) => i.isActive !== false);
+        setAvailableTypes(new Set(all.map((i) => i.type)));
+        // If initial type is set, pre-populate typeItems from this fetch
+        if (initialType) {
+          const filtered = all.filter((i) => i.type === initialType);
+          filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          setTypeItems(filtered);
+        }
+      })
+      .catch(console.error);
+  }, [initialType]);
 
   // Load feed page
   const fetchFeedPage = useCallback(async (offset: number) => {
@@ -514,8 +540,6 @@ export default function InspiracePage() {
     setActiveItemId((prev) => (prev === itemId ? null : itemId));
   };
 
-  // Which types have content (from feed items or typeItems)
-  const typesWithContent = new Set(feedItems.map((i) => i.type));
 
   const isLoading = activeType ? typeLoading : feedLoading;
 
@@ -552,7 +576,7 @@ export default function InspiracePage() {
             <Layers size={13} />
             Vše
           </button>
-          {TYPE_TABS.map((type) => {
+          {TYPE_TABS.filter((type) => availableTypes.has(type)).map((type) => {
             const Icon = TYPE_ICON[type];
             return (
               <button
