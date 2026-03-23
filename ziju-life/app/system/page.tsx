@@ -210,7 +210,7 @@ export default function SystemPage() {
             <p className="mt-4 text-sm text-red-600">{error}</p>
           )}
           <p className="mt-5 text-xs text-foreground/40">
-            Jednorázová platba 490 Kč · Stripe · Bezpečná platba
+            Jednorázová platba 250 Kč · Stripe · Bezpečná platba
           </p>
         </div>
       </section>
@@ -239,7 +239,7 @@ function BuyButton({
           Připravuji platbu…
         </>
       ) : (
-        "Koupit za 490 Kč"
+        "Koupit za 250 Kč"
       )}
     </button>
   );
