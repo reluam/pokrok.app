@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 const tools = [
   {
@@ -42,14 +42,126 @@ const faqs = [
   },
 ];
 
-export default function LaboratorPage() {
-  const router = useRouter();
+// ── Magic link modal ──────────────────────────────────────────────────────────
+
+type MagicState = "idle" | "loading" | "sent" | "error";
+
+function MagicLinkModal({ onClose }: { onClose: () => void }) {
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState<MagicState>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setState("loading");
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/laborator/magic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.sent) {
+        setState("sent");
+      } else {
+        setErrorMsg(data.error || "Nepodařilo se odeslat e-mail.");
+        setState("error");
+      }
+    } catch {
+      setErrorMsg("Chyba připojení. Zkus to znovu.");
+      setState("error");
+    }
+  }
+
+  return (
+    // Backdrop
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-sm paper-card rounded-[28px] px-7 py-8 shadow-2xl">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-5 text-foreground/30 hover:text-foreground/60 text-xl leading-none"
+          aria-label="Zavřít"
+        >
+          ×
+        </button>
+
+        {state === "sent" ? (
+          <div className="text-center py-4">
+            <div className="text-4xl mb-4">📬</div>
+            <p className="font-extrabold text-lg mb-2">Zkontroluj e-mail</p>
+            <p className="text-sm text-foreground/55 leading-relaxed">
+              Poslali jsme odkaz na <strong>{email}</strong>.<br />
+              Odkaz platí 15 minut.
+            </p>
+            <button
+              onClick={onClose}
+              className="mt-6 text-sm text-foreground/40 hover:text-foreground/70 transition-colors"
+            >
+              Zavřít
+            </button>
+          </div>
+        ) : (
+          <>
+            <p className="font-extrabold text-lg mb-1">Přihlásit se</p>
+            <p className="text-sm text-foreground/50 mb-6 leading-relaxed">
+              Zadej e-mail svého účtu — pošleme ti přihlašovací odkaz.
+            </p>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setState("idle"); }}
+                placeholder="tvuj@email.cz"
+                required
+                autoFocus
+                className="w-full px-4 py-3 rounded-2xl border border-foreground/10
+                  bg-white text-sm outline-none focus:border-accent/40 transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={state === "loading"}
+                className="w-full py-3 bg-accent text-white rounded-full font-bold
+                  text-sm hover:bg-accent-hover transition-colors disabled:opacity-60"
+              >
+                {state === "loading" ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Odesílám…
+                  </span>
+                ) : (
+                  "Poslat odkaz →"
+                )}
+              </button>
+              {(state === "error") && errorMsg && (
+                <p className="text-xs text-red-500 leading-relaxed">{errorMsg}</p>
+              )}
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Page content (needs useSearchParams) ─────────────────────────────────────
+
+function LaboratorContent() {
+  const searchParams = useSearchParams();
   const [buying, setBuying] = useState(false);
   const [buyError, setBuyError] = useState("");
+  const [showMagic, setShowMagic] = useState(false);
+  const [expiredBanner, setExpiredBanner] = useState(false);
 
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState("");
+  useEffect(() => {
+    if (searchParams.get("magic") === "expired") {
+      setExpiredBanner(true);
+    }
+  }, [searchParams]);
 
   async function handleBuy() {
     setBuying(true);
@@ -69,31 +181,22 @@ export default function LaboratorPage() {
     }
   }
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setLoginLoading(true);
-    setLoginError("");
-    try {
-      const res = await fetch("/api/laborator/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginEmail }),
-      });
-      const data = await res.json();
-      if (data.valid) {
-        router.push("/laborator/dashboard");
-      } else {
-        setLoginError(data.error || "Aktivní předplatné nenalezeno.");
-      }
-    } catch {
-      setLoginError("Chyba připojení.");
-    } finally {
-      setLoginLoading(false);
-    }
-  }
-
   return (
     <main className="min-h-screen bg-[#FDFDF7]">
+      {expiredBanner && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 text-center text-sm text-amber-800">
+          Přihlašovací odkaz vypršel — pošleme ti nový.{" "}
+          <button
+            onClick={() => setShowMagic(true)}
+            className="font-semibold underline hover:no-underline"
+          >
+            Zkusit znovu
+          </button>
+        </div>
+      )}
+
+      {showMagic && <MagicLinkModal onClose={() => setShowMagic(false)} />}
+
       {/* Hero */}
       <section className="max-w-2xl mx-auto px-5 pt-20 pb-16 text-center">
         <p className="text-xs font-bold text-accent uppercase tracking-widest mb-4">
@@ -107,9 +210,19 @@ export default function LaboratorPage() {
           cvičení postavené na neurověděě a psychologii — žádné motivační
           citáty, jen funkční systémy.
         </p>
-        <AccessButton loading={buying} onClick={handleBuy} />
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <AccessButton loading={buying} onClick={handleBuy} />
+          <button
+            onClick={() => setShowMagic(true)}
+            className="inline-flex items-center gap-1.5 px-6 py-4 rounded-full
+              border border-foreground/15 font-semibold text-base text-foreground/70
+              hover:border-foreground/30 hover:text-foreground transition-colors bg-white/60"
+          >
+            Přihlásit se
+          </button>
+        </div>
         {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
-        <p className="mt-4 text-xs text-foreground/35">
+        <p className="mt-5 text-xs text-foreground/35">
           490 Kč / rok · Přístup ke všem nástrojům · Zrušit lze kdykoliv
         </p>
       </section>
@@ -181,7 +294,7 @@ export default function LaboratorPage() {
       </section>
 
       {/* FAQ */}
-      <section className="max-w-2xl mx-auto px-5 pb-20">
+      <section className="max-w-2xl mx-auto px-5 pb-24">
         <h2 className="text-xl font-bold mb-6">Časté otázky</h2>
         <div className="space-y-3">
           {faqs.map((f) => (
@@ -189,39 +302,19 @@ export default function LaboratorPage() {
           ))}
         </div>
       </section>
-
-      {/* Returning member login */}
-      <section className="max-w-md mx-auto px-5 pb-24">
-        <div className="paper-card rounded-[28px] px-7 py-8">
-          <p className="font-bold mb-1">Už mám přístup</p>
-          <p className="text-sm text-foreground/50 mb-5">
-            Zadej e-mail, na který jsi platil/a — přihlásíme tě.
-          </p>
-          <form onSubmit={handleLogin} className="flex flex-col gap-3">
-            <input
-              type="email"
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
-              placeholder="tvuj@email.cz"
-              required
-              className="w-full px-4 py-3 rounded-2xl border border-foreground/10
-                bg-white/80 text-sm outline-none focus:border-accent/40 transition-colors"
-            />
-            <button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full py-3 bg-foreground text-white rounded-full font-semibold
-                text-sm hover:bg-foreground/80 transition-colors disabled:opacity-60"
-            >
-              {loginLoading ? "Ověřuji…" : "Přihlásit se"}
-            </button>
-            {loginError && (
-              <p className="text-xs text-red-500 leading-relaxed">{loginError}</p>
-            )}
-          </form>
-        </div>
-      </section>
     </main>
+  );
+}
+
+export default function LaboratorPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#FDFDF7]" />
+      }
+    >
+      <LaboratorContent />
+    </Suspense>
   );
 }
 
