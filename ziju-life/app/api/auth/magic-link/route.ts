@@ -7,19 +7,21 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json()
+    const body = await req.json()
+    const { email, next } = body
 
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return NextResponse.json({ error: 'Neplatný e-mail.' }, { status: 400 })
     }
 
     const normalizedEmail = email.trim().toLowerCase()
+    const nextUrl = typeof next === 'string' && next.startsWith('/') ? next : undefined
 
     await initializeDatabase()
     const user = await getOrCreateUser(normalizedEmail)
     const token = await createMagicToken(user.id)
 
-    const result = await sendMagicLinkEmail(normalizedEmail, token)
+    const result = await sendMagicLinkEmail(normalizedEmail, token, nextUrl)
     if (!result.ok) {
       console.error('[magic-link] Email send failed:', result.error)
       return NextResponse.json(

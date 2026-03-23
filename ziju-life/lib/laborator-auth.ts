@@ -1,16 +1,32 @@
 import { cookies } from "next/headers";
 import Stripe from "stripe";
+import { verifyUserSession } from "@/lib/user-auth";
 
 /**
- * Server-side check: reads lab_email cookie and verifies active Stripe subscription.
- * Use in Server Components and Route Handlers.
+ * Server-side check: verifies active Laboratoř Stripe subscription.
+ *
+ * Email is resolved in priority order:
+ * 1. lab_email cookie (set after Stripe checkout flow)
+ * 2. Existing DB user session (set after magic link login via /api/auth/magic-link)
  */
 export async function checkLaboratorAccess(): Promise<boolean> {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   if (!stripeSecretKey) return false;
 
+  // 1. Cookie set by Stripe checkout flow
   const cookieStore = await cookies();
-  const email = cookieStore.get("lab_email")?.value?.trim();
+  const cookieEmail = cookieStore.get("lab_email")?.value?.trim();
+
+  // 2. Existing DB user session (magic link login)
+  let sessionEmail: string | undefined;
+  try {
+    const user = await verifyUserSession();
+    sessionEmail = user?.email;
+  } catch {
+    // DB unavailable — ignore
+  }
+
+  const email = cookieEmail || sessionEmail;
   if (!email) return false;
 
   try {

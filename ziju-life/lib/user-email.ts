@@ -128,7 +128,8 @@ export async function sendAuditZivotaAccessEmail(
 
 export async function sendMagicLinkEmail(
   to: string,
-  token: string
+  token: string,
+  next?: string
 ): Promise<{ ok: boolean; error?: string }> {
   if (!process.env.RESEND_API_KEY?.trim()) {
     console.warn('[user-email] RESEND_API_KEY not set, skipping magic link email')
@@ -136,7 +137,8 @@ export async function sendMagicLinkEmail(
   }
 
   const siteUrl = getSiteUrl()
-  const loginUrl = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}`
+  const nextParam = next ? `&next=${encodeURIComponent(next)}` : ''
+  const loginUrl = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}${nextParam}`
 
   const content = `
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">

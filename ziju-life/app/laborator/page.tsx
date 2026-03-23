@@ -56,13 +56,13 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
     setState("loading");
     setErrorMsg("");
     try {
-      const res = await fetch("/api/laborator/magic", {
+      const res = await fetch("/api/auth/magic-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, next: "/laborator/dashboard" }),
       });
       const data = await res.json();
-      if (data.sent) {
+      if (data.ok) {
         setState("sent");
       } else {
         setErrorMsg(data.error || "Nepodařilo se odeslat e-mail.");
