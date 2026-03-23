@@ -31,10 +31,10 @@ export default function Footer() {
             
             <div className="flex flex-col md:flex-row items-center gap-6">
               <Link
-                href="/tvuj-kompas"
+                href="/laborator"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
-                Tvůj kompas
+                Laboratoř
               </Link>
               <Link
                 href="/inspirace"

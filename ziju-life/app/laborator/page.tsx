@@ -17,7 +17,7 @@ const tools = [
     id: "tvuj-kompas",
     name: "Tvůj kompas",
     desc: "Interaktivní cvičení pro nalezení životního směru a hodnot. Sám sobě ukaž, co je pro tebe důležité.",
-    href: "/tvuj-kompas",
+    href: "/laborator/tvuj-kompas",
     available: false,
     tag: "Smysl & hodnoty",
   },
