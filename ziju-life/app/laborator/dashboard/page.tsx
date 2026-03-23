@@ -29,7 +29,7 @@ const tools: Tool[] = [
     name: "Tvůj kompas",
     desc: "Interaktivní cvičení pro nalezení životního směru a hodnot.",
     href: "/laborator/tvuj-kompas",
-    available: false,
+    available: true,
     tag: "Smysl & hodnoty",
     emoji: "🧭",
   },
