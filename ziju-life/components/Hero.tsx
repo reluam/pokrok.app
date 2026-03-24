@@ -79,7 +79,7 @@ function HeroContent() {
           href="/laborator"
           className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-all w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
         >
-          Vyzkoušet laboratoř — zdarma →
+          Vstup do laboratoře →
         </a>
       </motion.div>
     </>

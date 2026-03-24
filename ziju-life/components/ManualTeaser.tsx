@@ -11,13 +11,13 @@ export default function ManualTeaser() {
         {/* Levý box — citát */}
         <div className="flex flex-col justify-between gap-8 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-lg bg-white/80 backdrop-blur">
           <p className="text-xl md:text-2xl font-bold text-foreground leading-snug">
-            Osobní rozvoj není o čtení dalších knih ani sledování dalších videí. Je o tom, že si sednete a opravdu to prožijete. Každý nástroj v laboratoři je postavený tak, abyste si z něj odnesli konkrétní výstup — ne jen dobré pocity.
+            Přečetl jsem spoustu knih. Absolvoval jsem kurzy. A přesto jsem pořád narážel na stejná místa, kde jsem nevěděl, jak dál. Pomohlo mi až to, když jsem si opravdu sednul a prošel tím — krok za krokem, s tužkou v ruce. Na to je laboratoř.
           </p>
           <div className="flex items-center gap-4">
             <span className="text-5xl leading-none">🧪</span>
             <div>
               <p className="text-lg font-bold text-foreground leading-tight">Laboratoř</p>
-              <p className="text-sm text-foreground/55 leading-snug">Interaktivní nástroje, testy a cvičení pro osobní rozvoj — vše na jednom místě.</p>
+              <p className="text-sm text-foreground/55 leading-snug">Interaktivní nástroje a cvičení pro osobní rozvoj — projdeš jimi sám, ve svém tempu.</p>
             </div>
           </div>
         </div>
@@ -29,13 +29,13 @@ export default function ManualTeaser() {
             <p className="text-base font-bold text-foreground">Laboratoř</p>
           </div>
           <div className="space-y-1.5">
-            <p className="text-sm font-bold text-foreground/80 leading-relaxed">Víc než obsah — jsou to zážitky, ze kterých něco vzejde.</p>
-            <p className="text-sm text-foreground/55 leading-relaxed">Laboratoř je místo, kde si věci opravdu vyzkoušíte. Interaktivní cvičení, testy a strukturované nástroje — každý navržený tak, abyste si odnesli konkrétní výstup.</p>
+            <p className="text-sm font-bold text-foreground/80 leading-relaxed">Tady se nečte. Tady se dělá.</p>
+            <p className="text-sm text-foreground/55 leading-relaxed">Strukturovaná cvičení a interaktivní nástroje — procházíš jimi sám, ve svém tempu. Na konci každého víš o sobě víc než předtím.</p>
           </div>
           <ul className="space-y-1.5">
             {[
-              "Tvůj kompas — zmapuj kde jsi a naplánuj kam chceš jít.",
-              "Moje hodnoty — pojmenuj co ti opravdu záleží.",
+              "Tvůj kompas — zmapuj kde jsi, co tě brzdí a naplánuj kam chceš jít.",
+              "Moje hodnoty — pojmenuj, na čem ti opravdu záleží.",
               "Další nástroje průběžně přibývají.",
             ].map((b) => (
               <li key={b} className="flex items-start gap-2.5 text-sm text-foreground/55">
@@ -49,7 +49,7 @@ export default function ManualTeaser() {
               href="/laborator"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold bg-accent text-white hover:bg-accent-hover transition-colors shadow-md"
             >
-              Vstoupit do laboratoře <ArrowRight size={15} />
+              Vstup do laboratoře <ArrowRight size={15} />
             </Link>
           </div>
         </div>
