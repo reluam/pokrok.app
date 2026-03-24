@@ -10,6 +10,7 @@ import {
   Users,
   Calendar,
   ShieldCheck,
+  FlaskConical,
 } from "lucide-react";
 
 type AdminSection =
@@ -20,6 +21,7 @@ type AdminSection =
   | "crm"
   | "rezervace"
   | "audit-access"
+  | "laborator-grants"
   | "settings";
 
 interface NavItem {
@@ -68,6 +70,11 @@ export default function AdminNavigation() {
       id: "audit-access",
       label: "Audit — přístupy",
       icon: ShieldCheck,
+    },
+    {
+      id: "laborator-grants",
+      label: "Laboratoř — přístupy",
+      icon: FlaskConical,
     },
     {
       id: "settings",

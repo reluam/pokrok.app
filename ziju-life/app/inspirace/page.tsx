@@ -13,6 +13,8 @@ import {
   Compass,
   Play,
   Layers,
+  Share2,
+  Check,
 } from "lucide-react";
 import type { InspirationItem, InspirationCategory } from "@/lib/inspiration";
 import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
@@ -110,7 +112,130 @@ function TypeBadge({ type }: { type: string }) {
   );
 }
 
+// ── ShareDropdown ────────────────────────────────────────────────────────────
+
+function ShareDropdown({ url, title, variant = "header" }: { url: string; title: string; variant?: "header" | "footer" }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const hasNativeShare = typeof navigator !== "undefined" && !!navigator.share;
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => { setCopied(false); setOpen(false); }, 1800);
+    });
+  };
+
+  const handleX = () => {
+    const text = encodeURIComponent(`${title}\n\n${url}`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank", "width=600,height=400");
+    setOpen(false);
+  };
+
+  const handleNative = () => {
+    navigator.share({ title, url }).catch(() => {});
+    setOpen(false);
+  };
+
+  if (variant === "footer") {
+    return (
+      <div ref={ref} className="relative">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/85 border border-black/10 shadow-sm hover:shadow-md hover:border-accent/30 hover:text-accent backdrop-blur font-semibold text-sm transition-all"
+        >
+          <Share2 size={15} />
+          Sdílet článek
+        </button>
+        {open && (
+          <div className="absolute bottom-full mb-2 left-0 z-50 min-w-[220px] bg-white rounded-2xl shadow-xl border border-black/8 py-2 overflow-hidden">
+            <button
+              onClick={handleCopy}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-black/5 transition-colors text-left"
+            >
+              {copied ? <Check size={16} className="text-green-500 shrink-0" /> : <span className="text-lg leading-none shrink-0">🔗</span>}
+              <span className="font-medium">{copied ? "Odkaz zkopírován!" : "Kopírovat odkaz"}</span>
+            </button>
+            <button
+              onClick={handleX}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-black/5 transition-colors text-left"
+            >
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              <span className="font-medium">Sdílet na X</span>
+            </button>
+            {hasNativeShare && (
+              <button
+                onClick={handleNative}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-black/5 transition-colors text-left"
+              >
+                <span className="text-lg leading-none shrink-0">📤</span>
+                <span className="font-medium">Sdílet přes…</span>
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // header variant
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        title="Sdílet inspiraci"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all text-foreground/40 hover:text-accent hover:bg-accent/8"
+      >
+        <Share2 size={13} />
+        Sdílet
+      </button>
+      {open && (
+        <div className="absolute top-full mt-1.5 right-0 z-50 min-w-[210px] bg-white rounded-2xl shadow-xl border border-black/8 py-2 overflow-hidden">
+          <button
+            onClick={handleCopy}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-black/5 transition-colors text-left"
+          >
+            {copied ? <Check size={15} className="text-green-500 shrink-0" /> : <span className="text-base leading-none shrink-0">🔗</span>}
+            <span className="font-medium">{copied ? "Zkopírováno!" : "Kopírovat odkaz"}</span>
+          </button>
+          <button
+            onClick={handleX}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-black/5 transition-colors text-left"
+          >
+            <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <span className="font-medium">Sdílet na X</span>
+          </button>
+          {hasNativeShare && (
+            <button
+              onClick={handleNative}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-black/5 transition-colors text-left"
+            >
+              <span className="text-base leading-none shrink-0">📤</span>
+              <span className="font-medium">Sdílet přes…</span>
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── InlineCard ───────────────────────────────────────────────────────────────
+
 function InlineCard({ item }: { item: InspirationItem }) {
+  const shareUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/inspirace?type=${item.type}&item=${item.id}`
+    : `/inspirace?type=${item.type}&item=${item.id}`;
   const videoEmbedUrl =
     item.type === "video" || item.type === "music" ? getVideoEmbedUrl(item.url) : null;
   const videoThumbnail =
@@ -121,8 +246,9 @@ function InlineCard({ item }: { item: InspirationItem }) {
   return (
     <article className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5">
       {/* Header row */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3">
         <TypeBadge type={item.type} />
+        <ShareDropdown url={shareUrl} title={item.title} variant="header" />
       </div>
 
       {/* Title */}
@@ -235,9 +361,14 @@ function InlineCard({ item }: { item: InspirationItem }) {
 
       {/* Blog content */}
       {item.type === "blog" && item.content && (
-        <div className="blog-detail-content max-w-none prose prose-sm">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{item.content}</ReactMarkdown>
-        </div>
+        <>
+          <div className="blog-detail-content max-w-none prose prose-sm">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{item.content}</ReactMarkdown>
+          </div>
+          <div className="pt-4 border-t border-black/8">
+            <ShareDropdown url={shareUrl} title={item.title} variant="footer" />
+          </div>
+        </>
       )}
 
       {/* Princip content */}
@@ -304,7 +435,6 @@ function InlineCard({ item }: { item: InspirationItem }) {
 // ── Sidebar ──────────────────────────────────────────────────────────────────
 
 interface SidebarProps {
-  activeType: string;
   categories: InspirationCategory[];
   allTypedItems: InspirationItem[]; // all active items of activeType
   activeCategory: string | null; // category id or null
@@ -314,7 +444,6 @@ interface SidebarProps {
 }
 
 function Sidebar({
-  activeType,
   categories,
   allTypedItems,
   activeCategory,
@@ -377,11 +506,12 @@ function Sidebar({
 function InspiracePageInner() {
   const searchParams = useSearchParams();
   const initialType = useMemo(() => searchParams.get("type"), [searchParams]);
+  const initialItemId = useMemo(() => searchParams.get("item"), [searchParams]);
 
   // Filter state
   const [activeType, setActiveType] = useState<string | null>(initialType);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const [activeItemId, setActiveItemId] = useState<string | null>(initialItemId);
 
   // Categories
   const [categories, setCategories] = useState<InspirationCategory[]>([]);
@@ -601,7 +731,6 @@ function InspiracePageInner() {
           {/* Sidebar — only when type is selected */}
           {activeType && !typeLoading && typeItems.length > 0 && (
             <Sidebar
-              activeType={activeType}
               categories={categories}
               allTypedItems={typeItems}
               activeCategory={activeCategory}

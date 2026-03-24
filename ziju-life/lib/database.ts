@@ -290,6 +290,21 @@ export async function initializeDatabase() {
       ADD COLUMN IF NOT EXISTS category_id VARCHAR(255) REFERENCES inspiration_categories(id) ON DELETE SET NULL
     `
 
+    // Laboratoř free-access grants (admin-granted, no Stripe subscription required)
+    await sql`
+      CREATE TABLE IF NOT EXISTS laborator_grants (
+        id VARCHAR(255) PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMP WITH TIME ZONE,
+        note TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_laborator_grants_email ON laborator_grants(email)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)
