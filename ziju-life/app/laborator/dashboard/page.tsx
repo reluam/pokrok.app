@@ -22,7 +22,7 @@ const WHEEL_AREAS = [
 
 const LS_KEY = "nastav-si-den-selection";
 
-type RitualSelection = { morning: string[]; daily: string[]; evening: string[] };
+type RitualSelection = { morning: string[]; daily: string[]; evening: string[]; durationOverrides?: Record<string, number> };
 
 const CUSTOM_PREFIX = "custom::";
 const isCustom = (id: string) => id.startsWith(CUSTOM_PREFIX);

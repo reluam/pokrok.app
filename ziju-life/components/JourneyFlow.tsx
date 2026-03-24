@@ -949,6 +949,10 @@ function StepWheelBox({
         <span className="text-xs text-foreground/40">průměr <strong className="text-foreground/60">{avg}</strong>/10</span>
       </div>
 
+      <p className="text-sm text-foreground/55 leading-relaxed">
+        Upřímně ohodnoť každou oblast na škále 1–10. Výsledek ti ukáže, kde máš prostor růst — a kde jsi na tom líp, než sis myslel.
+      </p>
+
       {/* Radar SVG */}
       <div className="flex justify-center">
         <svg
@@ -1045,25 +1049,6 @@ function StepWheelBox({
         ))}
       </div>
 
-      {/* Reflexní otázky */}
-      <div className="space-y-4 pt-2 border-t border-black/[0.05]">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Reflexe</p>
-        {WHEEL_QUESTIONS.map((q, i) => (
-          <div key={q.id} className="space-y-1.5">
-            <label className="text-sm text-foreground/60 leading-snug block">
-              <span className="font-medium text-foreground/40 mr-1.5">{i + 1}.</span>
-              {q.label}
-            </label>
-            <textarea
-              value={answers[q.id]}
-              onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-              placeholder="Napiš sem svoji odpověď…"
-              rows={2}
-              className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 focus:bg-white transition-all"
-            />
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
@@ -1098,6 +1083,7 @@ function StepContentBox({ step, stepIndex }: { step: Step; stepIndex: number }) 
 // ── Box 3: Cvičení ────────────────────────────
 function StepPracticesBox({ step }: { step: Step }) {
   const [selected, setSelected] = useState<Practice | null>(null)
+  if (step.id === "start") return null
   if (!step.practices?.length) return null
 
   return (
