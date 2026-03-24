@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ritualsById, SLOT_LABELS } from "@/data/adhdRituals";
 import { type JourneyState } from "@/components/JourneyFlow";
 import KompasFlow from "@/components/KompasFlow";
+import HodnotyFlow from "@/components/HodnotyFlow";
 import NastavSiDenWizard, { DownloadPDFButton, type RitualSelection as WizardSelection } from "@/components/NastavSiDenWizard";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -692,6 +693,7 @@ function DashboardContent() {
     { id: "prehled",       label: "Přehled",       emoji: "📊" },
     { id: "nastav-si-den", label: "Nastav si den",  emoji: "🗓️" },
     { id: "tvuj-kompas",   label: "Tvůj kompas",    emoji: "🧭" },
+    { id: "moje-hodnoty",  label: "Moje hodnoty",   emoji: "💎" },
   ];
 
   if (!checked) {
@@ -758,6 +760,8 @@ function DashboardContent() {
           )}
 
           {activeTab === "tvuj-kompas" && <TvujKompasTab />}
+
+          {activeTab === "moje-hodnoty" && <HodnotyFlow />}
         </div>
 
         {email && (
