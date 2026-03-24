@@ -26,11 +26,13 @@ type RitualSelection = { morning: string[]; daily: string[]; evening: string[] }
 
 const CUSTOM_PREFIX = "custom::";
 const isCustom = (id: string) => id.startsWith(CUSTOM_PREFIX);
-const customName = (id: string) => id.slice(CUSTOM_PREFIX.length);
-function getRitual(id: string): { id: string; name: string; duration_min: number } {
-  if (isCustom(id)) return { id, name: customName(id), duration_min: 0 };
+const customName = (id: string) => id.slice(CUSTOM_PREFIX.length).split("::")[0];
+const customDurationMin = (id: string) => { const p = id.split("::"); return p.length >= 3 ? parseInt(p[2]) || 0 : 0; };
+function getRitual(id: string, overrides?: Record<string, number>): { id: string; name: string; duration_min: number } {
+  if (isCustom(id)) return { id, name: customName(id), duration_min: customDurationMin(id) };
   const r = ritualsById[id];
-  return { id, name: r?.name ?? id, duration_min: r?.duration_min ?? 0 };
+  const base = r?.duration_min ?? 0;
+  return { id, name: r?.name ?? id, duration_min: overrides?.[id] ?? base };
 }
 
 // ── Tips ───────────────────────────────────────────────────────────────────────
@@ -323,11 +325,13 @@ const SLOT_EMOJI: Record<string, string> = { morning: "🌅", daily: "☀️", e
 function RitualSlotCard({
   slot,
   ids,
+  overrides,
 }: {
   slot: "morning" | "daily" | "evening";
   ids: string[];
+  overrides?: Record<string, number>;
 }) {
-  const rituals = ids.map((id) => getRitual(id));
+  const rituals = ids.map((id) => getRitual(id, overrides));
   const totalMin = rituals.reduce((s, r) => s + r.duration_min, 0);
 
   if (ids.length === 0) {
@@ -446,7 +450,7 @@ function PrehledTab({
         {hasRituals ? (
           <div className="space-y-3">
             {(["morning", "daily", "evening"] as const).map((slot) => (
-              <RitualSlotCard key={slot} slot={slot} ids={ritualSelection![slot]} />
+              <RitualSlotCard key={slot} slot={slot} ids={ritualSelection![slot]} overrides={ritualSelection?.durationOverrides} />
             ))}
           </div>
         ) : (
@@ -584,7 +588,7 @@ function NastavSiDenTab({
 
       <div className="space-y-4">
         {(["morning", "daily", "evening"] as const).map((slot) => (
-          <RitualSlotCard key={slot} slot={slot} ids={selection[slot]} />
+          <RitualSlotCard key={slot} slot={slot} ids={selection[slot]} overrides={selection.durationOverrides} />
         ))}
       </div>
 

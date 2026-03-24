@@ -24,9 +24,14 @@ const customDurationMin = (id: string) => {
 const makeCustomId = (name: string, duration: number) =>
   `${CUSTOM_PREFIX}${name.trim()}::${duration}`;
 
-function getRitual(id: string): { name: string; duration_min: number } {
+function getRitual(
+  id: string,
+  overrides?: Record<string, number>
+): { name: string; duration_min: number } {
   if (isCustom(id)) return { name: customName(id), duration_min: customDurationMin(id) };
-  return ritualsById[id] ?? { name: id, duration_min: 0 };
+  const r = ritualsById[id];
+  const base = r?.duration_min ?? 0;
+  return { name: r?.name ?? id, duration_min: overrides?.[id] ?? base };
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -43,6 +48,8 @@ export interface RitualSelection {
   morning: string[];
   daily: string[];
   evening: string[];
+  /** User-overridden durations for predefined rituals (id → minutes) */
+  durationOverrides?: Record<string, number>;
 }
 
 interface Props {
@@ -67,6 +74,7 @@ export default function NastavSiDenWizard({ onSave, onComplete }: Props) {
     morning: [],
     daily: [],
     evening: [],
+    durationOverrides: {},
   });
   return (
     <div className="max-w-2xl mx-auto">
@@ -495,6 +503,8 @@ function Step3Configurator({
         {availableRituals.map((ritual) => {
           const checked = selection[slot].includes(ritual.id);
           const isExpanded = expandedWhy === ritual.id;
+          const overrides = selection.durationOverrides ?? {};
+          const effectiveDuration = overrides[ritual.id] ?? ritual.duration_min;
           return (
             <div
               key={ritual.id}
@@ -519,7 +529,28 @@ function Step3Configurator({
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-sm text-foreground">{ritual.name}</span>
                     {ritual.duration_min > 0 && (
-                      <span className="text-xs text-foreground/40">{ritual.duration_min} min</span>
+                      checked ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={1}
+                            max={120}
+                            value={effectiveDuration}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              const val = Math.max(1, parseInt(e.target.value) || 1);
+                              setSelection({
+                                ...selection,
+                                durationOverrides: { ...overrides, [ritual.id]: val },
+                              });
+                            }}
+                            className="w-10 text-xs font-semibold text-center bg-white/80 border border-black/10 rounded-md px-1 py-0.5 focus:outline-none focus:border-accent/40"
+                          />
+                          <span className="text-xs text-foreground/40">min</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-foreground/40">{ritual.duration_min} min</span>
+                      )
                     )}
                     <DifficultyDots level={ritual.difficulty} />
                   </div>
@@ -552,7 +583,7 @@ function Step3Configurator({
             </div>
             <button
               onClick={() => {
-                setSelection({ morning: [...featuredBuild.morning], daily: [...featuredBuild.daily], evening: [...featuredBuild.evening] });
+                setSelection({ morning: [...featuredBuild.morning], daily: [...featuredBuild.daily], evening: [...featuredBuild.evening], durationOverrides: {} });
                 setWarning("");
                 onNext();
               }}
@@ -621,7 +652,7 @@ function Step4Preview({
       </p>
       <div className="space-y-4 mb-8">
         {(["morning", "daily", "evening"] as Slot[]).map((slot) => (
-          <PreviewCard key={slot} slot={slot} ids={selection[slot]} />
+          <PreviewCard key={slot} slot={slot} ids={selection[slot]} overrides={selection.durationOverrides} />
         ))}
       </div>
       <div className="flex gap-3">
@@ -642,8 +673,8 @@ function Step4Preview({
   );
 }
 
-function PreviewCard({ slot, ids }: { slot: Slot; ids: string[] }) {
-  const rituals = ids.map((id) => ({ id, ...getRitual(id) }));
+function PreviewCard({ slot, ids, overrides }: { slot: Slot; ids: string[]; overrides?: Record<string, number> }) {
+  const rituals = ids.map((id) => ({ id, ...getRitual(id, overrides) }));
   const totalMin = rituals.reduce((s, r) => s + r.duration_min, 0);
 
   if (ids.length === 0) {
@@ -739,7 +770,7 @@ export function DownloadPDFButton({
 
       slots.forEach(({ slot, label }, idx) => {
         const ids = selection[slot];
-        const rituals = ids.map((id) => ({ id, ...getRitual(id) }));
+        const rituals = ids.map((id) => ({ id, ...getRitual(id, selection.durationOverrides) }));
         const totalMin = rituals.reduce((s, r) => s + r.duration_min, 0);
         const yTop = margin + idx * (cardH + margin);
 

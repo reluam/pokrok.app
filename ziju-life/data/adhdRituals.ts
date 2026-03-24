@@ -182,7 +182,7 @@ export const categories: Category[] = [
       {
         id: "screen-curfew",
         name: "Žádné displeje po večerce",
-        duration_min: 60,
+        duration_min: 0,
         difficulty: 3,
         slots: ["evening"],
         why: "Modré světlo potlačuje melatonin o 50-90 minut. Pro ADHD mozek, který má i tak posunutý cirkadiánní rytmus, je to katastrofa. Hodina bez displeje před spaním dramaticky zlepší kvalitu spánku.",
