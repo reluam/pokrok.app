@@ -11,13 +11,13 @@ export default function ManualTeaser() {
         {/* Levý box — citát */}
         <div className="flex flex-col justify-between gap-8 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-lg bg-white/80 backdrop-blur">
           <p className="text-xl md:text-2xl font-bold text-foreground leading-snug">
-            Hledal jsem smysl života. A zjistil jsem, že se nehledá — že se tvoří. Každý den. Každým rozhodnutím. Ale abych ho tvořil tak, jak chci já, musel jsem nejdřív vědět, na čem mi záleží. Tak vznikl můj kompas — a dneska pomáhám ostatním nastavit ten jejich.
+            Osobní rozvoj není o čtení dalších knih ani sledování dalších videí. Je o tom, že si sednete a opravdu to prožijete. Každý nástroj v laboratoři je postavený tak, abyste si z něj odnesli konkrétní výstup — ne jen dobré pocity.
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-5xl leading-none">🧭</span>
+            <span className="text-5xl leading-none">🧪</span>
             <div>
-              <p className="text-lg font-bold text-foreground leading-tight">Tvůj kompas</p>
-              <p className="text-sm text-foreground/55 leading-snug">Zmapuj kde jsi, pojmenuj co tě brzdí a naplánuj kam chceš jít.</p>
+              <p className="text-lg font-bold text-foreground leading-tight">Laboratoř</p>
+              <p className="text-sm text-foreground/55 leading-snug">Interaktivní nástroje, testy a cvičení pro osobní rozvoj — vše na jednom místě.</p>
             </div>
           </div>
         </div>
@@ -25,19 +25,18 @@ export default function ManualTeaser() {
         {/* Pravý box — detail + CTA */}
         <div className="flex flex-col gap-5 px-8 py-10 md:px-10 md:py-12 rounded-[32px] border border-black/6 shadow-md bg-white/60 backdrop-blur">
           <div className="flex items-center gap-2.5">
-            <span className="text-2xl leading-none">🧭</span>
-            <p className="text-base font-bold text-foreground">Tvůj kompas</p>
+            <span className="text-2xl leading-none">🧪</span>
+            <p className="text-base font-bold text-foreground">Laboratoř</p>
           </div>
           <div className="space-y-1.5">
-            <p className="text-sm font-bold text-foreground/80 leading-relaxed">Tohle není o motivaci ani disciplíně.</p>
-            <p className="text-sm text-foreground/55 leading-relaxed">Je to o tom, že jsem nikdy pořádně nepřestal a nezeptal se sám sebe — kde vlastně jsem a kam chci jít. Přesně na to je Tvůj kompas.</p>
+            <p className="text-sm font-bold text-foreground/80 leading-relaxed">Víc než obsah — jsou to zážitky, ze kterých něco vzejde.</p>
+            <p className="text-sm text-foreground/55 leading-relaxed">Laboratoř je místo, kde si věci opravdu vyzkoušíte. Interaktivní cvičení, testy a strukturované nástroje — každý navržený tak, abyste si odnesli konkrétní výstup.</p>
           </div>
-          <p className="text-sm text-foreground/65 leading-relaxed">Sedm strukturovaných kroků — od kola života přes hodnoty, vizi a překážky až po akční plán. Ke každému kroku jsou cvičení a šablony. Na konci si vygeneruješ vlastní dokument.</p>
           <ul className="space-y-1.5">
             {[
-              "Vyzkoušel/a jsi pár cest, ale v ničem ses nenašel/nenašla.",
-              "Máš v hlavě chaos a potřebuješ si to srovnat.",
-              "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
+              "Tvůj kompas — zmapuj kde jsi a naplánuj kam chceš jít.",
+              "Moje hodnoty — pojmenuj co ti opravdu záleží.",
+              "Další nástroje průběžně přibývají.",
             ].map((b) => (
               <li key={b} className="flex items-start gap-2.5 text-sm text-foreground/55">
                 <span className="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-accent/50" />
@@ -47,10 +46,10 @@ export default function ManualTeaser() {
           </ul>
           <div className="mt-auto pt-2">
             <Link
-              href="/tvuj-kompas"
+              href="/laborator"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold bg-accent text-white hover:bg-accent-hover transition-colors shadow-md"
             >
-              Začít zdarma <ArrowRight size={15} />
+              Vstoupit do laboratoře <ArrowRight size={15} />
             </Link>
           </div>
         </div>
