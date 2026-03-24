@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ritualsById, SLOT_LABELS } from "@/data/adhdRituals";
-import JourneyFlow, { type JourneyState } from "@/components/JourneyFlow";
+import { type JourneyState } from "@/components/JourneyFlow";
+import KompasFlow from "@/components/KompasFlow";
 import NastavSiDenWizard, { DownloadPDFButton, type RitualSelection as WizardSelection } from "@/components/NastavSiDenWizard";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -608,66 +609,8 @@ function NastavSiDenTab({
 
 // ── TvujKompasTab ──────────────────────────────────────────────────────────────
 
-function TvujKompasTab({
-  initialData,
-  purchaseId,
-}: {
-  initialData: JourneyState | null;
-  purchaseId: string;
-}) {
-  const [kompasKey, setKompasKey] = useState(0);
-  const [confirmReset, setConfirmReset] = useState(false);
-
-  const hasData =
-    initialData &&
-    (Object.values(initialData.wheelVals ?? {}).some((v) => v !== 5) ||
-      (initialData.finalValues?.length ?? 0) > 0);
-
-  return (
-    <div>
-      {hasData && kompasKey === 0 && (() => {
-        const tip = getKompasTip(initialData!);
-        return tip ? <InlineTip tip={tip} /> : null;
-      })()}
-
-      {hasData && (
-        <div className="flex justify-end mb-4">
-          {confirmReset ? (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-foreground/60">Opravdu začít znovu?</span>
-              <button
-                onClick={() => {
-                  setKompasKey((k) => k + 1);
-                  setConfirmReset(false);
-                }}
-                className="text-sm text-red-500 font-semibold hover:text-red-600 transition-colors"
-              >
-                Ano, začít znovu
-              </button>
-              <button
-                onClick={() => setConfirmReset(false)}
-                className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
-              >
-                Zrušit
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setConfirmReset(true)}
-              className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
-            >
-              Vyplnit průvodce znovu
-            </button>
-          )}
-        </div>
-      )}
-      <JourneyFlow
-        key={kompasKey}
-        initialData={kompasKey === 0 ? initialData : null}
-        purchaseId={purchaseId}
-      />
-    </div>
-  );
+function TvujKompasTab() {
+  return <KompasFlow />;
 }
 
 // ── DashboardContent ───────────────────────────────────────────────────────────
@@ -814,15 +757,7 @@ function DashboardContent() {
             />
           )}
 
-          {activeTab === "tvuj-kompas" &&
-            (journeyLoading ? (
-              <div className="space-y-4">
-                <div className="paper-card rounded-[24px] h-24 animate-pulse bg-white/60" />
-                <div className="paper-card rounded-[24px] h-64 animate-pulse bg-white/60" />
-              </div>
-            ) : (
-              <TvujKompasTab initialData={journeyData} purchaseId={purchaseId} />
-            ))}
+          {activeTab === "tvuj-kompas" && <TvujKompasTab />}
         </div>
 
         {email && (

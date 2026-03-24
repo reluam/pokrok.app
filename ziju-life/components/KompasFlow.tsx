@@ -1,0 +1,775 @@
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+
+// ── Konstanty ───────────────────────────────────────────────────────────────
+
+const LS_KEY = "kompas-data"
+const COLOR_ORANGE = "#FF8C42"
+const COLOR_BLUE   = "#378ADD"
+
+const WHEEL_AREAS = [
+  { key: "kariera",  label: "Kariéra & práce",            short: "Kariéra"   },
+  { key: "finance",  label: "Finance",                     short: "Finance"   },
+  { key: "zdravi",   label: "Zdraví & tělo",               short: "Zdraví"    },
+  { key: "rodina",   label: "Rodina & partnerský vztah",   short: "Rodina"    },
+  { key: "pratele",  label: "Přátelství & sociální život", short: "Přátelé"   },
+  { key: "rozvoj",   label: "Osobní rozvoj",               short: "Rozvoj"    },
+  { key: "volny",    label: "Volný čas & záliby",          short: "Volný čas" },
+  { key: "smysl",    label: "Duchovnost & smysl",          short: "Smysl"     },
+]
+
+const REFLECTION_QUESTIONS = [
+  { id: "q1", text: "Co ti v životě opravdu funguje — v jakékoliv oblasti?" },
+  { id: "q2", text: "Proč to funguje? Co jsi udělal/a pro to, aby to tak bylo?" },
+  { id: "q3", text: "Jak přenést tuto logiku úspěchu do oblasti, kde se trápím?" },
+  { id: "q4", text: "Co si uvědomuji, když se upřímně podívám na svůj život právě teď?" },
+  { id: "q5", text: "A ještě jednou — co si uvědomuji? (Třetí odpověď bývá nejhlubší.)" },
+]
+
+const AREA_QUESTIONS = [
+  "Co v téhle oblasti opravdu funguje? Co chci zachovat?",
+  "Co nefunguje nebo mě tíží? Co chci změnit?",
+  "Co konkrétně chci místo toho? Jak by to vypadalo, kdyby to fungovalo?",
+]
+
+const AREA_TIPS: Record<string, string> = {
+  kariera:  "Jedna jasná priorita na začátku dne má větší dopad než deset splněných úkolů. Co je tvoje nejdůležitější věc na zítřek?",
+  finance:  "Finanční stres se sniká vědomou kontrolou, ne vyhýbáním. 5 minut týdně na přehled výdajů dává pocit kontroly.",
+  zdravi:   "Spánek, pohyb a hydratace ovlivňují každou jinou oblast. I malá změna — 10 minut procházky — má měřitelný efekt na mozek.",
+  rodina:   "15 minut opravdového kontaktu bez telefonu má větší váhu než hodiny ve stejné místnosti. Přítomnost je rozhodnutí.",
+  pratele:  "Vztahy se nevytváří spontánně — vyžadují záměr. Krátká zpráva nebo hovor s přítelem může být vědomou součástí týdne.",
+  rozvoj:   "10 minut čtení denně = 60 hodin ročně. Malý rituál rozvoje buduje identitu člověka, který roste. Konzistence beats množství.",
+  volny:    "Vědomý odpočinek — aktivity, které tě skutečně dobíjejí — snižuje burn-out a zvyšuje kreativitu. Není to ztráta času.",
+  smysl:    "Smysl se nevynajde — vytváří se opakovanými vědomými rozhodnutími. Hodnoty ti mohou být filtrem při každé volbě.",
+}
+
+// ── Typy ────────────────────────────────────────────────────────────────────
+
+export type KompasData = {
+  currentVals:        Record<string, number>
+  goalVals:           Record<string, number>
+  reflectionAnswers:  Record<string, string>
+  areaAnswers:        Record<string, string[]>
+  completedAt:        string
+}
+
+// ── Spider SVG ───────────────────────────────────────────────────────────────
+
+function SpiderSVG({
+  vals,
+  goalVals,
+  size = 260,
+  interactiveVals,
+  onChangeVals,
+}: {
+  vals:           Record<string, number>
+  goalVals?:      Record<string, number>
+  size?:          number
+  interactiveVals?: "current" | "goal"
+  onChangeVals?:  (v: Record<string, number>) => void
+}) {
+  const N      = WHEEL_AREAS.length
+  const CENTER = size / 2
+  const RADIUS = CENTER - 40
+
+  const getPoint = (idx: number, v: number) => {
+    const angle = (2 * Math.PI * idx) / N - Math.PI / 2
+    const r     = (v / 10) * RADIUS
+    return { x: CENTER + r * Math.cos(angle), y: CENTER + r * Math.sin(angle) }
+  }
+
+  const makePoly = (vs: Record<string, number>) =>
+    WHEEL_AREAS.map((a, i) => { const { x, y } = getPoint(i, vs[a.key] ?? 5); return `${x},${y}` }).join(" ")
+
+  const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!interactiveVals || !onChangeVals) return
+    const rect  = e.currentTarget.getBoundingClientRect()
+    const svgX  = ((e.clientX - rect.left)  / rect.width)  * size
+    const svgY  = ((e.clientY - rect.top)   / rect.height) * size
+    const dx    = svgX - CENTER
+    const dy    = svgY - CENTER
+    const dist  = Math.sqrt(dx * dx + dy * dy)
+    if (dist < 8 || dist > RADIUS + 18) return
+    const clickAngle = (Math.atan2(dy, dx) + Math.PI / 2 + 2 * Math.PI) % (2 * Math.PI)
+    let nearest = 0, minDiff = Infinity
+    WHEEL_AREAS.forEach((_, i) => {
+      const axisAngle = ((2 * Math.PI * i) / N + 2 * Math.PI) % (2 * Math.PI)
+      let diff = Math.abs(axisAngle - clickAngle)
+      if (diff > Math.PI) diff = 2 * Math.PI - diff
+      if (diff < minDiff) { minDiff = diff; nearest = i }
+    })
+    const value   = Math.max(1, Math.min(10, Math.round((dist / RADIUS) * 10)))
+    const baseVals = interactiveVals === "goal" ? (goalVals ?? {}) : vals
+    onChangeVals({ ...baseVals, [WHEEL_AREAS[nearest].key]: value })
+  }
+
+  const activePoly    = interactiveVals === "goal" ? (goalVals ?? {}) : vals
+  const refPoly       = interactiveVals === "goal" ? vals : undefined
+  const activeColor   = interactiveVals === "goal" ? COLOR_BLUE : COLOR_ORANGE
+  const activeFill    = interactiveVals === "goal" ? "rgba(55,138,221,0.15)" : "rgba(255,140,66,0.18)"
+
+  return (
+    <svg
+      width={size} height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      onClick={handleClick}
+      style={{ cursor: interactiveVals ? "crosshair" : "default", userSelect: "none" }}
+    >
+      {[2, 4, 6, 8, 10].map(r => (
+        <circle key={r} cx={CENTER} cy={CENTER} r={(r / 10) * RADIUS}
+          fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="1" />
+      ))}
+      {[2, 4, 6, 8, 10].map(r => (
+        <text key={r} x={CENTER + 3} y={CENTER - (r / 10) * RADIUS + 3}
+          fontSize="8" fill="rgba(0,0,0,0.22)" fontFamily="system-ui">{r}</text>
+      ))}
+      {WHEEL_AREAS.map((a, i) => {
+        const angle = (2 * Math.PI * i) / N - Math.PI / 2
+        return <line key={a.key} x1={CENTER} y1={CENTER}
+          x2={CENTER + RADIUS * Math.cos(angle)} y2={CENTER + RADIUS * Math.sin(angle)}
+          stroke="rgba(0,0,0,0.09)" strokeWidth="1" />
+      })}
+
+      {/* Reference polygon (light, when editing goal) */}
+      {refPoly && (
+        <polygon points={makePoly(refPoly)}
+          fill="rgba(255,140,66,0.10)" stroke="rgba(255,140,66,0.40)"
+          strokeWidth="1" strokeLinejoin="round" />
+      )}
+
+      {/* Dashboard: show both */}
+      {!interactiveVals && goalVals && (
+        <>
+          <polygon points={makePoly(vals)}
+            fill="rgba(255,140,66,0.18)" stroke={COLOR_ORANGE}
+            strokeWidth="1.5" strokeLinejoin="round" />
+          <polygon points={makePoly(goalVals)}
+            fill="rgba(55,138,221,0.10)" stroke={COLOR_BLUE}
+            strokeWidth="1.5" strokeDasharray="5,3" strokeLinejoin="round" />
+          {WHEEL_AREAS.map((a, i) => {
+            const cp = getPoint(i, vals[a.key] ?? 5)
+            const gp = getPoint(i, goalVals[a.key] ?? 5)
+            return (
+              <g key={a.key}>
+                <circle cx={cp.x} cy={cp.y} r="4" fill={COLOR_ORANGE} />
+                <circle cx={gp.x} cy={gp.y} r="3" fill={COLOR_BLUE} />
+              </g>
+            )
+          })}
+        </>
+      )}
+
+      {/* Interactive polygon */}
+      {interactiveVals && (
+        <>
+          <polygon points={makePoly(activePoly)}
+            fill={activeFill} stroke={activeColor}
+            strokeWidth="1.5" strokeLinejoin="round" />
+          {WHEEL_AREAS.map((a, i) => {
+            const { x, y } = getPoint(i, activePoly[a.key] ?? 5)
+            return <circle key={a.key} cx={x} cy={y} r="4.5" fill={activeColor} />
+          })}
+        </>
+      )}
+
+      {WHEEL_AREAS.map((a, i) => {
+        const angle = (2 * Math.PI * i) / N - Math.PI / 2
+        const lx    = CENTER + (RADIUS + 24) * Math.cos(angle)
+        const ly    = CENTER + (RADIUS + 24) * Math.sin(angle)
+        return (
+          <text key={a.key} x={lx} y={ly}
+            textAnchor="middle" dominantBaseline="middle"
+            fontSize="10" fontWeight="500" fontFamily="system-ui" fill="rgba(0,0,0,0.5)"
+          >{a.short}</text>
+        )
+      })}
+    </svg>
+  )
+}
+
+// ── Segment bar ──────────────────────────────────────────────────────────────
+
+function SegmentBar({
+  area, value, color, label, subLabel, onChange,
+}: {
+  area:     string
+  value:    number
+  color:    string
+  label:    string
+  subLabel?: string
+  onChange: (v: number) => void
+}) {
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-foreground/55">{label}</span>
+        <div className="flex items-center gap-2">
+          {subLabel && <span className="text-[11px] text-foreground/30">{subLabel}</span>}
+          <span className="text-xs font-bold w-4 text-right" style={{ color }}>{value}</span>
+        </div>
+      </div>
+      <div className="flex rounded-lg overflow-hidden border border-black/[0.08]">
+        {[1,2,3,4,5,6,7,8,9,10].map(n => (
+          <button
+            key={n}
+            onClick={() => onChange(n)}
+            className="flex-1 py-1.5 text-[10px] font-semibold transition-colors border-r border-black/[0.06] last:border-r-0"
+            style={{
+              background: n <= value ? color : "rgba(0,0,0,0.02)",
+              color:      n <= value ? "white" : "rgba(0,0,0,0.25)",
+            }}
+          >{n}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Slide: Aktuální pavučák ──────────────────────────────────────────────────
+
+function SlideCurrentSpider({
+  vals, onChange,
+}: {
+  vals:     Record<string, number>
+  onChange: (v: Record<string, number>) => void
+}) {
+  const avg = (Object.values(vals).reduce((a, b) => a + b, 0) / WHEEL_AREAS.length).toFixed(1)
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Kdo jsi dnes</p>
+        <p className="text-sm text-foreground/55 mt-1 leading-relaxed">
+          Upřímně ohodnoť každou oblast svého života. Kde jsi teď — ne kde bys chtěl být.
+        </p>
+      </div>
+
+      <div className="flex items-center justify-between text-xs text-foreground/40">
+        <span>Klikni do grafu nebo nastav hodnoty níže</span>
+        <span>průměr <strong className="text-foreground/60">{avg}</strong>/10</span>
+      </div>
+
+      <div className="flex justify-center">
+        <SpiderSVG
+          vals={vals}
+          size={260}
+          interactiveVals="current"
+          onChangeVals={onChange}
+        />
+      </div>
+
+      <div className="space-y-2.5 pt-1 border-t border-black/[0.05]">
+        {WHEEL_AREAS.map(a => (
+          <SegmentBar
+            key={a.key}
+            area={a.key}
+            value={vals[a.key] ?? 5}
+            color={COLOR_ORANGE}
+            label={a.label}
+            onChange={v => onChange({ ...vals, [a.key]: v })}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Slide: Reflexní otázka ──────────────────────────────────────────────────
+
+function SlideReflection({
+  questionIndex, text, answer, onChange,
+}: {
+  questionIndex: number
+  text:          string
+  answer:        string
+  onChange:      (v: string) => void
+}) {
+  return (
+    <div className="space-y-4">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">
+        Reflexe {questionIndex} / {REFLECTION_QUESTIONS.length}
+      </p>
+      <p className="text-base font-medium text-foreground/80 leading-snug">{text}</p>
+      <textarea
+        value={answer}
+        onChange={e => onChange(e.target.value)}
+        placeholder="Napiš sem svoji odpověď…"
+        rows={5}
+        className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-4 py-3 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 focus:bg-white transition-all"
+        autoFocus
+      />
+      <p className="text-xs text-foreground/30 text-center italic">
+        Tuto otázku přeskoč, pokud nechceš odpovídat — tlačítko Dál funguje vždy.
+      </p>
+    </div>
+  )
+}
+
+// ── Slide: Cílový pavučák ───────────────────────────────────────────────────
+
+function SlideGoalSpider({
+  currentVals, goalVals, onChange,
+}: {
+  currentVals: Record<string, number>
+  goalVals:    Record<string, number>
+  onChange:    (v: Record<string, number>) => void
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Kde chceš být</p>
+        <p className="text-sm text-foreground/55 mt-1 leading-relaxed">
+          Nastav si priority. Cílem není mít vše na 10 — je v pořádku mít někde 10 a jinde 6.
+          Šedý obrys ukazuje, kde jsi teď.
+        </p>
+      </div>
+
+      <div className="flex items-center gap-4 text-[11px] text-foreground/45">
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-1 rounded-full opacity-40" style={{ background: COLOR_ORANGE }} />
+          Dnes
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-1 rounded-full" style={{ background: COLOR_BLUE }} />
+          Cíl
+        </span>
+      </div>
+
+      <div className="flex justify-center">
+        <SpiderSVG
+          vals={currentVals}
+          goalVals={goalVals}
+          size={260}
+          interactiveVals="goal"
+          onChangeVals={onChange}
+        />
+      </div>
+
+      <div className="space-y-2.5 pt-1 border-t border-black/[0.05]">
+        {WHEEL_AREAS.map(a => {
+          const current = currentVals[a.key] ?? 5
+          const goal    = goalVals[a.key] ?? 5
+          const diff    = goal - current
+          return (
+            <SegmentBar
+              key={a.key}
+              area={a.key}
+              value={goal}
+              color={COLOR_BLUE}
+              label={a.label}
+              subLabel={diff !== 0 ? `dnes: ${current} (${diff > 0 ? "+" : ""}${diff})` : `dnes: ${current}`}
+              onChange={v => onChange({ ...goalVals, [a.key]: v })}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ── Slide: Oblast ───────────────────────────────────────────────────────────
+
+function SlideArea({
+  area, current, goal, answers, onChange,
+}: {
+  area:     typeof WHEEL_AREAS[number]
+  current:  number
+  goal:     number
+  answers:  string[]
+  onChange: (v: string[]) => void
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Oblast</p>
+        <div className="flex items-baseline gap-3 mt-1">
+          <h3 className="text-lg font-bold text-foreground">{area.label}</h3>
+          <span className="text-sm text-foreground/40">
+            {current} <span style={{ color: COLOR_BLUE }}>→ {goal}</span>
+          </span>
+        </div>
+      </div>
+      <div className="space-y-3">
+        {AREA_QUESTIONS.map((q, i) => (
+          <div key={i} className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground/65 block leading-snug">
+              <span className="text-foreground/30 mr-1.5">{i + 1}.</span>{q}
+            </label>
+            <textarea
+              value={answers[i] ?? ""}
+              onChange={e => {
+                const next = [...answers]
+                next[i] = e.target.value
+                onChange(next)
+              }}
+              placeholder="Napiš sem svoji odpověď…"
+              rows={2}
+              className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 focus:bg-white transition-all"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Flow slides ──────────────────────────────────────────────────────────────
+
+function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => void }) {
+  const [slide, setSlide] = useState(0)
+  const [currentVals, setCurrentVals] = useState<Record<string, number>>(
+    Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 5]))
+  )
+  const [goalVals, setGoalVals] = useState<Record<string, number>>(
+    Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 7]))
+  )
+  const [reflectionAnswers, setReflectionAnswers] = useState<Record<string, string>>(
+    Object.fromEntries(REFLECTION_QUESTIONS.map(q => [q.id, ""]))
+  )
+  const [areaAnswers, setAreaAnswers] = useState<Record<string, string[]>>(
+    Object.fromEntries(WHEEL_AREAS.map(a => [a.key, ["", "", ""]]))
+  )
+
+  const improvingAreas = WHEEL_AREAS.filter(a => (goalVals[a.key] ?? 5) > (currentVals[a.key] ?? 5))
+  // Slides: 0=current, 1-5=reflexe, 6=goal, 7+= per area
+  const totalSlides = 7 + improvingAreas.length
+  const isLastSlide = slide >= totalSlides - 1
+
+  const handleNext = () => {
+    if (isLastSlide) {
+      onComplete({
+        currentVals,
+        goalVals,
+        reflectionAnswers,
+        areaAnswers,
+        completedAt: new Date().toISOString(),
+      })
+      return
+    }
+    // After goal spider (slide 6): if no improving areas, finish
+    if (slide === 6 && improvingAreas.length === 0) {
+      onComplete({ currentVals, goalVals, reflectionAnswers, areaAnswers, completedAt: new Date().toISOString() })
+      return
+    }
+    setSlide(s => s + 1)
+  }
+  const handleBack = () => setSlide(s => Math.max(0, s - 1))
+
+  const renderSlide = () => {
+    if (slide === 0) {
+      return <SlideCurrentSpider vals={currentVals} onChange={setCurrentVals} />
+    }
+    if (slide >= 1 && slide <= 5) {
+      const q = REFLECTION_QUESTIONS[slide - 1]
+      return (
+        <SlideReflection
+          questionIndex={slide}
+          text={q.text}
+          answer={reflectionAnswers[q.id] ?? ""}
+          onChange={v => setReflectionAnswers(prev => ({ ...prev, [q.id]: v }))}
+        />
+      )
+    }
+    if (slide === 6) {
+      return <SlideGoalSpider currentVals={currentVals} goalVals={goalVals} onChange={setGoalVals} />
+    }
+    const areaIdx = slide - 7
+    const area    = improvingAreas[areaIdx]
+    if (!area) return null
+    return (
+      <SlideArea
+        area={area}
+        current={currentVals[area.key] ?? 5}
+        goal={goalVals[area.key] ?? 5}
+        answers={areaAnswers[area.key] ?? ["", "", ""]}
+        onChange={v => setAreaAnswers(prev => ({ ...prev, [area.key]: v }))}
+      />
+    )
+  }
+
+  const slideLabel = () => {
+    if (slide === 0) return "Kdo jsi dnes"
+    if (slide <= 5)  return `Reflexe ${slide}/5`
+    if (slide === 6) return "Kde chceš být"
+    const a = improvingAreas[slide - 7]
+    return a ? a.short : ""
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Progress */}
+      <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs text-foreground/40">{slideLabel()}</span>
+          <span className="text-xs text-foreground/30">{slide + 1} / {totalSlides}</span>
+        </div>
+        <div className="h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{ width: `${((slide + 1) / totalSlides) * 100}%`, background: COLOR_ORANGE }}
+          />
+        </div>
+      </div>
+
+      {/* Slide content */}
+      <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5">
+        {renderSlide()}
+      </div>
+
+      {/* Navigation */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={handleBack}
+          disabled={slide === 0}
+          className="px-5 py-2.5 text-sm rounded-xl border border-white/60 bg-white/65 backdrop-blur text-foreground/55 disabled:opacity-25 hover:bg-white/80 hover:text-foreground transition-all"
+        >
+          ← Zpět
+        </button>
+        <button
+          onClick={handleNext}
+          className="px-6 py-2.5 text-sm rounded-xl text-white font-medium transition-all hover:shadow-md"
+          style={{ background: COLOR_ORANGE }}
+        >
+          {isLastSlide || (slide === 6 && improvingAreas.length === 0) ? "Dokončit ✓" : "Dál →"}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Dashboard view ───────────────────────────────────────────────────────────
+
+function KompasDashboard({ data, onReset }: { data: KompasData; onReset: () => void }) {
+  const [confirmReset, setConfirmReset] = useState(false)
+  const [areaIndex, setAreaIndex]       = useState(0)
+
+  // Sort areas by priority: score = goal + (goal - current) = 2*goal - current
+  const sortedAreas = [...WHEEL_AREAS].sort((a, b) => {
+    const sa = 2 * (data.goalVals[a.key] ?? 5) - (data.currentVals[a.key] ?? 5)
+    const sb = 2 * (data.goalVals[b.key] ?? 5) - (data.currentVals[b.key] ?? 5)
+    return sb - sa
+  })
+
+  const clamp = (i: number) => Math.max(0, Math.min(sortedAreas.length - 1, i))
+  const area  = sortedAreas[areaIndex]
+
+  const current = data.currentVals[area?.key ?? "kariera"] ?? 5
+  const goal    = data.goalVals[area?.key ?? "kariera"] ?? 5
+  const diff    = goal - current
+
+  const areaHasAnswers = (data.areaAnswers[area?.key ?? ""] ?? []).some(a => a.trim())
+
+  return (
+    <div className="space-y-6">
+
+      {/* Reset header */}
+      <div className="flex justify-end">
+        {confirmReset ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-foreground/60">Opravdu začít znovu?</span>
+            <button
+              onClick={() => { setConfirmReset(false); onReset() }}
+              className="text-sm text-red-500 font-semibold hover:text-red-600 transition-colors"
+            >
+              Ano
+            </button>
+            <button
+              onClick={() => setConfirmReset(false)}
+              className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+            >
+              Zrušit
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmReset(true)}
+            className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+          >
+            Projít znovu
+          </button>
+        )}
+      </div>
+
+      {/* Combined spider */}
+      <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Tvůj kompas</p>
+          <div className="flex items-center gap-4 text-[11px] text-foreground/45">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-3 h-1 rounded-full" style={{ background: COLOR_ORANGE }} />
+              Dnes
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-3 h-0.5 border-t-2 border-dashed" style={{ borderColor: COLOR_BLUE, width: 14 }} />
+              Cíl
+            </span>
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          <SpiderSVG
+            vals={data.currentVals}
+            goalVals={data.goalVals}
+            size={260}
+          />
+        </div>
+
+        {/* Area bars */}
+        <div className="space-y-1.5 pt-1 border-t border-black/[0.05]">
+          {WHEEL_AREAS.map(a => {
+            const cur = data.currentVals[a.key] ?? 5
+            const gl  = data.goalVals[a.key]    ?? 5
+            const d   = gl - cur
+            return (
+              <div key={a.key} className="flex items-center gap-2 text-xs">
+                <span className="w-20 text-foreground/50 flex-shrink-0">{a.short}</span>
+                <div className="flex-1 h-2 rounded-full bg-black/[0.05] relative overflow-hidden">
+                  <div className="absolute h-full rounded-full"
+                    style={{ width: `${cur * 10}%`, background: COLOR_ORANGE, opacity: 0.75 }} />
+                  {gl > cur && (
+                    <div className="absolute h-full rounded-full"
+                      style={{ left: `${cur * 10}%`, width: `${(gl - cur) * 10}%`, background: COLOR_BLUE, opacity: 0.5 }} />
+                  )}
+                </div>
+                <span className="font-bold w-3 text-right" style={{ color: COLOR_ORANGE }}>{cur}</span>
+                {d !== 0 && (
+                  <span className="text-[10px] w-6" style={{ color: d > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
+                    {d > 0 ? `+${d}` : d}
+                  </span>
+                )}
+                {d === 0 && <span className="w-6" />}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Area insights */}
+      <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
+        {/* Header + navigation */}
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Oblasti</p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setAreaIndex(i => clamp(i - 1))}
+              disabled={areaIndex === 0}
+              className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-foreground/50 hover:bg-black/10 disabled:opacity-25 transition-all text-sm leading-none"
+            >←</button>
+            <span className="text-xs text-foreground/35">{areaIndex + 1} / {sortedAreas.length}</span>
+            <button
+              onClick={() => setAreaIndex(i => clamp(i + 1))}
+              disabled={areaIndex === sortedAreas.length - 1}
+              className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-foreground/50 hover:bg-black/10 disabled:opacity-25 transition-all text-sm leading-none"
+            >→</button>
+          </div>
+        </div>
+
+        {/* Area card */}
+        {area && (
+          <div className="space-y-3">
+            {/* Area title + values */}
+            <div className="flex items-baseline justify-between">
+              <h3 className="text-base font-bold text-foreground">{area.label}</h3>
+              <div className="flex items-center gap-1.5 text-sm">
+                <span className="font-bold" style={{ color: COLOR_ORANGE }}>{current}</span>
+                {diff !== 0 && (
+                  <>
+                    <span className="text-foreground/30">→</span>
+                    <span className="font-bold" style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.4)" }}>{goal}</span>
+                    <span className="text-xs font-medium ml-0.5" style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
+                      ({diff > 0 ? "+" : ""}{diff})
+                    </span>
+                  </>
+                )}
+                {diff === 0 && <span className="text-foreground/30">= {current}</span>}
+              </div>
+            </div>
+
+            {/* Answers or tip */}
+            {areaHasAnswers ? (
+              <div className="space-y-3">
+                {AREA_QUESTIONS.map((q, i) => {
+                  const ans = data.areaAnswers[area.key]?.[i]?.trim()
+                  if (!ans) return null
+                  return (
+                    <div key={i} className="space-y-0.5">
+                      <p className="text-[11px] font-semibold text-foreground/35 uppercase tracking-wide">{q}</p>
+                      <p className="text-sm text-foreground/65 leading-relaxed">{ans}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-foreground/55 leading-relaxed">
+                {AREA_TIPS[area.key]}
+              </p>
+            )}
+
+            {/* Dot navigation */}
+            <div className="flex justify-center gap-1.5 pt-1">
+              {sortedAreas.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setAreaIndex(i)}
+                  className="rounded-full transition-all"
+                  style={{
+                    width:      i === areaIndex ? 18 : 6,
+                    height:     6,
+                    background: i === areaIndex ? COLOR_ORANGE : "rgba(0,0,0,0.12)",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Hlavní komponenta ────────────────────────────────────────────────────────
+
+export default function KompasFlow() {
+  const [kompasData, setKompasData] = useState<KompasData | null>(null)
+  const [phase, setPhase]           = useState<"loading" | "flow" | "done">("loading")
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LS_KEY)
+      if (saved) {
+        setKompasData(JSON.parse(saved) as KompasData)
+        setPhase("done")
+      } else {
+        setPhase("flow")
+      }
+    } catch {
+      setPhase("flow")
+    }
+  }, [])
+
+  const handleComplete = useCallback((data: KompasData) => {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(data)) } catch {}
+    setKompasData(data)
+    setPhase("done")
+  }, [])
+
+  const handleReset = useCallback(() => {
+    try { localStorage.removeItem(LS_KEY) } catch {}
+    setKompasData(null)
+    setPhase("flow")
+  }, [])
+
+  if (phase === "loading") {
+    return (
+      <div className="flex justify-center py-16">
+        <div className="w-7 h-7 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (phase === "done" && kompasData) {
+    return <KompasDashboard data={kompasData} onReset={handleReset} />
+  }
+
+  return <KompasFlowSlides onComplete={handleComplete} />
+}
