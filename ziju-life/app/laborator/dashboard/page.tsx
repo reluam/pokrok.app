@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ritualsById, SLOT_LABELS } from "@/data/adhdRituals";
 import { type JourneyState } from "@/components/JourneyFlow";
-import KompasFlow from "@/components/KompasFlow";
-import HodnotyFlow from "@/components/HodnotyFlow";
+import KompasFlow, { type KompasData } from "@/components/KompasFlow";
+import HodnotyFlow, { type HodnotyData } from "@/components/HodnotyFlow";
 import NastavSiDenWizard, { DownloadPDFButton, type RitualSelection as WizardSelection } from "@/components/NastavSiDenWizard";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -413,139 +413,128 @@ function EmptyCta({
 function PrehledTab({
   journeyData,
   ritualSelection,
+  kompasData,
+  hodnotyData,
   onTabChange,
 }: {
   journeyData: JourneyState | null;
   ritualSelection: RitualSelection | null;
+  kompasData: KompasData | null;
+  hodnotyData: HodnotyData | null;
   onTabChange: (tab: string) => void;
 }) {
-  const hasWheel =
-    journeyData?.wheelVals &&
-    Object.values(journeyData.wheelVals).some((v) => v !== 5);
-  const hasValues = (journeyData?.finalValues?.length ?? 0) > 0;
-  const hasKompas = hasWheel || hasValues;
-
-  const totalRituals = ritualSelection
-    ? ritualSelection.morning.length + ritualSelection.daily.length + ritualSelection.evening.length
-    : 0;
-  const hasRituals = totalRituals > 0;
+  const hasRituals = (ritualSelection?.morning.length ?? 0) +
+    (ritualSelection?.daily.length ?? 0) +
+    (ritualSelection?.evening.length ?? 0) > 0;
+  const hasKompas  = !!kompasData;
+  const hasHodnoty = (hodnotyData?.finalValues?.length ?? 0) > 0;
 
   const tips = getDashboardTips(ritualSelection, journeyData);
 
   return (
     <div className="space-y-8">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Left: Denní rituály */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-bold text-lg text-foreground">Denní rituály</h2>
-          {hasRituals && (
-            <button
-              onClick={() => onTabChange("nastav-si-den")}
-              className="text-xs text-accent font-semibold hover:underline"
-            >
-              Zobrazit vše →
-            </button>
-          )}
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {hasRituals ? (
-          <div className="space-y-3">
-            {(["morning", "daily", "evening"] as const).map((slot) => (
-              <RitualSlotCard key={slot} slot={slot} ids={ritualSelection![slot]} overrides={ritualSelection?.durationOverrides} />
-            ))}
+        {/* Left: Denní rituály */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-lg text-foreground">Denní rituály</h2>
+            {hasRituals && (
+              <button onClick={() => onTabChange("nastav-si-den")}
+                className="text-xs text-accent font-semibold hover:underline">
+                Zobrazit vše →
+              </button>
+            )}
           </div>
-        ) : (
-          <EmptyCta
-            emoji="🗓️"
-            title="Nastav si den"
-            description="Sestav si vlastní denní rutinu z rituálů s vědeckým základem."
-            buttonLabel="Spustit průvodce →"
-            onClick={() => onTabChange("nastav-si-den")}
-          />
-        )}
-      </div>
-
-      {/* Right: Kompas */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-bold text-lg text-foreground">Tvůj kompas</h2>
-          {hasKompas && (
-            <button
-              onClick={() => onTabChange("tvuj-kompas")}
-              className="text-xs text-accent font-semibold hover:underline"
-            >
-              Zobrazit vše →
-            </button>
+          {hasRituals ? (
+            <div className="space-y-3">
+              {(["morning", "daily", "evening"] as const).map((slot) => (
+                <RitualSlotCard key={slot} slot={slot} ids={ritualSelection![slot]} overrides={ritualSelection?.durationOverrides} />
+              ))}
+            </div>
+          ) : (
+            <EmptyCta emoji="🗓️" title="Nastav si den"
+              description="Sestav si vlastní denní rutinu z rituálů s vědeckým základem."
+              buttonLabel="Spustit průvodce →" onClick={() => onTabChange("nastav-si-den")} />
           )}
         </div>
 
-        {hasKompas ? (
-          <div className="space-y-4">
-            {hasWheel && (
-              <div className="paper-card rounded-[24px] px-5 py-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/35 mb-3">
-                  Spokojenost v oblastech
-                </p>
-                <div className="flex items-center justify-center">
-                  <SpiderChart vals={journeyData!.wheelVals!} size={220} />
-                </div>
-                <div className="grid grid-cols-2 gap-1.5 mt-2">
-                  {WHEEL_AREAS.map((a) => (
-                    <div key={a.key} className="flex items-center gap-2">
+        {/* Right: Kompas + Hodnoty */}
+        <div className="space-y-4">
+
+          {/* Tvůj kompas */}
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-lg text-foreground">Tvůj kompas</h2>
+            {hasKompas && (
+              <button onClick={() => onTabChange("tvuj-kompas")}
+                className="text-xs text-accent font-semibold hover:underline">
+                Zobrazit vše →
+              </button>
+            )}
+          </div>
+
+          {hasKompas ? (
+            <div className="paper-card rounded-[24px] px-5 py-5">
+              <div className="flex items-center justify-center">
+                <SpiderChart vals={kompasData!.currentVals} size={220} />
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mt-3">
+                {WHEEL_AREAS.map((a) => {
+                  const cur  = kompasData!.currentVals[a.key] ?? 5;
+                  const goal = kompasData!.goalVals[a.key] ?? 5;
+                  const diff = goal - cur;
+                  return (
+                    <div key={a.key} className="flex items-center gap-1.5">
                       <div className="flex-1 bg-black/5 rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${(journeyData?.wheelVals?.[a.key] ?? 5) * 10}%`,
-                            background: "#FF8C42",
-                          }}
-                        />
+                        <div className="h-full rounded-full"
+                          style={{ width: `${cur * 10}%`, background: "#FF8C42" }} />
                       </div>
                       <span className="text-[10px] text-foreground/40 w-12 truncate">{a.short}</span>
-                      <span className="text-xs font-bold w-3 text-right" style={{ color: "#FF8C42" }}>
-                        {journeyData?.wheelVals?.[a.key] ?? 5}
-                      </span>
+                      <span className="text-xs font-bold w-3 text-right" style={{ color: "#FF8C42" }}>{cur}</span>
+                      {diff > 0 && (
+                        <span className="text-[10px] font-semibold w-5" style={{ color: "#378ADD" }}>+{diff}</span>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
+          ) : (
+            <EmptyCta emoji="🧭" title="Tvůj kompas"
+              description="Ohodnoť svůj život, nastav si priority a zjisti, co tě brzdí."
+              buttonLabel="Spustit průvodce →" onClick={() => onTabChange("tvuj-kompas")} />
+          )}
 
-            {hasValues && (
-              <div className="paper-card rounded-[24px] px-5 py-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/35 mb-3">
-                  Moje hodnoty
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {journeyData!.finalValues!.map((v, i) => (
-                    <span
-                      key={i}
-                      className={`px-3 py-1.5 rounded-xl text-sm font-medium border ${
-                        i < 5
-                          ? "border-[#FF8C42] bg-orange-50 text-orange-900"
-                          : "border-black/10 text-foreground/50"
-                      }`}
-                    >
-                      {v}
-                    </span>
-                  ))}
-                </div>
-              </div>
+          {/* Moje hodnoty */}
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-lg text-foreground">Moje hodnoty</h2>
+            {hasHodnoty && (
+              <button onClick={() => onTabChange("moje-hodnoty")}
+                className="text-xs text-accent font-semibold hover:underline">
+                Zobrazit vše →
+              </button>
             )}
           </div>
-        ) : (
-          <EmptyCta
-            emoji="🧭"
-            title="Tvůj kompas"
-            description={"Projdi sedm zastávek od \u201ekde jsem\u201c po \u201ežiju podle sebe\u201c."}
-            buttonLabel="Spustit průvodce →"
-            onClick={() => onTabChange("tvuj-kompas")}
-          />
-        )}
+
+          {hasHodnoty ? (
+            <div className="paper-card rounded-[24px] px-5 py-5">
+              <div className="flex flex-wrap gap-2">
+                {hodnotyData!.finalValues.map((v, i) => (
+                  <span key={i} className={`px-3 py-1.5 rounded-xl text-sm font-medium border ${
+                    i < 5 ? "border-[#FF8C42] bg-orange-50 text-orange-900" : "border-black/10 text-foreground/50"
+                  }`}>{v}</span>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <EmptyCta emoji="💎" title="Moje hodnoty"
+              description="Projdi 56 hodnot a zjisti, co je pro tebe skutečně důležité."
+              buttonLabel="Spustit průvodce →" onClick={() => onTabChange("moje-hodnoty")} />
+          )}
+        </div>
+
       </div>
-    </div>
-    <TipsGrid tips={tips} />
+      <TipsGrid tips={tips} />
     </div>
   );
 }
@@ -624,6 +613,8 @@ function DashboardContent() {
   const [journeyData, setJourneyData] = useState<JourneyState | null>(null);
   const [purchaseId, setPurchaseId] = useState("");
   const [ritualSelection, setRitualSelection] = useState<RitualSelection | null>(null);
+  const [kompasData, setKompasData] = useState<KompasData | null>(null);
+  const [hodnotyData, setHodnotyData] = useState<HodnotyData | null>(null);
   const [journeyLoading, setJourneyLoading] = useState(true);
 
   const activeTab = searchParams.get("tab") ?? "prehled";
@@ -657,12 +648,20 @@ function DashboardContent() {
       .finally(() => setJourneyLoading(false));
   }, [checked]);
 
-  // Load nastav-si-den from localStorage
+  // Load nastav-si-den, kompas, hodnoty from localStorage
   useEffect(() => {
     if (!checked) return;
     try {
       const saved = localStorage.getItem(LS_KEY);
       if (saved) setRitualSelection(JSON.parse(saved));
+    } catch {}
+    try {
+      const k = localStorage.getItem("kompas-data");
+      if (k) setKompasData(JSON.parse(k));
+    } catch {}
+    try {
+      const h = localStorage.getItem("hodnoty-data");
+      if (h) setHodnotyData(JSON.parse(h));
     } catch {}
   }, [checked]);
 
@@ -746,6 +745,8 @@ function DashboardContent() {
               <PrehledTab
                 journeyData={journeyData}
                 ritualSelection={ritualSelection}
+                kompasData={kompasData}
+                hodnotyData={hodnotyData}
                 onTabChange={goToTab}
               />
             ))}
