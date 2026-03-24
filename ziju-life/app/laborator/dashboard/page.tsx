@@ -29,7 +29,8 @@ const isCustom = (id: string) => id.startsWith(CUSTOM_PREFIX);
 const customName = (id: string) => id.slice(CUSTOM_PREFIX.length);
 function getRitual(id: string): { id: string; name: string; duration_min: number } {
   if (isCustom(id)) return { id, name: customName(id), duration_min: 0 };
-  return { id, ...(ritualsById[id] ?? { name: id, duration_min: 0 }) };
+  const r = ritualsById[id];
+  return { id, name: r?.name ?? id, duration_min: r?.duration_min ?? 0 };
 }
 
 // ── SpiderChart ────────────────────────────────────────────────────────────────
