@@ -23,14 +23,13 @@ const REFLECTION_QUESTIONS = [
   { id: "q1", text: "Co ti v životě opravdu funguje — v jakékoliv oblasti?" },
   { id: "q2", text: "Proč to funguje? Co jsi udělal/a pro to, aby to tak bylo?" },
   { id: "q3", text: "Jak přenést tuto logiku úspěchu do oblasti, kde se trápím?" },
-  { id: "q4", text: "Co si uvědomuji, když se upřímně podívám na svůj život právě teď?" },
-  { id: "q5", text: "A ještě jednou — co si uvědomuji? (Třetí odpověď bývá nejhlubší.)" },
 ]
 
 const AREA_QUESTIONS = [
-  "Co v téhle oblasti opravdu funguje? Co chci zachovat?",
-  "Co nefunguje nebo mě tíží? Co chci změnit?",
-  "Co konkrétně chci místo toho? Jak by to vypadalo, kdyby to fungovalo?",
+  "Co mě tíží? Co nefunguje? Co chci změnit?",
+  "Co je momentálně dobré? Co chci zachovat?",
+  "Jak tedy vypadá ideální stav?",
+  "Co pro to udělám?",
 ]
 
 const AREA_TIPS: Record<string, string> = {
@@ -314,6 +313,8 @@ function SlideGoalSpider({
   goalVals:    Record<string, number>
   onChange:    (v: Record<string, number>) => void
 }) {
+  const avg = Object.values(goalVals).reduce((a, b) => a + b, 0) / WHEEL_AREAS.length
+
   return (
     <div className="space-y-4">
       <div>
@@ -363,6 +364,16 @@ function SlideGoalSpider({
           )
         })}
       </div>
+
+      {avg > 8 && (
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 flex gap-3">
+          <span className="text-lg flex-shrink-0">⚠️</span>
+          <p className="text-sm text-amber-800 leading-relaxed">
+            <strong>Průměr cílů je {avg.toFixed(1)}.</strong> Každá oblast, které věnuješ víc energie, bere energii ostatním.
+            Zkus si vybrat, co je opravdu důležité — a přijmout, že některé věci mohou zůstat na 6 nebo 7. To není selhání, to je rozhodnutí.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -615,33 +626,57 @@ function KompasDashboard({ data, onReset }: { data: KompasData; onReset: () => v
         </div>
 
         {/* Area bars */}
-        <div className="space-y-1.5 pt-1 border-t border-black/[0.05]">
+        <div className="space-y-2 pt-1 border-t border-black/[0.05]">
           {WHEEL_AREAS.map(a => {
             const cur = data.currentVals[a.key] ?? 5
             const gl  = data.goalVals[a.key]    ?? 5
             const d   = gl - cur
             return (
-              <div key={a.key} className="flex items-center gap-2 text-xs">
-                <span className="w-20 text-foreground/50 flex-shrink-0">{a.short}</span>
-                <div className="flex-1 h-2 rounded-full bg-black/[0.05] relative overflow-hidden">
-                  <div className="absolute h-full rounded-full"
-                    style={{ width: `${cur * 10}%`, background: COLOR_ORANGE, opacity: 0.75 }} />
-                  {gl > cur && (
+              <div key={a.key} className="space-y-0.5">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="w-20 text-foreground/50 flex-shrink-0">{a.short}</span>
+                  <div className="flex-1 h-2 rounded-full bg-black/[0.05] relative overflow-hidden">
                     <div className="absolute h-full rounded-full"
-                      style={{ left: `${cur * 10}%`, width: `${(gl - cur) * 10}%`, background: COLOR_BLUE, opacity: 0.5 }} />
+                      style={{ width: `${cur * 10}%`, background: COLOR_ORANGE, opacity: 0.75 }} />
+                    {gl > cur && (
+                      <div className="absolute h-full rounded-full"
+                        style={{ left: `${cur * 10}%`, width: `${(gl - cur) * 10}%`, background: COLOR_BLUE, opacity: 0.5 }} />
+                    )}
+                  </div>
+                  <span className="font-bold w-3 text-right" style={{ color: COLOR_ORANGE }}>{cur}</span>
+                  {d !== 0 ? (
+                    <span className="text-[10px] w-8 font-semibold" style={{ color: d > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
+                      {d > 0 ? `→ ${gl}` : `↓ ${gl}`}
+                    </span>
+                  ) : (
+                    <span className="w-8" />
                   )}
                 </div>
-                <span className="font-bold w-3 text-right" style={{ color: COLOR_ORANGE }}>{cur}</span>
-                {d !== 0 && (
-                  <span className="text-[10px] w-6" style={{ color: d > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
-                    {d > 0 ? `+${d}` : d}
-                  </span>
-                )}
-                {d === 0 && <span className="w-6" />}
               </div>
             )
           })}
         </div>
+
+        {/* Co pro to udělám — improving areas with answers */}
+        {(() => {
+          const items = WHEEL_AREAS.filter(a => {
+            const d   = (data.goalVals[a.key] ?? 5) - (data.currentVals[a.key] ?? 5)
+            const ans = data.areaAnswers[a.key]?.[3]?.trim()
+            return d > 0 && ans
+          })
+          if (items.length === 0) return null
+          return (
+            <div className="space-y-2 pt-2 border-t border-black/[0.05]">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Co pro to udělám</p>
+              {items.map(a => (
+                <div key={a.key} className="flex gap-2.5">
+                  <span className="text-xs font-semibold text-foreground/40 w-20 flex-shrink-0 pt-0.5">{a.short}</span>
+                  <p className="text-sm text-foreground/65 leading-relaxed">{data.areaAnswers[a.key][3]}</p>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
       </div>
 
       {/* Area insights */}

@@ -8,7 +8,7 @@ const tools = [
   {
     id: "nastav-si-den",
     name: "Nastav si den",
-    desc: "Konfigurátor denních rituálů s neurovědou. Sestav si vlastní ranní, denní a večerní rutinu a stáhni personalizované kartičky.",
+    desc: "Sestav si vlastní systém rituálů — ranní, denní, večerní. Každý návyk má za sebou neurovědu. Ty si vybereš jen to, co sedí tobě.",
     href: "/nastav-si-den",
     available: true,
     tag: "ADHD & fokus",
@@ -16,29 +16,37 @@ const tools = [
   {
     id: "tvuj-kompas",
     name: "Tvůj kompas",
-    desc: "Interaktivní cvičení pro nalezení životního směru a hodnot. Sám sobě ukaž, co je pro tebe důležité.",
+    desc: "Ohodnoť svůj život. Nastav si priority. Zjisti, co tě brzdí. Průvodce, který tě dotlačí k odpovědím, které už dávno znáš.",
     href: "/laborator/tvuj-kompas",
     available: true,
-    tag: "Smysl & hodnoty",
+    tag: "Smysl & směr",
+  },
+  {
+    id: "moje-hodnoty",
+    name: "Moje hodnoty",
+    desc: "Projdi 56 hodnot a seřaď je podle toho, co skutečně rezonuje — ne co by mělo. Hodnoty jsou tvůj filtr pro každé rozhodnutí.",
+    href: "/laborator/dashboard?tab=moje-hodnoty",
+    available: true,
+    tag: "Identita & rozhodování",
   },
 ];
 
 const faqs = [
   {
     q: "Co je Laboratoř?",
-    a: "Laboratoř je placená sekce žiju life — sbírka interaktivních nástrojů a cvičení, které ti pomohou žít vědoměji. Žádné motivační citáty, žádné šablony. Jen funkční systémy postavené na neurověděě a psychologii.",
+    a: "Placená sekce žiju life. Sbírka interaktivních nástrojů pro lidi, kteří si chtějí přestat lhát o tom, jak žijí — a začít s tím něco dělat. Žádné motivační citáty. Žádné obecné rady. Jen věci, které fungují.",
   },
   {
     q: "Pro koho to je?",
-    a: "Pro lidi, kteří chtějí aktivně pracovat na svém životě. Nevadí ti experimentovat, zkoušet a upravovat. ADHD nebo ne — klíčem je ochota dělat to systematicky.",
+    a: "Pro tebe, pokud tě přestalo bavit číst o změně života a chceš ji konečně udělat. Funguje s ADHD i bez něj. Jediná podmínka je ochota experimentovat a přiznat si, co reálně funguje.",
   },
   {
     q: "Co dostanu?",
-    a: "Přístup ke všem nástrojům v Laboratoři — teď i do budoucna. Nové nástroje přibývají průběžně. Vše je součástí jednoho předplatného.",
+    a: "Přístup ke všem nástrojům v Laboratoři — teď i do budoucna. Nové věci přibývají průběžně. Všechno je v ceně jednoho předplatného.",
   },
   {
     q: "Můžu předplatné zrušit?",
-    a: "Ano, kdykoliv. Přes Stripe zákaznický portál jedním klikem. Žádné podmínky, žádné výpovědní lhůty.",
+    a: "Ano. Přes Stripe zákaznický portál, jedním klikem, kdykoliv. Žádné podmínky, žádné výpovědní lhůty.",
   },
 ];
 
@@ -206,9 +214,9 @@ function LaboratorContent() {
           Laboratoř
         </h1>
         <p className="text-lg text-foreground/65 leading-relaxed mb-10 max-w-xl mx-auto">
-          Místo, kde experimentuješ se svým životem. Interaktivní nástroje a
-          cvičení postavené na neurověděě a psychologii — žádné motivační
-          citáty, jen funkční systémy.
+          Tady nepřemlouváš sám sebe k lepšímu životu. Tady si ho stavíš.
+          Interaktivní nástroje postavené na tom, jak mozek skutečně funguje —
+          ne na tom, jak bychom chtěli, aby fungoval.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <AccessButton loading={buying} onClick={handleBuy} />
@@ -229,7 +237,7 @@ function LaboratorContent() {
 
       {/* Nástroje */}
       <section className="max-w-3xl mx-auto px-5 pb-20">
-        <h2 className="text-xl font-bold mb-6">Co teď v Laboratoři najdeš</h2>
+        <h2 className="text-xl font-bold mb-6">Co teď uvnitř najdeš</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {tools.map((t) => (
             <div
