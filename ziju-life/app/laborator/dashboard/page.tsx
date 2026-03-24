@@ -33,6 +33,226 @@ function getRitual(id: string): { id: string; name: string; duration_min: number
   return { id, name: r?.name ?? id, duration_min: r?.duration_min ?? 0 };
 }
 
+// ── Tips ───────────────────────────────────────────────────────────────────────
+
+interface Tip {
+  emoji: string;
+  title: string;
+  body: string;
+}
+
+const KOMPAS_TIPS: Record<string, Tip> = {
+  zdravi: {
+    emoji: "💪",
+    title: "Zdraví je základ všeho",
+    body: "Spánek, pohyb a hydratace ovlivňují každou jinou oblast. I malé změny mají velký dopad — zkus přidat jeden zdravotní rituál.",
+  },
+  finance: {
+    emoji: "💰",
+    title: "Malý finanční rituál, velký efekt",
+    body: "Finanční stres je jeden z největších zdrojů chronického stresu. 5 minut týdně na přehled výdajů dává pocit kontroly a snižuje úzkost.",
+  },
+  pratele: {
+    emoji: "👥",
+    title: "Vztahy jako vědomý rituál",
+    body: "Sociální kontakt je silný prediktor dlouhodobé spokojenosti. Krátká zpráva nebo 15minutový hovor s přítelem může být vědomou součástí dne.",
+  },
+  rodina: {
+    emoji: "🏠",
+    title: "Kvalita, ne kvantita",
+    body: "15 minut opravdového kontaktu bez telefonu má větší váhu než hodiny v jedné místnosti. Přítomnost je rituál.",
+  },
+  smysl: {
+    emoji: "🧭",
+    title: "Smysl se buduje každý den",
+    body: "Smysl se nenajde — vytváří se opakovanými rozhodnutími. Hodnoty z Tvého kompasu ti mohou být filtrem při výběru rituálů i priorit.",
+  },
+  rozvoj: {
+    emoji: "📚",
+    title: "10 minut = 60 hodin ročně",
+    body: "Malý rituál čtení nebo podcastu denně aktivuje systém odměn a buduje identitu člověka, který roste. Konzistence beats množství.",
+  },
+  kariera: {
+    emoji: "🎯",
+    title: "Jedna priorita před vším",
+    body: "Nejproduktivnější lidé začínají den jedním nejdůležitějším úkolem (MIT). Zkus ho přidat jako první ranní rituál.",
+  },
+  volny: {
+    emoji: "🎮",
+    title: "Odpočinek je součást výkonu",
+    body: "Vědomý odpočinek — aktivity, které tě opravdu dobíjejí — snižuje burn-out a zvyšuje kreativitu. Není to ztráta času.",
+  },
+};
+
+const GENERAL_TIPS: Tip[] = [
+  {
+    emoji: "📅",
+    title: "66 dní, ne 21",
+    body: "Nový návyk se utváří průměrně 66 dní. Buď trpělivý — první dva týdny jsou nejtěžší, pak se automatizace prudce zrychlí.",
+  },
+  {
+    emoji: "🔗",
+    title: "Návyky na sebe navazuj",
+    body: "Nový rituál se nejsnáze buduje hned po zavedené rutině. 'Po kávě si zapíšu 3 priority' funguje lépe než 'každý den ráno'.",
+  },
+  {
+    emoji: "✅",
+    title: "Identita > cíle",
+    body: "'Jsem někdo, kdo se každý den hýbe' funguje dlouhodobě lépe než 'chci cvičit'. Rituály budují identitu — a ta mění chování bez vůle.",
+  },
+  {
+    emoji: "🧠",
+    title: "Pohyb buduje mozek",
+    body: "Pohyb zvyšuje BDNF — protein podporující růst nových neuronů. Efekt na soustředění trvá 2–4 hodiny po cvičení.",
+  },
+];
+
+function getDashboardTips(
+  ritualSelection: RitualSelection | null,
+  journeyData: JourneyState | null
+): Tip[] {
+  const tips: Tip[] = [];
+
+  const morning = ritualSelection?.morning ?? [];
+  const daily = ritualSelection?.daily ?? [];
+  const evening = ritualSelection?.evening ?? [];
+  const total = morning.length + daily.length + evening.length;
+
+  // Ritual-based tips
+  if (total === 0) {
+    tips.push({
+      emoji: "🌱",
+      title: "Začni s jediným rituálem",
+      body: "Výběr jednoho rituálu a jeho opakování 30 dní má větší efekt než plán deseti. Přejdi na 'Nastav si den' a vyber svůj první krok.",
+    });
+  }
+
+  if (total > 0 && morning.length === 0) {
+    tips.push({
+      emoji: "🌅",
+      title: "Ranní rituál chybí",
+      body: "Prvních 90 minut po probuzení nastavuje tón celého dne. I 5minutový ranní rituál snižuje kortizol a pomáhá mozku přejít do soustředěného módu.",
+    });
+  }
+
+  if (total > 0 && evening.length === 0) {
+    tips.push({
+      emoji: "🌙",
+      title: "Zavři den vědomě",
+      body: "Bez večerního rituálu mozek nedostane signál k přepnutí. Krátká rutina před spaním zlepšuje kvalitu spánku a přípravu na další den.",
+    });
+  }
+
+  if (total >= 9) {
+    tips.push({
+      emoji: "⚖️",
+      title: "Méně je více",
+      body: "Hodně rituálů zvyšuje riziko, že při jednom špatném dni vzdáš vše. Zkus vybrat 4–6 nejdůležitějších a soustřeď se na ně.",
+    });
+  }
+
+  // Kompas-based tips (lowest areas first)
+  const wheelVals = journeyData?.wheelVals ?? {};
+  const lowAreas = Object.entries(wheelVals)
+    .filter(([, v]) => v < 5)
+    .sort(([, a], [, b]) => a - b)
+    .slice(0, 2);
+
+  for (const [area] of lowAreas) {
+    if (KOMPAS_TIPS[area]) tips.push(KOMPAS_TIPS[area]);
+  }
+
+  // Fill to 3 with general tips
+  for (const tip of GENERAL_TIPS) {
+    if (tips.length >= 3) break;
+    tips.push(tip);
+  }
+
+  return tips.slice(0, 3);
+}
+
+function getRitualTip(selection: RitualSelection): Tip | null {
+  const all = [...selection.morning, ...selection.daily, ...selection.evening];
+  const total = all.length;
+
+  if (total === 0) return null;
+
+  const hasMorning = selection.morning.length > 0;
+  const hasEvening = selection.evening.length > 0;
+
+  if (hasMorning && hasEvening) {
+    return {
+      emoji: "🔥",
+      title: "Kompletní systém — výborně",
+      body: "Máš pokrytý začátek i konec dne. Teď je nejdůležitější konzistence — 80 % dnů je výhra. Nepotřebuješ dokonalost, potřebuješ opakování.",
+    };
+  }
+  if (!hasMorning) {
+    return {
+      emoji: "🌅",
+      title: "Přidej ranní rituál",
+      body: "Ranní rutina nastartuje nervovou soustavu ještě před prvním stresem dne. Stačí 5–10 minut — pohyb, voda nebo ticho.",
+    };
+  }
+  if (!hasEvening) {
+    return {
+      emoji: "🌙",
+      title: "Večerní rituál dokončí smyčku",
+      body: "Ranní rituál otevírá den, večerní ho zavírá. Mozek potřebuje jasný signál k přepnutí — jinak přenáší pracovní stres do spánku.",
+    };
+  }
+  return null;
+}
+
+function getKompasTip(journeyData: JourneyState): Tip | null {
+  const wheelVals = journeyData.wheelVals ?? {};
+  const lowest = Object.entries(wheelVals)
+    .filter(([, v]) => v < 5)
+    .sort(([, a], [, b]) => a - b)[0];
+
+  if (!lowest) {
+    return {
+      emoji: "⭐",
+      title: "Spokojený přehled",
+      body: "Ve všech oblastech se hodnotíš nad 5 — to je dobrý základ. Kompas ti ukáže, kam zaměřit energii, aby byl posun viditelný.",
+    };
+  }
+
+  return KOMPAS_TIPS[lowest[0]] ?? null;
+}
+
+// ── Tip components ─────────────────────────────────────────────────────────────
+
+function TipsGrid({ tips }: { tips: Tip[] }) {
+  if (tips.length === 0) return null;
+  return (
+    <div className="space-y-3">
+      <h2 className="font-bold text-lg text-foreground">Tipy pro tebe</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {tips.map((tip, i) => (
+          <div key={i} className="paper-card rounded-[20px] px-5 py-5 space-y-2">
+            <p className="text-2xl">{tip.emoji}</p>
+            <p className="font-bold text-sm text-foreground">{tip.title}</p>
+            <p className="text-sm text-foreground/60 leading-relaxed">{tip.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InlineTip({ tip }: { tip: Tip }) {
+  return (
+    <div className="paper-card rounded-[20px] px-5 py-4 flex gap-4 items-start border border-accent/10 bg-orange-50/30">
+      <span className="text-2xl shrink-0 mt-0.5">{tip.emoji}</span>
+      <div>
+        <p className="font-bold text-sm text-foreground">{tip.title}</p>
+        <p className="text-sm text-foreground/60 leading-relaxed mt-0.5">{tip.body}</p>
+      </div>
+    </div>
+  );
+}
+
 // ── SpiderChart ────────────────────────────────────────────────────────────────
 
 function SpiderChart({ vals, size = 220 }: { vals: Record<string, number>; size?: number }) {
@@ -204,7 +424,10 @@ function PrehledTab({
     : 0;
   const hasRituals = totalRituals > 0;
 
+  const tips = getDashboardTips(ritualSelection, journeyData);
+
   return (
+    <div className="space-y-8">
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Left: Denní rituály */}
       <div className="space-y-4">
@@ -316,6 +539,8 @@ function PrehledTab({
         )}
       </div>
     </div>
+    <TipsGrid tips={tips} />
+    </div>
   );
 }
 
@@ -363,6 +588,10 @@ function NastavSiDenTab({
         ))}
       </div>
 
+      {getRitualTip(selection) && (
+        <InlineTip tip={getRitualTip(selection)!} />
+      )}
+
       <div className="border-t border-black/5 pt-4 flex items-center justify-between">
         <p className="text-xs text-foreground/30 italic">
           Dnes nemusí být dokonalý den. Stačí, že je lepší než včera.
@@ -392,6 +621,11 @@ function TvujKompasTab({
 
   return (
     <div>
+      {hasData && kompasKey === 0 && (() => {
+        const tip = getKompasTip(initialData!);
+        return tip ? <InlineTip tip={tip} /> : null;
+      })()}
+
       {hasData && (
         <div className="flex justify-end mb-4">
           {confirmReset ? (
