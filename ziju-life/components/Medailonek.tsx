@@ -36,27 +36,19 @@ export default function Medailonek() {
             
             <div className="space-y-4 text-lg md:text-xl text-foreground/80 leading-relaxed">
               <p>
-                Většinu života jsem strávil snahou pochopit, jak se tenhle život vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, ale pomalu — a často s rozpaky — jsem se to začal učit.
+                Od mala jsem si přál jednu věc — fungovat jako normální člověk. Dělat věci, které ostatní zvládali přirozeně. Ale čím víc jsem se snažil, tím víc mi to nešlo. Žil jsem v budoucnosti — pořád jsem viděl, kam chci jít, ale neviděl jsem, kde jsem.
               </p>
 
               <p>
-                Časem jsem zjistil, že právě toto zkoumání mi dává smysl. Experimentuji s tím, jak funguje naše tělo i hlava — od spánku a stravy přes mentální modely až po meditaci. Abych zjistil, které věci vedou k více prožitému životu.
+                Pak mi moje terapeutka řekla něco, co mi změnilo život: <em>Tvůj život je mozaika. Máš krásnou představu, jak má vypadat. Ale neskládáš ji. Dílek po dílku.</em>
               </p>
 
               <p>
-                Tenhle kousek internetu jsem vytvořil, abych mohl sdílet, co jsem objevil — a pomoct ti najít, co funguje pro tebe. Sepsal jsem{" "}
-                <Link href="/muj-kompas" className="text-accent hover:text-accent-hover transition-colors">
-                  svůj kompas
-                </Link>
-                {" "}s principy a lekcemi, které mě vedou. Vytvořil jsem{" "}
-                <Link href="/tvoje-mapa" className="text-accent hover:text-accent-hover transition-colors">
-                  Tvoji mapu
-                </Link>
-                {" "}— průvodce, který ti pomůže zmapovat, kde jsi a kam chceš jít. A pokud nechceš tu cestu jít sám, můžeme ji jít spolu v rámci{" "}
-                <Link href="/koucing" className="text-accent hover:text-accent-hover transition-colors">
-                  koučingu
-                </Link>
-                .
+                Trvalo mi deset lekcí, než jsem to pochopil. A další rok, než jsem se to naučil žít. Ale funguje to. Čím víc se soustředím na to, co dělám teď, tím víc můj život dává smysl.
+              </p>
+
+              <p>
+                Proto jsem založil žiju life. Abych zkoumal, jak žít vědoměji. A abych to, co objevím, předával dál.
               </p>
             </div>
           </div>

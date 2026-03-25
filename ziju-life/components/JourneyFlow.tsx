@@ -1560,7 +1560,7 @@ export function generateHtml(
   ${reflectionRows ? `<h2>Reflexe kola života</h2>${reflectionRows}` : ""}
   ${oblastiRows ? `<h2>Oblasti — reflexe ke zlepšení</h2>${oblastiRows}` : ""}
   ${visionSection}
-  <h2>Moje hodnoty</h2>
+  <h2>Hodnoty</h2>
   ${valuesBlock}
   ${actionSection}
   <footer>

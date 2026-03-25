@@ -10,7 +10,7 @@ import {
 import JourneyFlow, { type JourneyState } from "@/components/JourneyFlow";
 
 export const metadata: Metadata = {
-  title: "Tvůj kompas | Laboratoř | Žiju life",
+  title: "Kompas | Laboratoř | Žiju life",
   description:
     "Projdi životní cestu zastávku po zastávce. Sedm kroků, cvičení, šablony a materiály — vše v jednom průvodci.",
 };
@@ -54,7 +54,7 @@ export default async function LaboratorTvujKompasPage({
     <main className="min-h-screen">
       {paymentSuccess && (
         <div className="bg-green-50 border-b border-green-200 px-4 py-3 text-center text-sm text-green-800">
-          Vítej v Tvůj kompas!
+          Vítej v Laboratoři!
         </div>
       )}
 
@@ -64,7 +64,7 @@ export default async function LaboratorTvujKompasPage({
             Laboratoř
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-            Tvůj kompas
+            Kompas
           </h1>
           <p className="text-base text-foreground/55 max-w-xl mx-auto">
             Sedm zastávek od „kde jsem" po „žiju podle sebe". Ke každé najdeš

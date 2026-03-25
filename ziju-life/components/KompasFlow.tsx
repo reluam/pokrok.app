@@ -19,12 +19,6 @@ const WHEEL_AREAS = [
   { key: "smysl",    label: "Duchovnost & smysl",          short: "Smysl"     },
 ]
 
-const REFLECTION_QUESTIONS = [
-  { id: "q1", text: "Co ti v životě opravdu funguje — v jakékoliv oblasti?" },
-  { id: "q2", text: "Proč to funguje? Co jsi udělal/a pro to, aby to tak bylo?" },
-  { id: "q3", text: "Jak přenést tuto logiku úspěchu do oblasti, kde se trápím?" },
-]
-
 const AREA_QUESTIONS = [
   "Co mě tíží? Co nefunguje? Co chci změnit?",
   "Co je momentálně dobré? Co chci zachovat?",
@@ -48,8 +42,9 @@ const AREA_TIPS: Record<string, string> = {
 export type KompasData = {
   currentVals:        Record<string, number>
   goalVals:           Record<string, number>
-  reflectionAnswers:  Record<string, string>
+  reflectionAnswers:  Record<string, string>   // kept for backwards compat
   areaAnswers:        Record<string, string[]>
+  focusArea?:         string                   // oblast vybraná uživatelem pro tento měsíc
   completedAt:        string
 }
 
@@ -273,37 +268,6 @@ function SlideCurrentSpider({
   )
 }
 
-// ── Slide: Reflexní otázka ──────────────────────────────────────────────────
-
-function SlideReflection({
-  questionIndex, text, answer, onChange,
-}: {
-  questionIndex: number
-  text:          string
-  answer:        string
-  onChange:      (v: string) => void
-}) {
-  return (
-    <div className="space-y-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">
-        Reflexe {questionIndex} / {REFLECTION_QUESTIONS.length}
-      </p>
-      <p className="text-base font-medium text-foreground/80 leading-snug">{text}</p>
-      <textarea
-        value={answer}
-        onChange={e => onChange(e.target.value)}
-        placeholder="Napiš sem svoji odpověď…"
-        rows={5}
-        className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-4 py-3 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 focus:bg-white transition-all"
-        autoFocus
-      />
-      <p className="text-xs text-foreground/30 text-center italic">
-        Tuto otázku přeskoč, pokud nechceš odpovídat — tlačítko Dál funguje vždy.
-      </p>
-    </div>
-  )
-}
-
 // ── Slide: Cílový pavučák ───────────────────────────────────────────────────
 
 function SlideGoalSpider({
@@ -424,9 +388,84 @@ function SlideArea({
   )
 }
 
+// ── Slide: Výběr fokus oblasti ───────────────────────────────────────────────
+
+function SlideFocusArea({
+  currentVals, goalVals, focusArea, onChange,
+}: {
+  currentVals: Record<string, number>
+  goalVals:    Record<string, number>
+  focusArea:   string
+  onChange:    (key: string) => void
+}) {
+  const sorted = [...WHEEL_AREAS].sort((a, b) => {
+    const da = (goalVals[b.key] ?? 5) - (currentVals[b.key] ?? 5)
+    const db = (goalVals[a.key] ?? 5) - (currentVals[a.key] ?? 5)
+    return da - db
+  })
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Vyber svůj dílek mozaiky</p>
+        <p className="text-sm text-foreground/55 mt-1 leading-relaxed">
+          Nemůžeš složit celou mozaiku najednou. Vyber jednu oblast, na které budeš pracovat tento měsíc.
+        </p>
+      </div>
+      <div className="space-y-2">
+        {sorted.map(a => {
+          const cur  = currentVals[a.key] ?? 5
+          const goal = goalVals[a.key] ?? 5
+          const diff = goal - cur
+          const isSelected = focusArea === a.key
+          return (
+            <button
+              key={a.key}
+              onClick={() => onChange(a.key)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border-2 text-left transition-all"
+              style={isSelected
+                ? { borderColor: COLOR_ORANGE, background: "rgba(255,140,66,0.06)" }
+                : { borderColor: "rgba(0,0,0,0.07)", background: "rgba(255,255,255,0.5)" }
+              }
+            >
+              <span className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all"
+                style={isSelected
+                  ? { borderColor: COLOR_ORANGE, background: COLOR_ORANGE }
+                  : { borderColor: "rgba(0,0,0,0.2)" }
+                }
+              >
+                {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+              </span>
+              <span className="flex-1 text-sm font-semibold text-foreground">{a.label}</span>
+              <span className="text-xs text-foreground/40 flex-shrink-0">
+                {cur}
+                {diff !== 0 && (
+                  <span style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
+                    {" "}→ {goal}
+                  </span>
+                )}
+              </span>
+              {diff > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                  style={{ background: "rgba(55,138,221,0.1)", color: COLOR_BLUE }}
+                >
+                  +{diff}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Flow slides ──────────────────────────────────────────────────────────────
 
 function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => void }) {
+  // Slides: 0=current spider, 1=goal spider, 2=focus area selection, 3=area questions
+  const TOTAL_SLIDES = 4
+
   const [slide, setSlide] = useState(0)
   const [currentVals, setCurrentVals] = useState<Record<string, number>>(
     Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 5]))
@@ -434,76 +473,82 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
   const [goalVals, setGoalVals] = useState<Record<string, number>>(
     Object.fromEntries(WHEEL_AREAS.map(a => [a.key, 7]))
   )
-  const [reflectionAnswers, setReflectionAnswers] = useState<Record<string, string>>(
-    Object.fromEntries(REFLECTION_QUESTIONS.map(q => [q.id, ""]))
-  )
   const [areaAnswers, setAreaAnswers] = useState<Record<string, string[]>>(
-    Object.fromEntries(WHEEL_AREAS.map(a => [a.key, ["", "", ""]]))
+    Object.fromEntries(WHEEL_AREAS.map(a => [a.key, ["", "", "", ""]]))
   )
+  // Default focus = area with biggest positive gap
+  const defaultFocus = WHEEL_AREAS.reduce((best, a) => {
+    const d = (goalVals[a.key] ?? 5) - (currentVals[a.key] ?? 5)
+    const bd = (goalVals[best.key] ?? 5) - (currentVals[best.key] ?? 5)
+    return d > bd ? a : best
+  }, WHEEL_AREAS[0])
+  const [focusArea, setFocusArea] = useState(defaultFocus.key)
 
-  const improvingAreas = WHEEL_AREAS.filter(a => (goalVals[a.key] ?? 5) > (currentVals[a.key] ?? 5))
-  // Slides: 0=current, 1-5=reflexe, 6=goal, 7+= per area
-  const totalSlides = 7 + improvingAreas.length
-  const isLastSlide = slide >= totalSlides - 1
+  const isLastSlide = slide === TOTAL_SLIDES - 1
+  const focusAreaObj = WHEEL_AREAS.find(a => a.key === focusArea) ?? WHEEL_AREAS[0]
+
+  // Hodnoty context from localStorage
+  const [hodnotyValues, setHodnotyValues] = useState<string[]>([])
+  useEffect(() => {
+    try {
+      const h = localStorage.getItem("hodnoty-data")
+      if (h) setHodnotyValues(JSON.parse(h)?.finalValues ?? [])
+    } catch {}
+  }, [])
 
   const handleNext = () => {
     if (isLastSlide) {
-      onComplete({
-        currentVals,
-        goalVals,
-        reflectionAnswers,
-        areaAnswers,
-        completedAt: new Date().toISOString(),
-      })
-      return
-    }
-    // After goal spider (slide 6): if no improving areas, finish
-    if (slide === 6 && improvingAreas.length === 0) {
-      onComplete({ currentVals, goalVals, reflectionAnswers, areaAnswers, completedAt: new Date().toISOString() })
+      onComplete({ currentVals, goalVals, reflectionAnswers: {}, areaAnswers, focusArea, completedAt: new Date().toISOString() })
       return
     }
     setSlide(s => s + 1)
   }
   const handleBack = () => setSlide(s => Math.max(0, s - 1))
 
+  const LABELS = ["Kdo jsi dnes", "Kde chceš být", "Vyber si dílek", focusAreaObj.short]
+
   const renderSlide = () => {
     if (slide === 0) {
-      return <SlideCurrentSpider vals={currentVals} onChange={setCurrentVals} />
-    }
-    if (slide >= 1 && slide <= 5) {
-      const q = REFLECTION_QUESTIONS[slide - 1]
       return (
-        <SlideReflection
-          questionIndex={slide}
-          text={q.text}
-          answer={reflectionAnswers[q.id] ?? ""}
-          onChange={v => setReflectionAnswers(prev => ({ ...prev, [q.id]: v }))}
+        <div className="space-y-4">
+          {hodnotyValues.length > 0 && (
+            <div className="rounded-xl bg-orange-50/60 border border-orange-100 px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/35 mb-1.5">Tvoje hodnoty</p>
+              <div className="flex flex-wrap gap-1.5">
+                {hodnotyValues.slice(0, 7).map((v, i) => (
+                  <span key={v} className={`text-xs px-2 py-0.5 rounded-lg font-medium ${i < 5 ? "bg-orange-100 text-orange-800" : "bg-orange-50 text-orange-600"}`}>
+                    {v}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <SlideCurrentSpider vals={currentVals} onChange={setCurrentVals} />
+        </div>
+      )
+    }
+    if (slide === 1) {
+      return <SlideGoalSpider currentVals={currentVals} goalVals={goalVals} onChange={setGoalVals} />
+    }
+    if (slide === 2) {
+      return (
+        <SlideFocusArea
+          currentVals={currentVals}
+          goalVals={goalVals}
+          focusArea={focusArea}
+          onChange={setFocusArea}
         />
       )
     }
-    if (slide === 6) {
-      return <SlideGoalSpider currentVals={currentVals} goalVals={goalVals} onChange={setGoalVals} />
-    }
-    const areaIdx = slide - 7
-    const area    = improvingAreas[areaIdx]
-    if (!area) return null
     return (
       <SlideArea
-        area={area}
-        current={currentVals[area.key] ?? 5}
-        goal={goalVals[area.key] ?? 5}
-        answers={areaAnswers[area.key] ?? ["", "", ""]}
-        onChange={v => setAreaAnswers(prev => ({ ...prev, [area.key]: v }))}
+        area={focusAreaObj}
+        current={currentVals[focusAreaObj.key] ?? 5}
+        goal={goalVals[focusAreaObj.key] ?? 5}
+        answers={areaAnswers[focusAreaObj.key] ?? ["", "", "", ""]}
+        onChange={(v: string[]) => setAreaAnswers(prev => ({ ...prev, [focusAreaObj.key]: v }))}
       />
     )
-  }
-
-  const slideLabel = () => {
-    if (slide === 0) return "Kdo jsi dnes"
-    if (slide <= 5)  return `Reflexe ${slide}/5`
-    if (slide === 6) return "Kde chceš být"
-    const a = improvingAreas[slide - 7]
-    return a ? a.short : ""
   }
 
   return (
@@ -511,13 +556,13 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
       {/* Progress */}
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs text-foreground/40">{slideLabel()}</span>
-          <span className="text-xs text-foreground/30">{slide + 1} / {totalSlides}</span>
+          <span className="text-xs text-foreground/40">{LABELS[slide]}</span>
+          <span className="text-xs text-foreground/30">{slide + 1} / {TOTAL_SLIDES}</span>
         </div>
         <div className="h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${((slide + 1) / totalSlides) * 100}%`, background: COLOR_ORANGE }}
+            style={{ width: `${((slide + 1) / TOTAL_SLIDES) * 100}%`, background: COLOR_ORANGE }}
           />
         </div>
       </div>
@@ -541,7 +586,7 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
           className="px-6 py-2.5 text-sm rounded-xl text-white font-medium transition-all hover:shadow-md"
           style={{ background: COLOR_ORANGE }}
         >
-          {isLastSlide || (slide === 6 && improvingAreas.length === 0) ? "Dokončit ✓" : "Dál →"}
+          {isLastSlide ? "Dokončit ✓" : "Dál →"}
         </button>
       </div>
     </div>
@@ -604,7 +649,7 @@ function KompasDashboard({ data, onReset }: { data: KompasData; onReset: () => v
       {/* Combined spider */}
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Tvůj kompas</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Kompas</p>
           <div className="flex items-center gap-4 text-[11px] text-foreground/45">
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-1 rounded-full" style={{ background: COLOR_ORANGE }} />
@@ -764,7 +809,7 @@ function KompasDashboard({ data, onReset }: { data: KompasData; onReset: () => v
 
 // ── Hlavní komponenta ────────────────────────────────────────────────────────
 
-export default function KompasFlow() {
+export default function KompasFlow({ onSaved }: { onSaved?: () => void } = {}) {
   const [kompasData, setKompasData] = useState<KompasData | null>(null)
   const [phase, setPhase]           = useState<"loading" | "flow" | "done">("loading")
 
@@ -786,7 +831,8 @@ export default function KompasFlow() {
     try { localStorage.setItem(LS_KEY, JSON.stringify(data)) } catch {}
     setKompasData(data)
     setPhase("done")
-  }, [])
+    onSaved?.()
+  }, [onSaved])
 
   const handleReset = useCallback(() => {
     try { localStorage.removeItem(LS_KEY) } catch {}

@@ -10,6 +10,7 @@ export interface Ritual {
   tip: string;
   categoryId: string;
   categoryColor: string;
+  supportsTags: string[];
 }
 
 export interface Category {
@@ -43,6 +44,7 @@ export const categories: Category[] = [
         tip: "Začni 30 vteřinami na konci sprchy. Nemusíš hned do ledové.",
         categoryId: "body",
         categoryColor: "#1D9E75",
+        supportsTags: ["energie", "zdraví", "fokus"],
       },
       {
         id: "yoga",
@@ -54,6 +56,7 @@ export const categories: Category[] = [
         tip: "Stačí 10 minut. YouTube kanál 'Yoga With Adriene' má skvělé krátké rutiny.",
         categoryId: "body",
         categoryColor: "#1D9E75",
+        supportsTags: ["zdraví", "klid", "spánek"],
       },
       {
         id: "exercise",
@@ -65,6 +68,7 @@ export const categories: Category[] = [
         tip: "Nemusí být gym. Kliky, dřepy, procházka do kopce — cokoliv, co ti zvedne tep.",
         categoryId: "body",
         categoryColor: "#1D9E75",
+        supportsTags: ["energie", "zdraví", "fokus"],
       },
       {
         id: "walk",
@@ -76,6 +80,7 @@ export const categories: Category[] = [
         tip: "Bez sluchátek. Nech mozek bloumat.",
         categoryId: "body",
         categoryColor: "#1D9E75",
+        supportsTags: ["energie", "zdraví", "kreativita"],
       },
       {
         id: "breathing",
@@ -87,6 +92,7 @@ export const categories: Category[] = [
         tip: "Box breathing: 4s nádech, 4s pauza, 4s výdech, 4s pauza. Opakuj 5x.",
         categoryId: "body",
         categoryColor: "#1D9E75",
+        supportsTags: ["klid", "zdraví", "energie"],
       },
     ],
   },
@@ -105,6 +111,7 @@ export const categories: Category[] = [
         tip: "Řízená meditace je snazší než tichá. Appky jako Insight Timer mají české meditace zdarma.",
         categoryId: "mind",
         categoryColor: "#7F77DD",
+        supportsTags: ["klid", "fokus", "spánek"],
       },
       {
         id: "boredom",
@@ -116,6 +123,7 @@ export const categories: Category[] = [
         tip: "Sedni si, nedělej nic, nekoukej na nic, neposlouchej nic. 15 minut. Bude to nepříjemné — to je celý point.",
         categoryId: "mind",
         categoryColor: "#7F77DD",
+        supportsTags: ["kreativita", "klid", "fokus"],
       },
       {
         id: "journaling",
@@ -127,6 +135,7 @@ export const categories: Category[] = [
         tip: "Nemusí být esej. 3 věty o tom, co se dnes stalo a jak ses cítil, stačí.",
         categoryId: "mind",
         categoryColor: "#7F77DD",
+        supportsTags: ["kreativita", "klid", "sebepoznání"],
       },
       {
         id: "gratitude",
@@ -138,6 +147,7 @@ export const categories: Category[] = [
         tip: "Zapiš 3 konkrétní věci. Ne 'rodina' ale 'ten moment, kdy mi syn řekl vtip u večeře'.",
         categoryId: "mind",
         categoryColor: "#7F77DD",
+        supportsTags: ["klid", "sebepoznání", "spánek"],
       },
       {
         id: "reading",
@@ -149,6 +159,7 @@ export const categories: Category[] = [
         tip: "Kindle je OK (e-ink nemá modré světlo). Začni 15 minutami a pomalu přidávej.",
         categoryId: "mind",
         categoryColor: "#7F77DD",
+        supportsTags: ["fokus", "kreativita", "spánek"],
       },
     ],
   },
@@ -167,6 +178,7 @@ export const categories: Category[] = [
         tip: "Prostě odlož telefon, než začneš jíst. Jen to.",
         categoryId: "nutrition",
         categoryColor: "#BA7517",
+        supportsTags: ["zdraví", "klid"],
       },
       {
         id: "neti-pot",
@@ -178,6 +190,7 @@ export const categories: Category[] = [
         tip: "Vlažná voda + sůl. Ráno po sprše, stane se to automatické.",
         categoryId: "nutrition",
         categoryColor: "#BA7517",
+        supportsTags: ["zdraví", "spánek", "energie"],
       },
       {
         id: "screen-curfew",
@@ -189,6 +202,7 @@ export const categories: Category[] = [
         tip: "Nastav si alarm na 22:00 jako 'večerku'. Telefon do jiné místnosti.",
         categoryId: "nutrition",
         categoryColor: "#BA7517",
+        supportsTags: ["spánek", "klid"],
       },
       {
         id: "keto",
@@ -200,6 +214,7 @@ export const categories: Category[] = [
         tip: "Nemusíš jít full keto. Začni tím, že vynecháš cukr a bílé pečivo.",
         categoryId: "nutrition",
         categoryColor: "#BA7517",
+        supportsTags: ["zdraví", "energie", "fokus"],
       },
       {
         id: "hydration",
@@ -211,6 +226,7 @@ export const categories: Category[] = [
         tip: "Sklenice vody hned po probuzení, ještě před kávou.",
         categoryId: "nutrition",
         categoryColor: "#BA7517",
+        supportsTags: ["zdraví", "energie", "fokus"],
       },
     ],
   },
@@ -229,6 +245,7 @@ export const categories: Category[] = [
         tip: "Ráno si řekni: 'Kdybych dneska stihl jen 3 věci, které by to byly?' Zbytek je bonus.",
         categoryId: "structure",
         categoryColor: "#D85A30",
+        supportsTags: ["fokus", "struktura"],
       },
       {
         id: "brain-dump",
@@ -240,6 +257,7 @@ export const categories: Category[] = [
         tip: "Zapiš všechno co ti chodí hlavou. Bez kategorizace, bez priorit. Jen ven z hlavy.",
         categoryId: "structure",
         categoryColor: "#D85A30",
+        supportsTags: ["fokus", "klid", "struktura"],
       },
       {
         id: "pomodoro",
@@ -251,6 +269,7 @@ export const categories: Category[] = [
         tip: "25 min práce, 5 min pauza. Po 4 cyklech delší pauza 15-20 min.",
         categoryId: "structure",
         categoryColor: "#D85A30",
+        supportsTags: ["fokus", "struktura"],
       },
       {
         id: "weekly-review",
@@ -262,6 +281,7 @@ export const categories: Category[] = [
         tip: "Neděle večer, 15 minut. Co fungovalo? Co ne? Co změním?",
         categoryId: "structure",
         categoryColor: "#D85A30",
+        supportsTags: ["sebepoznání", "struktura"],
       },
       {
         id: "tomorrow-prep",
@@ -273,6 +293,7 @@ export const categories: Category[] = [
         tip: "Připrav stránku v journalu pro zítřejší den. Polož oblečení. Víc neřeš.",
         categoryId: "structure",
         categoryColor: "#D85A30",
+        supportsTags: ["struktura", "spánek"],
       },
     ],
   },

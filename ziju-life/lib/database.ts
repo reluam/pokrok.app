@@ -305,6 +305,45 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_laborator_grants_email ON laborator_grants(email)
     `
 
+    // ── Laboratoř: týdenní check-in ────────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS weekly_checkins (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        score SMALLINT NOT NULL CHECK (score BETWEEN 1 AND 10),
+        week_start_date DATE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE (user_id, week_start_date)
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_weekly_checkins_user ON weekly_checkins(user_id, week_start_date DESC)
+    `
+
+    // Extend weekly_checkins with per-value and per-area JSONB scores
+    try { await sql`ALTER TABLE weekly_checkins DROP CONSTRAINT IF EXISTS weekly_checkins_score_check` } catch {}
+    try { await sql`ALTER TABLE weekly_checkins ALTER COLUMN score DROP NOT NULL` } catch {}
+    await sql`ALTER TABLE weekly_checkins ADD COLUMN IF NOT EXISTS value_scores JSONB DEFAULT '{}'::jsonb`
+    await sql`ALTER TABLE weekly_checkins ADD COLUMN IF NOT EXISTS area_scores  JSONB DEFAULT '{}'::jsonb`
+
+    // ── Laboratoř: focus area history ──────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS user_focus_areas (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        area_key VARCHAR(50) NOT NULL,
+        started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        completed_at TIMESTAMP WITH TIME ZONE
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_user_focus_areas_user ON user_focus_areas(user_id, started_at DESC)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

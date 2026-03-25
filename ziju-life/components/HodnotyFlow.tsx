@@ -29,13 +29,15 @@ const ALL_VALUES = [
 type Rating = "strong" | "somewhat" | "no"
 
 export type HodnotyData = {
-  finalValues: string[]
-  savedAt:     string
+  finalValues:      string[]
+  alignmentScores?: Record<string, number>  // 1–10: jak moc teď žiješ podle této hodnoty
+  savedAt:          string
 }
 
 // ── Game component ───────────────────────────────────────────────────────────
 
 function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) {
+  // onComplete → moves to alignment phase
   const [swipeIndex, setSwipeIndex] = useState(0)
   const [cols, setCols] = useState<Record<Rating, string[]>>({ strong: [], somewhat: [], no: [] })
   const [dragVal, setDragVal] = useState<string | null>(null)
@@ -250,6 +252,73 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
   )
 }
 
+// ── Alignment step ───────────────────────────────────────────────────────────
+
+function ValuesAlignment({
+  values,
+  onComplete,
+}: {
+  values: string[]
+  onComplete: (scores: Record<string, number>) => void
+}) {
+  const [scores, setScores] = useState<Record<string, number>>(
+    Object.fromEntries(values.map(v => [v, 5]))
+  )
+
+  const set = (v: string, n: number) => setScores(prev => ({ ...prev, [v]: n }))
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35 mb-1">Žiješ podle svých hodnot?</p>
+        <p className="text-sm text-foreground/55 leading-relaxed">
+          Ohodnoť, jak moc teď opravdu žiješ podle každé ze svých hodnot. Ne jak bys chtěl/a — jak to skutečně je.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {values.map((v, i) => (
+          <div key={v} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] font-bold ${i < 5 ? "text-orange-400" : "text-orange-300"}`}>{i + 1}</span>
+                <span className="text-sm font-semibold text-foreground">{v}</span>
+              </div>
+              <span className="text-sm font-bold" style={{ color: COLOR_ACTIVE }}>{scores[v]}</span>
+            </div>
+            <div className="flex gap-1">
+              {Array.from({ length: 10 }).map((_, n) => {
+                const val = n + 1
+                const active = val <= scores[v]
+                return (
+                  <button
+                    key={val}
+                    onClick={() => set(v, val)}
+                    className="flex-1 h-5 rounded-sm transition-all"
+                    style={{ background: active ? COLOR_ACTIVE : "rgba(0,0,0,0.06)" }}
+                  />
+                )
+              })}
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[10px] text-foreground/30">vůbec ne</span>
+              <span className="text-[10px] text-foreground/30">naprosto ano</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={() => onComplete(scores)}
+        className="w-full py-3 rounded-full text-white font-bold text-sm transition-colors"
+        style={{ background: COLOR_ACTIVE }}
+      >
+        Uložit →
+      </button>
+    </div>
+  )
+}
+
 // ── Result view ──────────────────────────────────────────────────────────────
 
 function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => void }) {
@@ -268,7 +337,7 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
       {/* Header + reset */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Moje hodnoty</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Hodnoty</p>
           <p className="text-sm text-foreground/50 mt-0.5">
             Prvních 5 jsou tvoje klíčové hodnoty — zbytek jsou podpůrné.
           </p>
@@ -289,24 +358,43 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
         )}
       </div>
 
-      {/* Values chips */}
+      {/* Values chips with alignment score */}
       <div className="rounded-2xl bg-white border border-black/[0.08] shadow-sm px-5 py-5">
-        <div className="flex flex-wrap gap-2">
-          {data.finalValues.map((val, i) => (
-            <span
-              key={val}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium ${
-                i < STRONG_PRIMARY
-                  ? "border-2 border-[#FF8C42] bg-orange-50 text-orange-900 shadow-sm"
-                  : "border-2 border-orange-200 bg-orange-50/50 text-orange-800"
-              }`}
-            >
-              <span className={`text-[10px] font-bold ${i < STRONG_PRIMARY ? "text-orange-400" : "text-orange-300"}`}>
-                {i + 1}
-              </span>
-              {val}
-            </span>
-          ))}
+        <div className="space-y-2">
+          {data.finalValues.map((val, i) => {
+            const score = data.alignmentScores?.[val]
+            const isPrimary = i < STRONG_PRIMARY
+            return (
+              <div key={val} className="flex items-center gap-3">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium flex-1 ${
+                    isPrimary
+                      ? "border-2 border-[#FF8C42] bg-orange-50 text-orange-900 shadow-sm"
+                      : "border-2 border-orange-200 bg-orange-50/50 text-orange-800"
+                  }`}
+                >
+                  <span className={`text-[10px] font-bold ${isPrimary ? "text-orange-400" : "text-orange-300"}`}>
+                    {i + 1}
+                  </span>
+                  {val}
+                </span>
+                {score !== undefined && (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 10 }).map((_, n) => (
+                        <div
+                          key={n}
+                          className="w-2 h-2 rounded-sm"
+                          style={{ background: n < score ? COLOR_ACTIVE : "rgba(0,0,0,0.08)" }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs font-bold text-foreground/40">{score}</span>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
 
@@ -336,9 +424,10 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
 
 // ── Hlavní komponenta ────────────────────────────────────────────────────────
 
-export default function HodnotyFlow() {
+export default function HodnotyFlow({ onSaved }: { onSaved?: () => void } = {}) {
   const [hodnotyData, setHodnotyData] = useState<HodnotyData | null>(null)
-  const [phase, setPhase]             = useState<"loading" | "flow" | "done">("loading")
+  const [phase, setPhase]             = useState<"loading" | "flow" | "alignment" | "done">("loading")
+  const [pendingValues, setPendingValues] = useState<string[]>([])
 
   useEffect(() => {
     try {
@@ -354,16 +443,27 @@ export default function HodnotyFlow() {
     }
   }, [])
 
-  const handleComplete = useCallback((values: string[]) => {
-    const data: HodnotyData = { finalValues: values, savedAt: new Date().toISOString() }
+  const handleGameComplete = useCallback((values: string[]) => {
+    setPendingValues(values)
+    setPhase("alignment")
+  }, [])
+
+  const handleAlignmentComplete = useCallback((scores: Record<string, number>) => {
+    const data: HodnotyData = {
+      finalValues: pendingValues,
+      alignmentScores: scores,
+      savedAt: new Date().toISOString(),
+    }
     try { localStorage.setItem(LS_KEY, JSON.stringify(data)) } catch {}
     setHodnotyData(data)
     setPhase("done")
-  }, [])
+    onSaved?.()
+  }, [pendingValues, onSaved])
 
   const handleReset = useCallback(() => {
     try { localStorage.removeItem(LS_KEY) } catch {}
     setHodnotyData(null)
+    setPendingValues([])
     setPhase("flow")
   }, [])
 
@@ -379,8 +479,174 @@ export default function HodnotyFlow() {
     <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5">
       {phase === "done" && hodnotyData
         ? <ValuesResult data={hodnotyData} onReset={handleReset} />
-        : <ValuesGame onComplete={handleComplete} />
+        : phase === "alignment"
+          ? <ValuesAlignment values={pendingValues} onComplete={handleAlignmentComplete} />
+          : <ValuesGame onComplete={handleGameComplete} />
       }
     </div>
   )
+}
+
+// ── PrintHodnotyButton ────────────────────────────────────────────────────────
+
+export function PrintHodnotyButton({
+  data,
+  className,
+}: {
+  data: HodnotyData;
+  className?: string;
+}) {
+  const [generating, setGenerating] = useState(false);
+
+  const handleClick = useCallback(async () => {
+    setGenerating(true);
+    try {
+      const { default: jsPDF } = await import("jspdf");
+
+      async function toBase64(url: string): Promise<string> {
+        const buf = await fetch(url).then((r) => r.arrayBuffer());
+        const bytes = new Uint8Array(buf);
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary);
+      }
+      const [fontRegular, fontBold] = await Promise.all([
+        toBase64("/fonts/Roboto-Regular.ttf"),
+        toBase64("/fonts/Roboto-Bold.ttf"),
+      ]);
+
+      const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+      doc.addFileToVFS("Roboto-Regular.ttf", fontRegular);
+      doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+      doc.addFileToVFS("Roboto-Bold.ttf", fontBold);
+      doc.addFont("Roboto-Bold.ttf", "Roboto", "bold");
+
+      const pageW = 210;
+      const margin = 16;
+      const col = pageW - margin * 2;
+      let y = margin;
+
+      // ── Header ──
+      doc.setFillColor(23, 23, 23);
+      doc.roundedRect(margin, y, col, 22, 4, 4, "F");
+
+      doc.setFont("Roboto", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor(255, 255, 255);
+      doc.text("Moje hodnoty", margin + 8, y + 9);
+
+      doc.setFont("Roboto", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(180, 170, 160);
+      const savedDate = data.savedAt ? new Date(data.savedAt).toLocaleDateString("cs-CZ") : "";
+      doc.text(`žiju.life · ${savedDate}`, margin + 8, y + 16);
+      y += 30;
+
+      const top5 = data.finalValues.slice(0, STRONG_PRIMARY);
+      const rest = data.finalValues.slice(STRONG_PRIMARY);
+
+      // ── Top 5 section ──
+      doc.setFont("Roboto", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(255, 140, 66);
+      doc.text("KLÍČOVÉ HODNOTY", margin, y);
+      y += 5;
+
+      // Two-column grid for top 5
+      const colW = (col - 4) / 2;
+      top5.forEach((v, i) => {
+        const col2 = i % 2;
+        const x = margin + col2 * (colW + 4);
+        const score = data.alignmentScores?.[v];
+
+        doc.setFillColor(255, 247, 240);
+        doc.setDrawColor(255, 140, 66);
+        doc.roundedRect(x, y, colW, score !== undefined ? 16 : 12, 3, 3, "FD");
+
+        doc.setFont("Roboto", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(30, 30, 30);
+        doc.text(v, x + 5, y + 6);
+
+        if (score !== undefined) {
+          // Tiny bar
+          const barW = colW - 10;
+          doc.setFillColor(230, 220, 210);
+          doc.roundedRect(x + 5, y + 9, barW, 2.5, 1, 1, "F");
+          doc.setFillColor(255, 140, 66);
+          doc.roundedRect(x + 5, y + 9, barW * (score / 10), 2.5, 1, 1, "F");
+          doc.setFont("Roboto", "normal");
+          doc.setFontSize(6.5);
+          doc.setTextColor(180, 120, 60);
+          doc.text(`${score}/10`, x + colW - 5, y + 11, { align: "right" });
+        }
+
+        if (col2 === 1 || i === top5.length - 1) y += (score !== undefined ? 20 : 16);
+      });
+
+      y += 6;
+
+      // ── Rest of values ──
+      if (rest.length > 0) {
+        doc.setFont("Roboto", "bold");
+        doc.setFontSize(7);
+        doc.setTextColor(120, 120, 120);
+        doc.text("DALŠÍ DŮLEŽITÉ HODNOTY", margin, y);
+        y += 5;
+
+        const tagW = (col - 4) / 3;
+        rest.forEach((v, i) => {
+          const col3 = i % 3;
+          const x = margin + col3 * (tagW + 2);
+          const score = data.alignmentScores?.[v];
+
+          doc.setFillColor(250, 250, 248);
+          doc.setDrawColor(210, 210, 205);
+          doc.roundedRect(x, y, tagW, score !== undefined ? 14 : 10, 2, 2, "FD");
+
+          doc.setFont("Roboto", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(80, 80, 80);
+          const label = v.length > 14 ? v.slice(0, 14) + "…" : v;
+          doc.text(label, x + 4, y + 5);
+
+          if (score !== undefined) {
+            const barW = tagW - 8;
+            doc.setFillColor(220, 215, 210);
+            doc.roundedRect(x + 4, y + 8, barW, 2, 1, 1, "F");
+            doc.setFillColor(180, 160, 140);
+            doc.roundedRect(x + 4, y + 8, barW * (score / 10), 2, 1, 1, "F");
+          }
+
+          if (col3 === 2 || i === rest.length - 1) y += (score !== undefined ? 18 : 14);
+        });
+      }
+
+      y += 8;
+
+      // ── Footer ──
+      doc.setDrawColor(220, 215, 210);
+      doc.line(margin, y, pageW - margin, y);
+      y += 5;
+      doc.setFont("Roboto", "normal");
+      doc.setFontSize(7);
+      doc.setTextColor(170, 165, 155);
+      doc.text("Víš, co je pro tebe důležité. Teď žij podle toho.", margin, y);
+      doc.text("žiju.life/laborator", pageW - margin, y, { align: "right" });
+
+      doc.save("hodnoty.pdf");
+    } finally {
+      setGenerating(false);
+    }
+  }, [data]);
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={generating}
+      className={className ?? "inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-sm font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors disabled:opacity-50"}
+    >
+      {generating ? "Generuji…" : "Vytisknout"}
+    </button>
+  );
 }

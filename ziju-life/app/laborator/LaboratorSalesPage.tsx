@@ -6,47 +6,47 @@ import { Suspense } from "react";
 
 const tools = [
   {
-    id: "nastav-si-den",
-    name: "Nastav si den",
-    desc: "Sestav si vlastní systém rituálů — ranní, denní, večerní. Každý návyk má za sebou neurovědu. Ty si vybereš jen to, co sedí tobě.",
-    href: "/nastav-si-den",
-    available: true,
-    tag: "ADHD & fokus",
-  },
-  {
     id: "tvuj-kompas",
-    name: "Tvůj kompas",
-    desc: "Ohodnoť svůj život. Nastav si priority. Zjisti, co tě brzdí. Průvodce, který tě dotlačí k odpovědím, které už dávno znáš.",
+    name: "Kompas",
+    desc: "Sedm kroků od 'kde jsem' po 'kam chci jít'. Zmapuješ svou situaci, pojmenuješ co tě brzdí a sestavíš si plán. Na konci máš v ruce vlastní dokument — tvůj kompas pro rozhodování.",
     href: "/laborator/tvuj-kompas",
     available: true,
-    tag: "Smysl & směr",
+    tag: "Smysl & hodnoty",
   },
   {
     id: "moje-hodnoty",
-    name: "Moje hodnoty",
-    desc: "Projdi 56 hodnot a seřaď je podle toho, co skutečně rezonuje — ne co by mělo. Hodnoty jsou tvůj filtr pro každé rozhodnutí.",
-    href: "/laborator/dashboard?tab=moje-hodnoty",
+    name: "Hodnoty",
+    desc: "Projdi si 56 hodnot a najdi ty svoje — ne ty, co by měly být, ale ty, co opravdu rezonují. Když víš, na čem ti záleží, rozhodování se stává jednodušším.",
+    href: "/laborator",
     available: true,
     tag: "Identita & rozhodování",
+  },
+  {
+    id: "nastav-si-den",
+    name: "Tvůj den",
+    desc: "Sestav si strukturu dne, která ti dává energii místo toho, aby ti ji brala. Ranní, denní, večerní rituály — vybereš si jen to, co sedí tobě.",
+    href: "/laborator/dashboard?tab=nastav-si-den",
+    available: true,
+    tag: "Energie & návyky",
   },
 ];
 
 const faqs = [
   {
     q: "Co je Laboratoř?",
-    a: "Placená sekce žiju life. Sbírka interaktivních nástrojů pro lidi, kteří si chtějí přestat lhát o tom, jak žijí — a začít s tím něco dělat. Žádné motivační citáty. Žádné obecné rady. Jen věci, které fungují.",
+    a: "Sada interaktivních nástrojů a cvičení, které ti pomůžou poskládat si vlastní návod na život. Žádné přednášky, žádné čtení — procházíš cvičeními sám, ve svém tempu.",
   },
   {
     q: "Pro koho to je?",
-    a: "Pro tebe, pokud tě přestalo bavit číst o změně života a chceš ji konečně udělat. Funguje s ADHD i bez něj. Jediná podmínka je ochota experimentovat a přiznat si, co reálně funguje.",
+    a: "Pro tebe, pokud: vyzkoušel/a jsi pár cest, ale žádná nebyla tvoje. Víš, kam chceš dojít, ale ta mezera mezi vizí a realitou tě ochromuje. Nebo máš pocit, že ostatní to zvládají přirozeně — jen ty ne.",
   },
   {
     q: "Co dostanu?",
-    a: "Přístup ke všem nástrojům v Laboratoři — teď i do budoucna. Nové věci přibývají průběžně. Všechno je v ceně jednoho předplatného.",
+    a: "Přístup ke všem nástrojům v Laboratoři — teď i do budoucna. Každý nástroj tě provede konkrétním tématem (směr, hodnoty, návyky) a na konci máš jasný výstup, se kterým můžeš pracovat dál.",
   },
   {
     q: "Můžu předplatné zrušit?",
-    a: "Ano. Přes Stripe zákaznický portál, jedním klikem, kdykoliv. Žádné podmínky, žádné výpovědní lhůty.",
+    a: "Ano, kdykoliv. Přes Stripe zákaznický portál jedním klikem. Žádné podmínky, žádné výpovědní lhůty.",
   },
 ];
 
@@ -214,9 +214,10 @@ function LaboratorContent() {
           Laboratoř
         </h1>
         <p className="text-lg text-foreground/65 leading-relaxed mb-10 max-w-xl mx-auto">
-          Tady nepřemlouváš sám sebe k lepšímu životu. Tady si ho stavíš.
-          Interaktivní nástroje postavené na tom, jak mozek skutečně funguje —
-          ne na tom, jak bychom chtěli, aby fungoval.
+          Místo, kde si vytvoříš vlastní návod na život. Cizí knížky a
+          frameworky ti nefungují, protože nikdo jiný neví, co je důležité pro
+          tebe. Tady experimentuješ sám se sebou — a skládáš si systém, který
+          sedí tobě. Dílek po dílku.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <AccessButton loading={buying} onClick={handleBuy} />
@@ -237,7 +238,7 @@ function LaboratorContent() {
 
       {/* Nástroje */}
       <section className="max-w-3xl mx-auto px-5 pb-20">
-        <h2 className="text-xl font-bold mb-6">Co teď uvnitř najdeš</h2>
+        <h2 className="text-xl font-bold mb-6">Co teď v Laboratoři najdeš</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {tools.map((t) => (
             <div
@@ -266,8 +267,7 @@ function LaboratorContent() {
           ))}
         </div>
         <p className="text-xs text-foreground/35 mt-4 text-center">
-          Nové nástroje přibývají průběžně. Všechny jsou součástí jednoho
-          předplatného.
+          Další nástroje průběžně přibývají — všechny v ceně předplatného.
         </p>
       </section>
 

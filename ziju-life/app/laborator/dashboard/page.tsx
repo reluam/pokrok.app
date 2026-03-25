@@ -4,9 +4,8 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ritualsById, SLOT_LABELS } from "@/data/adhdRituals";
-import { type JourneyState } from "@/components/JourneyFlow";
 import KompasFlow, { type KompasData } from "@/components/KompasFlow";
-import HodnotyFlow, { type HodnotyData } from "@/components/HodnotyFlow";
+import HodnotyFlow, { PrintHodnotyButton, type HodnotyData } from "@/components/HodnotyFlow";
 import NastavSiDenWizard, { DownloadPDFButton, type RitualSelection as WizardSelection } from "@/components/NastavSiDenWizard";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -25,6 +24,12 @@ const WHEEL_AREAS = [
 const LS_KEY = "nastav-si-den-selection";
 
 type RitualSelection = { morning: string[]; daily: string[]; evening: string[]; durationOverrides?: Record<string, number> };
+type CheckinEntry = {
+  score: number | null;
+  week_start_date: string;
+  value_scores?: Record<string, number>;
+  area_scores?: Record<string, number>;
+};
 
 const CUSTOM_PREFIX = "custom::";
 const isCustom = (id: string) => id.startsWith(CUSTOM_PREFIX);
@@ -37,212 +42,26 @@ function getRitual(id: string, overrides?: Record<string, number>): { id: string
   return { id, name: r?.name ?? id, duration_min: overrides?.[id] ?? base };
 }
 
-// ── Tips ───────────────────────────────────────────────────────────────────────
+// ── Tip helpers ────────────────────────────────────────────────────────────────
 
-interface Tip {
-  emoji: string;
-  title: string;
-  body: string;
-}
-
-const KOMPAS_TIPS: Record<string, Tip> = {
-  zdravi: {
-    emoji: "💪",
-    title: "Zdraví je základ všeho",
-    body: "Spánek, pohyb a hydratace ovlivňují každou jinou oblast. I malé změny mají velký dopad — zkus přidat jeden zdravotní rituál.",
-  },
-  finance: {
-    emoji: "💰",
-    title: "Malý finanční rituál, velký efekt",
-    body: "Finanční stres je jeden z největších zdrojů chronického stresu. 5 minut týdně na přehled výdajů dává pocit kontroly a snižuje úzkost.",
-  },
-  pratele: {
-    emoji: "👥",
-    title: "Vztahy jako vědomý rituál",
-    body: "Sociální kontakt je silný prediktor dlouhodobé spokojenosti. Krátká zpráva nebo 15minutový hovor s přítelem může být vědomou součástí dne.",
-  },
-  rodina: {
-    emoji: "🏠",
-    title: "Kvalita, ne kvantita",
-    body: "15 minut opravdového kontaktu bez telefonu má větší váhu než hodiny v jedné místnosti. Přítomnost je rituál.",
-  },
-  smysl: {
-    emoji: "🧭",
-    title: "Smysl se buduje každý den",
-    body: "Smysl se nenajde — vytváří se opakovanými rozhodnutími. Hodnoty z Tvého kompasu ti mohou být filtrem při výběru rituálů i priorit.",
-  },
-  rozvoj: {
-    emoji: "📚",
-    title: "10 minut = 60 hodin ročně",
-    body: "Malý rituál čtení nebo podcastu denně aktivuje systém odměn a buduje identitu člověka, který roste. Konzistence beats množství.",
-  },
-  kariera: {
-    emoji: "🎯",
-    title: "Jedna priorita před vším",
-    body: "Nejproduktivnější lidé začínají den jedním nejdůležitějším úkolem (MIT). Zkus ho přidat jako první ranní rituál.",
-  },
-  volny: {
-    emoji: "🎮",
-    title: "Odpočinek je součást výkonu",
-    body: "Vědomý odpočinek — aktivity, které tě opravdu dobíjejí — snižuje burn-out a zvyšuje kreativitu. Není to ztráta času.",
-  },
-};
-
-const GENERAL_TIPS: Tip[] = [
-  {
-    emoji: "📅",
-    title: "66 dní, ne 21",
-    body: "Nový návyk se utváří průměrně 66 dní. Buď trpělivý — první dva týdny jsou nejtěžší, pak se automatizace prudce zrychlí.",
-  },
-  {
-    emoji: "🔗",
-    title: "Návyky na sebe navazuj",
-    body: "Nový rituál se nejsnáze buduje hned po zavedené rutině. 'Po kávě si zapíšu 3 priority' funguje lépe než 'každý den ráno'.",
-  },
-  {
-    emoji: "✅",
-    title: "Identita > cíle",
-    body: "'Jsem někdo, kdo se každý den hýbe' funguje dlouhodobě lépe než 'chci cvičit'. Rituály budují identitu — a ta mění chování bez vůle.",
-  },
-  {
-    emoji: "🧠",
-    title: "Pohyb buduje mozek",
-    body: "Pohyb zvyšuje BDNF — protein podporující růst nových neuronů. Efekt na soustředění trvá 2–4 hodiny po cvičení.",
-  },
-];
-
-function getDashboardTips(
-  ritualSelection: RitualSelection | null,
-  journeyData: JourneyState | null
-): Tip[] {
-  const tips: Tip[] = [];
-
-  const morning = ritualSelection?.morning ?? [];
-  const daily = ritualSelection?.daily ?? [];
-  const evening = ritualSelection?.evening ?? [];
-  const total = morning.length + daily.length + evening.length;
-
-  // Ritual-based tips
-  if (total === 0) {
-    tips.push({
-      emoji: "🌱",
-      title: "Začni s jediným rituálem",
-      body: "Výběr jednoho rituálu a jeho opakování 30 dní má větší efekt než plán deseti. Přejdi na 'Nastav si den' a vyber svůj první krok.",
-    });
-  }
-
-  if (total > 0 && morning.length === 0) {
-    tips.push({
-      emoji: "🌅",
-      title: "Ranní rituál chybí",
-      body: "Prvních 90 minut po probuzení nastavuje tón celého dne. I 5minutový ranní rituál snižuje kortizol a pomáhá mozku přejít do soustředěného módu.",
-    });
-  }
-
-  if (total > 0 && evening.length === 0) {
-    tips.push({
-      emoji: "🌙",
-      title: "Zavři den vědomě",
-      body: "Bez večerního rituálu mozek nedostane signál k přepnutí. Krátká rutina před spaním zlepšuje kvalitu spánku a přípravu na další den.",
-    });
-  }
-
-  if (total >= 9) {
-    tips.push({
-      emoji: "⚖️",
-      title: "Méně je více",
-      body: "Hodně rituálů zvyšuje riziko, že při jednom špatném dni vzdáš vše. Zkus vybrat 4–6 nejdůležitějších a soustřeď se na ně.",
-    });
-  }
-
-  // Kompas-based tips (lowest areas first)
-  const wheelVals = journeyData?.wheelVals ?? {};
-  const lowAreas = Object.entries(wheelVals)
-    .filter(([, v]) => v < 5)
-    .sort(([, a], [, b]) => a - b)
-    .slice(0, 2);
-
-  for (const [area] of lowAreas) {
-    if (KOMPAS_TIPS[area]) tips.push(KOMPAS_TIPS[area]);
-  }
-
-  // Fill to 3 with general tips
-  for (const tip of GENERAL_TIPS) {
-    if (tips.length >= 3) break;
-    tips.push(tip);
-  }
-
-  return tips.slice(0, 3);
-}
+interface Tip { emoji: string; title: string; body: string; }
 
 function getRitualTip(selection: RitualSelection): Tip | null {
-  const all = [...selection.morning, ...selection.daily, ...selection.evening];
-  const total = all.length;
-
-  if (total === 0) return null;
-
   const hasMorning = selection.morning.length > 0;
   const hasEvening = selection.evening.length > 0;
-
-  if (hasMorning && hasEvening) {
-    return {
-      emoji: "🔥",
-      title: "Kompletní systém — výborně",
-      body: "Máš pokrytý začátek i konec dne. Teď je nejdůležitější konzistence — 80 % dnů je výhra. Nepotřebuješ dokonalost, potřebuješ opakování.",
-    };
-  }
-  if (!hasMorning) {
-    return {
-      emoji: "🌅",
-      title: "Přidej ranní rituál",
-      body: "Ranní rutina nastartuje nervovou soustavu ještě před prvním stresem dne. Stačí 5–10 minut — pohyb, voda nebo ticho.",
-    };
-  }
-  if (!hasEvening) {
-    return {
-      emoji: "🌙",
-      title: "Večerní rituál dokončí smyčku",
-      body: "Ranní rituál otevírá den, večerní ho zavírá. Mozek potřebuje jasný signál k přepnutí — jinak přenáší pracovní stres do spánku.",
-    };
-  }
+  if (hasMorning && hasEvening) return {
+    emoji: "🔥", title: "Kompletní systém — výborně",
+    body: "Máš pokrytý začátek i konec dne. Teď je nejdůležitější konzistence — 80 % dnů je výhra.",
+  };
+  if (!hasMorning) return {
+    emoji: "🌅", title: "Přidej ranní rituál",
+    body: "Ranní rutina nastartuje nervovou soustavu ještě před prvním stresem dne. Stačí 5–10 minut.",
+  };
+  if (!hasEvening) return {
+    emoji: "🌙", title: "Večerní rituál dokončí smyčku",
+    body: "Ranní rituál otevírá den, večerní ho zavírá. Mozek potřebuje jasný signál k přepnutí.",
+  };
   return null;
-}
-
-function getKompasTip(journeyData: JourneyState): Tip | null {
-  const wheelVals = journeyData.wheelVals ?? {};
-  const lowest = Object.entries(wheelVals)
-    .filter(([, v]) => v < 5)
-    .sort(([, a], [, b]) => a - b)[0];
-
-  if (!lowest) {
-    return {
-      emoji: "⭐",
-      title: "Spokojený přehled",
-      body: "Ve všech oblastech se hodnotíš nad 5 — to je dobrý základ. Kompas ti ukáže, kam zaměřit energii, aby byl posun viditelný.",
-    };
-  }
-
-  return KOMPAS_TIPS[lowest[0]] ?? null;
-}
-
-// ── Tip components ─────────────────────────────────────────────────────────────
-
-function TipsGrid({ tips }: { tips: Tip[] }) {
-  if (tips.length === 0) return null;
-  return (
-    <div className="space-y-3">
-      <h2 className="font-bold text-lg text-foreground">Tipy pro tebe</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {tips.map((tip, i) => (
-          <div key={i} className="paper-card rounded-[20px] px-5 py-5 space-y-2">
-            <p className="text-2xl">{tip.emoji}</p>
-            <p className="font-bold text-sm text-foreground">{tip.title}</p>
-            <p className="text-sm text-foreground/60 leading-relaxed">{tip.body}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function InlineTip({ tip }: { tip: Tip }) {
@@ -259,57 +78,38 @@ function InlineTip({ tip }: { tip: Tip }) {
 
 // ── SpiderChart ────────────────────────────────────────────────────────────────
 
-function SpiderChart({ vals, size = 220 }: { vals: Record<string, number>; size?: number }) {
+function SpiderChart({ vals, goalVals, size = 220 }: { vals: Record<string, number>; goalVals?: Record<string, number>; size?: number }) {
   const C = size / 2;
   const R = C - 44;
   const N = WHEEL_AREAS.length;
-
   const pt = (i: number, v: number): [number, number] => {
     const a = (2 * Math.PI * i) / N - Math.PI / 2;
     const r = (v / 10) * R;
     return [C + r * Math.cos(a), C + r * Math.sin(a)];
   };
-
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
       {[2, 4, 6, 8, 10].map((v) => (
-        <polygon
-          key={v}
-          points={WHEEL_AREAS.map((_, i) => pt(i, v).join(",")).join(" ")}
-          fill="none"
-          stroke="rgba(0,0,0,0.07)"
-          strokeWidth="0.5"
-        />
+        <polygon key={v} points={WHEEL_AREAS.map((_, i) => pt(i, v).join(",")).join(" ")}
+          fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="0.5" />
       ))}
       {WHEEL_AREAS.map((_, i) => {
         const [x, y] = pt(i, 10);
-        return (
-          <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="rgba(0,0,0,0.08)" strokeWidth="0.5" />
-        );
+        return <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="rgba(0,0,0,0.08)" strokeWidth="0.5" />;
       })}
-      <polygon
-        points={WHEEL_AREAS.map((a, i) => pt(i, vals[a.key] ?? 5).join(",")).join(" ")}
-        fill="rgba(255,140,66,0.12)"
-        stroke="#FF8C42"
-        strokeWidth="1.5"
-      />
+      {goalVals && (
+        <polygon points={WHEEL_AREAS.map((a, i) => pt(i, goalVals[a.key] ?? 5).join(",")).join(" ")}
+          fill="rgba(78,205,196,0.07)" stroke="#4ECDC4" strokeWidth="1" strokeDasharray="3 2" />
+      )}
+      <polygon points={WHEEL_AREAS.map((a, i) => pt(i, vals[a.key] ?? 5).join(",")).join(" ")}
+        fill="rgba(255,140,66,0.12)" stroke="#FF8C42" strokeWidth="1.5" />
       {WHEEL_AREAS.map((a, i) => {
         const ang = (2 * Math.PI * i) / N - Math.PI / 2;
         const lx = C + (R + 28) * Math.cos(ang);
         const ly = C + (R + 28) * Math.sin(ang);
         return (
-          <text
-            key={a.key}
-            x={lx}
-            y={ly}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fontSize="9.5"
-            fill="#888"
-            fontFamily="system-ui"
-          >
-            {a.short}
-          </text>
+          <text key={a.key} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+            fontSize="9.5" fill="#888" fontFamily="system-ui">{a.short}</text>
         );
       })}
       {WHEEL_AREAS.map((a, i) => {
@@ -320,18 +120,54 @@ function SpiderChart({ vals, size = 220 }: { vals: Record<string, number>; size?
   );
 }
 
+// ── Sparkline ──────────────────────────────────────────────────────────────────
+
+function Sparkline({ checkins }: { checkins: CheckinEntry[] }) {
+  if (checkins.length < 2) return null;
+  const W = 240;
+  const H = 56;
+  const PAD = 6;
+  const w = W - PAD * 2;
+  const h = H - PAD * 2;
+  const scores = checkins.map((c) => c.score).filter((s): s is number => s !== null);
+  if (scores.length < 2) return null;
+  const xStep = w / Math.max(scores.length - 1, 1);
+  const yScale = (s: number) => PAD + h - ((s - 1) / 9) * h;
+  const pts = scores.map((s, i) => `${PAD + i * xStep},${yScale(s)}`).join(" ");
+  const last = scores[scores.length - 1];
+  const lx = PAD + (scores.length - 1) * xStep;
+  const ly = yScale(last);
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
+      {/* grid lines at 1, 5, 10 */}
+      {[1, 5, 10].map((v) => (
+        <line key={v} x1={PAD} y1={yScale(v)} x2={W - PAD} y2={yScale(v)}
+          stroke="rgba(0,0,0,0.06)" strokeWidth="1" />
+      ))}
+      <polyline points={pts} fill="none" stroke="#FF8C42" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {scores.map((s, i) => (
+        <circle key={i} cx={PAD + i * xStep} cy={yScale(s)} r="2.5"
+          fill={i === scores.length - 1 ? "#FF8C42" : "white"}
+          stroke="#FF8C42" strokeWidth="1.5" />
+      ))}
+      {/* last score label */}
+      <text x={lx + 6} y={ly + 1} fontSize="10" fill="#FF8C42" fontWeight="700" dominantBaseline="middle">
+        {last}
+      </text>
+    </svg>
+  );
+}
+
 // ── RitualSlotCard ─────────────────────────────────────────────────────────────
 
 const SLOT_EMOJI: Record<string, string> = { morning: "🌅", daily: "☀️", evening: "🌙" };
 
-function RitualSlotCard({
-  slot,
-  ids,
-  overrides,
-}: {
+function RitualSlotCard({ slot, ids, overrides, showTags }: {
   slot: "morning" | "daily" | "evening";
   ids: string[];
   overrides?: Record<string, number>;
+  showTags?: boolean;
 }) {
   const rituals = ids.map((id) => getRitual(id, overrides));
   const totalMin = rituals.reduce((s, r) => s + r.duration_min, 0);
@@ -354,16 +190,30 @@ function RitualSlotCard({
         </p>
         {totalMin > 0 && <p className="text-white/60 text-xs">{totalMin} min</p>}
       </div>
-      <ul className="px-4 py-3 space-y-2">
-        {rituals.map((r) => (
-          <li key={r.id} className="flex items-center gap-2 text-sm">
-            <span className="w-4 h-4 rounded border border-foreground/20 shrink-0" />
-            <span className="text-foreground/80">{r.name}</span>
-            {r.duration_min > 0 && (
-              <span className="ml-auto text-foreground/40 text-xs shrink-0">{r.duration_min} min</span>
-            )}
-          </li>
-        ))}
+      <ul className="px-4 py-3 space-y-2.5">
+        {rituals.map((r) => {
+          const tags = !isCustom(r.id) ? (ritualsById[r.id]?.supportsTags ?? []) : [];
+          return (
+            <li key={r.id} className="flex flex-col gap-1">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="w-4 h-4 rounded border border-foreground/20 shrink-0" />
+                <span className="text-foreground/80">{r.name}</span>
+                {r.duration_min > 0 && (
+                  <span className="ml-auto text-foreground/40 text-xs shrink-0">{r.duration_min} min</span>
+                )}
+              </div>
+              {showTags && tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 ml-6">
+                  {tags.map((tag) => (
+                    <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-accent/8 text-accent/70 rounded-full font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -371,23 +221,11 @@ function RitualSlotCard({
 
 // ── EmptyCta ───────────────────────────────────────────────────────────────────
 
-function EmptyCta({
-  emoji,
-  title,
-  description,
-  buttonLabel,
-  onClick,
-  href,
-}: {
-  emoji: string;
-  title: string;
-  description: string;
-  buttonLabel: string;
-  onClick?: () => void;
-  href?: string;
+function EmptyCta({ emoji, title, description, buttonLabel, onClick, href }: {
+  emoji: string; title: string; description: string;
+  buttonLabel: string; onClick?: () => void; href?: string;
 }) {
-  const buttonClass =
-    "inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-full font-semibold text-sm hover:bg-accent-hover transition-colors";
+  const cls = "inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-full font-semibold text-sm hover:bg-accent-hover transition-colors";
   return (
     <div className="paper-card rounded-[24px] px-6 py-8 text-center space-y-3">
       <p className="text-4xl">{emoji}</p>
@@ -395,15 +233,418 @@ function EmptyCta({
         <p className="font-bold text-foreground">{title}</p>
         <p className="text-sm text-foreground/55 mt-1">{description}</p>
       </div>
-      {href ? (
-        <Link href={href} className={buttonClass}>
-          {buttonLabel}
-        </Link>
-      ) : (
-        <button onClick={onClick} className={buttonClass}>
-          {buttonLabel}
-        </button>
+      {href ? <Link href={href} className={cls}>{buttonLabel}</Link>
+        : <button onClick={onClick} className={cls}>{buttonLabel}</button>}
+    </div>
+  );
+}
+
+// ── ScoreBar: compact 1–10 button row ─────────────────────────────────────────
+
+function ScoreBar({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  const [hovered, setHovered] = useState<number | null>(null);
+  return (
+    <div className="flex gap-1">
+      {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
+        const fill = hovered !== null ? n <= hovered : n <= value;
+        return (
+          <button
+            key={n}
+            onMouseEnter={() => setHovered(n)}
+            onMouseLeave={() => setHovered(null)}
+            onClick={() => onChange(n)}
+            className={`flex-1 h-7 rounded text-[11px] font-bold transition-all ${
+              fill ? "bg-accent text-white" : "bg-foreground/6 text-foreground/35 hover:bg-accent/15 hover:text-accent"
+            }`}
+          >
+            {n}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── InteractiveSpider: click on axis to set score ─────────────────────────────
+
+function InteractiveSpider({
+  vals,
+  prevVals,
+  onChange,
+  size = 260,
+}: {
+  vals: Record<string, number>;
+  prevVals?: Record<string, number>;
+  onChange?: (key: string, score: number) => void;
+  size?: number;
+}) {
+  const C = size / 2;
+  const R = C - 48;
+  const N = WHEEL_AREAS.length;
+
+  const pt = (i: number, v: number): [number, number] => {
+    const a = (2 * Math.PI * i) / N - Math.PI / 2;
+    const r = (v / 10) * R;
+    return [C + r * Math.cos(a), C + r * Math.sin(a)];
+  };
+
+  function handleClick(e: React.MouseEvent<SVGSVGElement>) {
+    if (!onChange) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left - C;
+    const y = e.clientY - rect.top - C;
+
+    // Find closest axis by angle
+    const clickAngle = Math.atan2(y, x);
+    let closest = 0;
+    let minDiff = Infinity;
+    WHEEL_AREAS.forEach((_, i) => {
+      const axisAngle = (2 * Math.PI * i) / N - Math.PI / 2;
+      let diff = Math.abs(clickAngle - axisAngle);
+      if (diff > Math.PI) diff = 2 * Math.PI - diff;
+      if (diff < minDiff) { minDiff = diff; closest = i; }
+    });
+
+    const dist = Math.sqrt(x * x + y * y);
+    const score = Math.min(10, Math.max(1, Math.round((dist / R) * 10)));
+    onChange(WHEEL_AREAS[closest].key, score);
+  }
+
+  return (
+    <svg
+      width={size} height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      onClick={handleClick}
+      className={onChange ? "cursor-pointer" : undefined}
+    >
+      {[2, 4, 6, 8, 10].map((v) => (
+        <polygon key={v}
+          points={WHEEL_AREAS.map((_, i) => pt(i, v).join(",")).join(" ")}
+          fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="0.5" />
+      ))}
+      {WHEEL_AREAS.map((_, i) => {
+        const [x, y] = pt(i, 10);
+        return <line key={i} x1={C} y1={C} x2={x} y2={y} stroke="rgba(0,0,0,0.08)" strokeWidth="0.5" />;
+      })}
+      {prevVals && (
+        <polygon
+          points={WHEEL_AREAS.map((a, i) => pt(i, prevVals[a.key] ?? 5).join(",")).join(" ")}
+          fill="rgba(0,0,0,0.04)" stroke="rgba(0,0,0,0.18)" strokeWidth="1" strokeDasharray="3 2" />
       )}
+      <polygon
+        points={WHEEL_AREAS.map((a, i) => pt(i, vals[a.key] ?? 5).join(",")).join(" ")}
+        fill="rgba(255,140,66,0.13)" stroke="#FF8C42" strokeWidth="1.5" />
+      {WHEEL_AREAS.map((a, i) => {
+        const [x, y] = pt(i, vals[a.key] ?? 5);
+        const ang = (2 * Math.PI * i) / N - Math.PI / 2;
+        const lx = C + (R + 30) * Math.cos(ang);
+        const ly = C + (R + 30) * Math.sin(ang);
+        const score = vals[a.key] ?? 5;
+        return (
+          <g key={a.key}>
+            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+              fontSize="9" fill="#888" fontFamily="system-ui">{a.short}</text>
+            <circle cx={x} cy={y} r="4" fill="#FF8C42" />
+            <text x={x} y={y - 8} textAnchor="middle" dominantBaseline="middle"
+              fontSize="9" fontWeight="700" fill="#FF8C42" fontFamily="system-ui">{score}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ── AreaSparklines: small trend per area ───────────────────────────────────────
+
+function AreaSparklines({ checkins }: { checkins: CheckinEntry[] }) {
+  const withAreas = checkins.filter((c) => c.area_scores && Object.keys(c.area_scores).length > 0);
+  if (withAreas.length < 2) return null;
+
+  return (
+    <div>
+      <p className="text-xs text-foreground/40 mb-3">Vývoj oblastí (posledních {withAreas.length} týdnů)</p>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        {WHEEL_AREAS.map((area) => {
+          const scores = withAreas.map((c) => c.area_scores?.[area.key] ?? 5);
+          const W = 80; const H = 28; const PAD = 2;
+          const w = W - PAD * 2; const h = H - PAD * 2;
+          const xStep = w / Math.max(scores.length - 1, 1);
+          const yScale = (s: number) => PAD + h - ((s - 1) / 9) * h;
+          const pts = scores.map((s, i) => `${PAD + i * xStep},${yScale(s)}`).join(" ");
+          const last = scores[scores.length - 1];
+          const prev = scores[scores.length - 2];
+          const delta = last - prev;
+
+          return (
+            <div key={area.key} className="flex items-center gap-2">
+              <div className="w-14 text-[10px] text-foreground/50 font-medium truncate">{area.short}</div>
+              <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="shrink-0">
+                <polyline points={pts} fill="none" stroke="#FF8C42" strokeWidth="1.5"
+                  strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
+                <circle cx={PAD + (scores.length - 1) * xStep} cy={yScale(last)} r="2.5" fill="#FF8C42" />
+              </svg>
+              <div className="flex items-baseline gap-0.5">
+                <span className="text-xs font-bold text-foreground/70">{last}</span>
+                {delta !== 0 && (
+                  <span className={`text-[10px] font-semibold ${delta > 0 ? "text-green-500" : "text-red-400"}`}>
+                    {delta > 0 ? `+${delta}` : delta}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── WeeklyCheckinWidget ────────────────────────────────────────────────────────
+
+type CheckinStep = "values" | "areas";
+
+function WeeklyCheckinWidget({
+  checkins,
+  thisWeekDone,
+  hodnotyData,
+  onSave,
+}: {
+  checkins: CheckinEntry[];
+  thisWeekDone: boolean;
+  hodnotyData: HodnotyData | null;
+  onSave: (data: { valueScores: Record<string, number>; areaScores: Record<string, number> }) => Promise<void>;
+}) {
+  const [step, setStep] = useState<CheckinStep>("values");
+  const [valueScores, setValueScores] = useState<Record<string, number>>(() =>
+    Object.fromEntries((hodnotyData?.finalValues ?? []).map((v) => [v, 5]))
+  );
+  const [areaScores, setAreaScores] = useState<Record<string, number>>(
+    () => Object.fromEntries(WHEEL_AREAS.map((a) => [a.key, 5]))
+  );
+  const [saving, setSaving] = useState(false);
+
+  const values = hodnotyData?.finalValues ?? [];
+  const prevCheckin = checkins.length >= 2 ? checkins[checkins.length - 2] : null;
+  const lastCheckin = checkins[checkins.length - 1];
+
+  // ── Done state: show results ──
+  if (thisWeekDone && lastCheckin) {
+    const aS = lastCheckin.area_scores ?? {};
+    const vS = lastCheckin.value_scores ?? {};
+    return (
+      <div className="space-y-6">
+        <p className="text-xs text-foreground/40">Tento týden vyplněno ✓</p>
+
+        {/* Values scores */}
+        {Object.keys(vS).length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wider">Hodnoty</p>
+            {Object.entries(vS).map(([v, s]) => (
+              <div key={v} className="flex items-center gap-2">
+                <span className="text-xs text-foreground/60 w-24 truncate">{v}</span>
+                <div className="flex-1 bg-black/5 rounded-full h-1.5 overflow-hidden">
+                  <div className="h-full rounded-full bg-accent" style={{ width: `${s * 10}%` }} />
+                </div>
+                <span className="text-xs font-bold text-accent w-4 text-right">{s}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Areas spider */}
+        {Object.keys(aS).length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wider">
+              Oblasti{prevCheckin?.area_scores ? " — plná čára = tento týden, přerušovaná = minulý" : ""}
+            </p>
+            <div className="flex justify-center">
+              <InteractiveSpider vals={aS} prevVals={prevCheckin?.area_scores ?? undefined} size={240} />
+            </div>
+          </div>
+        )}
+
+        <AreaSparklines checkins={checkins} />
+      </div>
+    );
+  }
+
+  // ── Step: values ──
+  if (step === "values") {
+    return (
+      <div className="space-y-5">
+        <div>
+          <p className="font-semibold text-foreground">Hodnoty — jak jsi je žil/a tento týden?</p>
+          <p className="text-xs text-foreground/45 mt-0.5">
+            {values.length > 0 ? "Ohodnoť každou hodnotu 1–10." : "Nejdřív si ulož svoje hodnoty v záložce Hodnoty."}
+          </p>
+        </div>
+
+        {values.length > 0 ? (
+          <div className="space-y-3">
+            {values.map((v) => (
+              <div key={v} className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground/70">{v}</span>
+                  <span className="text-xs font-bold text-accent">{valueScores[v] ?? 5}</span>
+                </div>
+                <ScoreBar
+                  value={valueScores[v] ?? 5}
+                  onChange={(n) => setValueScores((p) => ({ ...p, [v]: n }))}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {WHEEL_AREAS.slice(0, 4).map((a) => (
+              <div key={a.key} className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground/70">{a.short}</span>
+                  <span className="text-xs font-bold text-accent">{areaScores[a.key] ?? 5}</span>
+                </div>
+                <ScoreBar
+                  value={areaScores[a.key] ?? 5}
+                  onChange={(n) => setAreaScores((p) => ({ ...p, [a.key]: n }))}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={() => setStep("areas")}
+          className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors"
+        >
+          Dál — oblasti →
+        </button>
+      </div>
+    );
+  }
+
+  // ── Step: areas ──
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="font-semibold text-foreground">Oblasti — jak se ti dařilo tento týden?</p>
+        <p className="text-xs text-foreground/45 mt-0.5">Klikni na pavouka — každá osa = oblast, vzdálenost od středu = skóre 1–10.</p>
+      </div>
+
+      <div className="flex justify-center">
+        <InteractiveSpider
+          vals={areaScores}
+          prevVals={prevCheckin?.area_scores ?? undefined}
+          onChange={(key, score) => setAreaScores((p) => ({ ...p, [key]: score }))}
+          size={260}
+        />
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => setStep("values")}
+          className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+        >
+          ← Zpět
+        </button>
+        <button
+          onClick={async () => {
+            setSaving(true);
+            await onSave({ valueScores, areaScores });
+            setSaving(false);
+          }}
+          disabled={saving}
+          className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-60"
+        >
+          {saving ? "Ukládám…" : "Uložit check-in ✓"}
+        </button>
+      </div>
+
+      {checkins.length >= 2 && <AreaSparklines checkins={checkins} />}
+    </div>
+  );
+}
+
+// ── MonthlyReflexion card ──────────────────────────────────────────────────────
+
+const LS_REFLEXION_KEY = "mozaika-reflexion-dismissed";
+
+function MonthlyReflexionCard({
+  kompasData,
+  onContinue,
+  onChangeArea,
+}: {
+  kompasData: KompasData;
+  onContinue: () => void;
+  onChangeArea: () => void;
+}) {
+  const focusLabel = WHEEL_AREAS.find((a) => a.key === kompasData.focusArea)?.short ?? kompasData.focusArea;
+
+  // Answers user wrote for this area
+  const areaAnswers = kompasData.areaAnswers?.[kompasData.focusArea ?? ""] ?? [];
+
+  return (
+    <div className="paper-card rounded-[28px] px-6 py-6 border border-accent/20 bg-orange-50/20 space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold text-accent uppercase tracking-widest mb-1">Měsíční reflexe</p>
+          <p className="font-bold text-foreground text-lg leading-snug">
+            Podívej se na svou mozaiku. Posunul/a ses?
+          </p>
+        </div>
+        <span className="text-3xl">🔍</span>
+      </div>
+
+      {kompasData.focusArea && (
+        <div className="px-4 py-3 rounded-2xl bg-white/70 border border-black/5 space-y-2">
+          <p className="text-xs text-foreground/50 font-semibold uppercase tracking-wider">Tvoje focus oblast</p>
+          <p className="font-bold text-foreground">{focusLabel}</p>
+          {areaAnswers.filter(Boolean).map((ans, i) => (
+            <p key={i} className="text-sm text-foreground/60 leading-relaxed">„{ans}"</p>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row gap-2 pt-1">
+        <button
+          onClick={onContinue}
+          className="flex-1 py-2.5 px-4 bg-accent text-white rounded-full font-semibold text-sm hover:bg-accent-hover transition-colors"
+        >
+          Pokračuji v této oblasti →
+        </button>
+        <button
+          onClick={onChangeArea}
+          className="flex-1 py-2.5 px-4 border border-foreground/15 text-foreground/70 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+        >
+          Chci změnit oblast
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── DashboardSection wrapper ───────────────────────────────────────────────────
+
+function DashboardSection({ title, isFirst, hasData, onEdit, children }: {
+  title: string; isFirst?: boolean;
+  hasData: boolean; onEdit: () => void; children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <h2 className="font-bold text-base text-foreground">{title}</h2>
+          {isFirst && !hasData && (
+            <span className="text-[11px] font-bold text-accent px-2 py-0.5 bg-accent/10 rounded-full">
+              Začni tady
+            </span>
+          )}
+        </div>
+        {hasData && (
+          <button onClick={onEdit} className="text-xs text-accent font-semibold hover:underline shrink-0">
+            Upravit →
+          </button>
+        )}
+      </div>
+      {children}
     </div>
   );
 }
@@ -411,142 +652,195 @@ function EmptyCta({
 // ── PrehledTab ─────────────────────────────────────────────────────────────────
 
 function PrehledTab({
-  journeyData,
   ritualSelection,
   kompasData,
   hodnotyData,
+  checkins,
+  checkinLoaded,
+  thisWeekDone,
   onTabChange,
+  onCheckinSave,
 }: {
-  journeyData: JourneyState | null;
   ritualSelection: RitualSelection | null;
   kompasData: KompasData | null;
   hodnotyData: HodnotyData | null;
+  checkins: CheckinEntry[];
+  checkinLoaded: boolean;
+  thisWeekDone: boolean;
   onTabChange: (tab: string) => void;
+  onCheckinSave: (data: { valueScores: Record<string, number>; areaScores: Record<string, number> }) => Promise<void>;
 }) {
-  const hasRituals = (ritualSelection?.morning.length ?? 0) +
-    (ritualSelection?.daily.length ?? 0) +
-    (ritualSelection?.evening.length ?? 0) > 0;
-  const hasKompas  = !!kompasData;
+  const hasRituals = (ritualSelection?.morning.length ?? 0) + (ritualSelection?.daily.length ?? 0) + (ritualSelection?.evening.length ?? 0) > 0;
+  const hasKompas = !!kompasData;
   const hasHodnoty = (hodnotyData?.finalValues?.length ?? 0) > 0;
 
-  const tips = getDashboardTips(ritualSelection, journeyData);
+  const focusAreaLabel = kompasData?.focusArea
+    ? WHEEL_AREAS.find((a) => a.key === kompasData.focusArea)?.short ?? kompasData.focusArea
+    : null;
+
+  // Monthly reflexion
+  const [showReflexion, setShowReflexion] = useState(false);
+  useEffect(() => {
+    if (!kompasData?.completedAt || !kompasData.focusArea) return;
+    const daysSince = (Date.now() - new Date(kompasData.completedAt).getTime()) / 86400000;
+    if (daysSince < 30) return;
+    try {
+      const d = localStorage.getItem(LS_REFLEXION_KEY);
+      if (d && (Date.now() - new Date(d).getTime()) / 86400000 < 30) return;
+    } catch {}
+    setShowReflexion(true);
+  }, [kompasData]);
+
+  function dismissReflexion() {
+    try { localStorage.setItem(LS_REFLEXION_KEY, new Date().toISOString()); } catch {}
+    setShowReflexion(false);
+  }
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
 
-        {/* Left: Denní rituály */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold text-lg text-foreground">Denní rituály</h2>
-            {hasRituals && (
-              <button onClick={() => onTabChange("nastav-si-den")}
-                className="text-xs text-accent font-semibold hover:underline">
-                Zobrazit vše →
-              </button>
+      {/* Monthly reflexion banner */}
+      {showReflexion && kompasData && (
+        <MonthlyReflexionCard
+          kompasData={kompasData}
+          onContinue={dismissReflexion}
+          onChangeArea={() => { dismissReflexion(); onTabChange("tvuj-kompas"); }}
+        />
+      )}
+
+      {/* Two-column dashboard grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+        {/* ── Left column: Hodnoty + Kompas ── */}
+        <div className="space-y-6">
+
+          {/* Hodnoty */}
+          <DashboardSection title="Hodnoty" isFirst hasData={hasHodnoty} onEdit={() => onTabChange("moje-hodnoty")}>
+            {hasHodnoty ? (
+              <div className="paper-card rounded-[24px] px-5 py-5 space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  {hodnotyData!.finalValues.map((v, i) => {
+                    const score = hodnotyData!.alignmentScores?.[v];
+                    return (
+                      <div key={i} className="flex flex-col gap-1">
+                        <span className={`px-3 py-1.5 rounded-xl text-sm font-medium border ${
+                          i < 5 ? "border-[#FF8C42] bg-orange-50 text-orange-900" : "border-black/10 text-foreground/50"
+                        }`}>{v}</span>
+                        {score !== undefined && (
+                          <div className="flex items-center gap-1 px-0.5">
+                            <div className="flex-1 bg-black/5 rounded-full h-1 overflow-hidden">
+                              <div className="h-full rounded-full" style={{ width: `${score * 10}%`, background: i < 5 ? "#FF8C42" : "#ccc" }} />
+                            </div>
+                            <span className="text-[10px] text-foreground/35 w-6 text-right">{score}/10</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {hodnotyData!.alignmentScores && (
+                  <p className="text-xs text-foreground/40">Číslo pod každou hodnotou = jak moc podle ní žiješ teď.</p>
+                )}
+              </div>
+            ) : (
+              <EmptyCta emoji="💎" title="Najdi svoje hodnoty"
+                description="Projdi 56 hodnot a zjisti, co je pro tebe skutečně důležité — ne co by mělo být."
+                buttonLabel="Spustit průvodce →" onClick={() => onTabChange("moje-hodnoty")} />
             )}
-          </div>
-          {hasRituals ? (
-            <div className="space-y-3">
-              {(["morning", "daily", "evening"] as const).map((slot) => (
-                <RitualSlotCard key={slot} slot={slot} ids={ritualSelection![slot]} overrides={ritualSelection?.durationOverrides} />
-              ))}
-            </div>
-          ) : (
-            <EmptyCta emoji="🗓️" title="Nastav si den"
-              description="Sestav si vlastní denní rutinu z rituálů s vědeckým základem."
-              buttonLabel="Spustit průvodce →" onClick={() => onTabChange("nastav-si-den")} />
-          )}
+          </DashboardSection>
+
+          {/* Kompas */}
+          <DashboardSection title="Kompas" hasData={hasKompas} onEdit={() => onTabChange("tvuj-kompas")}>
+            {hasKompas ? (
+              <div className="paper-card rounded-[24px] px-5 py-5 space-y-4">
+                <div className="flex items-center justify-center">
+                  <SpiderChart vals={kompasData!.currentVals} goalVals={kompasData!.goalVals} size={200} />
+                </div>
+                {focusAreaLabel && (
+                  <div className="px-4 py-3 rounded-2xl bg-accent/8 border border-accent/20">
+                    <p className="text-xs font-bold text-accent/70 uppercase tracking-wider mb-0.5">Oblast k rozvoji</p>
+                    <p className="font-bold text-foreground">{focusAreaLabel}</p>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-1.5">
+                  {WHEEL_AREAS.map((a) => {
+                    const cur = kompasData!.currentVals[a.key] ?? 5;
+                    const goal = kompasData!.goalVals[a.key] ?? 5;
+                    const diff = goal - cur;
+                    const isFocus = kompasData!.focusArea === a.key;
+                    return (
+                      <div key={a.key} className={`flex items-center gap-1.5 ${isFocus ? "opacity-100" : "opacity-60"}`}>
+                        <div className="flex-1 bg-black/5 rounded-full h-1.5 overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${cur * 10}%`, background: isFocus ? "#FF8C42" : "#ccc" }} />
+                        </div>
+                        <span className={`text-[10px] w-12 truncate ${isFocus ? "text-foreground/70 font-semibold" : "text-foreground/40"}`}>{a.short}</span>
+                        <span className="text-xs font-bold w-3 text-right" style={{ color: isFocus ? "#FF8C42" : "#bbb" }}>{cur}</span>
+                        {diff > 0 && <span className="text-[10px] font-semibold w-5" style={{ color: "#4ECDC4" }}>+{diff}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {!hasHodnoty && (
+                  <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200">
+                    <span className="text-amber-500 mt-0.5">💡</span>
+                    <p className="text-sm text-amber-800">
+                      <strong>Tip:</strong> Projdi nejdřív Hodnoty — zobrazí se jako kontext při vyplňování Kompasu.
+                    </p>
+                  </div>
+                )}
+                <EmptyCta emoji="🧭" title="Zmapuj svůj život"
+                  description="Ohodnoť, kde se teď nacházíš, a nastav si, kam chceš jít. Na konci víš, na co se zaměřit."
+                  buttonLabel="Spustit průvodce →" onClick={() => onTabChange("tvuj-kompas")} />
+              </div>
+            )}
+          </DashboardSection>
+
         </div>
 
-        {/* Right: Kompas + Hodnoty */}
-        <div className="space-y-4">
+        {/* ── Right column: Rituály + Check-in ── */}
+        <div className="space-y-6">
 
-          {/* Tvůj kompas */}
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold text-lg text-foreground">Tvůj kompas</h2>
-            {hasKompas && (
-              <button onClick={() => onTabChange("tvuj-kompas")}
-                className="text-xs text-accent font-semibold hover:underline">
-                Zobrazit vše →
-              </button>
-            )}
-          </div>
-
-          {hasKompas ? (
-            <div className="paper-card rounded-[24px] px-5 py-5">
-              <div className="flex items-center justify-center">
-                <SpiderChart vals={kompasData!.currentVals} size={220} />
-              </div>
-              <div className="grid grid-cols-2 gap-1.5 mt-3">
-                {WHEEL_AREAS.map((a) => {
-                  const cur  = kompasData!.currentVals[a.key] ?? 5;
-                  const goal = kompasData!.goalVals[a.key] ?? 5;
-                  const diff = goal - cur;
-                  return (
-                    <div key={a.key} className="flex items-center gap-1.5">
-                      <div className="flex-1 bg-black/5 rounded-full h-1.5 overflow-hidden">
-                        <div className="h-full rounded-full"
-                          style={{ width: `${cur * 10}%`, background: "#FF8C42" }} />
-                      </div>
-                      <span className="text-[10px] text-foreground/40 w-12 truncate">{a.short}</span>
-                      <span className="text-xs font-bold w-3 text-right" style={{ color: "#FF8C42" }}>{cur}</span>
-                      {diff > 0 && (
-                        <span className="text-[10px] font-semibold w-5" style={{ color: "#378ADD" }}>+{diff}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <EmptyCta emoji="🧭" title="Tvůj kompas"
-              description="Ohodnoť svůj život, nastav si priority a zjisti, co tě brzdí."
-              buttonLabel="Spustit průvodce →" onClick={() => onTabChange("tvuj-kompas")} />
-          )}
-
-          {/* Moje hodnoty */}
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold text-lg text-foreground">Moje hodnoty</h2>
-            {hasHodnoty && (
-              <button onClick={() => onTabChange("moje-hodnoty")}
-                className="text-xs text-accent font-semibold hover:underline">
-                Zobrazit vše →
-              </button>
-            )}
-          </div>
-
-          {hasHodnoty ? (
-            <div className="paper-card rounded-[24px] px-5 py-5">
-              <div className="flex flex-wrap gap-2">
-                {hodnotyData!.finalValues.map((v, i) => (
-                  <span key={i} className={`px-3 py-1.5 rounded-xl text-sm font-medium border ${
-                    i < 5 ? "border-[#FF8C42] bg-orange-50 text-orange-900" : "border-black/10 text-foreground/50"
-                  }`}>{v}</span>
+          {/* Rituály */}
+          <DashboardSection title="Tvůj den" hasData={hasRituals} onEdit={() => onTabChange("nastav-si-den")}>
+            {hasRituals ? (
+              <div className="space-y-3">
+                {(["morning", "daily", "evening"] as const).map((slot) => (
+                  <RitualSlotCard key={slot} slot={slot}
+                    ids={ritualSelection![slot]} overrides={ritualSelection?.durationOverrides} showTags />
                 ))}
               </div>
-            </div>
-          ) : (
-            <EmptyCta emoji="💎" title="Moje hodnoty"
-              description="Projdi 56 hodnot a zjisti, co je pro tebe skutečně důležité."
-              buttonLabel="Spustit průvodce →" onClick={() => onTabChange("moje-hodnoty")} />
-          )}
-        </div>
+            ) : (
+              <EmptyCta emoji="🗓️" title="Sestav si denní systém"
+                description="Vyber rituály, které ti dají energii — ranní, denní i večerní. Vědecky podložené, přizpůsobené tobě."
+                buttonLabel="Spustit průvodce →" onClick={() => onTabChange("nastav-si-den")} />
+            )}
+          </DashboardSection>
 
+          {/* Týdenní check-in */}
+          <DashboardSection title="Týdenní check-in" hasData={false} onEdit={() => {}}>
+            <div className="paper-card rounded-[24px] px-5 py-5">
+              {!checkinLoaded ? (
+                <div className="h-16 flex items-center">
+                  <div className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <WeeklyCheckinWidget checkins={checkins} thisWeekDone={thisWeekDone} hodnotyData={hodnotyData} onSave={onCheckinSave} />
+              )}
+            </div>
+          </DashboardSection>
+
+        </div>
       </div>
-      <TipsGrid tips={tips} />
     </div>
   );
 }
 
 // ── NastavSiDenTab ─────────────────────────────────────────────────────────────
 
-function NastavSiDenTab({
-  selection,
-  onSave,
-  onComplete,
-  onReset,
-}: {
+function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
   selection: RitualSelection | null;
   onSave: (sel: WizardSelection) => void;
   onComplete: (sel: WizardSelection) => void;
@@ -556,51 +850,104 @@ function NastavSiDenTab({
     ? selection.morning.length + selection.daily.length + selection.evening.length
     : 0;
 
-  // No data yet — run the wizard inline
   if (!selection || totalRituals === 0) {
     return <NastavSiDenWizard onSave={onSave} onComplete={onComplete} />;
   }
 
-  // Has data — show results
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-foreground">Tvůj denní systém</h2>
-          <p className="text-sm text-foreground/55 mt-0.5">{totalRituals} rituálů</p>
-        </div>
-        <button
-          onClick={onReset}
-          className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors whitespace-nowrap pt-0.5"
-        >
-          Vyplnit průvodce znovu
-        </button>
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Tvůj denní systém</h2>
+        <p className="text-sm text-foreground/55 mt-0.5">{totalRituals} rituálů</p>
       </div>
-
       <div className="space-y-4">
         {(["morning", "daily", "evening"] as const).map((slot) => (
           <RitualSlotCard key={slot} slot={slot} ids={selection[slot]} overrides={selection.durationOverrides} />
         ))}
       </div>
-
-      {getRitualTip(selection) && (
-        <InlineTip tip={getRitualTip(selection)!} />
-      )}
-
-      <div className="border-t border-black/5 pt-4 flex items-center justify-between">
-        <p className="text-xs text-foreground/30 italic">
-          Dnes nemusí být dokonalý den. Stačí, že je lepší než včera.
-        </p>
-        <DownloadPDFButton selection={selection} />
-      </div>
+      {getRitualTip(selection) && <InlineTip tip={getRitualTip(selection)!} />}
+      <p className="text-xs text-foreground/30 italic border-t border-black/5 pt-4">
+        Dnes nemusí být dokonalý den. Stačí, že je lepší než včera.
+      </p>
     </div>
   );
 }
 
-// ── TvujKompasTab ──────────────────────────────────────────────────────────────
+// ── ToolTopBar ─────────────────────────────────────────────────────────────────
 
-function TvujKompasTab() {
-  return <KompasFlow />;
+function ToolTopBar({ onReset, printNode }: {
+  onReset: () => void;
+  printNode?: React.ReactNode;
+}) {
+  const [confirming, setConfirming] = useState(false);
+
+  const btnBase = "inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-semibold transition-colors bg-white/70";
+
+  return (
+    <div className="flex items-center justify-end gap-2 mb-5">
+      {printNode}
+      {confirming ? (
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-foreground/50">Opravdu smazat vše?</span>
+          <button
+            onClick={() => { setConfirming(false); onReset(); }}
+            className="px-3 py-1.5 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition-colors"
+          >
+            Ano, smazat
+          </button>
+          <button
+            onClick={() => setConfirming(false)}
+            className={`${btnBase} border-foreground/15 text-foreground/50 hover:border-foreground/25`}
+          >
+            Zrušit
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setConfirming(true)}
+          className={`${btnBase} border-foreground/15 text-foreground/50 hover:border-red-200 hover:text-red-500`}
+        >
+          Resetovat a začít znovu
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ── CompletionScreen ───────────────────────────────────────────────────────────
+
+function CompletionScreen({ emoji, title, summary, onGoPrehled, onEdit }: {
+  emoji: string;
+  title: string;
+  summary: React.ReactNode;
+  onGoPrehled: () => void;
+  onEdit: () => void;
+}) {
+  return (
+    <div className="max-w-lg mx-auto text-center space-y-6 py-8">
+      <div className="text-6xl">{emoji}</div>
+      <div className="space-y-2">
+        <h2 className="text-2xl font-extrabold text-foreground">{title}</h2>
+      </div>
+      <div className="paper-card rounded-[24px] px-6 py-5 text-left">
+        {summary}
+      </div>
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <button
+          onClick={onGoPrehled}
+          className="px-7 py-3 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors shadow-md"
+        >
+          Pokračovat na přehled →
+        </button>
+        <button
+          onClick={onEdit}
+          className="px-7 py-3 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+        >
+          Upravit odpovědi
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ── DashboardContent ───────────────────────────────────────────────────────────
@@ -610,12 +957,17 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const [checked, setChecked] = useState(false);
   const [email, setEmail] = useState("");
-  const [journeyData, setJourneyData] = useState<JourneyState | null>(null);
-  const [purchaseId, setPurchaseId] = useState("");
   const [ritualSelection, setRitualSelection] = useState<RitualSelection | null>(null);
   const [kompasData, setKompasData] = useState<KompasData | null>(null);
   const [hodnotyData, setHodnotyData] = useState<HodnotyData | null>(null);
-  const [journeyLoading, setJourneyLoading] = useState(true);
+
+  // Check-in state
+  const [checkins, setCheckins] = useState<CheckinEntry[]>([]);
+  const [thisWeekDone, setThisWeekDone] = useState(false);
+  const [checkinLoaded, setCheckinLoaded] = useState(false);
+
+  // Completion screen state: null | "hodnoty" | "kompas" | "nastav-si-den"
+  const [justCompleted, setJustCompleted] = useState<string | null>(null);
 
   const activeTab = searchParams.get("tab") ?? "prehled";
 
@@ -624,9 +976,7 @@ function DashboardContent() {
     fetch("/api/laborator/check")
       .then((r) => r.json())
       .then((d) => {
-        if (!d.valid) {
-          router.replace("/laborator");
-        } else {
+        if (!d.valid) { router.replace("/laborator"); } else {
           setEmail(d.email ?? "");
           setChecked(true);
         }
@@ -634,53 +984,41 @@ function DashboardContent() {
       .catch(() => router.replace("/laborator"));
   }, [router]);
 
-  // Load journey data
+  // Load localStorage
   useEffect(() => {
     if (!checked) return;
-    setJourneyLoading(true);
-    fetch("/api/laborator/journey")
+    try { const s = localStorage.getItem(LS_KEY); if (s) setRitualSelection(JSON.parse(s)); } catch {}
+    try { const k = localStorage.getItem("kompas-data"); if (k) setKompasData(JSON.parse(k)); } catch {}
+    try { const h = localStorage.getItem("hodnoty-data"); if (h) setHodnotyData(JSON.parse(h)); } catch {}
+  }, [checked]);
+
+  // Load check-ins
+  useEffect(() => {
+    if (!checked) return;
+    fetch("/api/laborator/checkin")
       .then((r) => r.json())
       .then((d) => {
-        setJourneyData((d.data as JourneyState) ?? null);
-        setPurchaseId(d.purchaseId ?? "");
+        setCheckins(d.checkins ?? []);
+        setThisWeekDone(d.thisWeekDone ?? false);
       })
-      .catch(console.error)
-      .finally(() => setJourneyLoading(false));
+      .catch(() => {})
+      .finally(() => setCheckinLoaded(true));
   }, [checked]);
 
-  // Load nastav-si-den, kompas, hodnoty from localStorage
-  useEffect(() => {
-    if (!checked) return;
-    try {
-      const saved = localStorage.getItem(LS_KEY);
-      if (saved) setRitualSelection(JSON.parse(saved));
-    } catch {}
-    try {
-      const k = localStorage.getItem("kompas-data");
-      if (k) setKompasData(JSON.parse(k));
-    } catch {}
-    try {
-      const h = localStorage.getItem("hodnoty-data");
-      if (h) setHodnotyData(JSON.parse(h));
-    } catch {}
-  }, [checked]);
-
-  const goToTab = useCallback(
-    (tab: string) => {
-      const query = tab !== "prehled" ? `?tab=${tab}` : "";
-      router.push(`/laborator/dashboard${query}`, { scroll: false });
-    },
-    [router]
-  );
+  const goToTab = useCallback((tab: string) => {
+    setJustCompleted(null);
+    const query = tab !== "prehled" ? `?tab=${tab}` : "";
+    router.push(`/laborator/dashboard${query}`, { scroll: false });
+  }, [router]);
 
   const handleWizardSave = useCallback((sel: WizardSelection) => {
     try { localStorage.setItem(LS_KEY, JSON.stringify(sel)); } catch {}
-    // don't update state yet — wizard stays open until "Přejít do laboratoře"
   }, []);
 
   const handleWizardComplete = useCallback((sel: WizardSelection) => {
     try { localStorage.setItem(LS_KEY, JSON.stringify(sel)); } catch {}
     setRitualSelection(sel);
+    setJustCompleted("nastav-si-den");
   }, []);
 
   const handleRitualReset = useCallback(() => {
@@ -688,12 +1026,60 @@ function DashboardContent() {
     setRitualSelection(null);
   }, []);
 
+  const handleKompasSaved = useCallback(() => {
+    try { const k = localStorage.getItem("kompas-data"); if (k) setKompasData(JSON.parse(k)); } catch {}
+    setJustCompleted("kompas");
+  }, []);
+
+  const handleHodnotySaved = useCallback(() => {
+    try { const h = localStorage.getItem("hodnoty-data"); if (h) setHodnotyData(JSON.parse(h)); } catch {}
+    setJustCompleted("hodnoty");
+  }, []);
+
+  const handleKompasReset = useCallback(() => {
+    try { localStorage.removeItem("kompas-data"); } catch {}
+    setKompasData(null);
+    setJustCompleted(null);
+  }, []);
+
+  const handleHodnotyReset = useCallback(() => {
+    try { localStorage.removeItem("hodnoty-data"); } catch {}
+    setHodnotyData(null);
+    setJustCompleted(null);
+  }, []);
+
+  const handleCheckinSave = useCallback(async (
+    { valueScores, areaScores }: { valueScores: Record<string, number>; areaScores: Record<string, number> }
+  ) => {
+    try {
+      const res = await fetch("/api/laborator/checkin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ valueScores, areaScores }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const week = data.week;
+        setCheckins((prev) => {
+          const filtered = prev.filter((c) => !c.week_start_date.startsWith(week));
+          return [...filtered, { score: data.avgScore ?? null, week_start_date: week, value_scores: valueScores, area_scores: areaScores }];
+        });
+        setThisWeekDone(true);
+      }
+    } catch {}
+  }, []);
+
+  // 4.1: Tab progress badges
+  const hasRituals = (ritualSelection?.morning.length ?? 0) + (ritualSelection?.daily.length ?? 0) + (ritualSelection?.evening.length ?? 0) > 0;
+  const hasKompas = !!kompasData;
+  const hasHodnoty = (hodnotyData?.finalValues?.length ?? 0) > 0;
+
   const tabs = [
     { id: "prehled",       label: "Přehled",       emoji: "📊" },
-    { id: "nastav-si-den", label: "Nastav si den",  emoji: "🗓️" },
-    { id: "tvuj-kompas",   label: "Tvůj kompas",    emoji: "🧭" },
-    { id: "moje-hodnoty",  label: "Moje hodnoty",   emoji: "💎" },
-  ];
+    { id: "moje-hodnoty",  label: "Hodnoty",   emoji: "💎",  done: hasHodnoty },
+    { id: "tvuj-kompas",   label: "Kompas",    emoji: "🧭",  done: hasKompas },
+    { id: "nastav-si-den", label: "Tvůj den",  emoji: "🗓️", done: hasRituals },
+  ] as { id: string; label: string; emoji: string; done?: boolean }[];
 
   if (!checked) {
     return (
@@ -703,19 +1089,179 @@ function DashboardContent() {
     );
   }
 
+  // Completion screen (4.3)
+  function renderCompletionOrTool() {
+    // Completion screen — shown after finishing a tool in its tab
+    if (justCompleted === "hodnoty" && activeTab === "moje-hodnoty" && hodnotyData) {
+      return (
+        <CompletionScreen
+          emoji="💎"
+          title="Hodnoty uloženy!"
+          summary={
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-foreground/60">Tvoje top 5 hodnot:</p>
+              <div className="flex flex-wrap gap-2">
+                {hodnotyData.finalValues.slice(0, 5).map((v, i) => (
+                  <span key={i} className="px-3 py-1.5 rounded-xl text-sm font-medium border border-[#FF8C42] bg-orange-50 text-orange-900">{v}</span>
+                ))}
+              </div>
+              {hodnotyData.alignmentScores && (
+                <p className="text-xs text-foreground/45 mt-2">Přidal/a jsi i skóre souladu — uvidíš je v Mozaice pod každou hodnotou.</p>
+              )}
+            </div>
+          }
+          onGoPrehled={() => goToTab("prehled")}
+          onEdit={() => setJustCompleted(null)}
+        />
+      );
+    }
+
+    if (justCompleted === "kompas" && activeTab === "tvuj-kompas" && kompasData) {
+      const focusLabel = kompasData.focusArea
+        ? WHEEL_AREAS.find((a) => a.key === kompasData.focusArea)?.short ?? kompasData.focusArea
+        : null;
+      return (
+        <CompletionScreen
+          emoji="🧭"
+          title="Kompas uložen!"
+          summary={
+            <div className="space-y-3">
+              {focusLabel && (
+                <div className="px-4 py-3 rounded-2xl bg-accent/8 border border-accent/20">
+                  <p className="text-xs font-bold text-accent/70 uppercase tracking-wider mb-0.5">Oblast k rozvoji</p>
+                  <p className="font-bold text-foreground">{focusLabel}</p>
+                </div>
+              )}
+              <p className="text-xs text-foreground/45">
+                Aktuální vs. cílové hodnoty a fokus oblast jsou teď viditelné v Mozaice.
+              </p>
+            </div>
+          }
+          onGoPrehled={() => goToTab("prehled")}
+          onEdit={() => setJustCompleted(null)}
+        />
+      );
+    }
+
+    if (justCompleted === "nastav-si-den" && activeTab === "nastav-si-den" && ritualSelection) {
+      const total = ritualSelection.morning.length + ritualSelection.daily.length + ritualSelection.evening.length;
+      return (
+        <CompletionScreen
+          emoji="🗓️"
+          title="Denní systém uložen!"
+          summary={
+            <div className="space-y-2">
+              <p className="text-sm text-foreground/60">{total} rituálů ve tvém systému:</p>
+              {(["morning", "daily", "evening"] as const).map((slot) => (
+                ritualSelection[slot].length > 0 && (
+                  <p key={slot} className="text-sm font-medium text-foreground/70">
+                    {SLOT_EMOJI[slot as keyof typeof SLOT_EMOJI]} {SLOT_LABELS[slot as keyof typeof SLOT_LABELS]}:{" "}
+                    <span className="text-foreground/50 font-normal">
+                      {ritualSelection[slot].map((id) => getRitual(id).name).join(", ")}
+                    </span>
+                  </p>
+                )
+              ))}
+            </div>
+          }
+          onGoPrehled={() => goToTab("prehled")}
+          onEdit={() => setJustCompleted(null)}
+        />
+      );
+    }
+
+    // Normal tab content
+    if (activeTab === "prehled") {
+      return (
+        <PrehledTab
+          ritualSelection={ritualSelection}
+          kompasData={kompasData}
+          hodnotyData={hodnotyData}
+          checkins={checkins}
+          checkinLoaded={checkinLoaded}
+          thisWeekDone={thisWeekDone}
+          onTabChange={goToTab}
+          onCheckinSave={handleCheckinSave}
+        />
+      );
+    }
+
+    if (activeTab === "nastav-si-den") {
+      const hasDenData = (ritualSelection?.morning.length ?? 0) + (ritualSelection?.daily.length ?? 0) + (ritualSelection?.evening.length ?? 0) > 0;
+      return (
+        <div>
+          {hasDenData && (
+            <ToolTopBar
+              onReset={handleRitualReset}
+              printNode={
+                <DownloadPDFButton
+                  selection={ritualSelection!}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-sm font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors"
+                />
+              }
+            />
+          )}
+          <NastavSiDenTab
+            selection={ritualSelection}
+            onSave={handleWizardSave}
+            onComplete={handleWizardComplete}
+            onReset={handleRitualReset}
+          />
+        </div>
+      );
+    }
+
+    if (activeTab === "tvuj-kompas") {
+      const printBtn = (
+        <button
+          onClick={() => window.print()}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-sm font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors"
+        >
+          Vytisknout
+        </button>
+      );
+      return (
+        <div>
+          {hasKompas && <ToolTopBar onReset={handleKompasReset} printNode={printBtn} />}
+          <KompasFlow onSaved={handleKompasSaved} />
+        </div>
+      );
+    }
+
+    if (activeTab === "moje-hodnoty") {
+      return (
+        <div>
+          {hasHodnoty && hodnotyData && (
+            <ToolTopBar
+              onReset={handleHodnotyReset}
+              printNode={
+                <PrintHodnotyButton
+                  data={hodnotyData}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-sm font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors disabled:opacity-50"
+                />
+              }
+            />
+          )}
+          <HodnotyFlow onSaved={handleHodnotySaved} />
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   return (
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-8">
 
-        {/* Hero */}
         <div className="space-y-2">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">Laboratoř</h1>
           <p className="text-lg md:text-xl text-foreground/65 max-w-xl">
-            Tvoje osobní dílna. Interaktivní průvodci a cvičení pro nalezení směru a budování systémů.
+            Místo, kde si vytvoříš vlastní návod na život. Cizí knížky a frameworky ti nefungují, protože nikdo jiný neví, co je důležité pro tebe. Tady experimentuješ sám se sebou — a skládáš si systém, který sedí tobě. Dílek po dílku.
           </p>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs with progress indicators */}
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <button
@@ -729,45 +1275,18 @@ function DashboardContent() {
             >
               <span>{tab.emoji}</span>
               {tab.label}
+              {tab.done && activeTab !== tab.id && (
+                <span className="w-4 h-4 rounded-full bg-green-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                  ✓
+                </span>
+              )}
             </button>
           ))}
         </div>
 
-        {/* Tab content */}
-        <div>
-          {activeTab === "prehled" &&
-            (journeyLoading ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="paper-card rounded-[24px] h-48 animate-pulse bg-white/60" />
-                <div className="paper-card rounded-[24px] h-48 animate-pulse bg-white/60" />
-              </div>
-            ) : (
-              <PrehledTab
-                journeyData={journeyData}
-                ritualSelection={ritualSelection}
-                kompasData={kompasData}
-                hodnotyData={hodnotyData}
-                onTabChange={goToTab}
-              />
-            ))}
+        <div>{renderCompletionOrTool()}</div>
 
-          {activeTab === "nastav-si-den" && (
-            <NastavSiDenTab
-              selection={ritualSelection}
-              onSave={handleWizardSave}
-              onComplete={handleWizardComplete}
-              onReset={handleRitualReset}
-            />
-          )}
-
-          {activeTab === "tvuj-kompas" && <TvujKompasTab />}
-
-          {activeTab === "moje-hodnoty" && <HodnotyFlow />}
-        </div>
-
-        {email && (
-          <p className="text-xs text-foreground/30 text-center">{email}</p>
-        )}
+        {email && <p className="text-xs text-foreground/30 text-center">{email}</p>}
       </div>
     </main>
   );
@@ -777,13 +1296,11 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#FDFDF7]">
-          <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFDF7]">
+        <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+      </div>
+    }>
       <DashboardContent />
     </Suspense>
   );

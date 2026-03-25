@@ -75,7 +75,7 @@ function ExerciseCard({ purchase }: { purchase: Purchase }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <h3 className="text-base font-bold text-foreground">Tvůj kompas</h3>
+          <h3 className="text-base font-bold text-foreground">Kompas</h3>
           {isCompleted ? (
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-foreground/8 text-foreground/50">
               Dokončeno
@@ -141,7 +141,7 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
           {!activeAudit && completedAudits.length > 0 && (
             <div className="paper-card rounded-[20px] px-5 py-4 flex items-center justify-between gap-4 border border-dashed border-black/10 bg-transparent">
               <p className="text-sm text-foreground/60">
-                Chceš projít Tvůj kompas znovu — s čistým listem?
+                Chceš projít Kompas znovu — s čistým listem?
               </p>
               <Link
                 href="/laborator/tvuj-kompas"

@@ -57,7 +57,7 @@ function HeroContent() {
         {...fadeInUp}
         transition={{ ...fadeInUp.transition, delay: 0.1 }}
       >
-        Nevíš, kam <span className="hand-drawn-underline">směřuješ</span>? Tady si to vyjasníme.
+        Přestaň život plánovat. Začni ho <span className="hand-drawn-underline">žít</span>.
       </motion.h1>
 
       <motion.p
@@ -66,7 +66,7 @@ function HeroContent() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
       >
-        Pomůžu ti poskládat si vlastní návod na život. Bez keců, bez vzdušných zámků. Krok za krokem.
+        Nástroje, cvičení a principy pro lidi, kteří chtějí žít vědoměji. Krok za krokem.
       </motion.p>
 
       <motion.div
@@ -79,7 +79,7 @@ function HeroContent() {
           href="/laborator"
           className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-all w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
         >
-          Vstup do laboratoře →
+          Chci žít vědoměji →
         </a>
       </motion.div>
     </>

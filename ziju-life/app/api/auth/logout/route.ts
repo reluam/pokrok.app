@@ -5,5 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   await destroyUserSession()
-  return NextResponse.redirect(new URL('/ucet', req.url))
+  const res = NextResponse.redirect(new URL('/ucet', req.url))
+  res.cookies.delete('lab_email')
+  return res
 }
