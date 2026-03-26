@@ -210,9 +210,9 @@ function LaboratorContent() {
       </section>
 
       {/* Nástroje — interaktivní ukázky */}
-      <section className="max-w-3xl mx-auto px-5 pb-20">
+      <section className="max-w-5xl mx-auto px-5 pb-20">
         <h2 className="text-xl font-bold mb-6">Co v Laboratoři najdeš</h2>
-        <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <KompasPreview />
           <HodnotyPreview />
           <DenPreview />
@@ -309,23 +309,20 @@ function AccessButton({
 function KompasPreview() {
   const [revealed, setRevealed] = useState(false);
   return (
-    <div className="paper-card rounded-[24px] px-6 py-7 flex flex-col gap-4">
-      <div>
-        <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">Kompas</span>
-        <p className="font-bold text-foreground mt-0.5">🧭 Ukázková otázka</p>
-      </div>
-      <p className="text-base text-foreground/80 leading-relaxed italic">
+    <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-3">
+      <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">🧭 Kompas</span>
+      <p className="text-sm text-foreground/80 leading-relaxed italic">
         &ldquo;Kdy naposledy jsi udělal/a něco, co ti dávalo smysl — ne proto, že jsi musel/a?&rdquo;
       </p>
       {!revealed ? (
         <button
           onClick={() => setRevealed(true)}
-          className="self-start text-sm font-semibold text-accent hover:text-accent-hover transition-colors"
+          className="self-start text-xs font-semibold text-accent hover:text-accent-hover transition-colors"
         >
           Co s tím Kompas dělá? →
         </button>
       ) : (
-        <p className="text-sm text-foreground/55 leading-relaxed">
+        <p className="text-xs text-foreground/55 leading-relaxed">
           Tohle je jedna z otázek, kterými Kompas začíná. Sedm kroků od &bdquo;kde jsem&ldquo; po &bdquo;kam chci jít.&ldquo;
         </p>
       )}
@@ -338,17 +335,14 @@ const SAMPLE_VALUES = ["Svoboda", "Bezpečí", "Zvídavost", "Uznání"];
 function HodnotyPreview() {
   const [selected, setSelected] = useState<string | null>(null);
   return (
-    <div className="paper-card rounded-[24px] px-6 py-7 flex flex-col gap-4">
-      <div>
-        <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">Hodnoty</span>
-        <p className="font-bold text-foreground mt-0.5">⭐ Která tě přitahuje nejvíc?</p>
-      </div>
-      <div className="flex flex-wrap gap-2">
+    <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-3">
+      <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">⭐ Hodnoty</span>
+      <div className="flex flex-wrap gap-1.5">
         {SAMPLE_VALUES.map((v) => (
           <button
             key={v}
             onClick={() => setSelected(selected === v ? null : v)}
-            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
               selected === v
                 ? "bg-accent text-white border-accent shadow-md scale-105"
                 : "bg-white/80 text-foreground/70 border-foreground/12 hover:border-accent/40 hover:text-accent"
@@ -359,36 +353,34 @@ function HodnotyPreview() {
         ))}
       </div>
       {selected ? (
-        <p className="text-sm text-foreground/55 leading-relaxed">
-          <span className="font-semibold text-foreground/70">{selected}</span> — a proč zrovna ta? V Laboratoři projdeš všech 56 a najdeš ty svoje. Ne ty, co by měly být — ale ty, co opravdu rezonují.
+        <p className="text-xs text-foreground/55 leading-relaxed">
+          <span className="font-semibold text-foreground/70">{selected}</span> — proč zrovna ta? Projdeš všech 56 a najdeš ty svoje.
         </p>
       ) : (
-        <p className="text-sm text-foreground/40">Klikni na jednu a zamysli se — proč zrovna ta?</p>
+        <p className="text-xs text-foreground/40">Klikni a zamysli se — proč zrovna ta?</p>
       )}
     </div>
   );
 }
 
 const MORNING_OPTIONS = [
-  "Scrolluju telefon, než vstanu z postele",
-  "Nemám žádnou rutinu — každý den jinak",
-  "Mám rutinu, ale nedokážu se jí držet",
+  "Scrolluju telefon",
+  "Nemám rutinu",
+  "Rutinu nedodržím",
 ];
 
 function DenPreview() {
   const [picked, setPicked] = useState<number | null>(null);
   return (
-    <div className="paper-card rounded-[24px] px-6 py-7 flex flex-col gap-4">
-      <div>
-        <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">Tvůj den</span>
-        <p className="font-bold text-foreground mt-0.5">⏱️ Jak vypadá tvoje ráno teď?</p>
-      </div>
-      <div className="flex flex-col gap-2">
+    <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-3">
+      <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">⏱️ Tvůj den</span>
+      <p className="text-xs text-foreground/55 mb-0.5">Jak vypadá tvoje ráno?</p>
+      <div className="flex flex-col gap-1.5">
         {MORNING_OPTIONS.map((opt, i) => (
           <button
             key={i}
             onClick={() => setPicked(picked === i ? null : i)}
-            className={`text-left px-4 py-3 rounded-2xl text-sm border transition-all ${
+            className={`text-left px-3 py-2 rounded-xl text-xs border transition-all ${
               picked === i
                 ? "bg-accent/10 border-accent/30 text-foreground font-semibold"
                 : "bg-white/80 border-foreground/8 text-foreground/65 hover:border-accent/25"
@@ -399,8 +391,8 @@ function DenPreview() {
         ))}
       </div>
       {picked !== null && (
-        <p className="text-sm text-foreground/55 leading-relaxed">
-          Tvůj den ti pomůže sestavit ráno, den i večer z rituálů, které dávají smysl tvému mozku — ne něčímu návodu.
+        <p className="text-xs text-foreground/55 leading-relaxed">
+          Sestav si ráno, den i večer z rituálů, které dávají smysl tvému mozku.
         </p>
       )}
     </div>
