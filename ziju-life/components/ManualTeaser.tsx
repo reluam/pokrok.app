@@ -52,7 +52,7 @@ export default function ManualTeaser() {
               </h2>
 
               <p className="text-base text-foreground/65 leading-relaxed">
-                Tady najdeš to, co jsem objevil — jako interaktivní nástroje a cvičení, které ti pomůžou žít vědoměji. Žádné cizí návody. Projdeš jimi sám, ve svém tempu, a na konci každého víš o sobě víc než předtím.
+                Tady najdeš to, co jsem objevil — jako interaktivní nástroje a cvičení, které ti pomůžou žít vědoměji. Projdeš jimi sám, ve svém tempu, a na konci každého víš o sobě víc než předtím.
               </p>
 
               <div>

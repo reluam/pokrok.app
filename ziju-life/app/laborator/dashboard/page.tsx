@@ -495,28 +495,21 @@ function WeeklyCheckinWidget({
             ))}
           </div>
         ) : (
-          <div className="space-y-3">
-            {WHEEL_AREAS.slice(0, 4).map((a) => (
-              <div key={a.key} className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground/70">{a.short}</span>
-                  <span className="text-xs font-bold text-accent">{areaScores[a.key] ?? 5}</span>
-                </div>
-                <ScoreBar
-                  value={areaScores[a.key] ?? 5}
-                  onChange={(n) => setAreaScores((p) => ({ ...p, [a.key]: n }))}
-                />
-              </div>
-            ))}
+          <div className="rounded-2xl border border-accent/20 bg-accent/5 p-5 text-center space-y-2">
+            <p className="text-sm text-foreground/60">
+              Nejdřív si vyplň hodnoty v záložce <strong>Hodnoty</strong>, pak se tu objeví měřítka pro každou z nich.
+            </p>
           </div>
         )}
 
-        <button
-          onClick={() => setStep("areas")}
-          className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors"
-        >
-          Dál — oblasti →
-        </button>
+        {values.length > 0 && (
+          <button
+            onClick={() => setStep("areas")}
+            className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors"
+          >
+            Dál — oblasti →
+          </button>
+        )}
       </div>
     );
   }
@@ -1254,12 +1247,7 @@ function DashboardContent() {
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-8">
 
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">Laboratoř</h1>
-          <p className="text-lg md:text-xl text-foreground/65 max-w-xl">
-            Místo, kde si vytvoříš vlastní návod na život. Cizí knížky a frameworky ti nefungují, protože nikdo jiný neví, co je důležité pro tebe. Tady experimentuješ sám se sebou — a skládáš si systém, který sedí tobě. Dílek po dílku.
-          </p>
-        </div>
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">Laboratoř</h1>
 
         {/* Tabs with progress indicators */}
         <div className="flex flex-wrap gap-2">

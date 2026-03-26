@@ -120,10 +120,10 @@ export default function KoucingPage() {
             <div className="bg-white/85 rounded-[28px] border border-white/60 shadow-md backdrop-blur p-8 md:p-10 space-y-6">
               <ul className="space-y-3">
                 {[
-                  "Vyzkoušel/a jsi pár věcí, ale v ničem ses nenašel/nenašla.",
-                  "Máš pocit, že všichni kolem vědí, co chtějí — jen ty ne.",
-                  "Žiješ hodně v hlavě a neumíš to přetavit do akce.",
-                  "Víš, že chceš změnu, ale nedokážeš pojmenovat jakou.",
+                  "Víš, jak chceš, aby tvůj život vypadal, ale nedokážeš ho začít žít.",
+                  "Máš tisíc plánů v hlavě, ale ráno nevíš, kde začít.",
+                  "Žiješ víc v budoucnosti než v přítomnosti — a ta mezera tě paralyzuje.",
+                  "Zkoušel/a jsi plánovače, knížky, appky — a nic ti nevydrželo víc než týden.",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mt-0.5">
@@ -272,9 +272,12 @@ export default function KoucingPage() {
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-foreground/50 pt-1">
-                Jedno sezení začíná na <span className="font-semibold text-foreground/70">3 000 Kč</span> — při deseti a více sezeních pak platí <span className="font-semibold text-foreground/70">2 500 Kč</span> za sezení. Rozsah domluvíme na konzultaci.
-              </p>
+              <div className="rounded-xl bg-accent/5 border border-accent/15 p-4 mt-1 space-y-1.5">
+                <p className="text-sm font-semibold text-accent">Pro prvních 10 klientů — zvýhodněná cena výměnou za hodnocení</p>
+                <p className="text-sm text-foreground/50">
+                  Jedno sezení za <span className="font-semibold text-foreground/70">1 800 Kč</span> <span className="line-through text-foreground/35">3 000 Kč</span> — při deseti a více sezeních pak <span className="font-semibold text-foreground/70">1 500 Kč</span> <span className="line-through text-foreground/35">2 500 Kč</span> za sezení. Rozsah domluvíme na konzultaci.
+                </p>
+              </div>
             </div>
 
           </div>

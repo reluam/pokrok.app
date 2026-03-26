@@ -4,33 +4,6 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-const tools = [
-  {
-    id: "tvuj-kompas",
-    name: "Kompas",
-    desc: "Sedm kroků od 'kde jsem' po 'kam chci jít'. Zmapuješ svou situaci, pojmenuješ co tě brzdí a sestavíš si plán. Na konci máš v ruce vlastní dokument — tvůj kompas pro rozhodování.",
-    href: "/laborator/tvuj-kompas",
-    available: true,
-    tag: "Smysl & hodnoty",
-  },
-  {
-    id: "moje-hodnoty",
-    name: "Hodnoty",
-    desc: "Projdi si 56 hodnot a najdi ty svoje — ne ty, co by měly být, ale ty, co opravdu rezonují. Když víš, na čem ti záleží, rozhodování se stává jednodušším.",
-    href: "/laborator",
-    available: true,
-    tag: "Identita & rozhodování",
-  },
-  {
-    id: "nastav-si-den",
-    name: "Tvůj den",
-    desc: "Sestav si strukturu dne, která ti dává energii místo toho, aby ti ji brala. Ranní, denní, večerní rituály — vybereš si jen to, co sedí tobě.",
-    href: "/laborator/dashboard?tab=nastav-si-den",
-    available: true,
-    tag: "Energie & návyky",
-  },
-];
-
 const faqs = [
   {
     q: "Co je Laboratoř?",
@@ -236,37 +209,15 @@ function LaboratorContent() {
         </p>
       </section>
 
-      {/* Nástroje */}
+      {/* Nástroje — interaktivní ukázky */}
       <section className="max-w-3xl mx-auto px-5 pb-20">
-        <h2 className="text-xl font-bold mb-6">Co teď v Laboratoři najdeš</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {tools.map((t) => (
-            <div
-              key={t.id}
-              className={`paper-card rounded-[24px] px-6 py-6 flex flex-col gap-3 ${
-                !t.available ? "opacity-60" : ""
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">
-                    {t.tag}
-                  </span>
-                  <p className="font-bold text-foreground mt-0.5">{t.name}</p>
-                </div>
-                {!t.available && (
-                  <span className="text-xs font-bold px-2 py-1 bg-foreground/8 text-foreground/40 rounded-full shrink-0 whitespace-nowrap">
-                    Brzy
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-foreground/60 leading-relaxed">
-                {t.desc}
-              </p>
-            </div>
-          ))}
+        <h2 className="text-xl font-bold mb-6">Co v Laboratoři najdeš</h2>
+        <div className="flex flex-col gap-5">
+          <KompasPreview />
+          <HodnotyPreview />
+          <DenPreview />
         </div>
-        <p className="text-xs text-foreground/35 mt-4 text-center">
+        <p className="text-xs text-foreground/35 mt-5 text-center">
           Další nástroje průběžně přibývají — všechny v ceně předplatného.
         </p>
       </section>
@@ -350,6 +301,109 @@ function AccessButton({
         "Získat přístup"
       )}
     </button>
+  );
+}
+
+// ── Interactive tool previews ─────────────────────────────────────────────────
+
+function KompasPreview() {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <div className="paper-card rounded-[24px] px-6 py-7 flex flex-col gap-4">
+      <div>
+        <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">Kompas</span>
+        <p className="font-bold text-foreground mt-0.5">🧭 Ukázková otázka</p>
+      </div>
+      <p className="text-base text-foreground/80 leading-relaxed italic">
+        &ldquo;Kdy naposledy jsi udělal/a něco, co ti dávalo smysl — ne proto, že jsi musel/a?&rdquo;
+      </p>
+      {!revealed ? (
+        <button
+          onClick={() => setRevealed(true)}
+          className="self-start text-sm font-semibold text-accent hover:text-accent-hover transition-colors"
+        >
+          Co s tím Kompas dělá? →
+        </button>
+      ) : (
+        <p className="text-sm text-foreground/55 leading-relaxed">
+          Tohle je jedna z otázek, kterými Kompas začíná. Sedm kroků od &bdquo;kde jsem&ldquo; po &bdquo;kam chci jít.&ldquo;
+        </p>
+      )}
+    </div>
+  );
+}
+
+const SAMPLE_VALUES = ["Svoboda", "Bezpečí", "Zvídavost", "Uznání"];
+
+function HodnotyPreview() {
+  const [selected, setSelected] = useState<string | null>(null);
+  return (
+    <div className="paper-card rounded-[24px] px-6 py-7 flex flex-col gap-4">
+      <div>
+        <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">Hodnoty</span>
+        <p className="font-bold text-foreground mt-0.5">⭐ Která tě přitahuje nejvíc?</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {SAMPLE_VALUES.map((v) => (
+          <button
+            key={v}
+            onClick={() => setSelected(selected === v ? null : v)}
+            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
+              selected === v
+                ? "bg-accent text-white border-accent shadow-md scale-105"
+                : "bg-white/80 text-foreground/70 border-foreground/12 hover:border-accent/40 hover:text-accent"
+            }`}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
+      {selected ? (
+        <p className="text-sm text-foreground/55 leading-relaxed">
+          <span className="font-semibold text-foreground/70">{selected}</span> — a proč zrovna ta? V Laboratoři projdeš všech 56 a najdeš ty svoje. Ne ty, co by měly být — ale ty, co opravdu rezonují.
+        </p>
+      ) : (
+        <p className="text-sm text-foreground/40">Klikni na jednu a zamysli se — proč zrovna ta?</p>
+      )}
+    </div>
+  );
+}
+
+const MORNING_OPTIONS = [
+  "Scrolluju telefon, než vstanu z postele",
+  "Nemám žádnou rutinu — každý den jinak",
+  "Mám rutinu, ale nedokážu se jí držet",
+];
+
+function DenPreview() {
+  const [picked, setPicked] = useState<number | null>(null);
+  return (
+    <div className="paper-card rounded-[24px] px-6 py-7 flex flex-col gap-4">
+      <div>
+        <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">Tvůj den</span>
+        <p className="font-bold text-foreground mt-0.5">⏱️ Jak vypadá tvoje ráno teď?</p>
+      </div>
+      <div className="flex flex-col gap-2">
+        {MORNING_OPTIONS.map((opt, i) => (
+          <button
+            key={i}
+            onClick={() => setPicked(picked === i ? null : i)}
+            className={`text-left px-4 py-3 rounded-2xl text-sm border transition-all ${
+              picked === i
+                ? "bg-accent/10 border-accent/30 text-foreground font-semibold"
+                : "bg-white/80 border-foreground/8 text-foreground/65 hover:border-accent/25"
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+      {picked !== null && (
+        <p className="text-sm text-foreground/55 leading-relaxed">
+          Tvůj den ti pomůže sestavit ráno, den i večer z rituálů, které dávají smysl tvému mozku — ne něčímu návodu.
+        </p>
+      )}
+    </div>
   );
 }
 

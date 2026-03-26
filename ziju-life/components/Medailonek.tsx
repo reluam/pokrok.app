@@ -40,7 +40,7 @@ export default function Medailonek() {
               </p>
 
               <p>
-                Pak mi moje terapeutka řekla něco, co mi změnilo život: <em>Tvůj život je mozaika. Máš krásnou představu, jak má vypadat. Ale neskládáš ji. Dílek po dílku.</em>
+                Pak mi moje terapeutka řekla něco, co se mnou hnulo: <em>Tvůj život je mozaika. Máš krásnou představu, jak má vypadat — ale neskládáš ji. Pořád jen upravuješ tu předlohu, místo abys položil první kamínek.</em>
               </p>
 
               <p>
