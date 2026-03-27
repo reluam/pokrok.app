@@ -344,6 +344,91 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_user_focus_areas_user ON user_focus_areas(user_id, started_at DESC)
     `
 
+    // ── Nástrojárna (Toolbox) ──────────────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS toolbox_tools (
+        id VARCHAR(255) PRIMARY KEY,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        short_description TEXT NOT NULL,
+        description_markdown TEXT NOT NULL DEFAULT '',
+        application_markdown TEXT NOT NULL DEFAULT '',
+        sources JSONB NOT NULL DEFAULT '[]'::jsonb,
+        tags TEXT[] DEFAULT ARRAY[]::TEXT[],
+        category VARCHAR(100),
+        difficulty SMALLINT CHECK (difficulty BETWEEN 1 AND 3),
+        duration_estimate VARCHAR(50),
+        icon VARCHAR(10),
+        order_index INTEGER NOT NULL DEFAULT 0,
+        is_active BOOLEAN NOT NULL DEFAULT true,
+        is_featured BOOLEAN NOT NULL DEFAULT false,
+        related_tool_ids TEXT[] DEFAULT ARRAY[]::TEXT[],
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    // Add tool_type and component_id for interactive tools
+    await sql`
+      ALTER TABLE toolbox_tools
+      ADD COLUMN IF NOT EXISTS tool_type VARCHAR(20) NOT NULL DEFAULT 'knowledge'
+    `
+
+    await sql`
+      ALTER TABLE toolbox_tools
+      ADD COLUMN IF NOT EXISTS component_id VARCHAR(100)
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_toolbox_slug ON toolbox_tools(slug)
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_toolbox_category ON toolbox_tools(category)
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_toolbox_order ON toolbox_tools(order_index, created_at DESC)
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_toolbox_tags ON toolbox_tools USING GIN(tags)
+    `
+
+    // ── AI interakce + kreditové balíčky ─────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS ai_interactions (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_message TEXT NOT NULL,
+        ai_response TEXT NOT NULL,
+        recommended_slugs TEXT[] DEFAULT ARRAY[]::TEXT[],
+        input_tokens INTEGER,
+        output_tokens INTEGER,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_ai_interactions_user ON ai_interactions(user_id, created_at DESC)
+    `
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS ai_credit_packs (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        credits INTEGER NOT NULL DEFAULT 50,
+        stripe_payment_id TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_ai_credit_packs_user ON ai_credit_packs(user_id)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

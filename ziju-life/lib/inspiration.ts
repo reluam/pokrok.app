@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-export type InspirationType = 'blog' | 'video' | 'book' | 'article' | 'other' | 'music' | 'reel' | 'princip'
+export type InspirationType = 'blog' | 'video' | 'book' | 'article' | 'other' | 'music' | 'reel' | 'princip' | 'tool'
 
 export interface InspirationCategory {
   id: string
@@ -31,6 +31,9 @@ export interface InspirationItem {
   isCurrentListening?: boolean // For music – zobrazit v sekci Co právě poslouchám (jen jeden)
   categoryId?: string // ID of the primary inspiration category (determines shelf grouping)
   secondaryCategoryIds?: string[] // IDs of secondary categories (for filtering only)
+  // Tool-specific fields (when type === 'tool')
+  toolSlug?: string // Slug for fetching full tool detail from toolbox API
+  toolType?: 'knowledge' | 'interactive' // Whether tool is interactive (behind paywall)
   createdAt: string
   updatedAt: string
 }
@@ -44,6 +47,7 @@ export interface InspirationData {
   music: InspirationItem[]
   reels: InspirationItem[]
   princips: InspirationItem[]
+  tools?: InspirationItem[] // Virtual — populated from toolbox_tools DB, not stored in JSON
 }
 
 const DATA_FILE = join(process.cwd(), 'data', 'inspiration.json')
@@ -143,3 +147,29 @@ export async function deleteInspirationItem(
   await saveInspirationData(data)
   return true
 }
+
+// ── Tool → InspirationItem mapping ────────────────────────────────────────
+
+import type { ToolboxToolCard } from './toolbox'
+
+/**
+ * Map a toolbox tool card to an InspirationItem for unified display.
+ * Tools are stored in their own DB table — this mapping happens at runtime.
+ */
+export function toolToInspirationItem(tool: ToolboxToolCard & { createdAt?: string; updatedAt?: string }): InspirationItem {
+  return {
+    id: `tool_${tool.slug}`,
+    type: 'tool',
+    title: `${tool.icon ? tool.icon + ' ' : ''}${tool.title}`,
+    description: tool.shortDescription,
+    url: '', // Tools don't have external URLs
+    toolSlug: tool.slug,
+    toolType: tool.toolType,
+    // Map toolbox category to categoryId for sidebar grouping
+    categoryId: tool.category ? `toolcat_${tool.category}` : undefined,
+    isActive: true,
+    createdAt: tool.createdAt ?? new Date().toISOString(),
+    updatedAt: tool.updatedAt ?? new Date().toISOString(),
+  }
+}
+

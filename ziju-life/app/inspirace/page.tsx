@@ -15,11 +15,17 @@ import {
   Layers,
   Share2,
   Check,
+  Wrench,
 } from "lucide-react";
 import type { InspirationItem, InspirationCategory } from "@/lib/inspiration";
+import { TOOLBOX_CATEGORIES } from "@/lib/toolbox";
 import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import dynamicImport from "next/dynamic";
+
+const ToolDetailModal = dynamicImport(() => import("@/components/laborator/ToolDetailModal"), { ssr: false });
+const InspirationAIAssistant = dynamicImport(() => import("@/components/InspirationAIAssistant"), { ssr: false });
 
 const LIMIT = 20;
 
@@ -33,6 +39,7 @@ const TYPE_LABEL: Record<string, string> = {
   music: "Hudba",
   other: "Ostatní",
   princip: "Princip",
+  tool: "Nástroj",
 };
 
 const TYPE_PLURAL: Record<string, string> = {
@@ -43,6 +50,7 @@ const TYPE_PLURAL: Record<string, string> = {
   music: "Hudba",
   other: "Ostatní",
   princip: "Principy",
+  tool: "Nástroje",
 };
 
 const TYPE_ICON: Record<string, React.ElementType> = {
@@ -54,10 +62,11 @@ const TYPE_ICON: Record<string, React.ElementType> = {
   music: Music,
   other: HelpCircle,
   princip: Compass,
+  tool: Wrench,
 };
 
 // Types to show in the type tab bar (in order)
-const TYPE_TABS = ["book", "video", "blog", "reel", "music", "princip", "other"];
+const TYPE_TABS = ["book", "video", "blog", "tool", "reel", "music", "princip", "other"];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -232,7 +241,7 @@ function ShareDropdown({ url, title, variant = "header" }: { url: string; title:
 
 // ── InlineCard ───────────────────────────────────────────────────────────────
 
-function InlineCard({ item }: { item: InspirationItem }) {
+function InlineCard({ item, onToolClick }: { item: InspirationItem; onToolClick?: (slug: string) => void }) {
   const shareUrl = typeof window !== "undefined"
     ? `${window.location.origin}/inspirace?type=${item.type}&item=${item.id}`
     : `/inspirace?type=${item.type}&item=${item.id}`;
@@ -242,6 +251,29 @@ function InlineCard({ item }: { item: InspirationItem }) {
     item.type === "video" && !videoEmbedUrl
       ? item.thumbnail || getVideoThumbnail(item.url)
       : null;
+
+  // Tool type — render as clickable card
+  if (item.type === "tool" && item.toolSlug) {
+    return (
+      <article
+        className="paper-card rounded-[24px] px-6 py-6 md:px-8 md:py-7 cursor-pointer hover:shadow-lg hover:border-accent/20 transition-all group"
+        onClick={() => onToolClick?.(item.toolSlug!)}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2 flex-1 min-w-0">
+            <TypeBadge type="tool" />
+            <h2 className="text-xl md:text-2xl font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
+              {item.title}
+            </h2>
+            <p className="text-sm text-foreground/65 leading-relaxed">{item.description}</p>
+          </div>
+          <span className="shrink-0 mt-6 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-semibold group-hover:bg-accent group-hover:text-white transition-colors">
+            Detail →
+          </span>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5">
@@ -530,6 +562,9 @@ function InspiracePageInner() {
   // Available types (types that have at least 1 active item)
   const [availableTypes, setAvailableTypes] = useState<Set<string>>(new Set());
 
+  // Tool detail modal
+  const [openToolSlug, setOpenToolSlug] = useState<string | null>(null);
+
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   // Load categories + available types once
@@ -541,7 +576,7 @@ function InspiracePageInner() {
 
     fetch("/api/inspiration")
       .then((r) => r.json())
-      .then((data) => {
+      .then(async (data) => {
         const all: InspirationItem[] = [
           ...(data.blogs || []),
           ...(data.videos || []),
@@ -552,7 +587,14 @@ function InspiracePageInner() {
           ...(data.reels || []),
           ...(data.princips || []),
         ].filter((i) => i.isActive !== false);
-        setAvailableTypes(new Set(all.map((i) => i.type)));
+        const types = new Set(all.map((i) => i.type));
+        // Check if toolbox tools exist
+        try {
+          const toolRes = await fetch("/api/laborator/toolbox?limit=1");
+          const toolData = await toolRes.json();
+          if (toolData.total > 0) types.add("tool");
+        } catch {}
+        setAvailableTypes(types);
         // If initial type is set, pre-populate typeItems from this fetch
         if (initialType) {
           const filtered = all.filter((i) => i.type === initialType);
@@ -587,20 +629,27 @@ function InspiracePageInner() {
   const fetchTypeItems = useCallback(async (type: string) => {
     setTypeLoading(true);
     try {
-      const res = await fetch("/api/inspiration");
-      const data = await res.json();
-      const all: InspirationItem[] = [
-        ...(data.blogs || []),
-        ...(data.videos || []),
-        ...(data.books || []),
-        ...(data.articles || []),
-        ...(data.other || []),
-        ...(data.music || []),
-        ...(data.reels || []),
-        ...(data.princips || []),
-      ].filter((i) => i.isActive !== false && i.type === type);
-      all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setTypeItems(all);
+      if (type === "tool") {
+        // Tools come from the feed API with type filter
+        const res = await fetch(`/api/inspiration?feed=true&type=tool&offset=0&limit=200`);
+        const data = await res.json();
+        setTypeItems(data.items || []);
+      } else {
+        const res = await fetch("/api/inspiration");
+        const data = await res.json();
+        const all: InspirationItem[] = [
+          ...(data.blogs || []),
+          ...(data.videos || []),
+          ...(data.books || []),
+          ...(data.articles || []),
+          ...(data.other || []),
+          ...(data.music || []),
+          ...(data.reels || []),
+          ...(data.princips || []),
+        ].filter((i) => i.isActive !== false && i.type === type);
+        all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setTypeItems(all);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -667,6 +716,12 @@ function InspiracePageInner() {
   };
 
   const handleItemClick = (itemId: string) => {
+    // Tool items: open detail modal instead of scrolling
+    if (itemId.startsWith("tool_")) {
+      const slug = itemId.replace("tool_", "");
+      setOpenToolSlug(slug);
+      return;
+    }
     setActiveItemId((prev) => (prev === itemId ? null : itemId));
   };
 
@@ -692,6 +747,9 @@ function InspiracePageInner() {
             Knihovna →
           </Link>
         </div>
+
+        {/* AI Assistant */}
+        <InspirationAIAssistant onSelectTool={setOpenToolSlug} />
 
         {/* Type filter tabs */}
         <div className="flex flex-wrap gap-2">
@@ -731,7 +789,7 @@ function InspiracePageInner() {
           {/* Sidebar — only when type is selected */}
           {activeType && !typeLoading && typeItems.length > 0 && (
             <Sidebar
-              categories={categories}
+              categories={activeType === "tool" ? TOOLBOX_CATEGORIES.map((c) => ({ id: `toolcat_${c.id}`, name: `${c.icon} ${c.label}`, createdAt: "", updatedAt: "" })) : categories}
               allTypedItems={typeItems}
               activeCategory={activeCategory}
               activeItemId={activeItemId}
@@ -751,7 +809,7 @@ function InspiracePageInner() {
             ) : displayItems.length === 0 ? (
               <p className="text-foreground/50">Zatím žádné inspirace.</p>
             ) : (
-              displayItems.map((item) => <InlineCard key={item.id} item={item} />)
+              displayItems.map((item) => <InlineCard key={item.id} item={item} onToolClick={setOpenToolSlug} />)
             )}
 
             {/* Infinite scroll sentinel (feed mode only) */}
@@ -772,6 +830,15 @@ function InspiracePageInner() {
         </div>
 
       </div>
+
+      {/* Tool Detail Modal */}
+      {openToolSlug && (
+        <ToolDetailModal
+          slug={openToolSlug}
+          onClose={() => setOpenToolSlug(null)}
+          isSubscriber={false}
+        />
+      )}
     </main>
   );
 }

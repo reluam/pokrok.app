@@ -6,6 +6,8 @@ import {
   deleteInspirationItem,
   type InspirationType,
 } from '@/lib/inspiration-db'
+import { getToolCardsWithDates } from '@/lib/toolbox-db'
+import { toolToInspirationItem } from '@/lib/inspiration'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,9 +19,10 @@ export async function GET(request: NextRequest) {
     if (searchParams.get('feed') === 'true') {
       const offset = parseInt(searchParams.get('offset') || '0', 10)
       const limit = parseInt(searchParams.get('limit') || '20', 10)
+      const typeFilter = searchParams.get('type') || undefined
 
       const data = await getInspirationData(false) // only active
-      const all = [
+      const inspirations = [
         ...data.blogs,
         ...data.videos,
         ...data.books,
@@ -28,9 +31,25 @@ export async function GET(request: NextRequest) {
         ...data.music,
         ...data.reels,
         ...data.princips,
-      ]
-        .filter((i) => i.isActive !== false)
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      ].filter((i) => i.isActive !== false)
+
+      // Merge toolbox tools into the feed
+      let toolItems: ReturnType<typeof toolToInspirationItem>[] = []
+      try {
+        const toolCards = await getToolCardsWithDates()
+        toolItems = toolCards.map(toolToInspirationItem)
+      } catch (err) {
+        console.error('Error loading toolbox tools for feed:', err)
+      }
+
+      let all = [...inspirations, ...toolItems]
+
+      // Filter by type if requested
+      if (typeFilter) {
+        all = all.filter((i) => i.type === typeFilter)
+      }
+
+      all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
       const page = all.slice(offset, offset + limit)
       return NextResponse.json({
