@@ -51,7 +51,7 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
     try {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
-      setIsLoggedIn(!!data?.user);
+      setIsLoggedIn(!!data?.loggedIn);
     } catch {
       setIsLoggedIn(false);
     }
