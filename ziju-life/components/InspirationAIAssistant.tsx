@@ -62,6 +62,25 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
     checkAuth();
   }, [checkAuth]);
 
+  /** Try to parse raw text as JSON recommendations (fallback when API misclassifies). */
+  const tryParseRecommendations = (text: string): AIResponse | null => {
+    try {
+      // Direct JSON
+      const parsed = JSON.parse(text);
+      if (parsed?.recommendations?.length > 0) return parsed;
+    } catch {
+      // Try extracting from markdown code block
+      const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (match) {
+        try {
+          const parsed = JSON.parse(match[1].trim());
+          if (parsed?.recommendations?.length > 0) return parsed;
+        } catch {}
+      }
+    }
+    return null;
+  };
+
   const callAPI = async (messages: ChatMessage[]) => {
     const res = await fetch("/api/inspirace/ai-recommend", {
       method: "POST",
@@ -109,10 +128,17 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
       if (!data) return;
 
       if (data.type === "reflection") {
-        setReflection(data.text);
-        setReflectionCount(1);
-        setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
-        setStep("reflection");
+        // Safety: if AI returned JSON despite being asked for reflection, parse it
+        const maybeJson = tryParseRecommendations(data.text);
+        if (maybeJson) {
+          setResult(maybeJson);
+          setStep("results");
+        } else {
+          setReflection(data.text);
+          setReflectionCount(1);
+          setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
+          setStep("reflection");
+        }
       } else {
         setResult(data.response);
         setStep("results");
@@ -149,17 +175,22 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
       if (data.type === "recommendations" && data.response) {
         setResult(data.response);
         setStep("results");
-      } else if (reflectionCount >= 2) {
-        // Max reflections reached but AI still didn't recommend — show reset
-        setReflection(data.text);
-        setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
-        setStep("max_reflections");
       } else {
-        // Update reflection, increment count
-        setReflection(data.text);
-        setReflectionCount((c) => c + 1);
-        setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
-        setStep("reflection");
+        // Safety: try parsing as JSON in case API misclassified
+        const maybeJson = tryParseRecommendations(data.text ?? "");
+        if (maybeJson) {
+          setResult(maybeJson);
+          setStep("results");
+        } else if (reflectionCount >= 2) {
+          setReflection(data.text);
+          setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
+          setStep("max_reflections");
+        } else {
+          setReflection(data.text);
+          setReflectionCount((c) => c + 1);
+          setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
+          setStep("reflection");
+        }
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Nepodařilo se získat doporučení.");
