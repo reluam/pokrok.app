@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { loadStripe } from "@stripe/stripe-js";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 // Stripe instance – inicializuj jednou mimo komponentu
@@ -354,25 +355,7 @@ function BookingModal({
     }
   }, [isOpen, fromParam, toParam, dates, loadSlots]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const scrollY = window.scrollY ?? window.pageYOffset;
-    const prevOverflow = document.body.style.overflow;
-    const prevPosition = document.body.style.position;
-    const prevTop = document.body.style.top;
-    const prevWidth = document.body.style.width;
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = "100%";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.position = prevPosition;
-      document.body.style.top = prevTop;
-      document.body.style.width = prevWidth;
-      window.scrollTo(0, scrollY);
-    };
-  }, [isOpen]);
+  useScrollLock(isOpen);
 
   const selectDate = useCallback((date: string) => {
     if (isPast(date)) return;
@@ -485,6 +468,7 @@ function BookingModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-hidden"
+      data-lenis-prevent
       role="dialog"
       aria-modal="true"
       aria-label="Rezervace termínu"

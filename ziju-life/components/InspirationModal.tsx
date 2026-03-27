@@ -5,6 +5,7 @@ import { X, Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { InspirationItem } from "@/lib/inspiration";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 const getTypeIcon = (type: string) => {
   switch (type) {
@@ -66,17 +67,7 @@ interface InspirationModalProps {
 }
 
 export default function InspirationModal({ item, isOpen, onClose }: InspirationModalProps) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+  useScrollLock(isOpen);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -103,6 +94,7 @@ export default function InspirationModal({ item, isOpen, onClose }: InspirationM
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      data-lenis-prevent
       onClick={onClose}
     >
       {/* Backdrop */}

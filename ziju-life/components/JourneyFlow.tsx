@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { steps, type Step, type Practice, type Resource } from "@/data/manualData"
+import { useScrollLock } from "@/hooks/useScrollLock"
 
 // ── Sdílený typ stavu průvodce ─────────────────
 export type JourneyState = {
@@ -110,18 +111,17 @@ function JourneyPath({ active, onSelect }: { active: number; onSelect: (i: numbe
 
 // ── Practice Modal ────────────────────────────
 function PracticeModal({ practice, onClose }: { practice: Practice; onClose: () => void }) {
+  useScrollLock(true)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
     document.addEventListener("keydown", onKey)
-    document.body.style.overflow = "hidden"
     return () => {
       document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = ""
     }
   }, [onClose])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" data-lenis-prevent onClick={onClose}>
       <div className="absolute inset-0 bg-black/25 backdrop-blur-sm" />
       <div
         className="relative bg-white rounded-[28px] w-full max-w-lg shadow-2xl overflow-hidden max-h-[88vh] overflow-y-auto"
@@ -187,6 +187,7 @@ function PracticeCard({ practice, onClick }: { practice: Practice; onClick: () =
 
 // ── Share modal ───────────────────────────────
 function ShareValuesModal({ values, onClose }: { values: string[]; onClose: () => void }) {
+  useScrollLock(true)
   const [copied, setCopied] = useState(false)
   const pageUrl = "https://ziju.life/tvoje-mapa"
   const shareText = `Moje životní hodnoty:\n${values.join(" · ")}\n\nZjisti jaké jsou tvoje: ${pageUrl}\n#mojehodnoty #seberozvoj #zijulife`
@@ -204,15 +205,13 @@ function ShareValuesModal({ values, onClose }: { values: string[]; onClose: () =
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
     document.addEventListener("keydown", onKey)
-    document.body.style.overflow = "hidden"
     return () => {
       document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = ""
     }
   }, [onClose])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" data-lenis-prevent onClick={onClose}>
       <div className="absolute inset-0 bg-black/25 backdrop-blur-sm" />
       <div
         className="relative bg-white rounded-[28px] w-full max-w-lg shadow-2xl overflow-hidden max-h-[88vh] overflow-y-auto"
@@ -1575,21 +1574,20 @@ export function generateHtml(
 
 // ── Modal při odchodu ─────────────────────────
 function LeaveConfirmModal({ onStay, onLeave }: { onStay: () => void; onLeave: () => void }) {
+  useScrollLock(true)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onStay() }
     document.addEventListener("keydown", onKey)
-    document.body.style.overflow = "hidden"
     return () => {
       document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = ""
     }
   }, [onStay])
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" onClick={onStay}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" data-lenis-prevent onClick={onStay}>
       <div className="absolute inset-0 bg-black/25 backdrop-blur-sm" />
       <div
-        className="relative bg-white rounded-[28px] w-full max-w-sm shadow-2xl overflow-hidden"
+        className="relative bg-white rounded-[28px] w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
         style={{ animation: "modal-in 0.18s ease-out" }}
       >
@@ -1772,8 +1770,8 @@ function StepExportBox({
 
       {/* Potvrzovací modal */}
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-          <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full px-7 py-7 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4" data-lenis-prevent>
+          <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full max-h-[90vh] overflow-y-auto px-7 py-7 space-y-5">
             <div className="text-center space-y-2">
               <p className="text-2xl">📄</p>
               <h3 className="text-lg font-bold text-foreground">Dokončit audit?</h3>

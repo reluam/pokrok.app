@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 // Šířka přes celou obálku, výška v poměru 16:9
 const VIEWPORT_WIDTH_PCT = 100;
@@ -43,6 +44,7 @@ export default function BookCoverCropModal({
   onSave,
   onClose,
 }: BookCoverCropModalProps) {
+  useScrollLock(true);
   const [initial] = useState(() =>
     clampPosition(initialPositionX ?? 50, initialPositionY ?? 50)
   );
@@ -117,6 +119,7 @@ export default function BookCoverCropModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      data-lenis-prevent
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div

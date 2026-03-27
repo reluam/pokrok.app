@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 const faqs = [
   {
@@ -28,6 +29,7 @@ const faqs = [
 type MagicState = "idle" | "loading" | "sent" | "error";
 
 function MagicLinkModal({ onClose }: { onClose: () => void }) {
+  useScrollLock(true);
   const [email, setEmail] = useState("");
   const [state, setState] = useState<MagicState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -59,10 +61,11 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
     // Backdrop
     <div
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      data-lenis-prevent
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-sm paper-card rounded-[28px] px-7 py-8 shadow-2xl">
+      <div className="relative w-full max-w-sm max-h-[90vh] overflow-y-auto paper-card rounded-[28px] px-7 py-8 shadow-2xl">
         <button
           onClick={onClose}
           className="absolute top-4 right-5 text-foreground/30 hover:text-foreground/60 text-xl leading-none"

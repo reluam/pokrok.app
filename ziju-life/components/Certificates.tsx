@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface Certificate {
   id: string;
@@ -27,6 +28,7 @@ const certificates: Certificate[] = [
 
 export default function Certificates() {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  useScrollLock(!!lightboxImage);
 
   const openLightbox = (image: string) => {
     setLightboxImage(image);
@@ -69,6 +71,7 @@ export default function Certificates() {
       {lightboxImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          data-lenis-prevent
           onClick={closeLightbox}
         >
           <div className="relative max-w-[98rem] w-full max-h-[95vh] flex items-center justify-center">

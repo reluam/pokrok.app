@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
+
+const LenisContext = createContext<React.RefObject<Lenis | null> | null>(null);
+
+export function useLenis() {
+  return useContext(LenisContext);
+}
 
 type Props = {
   children: React.ReactNode;
@@ -17,7 +23,7 @@ export default function LenisProvider({ children }: Props) {
       duration: 0.5, // kratší, svižnější dojezd
       easing: (t: number) => 1 - Math.pow(1 - t, 3), // jemný ease-out
       smoothWheel: true,
-      wheelMultiplier: 0.6, // menší vzdálenost na jedno „odscrollování“
+      wheelMultiplier: 0.6, // menší vzdálenost na jedno „odscrollování"
       touchMultiplier: 1.0,
     });
 
@@ -61,7 +67,9 @@ export default function LenisProvider({ children }: Props) {
     }
   }, [pathname]);
 
-  return <>{children}</>;
+  return (
+    <LenisContext.Provider value={lenisRef}>
+      {children}
+    </LenisContext.Provider>
+  );
 }
-
-
