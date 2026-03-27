@@ -206,15 +206,6 @@ export default function ChooseYourPath() {
           </div>
         </div>
 
-        {/* Koučink — prostý odkaz */}
-        <div id="home-coaching" className="text-center">
-          <p className="text-base text-foreground/55">
-            Chceš průvodce na cestu?{" "}
-            <Link href="/koucing" className="text-accent font-semibold hover:underline underline-offset-2 transition-colors">
-              Koučink →
-            </Link>
-          </p>
-        </div>
       </div>
     </section>
   );

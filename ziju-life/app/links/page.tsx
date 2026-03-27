@@ -17,18 +17,18 @@ const links = [
     color: "var(--accent-secondary)",
   },
   {
-    label: "Inspirace",
-    description: "Články, principy a myšlenky",
-    href: "/inspirace",
-    icon: "✨",
-    color: "var(--accent-tertiary)",
-  },
-  {
     label: "Koučink",
     description: "1:1 sezení pro tvůj posun",
     href: "/koucing",
     icon: "🎯",
     color: "var(--accent-primary)",
+  },
+  {
+    label: "Inspirace",
+    description: "Články, principy a myšlenky",
+    href: "/inspirace",
+    icon: "✨",
+    color: "var(--accent-tertiary)",
   },
   {
     label: "O mně",
@@ -37,7 +37,7 @@ const links = [
     icon: "👋",
     color: "var(--accent-yellow)",
   },
-{
+  {
     label: "Kontakt",
     description: "Ozvi se mi",
     href: "/kontakt",

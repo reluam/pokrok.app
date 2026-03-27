@@ -10,6 +10,7 @@ import CrmContent from "@/components/admin/CrmContent";
 import AuditAccessContent from "@/components/admin/AuditAccessContent";
 import BookingSlotsContent from "@/components/admin/BookingSlotsContent";
 import LaboratorGrantsContent from "@/components/admin/LaboratorGrantsContent";
+import ToolboxContent from "@/components/admin/ToolboxContent";
 
 function AdminContent() {
   const router = useRouter();
@@ -32,6 +33,7 @@ function AdminContent() {
       {section === "rezervace" && <BookingSlotsContent />}
 {section === "audit-access" && <AuditAccessContent />}
       {section === "laborator-grants" && <LaboratorGrantsContent />}
+      {section === "toolbox" && <ToolboxContent />}
       {section === "settings" && <SettingsContent />}
     </div>
   );

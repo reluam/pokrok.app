@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import Medailonek from "@/components/Medailonek";
 import ManualTeaser from "@/components/ManualTeaser";
+import CoachingTeaser from "@/components/CoachingTeaser";
 import ChooseYourPath from "@/components/ChooseYourPath";
 import RevealSection from "@/components/RevealSection";
 
@@ -15,6 +16,9 @@ export default function Home() {
       </RevealSection>
       <RevealSection delay={0.08}>
         <ManualTeaser />
+      </RevealSection>
+      <RevealSection delay={0.10}>
+        <CoachingTeaser />
       </RevealSection>
       <RevealSection delay={0.12}>
         <ChooseYourPath />

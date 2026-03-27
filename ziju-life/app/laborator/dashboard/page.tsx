@@ -7,6 +7,9 @@ import { ritualsById, SLOT_LABELS } from "@/data/adhdRituals";
 import KompasFlow, { type KompasData } from "@/components/KompasFlow";
 import HodnotyFlow, { PrintHodnotyButton, type HodnotyData } from "@/components/HodnotyFlow";
 import NastavSiDenWizard, { DownloadPDFButton, type RitualSelection as WizardSelection } from "@/components/NastavSiDenWizard";
+import dynamic from "next/dynamic";
+
+const ToolboxTab = dynamic(() => import("@/components/laborator/ToolboxTab"), { ssr: false });
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -1072,6 +1075,7 @@ function DashboardContent() {
     { id: "moje-hodnoty",  label: "Hodnoty",   emoji: "💎",  done: hasHodnoty },
     { id: "tvuj-kompas",   label: "Kompas",    emoji: "🧭",  done: hasKompas },
     { id: "nastav-si-den", label: "Tvůj den",  emoji: "🗓️", done: hasRituals },
+    { id: "nastrojarna",   label: "Nástrojárna", emoji: "🧰" },
   ] as { id: string; label: string; emoji: string; done?: boolean }[];
 
   if (!checked) {
@@ -1238,6 +1242,10 @@ function DashboardContent() {
           <HodnotyFlow onSaved={handleHodnotySaved} />
         </div>
       );
+    }
+
+    if (activeTab === "nastrojarna") {
+      return <ToolboxTab onNavigateTab={goToTab} />;
     }
 
     return null;
