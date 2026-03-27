@@ -136,12 +136,23 @@ export async function POST(request: NextRequest) {
 
     // Try parsing as JSON (recommendations). If it fails, it's a reflection (plain text).
     let parsed: AIResponse | null = null;
+    const trimmed = rawText.trim();
+    // 1. Direct JSON parse
     try {
-      parsed = JSON.parse(rawText);
+      parsed = JSON.parse(trimmed);
     } catch {
-      const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
+      // 2. Extract from markdown code block (```json ... ``` or ``` ... ```)
+      const jsonMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
       if (jsonMatch) {
         try { parsed = JSON.parse(jsonMatch[1].trim()); } catch {}
+      }
+      // 3. Find first { ... } in the text
+      if (!parsed) {
+        const braceStart = trimmed.indexOf("{");
+        const braceEnd = trimmed.lastIndexOf("}");
+        if (braceStart !== -1 && braceEnd > braceStart) {
+          try { parsed = JSON.parse(trimmed.slice(braceStart, braceEnd + 1)); } catch {}
+        }
       }
     }
 

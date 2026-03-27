@@ -64,19 +64,25 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
 
   /** Try to parse raw text as JSON recommendations (fallback when API misclassifies). */
   const tryParseRecommendations = (text: string): AIResponse | null => {
-    try {
-      // Direct JSON
-      const parsed = JSON.parse(text);
-      if (parsed?.recommendations?.length > 0) return parsed;
-    } catch {
-      // Try extracting from markdown code block
-      const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (match) {
-        try {
-          const parsed = JSON.parse(match[1].trim());
-          if (parsed?.recommendations?.length > 0) return parsed;
-        } catch {}
-      }
+    const t = (text ?? "").trim();
+    const tryParse = (s: string): AIResponse | null => {
+      try {
+        const p = JSON.parse(s);
+        return p?.recommendations?.length > 0 ? p : null;
+      } catch { return null; }
+    };
+    // 1. Direct parse
+    const direct = tryParse(t);
+    if (direct) return direct;
+    // 2. Markdown code block
+    const match = t.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (match) { const r = tryParse(match[1].trim()); if (r) return r; }
+    // 3. Find first {...} in text
+    const braceStart = t.indexOf("{");
+    const braceEnd = t.lastIndexOf("}");
+    if (braceStart !== -1 && braceEnd > braceStart) {
+      const r = tryParse(t.slice(braceStart, braceEnd + 1));
+      if (r) return r;
     }
     return null;
   };
