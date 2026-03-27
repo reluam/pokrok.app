@@ -3,10 +3,32 @@ import Stripe from "stripe";
 import { cookies } from "next/headers";
 import { verifyUserSession } from "./user-auth";
 
-const SUBSCRIPTION_CREDITS = 15;
+// ── Pricing ─────────────────────────────────────────────────────────────────
+
+// Haiku 4.5 pricing in USD per token
+const INPUT_PRICE_USD = 0.80 / 1_000_000;   // $0.80/MTok
+const OUTPUT_PRICE_USD = 4.00 / 1_000_000;  // $4.00/MTok
+const USD_TO_CZK = 24;                       // Approximate exchange rate
+
+/** Annual subscription AI budget in CZK */
+const SUBSCRIPTION_BUDGET_CZK = 50;
+/** Top-up pack price and budget */
+const TOPUP_BUDGET_CZK = 99;
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
+export interface AIBudgetBalance {
+  /** Remaining budget in CZK */
+  remainingCzk: number;
+  /** Total budget in CZK (subscription + purchased) */
+  totalBudgetCzk: number;
+  /** Spent so far in CZK */
+  spentCzk: number;
+  /** Whether user has active subscription */
+  hasSubscription: boolean;
+}
+
+// Keep old interface for backward compatibility with Laborator dashboard
 export interface AICreditsBalance {
   available: number;
   total: number;
@@ -22,12 +44,16 @@ export interface AIInteraction {
   createdAt: string;
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Calculate CZK cost from token counts. */
+export function calculateCostCzk(inputTokens: number, outputTokens: number): number {
+  const costUsd = inputTokens * INPUT_PRICE_USD + outputTokens * OUTPUT_PRICE_USD;
+  return Math.round(costUsd * USD_TO_CZK * 100) / 100; // round to 2 decimals
+}
+
 // ── Stripe subscription period ───────────────────────────────────────────────
 
-/**
- * Resolve the current subscription period start for the user's Laboratoř sub.
- * Returns ISO date string or null if no active subscription.
- */
 async function getSubscriptionPeriodStart(email: string): Promise<{ hasSubscription: boolean; periodStart: Date | null }> {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   if (!stripeSecretKey) return { hasSubscription: false, periodStart: null };
@@ -60,7 +86,7 @@ async function getSubscriptionPeriodStart(email: string): Promise<{ hasSubscript
   return { hasSubscription: false, periodStart: null };
 }
 
-/** Resolve email from cookies (same logic as laborator-auth). */
+/** Resolve email from cookies. */
 async function resolveEmail(): Promise<string | null> {
   const cookieStore = await cookies();
   const cookieEmail = cookieStore.get("lab_email")?.value?.trim();
@@ -74,14 +100,13 @@ async function resolveEmail(): Promise<string | null> {
   return cookieEmail || sessionEmail || null;
 }
 
-// ── Credits balance ──────────────────────────────────────────────────────────
+// ── Budget balance ──────────────────────────────────────────────────────────
 
-export async function getAICreditsBalance(userId: string): Promise<AICreditsBalance> {
+export async function getAIBudgetBalance(userId: string): Promise<AIBudgetBalance> {
   const email = await resolveEmail();
 
-  // Check subscription status and period
   let hasSubscription = false;
-  let subscriptionCredits = 0;
+  let subscriptionBudget = 0;
   let periodStart: Date | null = null;
 
   if (email) {
@@ -95,8 +120,7 @@ export async function getAICreditsBalance(userId: string): Promise<AICreditsBala
       `;
       if (grants.length > 0) {
         hasSubscription = true;
-        subscriptionCredits = SUBSCRIPTION_CREDITS;
-        // For grants, count interactions from last 365 days as "period"
+        subscriptionBudget = SUBSCRIPTION_BUDGET_CZK;
         periodStart = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
       }
     } catch {}
@@ -105,40 +129,56 @@ export async function getAICreditsBalance(userId: string): Promise<AICreditsBala
       const sub = await getSubscriptionPeriodStart(email);
       hasSubscription = sub.hasSubscription;
       periodStart = sub.periodStart;
-      if (hasSubscription) subscriptionCredits = SUBSCRIPTION_CREDITS;
+      if (hasSubscription) subscriptionBudget = SUBSCRIPTION_BUDGET_CZK;
     }
   }
 
-  // Count purchased credits (all time — they don't expire)
+  // Purchased top-up packs (stored as CZK value in credits column)
   const [{ purchased }] = (await sql`
-    SELECT COALESCE(SUM(credits), 0)::int AS purchased
+    SELECT COALESCE(SUM(credits), 0)::numeric AS purchased
     FROM ai_credit_packs
     WHERE user_id = ${userId}
   `) as { purchased: number }[];
 
-  // Count used interactions in current subscription period
-  let used: number;
+  // Calculate actual spend from token usage in current period
+  let spentCzk: number;
   if (periodStart) {
-    const [{ count }] = (await sql`
-      SELECT COUNT(*)::int AS count
+    const [{ total_input, total_output }] = (await sql`
+      SELECT
+        COALESCE(SUM(input_tokens), 0)::int AS total_input,
+        COALESCE(SUM(output_tokens), 0)::int AS total_output
       FROM ai_interactions
       WHERE user_id = ${userId}
         AND created_at >= ${periodStart}
-    `) as { count: number }[];
-    used = count;
+    `) as { total_input: number; total_output: number }[];
+    spentCzk = calculateCostCzk(total_input, total_output);
   } else {
-    const [{ count }] = (await sql`
-      SELECT COUNT(*)::int AS count
+    const [{ total_input, total_output }] = (await sql`
+      SELECT
+        COALESCE(SUM(input_tokens), 0)::int AS total_input,
+        COALESCE(SUM(output_tokens), 0)::int AS total_output
       FROM ai_interactions
       WHERE user_id = ${userId}
-    `) as { count: number }[];
-    used = count;
+    `) as { total_input: number; total_output: number }[];
+    spentCzk = calculateCostCzk(total_input, total_output);
   }
 
-  const total = subscriptionCredits + purchased;
-  const available = Math.max(0, total - used);
+  const totalBudgetCzk = subscriptionBudget + Number(purchased);
+  const remainingCzk = Math.max(0, Math.round((totalBudgetCzk - spentCzk) * 100) / 100);
 
-  return { available, total, used, hasSubscription };
+  return { remainingCzk, totalBudgetCzk, spentCzk, hasSubscription };
+}
+
+/** Backward-compatible wrapper — maps budget to old credit-count interface. */
+export async function getAICreditsBalance(userId: string): Promise<AICreditsBalance> {
+  const budget = await getAIBudgetBalance(userId);
+  // Approximate: 1 "credit" ≈ 1 CZK of budget
+  return {
+    available: Math.floor(budget.remainingCzk),
+    total: Math.floor(budget.totalBudgetCzk),
+    used: Math.ceil(budget.spentCzk),
+    hasSubscription: budget.hasSubscription,
+  };
 }
 
 // ── Record interaction ───────────────────────────────────────────────────────

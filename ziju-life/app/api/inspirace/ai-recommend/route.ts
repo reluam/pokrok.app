@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { verifyUserSession } from "@/lib/user-auth";
 import { getLaboratorUser } from "@/lib/laborator-user";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
-import { getAICreditsBalance, recordAIInteraction } from "@/lib/ai-credits";
+import { getAIBudgetBalance, recordAIInteraction } from "@/lib/ai-credits";
 import { getToolCards } from "@/lib/toolbox-db";
 import { getInspirationData } from "@/lib/inspiration-db";
 import { buildInspirationRecommendationPrompt } from "@/lib/ai-prompts";
@@ -58,10 +58,14 @@ export async function POST(request: NextRequest) {
   const userId = labUser?.id ?? sessionUser.id;
 
   if (isSubscriber && labUser) {
-    // Subscriber flow — use credit system
-    const balance = await getAICreditsBalance(userId);
-    if (balance.available <= 0) {
-      return NextResponse.json({ error: "no_credits", credits: balance }, { status: 402 });
+    // Subscriber flow — check budget (50 CZK included, top-ups available)
+    const budget = await getAIBudgetBalance(userId);
+    if (budget.remainingCzk <= 0) {
+      return NextResponse.json({
+        error: "no_budget",
+        budget,
+        message: "Tvůj AI rozpočet je vyčerpaný. Můžeš si ho obnovit za 99 Kč, nebo se obnoví automaticky s dalším ročním předplatným.",
+      }, { status: 402 });
     }
   } else {
     // Free user — 1 query/month
@@ -167,7 +171,7 @@ export async function POST(request: NextRequest) {
 
     if (!isReflection) {
       if (isSubscriber && labUser) {
-        responsePayload.credits = await getAICreditsBalance(userId);
+        responsePayload.budget = await getAIBudgetBalance(userId);
       } else {
         const monthlyUsage = await getMonthlyUsage(userId);
         responsePayload.freeUsage = {

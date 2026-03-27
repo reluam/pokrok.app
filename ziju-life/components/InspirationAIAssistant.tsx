@@ -78,7 +78,7 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
       return null;
     }
     if (res.status === 402) {
-      setError(data.error === "limit_reached" ? "limit_reached" : "no_credits");
+      setError(data.error ?? "no_budget");
       setStep("input");
       return null;
     }
@@ -183,7 +183,7 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
     else if (rec.itemType === "inspiration" && rec.id && onSelectInspiration) onSelectInspiration(rec.id);
   };
 
-  const isBlocked = ["login_required", "limit_reached", "no_credits"].includes(error ?? "");
+  const isBlocked = ["login_required", "limit_reached", "no_credits", "no_budget"].includes(error ?? "");
 
   return (
     <div className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5 border-2 border-accent/15">
@@ -242,11 +242,16 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
         </div>
       )}
 
-      {error === "no_credits" && (
+      {(error === "no_credits" || error === "no_budget") && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 space-y-3">
           <div className="flex items-start gap-2">
             <AlertCircle size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
-            <p className="text-sm font-semibold text-amber-800">Kredity vyčerpány</p>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">AI rozpočet vyčerpaný</p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Můžeš si ho obnovit za 99 Kč, nebo se obnoví automaticky s dalším ročním předplatným.
+              </p>
+            </div>
           </div>
         </div>
       )}
