@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   FlaskConical,
   Wrench,
+  BarChart3,
 } from "lucide-react";
 
 type AdminSection =
@@ -24,6 +25,7 @@ type AdminSection =
   | "audit-access"
   | "laborator-grants"
   | "toolbox"
+  | "ai-stats"
   | "settings";
 
 interface NavItem {
@@ -82,6 +84,11 @@ export default function AdminNavigation() {
       id: "toolbox",
       label: "Nástrojárna",
       icon: Wrench,
+    },
+    {
+      id: "ai-stats",
+      label: "AI Statistiky",
+      icon: BarChart3,
     },
     {
       id: "settings",

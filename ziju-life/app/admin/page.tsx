@@ -11,6 +11,7 @@ import AuditAccessContent from "@/components/admin/AuditAccessContent";
 import BookingSlotsContent from "@/components/admin/BookingSlotsContent";
 import LaboratorGrantsContent from "@/components/admin/LaboratorGrantsContent";
 import ToolboxContent from "@/components/admin/ToolboxContent";
+import AIStatsContent from "@/components/admin/AIStatsContent";
 
 function AdminContent() {
   const router = useRouter();
@@ -34,6 +35,7 @@ function AdminContent() {
 {section === "audit-access" && <AuditAccessContent />}
       {section === "laborator-grants" && <LaboratorGrantsContent />}
       {section === "toolbox" && <ToolboxContent />}
+      {section === "ai-stats" && <AIStatsContent />}
       {section === "settings" && <SettingsContent />}
     </div>
   );
