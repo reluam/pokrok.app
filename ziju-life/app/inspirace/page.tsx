@@ -473,6 +473,7 @@ interface SidebarProps {
   activeItemId: string | null;
   onCategoryClick: (catId: string | null) => void;
   onItemClick: (itemId: string) => void;
+  collapsible?: boolean; // when true, categories are collapsed by default
 }
 
 function Sidebar({
@@ -482,7 +483,11 @@ function Sidebar({
   activeItemId,
   onCategoryClick,
   onItemClick,
+  collapsible = false,
 }: SidebarProps) {
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
+  const catRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   // Build category groups
   const catItems: { id: string | null; label: string; items: InspirationItem[] }[] = [];
 
@@ -495,39 +500,65 @@ function Sidebar({
   );
   if (uncategorized.length > 0) catItems.push({ id: null, label: "Ostatní", items: uncategorized });
 
+  const handleCatClick = (catId: string | null) => {
+    if (collapsible) {
+      const newExpanded = expandedCat === catId ? null : catId;
+      setExpandedCat(newExpanded);
+      // Scroll category into view
+      if (newExpanded !== null) {
+        const key = catId ?? "none";
+        setTimeout(() => {
+          catRefs.current[key]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }, 50);
+      }
+    }
+    onCategoryClick(catId);
+  };
+
   return (
     <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0 lg:sticky lg:top-24 self-start">
-      <div className="paper-card rounded-[24px] px-4 py-5 space-y-1">
-        {catItems.map(({ id, label, items }) => (
-          <div key={id ?? "none"} className="pt-1">
-            <button
-              onClick={() => onCategoryClick(id)}
-              className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
-                activeCategory === id && activeItemId === null
-                  ? "text-accent bg-accent/5"
-                  : "text-foreground/40 hover:text-foreground/70"
-              }`}
-            >
-              {label}
-            </button>
-            <ul className="space-y-0.5 mt-0.5">
-              {items.map((item) => (
-                <li key={item.id}>
-                  <button
-                    onClick={() => onItemClick(item.id)}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
-                      activeItemId === item.id
-                        ? "bg-accent/10 text-accent font-semibold"
-                        : "hover:bg-black/5 text-foreground/65 hover:text-foreground"
-                    }`}
-                  >
-                    <span className="leading-snug line-clamp-2">{item.title}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+      <div className="paper-card rounded-[24px] px-4 py-5 space-y-1 max-h-[calc(100vh-8rem)] overflow-y-auto">
+        {catItems.map(({ id, label, items }) => {
+          const key = id ?? "none";
+          const isExpanded = !collapsible || expandedCat === id;
+          const isActive = activeCategory === id && activeItemId === null;
+
+          return (
+            <div key={key} ref={(el) => { catRefs.current[key] = el; }} className="pt-1">
+              <button
+                onClick={() => handleCatClick(id)}
+                className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-between gap-2 ${
+                  isActive || (collapsible && expandedCat === id)
+                    ? "text-accent bg-accent/5"
+                    : "text-foreground/40 hover:text-foreground/70"
+                }`}
+              >
+                <span>{label}</span>
+                {collapsible && (
+                  <span className={`text-[10px] transition-transform ${isExpanded ? "rotate-180" : ""}`}>▾</span>
+                )}
+              </button>
+              {isExpanded && (
+                <ul className="space-y-0.5 mt-0.5">
+                  {items.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        onClick={() => onItemClick(item.id)}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-all ${
+                          activeItemId === item.id
+                            ? "bg-accent/10 text-accent font-semibold"
+                            : "hover:bg-black/5 text-foreground/65 hover:text-foreground"
+                        }`}
+                      >
+                        <span className="leading-snug line-clamp-2">{item.title}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
       </div>
     </aside>
   );
@@ -795,6 +826,7 @@ function InspiracePageInner() {
               activeItemId={activeItemId}
               onCategoryClick={handleCategoryClick}
               onItemClick={handleItemClick}
+              collapsible={activeType === "tool"}
             />
           )}
 

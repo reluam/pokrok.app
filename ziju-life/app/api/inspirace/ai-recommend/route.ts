@@ -74,10 +74,17 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Parse request
+  // Parse request — supports single message or conversation history
   const body = await request.json();
-  const message = String(body.message ?? "").trim();
-  if (!message || message.length > 2000) {
+  const messages: { role: "user" | "assistant"; content: string }[] = body.messages ?? [];
+
+  // Backward compat: single message field
+  if (!messages.length && body.message) {
+    messages.push({ role: "user", content: String(body.message).trim() });
+  }
+
+  const lastUserMsg = messages.filter((m) => m.role === "user").pop();
+  if (!lastUserMsg || !lastUserMsg.content.trim() || lastUserMsg.content.length > 2000) {
     return NextResponse.json(
       { error: "Zpráva musí mít 1–2000 znaků." },
       { status: 400 }
@@ -92,6 +99,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+
     // Load catalogs
     const { tools } = await getToolCards({ limit: 200 });
     const inspirationData = await getInspirationData(false);
@@ -108,13 +116,13 @@ export async function POST(request: NextRequest) {
 
     const systemPrompt = buildInspirationRecommendationPrompt(tools, allInspirations);
 
-    // Call Anthropic API
+    // Call Anthropic API with full conversation history
     const anthropic = new Anthropic({ apiKey });
     const result = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
       system: systemPrompt,
-      messages: [{ role: "user", content: message }],
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
     });
 
     const rawText =
@@ -122,49 +130,52 @@ export async function POST(request: NextRequest) {
     const inputTokens = result.usage?.input_tokens ?? 0;
     const outputTokens = result.usage?.output_tokens ?? 0;
 
-    // Parse JSON response
-    let parsed: AIResponse;
+    // Try parsing as JSON (recommendations). If it fails, it's a reflection (plain text).
+    let parsed: AIResponse | null = null;
     try {
       parsed = JSON.parse(rawText);
     } catch {
       const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
       if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[1].trim());
-      } else {
-        parsed = {
-          summary: rawText,
-          recommendations: [],
-          closingNote: "",
-        };
+        try { parsed = JSON.parse(jsonMatch[1].trim()); } catch {}
       }
     }
 
-    const recommendedSlugs = parsed.recommendations
-      .filter((r) => r.itemType === "tool" && r.slug)
-      .map((r) => r.slug!);
+    const isReflection = !parsed || !parsed.recommendations || parsed.recommendations.length === 0;
 
-    // Record the interaction
-    await recordAIInteraction(
-      userId,
-      message,
-      JSON.stringify(parsed),
-      recommendedSlugs,
-      inputTokens,
-      outputTokens
-    );
+    // Record the interaction (only count credit on final recommendation step)
+    const userMsgForLog = lastUserMsg.content;
+    if (!isReflection) {
+      const recommendedSlugs = parsed!.recommendations
+        .filter((r) => r.itemType === "tool" && r.slug)
+        .map((r) => r.slug!);
 
-    // Return response with credit info
-    const responsePayload: Record<string, unknown> = { response: parsed };
+      await recordAIInteraction(
+        userId,
+        userMsgForLog,
+        JSON.stringify(parsed),
+        recommendedSlugs,
+        inputTokens,
+        outputTokens
+      );
+    }
 
-    if (isSubscriber && labUser) {
-      responsePayload.credits = await getAICreditsBalance(userId);
-    } else {
-      const monthlyUsage = await getMonthlyUsage(userId);
-      responsePayload.freeUsage = {
-        used: monthlyUsage,
-        limit: FREE_MONTHLY_LIMIT,
-        remaining: Math.max(0, FREE_MONTHLY_LIMIT - monthlyUsage),
-      };
+    // Build response
+    const responsePayload: Record<string, unknown> = isReflection
+      ? { type: "reflection", text: rawText }
+      : { type: "recommendations", response: parsed };
+
+    if (!isReflection) {
+      if (isSubscriber && labUser) {
+        responsePayload.credits = await getAICreditsBalance(userId);
+      } else {
+        const monthlyUsage = await getMonthlyUsage(userId);
+        responsePayload.freeUsage = {
+          used: monthlyUsage,
+          limit: FREE_MONTHLY_LIMIT,
+          remaining: Math.max(0, FREE_MONTHLY_LIMIT - monthlyUsage),
+        };
+      }
     }
 
     return NextResponse.json(responsePayload);

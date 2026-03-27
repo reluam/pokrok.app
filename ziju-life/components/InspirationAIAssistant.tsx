@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Sparkles, Send, AlertCircle, LogIn } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Sparkles, Send, AlertCircle, LogIn, RotateCcw } from "lucide-react";
 
 interface Recommendation {
   itemType: "tool" | "inspiration";
   slug?: string;
   id?: string;
   title: string;
+  icon?: string;
   reason: string;
 }
 
@@ -17,83 +18,182 @@ interface AIResponse {
   closingNote: string;
 }
 
+type ChatMessage = { role: "user" | "assistant"; content: string };
+
+type Step = "input" | "reflecting" | "reflection" | "loading" | "results";
+
 interface Props {
   onSelectTool: (slug: string) => void;
   onSelectInspiration?: (id: string) => void;
 }
 
+const BORDER_COLORS: Record<string, string> = {
+  tool: "border-emerald-300 hover:border-emerald-400",
+  inspiration: "border-accent/30 hover:border-accent/50",
+};
+
+const TAG_STYLES: Record<string, string> = {
+  tool: "bg-emerald-50 text-emerald-700",
+  inspiration: "bg-accent/10 text-accent",
+};
+
 export default function InspirationAIAssistant({ onSelectTool, onSelectInspiration }: Props) {
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [reflection, setReflection] = useState<string | null>(null);
   const [result, setResult] = useState<AIResponse | null>(null);
+  const [step, setStep] = useState<Step>("input");
   const [error, setError] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = async () => {
-    if (!message.trim() || loading) return;
+  const checkAuth = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      const data = await res.json();
+      setIsLoggedIn(!!data?.user);
+    } catch {
+      setIsLoggedIn(false);
+    }
+  }, []);
 
-    setLoading(true);
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  const callAPI = async (messages: ChatMessage[]) => {
+    const res = await fetch("/api/inspirace/ai-recommend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages }),
+    });
+
+    const data = await res.json();
+
+    if (res.status === 401 && data.error === "login_required") {
+      setIsLoggedIn(false);
+      setError("login_required");
+      setStep("input");
+      return null;
+    }
+    if (res.status === 402) {
+      setError(data.error === "limit_reached" ? "limit_reached" : "no_credits");
+      setStep("input");
+      return null;
+    }
+    if (!res.ok) throw new Error(data.error || "Chyba");
+
+    return data;
+  };
+
+  // Step 1: User sends initial message → AI reflects
+  const handleInitialSubmit = async () => {
+    if (!message.trim()) return;
+
+    if (!isLoggedIn) {
+      setError("login_required");
+      return;
+    }
+
     setError(null);
-    setResult(null);
+    setStep("reflecting");
+
+    const userMsg: ChatMessage = { role: "user", content: message.trim() };
+    const newHistory = [userMsg];
+    setChatHistory(newHistory);
+    setMessage("");
 
     try {
-      const res = await fetch("/api/inspirace/ai-recommend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: message.trim() }),
-      });
+      const data = await callAPI(newHistory);
+      if (!data) return;
 
-      const data = await res.json();
-
-      if (res.status === 401 && data.error === "login_required") {
-        setError("login_required");
-        return;
+      if (data.type === "reflection") {
+        setReflection(data.text);
+        setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
+        setStep("reflection");
+      } else {
+        // AI skipped reflection and went straight to recommendations
+        setResult(data.response);
+        setStep("results");
       }
-
-      if (res.status === 402) {
-        if (data.error === "limit_reached") {
-          setError("limit_reached");
-        } else {
-          setError("no_credits");
-        }
-        return;
-      }
-
-      if (!res.ok) {
-        throw new Error(data.error || "Chyba");
-      }
-
-      setResult(data.response);
-      setMessage("");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Nepodařilo se získat doporučení.");
-    } finally {
-      setLoading(false);
+      setStep("input");
     }
+  };
+
+  // Step 2: User confirms/adds → AI recommends
+  const handleConfirm = async (additionalText?: string) => {
+    setStep("loading");
+    setError(null);
+
+    const confirmMsg: ChatMessage = {
+      role: "user",
+      content: additionalText?.trim() || "Ano, rozumíš mi správně. Doporuč mi prosím nástroje a inspirace.",
+    };
+    const newHistory = [...chatHistory, confirmMsg];
+    setChatHistory(newHistory);
+    setMessage("");
+
+    try {
+      const data = await callAPI(newHistory);
+      if (!data) return;
+
+      if (data.type === "recommendations" && data.response) {
+        setResult(data.response);
+        setStep("results");
+      } else {
+        // Still reflecting — update reflection
+        setReflection(data.text);
+        setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
+        setStep("reflection");
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Nepodařilo se získat doporučení.");
+      setStep("reflection");
+    }
+  };
+
+  const handleReset = () => {
+    setMessage("");
+    setChatHistory([]);
+    setReflection(null);
+    setResult(null);
+    setStep("input");
+    setError(null);
+    setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   const handleRecommendationClick = (rec: Recommendation) => {
-    if (rec.itemType === "tool" && rec.slug) {
-      onSelectTool(rec.slug);
-    } else if (rec.itemType === "inspiration" && rec.id && onSelectInspiration) {
-      onSelectInspiration(rec.id);
-    }
+    if (rec.itemType === "tool" && rec.slug) onSelectTool(rec.slug);
+    else if (rec.itemType === "inspiration" && rec.id && onSelectInspiration) onSelectInspiration(rec.id);
   };
+
+  const isBlocked = ["login_required", "limit_reached", "no_credits"].includes(error ?? "");
 
   return (
     <div className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5 border-2 border-accent/15">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-          <Sparkles size={20} className="text-accent" />
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+            <Sparkles size={20} className="text-accent" />
+          </div>
+          <div>
+            <p className="text-base font-bold text-foreground">Co teď řešíš?</p>
+            <p className="text-sm text-foreground/50">
+              Popiš svou situaci a doporučím ti nástroje a inspirace
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-base font-bold text-foreground">Co teď řešíš?</p>
-          <p className="text-sm text-foreground/50">
-            Popiš svou situaci a doporučím ti nástroje a inspirace
-          </p>
-        </div>
+        {step !== "input" && (
+          <button onClick={handleReset} className="p-2 rounded-xl hover:bg-black/5 text-foreground/40 hover:text-foreground/70 transition-colors" title="Začít znovu">
+            <RotateCcw size={16} />
+          </button>
+        )}
       </div>
 
-      {/* Login required */}
+      {/* Error states */}
       {error === "login_required" && (
         <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 space-y-3">
           <div className="flex items-start gap-2">
@@ -105,17 +205,12 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
               </p>
             </div>
           </div>
-          <a
-            href="/ucet"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-hover transition-colors text-sm"
-          >
-            <LogIn size={16} />
-            Přihlásit se
+          <a href="/ucet" className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-hover transition-colors text-sm">
+            <LogIn size={16} /> Přihlásit se
           </a>
         </div>
       )}
 
-      {/* Limit reached (free user) */}
       {error === "limit_reached" && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 space-y-3">
           <div className="flex items-start gap-2">
@@ -127,64 +222,132 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
               </p>
             </div>
           </div>
-          <a
-            href="/laborator"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-hover transition-colors text-sm"
-          >
+          <a href="/laborator" className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-hover transition-colors text-sm">
             Získej přístup do Laboratoře →
           </a>
         </div>
       )}
 
-      {/* No credits (subscriber) */}
       {error === "no_credits" && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 space-y-3">
           <div className="flex items-start gap-2">
             <AlertCircle size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-amber-800">Kredity vyčerpány</p>
-              <p className="text-xs text-amber-700 mt-0.5">
-                Využil/a jsi všechny dostupné interakce tento měsíc.
-              </p>
-            </div>
+            <p className="text-sm font-semibold text-amber-800">Kredity vyčerpány</p>
           </div>
         </div>
       )}
 
-      {/* Error (generic) */}
-      {error && !["login_required", "limit_reached", "no_credits"].includes(error) && (
+      {error && !isBlocked && (
         <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700 flex items-start gap-2">
           <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Result */}
-      {result && (
-        <div className="space-y-3">
+      {/* Step: Reflecting (loading) */}
+      {step === "reflecting" && (
+        <div className="flex items-center gap-3 py-4">
+          <div className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+          <p className="text-sm text-foreground/60">Čtu, co píšeš...</p>
+        </div>
+      )}
+
+      {/* Step: Reflection — show AI's understanding + confirm/edit */}
+      {step === "reflection" && reflection && (
+        <div className="space-y-4">
+          {/* User's original message */}
+          <div className="flex justify-end">
+            <div className="bg-accent/10 rounded-2xl rounded-br-md px-4 py-3 max-w-[85%]">
+              <p className="text-sm text-foreground/80">{chatHistory[0]?.content}</p>
+            </div>
+          </div>
+
+          {/* AI reflection */}
+          <div className="flex justify-start">
+            <div className="bg-black/[0.03] rounded-2xl rounded-bl-md px-4 py-3 max-w-[85%]">
+              <p className="text-sm text-foreground/75 leading-relaxed">{reflection}</p>
+            </div>
+          </div>
+
+          {/* Confirm / refine input */}
+          <div className="space-y-3 pt-1">
+            <textarea
+              ref={inputRef}
+              value={message}
+              onChange={(e) => setMessage(e.target.value.slice(0, 2000))}
+              placeholder="Chceš něco doplnit nebo upřesnit? Nebo stačí potvrdit..."
+              className="w-full px-4 py-3 border-2 border-black/10 rounded-xl bg-white/80 text-sm min-h-[60px] max-h-[120px] resize-y focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleConfirm(message || undefined);
+                }
+              }}
+            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleConfirm()}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-hover transition-colors text-sm"
+              >
+                Ano, doporuč mi →
+              </button>
+              {message.trim() && (
+                <button
+                  type="button"
+                  onClick={() => handleConfirm(message)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-black/15 font-semibold hover:bg-black/5 transition-colors text-sm text-foreground/70"
+                >
+                  <Send size={14} />
+                  Odeslat doplnění
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step: Loading recommendations */}
+      {step === "loading" && (
+        <div className="flex items-center gap-3 py-4">
+          <div className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+          <p className="text-sm text-foreground/60">Připravuji doporučení...</p>
+        </div>
+      )}
+
+      {/* Step: Results — tile layout */}
+      {step === "results" && result && (
+        <div className="space-y-5">
           <p className="text-sm text-foreground/70 leading-relaxed">{result.summary}</p>
 
-          <div className="space-y-2">
+          {/* Recommendation tiles */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {result.recommendations.map((rec, i) => (
               <button
                 key={rec.slug || rec.id || i}
                 type="button"
                 onClick={() => handleRecommendationClick(rec)}
-                className="w-full text-left rounded-xl border border-black/10 p-3.5 hover:border-accent/30 hover:shadow-sm transition-all group"
+                className={`text-left rounded-2xl border-2 p-4 transition-all group hover:shadow-md ${
+                  BORDER_COLORS[rec.itemType] ?? "border-black/10 hover:border-black/20"
+                }`}
               >
-                <div className="flex items-center gap-2">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                    rec.itemType === "tool"
-                      ? "bg-emerald-50 text-emerald-600"
-                      : "bg-accent/10 text-accent"
+                {/* Icon + tag */}
+                <div className="flex items-start justify-between gap-2 mb-2.5">
+                  <span className="text-2xl leading-none">{rec.icon || (rec.itemType === "tool" ? "🔧" : "📖")}</span>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
+                    TAG_STYLES[rec.itemType] ?? "bg-black/5 text-foreground/50"
                   }`}>
                     {rec.itemType === "tool" ? "Nástroj" : "Inspirace"}
                   </span>
-                  <p className="text-sm font-bold text-foreground group-hover:text-accent transition-colors">
-                    {rec.title}
-                  </p>
                 </div>
-                <p className="text-xs text-foreground/50 mt-1.5 leading-relaxed">
+
+                {/* Title */}
+                <p className="text-sm font-bold text-foreground group-hover:text-accent transition-colors leading-snug mb-1.5">
+                  {rec.title}
+                </p>
+
+                {/* Reason */}
+                <p className="text-xs text-foreground/50 leading-relaxed line-clamp-3">
                   {rec.reason}
                 </p>
               </button>
@@ -192,59 +355,37 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
           </div>
 
           {result.closingNote && (
-            <p className="text-xs text-foreground/45 italic">{result.closingNote}</p>
+            <p className="text-sm text-foreground/55 italic leading-relaxed">{result.closingNote}</p>
           )}
-
-          <button
-            type="button"
-            onClick={() => {
-              setResult(null);
-              setError(null);
-            }}
-            className="text-xs text-accent font-medium hover:underline"
-          >
-            Zeptat se znovu
-          </button>
         </div>
       )}
 
-      {/* Input (shown when no result and no blocking error) */}
-      {!result && !["login_required", "limit_reached", "no_credits"].includes(error ?? "") && (
+      {/* Step: Initial input */}
+      {step === "input" && !isBlocked && (
         <div className="space-y-3">
           <textarea
+            ref={inputRef}
             value={message}
             onChange={(e) => setMessage(e.target.value.slice(0, 2000))}
-            placeholder={'Například: "Chci si lépe organizovat čas, ale nevím kde začít."'}
+            placeholder={'Například: "Poslední dobou nemám na nic čas. Mám pocit, že za chvíli vyhořím."'}
             className="w-full px-4 py-3 border-2 border-black/10 rounded-xl bg-white/80 text-sm min-h-[80px] max-h-[160px] resize-y focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
-            disabled={loading}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                handleSubmit();
+                handleInitialSubmit();
               }
             }}
           />
           <div className="flex items-center justify-between">
-            <span className="text-[11px] text-foreground/35">
-              {message.length}/2000
-            </span>
+            <span className="text-[11px] text-foreground/35">{message.length}/2000</span>
             <button
               type="button"
-              onClick={handleSubmit}
-              disabled={loading || !message.trim()}
+              onClick={handleInitialSubmit}
+              disabled={!message.trim()}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Přemýšlím...
-                </>
-              ) : (
-                <>
-                  <Send size={16} />
-                  Doporučit
-                </>
-              )}
+              <Send size={16} />
+              Odeslat
             </button>
           </div>
         </div>
