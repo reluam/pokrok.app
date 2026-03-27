@@ -20,7 +20,7 @@ interface AIResponse {
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-type Step = "input" | "reflecting" | "reflection" | "loading" | "results";
+type Step = "input" | "reflecting" | "reflection" | "loading" | "results" | "max_reflections";
 
 interface Props {
   onSelectTool: (slug: string) => void;
@@ -45,6 +45,7 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
   const [step, setStep] = useState<Step>("input");
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [reflectionCount, setReflectionCount] = useState(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const checkAuth = useCallback(async () => {
@@ -109,10 +110,10 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
 
       if (data.type === "reflection") {
         setReflection(data.text);
+        setReflectionCount(1);
         setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
         setStep("reflection");
       } else {
-        // AI skipped reflection and went straight to recommendations
         setResult(data.response);
         setStep("results");
       }
@@ -127,9 +128,15 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
     setStep("loading");
     setError(null);
 
+    // If confirming without additional text, or we've already reflected twice, force recommendations
+    const isConfirm = !additionalText?.trim();
+    const forceRecommend = isConfirm || reflectionCount >= 2;
+
     const confirmMsg: ChatMessage = {
       role: "user",
-      content: additionalText?.trim() || "Ano, rozumíš mi správně. Doporuč mi prosím nástroje a inspirace.",
+      content: forceRecommend
+        ? (additionalText?.trim() ? `${additionalText.trim()} Doporuč mi prosím nástroje a inspirace.` : "Ano, rozumíš mi správně. Doporuč mi prosím nástroje a inspirace.")
+        : additionalText!.trim(),
     };
     const newHistory = [...chatHistory, confirmMsg];
     setChatHistory(newHistory);
@@ -142,9 +149,15 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
       if (data.type === "recommendations" && data.response) {
         setResult(data.response);
         setStep("results");
-      } else {
-        // Still reflecting — update reflection
+      } else if (reflectionCount >= 2) {
+        // Max reflections reached but AI still didn't recommend — show reset
         setReflection(data.text);
+        setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
+        setStep("max_reflections");
+      } else {
+        // Update reflection, increment count
+        setReflection(data.text);
+        setReflectionCount((c) => c + 1);
         setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
         setStep("reflection");
       }
@@ -158,6 +171,7 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
     setMessage("");
     setChatHistory([]);
     setReflection(null);
+    setReflectionCount(0);
     setResult(null);
     setStep("input");
     setError(null);
@@ -312,6 +326,32 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
         <div className="flex items-center gap-3 py-4">
           <div className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
           <p className="text-sm text-foreground/60">Připravuji doporučení...</p>
+        </div>
+      )}
+
+      {/* Step: Max reflections reached */}
+      {step === "max_reflections" && (
+        <div className="space-y-4">
+          {reflection && (
+            <div className="flex justify-start">
+              <div className="bg-black/[0.03] rounded-2xl rounded-bl-md px-4 py-3 max-w-[85%]">
+                <p className="text-sm text-foreground/75 leading-relaxed">{reflection}</p>
+              </div>
+            </div>
+          )}
+          <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 space-y-3">
+            <p className="text-sm text-foreground/70">
+              Nedaří se mi úplně pochopit tvou situaci. Zkus to prosím popsat jinak — tohle je jedenkrát zadarmo.
+            </p>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-hover transition-colors text-sm"
+            >
+              <RotateCcw size={14} />
+              Začít znovu
+            </button>
+          </div>
         </div>
       )}
 
