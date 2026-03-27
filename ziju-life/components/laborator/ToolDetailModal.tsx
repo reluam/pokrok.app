@@ -201,28 +201,13 @@ export default function ToolDetailModal({ slug, onClose, onNavigateTab, isSubscr
             </div>
 
             {/* CTA for interactive tools */}
-            {tool.toolType === "interactive" && tool.componentId && isSubscriber && onNavigateTab && (
-              <button
-                type="button"
-                onClick={() => {
-                  const tabId = INTERACTIVE_TOOL_TABS[tool.componentId!];
-                  if (tabId) {
-                    onClose();
-                    onNavigateTab(tabId);
-                  }
-                }}
+            {tool.toolType === "interactive" && tool.componentId && (
+              <a
+                href={isSubscriber ? `/laborator/dashboard?tab=${INTERACTIVE_TOOL_TABS[tool.componentId] ?? "tvuj-kompas"}` : "/laborator"}
                 className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-accent text-white font-semibold shadow-md hover:bg-accent-hover transition-colors text-base"
               >
                 <Play size={20} />
-                Spustit nástroj
-              </button>
-            )}
-            {tool.toolType === "interactive" && !isSubscriber && (
-              <a
-                href="/laborator"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-amber-500 text-white font-semibold shadow-md hover:bg-amber-600 transition-colors text-base"
-              >
-                Získej přístup do Laboratoře →
+                Otevřít interaktivní cvičení
               </a>
             )}
 
