@@ -6,7 +6,12 @@ import Link from "next/link";
 import Script from "next/script";
 import type { InspirationData, InspirationItem, InspirationCategory } from "@/lib/inspiration";
 import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
-import { Book, Video, ChevronLeft, ChevronRight, Instagram, FileText, ArrowLeft } from "lucide-react";
+import { Book, Video, ChevronLeft, ChevronRight, Instagram, FileText, ArrowLeft, Wrench } from "lucide-react";
+import type { ToolboxToolCard } from "@/lib/toolbox";
+import { TOOLBOX_CATEGORIES } from "@/lib/toolbox";
+import dynamic from "next/dynamic";
+
+const ToolDetailModal = dynamic(() => import("@/components/laborator/ToolDetailModal"), { ssr: false });
 
 const getVideoId = (url: string): string | null => {
   const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
@@ -74,7 +79,7 @@ interface DisplayItem {
   secondaryCategoryIds?: string[];
 }
 
-type ActiveSection = "vse" | "books" | "videos" | "reels" | "articles";
+type ActiveSection = "vse" | "books" | "tools" | "videos" | "reels" | "articles";
 
 // ── Scroll Row ───────────────────────────────────────────────────────────────
 
@@ -303,14 +308,41 @@ function ArticleCard({ item }: { item: DisplayItem }) {
   );
 }
 
+// ── Tool Card ─────────────────────────────────────────────────────────────────
+
+function ToolCard({ tool, onClick }: { tool: ToolboxToolCard; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex-shrink-0 w-44 sm:w-48 text-left group"
+    >
+      <div className="w-full aspect-square rounded-2xl bg-gradient-to-br from-emerald-50 to-accent/5 border-2 border-emerald-200 group-hover:border-emerald-400 group-hover:shadow-lg transition-all flex flex-col items-center justify-center gap-2 p-4">
+        <span className="text-3xl">{tool.icon || "🔧"}</span>
+        {tool.category && (
+          <span className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">
+            {TOOLBOX_CATEGORIES.find((c) => c.id === tool.category)?.label ?? tool.category}
+          </span>
+        )}
+      </div>
+      <div className="mt-2 px-1">
+        <p className="text-sm font-semibold text-foreground leading-tight line-clamp-2 group-hover:text-accent transition-colors">
+          {tool.title}
+        </p>
+        <p className="text-xs text-foreground/50 mt-0.5 line-clamp-2">{tool.shortDescription}</p>
+      </div>
+    </button>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 const FILTERS: { value: ActiveSection; label: string }[] = [
   { value: "vse", label: "Vše" },
   { value: "books", label: "Knihy" },
-  { value: "videos", label: "Videa" },
-  { value: "reels", label: "Reelska" },
+  { value: "tools", label: "Nástroje" },
   { value: "articles", label: "Články" },
+  { value: "reels", label: "Reelska" },
 ];
 
 export default function InspiraceKnihovnaPage() {
@@ -319,17 +351,22 @@ export default function InspiraceKnihovnaPage() {
   const [categories, setCategories] = useState<InspirationCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<ActiveSection>("vse");
+  const [tools, setTools] = useState<ToolboxToolCard[]>([]);
+  const [openToolSlug, setOpenToolSlug] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const [inspRes, catRes] = await Promise.all([
+        const [inspRes, catRes, toolRes] = await Promise.all([
           fetch("/api/inspiration"),
           fetch("/api/inspiration-categories"),
+          fetch("/api/laborator/toolbox?limit=200"),
         ]);
         setInspirationData(await inspRes.json());
         const catData = await catRes.json();
         setCategories(Array.isArray(catData) ? catData : []);
+        const toolData = await toolRes.json();
+        setTools(toolData.tools ?? []);
       } catch (e) {
         console.error(e);
       } finally {
@@ -435,7 +472,7 @@ export default function InspiraceKnihovnaPage() {
         </div>
 
         {activeSection === "vse" ? (
-          /* Hlavní knihovna: 4 řádky */
+          /* Hlavní knihovna: Knihy → Nástroje → Články → Reelska */
           <div className="space-y-10">
             <ScrollRow
               title="Knihy"
@@ -448,22 +485,12 @@ export default function InspiraceKnihovnaPage() {
             </ScrollRow>
 
             <ScrollRow
-              title="Videa"
-              onTitleClick={() => setActiveSection("videos")}
-              empty={videos.length === 0}
+              title="Nástroje"
+              onTitleClick={() => setActiveSection("tools")}
+              empty={tools.length === 0}
             >
-              {videos.map((item) => (
-                <VideoCard key={item.id} item={item} onClick={() => router.push(item.href)} />
-              ))}
-            </ScrollRow>
-
-            <ScrollRow
-              title="Reelska"
-              onTitleClick={() => setActiveSection("reels")}
-              empty={reels.length === 0}
-            >
-              {reels.map((item) => (
-                <ReelEmbedCard key={item.id} item={item} />
+              {tools.map((tool) => (
+                <ToolCard key={tool.id} tool={tool} onClick={() => setOpenToolSlug(tool.slug)} />
               ))}
             </ScrollRow>
 
@@ -476,6 +503,38 @@ export default function InspiraceKnihovnaPage() {
                 <ArticleCard key={item.id} item={item} />
               ))}
             </ScrollRow>
+
+            <ScrollRow
+              title="Reelska"
+              onTitleClick={() => setActiveSection("reels")}
+              empty={reels.length === 0}
+            >
+              {reels.map((item) => (
+                <ReelEmbedCard key={item.id} item={item} />
+              ))}
+            </ScrollRow>
+          </div>
+        ) : activeSection === "tools" ? (
+          /* Nástroje – grouped by toolbox category */
+          <div className="space-y-8">
+            {tools.length === 0 ? (
+              <p className="text-foreground/50">Zatím žádné nástroje.</p>
+            ) : (
+              TOOLBOX_CATEGORIES
+                .map((cat) => ({
+                  id: cat.id,
+                  label: `${cat.icon} ${cat.label}`,
+                  items: tools.filter((t) => t.category === cat.id),
+                }))
+                .filter((g) => g.items.length > 0)
+                .map((group) => (
+                  <ScrollRow key={group.id} title={group.label}>
+                    {group.items.map((tool) => (
+                      <ToolCard key={tool.id} tool={tool} onClick={() => setOpenToolSlug(tool.slug)} />
+                    ))}
+                  </ScrollRow>
+                ))
+            )}
           </div>
         ) : activeSection === "reels" ? (
           /* Reelska – inline embedy skupinami podle kategorií */
@@ -541,6 +600,14 @@ export default function InspiraceKnihovnaPage() {
           </div>
         )}
       </div>
+
+      {openToolSlug && (
+        <ToolDetailModal
+          slug={openToolSlug}
+          onClose={() => setOpenToolSlug(null)}
+          isSubscriber={false}
+        />
+      )}
     </main>
   );
 }
