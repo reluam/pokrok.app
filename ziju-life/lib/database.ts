@@ -446,6 +446,41 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_user_lab_context_user ON user_lab_context(user_id)
     `
 
+    // ── Daily Todos ─────────────────────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS daily_todos (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        date DATE NOT NULL,
+        todos JSONB NOT NULL DEFAULT '[]'::jsonb,
+        nice_todos JSONB NOT NULL DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(user_id, date)
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_daily_todos_user_date ON daily_todos(user_id, date DESC)
+    `
+
+    // ── Ritual Completions ──────────────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS ritual_completions (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        ritual_id VARCHAR(255) NOT NULL,
+        date DATE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(user_id, ritual_id, date)
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_ritual_completions_user_date ON ritual_completions(user_id, date DESC)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

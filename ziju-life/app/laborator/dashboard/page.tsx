@@ -12,6 +12,8 @@ import dynamic from "next/dynamic";
 const ToolboxTab = dynamic(() => import("@/components/laborator/ToolboxTab"), { ssr: false });
 const LabAICoach = dynamic(() => import("@/components/laborator/LabAICoach"), { ssr: false });
 const PrioritiesWidget = dynamic(() => import("@/components/laborator/PrioritiesWidget"), { ssr: false });
+const DailyTodosWidget = dynamic(() => import("@/components/laborator/DailyTodosWidget"), { ssr: false });
+const RitualsChecklistWidget = dynamic(() => import("@/components/laborator/RitualsChecklistWidget"), { ssr: false });
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -702,8 +704,23 @@ function PrehledTab({
       {/* AI Coach */}
       <LabAICoach onDataChanged={onDataChanged} />
 
-      {/* Priorities */}
-      <PrioritiesWidget />
+      {/* Daily Todos + Priorities side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <DailyTodosWidget />
+        <PrioritiesWidget />
+      </div>
+
+      {/* Rituály — checkable daily completion */}
+      {hasRituals ? (
+        <RitualsChecklistWidget ritualSelection={ritualSelection} />
+      ) : (
+        <div className="paper-card rounded-[20px] px-5 py-5 space-y-3">
+          <h3 className="text-sm font-bold text-foreground">Rituály</h3>
+          <EmptyCta emoji="⏱️" title="Sestav si denní rituály"
+            description="Vyber rituály, které ti dají energii — ranní, denní i večerní."
+            buttonLabel="Nastavit rituály →" onClick={() => onTabChange("nastav-si-den")} />
+        </div>
+      )}
 
       {/* Monthly reflexion banner */}
       {showReflexion && kompasData && (
@@ -714,132 +731,12 @@ function PrehledTab({
         />
       )}
 
-      {/* Two-column dashboard grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-
-        {/* ── Left column: Hodnoty + Kompas ── */}
-        <div className="space-y-6">
-
-          {/* Hodnoty */}
-          <DashboardSection title="Hodnoty" isFirst hasData={hasHodnoty} onEdit={() => onTabChange("moje-hodnoty")}>
-            {hasHodnoty ? (
-              <div className="paper-card rounded-[24px] px-5 py-5 space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {hodnotyData!.finalValues.map((v, i) => {
-                    const score = hodnotyData!.alignmentScores?.[v];
-                    return (
-                      <div key={i} className="flex flex-col gap-1">
-                        <span className={`px-3 py-1.5 rounded-xl text-sm font-medium border ${
-                          i < 5 ? "border-[#FF8C42] bg-orange-50 text-orange-900" : "border-black/10 text-foreground/50"
-                        }`}>{v}</span>
-                        {score !== undefined && (
-                          <div className="flex items-center gap-1 px-0.5">
-                            <div className="flex-1 bg-black/5 rounded-full h-1 overflow-hidden">
-                              <div className="h-full rounded-full" style={{ width: `${score * 10}%`, background: i < 5 ? "#FF8C42" : "#ccc" }} />
-                            </div>
-                            <span className="text-[10px] text-foreground/35 w-6 text-right">{score}/10</span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                {hodnotyData!.alignmentScores && (
-                  <p className="text-xs text-foreground/40">Číslo pod každou hodnotou = jak moc podle ní žiješ teď.</p>
-                )}
-              </div>
-            ) : (
-              <EmptyCta emoji="💎" title="Najdi svoje hodnoty"
-                description="Projdi 56 hodnot a zjisti, co je pro tebe skutečně důležité — ne co by mělo být."
-                buttonLabel="Spustit průvodce →" onClick={() => onTabChange("moje-hodnoty")} />
-            )}
-          </DashboardSection>
-
-          {/* Kompas */}
-          <DashboardSection title="Kompas" hasData={hasKompas} onEdit={() => onTabChange("tvuj-kompas")}>
-            {hasKompas ? (
-              <div className="paper-card rounded-[24px] px-5 py-5 space-y-4">
-                <div className="flex items-center justify-center">
-                  <SpiderChart vals={kompasData!.currentVals} goalVals={kompasData!.goalVals} size={200} />
-                </div>
-                {focusAreaLabel && (
-                  <div className="px-4 py-3 rounded-2xl bg-accent/8 border border-accent/20">
-                    <p className="text-xs font-bold text-accent/70 uppercase tracking-wider mb-0.5">Oblast k rozvoji</p>
-                    <p className="font-bold text-foreground">{focusAreaLabel}</p>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-1.5">
-                  {WHEEL_AREAS.map((a) => {
-                    const cur = kompasData!.currentVals[a.key] ?? 5;
-                    const goal = kompasData!.goalVals[a.key] ?? 5;
-                    const diff = goal - cur;
-                    const isFocus = kompasData!.focusArea === a.key;
-                    return (
-                      <div key={a.key} className={`flex items-center gap-1.5 ${isFocus ? "opacity-100" : "opacity-60"}`}>
-                        <div className="flex-1 bg-black/5 rounded-full h-1.5 overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: `${cur * 10}%`, background: isFocus ? "#FF8C42" : "#ccc" }} />
-                        </div>
-                        <span className={`text-[10px] w-12 truncate ${isFocus ? "text-foreground/70 font-semibold" : "text-foreground/40"}`}>{a.short}</span>
-                        <span className="text-xs font-bold w-3 text-right" style={{ color: isFocus ? "#FF8C42" : "#bbb" }}>{cur}</span>
-                        {diff > 0 && <span className="text-[10px] font-semibold w-5" style={{ color: "#4ECDC4" }}>+{diff}</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {!hasHodnoty && (
-                  <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200">
-                    <span className="text-amber-500 mt-0.5">💡</span>
-                    <p className="text-sm text-amber-800">
-                      <strong>Tip:</strong> Projdi nejdřív Hodnoty — zobrazí se jako kontext při vyplňování Kompasu.
-                    </p>
-                  </div>
-                )}
-                <EmptyCta emoji="🧭" title="Zmapuj svůj život"
-                  description="Ohodnoť, kde se teď nacházíš, a nastav si, kam chceš jít. Na konci víš, na co se zaměřit."
-                  buttonLabel="Spustit průvodce →" onClick={() => onTabChange("tvuj-kompas")} />
-              </div>
-            )}
-          </DashboardSection>
-
+      {/* Týdenní check-in — only when not done this week */}
+      {checkinLoaded && !thisWeekDone && (
+        <div className="paper-card rounded-[20px] px-5 py-5">
+          <WeeklyCheckinWidget checkins={checkins} thisWeekDone={thisWeekDone} hodnotyData={hodnotyData} onSave={onCheckinSave} />
         </div>
-
-        {/* ── Right column: Rituály + Check-in ── */}
-        <div className="space-y-6">
-
-          {/* Rituály */}
-          <DashboardSection title="Tvůj den" hasData={hasRituals} onEdit={() => onTabChange("nastav-si-den")}>
-            {hasRituals ? (
-              <div className="space-y-3">
-                {(["morning", "daily", "evening"] as const).map((slot) => (
-                  <RitualSlotCard key={slot} slot={slot}
-                    ids={ritualSelection![slot]} overrides={ritualSelection?.durationOverrides} showTags />
-                ))}
-              </div>
-            ) : (
-              <EmptyCta emoji="🗓️" title="Sestav si denní systém"
-                description="Vyber rituály, které ti dají energii — ranní, denní i večerní. Vědecky podložené, přizpůsobené tobě."
-                buttonLabel="Spustit průvodce →" onClick={() => onTabChange("nastav-si-den")} />
-            )}
-          </DashboardSection>
-
-          {/* Týdenní check-in */}
-          <DashboardSection title="Týdenní check-in" hasData={false} onEdit={() => {}}>
-            <div className="paper-card rounded-[24px] px-5 py-5">
-              {!checkinLoaded ? (
-                <div className="h-16 flex items-center">
-                  <div className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                </div>
-              ) : (
-                <WeeklyCheckinWidget checkins={checkins} thisWeekDone={thisWeekDone} hodnotyData={hodnotyData} onSave={onCheckinSave} />
-              )}
-            </div>
-          </DashboardSection>
-
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -1114,7 +1011,7 @@ function DashboardContent() {
     { id: "prehled",       label: "Přehled",       emoji: "📊" },
     { id: "moje-hodnoty",  label: "Hodnoty",   emoji: "💎",  done: hasHodnoty },
     { id: "tvuj-kompas",   label: "Kompas",    emoji: "🧭",  done: hasKompas },
-    { id: "nastav-si-den", label: "Tvůj den",  emoji: "🗓️", done: hasRituals },
+    { id: "nastav-si-den", label: "Rituály",   emoji: "⏱️", done: hasRituals },
     { id: "nastrojarna",   label: "Nástrojárna", emoji: "🧰" },
   ] as { id: string; label: string; emoji: string; done?: boolean }[];
 
