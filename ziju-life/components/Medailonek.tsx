@@ -36,7 +36,7 @@ export default function Medailonek() {
             
             <div className="space-y-4 text-lg md:text-xl text-foreground/80 leading-relaxed">
               <p>
-                Od mala jsem si přál jednu věc — fungovat jako normální člověk. Dělat věci, které ostatní zvládali přirozeně. Ale čím víc jsem se snažil, tím víc mi to nešlo. Žil jsem v budoucnosti — pořád jsem viděl, kam chci jít, ale neviděl jsem, kde jsem.
+                Od mala jsem si přál jednu věc — fungovat jako normální člověk. Dělat věci, které ostatní zvládali přirozeně. Ale čím víc jsem se snažil, tím víc mi to nešlo. Žil jsem v budoucnosti a fantasiích. Pořád jsem viděl, kam chci jít, ale nechtěl jsem si připustit, kde jsem teď.
               </p>
 
               <p>
