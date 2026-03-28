@@ -13,8 +13,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { WebView } from "react-native-webview";
+import Markdown from "react-native-markdown-display";
 import { apiFetch } from "@/api/client";
-import { ChevronLeft, ExternalLink } from "lucide-react-native";
+import { getToolBySlug, type Tool } from "@/api/toolbox";
+import { ChevronLeft, ExternalLink, BookOpen, Video, FileText } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
 const { width: SCREEN_W } = Dimensions.get("window");
@@ -46,6 +48,7 @@ export default function InspirationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [item, setItem] = useState<FullItem | null>(null);
+  const [toolData, setToolData] = useState<Tool | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,6 +57,15 @@ export default function InspirationDetailScreen() {
       try {
         const res = await apiFetch<{ item: FullItem }>(`/api/inspiration/${encodeURIComponent(id)}`);
         setItem(res.item);
+
+        // Tool items → also fetch full tool details from toolbox API
+        if (res.item.type === "tool" && res.item.id?.startsWith("#tool_")) {
+          const slug = res.item.id.replace("#tool_", "");
+          try {
+            const toolRes = await getToolBySlug(slug);
+            setToolData(toolRes.tool);
+          } catch {}
+        }
       } catch (e) {
         console.warn("[inspiration detail] Failed to load:", id, e);
       }
@@ -132,8 +144,44 @@ export default function InspirationDetailScreen() {
         {/* Description */}
         {item.description && <Text style={s.desc}>{item.description}</Text>}
 
-        {/* Content (blog/princip) */}
-        {hasContent && <Text style={s.contentText}>{item.content}</Text>}
+        {/* Content (blog/princip) — markdown */}
+        {hasContent && (
+          <View style={{ paddingHorizontal: 20, marginTop: 16 }}>
+            <Markdown style={mdStyles}>{item.content!}</Markdown>
+          </View>
+        )}
+
+        {/* Tool full details */}
+        {toolData && (
+          <View style={{ paddingHorizontal: 20, marginTop: 16 }}>
+            {toolData.descriptionMarkdown && (
+              <Markdown style={mdStyles}>{toolData.descriptionMarkdown}</Markdown>
+            )}
+            {toolData.applicationMarkdown && (
+              <>
+                <View style={{ height: 1, backgroundColor: "rgba(0,0,0,0.06)", marginVertical: 20 }} />
+                <Text style={{ fontSize: 13, fontWeight: "800", color: colors.muted, letterSpacing: 1.5, marginBottom: 16 }}>JAK NA TO</Text>
+                <Markdown style={mdStyles}>{toolData.applicationMarkdown}</Markdown>
+              </>
+            )}
+            {toolData.sources && toolData.sources.length > 0 && (
+              <>
+                <View style={{ height: 1, backgroundColor: "rgba(0,0,0,0.06)", marginVertical: 20 }} />
+                <Text style={{ fontSize: 13, fontWeight: "800", color: colors.muted, letterSpacing: 1.5, marginBottom: 16 }}>ZDROJE</Text>
+                {toolData.sources.map((src, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(0,0,0,0.06)" }}
+                    onPress={() => src.url && Linking.openURL(src.url)}
+                  >
+                    <ExternalLink size={14} color={colors.accent} />
+                    <Text style={{ fontSize: 14, color: colors.foreground, flex: 1 }}>{src.title}</Text>
+                  </TouchableOpacity>
+                ))}
+              </>
+            )}
+          </View>
+        )}
 
         {/* External link */}
         {item.url && !hasVideo && (
@@ -156,6 +204,18 @@ export default function InspirationDetailScreen() {
   );
 }
 
+const mdStyles = StyleSheet.create({
+  body: { fontSize: 15, color: colors.foreground, lineHeight: 24 },
+  heading1: { fontSize: 20, fontWeight: "800" as const, color: colors.foreground, marginTop: 20, marginBottom: 8 },
+  heading2: { fontSize: 18, fontWeight: "700" as const, color: colors.foreground, marginTop: 16, marginBottom: 8 },
+  heading3: { fontSize: 16, fontWeight: "700" as const, color: colors.foreground, marginTop: 12, marginBottom: 6 },
+  paragraph: { marginBottom: 12 },
+  strong: { fontWeight: "700" as const },
+  list_item: { marginBottom: 4 },
+  blockquote: { backgroundColor: colors.boxBg, borderLeftWidth: 3, borderLeftColor: colors.accent, paddingLeft: 12, paddingVertical: 8, marginBottom: 12 },
+  link: { color: colors.accent },
+});
+
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
@@ -177,8 +237,6 @@ const s = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "800", color: colors.foreground, paddingHorizontal: 20, marginTop: 16, lineHeight: 30 },
   author: { fontSize: 15, color: colors.muted, paddingHorizontal: 20, marginTop: 4 },
   desc: { fontSize: 15, color: colors.foreground, lineHeight: 24, paddingHorizontal: 20, marginTop: 16 },
-  contentText: { fontSize: 15, color: colors.foreground, lineHeight: 26, paddingHorizontal: 20, marginTop: 16 },
-
   linkBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
     backgroundColor: colors.accent, borderRadius: 999, paddingVertical: 14, marginHorizontal: 20, marginTop: 24,

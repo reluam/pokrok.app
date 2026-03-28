@@ -125,7 +125,7 @@ export default function InspiraceScreen() {
         data={items}
         style={s.flex}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: aiOpen ? 280 : 16 }}
-        keyExtractor={item => item.id}
+        keyExtractor={(item, index) => `${item.id}_${index}`}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
         onEndReached={() => hasMore && !refreshing && load(false)}
         onEndReachedThreshold={0.3}

@@ -1,14 +1,28 @@
 import { apiFetch } from "./client";
 
+export interface ToolSource {
+  title: string;
+  url: string;
+  type?: string;
+}
+
 export interface Tool {
   slug: string;
   title: string;
-  description: string;
+  shortDescription?: string;
+  description?: string;
+  descriptionMarkdown?: string;
+  applicationMarkdown?: string;
+  sources?: ToolSource[];
   category: string;
   difficulty: number;
-  duration: string;
+  durationEstimate?: string;
+  duration?: string;
   tags: string[];
-  tool_type: string;
+  icon?: string;
+  toolType?: string;
+  tool_type?: string;
+  componentId?: string;
 }
 
 export async function getTools(params?: {

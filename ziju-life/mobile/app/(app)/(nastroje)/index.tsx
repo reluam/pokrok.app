@@ -19,8 +19,17 @@ import { colors } from "@/constants/theme";
 type SubTab = "cviceni" | "nastroje";
 
 const CATEGORIES = [
-  "Vše", "Rozhodování", "Plánování", "Reflexe", "Komunikace",
-  "Myšlení", "Návyky", "Emoce", "Produktivita", "Kreativita", "Vztahy",
+  { id: "", label: "Vše" },
+  { id: "rozhodovani", label: "🎯 Rozhodování" },
+  { id: "planovani", label: "📋 Plánování" },
+  { id: "reflexe", label: "🪞 Reflexe" },
+  { id: "komunikace", label: "💬 Komunikace" },
+  { id: "mysleni", label: "🧠 Myšlení" },
+  { id: "navyky", label: "🔗 Návyky" },
+  { id: "emoce", label: "🌊 Emoce" },
+  { id: "produktivita", label: "⚡ Produktivita" },
+  { id: "kreativita", label: "🎨 Kreativita" },
+  { id: "vztahy", label: "🤝 Vztahy" },
 ];
 
 export default function NastrojeScreen() {
@@ -35,7 +44,7 @@ export default function NastrojeScreen() {
   // Nástroje state
   const [tools, setTools] = useState<Tool[]>([]);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("Vše");
+  const [category, setCategory] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -54,7 +63,7 @@ export default function NastrojeScreen() {
     try {
       const params: { q?: string; category?: string } = {};
       if (search.trim()) params.q = search.trim();
-      if (category !== "Vše") params.category = category;
+      if (category) params.category = category;
       const result = await getTools({ ...params, limit: 50 });
       setTools(result.tools);
     } catch {}
@@ -118,13 +127,13 @@ export default function NastrojeScreen() {
         style={s.catRow}
         contentContainerStyle={{ paddingHorizontal: 16, gap: 6 }}
         showsHorizontalScrollIndicator={false}
-        keyExtractor={c => c}
+        keyExtractor={c => c.id || "all"}
         renderItem={({ item: c }) => (
           <TouchableOpacity
-            style={[s.catChip, category === c && s.catChipActive]}
-            onPress={() => setCategory(c)}
+            style={[s.catChip, category === c.id && s.catChipActive]}
+            onPress={() => setCategory(c.id)}
           >
-            <Text style={[s.catText, category === c && s.catTextActive]}>{c}</Text>
+            <Text style={[s.catText, category === c.id && s.catTextActive]}>{c.label}</Text>
           </TouchableOpacity>
         )}
       />
