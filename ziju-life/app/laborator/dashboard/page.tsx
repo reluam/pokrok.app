@@ -915,9 +915,9 @@ function DashboardContent() {
     }
     if (ritualSelection) {
       const slots = [
-        ...((ritualSelection.morning ?? []).map((id: string) => ({ slot: "ráno", name: ritualsById[id]?.name ?? id }))),
-        ...((ritualSelection.daily ?? []).map((id: string) => ({ slot: "přes den", name: ritualsById[id]?.name ?? id }))),
-        ...((ritualSelection.evening ?? []).map((id: string) => ({ slot: "večer", name: ritualsById[id]?.name ?? id }))),
+        ...((ritualSelection.morning ?? []).map((id: string) => ({ slot: "ráno", name: ritualsById[id]?.name ?? id, ritualId: id }))),
+        ...((ritualSelection.daily ?? []).map((id: string) => ({ slot: "přes den", name: ritualsById[id]?.name ?? id, ritualId: id }))),
+        ...((ritualSelection.evening ?? []).map((id: string) => ({ slot: "večer", name: ritualsById[id]?.name ?? id, ritualId: id }))),
       ];
       if (slots.length > 0) sync("rituals", slots);
     }

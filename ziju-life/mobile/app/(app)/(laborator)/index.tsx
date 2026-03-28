@@ -258,11 +258,12 @@ export default function LaboratorDashboard() {
         };
 
         if (Array.isArray(ctx.rituals)) {
-          // Format A: [{slot, name}, ...]
-          for (const r of ctx.rituals as { slot: string; name: string }[]) {
+          // Format A: [{slot, name, ritualId?}, ...]
+          for (const r of ctx.rituals as { slot: string; name: string; ritualId?: string }[]) {
             const slotKey = SLOT_MAP[r.slot] || SLOT_MAP[r.slot?.toLowerCase()];
             if (slotKey && grouped[slotKey]) {
-              const id = r.name;
+              // Use ritualId (original ID like "cold-shower") if available, fall back to name
+              const id = r.ritualId || r.name;
               grouped[slotKey].push({
                 id, name: r.name,
                 done: completedToday.has(id),
