@@ -24,6 +24,7 @@ const TYPE_FILTERS = [
   { key: "music", label: "🎵 Hudba" },
   { key: "reel", label: "📱 Reely" },
   { key: "princip", label: "🧭 Principy" },
+  { key: "tool", label: "🔧 Nástroje" },
 ];
 
 interface AIMessage { role: "user" | "assistant"; content: string }
@@ -82,7 +83,7 @@ export default function InspiraceScreen() {
   const renderItem = ({ item }: { item: InspirationItem }) => (
     <TouchableOpacity
       style={s.card}
-      onPress={() => router.push(`/(app)/(inspirace)/${item.id}`)}
+      onPress={() => router.push({ pathname: "/(app)/(inspirace)/[id]", params: { id: item.id } })}
       activeOpacity={0.7}
     >
       {(item.thumbnail || item.imageUrl) && (

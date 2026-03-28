@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { FlaskConical, MessageCircle, Wrench, Lightbulb, User } from "lucide-react-native";
+import { LayoutDashboard, MessageCircle, Wrench, Lightbulb, User } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
 export default function AppLayout() {
@@ -27,7 +27,7 @@ export default function AppLayout() {
         options={{
           title: "Přehled",
           tabBarIcon: ({ color, size }) => (
-            <FlaskConical size={size} color={color} />
+            <LayoutDashboard size={size} color={color} />
           ),
         }}
       />

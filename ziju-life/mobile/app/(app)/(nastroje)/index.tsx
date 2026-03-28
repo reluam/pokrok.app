@@ -138,7 +138,7 @@ export default function NastrojeScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={s.toolCard}
-            onPress={() => router.push(`/(app)/(nastroje)/${item.slug}`)}
+            onPress={() => router.push({ pathname: "/(app)/(nastroje)/[slug]", params: { slug: item.slug } })}
             activeOpacity={0.7}
           >
             <Text style={s.toolTitle}>{item.title}</Text>

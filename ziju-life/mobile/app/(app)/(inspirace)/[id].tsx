@@ -52,9 +52,11 @@ export default function InspirationDetailScreen() {
     if (!id) return;
     (async () => {
       try {
-        const res = await apiFetch<{ item: FullItem }>(`/api/inspiration/${id}`);
+        const res = await apiFetch<{ item: FullItem }>(`/api/inspiration/${encodeURIComponent(id)}`);
         setItem(res.item);
-      } catch {}
+      } catch (e) {
+        console.warn("[inspiration detail] Failed to load:", id, e);
+      }
       setLoading(false);
     })();
   }, [id]);

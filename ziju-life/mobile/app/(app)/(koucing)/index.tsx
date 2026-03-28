@@ -39,13 +39,25 @@ export default function KoucingScreen() {
           // Welcome message for new users
           setMessages([{
             role: "assistant",
-            content: "Ahoj! Jsem tvůj osobní kouč. Povídej mi o sobě — co tě trápí, kam chceš směřovat, na čem pracuješ. Čím víc toho o tobě vím, tím lépe ti dokážu pomoct. 🌱",
+            content: `Ahoj! 👋 Jsem tvůj osobní AI kouč.
+
+Funguju jako tvůj společník na cestě osobního rozvoje. Můžeš se mnou probírat cokoliv — své cíle, výzvy, nápady, pocity. Čím víc toho o tobě vím, tím lépe ti dokážu pomoct.
+
+Co ode mě můžeš čekat:
+• Naslouchám a kladu otázky, které ti pomůžou přemýšlet jinak
+• Pamatuju si naši konverzaci a buduji tvůj profil
+• Doporučuju nástroje a inspirace šité na míru tobě
+• Pomáhám ti stanovit priority a udržet směr
+
+Naše konverzace se ukládá — kdykoli se vrátíš, navážeme tam, kde jsme skončili.
+
+Tak povídej — co právě řešíš? 🌱`,
           }]);
         }
       } catch {
         setMessages([{
           role: "assistant",
-          content: "Ahoj! Jsem tvůj osobní kouč. Povídej mi o sobě — co řešíš, na čem pracuješ. 🌱",
+          content: "Ahoj! 👋 Jsem tvůj osobní AI kouč. Povídej mi o sobě — co řešíš, na čem pracuješ. Čím víc toho o tobě vím, tím lépe ti pomůžu. 🌱",
         }]);
       }
       setLoading(false);
