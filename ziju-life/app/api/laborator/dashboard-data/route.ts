@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
 import { getLaboratorUser } from "@/lib/laborator-user";
-import { sql } from "@/lib/database";
+import { sql, initializeDatabase } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
   if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
+    await initializeDatabase();
     const today = new Date().toISOString().split("T")[0];
     const yesterday = new Date(Date.now() - 86_400_000).toISOString().split("T")[0];
     const thirtyDaysAgo = new Date(Date.now() - 30 * 86_400_000).toISOString().split("T")[0];
