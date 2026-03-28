@@ -243,20 +243,52 @@ export default function LaboratorDashboard() {
       const completedToday = new Set<string>(data.ritualCompletions.today ?? []);
       const stats: Record<string, number> = data.ritualCompletions.stats ?? {};
 
-      if (ctx.rituals && typeof ctx.rituals === "object" && !Array.isArray(ctx.rituals)) {
-        const sel = ctx.rituals as { morning?: string[]; daily?: string[]; evening?: string[] };
-        const parseName = (id: string) => {
-          if (id.startsWith("custom::")) return id.split("::")[1] ?? id;
-          return id.replace(/-/g, " ").replace(/^\w/, c => c.toUpperCase());
-        };
-        const toItems = (ids: string[]) =>
-          ids.map(id => ({ id, name: parseName(id), done: completedToday.has(id), streak: stats[id] ?? 0 }));
+      // Rituals can be stored in two formats:
+      // Format A (from web localStorage sync): [{slot: "ráno", name: "Ledová sprcha"}, ...]
+      // Format B (direct selection): {morning: ["cold-shower", ...], daily: [...], evening: [...]}
+      const SLOT_MAP: Record<string, "morning" | "daily" | "evening"> = {
+        "ráno": "morning", "morning": "morning",
+        "přes den": "daily", "daily": "daily", "během dne": "daily",
+        "večer": "evening", "evening": "evening",
+      };
 
-        setRitualItems({
-          morning: toItems(sel.morning ?? []),
-          daily: toItems(sel.daily ?? []),
-          evening: toItems(sel.evening ?? []),
-        });
+      if (ctx.rituals) {
+        const grouped: { morning: RitualItem[]; daily: RitualItem[]; evening: RitualItem[] } = {
+          morning: [], daily: [], evening: [],
+        };
+
+        if (Array.isArray(ctx.rituals)) {
+          // Format A: [{slot, name}, ...]
+          for (const r of ctx.rituals as { slot: string; name: string }[]) {
+            const slotKey = SLOT_MAP[r.slot] || SLOT_MAP[r.slot?.toLowerCase()];
+            if (slotKey && grouped[slotKey]) {
+              const id = r.name;
+              grouped[slotKey].push({
+                id, name: r.name,
+                done: completedToday.has(id),
+                streak: stats[id] ?? 0,
+              });
+            }
+          }
+        } else if (typeof ctx.rituals === "object") {
+          // Format B: {morning: ["id1", ...], daily: [...], evening: [...]}
+          const sel = ctx.rituals as { morning?: string[]; daily?: string[]; evening?: string[] };
+          const parseName = (id: string) => {
+            if (id.startsWith("custom::")) return id.split("::")[1] ?? id;
+            return id.replace(/-/g, " ").replace(/^\w/, c => c.toUpperCase());
+          };
+          for (const slot of ["morning", "daily", "evening"] as const) {
+            for (const id of sel[slot] ?? []) {
+              grouped[slot].push({
+                id, name: parseName(id),
+                done: completedToday.has(id),
+                streak: stats[id] ?? 0,
+              });
+            }
+          }
+        }
+
+        setRitualItems(grouped);
       }
     } catch (err) {
       console.error("Dashboard load error:", err);
