@@ -185,3 +185,53 @@ export async function sendMagicLinkEmail(
     return { ok: false, error: err instanceof Error ? err.message : String(err) }
   }
 }
+
+/**
+ * Send content request email to admin when AI coach can't help with a topic.
+ */
+export async function sendContentRequestEmail(
+  topic: string,
+  userMessage: string
+): Promise<{ ok: boolean; error?: string }> {
+  const adminEmail = process.env.CONTACT_EMAIL || process.env.BOOKING_ADMIN_EMAIL
+  if (!adminEmail) {
+    console.warn('[user-email] No CONTACT_EMAIL configured, skipping content request email')
+    return { ok: false, error: 'No admin email configured' }
+  }
+
+  const content = `
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
+      AI kouč v Laboratoři nedokázal pomoct uživateli s tímto tématem:
+    </p>
+
+    <div style="padding: 16px 20px; background-color: ${BOX_BG}; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid ${ACCENT};">
+      <p style="color: ${TEXT_DARK}; font-size: 15px; font-weight: 600; margin: 0 0 8px;">
+        Téma: ${topic}
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 14px; line-height: 1.6; margin: 0;">
+        Zpráva uživatele: „${userMessage.slice(0, 500)}"
+      </p>
+    </div>
+
+    <p style="color: ${TEXT_MUTED}; font-size: 14px; line-height: 1.6; margin: 0;">
+      Zvaž přidání nového nástroje nebo inspirace, které pokryjí toto téma.
+    </p>
+  `
+
+  try {
+    const { error } = await resend.emails.send({
+      from,
+      to: [adminEmail],
+      subject: `[Žiju.life] Poptávka: ${topic}`,
+      html: emailWrapper('Poptávka na nový obsah', content),
+    })
+    if (error) {
+      console.warn('[user-email] Content request email failed:', error)
+      return { ok: false, error: String(error) }
+    }
+    return { ok: true }
+  } catch (err) {
+    console.warn('[user-email] sendContentRequestEmail error:', err)
+    return { ok: false, error: err instanceof Error ? err.message : String(err) }
+  }
+}

@@ -10,6 +10,7 @@ import NastavSiDenWizard, { DownloadPDFButton, type RitualSelection as WizardSel
 import dynamic from "next/dynamic";
 
 const ToolboxTab = dynamic(() => import("@/components/laborator/ToolboxTab"), { ssr: false });
+const LabAICoach = dynamic(() => import("@/components/laborator/LabAICoach"), { ssr: false });
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -695,6 +696,9 @@ function PrehledTab({
   return (
     <div className="space-y-6">
 
+      {/* AI Coach */}
+      <LabAICoach />
+
       {/* Monthly reflexion banner */}
       {showReflexion && kompasData && (
         <MonthlyReflexionCard
@@ -987,6 +991,36 @@ function DashboardContent() {
     try { const k = localStorage.getItem("kompas-data"); if (k) setKompasData(JSON.parse(k)); } catch {}
     try { const h = localStorage.getItem("hodnoty-data"); if (h) setHodnotyData(JSON.parse(h)); } catch {}
   }, [checked]);
+
+  // Sync localStorage data to DB for AI coach context
+  useEffect(() => {
+    if (!checked || !kompasData && !hodnotyData && !ritualSelection) return;
+    const sync = async (type: string, data: unknown) => {
+      if (!data) return;
+      try { await fetch("/api/laborator/user-context", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type, data }) }); } catch {}
+    };
+    if (kompasData?.currentVals) {
+      const areas = Object.keys(kompasData.currentVals).map((key) => ({
+        area: WHEEL_AREAS.find((a) => a.key === key)?.short ?? key,
+        current: kompasData.currentVals[key] ?? 0,
+        goal: kompasData.goalVals?.[key] ?? 0,
+      }));
+      sync("compass", areas);
+    }
+    if (hodnotyData?.finalValues?.length) {
+      sync("values", hodnotyData.finalValues.map((v) => ({
+        name: v, alignment: hodnotyData.alignmentScores?.[v] ?? 0,
+      })));
+    }
+    if (ritualSelection) {
+      const slots = [
+        ...((ritualSelection.morning ?? []).map((id: string) => ({ slot: "ráno", name: ritualsById[id]?.name ?? id }))),
+        ...((ritualSelection.daily ?? []).map((id: string) => ({ slot: "přes den", name: ritualsById[id]?.name ?? id }))),
+        ...((ritualSelection.evening ?? []).map((id: string) => ({ slot: "večer", name: ritualsById[id]?.name ?? id }))),
+      ];
+      if (slots.length > 0) sync("rituals", slots);
+    }
+  }, [checked, kompasData, hodnotyData, ritualSelection]);
 
   // Load check-ins
   useEffect(() => {

@@ -46,6 +46,7 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [reflectionCount, setReflectionCount] = useState(0);
+  const [collapsed, setCollapsed] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const checkAuth = useCallback(async () => {
@@ -222,6 +223,28 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
 
   const isBlocked = ["login_required", "limit_reached", "no_credits", "no_budget"].includes(error ?? "");
 
+  const expand = () => {
+    if (collapsed) {
+      setCollapsed(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  };
+
+  // Collapsed: just a fake input
+  if (collapsed && step === "input" && !isBlocked) {
+    return (
+      <div
+        className="paper-card rounded-[24px] px-6 py-4 border-2 border-accent/15 cursor-text"
+        onClick={expand}
+      >
+        <div className="flex items-center gap-3 text-foreground/40">
+          <Sparkles size={18} className="text-accent/50" />
+          <span className="text-sm">Co teď řešíš?</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5 border-2 border-accent/15">
       {/* Header */}
@@ -237,9 +260,13 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
             </p>
           </div>
         </div>
-        {step !== "input" && (
+        {step !== "input" ? (
           <button onClick={handleReset} className="p-2 rounded-xl hover:bg-black/5 text-foreground/40 hover:text-foreground/70 transition-colors" title="Začít znovu">
             <RotateCcw size={16} />
+          </button>
+        ) : (
+          <button onClick={() => setCollapsed(true)} className="p-2 rounded-xl hover:bg-black/5 text-foreground/40 hover:text-foreground/70 transition-colors" title="Minimalizovat">
+            <span className="text-xs">✕</span>
           </button>
         )}
       </div>

@@ -429,6 +429,23 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_ai_credit_packs_user ON ai_credit_packs(user_id)
     `
 
+    // ── Uživatelský kontext Laboratoře (sync kompas/hodnoty/rituály) ────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS user_lab_context (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        context_type VARCHAR(50) NOT NULL,
+        data JSONB NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(user_id, context_type)
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_user_lab_context_user ON user_lab_context(user_id)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)
