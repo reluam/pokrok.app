@@ -75,11 +75,11 @@ export async function POST(request: NextRequest) {
   try {
     await initializeDatabase();
 
-    const valid = await checkLaboratorAccess();
-    if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const user = await getLaboratorUser();
+    const user = await getLaboratorUser(request);
     if (!user) return NextResponse.json({ error: "No user" }, { status: 400 });
+
+    const valid = await checkLaboratorAccess(user.email);
+    if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     // Check budget
     const budget = await getAIBudgetBalance(user.id);

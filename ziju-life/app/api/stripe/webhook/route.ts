@@ -76,11 +76,13 @@ export async function POST(req: NextRequest) {
 
           // Vygeneruj magic token a pošli přístupový email
           const token = `${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+          const code = String(Math.floor(100000 + Math.random() * 900000));
           const tokenId = `mlt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
           const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minut
+          try { await sql`ALTER TABLE magic_link_tokens ADD COLUMN IF NOT EXISTS code VARCHAR(6)`; } catch {}
           await sql`
-            INSERT INTO magic_link_tokens (id, user_id, token, expires_at, created_at)
-            VALUES (${tokenId}, ${resolvedUserId}, ${token}, ${expiresAt}, NOW())
+            INSERT INTO magic_link_tokens (id, user_id, token, code, expires_at, created_at)
+            VALUES (${tokenId}, ${resolvedUserId}, ${token}, ${code}, ${expiresAt}, NOW())
           `;
 
           const emailResult = await sendAuditZivotaAccessEmail(userEmail, token);

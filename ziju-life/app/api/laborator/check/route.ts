@@ -1,20 +1,27 @@
 // Called by protected pages on every load.
 // Uses checkLaboratorAccess() — checks both admin grants and Stripe subscription.
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
-import { verifyUserSession } from "@/lib/user-auth";
+import { getEmailFromBearer, verifyUserSession } from "@/lib/user-auth";
 import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const valid = await checkLaboratorAccess();
+    // Try Bearer token first (mobile), then cookies (web)
+    const bearerEmail = await getEmailFromBearer(request);
+
+    const valid = await checkLaboratorAccess(bearerEmail);
 
     if (!valid) {
       return NextResponse.json({ valid: false });
     }
 
     // Resolve email for display
+    if (bearerEmail) {
+      return NextResponse.json({ valid: true, email: bearerEmail });
+    }
+
     const cookieStore = await cookies();
     const cookieEmail = cookieStore.get("lab_email")?.value?.trim();
     let sessionEmail: string | undefined;

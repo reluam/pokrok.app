@@ -129,7 +129,9 @@ export async function sendAuditZivotaAccessEmail(
 export async function sendMagicLinkEmail(
   to: string,
   token: string,
-  next?: string
+  next?: string,
+  source?: string,
+  code?: string
 ): Promise<{ ok: boolean; error?: string }> {
   if (!process.env.RESEND_API_KEY?.trim()) {
     console.warn('[user-email] RESEND_API_KEY not set, skipping magic link email')
@@ -139,29 +141,60 @@ export async function sendMagicLinkEmail(
   const siteUrl = getSiteUrl()
   const nextParam = next ? `&next=${encodeURIComponent(next)}` : ''
   const loginUrl = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}${nextParam}`
+  const deepLinkUrl = `zijulife://auth/callback?token=${encodeURIComponent(token)}`
+
+  const codeBlock = code ? `
+    <div style="text-align: center; margin-bottom: 28px;">
+      <p style="color: ${TEXT_MUTED}; font-size: 14px; margin: 0 0 12px;">
+        Tvůj přihlašovací kód:
+      </p>
+      <div style="display: inline-block; padding: 16px 32px; background-color: ${BOX_BG}; border-radius: 12px; border: 2px dashed ${BORDER};">
+        <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: ${TEXT_DARK};">
+          ${code}
+        </span>
+      </div>
+    </div>
+  ` : ''
+
+  const dividerText = code ? `
+    <p style="color: ${TEXT_MUTED}; font-size: 13px; line-height: 1.6; margin: 0 0 16px; text-align: center;">
+      Nebo se přihlas kliknutím:
+    </p>
+  ` : ''
 
   const content = `
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
       Ahoj,
     </p>
-    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 32px;">
-      Klikni na tlačítko níže a přihlásíš se do svého účtu na Žiju.life.
-      Odkaz je platný <strong>5 minut</strong>.
+    <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+      ${code ? 'Zadej kód níže nebo klikni na tlačítko pro přihlášení.' : 'Klikni na tlačítko níže a přihlásíš se do svého účtu na Žiju.life.'}
+      Platnost: <strong>5 minut</strong>.
     </p>
 
+    ${codeBlock}
+    ${dividerText}
+
     <div style="text-align: center; margin-bottom: 32px;">
-      <a href="${loginUrl}" target="_blank" rel="noreferrer"
+      <a href="${source === 'mobile' ? deepLinkUrl : loginUrl}" target="_blank" rel="noreferrer"
          style="display: inline-block; padding: 14px 32px; border-radius: 999px; background-color: ${ACCENT}; color: #ffffff; font-size: 16px; font-weight: 700; text-decoration: none; letter-spacing: 0.01em;">
-        Přihlásit se
+        ${source === 'mobile' ? 'Otevřít v aplikaci' : 'Přihlásit se'}
       </a>
     </div>
 
+    ${source === 'mobile' ? `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <a href="${loginUrl}" style="color: ${ACCENT}; font-size: 13px; text-decoration: none;">
+        Nebo se přihlas na webu →
+      </a>
+    </div>
+    ` : `
     <div style="padding: 16px 20px; background-color: ${BOX_BG}; border-radius: 8px; margin-bottom: 24px;">
       <p style="color: ${TEXT_MUTED}; font-size: 13px; line-height: 1.6; margin: 0;">
         Nebo zkopíruj tento odkaz do prohlížeče:<br>
         <span style="font-family: monospace; font-size: 12px; word-break: break-all; color: ${TEXT_DARK};">${loginUrl}</span>
       </p>
     </div>
+    `}
 
     <p style="color: ${TEXT_MUTED}; font-size: 14px; line-height: 1.6; margin: 0;">
       Pokud ses o přihlášení nepokusil/a, tento e-mail ignoruj.

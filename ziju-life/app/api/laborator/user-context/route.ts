@@ -8,12 +8,12 @@ export const dynamic = "force-dynamic";
 const VALID_TYPES = ["compass", "values", "rituals", "priorities"];
 
 /** GET — load all user context */
-export async function GET() {
-  const valid = await checkLaboratorAccess();
-  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const user = await getLaboratorUser();
+export async function GET(request: NextRequest) {
+  const user = await getLaboratorUser(request);
   if (!user) return NextResponse.json({ error: "No user" }, { status: 400 });
+
+  const valid = await checkLaboratorAccess(user.email);
+  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const rows = (await sql`
@@ -36,11 +36,11 @@ export async function GET() {
 
 /** POST — save/update user context */
 export async function POST(request: NextRequest) {
-  const valid = await checkLaboratorAccess();
-  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const user = await getLaboratorUser();
+  const user = await getLaboratorUser(request);
   if (!user) return NextResponse.json({ error: "No user" }, { status: 400 });
+
+  const valid = await checkLaboratorAccess(user.email);
+  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     await initializeDatabase();

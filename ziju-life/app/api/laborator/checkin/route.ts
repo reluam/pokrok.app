@@ -8,12 +8,12 @@ export const dynamic = "force-dynamic";
 // ── GET /api/laborator/checkin ─────────────────────────────────────────────────
 // Returns last 12 weeks of check-ins (with value_scores + area_scores).
 
-export async function GET() {
-  const valid = await checkLaboratorAccess();
-  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const user = await getLaboratorUser();
+export async function GET(request: NextRequest) {
+  const user = await getLaboratorUser(request);
   if (!user) return NextResponse.json({ checkins: [], thisWeekDone: false });
+
+  const valid = await checkLaboratorAccess(user.email);
+  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const rows = await sql`
     SELECT score, week_start_date, value_scores, area_scores
@@ -37,11 +37,11 @@ export async function GET() {
 // Saves (or upserts) a check-in with value_scores and area_scores.
 
 export async function POST(req: NextRequest) {
-  const valid = await checkLaboratorAccess();
-  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const user = await getLaboratorUser();
+  const user = await getLaboratorUser(req);
   if (!user) return NextResponse.json({ error: "No user found" }, { status: 400 });
+
+  const valid = await checkLaboratorAccess(user.email);
+  if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const valueScores: Record<string, number> = body.valueScores ?? {};

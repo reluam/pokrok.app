@@ -2,6 +2,7 @@
  * Resolve a Laboratoř user (DB User) from the current request context.
  *
  * Priority:
+ * 0. Bearer JWT token (mobile app) — when request is provided
  * 1. user_session cookie → existing DB user
  * 2. lab_email cookie    → get-or-create DB user
  *
@@ -9,9 +10,18 @@
  */
 
 import { cookies } from "next/headers";
-import { verifyUserSession, getUserByEmail, getOrCreateUser, type User } from "@/lib/user-auth";
+import { NextRequest } from "next/server";
+import { verifyUserSession, getUserByEmail, getOrCreateUser, getAuthenticatedUser, type User } from "@/lib/user-auth";
 
-export async function getLaboratorUser(): Promise<User | null> {
+export async function getLaboratorUser(request?: NextRequest): Promise<User | null> {
+  // 0. Try Bearer token (mobile) when request is provided
+  if (request) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      return getAuthenticatedUser(request);
+    }
+  }
+
   // 1. Prefer existing DB session (magic link login)
   try {
     const user = await verifyUserSession();

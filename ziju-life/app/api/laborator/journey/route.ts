@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
-  verifyUserSession,
+  getAuthenticatedUser,
   getJourneyData,
   getUserPurchases,
   createFreePurchase,
 } from "@/lib/user-auth";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const hasAccess = await checkLaboratorAccess();
-    if (!hasAccess) return NextResponse.json({ data: null, purchaseId: "" });
-
-    const user = await verifyUserSession();
+    const user = await getAuthenticatedUser(request);
     if (!user) return NextResponse.json({ data: null, purchaseId: "" });
+
+    const hasAccess = await checkLaboratorAccess(user.email);
+    if (!hasAccess) return NextResponse.json({ data: null, purchaseId: "" });
 
     const purchases = await getUserPurchases(user.id);
     const activePurchase = purchases.find(

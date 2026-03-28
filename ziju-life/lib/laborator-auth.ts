@@ -14,21 +14,26 @@ import { sql } from "@/lib/database";
  * A) Admin-granted free access exists in laborator_grants (checked first, cheaper)
  * B) Active/trialing Stripe subscription
  */
-export async function checkLaboratorAccess(): Promise<boolean> {
-  // 1. Cookie set by Stripe checkout flow
-  const cookieStore = await cookies();
-  const cookieEmail = cookieStore.get("lab_email")?.value?.trim();
+export async function checkLaboratorAccess(emailOverride?: string): Promise<boolean> {
+  let email = emailOverride;
 
-  // 2. Existing DB user session (magic link login)
-  let sessionEmail: string | undefined;
-  try {
-    const user = await verifyUserSession();
-    sessionEmail = user?.email;
-  } catch {
-    // DB unavailable — ignore
+  if (!email) {
+    // 1. Cookie set by Stripe checkout flow
+    const cookieStore = await cookies();
+    const cookieEmail = cookieStore.get("lab_email")?.value?.trim();
+
+    // 2. Existing DB user session (magic link login)
+    let sessionEmail: string | undefined;
+    try {
+      const user = await verifyUserSession();
+      sessionEmail = user?.email;
+    } catch {
+      // DB unavailable — ignore
+    }
+
+    email = cookieEmail || sessionEmail;
   }
 
-  const email = cookieEmail || sessionEmail;
   if (!email) return false;
 
   // A) Check admin-granted free access first (no Stripe round-trip needed)

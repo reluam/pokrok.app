@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { verifyUserSession } from "@/lib/user-auth";
+import { getAuthenticatedUser } from "@/lib/user-auth";
 import { getLaboratorUser } from "@/lib/laborator-user";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
 import { getAIBudgetBalance, recordAIInteraction } from "@/lib/ai-credits";
@@ -46,15 +46,15 @@ export async function POST(request: NextRequest) {
   try {
   await initializeDatabase();
 
-  // Require login (magic link or lab_email)
-  const sessionUser = await verifyUserSession();
+  // Require login (Bearer token or cookie session)
+  const sessionUser = await getAuthenticatedUser(request);
   if (!sessionUser) {
     return NextResponse.json({ error: "login_required" }, { status: 401 });
   }
 
   // Determine if user is a subscriber
-  const isSubscriber = await checkLaboratorAccess();
-  const labUser = await getLaboratorUser();
+  const isSubscriber = await checkLaboratorAccess(sessionUser.email);
+  const labUser = await getLaboratorUser(request);
   const userId = labUser?.id ?? sessionUser.id;
 
   if (isSubscriber && labUser) {

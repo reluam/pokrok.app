@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useScrollLock } from "@/hooks/useScrollLock";
+
+const CODE_LENGTH = 6;
 
 const faqs = [
   {
@@ -33,6 +35,10 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<MagicState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(""));
+  const [verifying, setVerifying] = useState(false);
+  const [codeError, setCodeError] = useState("");
+  const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,6 +53,7 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
       const data = await res.json();
       if (data.ok) {
         setState("sent");
+        setTimeout(() => codeRefs.current[0]?.focus(), 100);
       } else {
         setErrorMsg(data.error || "Nepodařilo se odeslat e-mail.");
         setState("error");
@@ -57,8 +64,76 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
     }
   }
 
+  function handleDigitChange(i: number, val: string) {
+    const d = val.replace(/[^0-9]/g, "").slice(-1);
+    const next = [...digits];
+    next[i] = d;
+    setDigits(next);
+    setCodeError("");
+    if (d && i < CODE_LENGTH - 1) codeRefs.current[i + 1]?.focus();
+    const full = next.join("");
+    if (full.length === CODE_LENGTH) verifyCode(full);
+  }
+
+  function handleKeyDown(i: number, key: string) {
+    if (key === "Backspace" && !digits[i] && i > 0) {
+      codeRefs.current[i - 1]?.focus();
+      const next = [...digits];
+      next[i - 1] = "";
+      setDigits(next);
+    }
+  }
+
+  function handlePaste(e: React.ClipboardEvent) {
+    e.preventDefault();
+    const t = e.clipboardData.getData("text").replace(/[^0-9]/g, "").slice(0, CODE_LENGTH);
+    if (t.length === CODE_LENGTH) {
+      setDigits(t.split(""));
+      codeRefs.current[CODE_LENGTH - 1]?.focus();
+      verifyCode(t);
+    }
+  }
+
+  async function verifyCode(code: string) {
+    if (verifying) return;
+    setVerifying(true);
+    setCodeError("");
+    try {
+      const res = await fetch("/api/auth/verify-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code, source: "web" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCodeError(data.error || "Neplatný kód.");
+        setDigits(Array(CODE_LENGTH).fill(""));
+        codeRefs.current[0]?.focus();
+        setVerifying(false);
+        return;
+      }
+      window.location.href = "/laborator/dashboard";
+    } catch {
+      setCodeError("Chyba. Zkus to znovu.");
+      setVerifying(false);
+    }
+  }
+
+  async function handleResend() {
+    setState("loading");
+    try {
+      await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, next: "/laborator/dashboard" }),
+      });
+      setDigits(Array(CODE_LENGTH).fill(""));
+      setState("sent");
+      codeRefs.current[0]?.focus();
+    } catch {}
+  }
+
   return (
-    // Backdrop
     <div
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
       data-lenis-prevent
@@ -75,25 +150,65 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
         </button>
 
         {state === "sent" ? (
-          <div className="text-center py-4">
-            <div className="text-4xl mb-4">📬</div>
+          <div className="text-center py-2">
+            <div className="text-4xl mb-3">📬</div>
             <p className="font-extrabold text-lg mb-2">Zkontroluj e-mail</p>
-            <p className="text-sm text-foreground/55 leading-relaxed">
-              Poslali jsme odkaz na <strong>{email}</strong>.<br />
-              Odkaz platí 15 minut.
+            <p className="text-sm text-foreground/55 leading-relaxed mb-5">
+              Poslali jsme kód a odkaz na <strong>{email}</strong>.
             </p>
-            <button
-              onClick={onClose}
-              className="mt-6 text-sm text-foreground/40 hover:text-foreground/70 transition-colors"
-            >
-              Zavřít
-            </button>
+
+            <p className="text-xs font-semibold text-foreground mb-3">Zadej 6místný kód:</p>
+            <div className="flex justify-center gap-1.5 mb-3">
+              {digits.map((d, i) => (
+                <input
+                  key={i}
+                  ref={(r) => { codeRefs.current[i] = r; }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={d}
+                  onChange={(e) => {
+                    if (e.target.value.length > 1) { handlePaste({ clipboardData: { getData: () => e.target.value } } as unknown as React.ClipboardEvent); }
+                    else handleDigitChange(i, e.target.value);
+                  }}
+                  onKeyDown={(e) => handleKeyDown(i, e.key)}
+                  onPaste={handlePaste}
+                  disabled={verifying}
+                  className={`w-10 h-12 text-center text-xl font-bold rounded-xl border-2 outline-none transition-colors ${
+                    d ? "border-accent bg-accent/5" : "border-foreground/10 bg-white"
+                  } focus:border-accent`}
+                />
+              ))}
+            </div>
+
+            {verifying && <p className="text-xs text-accent mb-2">Ověřuji...</p>}
+            {codeError && <p className="text-xs text-red-500 mb-2">{codeError}</p>}
+
+            <p className="text-xs text-foreground/40 mb-4">
+              Kód je platný 5 minut. Nebo klikni na odkaz v e-mailu.
+            </p>
+
+            <div className="flex items-center justify-center gap-3 text-xs text-foreground/40">
+              <button
+                onClick={handleResend}
+                className="underline hover:text-foreground/70 transition-colors"
+              >
+                Odeslat znovu
+              </button>
+              <span>·</span>
+              <button
+                onClick={onClose}
+                className="underline hover:text-foreground/70 transition-colors"
+              >
+                Zavřít
+              </button>
+            </div>
           </div>
         ) : (
           <>
             <p className="font-extrabold text-lg mb-1">Přihlásit se</p>
             <p className="text-sm text-foreground/50 mb-6 leading-relaxed">
-              Zadej e-mail svého účtu — pošleme ti přihlašovací odkaz.
+              Zadej e-mail svého účtu — pošleme ti kód pro přihlášení.
             </p>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input
@@ -118,7 +233,7 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
                     Odesílám…
                   </span>
                 ) : (
-                  "Poslat odkaz →"
+                  "Poslat kód →"
                 )}
               </button>
               {(state === "error") && errorMsg && (
