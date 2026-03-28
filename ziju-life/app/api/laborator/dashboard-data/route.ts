@@ -5,6 +5,22 @@ import { sql, ensureCoreTables } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
+/** Get date in Europe/Prague timezone as YYYY-MM-DD */
+function getLocalDate(offsetDays = 0): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toLocaleDateString("sv-SE", { timeZone: "Europe/Prague" });
+}
+
+/** Handle both properly stored JSONB and double-encoded strings */
+function parseTodos(val: unknown): { text: string; done: boolean }[] {
+  if (Array.isArray(val)) return val;
+  if (typeof val === "string") {
+    try { const parsed = JSON.parse(val); if (Array.isArray(parsed)) return parsed; } catch {}
+  }
+  return [];
+}
+
 /**
  * Batched dashboard endpoint — returns todos, user context, and ritual completions
  * in a single request with a single auth check.
@@ -18,9 +34,9 @@ export async function GET(request: NextRequest) {
 
   try {
     await ensureCoreTables();
-    const today = new Date().toISOString().split("T")[0];
-    const yesterday = new Date(Date.now() - 86_400_000).toISOString().split("T")[0];
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 86_400_000).toISOString().split("T")[0];
+    const today = getLocalDate();
+    const yesterday = getLocalDate(-1);
+    const thirtyDaysAgo = getLocalDate(-30);
 
     // Run all queries in parallel (catch individually so one failure doesn't block all)
     const [todoRows, contextRows, completionRows, statsRows] = await Promise.all([
@@ -30,9 +46,9 @@ export async function GET(request: NextRequest) {
         ORDER BY date DESC
       `.catch(() => [] as { date: string; todos: unknown; nice_todos: unknown }[]),
       sql`
-        SELECT context_type, data, updated_at FROM user_lab_context
+        SELECT context_type, data FROM user_lab_context
         WHERE user_id = ${user.id}
-      `.catch(() => [] as { context_type: string; data: unknown; updated_at: Date }[]),
+      `.catch(() => [] as { context_type: string; data: unknown }[]),
       sql`
         SELECT ritual_id FROM ritual_completions
         WHERE user_id = ${user.id} AND date = ${today}
@@ -44,26 +60,28 @@ export async function GET(request: NextRequest) {
       `.catch(() => [] as { ritual_id: string; count: number }[]),
     ]);
 
-    // Compose todos
-    const todayData = todoRows.find((r) => String(r.date).startsWith(today));
-    const yesterdayData = todoRows.find((r) => String(r.date).startsWith(yesterday));
+    // Compose todos — handle double-encoded JSON
+    const todayData = (todoRows as { date: string; todos: unknown; nice_todos: unknown }[])
+      .find((r) => String(r.date).startsWith(today));
+    const yesterdayData = (todoRows as { date: string; todos: unknown; nice_todos: unknown }[])
+      .find((r) => String(r.date).startsWith(yesterday));
 
     // Compose context
     const context: Record<string, unknown> = {};
-    for (const row of contextRows) {
+    for (const row of contextRows as { context_type: string; data: unknown }[]) {
       context[row.context_type] = row.data;
     }
 
     return NextResponse.json({
       todos: {
-        today: { todos: todayData?.todos ?? [], niceTodos: todayData?.nice_todos ?? [] },
-        yesterday: { todos: yesterdayData?.todos ?? [], niceTodos: yesterdayData?.nice_todos ?? [] },
+        today: { todos: parseTodos(todayData?.todos), niceTodos: parseTodos(todayData?.nice_todos) },
+        yesterday: { todos: parseTodos(yesterdayData?.todos), niceTodos: parseTodos(yesterdayData?.nice_todos) },
         date: today,
       },
       context,
       ritualCompletions: {
-        today: completionRows.map((r) => r.ritual_id),
-        stats: Object.fromEntries(statsRows.map((r) => [r.ritual_id, r.count])),
+        today: (completionRows as { ritual_id: string }[]).map((r) => r.ritual_id),
+        stats: Object.fromEntries((statsRows as { ritual_id: string; count: number }[]).map((r) => [r.ritual_id, r.count])),
       },
     });
   } catch (error) {
