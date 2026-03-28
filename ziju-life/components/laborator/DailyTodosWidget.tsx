@@ -124,7 +124,7 @@ export default function DailyTodosWidget() {
     <div className="paper-card rounded-[20px] px-5 py-5 space-y-4">
       <h3 className="text-sm font-bold text-foreground">Dnešek</h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="space-y-4">
         <TodoSection
           label="To Do"
           items={todos}
@@ -152,7 +152,7 @@ export default function DailyTodosWidget() {
             Včera
           </button>
           {showYesterday && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 opacity-60">
+            <div className="space-y-2 mt-2 opacity-60">
               <div>
                 {yesterdayTodos.map((t, i) => (
                   <p key={i} className={`text-xs leading-snug ${t.done ? "line-through text-foreground/30" : "text-foreground/50"}`}>

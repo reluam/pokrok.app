@@ -84,10 +84,7 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
         <h3 className="text-sm font-bold text-foreground">Rituály</h3>
         <div className="flex items-center gap-2">
           <div className="w-16 h-1.5 bg-black/10 rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all bg-accent"
-              style={{ width: `${pct}%` }}
-            />
+            <div className="h-full rounded-full transition-all bg-accent" style={{ width: `${pct}%` }} />
           </div>
           <span className="text-[10px] text-foreground/40">{completedCount}/{totalCount}</span>
         </div>
@@ -98,11 +95,11 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
           const ids = ritualSelection[slot] ?? [];
           if (ids.length === 0) return null;
           return (
-            <div key={slot}>
-              <p className="text-[10px] font-semibold text-foreground/35 uppercase tracking-wider mb-1.5">
+            <div key={slot} className="rounded-xl bg-black/[0.02] border border-black/5 px-3.5 py-3">
+              <p className="text-[10px] font-semibold text-foreground/40 uppercase tracking-wider mb-2">
                 {SLOT_EMOJI[slot]} {SLOT_LABELS[slot]}
               </p>
-              <ul className="space-y-1">
+              <ul className="space-y-1.5">
                 {ids.map((id) => {
                   const done = completedToday.has(id);
                   const count = stats[id] ?? 0;

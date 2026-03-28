@@ -704,23 +704,21 @@ function PrehledTab({
       {/* AI Coach */}
       <LabAICoach onDataChanged={onDataChanged} />
 
-      {/* Daily Todos + Priorities side by side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      {/* 3-column layout: ToDo | Priority | Rituály */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
         <DailyTodosWidget />
         <PrioritiesWidget />
+        {hasRituals ? (
+          <RitualsChecklistWidget ritualSelection={ritualSelection} />
+        ) : (
+          <div className="paper-card rounded-[20px] px-5 py-5 space-y-3">
+            <h3 className="text-sm font-bold text-foreground">Rituály</h3>
+            <EmptyCta emoji="⏱️" title="Sestav si denní rituály"
+              description="Vyber rituály pro ráno, den i večer."
+              buttonLabel="Nastavit →" onClick={() => onTabChange("nastav-si-den")} />
+          </div>
+        )}
       </div>
-
-      {/* Rituály — checkable daily completion */}
-      {hasRituals ? (
-        <RitualsChecklistWidget ritualSelection={ritualSelection} />
-      ) : (
-        <div className="paper-card rounded-[20px] px-5 py-5 space-y-3">
-          <h3 className="text-sm font-bold text-foreground">Rituály</h3>
-          <EmptyCta emoji="⏱️" title="Sestav si denní rituály"
-            description="Vyber rituály, které ti dají energii — ranní, denní i večerní."
-            buttonLabel="Nastavit rituály →" onClick={() => onTabChange("nastav-si-den")} />
-        </div>
-      )}
 
       {/* Monthly reflexion banner */}
       {showReflexion && kompasData && (
