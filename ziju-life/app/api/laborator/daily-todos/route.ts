@@ -59,8 +59,17 @@ export async function GET(request: NextRequest) {
       return [];
     };
 
-    const todayData = (rows as { date: string; todos: unknown; nice_todos: unknown }[]).find((r) => String(r.date).startsWith(today));
-    const yesterdayData = (rows as { date: string; todos: unknown; nice_todos: unknown }[]).find((r) => String(r.date).startsWith(today));
+    // DB returns Date objects — convert to YYYY-MM-DD for comparison
+    const toDateStr = (d: unknown): string => {
+      if (d instanceof Date) return d.toISOString().split("T")[0];
+      const s = String(d);
+      if (s.includes("T")) return s.split("T")[0];
+      // Try parsing "Sat Mar 28 2026..." format
+      try { return new Date(s).toISOString().split("T")[0]; } catch {}
+      return s;
+    };
+    const todayData = (rows as { date: unknown; todos: unknown; nice_todos: unknown }[]).find((r) => toDateStr(r.date) === today);
+    const yesterdayData = (rows as { date: unknown; todos: unknown; nice_todos: unknown }[]).find((r) => toDateStr(r.date) === yesterday);
 
     return NextResponse.json({
       today: { todos: parseTodos(todayData?.todos), niceTodos: parseTodos(todayData?.nice_todos) },

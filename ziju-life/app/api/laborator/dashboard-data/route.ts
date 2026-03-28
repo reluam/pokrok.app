@@ -60,11 +60,18 @@ export async function GET(request: NextRequest) {
       `.catch(() => [] as { ritual_id: string; count: number }[]),
     ]);
 
-    // Compose todos — handle double-encoded JSON
-    const todayData = (todoRows as { date: string; todos: unknown; nice_todos: unknown }[])
-      .find((r) => String(r.date).startsWith(today));
-    const yesterdayData = (todoRows as { date: string; todos: unknown; nice_todos: unknown }[])
-      .find((r) => String(r.date).startsWith(yesterday));
+    // DB returns Date objects — convert for comparison
+    const toDateStr = (d: unknown): string => {
+      if (d instanceof Date) return d.toISOString().split("T")[0];
+      const s = String(d);
+      if (s.includes("T")) return s.split("T")[0];
+      try { return new Date(s).toISOString().split("T")[0]; } catch {}
+      return s;
+    };
+    const todayData = (todoRows as { date: unknown; todos: unknown; nice_todos: unknown }[])
+      .find((r) => toDateStr(r.date) === today);
+    const yesterdayData = (todoRows as { date: unknown; todos: unknown; nice_todos: unknown }[])
+      .find((r) => toDateStr(r.date) === yesterday);
 
     // Compose context
     const context: Record<string, unknown> = {};
