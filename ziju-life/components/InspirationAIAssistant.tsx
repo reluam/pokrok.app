@@ -48,6 +48,19 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
   const [reflectionCount, setReflectionCount] = useState(0);
   const [collapsed, setCollapsed] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Click outside → collapse (only if in input state with no text)
+  useEffect(() => {
+    if (collapsed) return;
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        if (step === "input" && !message.trim() && !error) setCollapsed(true);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [collapsed, step, message, error]);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -246,7 +259,7 @@ export default function InspirationAIAssistant({ onSelectTool, onSelectInspirati
   }
 
   return (
-    <div className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5 border-2 border-accent/15">
+    <div ref={wrapperRef} className="paper-card rounded-[24px] px-6 py-7 md:px-8 md:py-8 space-y-5 border-2 border-accent/15">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

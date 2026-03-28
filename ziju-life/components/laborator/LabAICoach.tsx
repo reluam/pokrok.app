@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sparkles, Send, RotateCcw, AlertCircle, MessageCircle } from "lucide-react";
 
 interface Recommendation {
@@ -36,6 +36,19 @@ export default function LabAICoach({ onSelectTool }: Props) {
   const [reflectionCount, setReflectionCount] = useState(0);
   const [collapsed, setCollapsed] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Click outside → collapse (only if in input state with no text)
+  useEffect(() => {
+    if (collapsed) return;
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        if (step === "input" && !message.trim()) setCollapsed(true);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [collapsed, step, message]);
 
   const tryParseRecommendations = (text: string): AIResponse | null => {
     const t = (text ?? "").trim();
@@ -184,7 +197,7 @@ export default function LabAICoach({ onSelectTool }: Props) {
   }
 
   return (
-    <div className="paper-card rounded-[20px] px-5 py-5 md:px-6 md:py-6 space-y-4 border border-accent/10">
+    <div ref={wrapperRef} className="paper-card rounded-[20px] px-5 py-5 md:px-6 md:py-6 space-y-4 border border-accent/10">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
