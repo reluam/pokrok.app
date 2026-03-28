@@ -35,20 +35,11 @@ export async function GET(request: NextRequest) {
     const today = getLocalDate();
     const yesterday = getLocalDate(-1);
 
-    // Also fetch ALL rows for this user to debug
-    const [rows, allRows] = await Promise.all([
-      sql`
-        SELECT date, todos, nice_todos FROM daily_todos
-        WHERE user_id = ${user.id} AND date IN (${today}::date, ${yesterday}::date)
-        ORDER BY date DESC
-      `,
-      sql`
-        SELECT date, id FROM daily_todos
-        WHERE user_id = ${user.id}
-        ORDER BY date DESC
-        LIMIT 5
-      `,
-    ]);
+    const rows = await sql`
+      SELECT date, todos, nice_todos FROM daily_todos
+      WHERE user_id = ${user.id} AND date IN (${today}::date, ${yesterday}::date)
+      ORDER BY date DESC
+    `;
 
     // Handle both properly stored JSONB and double-encoded strings
     const parseTodos = (val: unknown): TodoItem[] => {
@@ -75,14 +66,6 @@ export async function GET(request: NextRequest) {
       today: { todos: parseTodos(todayData?.todos), niceTodos: parseTodos(todayData?.nice_todos) },
       yesterday: { todos: parseTodos(yesterdayData?.todos), niceTodos: parseTodos(yesterdayData?.nice_todos) },
       date: today,
-      _debug: {
-        queryDate: today,
-        yesterdayDate: yesterday,
-        matchedRows: (rows as unknown[]).length,
-        allDatesInDb: (allRows as { date: string; id: string }[]).map(r => ({ date: String(r.date), id: r.id })),
-        rawTodayTodos: todayData?.todos,
-        rawTodayType: typeof todayData?.todos,
-      },
     });
   } catch (error) {
     console.error("GET /api/laborator/daily-todos error:", error);
@@ -124,22 +107,7 @@ export async function POST(request: NextRequest) {
       DO UPDATE SET todos = EXCLUDED.todos, nice_todos = EXCLUDED.nice_todos
     `;
 
-    // Verify it was saved
-    const verify = await sql`
-      SELECT id, date, todos FROM daily_todos WHERE user_id = ${user.id} AND date = ${today}::date LIMIT 1
-    `;
-
-    return NextResponse.json({
-      ok: true,
-      debug: {
-        date: today,
-        userId: user.id,
-        savedRows: verify.length,
-        savedDate: verify[0]?.date,
-        savedTodosType: typeof verify[0]?.todos,
-        savedTodosIsArray: Array.isArray(verify[0]?.todos),
-      },
-    });
+    return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("POST /api/laborator/daily-todos error:", error);
     return NextResponse.json({ error: "Failed to save todos" }, { status: 500 });
