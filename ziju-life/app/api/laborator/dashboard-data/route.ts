@@ -7,9 +7,17 @@ export const dynamic = "force-dynamic";
 
 /** Get date in Europe/Prague timezone as YYYY-MM-DD */
 function getLocalDate(offsetDays = 0): string {
-  const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
-  return d.toLocaleDateString("sv-SE", { timeZone: "Europe/Prague" });
+  const now = new Date(Date.now() + offsetDays * 86_400_000);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Prague",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const y = parts.find(p => p.type === "year")!.value;
+  const m = parts.find(p => p.type === "month")!.value;
+  const d = parts.find(p => p.type === "day")!.value;
+  return `${y}-${m}-${d}`;
 }
 
 /** Handle both properly stored JSONB and double-encoded strings */
