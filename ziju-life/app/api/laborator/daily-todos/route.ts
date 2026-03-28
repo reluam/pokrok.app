@@ -7,10 +7,18 @@ export const dynamic = "force-dynamic";
 
 /** Get today's date in Europe/Prague timezone as YYYY-MM-DD */
 function getLocalDate(offsetDays = 0): string {
-  const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
-  // Use sv-SE locale which outputs YYYY-MM-DD format
-  return d.toLocaleDateString("sv-SE", { timeZone: "Europe/Prague" });
+  // Build a date string in Prague timezone using Intl
+  const now = new Date(Date.now() + offsetDays * 86_400_000);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Prague",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const y = parts.find(p => p.type === "year")!.value;
+  const m = parts.find(p => p.type === "month")!.value;
+  const d = parts.find(p => p.type === "day")!.value;
+  return `${y}-${m}-${d}`;
 }
 
 interface TodoItem { text: string; done: boolean }
@@ -27,11 +35,20 @@ export async function GET(request: NextRequest) {
     const today = getLocalDate();
     const yesterday = getLocalDate(-1);
 
-    const rows = (await sql`
-      SELECT date, todos, nice_todos FROM daily_todos
-      WHERE user_id = ${user.id} AND date IN (${today}, ${yesterday})
-      ORDER BY date DESC
-    `) as { date: string; todos: unknown; nice_todos: unknown }[];
+    // Also fetch ALL rows for this user to debug
+    const [rows, allRows] = await Promise.all([
+      sql`
+        SELECT date, todos, nice_todos FROM daily_todos
+        WHERE user_id = ${user.id} AND date IN (${today}::date, ${yesterday}::date)
+        ORDER BY date DESC
+      `,
+      sql`
+        SELECT date, id FROM daily_todos
+        WHERE user_id = ${user.id}
+        ORDER BY date DESC
+        LIMIT 5
+      `,
+    ]);
 
     // Handle both properly stored JSONB and double-encoded strings
     const parseTodos = (val: unknown): TodoItem[] => {
@@ -42,13 +59,21 @@ export async function GET(request: NextRequest) {
       return [];
     };
 
-    const todayData = rows.find((r) => String(r.date).startsWith(today));
-    const yesterdayData = rows.find((r) => String(r.date).startsWith(yesterday));
+    const todayData = (rows as { date: string; todos: unknown; nice_todos: unknown }[]).find((r) => String(r.date).startsWith(today));
+    const yesterdayData = (rows as { date: string; todos: unknown; nice_todos: unknown }[]).find((r) => String(r.date).startsWith(today));
 
     return NextResponse.json({
       today: { todos: parseTodos(todayData?.todos), niceTodos: parseTodos(todayData?.nice_todos) },
       yesterday: { todos: parseTodos(yesterdayData?.todos), niceTodos: parseTodos(yesterdayData?.nice_todos) },
       date: today,
+      _debug: {
+        queryDate: today,
+        yesterdayDate: yesterday,
+        matchedRows: (rows as unknown[]).length,
+        allDatesInDb: (allRows as { date: string; id: string }[]).map(r => ({ date: String(r.date), id: r.id })),
+        rawTodayTodos: todayData?.todos,
+        rawTodayType: typeof todayData?.todos,
+      },
     });
   } catch (error) {
     console.error("GET /api/laborator/daily-todos error:", error);
@@ -79,18 +104,33 @@ export async function POST(request: NextRequest) {
     const today = getLocalDate();
     const id = `todo_${user.id}_${today}`;
 
-    // Pass JSON.stringify for JSONB columns — Neon needs string for JSONB params
     const todosJson = JSON.stringify(limitedTodos);
     const niceJson = JSON.stringify(limitedNice);
 
+    // Use raw SQL with explicit JSONB cast — Neon parameterized queries
     await sql`
       INSERT INTO daily_todos (id, user_id, date, todos, nice_todos)
-      VALUES (${id}, ${user.id}, ${today}, ${todosJson}::jsonb, ${niceJson}::jsonb)
+      VALUES (${id}, ${user.id}, ${today}::date, ${todosJson}::jsonb, ${niceJson}::jsonb)
       ON CONFLICT (user_id, date)
-      DO UPDATE SET todos = ${todosJson}::jsonb, nice_todos = ${niceJson}::jsonb
+      DO UPDATE SET todos = EXCLUDED.todos, nice_todos = EXCLUDED.nice_todos
     `;
 
-    return NextResponse.json({ ok: true });
+    // Verify it was saved
+    const verify = await sql`
+      SELECT id, date, todos FROM daily_todos WHERE user_id = ${user.id} AND date = ${today}::date LIMIT 1
+    `;
+
+    return NextResponse.json({
+      ok: true,
+      debug: {
+        date: today,
+        userId: user.id,
+        savedRows: verify.length,
+        savedDate: verify[0]?.date,
+        savedTodosType: typeof verify[0]?.todos,
+        savedTodosIsArray: Array.isArray(verify[0]?.todos),
+      },
+    });
   } catch (error) {
     console.error("POST /api/laborator/daily-todos error:", error);
     return NextResponse.json({ error: "Failed to save todos" }, { status: 500 });
