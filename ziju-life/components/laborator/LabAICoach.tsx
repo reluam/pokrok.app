@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Sparkles, Send, RotateCcw, AlertCircle, MessageCircle } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Send, RotateCcw, AlertCircle, MessageCircle } from "lucide-react";
 
 interface Recommendation {
   itemType: "tool" | "inspiration";
@@ -18,8 +18,15 @@ interface AIResponse {
   closingNote: string;
 }
 
-type ChatMessage = { role: "user" | "assistant"; content: string };
-type Step = "input" | "reflecting" | "reflection" | "loading" | "results" | "cannot_help";
+/** A visible chat bubble — user text, AI text, or AI recommendations */
+interface ChatBubble {
+  role: "user" | "assistant";
+  text?: string;
+  recommendations?: Recommendation[];
+  closingNote?: string;
+}
+
+interface BudgetInfo { remainingCzk: number; totalBudgetCzk: number; spentCzk: number }
 
 interface Props {
   onSelectTool?: (slug: string) => void;
@@ -27,167 +34,132 @@ interface Props {
 
 export default function LabAICoach({ onSelectTool }: Props) {
   const [message, setMessage] = useState("");
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  const [reflection, setReflection] = useState<string | null>(null);
-  const [result, setResult] = useState<AIResponse | null>(null);
-  const [cannotHelpTopic, setCannotHelpTopic] = useState<string | null>(null);
-  const [step, setStep] = useState<Step>("input");
+  const [bubbles, setBubbles] = useState<ChatBubble[]>([]);
+  const [apiMessages, setApiMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [reflectionCount, setReflectionCount] = useState(0);
   const [collapsed, setCollapsed] = useState(true);
+  const [budget, setBudget] = useState<BudgetInfo | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Click outside → collapse (only if in input state with no text)
+  // Load budget on mount
+  const loadBudget = useCallback(async () => {
+    try {
+      const res = await fetch("/api/laborator/ai-credits");
+      if (res.ok) {
+        const data = await res.json();
+        setBudget({ remainingCzk: data.available, totalBudgetCzk: data.total, spentCzk: data.used });
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => { loadBudget(); }, [loadBudget]);
+
+  // Click outside → collapse
   useEffect(() => {
     if (collapsed) return;
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        if (step === "input" && !message.trim()) setCollapsed(true);
+        if (bubbles.length === 0 && !message.trim()) setCollapsed(true);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [collapsed, step, message]);
+  }, [collapsed, bubbles.length, message]);
 
-  const tryParseRecommendations = (text: string): AIResponse | null => {
+  // Auto-scroll to bottom
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [bubbles.length, loading]);
+
+  const tryParseJson = (text: string) => {
     const t = (text ?? "").trim();
-    const tryParse = (s: string) => { try { const p = JSON.parse(s); return p?.recommendations?.length > 0 ? p : null; } catch { return null; } };
-    const direct = tryParse(t);
-    if (direct) return direct;
-    const match = t.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    if (match) { const r = tryParse(match[1].trim()); if (r) return r; }
-    const bs = t.indexOf("{"), be = t.lastIndexOf("}");
-    if (bs !== -1 && be > bs) { const r = tryParse(t.slice(bs, be + 1)); if (r) return r; }
-    return null;
+    const parse = (s: string) => { try { return JSON.parse(s); } catch { return null; } };
+    let obj = parse(t);
+    if (!obj) { const m = t.match(/```(?:json)?\s*([\s\S]*?)\s*```/); if (m) obj = parse(m[1].trim()); }
+    if (!obj) { const bs = t.indexOf("{"), be = t.lastIndexOf("}"); if (bs !== -1 && be > bs) obj = parse(t.slice(bs, be + 1)); }
+    return obj;
   };
 
-  const tryParseCannotHelp = (text: string): string | null => {
-    const t = (text ?? "").trim();
-    const tryParse = (s: string) => { try { const p = JSON.parse(s); return p?.cannot_help ? p.topic : null; } catch { return null; } };
-    const direct = tryParse(t);
-    if (direct) return direct;
-    const bs = t.indexOf("{"), be = t.lastIndexOf("}");
-    if (bs !== -1 && be > bs) return tryParse(t.slice(bs, be + 1));
-    return null;
-  };
-
-  const callAPI = async (messages: ChatMessage[]) => {
-    const res = await fetch("/api/laborator/ai-coach", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages }),
-    });
-    const data = await res.json();
-    if (res.status === 402) { setError("no_budget"); setStep("input"); return null; }
-    if (!res.ok) throw new Error(data.error || "Chyba");
-    return data;
-  };
-
-  const handleInitialSubmit = async () => {
-    if (!message.trim()) return;
-    setError(null);
-    setStep("reflecting");
-
-    const userMsg: ChatMessage = { role: "user", content: message.trim() };
-    const newHistory = [userMsg];
-    setChatHistory(newHistory);
-    setMessage("");
-
-    try {
-      const data = await callAPI(newHistory);
-      if (!data) return;
-
-      if (data.type === "cannot_help") {
-        setCannotHelpTopic(data.topic);
-        setStep("cannot_help");
-      } else if (data.type === "reflection") {
-        const maybeJson = tryParseRecommendations(data.text);
-        const maybeCH = tryParseCannotHelp(data.text);
-        if (maybeJson) { setResult(maybeJson); setStep("results"); }
-        else if (maybeCH) { setCannotHelpTopic(maybeCH); setStep("cannot_help"); }
-        else {
-          setReflection(data.text);
-          setReflectionCount(1);
-          setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
-          setStep("reflection");
-        }
-      } else {
-        setResult(data.response);
-        setStep("results");
-      }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Nepodařilo se získat odpověď.");
-      setStep("input");
-    }
-  };
-
-  const handleConfirm = async (additionalText?: string) => {
-    setStep("loading");
+  const handleSubmit = async () => {
+    if (!message.trim() || loading) return;
     setError(null);
 
-    const isConfirm = !additionalText?.trim();
-    const forceRecommend = isConfirm || reflectionCount >= 2;
-    const confirmMsg: ChatMessage = {
-      role: "user",
-      content: forceRecommend
-        ? (additionalText?.trim() ? `${additionalText.trim()} Pomoz mi s tímhle a doporuč mi relevantní nástroje nebo inspirace.` : "Ano, chápeš to správně. Pomoz mi s tímhle a doporuč mi relevantní nástroje nebo inspirace.")
-        : additionalText!.trim(),
-    };
-    const newHistory = [...chatHistory, confirmMsg];
-    setChatHistory(newHistory);
+    const userText = message.trim();
+    const userBubble: ChatBubble = { role: "user", text: userText };
+    setBubbles((prev) => [...prev, userBubble]);
+
+    const newApiMsgs = [...apiMessages, { role: "user" as const, content: userText }];
+    setApiMessages(newApiMsgs);
     setMessage("");
+    setLoading(true);
 
     try {
-      const data = await callAPI(newHistory);
-      if (!data) return;
+      const res = await fetch("/api/laborator/ai-coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newApiMsgs }),
+      });
+      const data = await res.json();
+
+      if (res.status === 402) { setError("no_budget"); setLoading(false); return; }
+      if (!res.ok) throw new Error(data.error || "Chyba");
+
+      if (data.budget) setBudget(data.budget);
+
+      let aiBubble: ChatBubble;
+      let apiContent: string;
 
       if (data.type === "cannot_help") {
-        setCannotHelpTopic(data.topic);
-        setStep("cannot_help");
+        aiBubble = { role: "assistant", text: "Tohle téma zatím neumím pokrýt. Dal jsem Matějovi vědět — možná přidáme nový nástroj nebo inspiraci." };
+        apiContent = aiBubble.text!;
       } else if (data.type === "recommendations" && data.response) {
-        setResult(data.response);
-        setStep("results");
+        const r: AIResponse = data.response;
+        aiBubble = { role: "assistant", text: r.summary, recommendations: r.recommendations, closingNote: r.closingNote };
+        apiContent = JSON.stringify(r);
       } else {
-        const maybeJson = tryParseRecommendations(data.text ?? "");
-        const maybeCH = tryParseCannotHelp(data.text ?? "");
-        if (maybeJson) { setResult(maybeJson); setStep("results"); }
-        else if (maybeCH) { setCannotHelpTopic(maybeCH); setStep("cannot_help"); }
-        else if (reflectionCount >= 2) { setStep("input"); setError("Zkus to prosím popsat jinak."); }
-        else {
-          setReflection(data.text);
-          setReflectionCount((c) => c + 1);
-          setChatHistory([...newHistory, { role: "assistant", content: data.text }]);
-          setStep("reflection");
+        // Reflection or plain text — try parsing as JSON fallback
+        const rawText = data.text ?? "";
+        const parsed = tryParseJson(rawText);
+        if (parsed?.recommendations?.length) {
+          aiBubble = { role: "assistant", text: parsed.summary, recommendations: parsed.recommendations, closingNote: parsed.closingNote };
+          apiContent = JSON.stringify(parsed);
+        } else if (parsed?.cannot_help) {
+          aiBubble = { role: "assistant", text: "Tohle téma zatím neumím pokrýt. Dal jsem Matějovi vědět." };
+          apiContent = aiBubble.text!;
+        } else {
+          aiBubble = { role: "assistant", text: rawText };
+          apiContent = rawText;
         }
       }
+
+      setBubbles((prev) => [...prev, aiBubble]);
+      setApiMessages((prev) => [...prev, { role: "assistant", content: apiContent }]);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Nepodařilo se získat odpověď.");
-      setStep("reflection");
-    }
-  };
-
-  const handleReset = () => {
-    setMessage(""); setChatHistory([]); setReflection(null); setReflectionCount(0);
-    setResult(null); setCannotHelpTopic(null); setStep("input"); setError(null);
-    setTimeout(() => inputRef.current?.focus(), 100);
-  };
-
-  // Expand on first interaction
-  const expand = () => {
-    if (collapsed) {
-      setCollapsed(false);
+      setError(e instanceof Error ? e.message : "Chyba");
+    } finally {
+      setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
-  // Collapsed: just a fake input — same style as InspirationAIAssistant
-  if (collapsed && step === "input") {
+  const handleReset = () => {
+    setMessage(""); setBubbles([]); setApiMessages([]); setError(null); setLoading(false);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  const expand = () => { setCollapsed(false); setTimeout(() => inputRef.current?.focus(), 100); };
+
+  const budgetPct = budget && budget.totalBudgetCzk > 0
+    ? Math.min(100, Math.round((budget.spentCzk / budget.totalBudgetCzk) * 100))
+    : null;
+
+  // Collapsed state
+  if (collapsed && bubbles.length === 0) {
     return (
-      <div
-        className="paper-card rounded-[24px] px-6 py-4 border-2 border-accent/15 cursor-text"
-        onClick={expand}
-      >
+      <div className="paper-card rounded-[24px] px-6 py-4 border-2 border-accent/15 cursor-text" onClick={expand}>
         <div className="flex items-center gap-3 text-foreground/40">
           <MessageCircle size={18} className="text-accent/50" />
           <span className="text-sm">Potřebuješ s něčím pomoct?</span>
@@ -197,153 +169,122 @@ export default function LabAICoach({ onSelectTool }: Props) {
   }
 
   return (
-    <div ref={wrapperRef} className="paper-card rounded-[20px] px-5 py-5 md:px-6 md:py-6 space-y-4 border border-accent/10">
+    <div ref={wrapperRef} className="paper-card rounded-[24px] px-5 py-5 md:px-6 md:py-6 border-2 border-accent/15">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-            <MessageCircle size={16} className="text-accent" />
-          </div>
+          <MessageCircle size={18} className="text-accent" />
           <p className="text-sm font-bold text-foreground">Potřebuješ s něčím pomoct?</p>
         </div>
-        {step !== "input" ? (
-          <button onClick={handleReset} className="p-1.5 rounded-lg hover:bg-black/5 text-foreground/40 hover:text-foreground/70 transition-colors" title="Začít znovu">
-            <RotateCcw size={14} />
-          </button>
-        ) : (
-          <button onClick={() => setCollapsed(true)} className="p-1.5 rounded-lg hover:bg-black/5 text-foreground/40 hover:text-foreground/70 transition-colors" title="Minimalizovat">
-            <span className="text-xs">✕</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Budget progress bar */}
+          {budgetPct !== null && (
+            <div className="flex items-center gap-1.5" title={`Spotřeba: ${budget!.spentCzk.toFixed(1)} / ${budget!.totalBudgetCzk} Kč`}>
+              <div className="w-16 h-1.5 bg-black/10 rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all" style={{ width: `${budgetPct}%`, background: budgetPct > 80 ? "#ef4444" : budgetPct > 50 ? "#f59e0b" : "#22c55e" }} />
+              </div>
+              <span className="text-[10px] text-foreground/35">{budget!.remainingCzk.toFixed(0)} Kč</span>
+            </div>
+          )}
+          {bubbles.length > 0 && (
+            <button onClick={handleReset} className="p-1.5 rounded-lg hover:bg-black/5 text-foreground/40 hover:text-foreground/70 transition-colors" title="Nová konverzace">
+              <RotateCcw size={14} />
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Chat bubbles */}
+      {bubbles.length > 0 && (
+        <div className="space-y-3 mb-4 max-h-[400px] overflow-y-auto">
+          {bubbles.map((b, i) => (
+            <div key={i}>
+              {b.role === "user" ? (
+                <div className="flex justify-end">
+                  <div className="bg-accent/10 rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[85%]">
+                    <p className="text-sm text-foreground/80">{b.text}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {b.text && (
+                    <div className="flex justify-start">
+                      <div className="bg-black/[0.03] rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-[85%]">
+                        <p className="text-sm text-foreground/75 leading-relaxed">{b.text}</p>
+                      </div>
+                    </div>
+                  )}
+                  {b.recommendations && b.recommendations.length > 0 && (
+                    <div className="flex justify-start">
+                      <div className="max-w-[90%] space-y-1.5">
+                        <p className="text-[11px] text-foreground/40 ml-1">Mohlo by ti pomoct:</p>
+                        {b.recommendations.map((rec, j) => (
+                          <button
+                            key={rec.slug || rec.id || j}
+                            type="button"
+                            onClick={() => rec.itemType === "tool" && rec.slug && onSelectTool?.(rec.slug)}
+                            className={`w-full text-left rounded-xl border px-3.5 py-2.5 transition-all group hover:shadow-sm ${
+                              rec.itemType === "tool" ? "border-emerald-200 hover:border-emerald-300 bg-emerald-50/30" : "border-accent/20 hover:border-accent/40 bg-accent/[0.03]"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-base leading-none">{rec.icon || "📖"}</span>
+                              <p className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors">{rec.title}</p>
+                            </div>
+                            <p className="text-xs text-foreground/50 mt-1 leading-relaxed">{rec.reason}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {b.closingNote && (
+                    <div className="flex justify-start">
+                      <p className="text-xs text-foreground/45 italic ml-1">{b.closingNote}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+          {loading && (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+              <p className="text-xs text-foreground/50">Přemýšlím...</p>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+      )}
 
       {/* Errors */}
       {error === "no_budget" && (
-        <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+        <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800 mb-3">
           AI rozpočet je vyčerpaný. Obnoví se s dalším předplatným.
         </div>
       )}
       {error && error !== "no_budget" && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-700 flex items-start gap-2">
+        <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-700 flex items-start gap-2 mb-3">
           <AlertCircle size={14} className="mt-0.5 flex-shrink-0" /><span>{error}</span>
         </div>
       )}
 
-      {/* Reflecting spinner */}
-      {step === "reflecting" && (
-        <div className="flex items-center gap-2 py-2">
-          <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-          <p className="text-xs text-foreground/50">Čtu, co píšeš...</p>
-        </div>
-      )}
-
-      {/* Reflection */}
-      {step === "reflection" && reflection && (
-        <div className="space-y-3">
-          <div className="flex justify-end">
-            <div className="bg-accent/10 rounded-xl rounded-br-sm px-3 py-2 max-w-[85%]">
-              <p className="text-xs text-foreground/80">{chatHistory[0]?.content}</p>
-            </div>
-          </div>
-          <div className="flex justify-start">
-            <div className="bg-black/[0.03] rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]">
-              <p className="text-xs text-foreground/75 leading-relaxed">{reflection}</p>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <textarea
-              ref={inputRef}
-              value={message}
-              onChange={(e) => setMessage(e.target.value.slice(0, 2000))}
-              placeholder="Upřesni nebo potvrď..."
-              className="w-full px-3 py-2 border border-black/10 rounded-lg bg-white/80 text-xs min-h-[48px] max-h-[80px] resize-y focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleConfirm(message || undefined); } }}
-            />
-            <div className="flex items-center gap-2">
-              <button type="button" onClick={() => handleConfirm()} className="px-4 py-2 rounded-lg bg-accent text-white font-semibold text-xs hover:bg-accent-hover transition-colors">
-                Ano, pomoz mi →
-              </button>
-              {message.trim() && (
-                <button type="button" onClick={() => handleConfirm(message)} className="px-4 py-2 rounded-lg border border-black/15 font-semibold text-xs text-foreground/70 hover:bg-black/5 transition-colors">
-                  <Send size={12} className="inline mr-1" />Odeslat
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Loading */}
-      {step === "loading" && (
-        <div className="flex items-center gap-2 py-2">
-          <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-          <p className="text-xs text-foreground/50">Připravuji odpověď...</p>
-        </div>
-      )}
-
-      {/* Cannot help */}
-      {step === "cannot_help" && (
-        <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 space-y-2">
-          <p className="text-xs text-blue-800">
-            Tohle téma zatím neumím pokrýt. Dal jsem Matějovi vědět — možná přidáme nový nástroj nebo inspiraci.
-          </p>
-          <button type="button" onClick={handleReset} className="text-xs text-accent font-medium hover:underline">
-            Zkusit jiný dotaz
-          </button>
-        </div>
-      )}
-
-      {/* Results */}
-      {step === "results" && result && (
-        <div className="space-y-3">
-          <p className="text-xs text-foreground/70 leading-relaxed">{result.summary}</p>
-          {result.recommendations.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {result.recommendations.map((rec, i) => (
-                <button
-                  key={rec.slug || rec.id || i}
-                  type="button"
-                  onClick={() => rec.itemType === "tool" && rec.slug && onSelectTool?.(rec.slug)}
-                  className={`text-left rounded-xl border p-3 transition-all group hover:shadow-sm ${
-                    rec.itemType === "tool" ? "border-emerald-200 hover:border-emerald-300" : "border-accent/20 hover:border-accent/40"
-                  }`}
-                >
-                  <div className="flex items-start gap-2 mb-1">
-                    <span className="text-lg leading-none">{rec.icon || "📖"}</span>
-                    <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${
-                      rec.itemType === "tool" ? "bg-emerald-50 text-emerald-700" : "bg-accent/10 text-accent"
-                    }`}>
-                      {rec.itemType === "tool" ? "Nástroj" : "Inspirace"}
-                    </span>
-                  </div>
-                  <p className="text-xs font-bold text-foreground group-hover:text-accent transition-colors leading-snug">{rec.title}</p>
-                  <p className="text-[11px] text-foreground/50 mt-1 leading-relaxed line-clamp-2">{rec.reason}</p>
-                </button>
-              ))}
-            </div>
-          )}
-          {result.closingNote && (
-            <p className="text-[11px] text-foreground/45 italic">{result.closingNote}</p>
-          )}
-        </div>
-      )}
-
-      {/* Input */}
-      {step === "input" && error !== "no_budget" && (
-        <div className="flex items-start gap-2">
+      {/* Input — always visible */}
+      {error !== "no_budget" && (
+        <div className="flex items-end gap-2">
           <textarea
             ref={inputRef}
             value={message}
             onChange={(e) => setMessage(e.target.value.slice(0, 2000))}
-            placeholder="Popiš, co teď řešíš..."
-            className="flex-1 px-3 py-2 border border-black/10 rounded-lg bg-white/80 text-xs min-h-[40px] max-h-[80px] resize-y focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleInitialSubmit(); } }}
+            placeholder={bubbles.length === 0 ? "Popiš, co teď řešíš..." : "Pokračuj v konverzaci..."}
+            className="flex-1 px-3.5 py-2.5 border border-black/10 rounded-xl bg-white/80 text-sm min-h-[40px] max-h-[100px] resize-y focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+            disabled={loading}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
           />
           <button
             type="button"
-            onClick={handleInitialSubmit}
-            disabled={!message.trim()}
-            className="p-2.5 rounded-lg bg-accent text-white hover:bg-accent-hover disabled:opacity-40 transition-colors"
+            onClick={handleSubmit}
+            disabled={!message.trim() || loading}
+            className="p-2.5 rounded-xl bg-accent text-white hover:bg-accent-hover disabled:opacity-40 transition-colors shrink-0"
           >
             <Send size={14} />
           </button>

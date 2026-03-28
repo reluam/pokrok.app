@@ -11,7 +11,7 @@ import { sql, initializeDatabase } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
-const FREE_MONTHLY_LIMIT = 1;
+const FREE_MONTHLY_LIMIT = 10;
 
 interface AIRecommendation {
   itemType: "tool" | "inspiration";
