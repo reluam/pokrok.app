@@ -183,7 +183,7 @@ export default function LabAICoach({ onSelectTool }: Props) {
               <div className="w-16 h-1.5 bg-black/10 rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all" style={{ width: `${budgetPct}%`, background: budgetPct > 80 ? "#ef4444" : budgetPct > 50 ? "#f59e0b" : "#22c55e" }} />
               </div>
-              <span className="text-[10px] text-foreground/35">{budget!.remainingCzk.toFixed(0)} Kč</span>
+              <span className="text-[10px] text-foreground/35">{budgetPct}%</span>
             </div>
           )}
           {bubbles.length > 0 && (
