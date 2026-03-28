@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -6,51 +6,77 @@ import {
   TextInput,
   TouchableOpacity,
   Linking,
-  StyleSheet,
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getCoachingHistory, sendCoachingMessage } from "@/api/laborator";
 import { Send, CalendarPlus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
 interface Message {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
+  role: string;
+  content: string;
+  created_at?: string;
 }
 
-const WELCOME: Message = {
-  id: "welcome",
-  role: "assistant",
-  text: "Ahoj! Jsem tu, abych ti pomohl na tvé cestě. Můžeš se mě zeptat na cokoliv ohledně osobního rozvoje, nebo si zarezervuj koučovací sezení.",
-};
-
 export default function KoucingScreen() {
-  const [messages, setMessages] = useState<Message[]>([WELCOME]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const flatRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getCoachingHistory();
+        if (res.messages.length > 0) {
+          setMessages(res.messages);
+        } else {
+          // Welcome message for new users
+          setMessages([{
+            role: "assistant",
+            content: "Ahoj! Jsem tvůj osobní kouč. Povídej mi o sobě — co tě trápí, kam chceš směřovat, na čem pracuješ. Čím víc toho o tobě vím, tím lépe ti dokážu pomoct. 🌱",
+          }]);
+        }
+      } catch {
+        setMessages([{
+          role: "assistant",
+          content: "Ahoj! Jsem tvůj osobní kouč. Povídej mi o sobě — co řešíš, na čem pracuješ. 🌱",
+        }]);
+      }
+      setLoading(false);
+    })();
+  }, []);
 
   const handleSend = async () => {
     const text = input.trim();
     if (!text || sending) return;
     setInput("");
 
-    const userMsg: Message = { id: `u${Date.now()}`, role: "user", text };
+    const userMsg: Message = { role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
     setSending(true);
 
-    // Simple echo for now — can be connected to AI endpoint later
-    setTimeout(() => {
-      const reply: Message = {
-        id: `a${Date.now()}`,
-        role: "assistant",
-        text: "Díky za zprávu! Pro hlubší práci na tvém tématu si můžeš zarezervovat koučovací sezení. Klikni na tlačítko dole.",
-      };
-      setMessages(prev => [...prev, reply]);
-      setSending(false);
-    }, 1000);
+    try {
+      const res = await sendCoachingMessage(text);
+      setMessages(prev => [...prev, { role: "assistant", content: res.message }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "assistant", content: "Promiň, něco se pokazilo. Zkus to znovu." }]);
+    }
+    setSending(false);
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.center}><ActivityIndicator size="large" color={colors.accent} /></View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={s.safe} edges={["top"]}>
@@ -60,18 +86,28 @@ export default function KoucingScreen() {
           <Text style={s.headerTitle}>Koučing</Text>
         </View>
 
-        {/* Chat */}
+        {/* Messages */}
         <FlatList
+          ref={flatRef}
           data={messages}
           style={s.flex}
           contentContainerStyle={{ padding: 16, paddingBottom: 8 }}
-          keyExtractor={m => m.id}
+          keyExtractor={(_, i) => String(i)}
+          onContentSizeChange={() => flatRef.current?.scrollToEnd({ animated: true })}
           renderItem={({ item }) => (
             <View style={[s.bubble, item.role === "user" ? s.bubbleUser : s.bubbleAI]}>
-              <Text style={s.bubbleText}>{item.text}</Text>
+              <Text style={s.bubbleText}>{item.content}</Text>
             </View>
           )}
         />
+
+        {/* Typing indicator */}
+        {sending && (
+          <View style={s.typingRow}>
+            <ActivityIndicator size="small" color={colors.accent} />
+            <Text style={s.typingText}>Kouč přemýšlí...</Text>
+          </View>
+        )}
 
         {/* Input */}
         <View style={s.inputRow}>
@@ -102,7 +138,7 @@ export default function KoucingScreen() {
           onPress={() => Linking.openURL("https://ziju.life/koucing")}
           activeOpacity={0.8}
         >
-          <CalendarPlus size={20} color={colors.accent} />
+          <CalendarPlus size={18} color={colors.accent} />
           <Text style={s.bookingText}>Objednat koučovací sezení</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
@@ -113,34 +149,35 @@ export default function KoucingScreen() {
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 4 },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   headerTitle: { fontSize: 28, fontWeight: "800", color: colors.foreground, letterSpacing: -0.5 },
 
-  // Chat
   bubble: { maxWidth: "85%", borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10, marginVertical: 4 },
   bubbleUser: { alignSelf: "flex-end", backgroundColor: "rgba(255,140,66,0.12)", borderBottomRightRadius: 4 },
   bubbleAI: { alignSelf: "flex-start", backgroundColor: colors.boxBg, borderBottomLeftRadius: 4 },
-  bubbleText: { fontSize: 14, color: colors.foreground, lineHeight: 20 },
+  bubbleText: { fontSize: 15, color: colors.foreground, lineHeight: 22 },
 
-  // Input
+  typingRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 20, paddingBottom: 8 },
+  typingText: { fontSize: 13, color: colors.muted },
+
   inputRow: {
     flexDirection: "row", alignItems: "flex-end", paddingHorizontal: 12, paddingVertical: 8, gap: 8,
     borderTopWidth: 1, borderTopColor: colors.borderLight, backgroundColor: colors.white,
   },
   input: {
     flex: 1, backgroundColor: colors.background, borderRadius: 16,
-    paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: colors.foreground, maxHeight: 80,
+    paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, color: colors.foreground, maxHeight: 100,
   },
   sendBtn: {
-    width: 38, height: 38, borderRadius: 19, backgroundColor: colors.accent,
+    width: 40, height: 40, borderRadius: 20, backgroundColor: colors.accent,
     justifyContent: "center", alignItems: "center",
   },
 
-  // Booking bar
   bookingBar: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10,
+    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
     backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.borderLight,
-    paddingVertical: 14,
+    paddingVertical: 12,
   },
-  bookingText: { fontSize: 15, fontWeight: "700", color: colors.accent },
+  bookingText: { fontSize: 14, fontWeight: "700", color: colors.accent },
 });

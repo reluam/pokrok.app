@@ -8,6 +8,7 @@ import { getToolCards } from "@/lib/toolbox-db";
 import { getInspirationData } from "@/lib/inspiration-db";
 import { buildInspirationRecommendationPrompt } from "@/lib/ai-prompts";
 import { sql, initializeDatabase } from "@/lib/database";
+import { getAIProfileSummary } from "@/lib/ai-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -118,7 +119,9 @@ export async function POST(request: NextRequest) {
       ...inspirationData.princips,
     ].filter((i) => i.isActive !== false);
 
-    const systemPrompt = buildInspirationRecommendationPrompt(tools, allInspirations);
+    const profileSummary = await getAIProfileSummary(userId);
+    const profileSection = profileSummary ? `\n\n## Profil uživatele\n${profileSummary}` : "";
+    const systemPrompt = buildInspirationRecommendationPrompt(tools, allInspirations) + profileSection;
 
     // Call Anthropic API with full conversation history
     const anthropic = new Anthropic({ apiKey });

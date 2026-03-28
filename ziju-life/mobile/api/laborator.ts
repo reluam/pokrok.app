@@ -100,6 +100,23 @@ export async function toggleRitualCompletion(
   });
 }
 
+// Coaching chat (persistent)
+export async function getCoachingHistory(): Promise<{
+  messages: Array<{ role: string; content: string; created_at: string }>;
+}> {
+  return apiFetch("/api/laborator/coaching-chat");
+}
+
+export async function sendCoachingMessage(message: string): Promise<{
+  message: string;
+  budget?: { remainingCzk: number };
+}> {
+  return apiFetch("/api/laborator/coaching-chat", {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  });
+}
+
 interface AICoachMessage {
   role: "user" | "assistant";
   content: string;

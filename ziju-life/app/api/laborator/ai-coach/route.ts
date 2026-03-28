@@ -8,6 +8,7 @@ import { getInspirationData } from "@/lib/inspiration-db";
 import { buildLabCoachPrompt, type LabUserContext } from "@/lib/ai-prompts";
 import { sql, initializeDatabase } from "@/lib/database";
 import { sendContentRequestEmail } from "@/lib/user-email";
+import { getAIProfileSummary } from "@/lib/ai-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -118,7 +119,9 @@ export async function POST(request: NextRequest) {
       ...inspirationData.reels, ...inspirationData.princips,
     ].filter((i) => i.isActive !== false);
 
-    const systemPrompt = buildLabCoachPrompt(userContext, tools, allInspirations);
+    const profileSummary = await getAIProfileSummary(user.id);
+    const profileSection = profileSummary ? `\n\n## Profil uživatele\n${profileSummary}` : "";
+    const systemPrompt = buildLabCoachPrompt(userContext, tools, allInspirations) + profileSection;
 
     // Call Anthropic
     const anthropic = new Anthropic({ apiKey });
