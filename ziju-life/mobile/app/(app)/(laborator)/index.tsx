@@ -8,59 +8,134 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  Animated,
   Dimensions,
   StyleSheet,
   RefreshControl,
-  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getUserContext, saveUserContext, aiCoach } from "@/api/laborator";
-import { getToken } from "@/api/client";
+import {
+  getUserContext,
+  saveUserContext,
+  getDailyTodos,
+  saveDailyTodos,
+  getRitualCompletions,
+  toggleRitualCompletion,
+  aiCoach,
+} from "@/api/laborator";
 import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2 } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
 const { height: SCREEN_H } = Dimensions.get("window");
+const MAX_TODO = 3;
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type Tab = "todo" | "priorities" | "rituals";
 
+interface TodoItem { text: string; done: boolean }
 interface PriorityItem { text: string; done: boolean }
 interface PrioritiesData { weekly: PriorityItem[]; monthly: PriorityItem[]; yearly: PriorityItem[] }
-interface RitualItem { id: string; name: string; done: boolean }
+interface RitualItem { id: string; name: string; done: boolean; streak: number }
 interface ChatBubble { role: "user" | "assistant"; text: string }
+
+// ── Checklist Item ───────────────────────────────────────────────────────────
+
+function CheckItem({
+  item,
+  onToggle,
+  onRemove,
+  accentColor,
+}: {
+  item: { text: string; done: boolean };
+  onToggle: () => void;
+  onRemove?: () => void;
+  accentColor?: string;
+}) {
+  const color = accentColor || colors.accent;
+  return (
+    <View style={s.checkRow}>
+      <TouchableOpacity
+        style={[s.checkbox, item.done && { backgroundColor: color, borderColor: color }]}
+        onPress={onToggle}
+      >
+        {item.done && <Check size={12} color="#fff" />}
+      </TouchableOpacity>
+      <Text style={[s.checkText, item.done && s.checkTextDone]}>{item.text}</Text>
+      {onRemove && (
+        <TouchableOpacity onPress={onRemove} hitSlop={8} style={{ padding: 4 }}>
+          <Trash2 size={14} color={colors.muted} />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
+// ── Add Item Inline ──────────────────────────────────────────────────────────
+
+function AddInline({
+  placeholder,
+  onAdd,
+  maxReached,
+}: {
+  placeholder: string;
+  onAdd: (text: string) => void;
+  maxReached?: boolean;
+}) {
+  const [adding, setAdding] = useState(false);
+  const [text, setText] = useState("");
+
+  if (maxReached) return null;
+
+  if (!adding) {
+    return (
+      <TouchableOpacity style={s.addTrigger} onPress={() => setAdding(true)}>
+        <Plus size={14} color={colors.muted} />
+        <Text style={s.addTriggerText}>Přidat</Text>
+      </TouchableOpacity>
+    );
+  }
+
+  const handleAdd = () => {
+    if (text.trim()) { onAdd(text.trim()); setText(""); setAdding(false); }
+  };
+
+  return (
+    <View style={s.addRow}>
+      <TextInput
+        style={s.addInput}
+        value={text}
+        onChangeText={setText}
+        placeholder={placeholder}
+        placeholderTextColor="#aaa"
+        autoFocus
+        onSubmitEditing={handleAdd}
+      />
+      <TouchableOpacity style={s.addBtn} onPress={handleAdd}>
+        <Check size={16} color="#fff" />
+      </TouchableOpacity>
+    </View>
+  );
+}
 
 // ── AI Coach Bar ─────────────────────────────────────────────────────────────
 
 function AICoachBar({
-  expanded,
-  fullScreen,
-  onToggle,
-  onFullScreen,
-  bubbles,
-  onSend,
-  sending,
+  expanded, fullScreen, onToggle, onFullScreen,
+  bubbles, onSend, sending,
 }: {
-  expanded: boolean;
-  fullScreen: boolean;
-  onToggle: () => void;
-  onFullScreen: () => void;
-  bubbles: ChatBubble[];
-  onSend: (msg: string) => void;
-  sending: boolean;
+  expanded: boolean; fullScreen: boolean;
+  onToggle: () => void; onFullScreen: () => void;
+  bubbles: ChatBubble[]; onSend: (msg: string) => void; sending: boolean;
 }) {
   const [msg, setMsg] = useState("");
   const flatRef = useRef<FlatList>(null);
 
   const handleSend = () => {
-    const trimmed = msg.trim();
-    if (!trimmed || sending) return;
-    onSend(trimmed);
+    const t = msg.trim();
+    if (!t || sending) return;
+    onSend(t);
     setMsg("");
   };
-
-  const barHeight = fullScreen ? SCREEN_H - 100 : expanded ? SCREEN_H * 0.45 : 56;
 
   if (!expanded) {
     return (
@@ -70,6 +145,8 @@ function AICoachBar({
       </TouchableOpacity>
     );
   }
+
+  const barHeight = fullScreen ? SCREEN_H - 100 : SCREEN_H * 0.45;
 
   return (
     <View style={[s.aiBarExpanded, { height: barHeight }]}>
@@ -82,7 +159,6 @@ function AICoachBar({
           {fullScreen ? <Minimize2 size={18} color={colors.muted} /> : <Maximize2 size={18} color={colors.muted} />}
         </TouchableOpacity>
       </View>
-
       <FlatList
         ref={flatRef}
         data={bubbles}
@@ -95,28 +171,18 @@ function AICoachBar({
             <Text style={s.bubbleText}>{item.text}</Text>
           </View>
         )}
-        ListEmptyComponent={
-          <Text style={s.chatEmpty}>Zeptej se na cokoliv — pomůžu ti s tvým rozvojem.</Text>
-        }
+        ListEmptyComponent={<Text style={s.chatEmpty}>Zeptej se na cokoliv.</Text>}
       />
-
       <View style={s.aiInputRow}>
         <TextInput
-          style={s.aiInput}
-          value={msg}
-          onChangeText={setMsg}
-          placeholder="Napiš zprávu..."
-          placeholderTextColor="#aaa"
-          multiline
-          maxLength={2000}
-          editable={!sending}
-          onSubmitEditing={handleSend}
-          blurOnSubmit
+          style={s.aiInput} value={msg} onChangeText={setMsg}
+          placeholder="Napiš zprávu..." placeholderTextColor="#aaa"
+          multiline maxLength={2000} editable={!sending}
+          onSubmitEditing={handleSend} blurOnSubmit
         />
         <TouchableOpacity
           style={[s.aiSendBtn, (!msg.trim() || sending) && { opacity: 0.4 }]}
-          onPress={handleSend}
-          disabled={!msg.trim() || sending}
+          onPress={handleSend} disabled={!msg.trim() || sending}
         >
           <Send size={18} color="#fff" />
         </TouchableOpacity>
@@ -125,44 +191,24 @@ function AICoachBar({
   );
 }
 
-// ── Checklist Item ───────────────────────────────────────────────────────────
-
-function CheckItem({
-  item,
-  onToggle,
-  onRemove,
-}: {
-  item: PriorityItem;
-  onToggle: () => void;
-  onRemove: () => void;
-}) {
-  return (
-    <View style={s.checkRow}>
-      <TouchableOpacity
-        style={[s.checkbox, item.done && s.checkboxDone]}
-        onPress={onToggle}
-      >
-        {item.done && <Check size={12} color="#fff" />}
-      </TouchableOpacity>
-      <Text style={[s.checkText, item.done && s.checkTextDone]}>{item.text}</Text>
-      <TouchableOpacity onPress={onRemove} hitSlop={8} style={{ padding: 4 }}>
-        <Trash2 size={14} color={colors.muted} />
-      </TouchableOpacity>
-    </View>
-  );
-}
-
 // ── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function LaboratorDashboard() {
   const [tab, setTab] = useState<Tab>("todo");
+
+  // To-Do (daily)
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [niceTodos, setNiceTodos] = useState<TodoItem[]>([]);
+
+  // Priorities
   const [priorities, setPriorities] = useState<PrioritiesData>({ weekly: [], monthly: [], yearly: [] });
-  const [rituals, setRituals] = useState<{ morning: RitualItem[]; daily: RitualItem[]; evening: RitualItem[] }>({
+
+  // Rituals
+  const [ritualItems, setRitualItems] = useState<{ morning: RitualItem[]; daily: RitualItem[]; evening: RitualItem[] }>({
     morning: [], daily: [], evening: [],
   });
+
   const [refreshing, setRefreshing] = useState(false);
-  const [newItem, setNewItem] = useState("");
-  const [addingTo, setAddingTo] = useState<string | null>(null);
 
   // AI Coach
   const [aiExpanded, setAiExpanded] = useState(false);
@@ -170,11 +216,25 @@ export default function LaboratorDashboard() {
   const [bubbles, setBubbles] = useState<ChatBubble[]>([]);
   const [sending, setSending] = useState(false);
 
+  // ── Load data ──
+
   const load = useCallback(async () => {
-    try {
-      const token = await getToken();
-      const res = await getUserContext();
-      const ctx = res.context || {};
+    // Load all in parallel
+    const [todoRes, ctxRes, compRes] = await Promise.allSettled([
+      getDailyTodos(),
+      getUserContext(),
+      getRitualCompletions(),
+    ]);
+
+    // Todos
+    if (todoRes.status === "fulfilled") {
+      setTodos(todoRes.value.today?.todos ?? []);
+      setNiceTodos(todoRes.value.today?.niceTodos ?? []);
+    }
+
+    // Context (priorities + rituals selection)
+    if (ctxRes.status === "fulfilled") {
+      const ctx = ctxRes.value.context || {};
 
       // Priorities
       if (ctx.priorities && typeof ctx.priorities === "object") {
@@ -186,73 +246,78 @@ export default function LaboratorDashboard() {
         });
       }
 
-      // Rituals — stored as { morning: ["id1", "custom::Name::dur"], daily: [...], evening: [...] }
+      // Ritual selection → items
+      const completedToday = new Set<string>(
+        compRes.status === "fulfilled" ? compRes.value.today : []
+      );
+      const stats: Record<string, number> =
+        compRes.status === "fulfilled" ? compRes.value.stats : {};
+
       if (ctx.rituals && typeof ctx.rituals === "object" && !Array.isArray(ctx.rituals)) {
-        const sel = ctx.rituals as { morning?: string[]; daily?: string[]; evening?: string[]; durationOverrides?: Record<string, number> };
+        const sel = ctx.rituals as { morning?: string[]; daily?: string[]; evening?: string[] };
         const parseName = (id: string) => {
           if (id.startsWith("custom::")) return id.split("::")[1] ?? id;
-          // Fallback: use ID as name, capitalize
           return id.replace(/-/g, " ").replace(/^\w/, c => c.toUpperCase());
         };
-        const grouped = {
-          morning: (sel.morning ?? []).map(id => ({ id, name: parseName(id), done: false })),
-          daily: (sel.daily ?? []).map(id => ({ id, name: parseName(id), done: false })),
-          evening: (sel.evening ?? []).map(id => ({ id, name: parseName(id), done: false })),
-        };
-        setRituals(grouped);
+        const toItems = (ids: string[]) =>
+          ids.map(id => ({ id, name: parseName(id), done: completedToday.has(id), streak: stats[id] ?? 0 }));
 
-        // Load today's completions
-        try {
-          const compRes = await fetch("https://ziju.life/api/laborator/ritual-completions", {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          });
-          if (compRes.ok) {
-            const comp = await compRes.json();
-            const todaySet = new Set<string>(comp.today ?? []);
-            setRituals({
-              morning: grouped.morning.map(r => ({ ...r, done: todaySet.has(r.id) })),
-              daily: grouped.daily.map(r => ({ ...r, done: todaySet.has(r.id) })),
-              evening: grouped.evening.map(r => ({ ...r, done: todaySet.has(r.id) })),
-            });
-          }
-        } catch {}
+        setRitualItems({
+          morning: toItems(sel.morning ?? []),
+          daily: toItems(sel.daily ?? []),
+          evening: toItems(sel.evening ?? []),
+        });
       }
-    } catch {}
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   const onRefresh = async () => { setRefreshing(true); await load(); setRefreshing(false); };
 
-  // Priority actions
+  // ── Todo actions ──
+
+  const saveTodos = async (t: TodoItem[], n: TodoItem[]) => {
+    setTodos(t); setNiceTodos(n);
+    try { await saveDailyTodos(t, n); } catch {}
+  };
+
+  // ── Priority actions ──
+
   const savePriorities = async (updated: PrioritiesData) => {
     setPriorities(updated);
     try { await saveUserContext("priorities", updated); } catch {}
   };
 
   const togglePriority = (scope: keyof PrioritiesData, idx: number) => {
-    const updated = { ...priorities };
-    updated[scope] = [...updated[scope]];
-    updated[scope][idx] = { ...updated[scope][idx], done: !updated[scope][idx].done };
-    savePriorities(updated);
+    const u = { ...priorities, [scope]: priorities[scope].map((p, i) => i === idx ? { ...p, done: !p.done } : p) };
+    savePriorities(u);
   };
 
   const removePriority = (scope: keyof PrioritiesData, idx: number) => {
-    const updated = { ...priorities };
-    updated[scope] = updated[scope].filter((_, i) => i !== idx);
-    savePriorities(updated);
+    const u = { ...priorities, [scope]: priorities[scope].filter((_, i) => i !== idx) };
+    savePriorities(u);
   };
 
-  const addPriority = (scope: keyof PrioritiesData) => {
-    if (!newItem.trim()) return;
-    const updated = { ...priorities };
-    updated[scope] = [...updated[scope], { text: newItem.trim(), done: false }];
-    savePriorities(updated);
-    setNewItem("");
-    setAddingTo(null);
+  const addPriority = (scope: keyof PrioritiesData, text: string) => {
+    const u = { ...priorities, [scope]: [...priorities[scope], { text, done: false }] };
+    savePriorities(u);
   };
 
-  // AI actions
+  // ── Ritual actions ──
+
+  const handleToggleRitual = async (slot: "morning" | "daily" | "evening", idx: number) => {
+    const item = ritualItems[slot][idx];
+    const newDone = !item.done;
+    setRitualItems(prev => ({
+      ...prev,
+      [slot]: prev[slot].map((r, i) => i === idx ? { ...r, done: newDone } : r),
+    }));
+    try { await toggleRitualCompletion(item.id, newDone); } catch {}
+  };
+
+  // ── AI ──
+
   const handleAISend = async (msg: string) => {
     const userBubble: ChatBubble = { role: "user", text: msg };
     const newBubbles = [...bubbles, userBubble];
@@ -260,91 +325,78 @@ export default function LaboratorDashboard() {
     setSending(true);
     try {
       const res = await aiCoach(newBubbles.map(b => ({ role: b.role, content: b.text })));
-      const aiText = res.type === "reflection" ? (res.text || "") : (res.response as { summary?: string })?.summary || "Nemám odpověď.";
+      const aiText = res.type === "reflection"
+        ? (res.text || "")
+        : (res.response as { summary?: string })?.summary || "Nemám odpověď.";
       setBubbles([...newBubbles, { role: "assistant", text: aiText }]);
     } catch {
-      setBubbles([...newBubbles, { role: "assistant", text: "Promiň, něco se pokazilo. Zkus to znovu." }]);
+      setBubbles([...newBubbles, { role: "assistant", text: "Promiň, něco se pokazilo." }]);
     }
     setSending(false);
   };
 
-  // Tab content rendering
-  const renderTodo = () => {
-    const todo = priorities.weekly.filter(p => !p.done);
-    const done = priorities.weekly.filter(p => p.done);
-    return (
-      <View>
-        <Text style={s.sectionTitle}>To-Do tento týden</Text>
-        {todo.slice(0, 3).map((item, i) => {
-          const realIdx = priorities.weekly.indexOf(item);
-          return <CheckItem key={`t${i}`} item={item} onToggle={() => togglePriority("weekly", realIdx)} onRemove={() => removePriority("weekly", realIdx)} />;
-        })}
-        {todo.length > 3 && <Text style={s.moreText}>+ {todo.length - 3} dalších</Text>}
+  // ── Render tabs ──
 
-        {done.length > 0 && (
-          <>
-            <Text style={[s.sectionTitle, { marginTop: 20 }]}>Hotovo</Text>
-            {done.slice(0, 3).map((item, i) => {
-              const realIdx = priorities.weekly.indexOf(item);
-              return <CheckItem key={`d${i}`} item={item} onToggle={() => togglePriority("weekly", realIdx)} onRemove={() => removePriority("weekly", realIdx)} />;
-            })}
-          </>
-        )}
+  const renderTodo = () => (
+    <View>
+      {/* To Do — max 3 */}
+      <Text style={s.sectionLabel}>TO DO ({todos.length}/{MAX_TODO})</Text>
+      {todos.map((item, i) => (
+        <CheckItem
+          key={`t${i}`}
+          item={item}
+          accentColor="#22c55e"
+          onToggle={() => saveTodos(todos.map((t, j) => j === i ? { ...t, done: !t.done } : t), niceTodos)}
+          onRemove={() => saveTodos(todos.filter((_, j) => j !== i), niceTodos)}
+        />
+      ))}
+      <AddInline
+        placeholder="Nový úkol..."
+        maxReached={todos.length >= MAX_TODO}
+        onAdd={(text) => saveTodos([...todos, { text, done: false }], niceTodos)}
+      />
 
-        {addingTo === "weekly" ? (
-          <View style={s.addRow}>
-            <TextInput
-              style={s.addInput}
-              value={newItem}
-              onChangeText={setNewItem}
-              placeholder="Nový úkol..."
-              placeholderTextColor="#aaa"
-              autoFocus
-              onSubmitEditing={() => addPriority("weekly")}
-            />
-            <TouchableOpacity style={s.addBtn} onPress={() => addPriority("weekly")}>
-              <Plus size={16} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <TouchableOpacity style={s.addTrigger} onPress={() => setAddingTo("weekly")}>
-            <Plus size={14} color={colors.muted} />
-            <Text style={s.addTriggerText}>Přidat úkol</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    );
-  };
+      {/* Nice To Do — max 3 */}
+      <Text style={[s.sectionLabel, { marginTop: 24, color: colors.accent }]}>
+        NICE TO DO ({niceTodos.length}/{MAX_TODO})
+      </Text>
+      {niceTodos.map((item, i) => (
+        <CheckItem
+          key={`n${i}`}
+          item={item}
+          accentColor={colors.accent}
+          onToggle={() => saveTodos(todos, niceTodos.map((t, j) => j === i ? { ...t, done: !t.done } : t))}
+          onRemove={() => saveTodos(todos, niceTodos.filter((_, j) => j !== i))}
+        />
+      ))}
+      <AddInline
+        placeholder="Nice to do..."
+        maxReached={niceTodos.length >= MAX_TODO}
+        onAdd={(text) => saveTodos(todos, [...niceTodos, { text, done: false }])}
+      />
+    </View>
+  );
 
   const renderPriorities = () => (
     <View>
       {(["weekly", "monthly", "yearly"] as const).map(scope => (
         <View key={scope} style={{ marginBottom: 24 }}>
-          <Text style={s.sectionTitle}>{scope === "weekly" ? "Tento týden" : scope === "monthly" ? "Tento měsíc" : "Tento rok"}</Text>
+          <Text style={s.sectionTitle}>
+            {scope === "weekly" ? "Tento týden" : scope === "monthly" ? "Tento měsíc" : "Tento rok"}
+          </Text>
+          {priorities[scope].length === 0 && <Text style={s.emptyText}>Žádné priority</Text>}
           {priorities[scope].map((item, i) => (
-            <CheckItem key={i} item={item} onToggle={() => togglePriority(scope, i)} onRemove={() => removePriority(scope, i)} />
+            <CheckItem
+              key={i}
+              item={item}
+              onToggle={() => togglePriority(scope, i)}
+              onRemove={() => removePriority(scope, i)}
+            />
           ))}
-          {addingTo === scope ? (
-            <View style={s.addRow}>
-              <TextInput
-                style={s.addInput}
-                value={newItem}
-                onChangeText={setNewItem}
-                placeholder={scope === "weekly" ? "Nový úkol..." : scope === "monthly" ? "Nová měsíční priorita..." : "Nová roční priorita..."}
-                placeholderTextColor="#aaa"
-                autoFocus
-                onSubmitEditing={() => addPriority(scope)}
-              />
-              <TouchableOpacity style={s.addBtn} onPress={() => addPriority(scope)}>
-                <Plus size={16} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity style={s.addTrigger} onPress={() => { setAddingTo(scope); setNewItem(""); }}>
-              <Plus size={14} color={colors.muted} />
-              <Text style={s.addTriggerText}>Přidat</Text>
-            </TouchableOpacity>
-          )}
+          <AddInline
+            placeholder={scope === "weekly" ? "Nová týdenní priorita..." : scope === "monthly" ? "Nová měsíční priorita..." : "Nová roční priorita..."}
+            onAdd={(text) => addPriority(scope, text)}
+          />
         </View>
       ))}
     </View>
@@ -352,9 +404,9 @@ export default function LaboratorDashboard() {
 
   const renderRituals = () => {
     const slots = [
-      { key: "morning" as const, label: "Ráno 🌅", items: rituals.morning },
-      { key: "daily" as const, label: "Během dne ☀️", items: rituals.daily },
-      { key: "evening" as const, label: "Večer 🌙", items: rituals.evening },
+      { key: "morning" as const, label: "Ráno 🌅", items: ritualItems.morning },
+      { key: "daily" as const, label: "Během dne ☀️", items: ritualItems.daily },
+      { key: "evening" as const, label: "Večer 🌙", items: ritualItems.evening },
     ];
     const total = slots.reduce((a, s) => a + s.items.length, 0);
     const doneCount = slots.reduce((a, s) => a + s.items.filter(i => i.done).length, 0);
@@ -366,7 +418,7 @@ export default function LaboratorDashboard() {
             <View style={s.progressBg}>
               <View style={[s.progressFill, { width: `${total ? (doneCount / total) * 100 : 0}%` }]} />
             </View>
-            <Text style={s.progressText}>{doneCount}/{total}</Text>
+            <Text style={s.progressText}>{doneCount}/{total} ({total ? Math.round((doneCount / total) * 100) : 0}%)</Text>
           </View>
         )}
         {slots.map(slot => (
@@ -374,26 +426,23 @@ export default function LaboratorDashboard() {
             <Text style={s.ritualSlotLabel}>{slot.label}</Text>
             {slot.items.length === 0 && <Text style={s.emptyText}>Žádné rituály</Text>}
             {slot.items.map((item, i) => (
-              <TouchableOpacity
-                key={i}
-                style={s.checkRow}
-                onPress={() => {
-                  const updated = { ...rituals };
-                  updated[slot.key] = [...updated[slot.key]];
-                  updated[slot.key][i] = { ...updated[slot.key][i], done: !updated[slot.key][i].done };
-                  setRituals(updated);
-                }}
-              >
-                <View style={[s.checkbox, item.done && s.checkboxDone]}>
+              <View key={i} style={s.checkRow}>
+                <TouchableOpacity
+                  style={[s.checkbox, item.done && { backgroundColor: colors.accent, borderColor: colors.accent }]}
+                  onPress={() => handleToggleRitual(slot.key, i)}
+                >
                   {item.done && <Check size={12} color="#fff" />}
-                </View>
-                <Text style={[s.checkText, item.done && s.checkTextDone]}>{item.name}</Text>
-              </TouchableOpacity>
+                </TouchableOpacity>
+                <Text style={[s.checkText, item.done && s.checkTextDone, { flex: 1 }]}>{item.name}</Text>
+                {item.streak > 0 && <Text style={s.streakText}>{item.streak}×</Text>}
+              </View>
             ))}
           </View>
         ))}
         {total === 0 && (
-          <Text style={s.emptyText}>Nastav si rituály v sekci Nastav si den na webu.</Text>
+          <View style={s.emptyCard}>
+            <Text style={s.emptyText}>Nastav si rituály v sekci "Nastav si den" na webu.</Text>
+          </View>
         )}
       </View>
     );
@@ -422,6 +471,7 @@ export default function LaboratorDashboard() {
           style={s.flex}
           contentContainerStyle={s.scrollContent}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
+          keyboardShouldPersistTaps="handled"
         >
           {tab === "todo" && renderTodo()}
           {tab === "priorities" && renderPriorities()}
@@ -452,37 +502,35 @@ const s = StyleSheet.create({
 
   // Tabs
   tabBar: { flexDirection: "row", paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4, gap: 6 },
-  tabItem: { flex: 1, paddingVertical: 10, borderRadius: 14, alignItems: "center", backgroundColor: "transparent" },
+  tabItem: { flex: 1, paddingVertical: 10, borderRadius: 14, alignItems: "center" },
   tabItemActive: { backgroundColor: colors.accent },
   tabText: { fontSize: 14, fontWeight: "600", color: colors.muted },
   tabTextActive: { color: "#fff" },
 
   // Sections
+  sectionLabel: { fontSize: 11, fontWeight: "700", color: colors.muted, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 },
   sectionTitle: { fontSize: 16, fontWeight: "700", color: colors.foreground, marginBottom: 12 },
-  moreText: { fontSize: 13, color: colors.muted, marginTop: 4, marginLeft: 32 },
+  emptyText: { fontSize: 13, color: colors.muted, fontStyle: "italic", paddingVertical: 4 },
+  emptyCard: { backgroundColor: colors.white, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: colors.borderLight },
 
   // Checklist
-  checkRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8, paddingHorizontal: 4 },
+  checkRow: { flexDirection: "row", alignItems: "center", paddingVertical: 7, paddingHorizontal: 2 },
   checkbox: {
     width: 22, height: 22, borderRadius: 6, borderWidth: 2,
     borderColor: colors.border, justifyContent: "center", alignItems: "center", marginRight: 12,
   },
-  checkboxDone: { backgroundColor: colors.accent, borderColor: colors.accent },
   checkText: { flex: 1, fontSize: 15, color: colors.foreground },
   checkTextDone: { color: colors.muted, textDecorationLine: "line-through" },
 
-  // Add item
-  addTrigger: { flexDirection: "row", alignItems: "center", paddingVertical: 10, paddingHorizontal: 4, gap: 6 },
+  // Add
+  addTrigger: { flexDirection: "row", alignItems: "center", paddingVertical: 8, gap: 6 },
   addTriggerText: { fontSize: 13, color: colors.muted },
-  addRow: { flexDirection: "row", alignItems: "center", marginTop: 8, gap: 8 },
+  addRow: { flexDirection: "row", alignItems: "center", marginTop: 6, gap: 8 },
   addInput: {
     flex: 1, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border,
     borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: colors.foreground,
   },
-  addBtn: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: colors.accent,
-    justifyContent: "center", alignItems: "center",
-  },
+  addBtn: { width: 36, height: 36, borderRadius: 10, backgroundColor: colors.accent, justifyContent: "center", alignItems: "center" },
 
   // Rituals
   ritualSlot: {
@@ -490,13 +538,13 @@ const s = StyleSheet.create({
     padding: 14, marginBottom: 10,
   },
   ritualSlotLabel: { fontSize: 14, fontWeight: "700", color: colors.foreground, marginBottom: 8 },
+  streakText: { fontSize: 11, color: colors.muted, marginLeft: 8 },
   progressRow: { flexDirection: "row", alignItems: "center", marginBottom: 16, gap: 10 },
   progressBg: { flex: 1, height: 6, backgroundColor: colors.boxBg, borderRadius: 999, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: colors.accent, borderRadius: 999 },
   progressText: { fontSize: 13, fontWeight: "600", color: colors.muted },
-  emptyText: { fontSize: 13, color: colors.muted, fontStyle: "italic", paddingVertical: 8 },
 
-  // AI Coach — collapsed
+  // AI collapsed
   aiBarCollapsed: {
     flexDirection: "row", alignItems: "center", gap: 10,
     backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.borderLight,
@@ -504,7 +552,7 @@ const s = StyleSheet.create({
   },
   aiBarText: { fontSize: 14, color: colors.muted },
 
-  // AI Coach — expanded
+  // AI expanded
   aiBarExpanded: {
     backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.borderLight,
     borderTopLeftRadius: 20, borderTopRightRadius: 20,
@@ -515,16 +563,12 @@ const s = StyleSheet.create({
     paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.borderLight,
   },
   aiBarTitle: { fontSize: 15, fontWeight: "700", color: colors.foreground },
-
-  // Chat
   chatList: { flex: 1 },
   chatEmpty: { fontSize: 14, color: colors.muted, textAlign: "center", paddingVertical: 20, fontStyle: "italic" },
   bubble: { maxWidth: "85%", borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10, marginVertical: 4 },
   bubbleUser: { alignSelf: "flex-end", backgroundColor: "rgba(255,140,66,0.12)", borderBottomRightRadius: 4 },
   bubbleAssistant: { alignSelf: "flex-start", backgroundColor: colors.boxBg, borderBottomLeftRadius: 4 },
   bubbleText: { fontSize: 14, color: colors.foreground, lineHeight: 20 },
-
-  // Input
   aiInputRow: {
     flexDirection: "row", alignItems: "flex-end", paddingHorizontal: 12, paddingVertical: 10, gap: 8,
     borderTopWidth: 1, borderTopColor: colors.borderLight,

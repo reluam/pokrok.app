@@ -62,6 +62,44 @@ export async function submitCheckin(
   });
 }
 
+// Daily todos
+interface TodoItem { text: string; done: boolean }
+
+export async function getDailyTodos(): Promise<{
+  today: { todos: TodoItem[]; niceTodos: TodoItem[] };
+  yesterday: { todos: TodoItem[]; niceTodos: TodoItem[] };
+}> {
+  return apiFetch("/api/laborator/daily-todos");
+}
+
+export async function saveDailyTodos(
+  todos: TodoItem[],
+  niceTodos: TodoItem[]
+): Promise<{ ok: boolean }> {
+  return apiFetch("/api/laborator/daily-todos", {
+    method: "POST",
+    body: JSON.stringify({ todos, niceTodos }),
+  });
+}
+
+// Ritual completions
+export async function getRitualCompletions(): Promise<{
+  today: string[];
+  stats: Record<string, number>;
+}> {
+  return apiFetch("/api/laborator/ritual-completions");
+}
+
+export async function toggleRitualCompletion(
+  ritualId: string,
+  completed: boolean
+): Promise<{ ok: boolean }> {
+  return apiFetch("/api/laborator/ritual-completions", {
+    method: "POST",
+    body: JSON.stringify({ ritualId, completed }),
+  });
+}
+
 interface AICoachMessage {
   role: "user" | "assistant";
   content: string;

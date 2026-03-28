@@ -42,16 +42,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const access = await checkAccess();
+        let hasAccess = false;
+        let accessEmail = session.email || null;
+        try {
+          const access = await checkAccess();
+          hasAccess = access.valid;
+          accessEmail = access.email || accessEmail;
+        } catch {
+          // Network error checking subscription — assume valid, recheck later
+          hasAccess = true;
+        }
+
         setState({
           isLoading: false,
           isLoggedIn: true,
-          hasSubscription: access.valid,
-          email: access.email || session.email || null,
+          hasSubscription: hasAccess,
+          email: accessEmail,
         });
       } catch {
-        await clearToken();
-        setState({ isLoading: false, isLoggedIn: false, hasSubscription: false, email: null });
+        // Network error — keep token, assume logged in (token is still valid JWT)
+        setState({ isLoading: false, isLoggedIn: true, hasSubscription: true, email: null });
       }
     })();
   }, []);
