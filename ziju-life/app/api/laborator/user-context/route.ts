@@ -5,7 +5,7 @@ import { sql, initializeDatabase } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
-const VALID_TYPES = ["compass", "values", "rituals"];
+const VALID_TYPES = ["compass", "values", "rituals", "priorities"];
 
 /** GET — load all user context */
 export async function GET() {

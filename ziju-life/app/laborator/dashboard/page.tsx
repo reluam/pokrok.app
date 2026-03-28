@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 
 const ToolboxTab = dynamic(() => import("@/components/laborator/ToolboxTab"), { ssr: false });
 const LabAICoach = dynamic(() => import("@/components/laborator/LabAICoach"), { ssr: false });
+const PrioritiesWidget = dynamic(() => import("@/components/laborator/PrioritiesWidget"), { ssr: false });
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -657,6 +658,7 @@ function PrehledTab({
   thisWeekDone,
   onTabChange,
   onCheckinSave,
+  onDataChanged,
 }: {
   ritualSelection: RitualSelection | null;
   kompasData: KompasData | null;
@@ -666,6 +668,7 @@ function PrehledTab({
   thisWeekDone: boolean;
   onTabChange: (tab: string) => void;
   onCheckinSave: (data: { valueScores: Record<string, number>; areaScores: Record<string, number> }) => Promise<void>;
+  onDataChanged?: () => void;
 }) {
   const hasRituals = (ritualSelection?.morning.length ?? 0) + (ritualSelection?.daily.length ?? 0) + (ritualSelection?.evening.length ?? 0) > 0;
   const hasKompas = !!kompasData;
@@ -697,7 +700,10 @@ function PrehledTab({
     <div className="space-y-6">
 
       {/* AI Coach */}
-      <LabAICoach />
+      <LabAICoach onDataChanged={onDataChanged} />
+
+      {/* Priorities */}
+      <PrioritiesWidget />
 
       {/* Monthly reflexion banner */}
       {showReflexion && kompasData && (
@@ -1213,6 +1219,12 @@ function DashboardContent() {
           thisWeekDone={thisWeekDone}
           onTabChange={goToTab}
           onCheckinSave={handleCheckinSave}
+          onDataChanged={() => {
+            // Reload localStorage data after AI action
+            try { const k = localStorage.getItem("kompas-data"); if (k) setKompasData(JSON.parse(k)); } catch {}
+            try { const h = localStorage.getItem("hodnoty-data"); if (h) setHodnotyData(JSON.parse(h)); } catch {}
+            try { const s = localStorage.getItem(LS_KEY); if (s) setRitualSelection(JSON.parse(s)); } catch {}
+          }}
         />
       );
     }

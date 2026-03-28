@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Send, RotateCcw, AlertCircle, MessageCircle } from "lucide-react";
+import { Send, RotateCcw, AlertCircle, MessageCircle, Check, X } from "lucide-react";
 
 interface Recommendation {
   itemType: "tool" | "inspiration";
@@ -12,27 +12,45 @@ interface Recommendation {
   reason: string;
 }
 
-interface AIResponse {
-  summary: string;
-  recommendations: Recommendation[];
-  closingNote: string;
+interface AIAction {
+  type: string;
+  [key: string]: unknown;
 }
 
-/** A visible chat bubble — user text, AI text, or AI recommendations */
 interface ChatBubble {
   role: "user" | "assistant";
   text?: string;
   recommendations?: Recommendation[];
+  actions?: AIAction[];
   closingNote?: string;
 }
 
 interface BudgetInfo { remainingCzk: number; totalBudgetCzk: number; spentCzk: number }
 
+const ACTION_LABELS: Record<string, string> = {
+  set_priorities: "Nastavit priority",
+  add_priority: "Přidat prioritu",
+  set_focus_area: "Změnit focus area",
+  update_compass: "Aktualizovat kompas",
+  update_values: "Aktualizovat hodnoty",
+  update_rituals: "Změnit rituály",
+};
+
+const ACTION_ICONS: Record<string, string> = {
+  set_priorities: "🎯",
+  add_priority: "➕",
+  set_focus_area: "🧭",
+  update_compass: "📊",
+  update_values: "⭐",
+  update_rituals: "⏱️",
+};
+
 interface Props {
   onSelectTool?: (slug: string) => void;
+  onDataChanged?: () => void;
 }
 
-export default function LabAICoach({ onSelectTool }: Props) {
+export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
   const [message, setMessage] = useState("");
   const [bubbles, setBubbles] = useState<ChatBubble[]>([]);
   const [apiMessages, setApiMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
@@ -116,15 +134,14 @@ export default function LabAICoach({ onSelectTool }: Props) {
         aiBubble = { role: "assistant", text: "Tohle téma zatím neumím pokrýt. Dal jsem Matějovi vědět — možná přidáme nový nástroj nebo inspiraci." };
         apiContent = aiBubble.text!;
       } else if (data.type === "recommendations" && data.response) {
-        const r: AIResponse = data.response;
-        aiBubble = { role: "assistant", text: r.summary, recommendations: r.recommendations, closingNote: r.closingNote };
+        const r = data.response;
+        aiBubble = { role: "assistant", text: r.summary, recommendations: r.recommendations, actions: r.actions, closingNote: r.closingNote };
         apiContent = JSON.stringify(r);
       } else {
-        // Reflection or plain text — try parsing as JSON fallback
         const rawText = data.text ?? "";
         const parsed = tryParseJson(rawText);
-        if (parsed?.recommendations?.length) {
-          aiBubble = { role: "assistant", text: parsed.summary, recommendations: parsed.recommendations, closingNote: parsed.closingNote };
+        if (parsed?.recommendations?.length || parsed?.actions?.length || parsed?.summary) {
+          aiBubble = { role: "assistant", text: parsed.summary, recommendations: parsed.recommendations, actions: parsed.actions, closingNote: parsed.closingNote };
           apiContent = JSON.stringify(parsed);
         } else if (parsed?.cannot_help) {
           aiBubble = { role: "assistant", text: "Tohle téma zatím neumím pokrýt. Dal jsem Matějovi vědět." };
@@ -143,6 +160,81 @@ export default function LabAICoach({ onSelectTool }: Props) {
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
+  };
+
+  const confirmAction = async (action: AIAction, bubbleIndex: number) => {
+    try {
+      // Map action to user-context API call
+      if (action.type === "set_priorities" || action.type === "add_priority") {
+        // Load current priorities, apply action, save
+        const res = await fetch("/api/laborator/user-context");
+        const d = await res.json();
+        const current = d.context?.priorities ?? { weekly: [], monthly: [], yearly: [] };
+        const scope = (action.scope as string) ?? "weekly";
+
+        if (action.type === "set_priorities" && Array.isArray(action.items)) {
+          current[scope] = (action.items as string[]).map((text: string) => ({ text, done: false }));
+        } else if (action.type === "add_priority" && action.text) {
+          current[scope] = [...(current[scope] ?? []), { text: action.text as string, done: false }];
+        }
+
+        await fetch("/api/laborator/user-context", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "priorities", data: current }),
+        });
+      } else if (action.type === "set_focus_area" || action.type === "update_compass") {
+        const ctxType = "compass";
+        const res = await fetch("/api/laborator/user-context");
+        const d = await res.json();
+        const current = d.context?.compass ?? [];
+
+        if (action.type === "update_compass" && action.area) {
+          const existing = current.find((c: { area: string }) => c.area === action.area);
+          if (existing) {
+            if (action.current !== undefined) existing.current = action.current;
+            if (action.goal !== undefined) existing.goal = action.goal;
+          }
+        }
+
+        await fetch("/api/laborator/user-context", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: ctxType, data: current }),
+        });
+      } else if (action.type === "update_values" && Array.isArray(action.values)) {
+        await fetch("/api/laborator/user-context", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "values", data: action.values }),
+        });
+      } else if (action.type === "update_rituals" && Array.isArray(action.rituals)) {
+        await fetch("/api/laborator/user-context", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "rituals", data: action.rituals }),
+        });
+      }
+
+      // Remove action from bubble (mark as confirmed)
+      setBubbles((prev) => prev.map((b, i) =>
+        i === bubbleIndex
+          ? { ...b, actions: b.actions?.filter((a) => a !== action) }
+          : b
+      ));
+
+      onDataChanged?.();
+    } catch (e) {
+      console.error("Failed to apply action:", e);
+    }
+  };
+
+  const dismissAction = (action: AIAction, bubbleIndex: number) => {
+    setBubbles((prev) => prev.map((b, i) =>
+      i === bubbleIndex
+        ? { ...b, actions: b.actions?.filter((a) => a !== action) }
+        : b
+    ));
   };
 
   const handleReset = () => {
@@ -233,6 +325,39 @@ export default function LabAICoach({ onSelectTool }: Props) {
                             </div>
                             <p className="text-xs text-foreground/50 mt-1 leading-relaxed">{rec.reason}</p>
                           </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {b.actions && b.actions.length > 0 && (
+                    <div className="flex justify-start">
+                      <div className="max-w-[90%] space-y-1.5">
+                        <p className="text-[11px] text-foreground/40 ml-1">Navrhované změny:</p>
+                        {b.actions.map((action, j) => (
+                          <div key={j} className="rounded-xl border border-blue-200 bg-blue-50/50 px-3.5 py-2.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-base leading-none">{ACTION_ICONS[action.type] ?? "⚡"}</span>
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold text-foreground">{ACTION_LABELS[action.type] ?? action.type}</p>
+                                  <p className="text-[11px] text-foreground/50 truncate">
+                                    {action.type === "set_priorities" && Array.isArray(action.items) ? (action.items as string[]).join(", ") : ""}
+                                    {action.type === "add_priority" ? String(action.text ?? "") : ""}
+                                    {action.type === "set_focus_area" ? String(action.area ?? "") : ""}
+                                    {action.type === "update_compass" ? `${action.area}: ${action.current}→${action.goal}` : ""}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button onClick={() => confirmAction(action, i)} className="p-1.5 rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors" title="Potvrdit">
+                                  <Check size={12} />
+                                </button>
+                                <button onClick={() => dismissAction(action, i)} className="p-1.5 rounded-lg bg-black/5 text-foreground/40 hover:bg-black/10 hover:text-foreground/70 transition-colors" title="Zrušit">
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>

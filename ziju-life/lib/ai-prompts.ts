@@ -105,6 +105,7 @@ export interface LabUserContext {
   focusArea?: string;
   rituals?: { slot: string; name: string; duration?: string }[];
   checkinTrend?: { week: string; avgScore: number }[];
+  priorities?: { weekly: { text: string; done: boolean }[]; monthly: { text: string; done: boolean }[]; yearly: { text: string; done: boolean }[] };
 }
 
 /**
@@ -151,6 +152,15 @@ export function buildLabCoachPrompt(
     );
   }
 
+  if (userContext.priorities) {
+    const p = userContext.priorities;
+    const formatPriorities = (items: { text: string; done: boolean }[]) =>
+      items.length > 0 ? items.map((i) => `- [${i.done ? "✓" : " "}] ${i.text}`).join("\n") : "(žádné)";
+    contextParts.push(
+      `Priority:\nTýden:\n${formatPriorities(p.weekly)}\nMěsíc:\n${formatPriorities(p.monthly)}\nRok:\n${formatPriorities(p.yearly)}`
+    );
+  }
+
   const userContextBlock = contextParts.length > 0
     ? `\n\nCo o uživateli víš (NIKDY tyto údaje přímo necituj — použij je pro kontext odpovědí):\n---\n${contextParts.join("\n\n")}\n---`
     : "\n\n(Uživatel zatím nevyplnil žádná cvičení.)";
@@ -186,12 +196,27 @@ ${userContextBlock}
 
 Formát odpovědí:
 
-Když odpovídáš BEZ doporučení (reflective inquiring, otázka, přímá rada):
+Když odpovídáš BEZ doporučení a BEZ akcí (reflective inquiring, otázka, přímá rada):
 - Odpověz jako běžný text (NE JSON). Max 4-5 vět.
 
-Když odpovídáš S doporučením nástrojů/inspirací (1-2 max):
+Když odpovídáš S doporučením a/nebo akcemi:
 - Odpověz v JSON formátu (bez markdown code bloků):
-{"summary":"Tvá odpověď (3-5 vět)","recommendations":[{"itemType":"tool","slug":"slug","title":"Název","icon":"emoji","reason":"Proč (2 věty)"}],"closingNote":"Povzbuzení (1 věta)"}
+{"summary":"Tvá odpověď (3-5 vět)","recommendations":[{"itemType":"tool","slug":"slug","title":"Název","icon":"emoji","reason":"Proč (2 věty)"}],"actions":[...],"closingNote":"Povzbuzení (1 věta)"}
+- "recommendations" a "actions" jsou oba volitelné — použij jen co dává smysl
+
+AKCE — můžeš navrhnout změny v uživatelových datech. Uživatel je musí potvrdit.
+Dostupné typy akcí:
+- {"type":"set_priorities","scope":"weekly|monthly|yearly","items":["text1","text2"]} — nastavit priority
+- {"type":"add_priority","scope":"weekly|monthly|yearly","text":"text"} — přidat jednu prioritu
+- {"type":"set_focus_area","area":"klíč oblasti (kariera/finance/zdravi/rodina/pratele/rozvoj/volny/smysl)"} — změnit focus area
+- {"type":"update_compass","area":"klíč","current":číslo,"goal":číslo} — aktualizovat skóre oblasti
+- {"type":"update_values","values":[{"name":"název","alignment":číslo}]} — aktualizovat hodnoty
+- {"type":"update_rituals","rituals":[{"slot":"ráno|přes den|večer","name":"název"}]} — změnit rituály
+
+Příklady použití akcí:
+- Uživatel říká "Chci se tento týden zaměřit na zdraví a sport" → nastav focus area + weekly priority
+- Uživatel říká "Moje hodnoty se změnily, teď je pro mě nejdůležitější rodina" → update_values
+- Uživatel říká "Chtěl bych začít meditovat ráno" → update_rituals
 
 Pokud ti téma nespadá do osobního rozvoje nebo nemáš čím pomoct:
 {"cannot_help":true,"topic":"stručný popis tématu"}

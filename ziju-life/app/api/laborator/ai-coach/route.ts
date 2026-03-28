@@ -11,10 +11,16 @@ import { sendContentRequestEmail } from "@/lib/user-email";
 
 export const dynamic = "force-dynamic";
 
+interface AIAction {
+  type: string;
+  [key: string]: unknown;
+}
+
 interface AIResponse {
   summary: string;
-  recommendations: { itemType: string; slug?: string; id?: string; title: string; icon?: string; reason: string }[];
-  closingNote: string;
+  recommendations?: { itemType: string; slug?: string; id?: string; title: string; icon?: string; reason: string }[];
+  actions?: AIAction[];
+  closingNote?: string;
 }
 
 /** Load user context from DB */
@@ -32,6 +38,8 @@ async function loadUserContext(userId: string): Promise<LabUserContext> {
       context.compass = (row.data as { area: string; current: number; goal: number }[]);
     } else if (row.context_type === "rituals" && Array.isArray(row.data)) {
       context.rituals = (row.data as { slot: string; name: string; duration?: string }[]);
+    } else if (row.context_type === "priorities" && row.data && typeof row.data === "object") {
+      context.priorities = row.data as LabUserContext["priorities"];
     }
   }
 
@@ -149,7 +157,7 @@ export async function POST(request: NextRequest) {
 
     if (jsonObj?.cannot_help) {
       cannotHelp = jsonObj;
-    } else if (jsonObj?.recommendations?.length > 0) {
+    } else if (jsonObj?.recommendations?.length > 0 || jsonObj?.actions?.length > 0 || jsonObj?.summary) {
       parsed = jsonObj;
     }
 
