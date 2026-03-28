@@ -181,15 +181,15 @@ export default function LabAICoach({ onSelectTool }: Props) {
     }
   };
 
-  // Collapsed: just a fake input
+  // Collapsed: just a fake input — same style as InspirationAIAssistant
   if (collapsed && step === "input") {
     return (
       <div
-        className="paper-card rounded-[20px] px-5 py-3.5 border border-accent/10 cursor-text"
+        className="paper-card rounded-[24px] px-6 py-4 border-2 border-accent/15 cursor-text"
         onClick={expand}
       >
-        <div className="flex items-center gap-2.5 text-foreground/40">
-          <MessageCircle size={16} className="text-accent/50" />
+        <div className="flex items-center gap-3 text-foreground/40">
+          <MessageCircle size={18} className="text-accent/50" />
           <span className="text-sm">Potřebuješ s něčím pomoct?</span>
         </div>
       </div>
