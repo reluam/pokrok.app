@@ -16,9 +16,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   getUserContext,
   saveUserContext,
-  getDailyTodos,
+  getDashboardData,
   saveDailyTodos,
-  getRitualCompletions,
   toggleRitualCompletion,
   aiCoach,
 } from "@/api/laborator";
@@ -209,6 +208,8 @@ export default function LaboratorDashboard() {
   });
 
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   // AI Coach
   const [aiExpanded, setAiExpanded] = useState(false);
@@ -216,27 +217,19 @@ export default function LaboratorDashboard() {
   const [bubbles, setBubbles] = useState<ChatBubble[]>([]);
   const [sending, setSending] = useState(false);
 
-  // ── Load data ──
+  // ── Load data (single batched request) ──
 
   const load = useCallback(async () => {
-    // Load all in parallel
-    const [todoRes, ctxRes, compRes] = await Promise.allSettled([
-      getDailyTodos(),
-      getUserContext(),
-      getRitualCompletions(),
-    ]);
+    try {
+      setLoadError(false);
+      const data = await getDashboardData();
 
-    // Todos
-    if (todoRes.status === "fulfilled") {
-      setTodos(todoRes.value.today?.todos ?? []);
-      setNiceTodos(todoRes.value.today?.niceTodos ?? []);
-    }
-
-    // Context (priorities + rituals selection)
-    if (ctxRes.status === "fulfilled") {
-      const ctx = ctxRes.value.context || {};
+      // Todos
+      setTodos(data.todos.today?.todos ?? []);
+      setNiceTodos(data.todos.today?.niceTodos ?? []);
 
       // Priorities
+      const ctx = data.context || {};
       if (ctx.priorities && typeof ctx.priorities === "object") {
         const p = ctx.priorities as PrioritiesData;
         setPriorities({
@@ -246,12 +239,9 @@ export default function LaboratorDashboard() {
         });
       }
 
-      // Ritual selection → items
-      const completedToday = new Set<string>(
-        compRes.status === "fulfilled" ? compRes.value.today : []
-      );
-      const stats: Record<string, number> =
-        compRes.status === "fulfilled" ? compRes.value.stats : {};
+      // Rituals
+      const completedToday = new Set<string>(data.ritualCompletions.today ?? []);
+      const stats: Record<string, number> = data.ritualCompletions.stats ?? {};
 
       if (ctx.rituals && typeof ctx.rituals === "object" && !Array.isArray(ctx.rituals)) {
         const sel = ctx.rituals as { morning?: string[]; daily?: string[]; evening?: string[] };
@@ -268,6 +258,11 @@ export default function LaboratorDashboard() {
           evening: toItems(sel.evening ?? []),
         });
       }
+    } catch (err) {
+      console.error("Dashboard load error:", err);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -473,9 +468,27 @@ export default function LaboratorDashboard() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
           keyboardShouldPersistTaps="handled"
         >
-          {tab === "todo" && renderTodo()}
-          {tab === "priorities" && renderPriorities()}
-          {tab === "rituals" && renderRituals()}
+          {loading ? (
+            <View style={{ alignItems: "center", paddingTop: 60 }}>
+              <Text style={{ color: colors.muted, fontSize: 14 }}>Načítám...</Text>
+            </View>
+          ) : loadError ? (
+            <View style={{ alignItems: "center", paddingTop: 60, gap: 12 }}>
+              <Text style={{ color: colors.muted, fontSize: 14 }}>Nepodařilo se načíst data</Text>
+              <TouchableOpacity
+                onPress={() => { setLoading(true); load(); }}
+                style={{ backgroundColor: colors.accent, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600" }}>Zkusit znovu</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              {tab === "todo" && renderTodo()}
+              {tab === "priorities" && renderPriorities()}
+              {tab === "rituals" && renderRituals()}
+            </>
+          )}
         </ScrollView>
 
         {/* AI Coach */}

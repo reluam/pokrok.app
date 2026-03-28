@@ -7,7 +7,7 @@ import { getAIBudgetBalance, recordAIInteraction } from "@/lib/ai-credits";
 import { getToolCards } from "@/lib/toolbox-db";
 import { getInspirationData } from "@/lib/inspiration-db";
 import { buildInspirationRecommendationPrompt } from "@/lib/ai-prompts";
-import { sql, initializeDatabase } from "@/lib/database";
+import { sql } from "@/lib/database";
 import { getAIProfileSummary } from "@/lib/ai-profile";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +45,7 @@ async function getMonthlyUsage(userId: string): Promise<number> {
 
 export async function POST(request: NextRequest) {
   try {
-  await initializeDatabase();
+
 
   // Require login (Bearer token or cookie session)
   const sessionUser = await getAuthenticatedUser(request);

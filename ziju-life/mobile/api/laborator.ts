@@ -82,6 +82,24 @@ export async function saveDailyTodos(
   });
 }
 
+// Dashboard data (batched endpoint — todos + context + rituals in one request)
+export interface DashboardData {
+  todos: {
+    today: { todos: TodoItem[]; niceTodos: TodoItem[] };
+    yesterday: { todos: TodoItem[]; niceTodos: TodoItem[] };
+    date: string;
+  };
+  context: Record<string, unknown>;
+  ritualCompletions: {
+    today: string[];
+    stats: Record<string, number>;
+  };
+}
+
+export async function getDashboardData(): Promise<DashboardData> {
+  return apiFetch("/api/laborator/dashboard-data");
+}
+
 // Ritual completions
 export async function getRitualCompletions(): Promise<{
   today: string[];

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { initializeDatabase } from '@/lib/database'
 import { getOrCreateUser, createMagicToken } from '@/lib/user-auth'
 import { sendMagicLinkEmail } from '@/lib/user-email'
 
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
     const normalizedEmail = email.trim().toLowerCase()
     const nextUrl = typeof next === 'string' && next.startsWith('/') ? next : undefined
 
-    await initializeDatabase()
+
     const user = await getOrCreateUser(normalizedEmail)
     const { token, code } = await createMagicToken(user.id)
 

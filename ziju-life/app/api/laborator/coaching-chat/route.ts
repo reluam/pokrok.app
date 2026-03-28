@@ -6,7 +6,7 @@ import { getAIBudgetBalance, recordAIInteraction } from "@/lib/ai-credits";
 import { getToolCards } from "@/lib/toolbox-db";
 import { getInspirationData } from "@/lib/inspiration-db";
 import { buildLabCoachPrompt, type LabUserContext } from "@/lib/ai-prompts";
-import { sql, initializeDatabase } from "@/lib/database";
+import { sql } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +69,7 @@ async function loadUserContext(userId: string): Promise<LabUserContext> {
 /** GET — load conversation history */
 export async function GET(request: NextRequest) {
   try {
-    await initializeDatabase();
+
     await ensureCoachingTables();
 
     const user = await getLaboratorUser(request);
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
 /** POST — send message, get AI response */
 export async function POST(request: NextRequest) {
   try {
-    await initializeDatabase();
+
     await ensureCoachingTables();
 
     const user = await getLaboratorUser(request);

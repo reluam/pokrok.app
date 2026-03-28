@@ -6,7 +6,7 @@ import { getAIBudgetBalance, recordAIInteraction } from "@/lib/ai-credits";
 import { getToolCards } from "@/lib/toolbox-db";
 import { getInspirationData } from "@/lib/inspiration-db";
 import { buildLabCoachPrompt, type LabUserContext } from "@/lib/ai-prompts";
-import { sql, initializeDatabase } from "@/lib/database";
+import { sql } from "@/lib/database";
 import { sendContentRequestEmail } from "@/lib/user-email";
 import { getAIProfileSummary } from "@/lib/ai-profile";
 
@@ -74,7 +74,7 @@ async function loadUserContext(userId: string): Promise<LabUserContext> {
 
 export async function POST(request: NextRequest) {
   try {
-    await initializeDatabase();
+
 
     const user = await getLaboratorUser(request);
     if (!user) return NextResponse.json({ error: "No user" }, { status: 400 });

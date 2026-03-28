@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
 import { getLaboratorUser } from "@/lib/laborator-user";
-import { sql, initializeDatabase } from "@/lib/database";
+import { sql } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
@@ -17,29 +17,25 @@ export async function GET(request: NextRequest) {
   if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    await initializeDatabase();
     const today = getDateStr();
-
-    // Today's completions
-    const todayRows = (await sql`
-      SELECT ritual_id FROM ritual_completions
-      WHERE user_id = ${user.id} AND date = ${today}
-    `) as { ritual_id: string }[];
-
-    // Stats: total completions per ritual (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const statsRows = (await sql`
-      SELECT ritual_id, COUNT(*)::int AS count
+    // Single query: today's completions + 30-day stats
+    const rows = (await sql`
+      SELECT
+        ritual_id,
+        bool_or(date = ${today}::date) AS completed_today,
+        COUNT(*)::int AS count_30d
       FROM ritual_completions
-      WHERE user_id = ${user.id} AND date >= ${thirtyDaysAgo.toISOString().split("T")[0]}
+      WHERE user_id = ${user.id}
+        AND date >= ${thirtyDaysAgo.toISOString().split("T")[0]}
       GROUP BY ritual_id
-    `) as { ritual_id: string; count: number }[];
+    `) as { ritual_id: string; completed_today: boolean; count_30d: number }[];
 
     return NextResponse.json({
-      today: todayRows.map((r) => r.ritual_id),
-      stats: Object.fromEntries(statsRows.map((r) => [r.ritual_id, r.count])),
+      today: rows.filter((r) => r.completed_today).map((r) => r.ritual_id),
+      stats: Object.fromEntries(rows.map((r) => [r.ritual_id, r.count_30d])),
     });
   } catch (error) {
     console.error("GET /api/laborator/ritual-completions error:", error);
@@ -56,7 +52,7 @@ export async function POST(request: NextRequest) {
   if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    await initializeDatabase();
+
     const { ritualId, completed } = await request.json();
 
     if (!ritualId || typeof ritualId !== "string") {
