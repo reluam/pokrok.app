@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   MessageCircle,
   X,
   Send,
   RotateCcw,
   AlertCircle,
-  Sparkles,
   Check,
 } from "lucide-react";
 
@@ -60,13 +59,12 @@ const ACTION_ICONS: Record<string, string> = {
   update_rituals: "⏱️",
 };
 
-const HIDDEN_PATHS = ["/form", "/links", "/admin", "/laborator/koucink"];
+const HIDDEN_PATHS = ["/form", "/links", "/admin"];
 
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function FloatingAIHelper() {
   const pathname = usePathname();
-  const router = useRouter();
 
   const [open, setOpen] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -365,17 +363,6 @@ export default function FloatingAIHelper() {
                 </button>
               </div>
             </div>
-
-            {/* Link to coaching */}
-            <button
-              onClick={() => { handleClose(); router.push("/laborator/koucink"); }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-accent/[0.04] hover:bg-accent/[0.08] border-b border-black/5 transition-colors shrink-0"
-            >
-              <Sparkles size={14} className="text-accent shrink-0" />
-              <span className="text-xs text-foreground/60">
-                Chceš dlouhodobého průvodce? <span className="font-semibold text-accent">Otevřít AI Koučink →</span>
-              </span>
-            </button>
 
             {/* Chat bubbles */}
             <div className="flex-1 overflow-y-auto px-3.5 py-3 space-y-2.5">
