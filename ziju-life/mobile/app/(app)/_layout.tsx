@@ -5,6 +5,7 @@ import { colors } from "@/constants/theme";
 export default function AppLayout() {
   return (
     <Tabs
+      initialRouteName="(laborator)"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.accent,

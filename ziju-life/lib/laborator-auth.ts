@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import Stripe from "stripe";
 import { verifyUserSession } from "@/lib/user-auth";
 import { sql } from "@/lib/database";
 
@@ -75,6 +76,37 @@ export async function checkLaboratorAccess(emailOverride?: string): Promise<bool
     }
   } catch {
     // DB unavailable
+  }
+
+  // C) Final fallback: check Stripe API directly (slower but authoritative)
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (stripeSecretKey) {
+    try {
+      const stripe = new Stripe(stripeSecretKey);
+      const customers = await stripe.customers.list({ email: cacheKey, limit: 5 });
+      for (const customer of customers.data) {
+        const subs = await stripe.subscriptions.list({ customer: customer.id, status: "active", limit: 1 });
+        if (subs.data.length > 0) {
+          accessCache.set(cacheKey, { result: true, ts: Date.now() });
+          // Backfill laborator_access for next time
+          try {
+            await sql`
+              INSERT INTO laborator_access (email, has_access, stripe_customer_id, stripe_subscription_id, subscription_status, source, updated_at)
+              VALUES (${cacheKey}, true, ${customer.id}, ${subs.data[0].id}, 'active', 'backfill', NOW())
+              ON CONFLICT (email) DO UPDATE SET has_access = true, stripe_customer_id = ${customer.id}, stripe_subscription_id = ${subs.data[0].id}, subscription_status = 'active', updated_at = NOW()
+            `;
+          } catch {}
+          return true;
+        }
+        const trialSubs = await stripe.subscriptions.list({ customer: customer.id, status: "trialing", limit: 1 });
+        if (trialSubs.data.length > 0) {
+          accessCache.set(cacheKey, { result: true, ts: Date.now() });
+          return true;
+        }
+      }
+    } catch (err) {
+      console.error("[laborator-auth] Stripe fallback error:", err);
+    }
   }
 
   accessCache.set(cacheKey, { result: false, ts: Date.now() });
