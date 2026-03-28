@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
 import { getLaboratorUser } from "@/lib/laborator-user";
-import { sql, initializeDatabase } from "@/lib/database";
+import { sql, ensureCoreTables } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    await initializeDatabase();
+    await ensureCoreTables();
     const today = getDateStr();
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
   if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    await initializeDatabase();
+    await ensureCoreTables();
     const { ritualId, completed } = await request.json();
 
     if (!ritualId || typeof ritualId !== "string") {

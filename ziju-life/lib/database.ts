@@ -4,6 +4,48 @@ import { neon } from '@neondatabase/serverless'
 const connectionString = process.env.DATABASE_URL || 'postgresql://placeholder@localhost/dummy'
 const sql = neon(connectionString)
 
+/**
+ * Lightweight table check — ensures daily_todos and ritual_completions exist.
+ * Memoized per serverless invocation (runs once, then no-ops).
+ */
+let _tablesEnsured = false;
+export async function ensureCoreTables() {
+  if (_tablesEnsured) return;
+  try {
+    await Promise.all([
+      sql`CREATE TABLE IF NOT EXISTS daily_todos (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        date DATE NOT NULL,
+        todos JSONB NOT NULL DEFAULT '[]'::jsonb,
+        nice_todos JSONB NOT NULL DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(user_id, date)
+      )`,
+      sql`CREATE TABLE IF NOT EXISTS ritual_completions (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        ritual_id VARCHAR(255) NOT NULL,
+        date DATE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(user_id, ritual_id, date)
+      )`,
+      sql`CREATE TABLE IF NOT EXISTS laborator_access (
+        email VARCHAR(255) PRIMARY KEY,
+        has_access BOOLEAN NOT NULL DEFAULT false,
+        stripe_customer_id VARCHAR(255),
+        stripe_subscription_id VARCHAR(255),
+        subscription_status VARCHAR(50),
+        source VARCHAR(50),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )`,
+    ]);
+    _tablesEnsured = true;
+  } catch (e) {
+    console.warn("[ensureCoreTables]", e);
+  }
+}
+
 export async function initializeDatabase() {
   try {
     // Create inspirations table

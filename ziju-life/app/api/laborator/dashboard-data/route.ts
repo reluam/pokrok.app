@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
 import { getLaboratorUser } from "@/lib/laborator-user";
-import { sql, initializeDatabase } from "@/lib/database";
+import { sql, ensureCoreTables } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
@@ -17,37 +17,32 @@ export async function GET(request: NextRequest) {
   if (!valid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    await initializeDatabase();
+    await ensureCoreTables();
     const today = new Date().toISOString().split("T")[0];
     const yesterday = new Date(Date.now() - 86_400_000).toISOString().split("T")[0];
     const thirtyDaysAgo = new Date(Date.now() - 30 * 86_400_000).toISOString().split("T")[0];
 
-    // Run all queries in parallel
-    const [todoRows, contextRows, completionRows, statsRows] = (await Promise.all([
+    // Run all queries in parallel (catch individually so one failure doesn't block all)
+    const [todoRows, contextRows, completionRows, statsRows] = await Promise.all([
       sql`
         SELECT date, todos, nice_todos FROM daily_todos
         WHERE user_id = ${user.id} AND date IN (${today}, ${yesterday})
         ORDER BY date DESC
-      `,
+      `.catch(() => [] as { date: string; todos: unknown; nice_todos: unknown }[]),
       sql`
         SELECT context_type, data, updated_at FROM user_lab_context
         WHERE user_id = ${user.id}
-      `,
+      `.catch(() => [] as { context_type: string; data: unknown; updated_at: Date }[]),
       sql`
         SELECT ritual_id FROM ritual_completions
         WHERE user_id = ${user.id} AND date = ${today}
-      `,
+      `.catch(() => [] as { ritual_id: string }[]),
       sql`
         SELECT ritual_id, COUNT(*)::int AS count FROM ritual_completions
         WHERE user_id = ${user.id} AND date >= ${thirtyDaysAgo}
         GROUP BY ritual_id
-      `,
-    ])) as [
-      { date: string; todos: unknown; nice_todos: unknown }[],
-      { context_type: string; data: unknown; updated_at: Date }[],
-      { ritual_id: string }[],
-      { ritual_id: string; count: number }[],
-    ];
+      `.catch(() => [] as { ritual_id: string; count: number }[]),
+    ]);
 
     // Compose todos
     const todayData = todoRows.find((r) => String(r.date).startsWith(today));
