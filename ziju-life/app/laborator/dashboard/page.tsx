@@ -10,7 +10,6 @@ import NastavSiDenWizard, { DownloadPDFButton, type RitualSelection as WizardSel
 import dynamic from "next/dynamic";
 
 const ToolboxTab = dynamic(() => import("@/components/laborator/ToolboxTab"), { ssr: false });
-const LabAICoach = dynamic(() => import("@/components/laborator/LabAICoach"), { ssr: false });
 const PrioritiesWidget = dynamic(() => import("@/components/laborator/PrioritiesWidget"), { ssr: false });
 const DailyTodosWidget = dynamic(() => import("@/components/laborator/DailyTodosWidget"), { ssr: false });
 const RitualsChecklistWidget = dynamic(() => import("@/components/laborator/RitualsChecklistWidget"), { ssr: false });
@@ -701,8 +700,20 @@ function PrehledTab({
   return (
     <div className="space-y-6">
 
-      {/* AI Coach */}
-      <LabAICoach onDataChanged={onDataChanged} />
+      {/* AI Koučink link */}
+      <Link
+        href="/laborator/koucink"
+        className="paper-card rounded-[24px] px-6 py-4 border-2 border-accent/15 flex items-center gap-4 hover:border-accent/30 hover:shadow-sm transition-all group"
+      >
+        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/15 transition-colors">
+          <span className="text-lg">✨</span>
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-foreground group-hover:text-accent transition-colors">AI Kouč — tvůj osobní průvodce</p>
+          <p className="text-xs text-foreground/50 mt-0.5">Dlouhodobý chat, který si pamatuje tvůj příběh a pomáhá ti růst.</p>
+        </div>
+        <span className="text-foreground/30 group-hover:text-accent ml-auto shrink-0 transition-colors">→</span>
+      </Link>
 
       {/* 3-column layout: ToDo | Priority | Rituály */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
