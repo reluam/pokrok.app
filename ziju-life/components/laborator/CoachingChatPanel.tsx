@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Send, CalendarPlus, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { Send, CalendarPlus, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 
 interface Message {
@@ -14,8 +14,6 @@ interface BudgetInfo {
   totalBudgetCzk: number;
   spentCzk: number;
 }
-
-const LS_EXPANDED_KEY = "coaching-panel-expanded";
 
 const WELCOME_MESSAGE = `Ahoj! 👋 Jsem tvůj osobní AI kouč.
 
@@ -32,10 +30,7 @@ Naše konverzace se ukládá — kdykoli se vrátíš, navážeme tam, kde jsme 
 Tak povídej — co právě řešíš? 🌱`;
 
 export default function CoachingChatPanel() {
-  const [expanded, setExpanded] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try { return localStorage.getItem(LS_EXPANDED_KEY) === "1"; } catch { return false; }
-  });
+  const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -43,18 +38,8 @@ export default function CoachingChatPanel() {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [budget, setBudget] = useState<BudgetInfo | null>(null);
-  const [focused, setFocused] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  // Persist expanded state
-  const toggleExpanded = () => {
-    const next = !expanded;
-    setExpanded(next);
-    try { localStorage.setItem(LS_EXPANDED_KEY, next ? "1" : "0"); } catch {}
-  };
 
   const loadBudget = useCallback(async () => {
     try {
@@ -66,9 +51,9 @@ export default function CoachingChatPanel() {
     } catch {}
   }, []);
 
-  // Load history when expanded for the first time
+  // Load history when modal opens for the first time
   useEffect(() => {
-    if (!expanded || loaded) return;
+    if (!open || loaded) return;
     setLoading(true);
     (async () => {
       try {
@@ -93,52 +78,42 @@ export default function CoachingChatPanel() {
       setLoading(false);
     })();
     loadBudget();
-  }, [expanded, loaded, loadBudget]);
+  }, [open, loaded, loadBudget]);
 
-  // Auto-scroll inside the chat container (not the page)
+  // Auto-scroll inside the chat container
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages.length, sending]);
 
-  // Focus input when expanded
+  // Focus input when modal opens and loaded
   useEffect(() => {
-    if (expanded && loaded) setTimeout(() => inputRef.current?.focus(), 150);
-  }, [expanded, loaded]);
+    if (open && loaded) setTimeout(() => inputRef.current?.focus(), 200);
+  }, [open, loaded]);
 
-  // Focus mode: activate when user interacts with the panel, deactivate on outside click/scroll
+  // Lock body scroll when modal is open
   useEffect(() => {
-    if (!focused) return;
-    const handleOutside = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        setFocused(false);
-      }
-    };
-    const handleScroll = () => {
-      // Only deactivate if the scroll is NOT inside our chat container
-      if (scrollRef.current && !scrollRef.current.matches(":hover")) {
-        setFocused(false);
-      }
-    };
-    document.addEventListener("mousedown", handleOutside);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      document.removeEventListener("mousedown", handleOutside);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [focused]);
+    if (open) {
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
+    }
+  }, [open]);
 
-  // Activate focus mode when sending a message
-  const activateFocus = () => {
-    if (!focused) setFocused(true);
-  };
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [open]);
 
   const handleSend = async () => {
     const text = input.trim();
     if (!text || sending) return;
     setInput("");
     setError(null);
-    activateFocus();
 
     const userMsg: Message = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
@@ -175,150 +150,178 @@ export default function CoachingChatPanel() {
 
   return (
     <>
-    {/* Backdrop overlay when focused */}
-    {focused && (
-      <div
-        className="fixed inset-0 bg-black/15 z-30 transition-opacity duration-300"
-        onClick={() => setFocused(false)}
-      />
-    )}
-    <div
-      ref={panelRef}
-      className={`paper-card rounded-[24px] border-2 overflow-hidden transition-all duration-300 ${
-        focused ? "border-accent/30 shadow-lg relative z-40" : "border-accent/15"
-      }`}
-    >
-      {/* Header — always visible, clickable to toggle */}
+      {/* Collapsed card — click to open modal */}
       <button
-        onClick={toggleExpanded}
-        className="w-full flex items-center justify-between px-6 py-4 hover:bg-accent/[0.02] transition-colors"
+        onClick={() => setOpen(true)}
+        className="w-full paper-card rounded-[24px] border-2 border-accent/15 px-6 py-4 flex items-center gap-4 hover:border-accent/30 hover:shadow-sm transition-all group text-left"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-            <Sparkles size={16} className="text-accent" />
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-bold text-foreground">AI Kouč</p>
-            <p className="text-xs text-foreground/45">Tvůj osobní průvodce s pamětí</p>
-          </div>
+        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/15 transition-colors">
+          <Sparkles size={18} className="text-accent" />
         </div>
-        <div className="flex items-center gap-2">
-          {budgetPct !== null && (
-            <div className="flex items-center gap-1.5" title={`Spotřeba: ${budget!.spentCzk.toFixed(1)} / ${budget!.totalBudgetCzk} Kč`}>
-              <div className="w-14 h-1.5 bg-black/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${budgetPct}%`,
-                    background: budgetPct > 80 ? "#ef4444" : budgetPct > 50 ? "#f59e0b" : "#22c55e",
-                  }}
-                />
-              </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-foreground group-hover:text-accent transition-colors">AI Kouč</p>
+          <p className="text-xs text-foreground/45">Tvůj osobní průvodce s pamětí</p>
+        </div>
+        {budgetPct !== null && (
+          <div className="flex items-center gap-1.5" title={`Spotřeba: ${budget!.spentCzk.toFixed(1)} / ${budget!.totalBudgetCzk} Kč`}>
+            <div className="w-14 h-1.5 bg-black/10 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${budgetPct}%`,
+                  background: budgetPct > 80 ? "#ef4444" : budgetPct > 50 ? "#f59e0b" : "#22c55e",
+                }}
+              />
             </div>
-          )}
-          {expanded ? (
-            <ChevronUp size={18} className="text-foreground/30" />
-          ) : (
-            <ChevronDown size={18} className="text-foreground/30" />
-          )}
-        </div>
+          </div>
+        )}
       </button>
 
-      {/* Expanded chat area */}
-      {expanded && (
-        <div className="border-t border-black/5">
-          {/* Loading state */}
-          {loading && (
-            <div className="flex items-center justify-center py-12">
-              <div className="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-            </div>
-          )}
+      {/* Modal overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ animation: "coachFadeIn 200ms ease-out" }}
+        >
+          <style>{`
+            @keyframes coachFadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes coachScaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+          `}</style>
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/25"
+            onClick={() => setOpen(false)}
+          />
 
-          {/* Messages */}
-          {!loading && (
-            <>
-              <div ref={scrollRef} className="max-h-[420px] overflow-y-auto px-4 py-3 space-y-2.5">
-                {messages.map((m, i) => (
-                  <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div
-                      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
-                        m.role === "user"
-                          ? "bg-accent/10 rounded-br-sm"
-                          : "bg-black/[0.03] rounded-bl-sm"
-                      }`}
-                    >
-                      <p className={`text-sm leading-relaxed whitespace-pre-wrap ${
-                        m.role === "user" ? "text-foreground/80" : "text-foreground/75"
-                      }`}>
-                        {m.content}
-                      </p>
+          {/* Modal panel */}
+          <div
+            className="relative z-10 w-full max-w-lg bg-white rounded-[24px] shadow-2xl border border-black/10 flex flex-col overflow-hidden max-h-[85vh]"
+            style={{ animation: "coachScaleIn 200ms ease-out" }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/5 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <Sparkles size={18} className="text-accent" />
+                <div>
+                  <p className="text-sm font-bold text-foreground">AI Kouč</p>
+                  <p className="text-[11px] text-foreground/40">Tvůj osobní průvodce s pamětí</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {budgetPct !== null && (
+                  <div className="flex items-center gap-1.5" title={`Spotřeba: ${budget!.spentCzk.toFixed(1)} / ${budget!.totalBudgetCzk} Kč`}>
+                    <div className="w-14 h-1.5 bg-black/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${budgetPct}%`,
+                          background: budgetPct > 80 ? "#ef4444" : budgetPct > 50 ? "#f59e0b" : "#22c55e",
+                        }}
+                      />
                     </div>
                   </div>
-                ))}
-
-                {sending && (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                    <p className="text-xs text-foreground/50">Kouč přemýšlí...</p>
-                  </div>
                 )}
-
-                {error === "no_budget" && (
-                  <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
-                    AI rozpočet je vyčerpaný. Obnoví se s dalším předplatným.
-                  </div>
-                )}
-                {error && error !== "no_budget" && (
-                  <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-700">
-                    {error}
-                  </div>
-                )}
-
-                <div ref={bottomRef} />
+                <button
+                  onClick={() => setOpen(false)}
+                  className="p-1.5 rounded-lg hover:bg-black/5 text-foreground/40 hover:text-foreground/70 transition-colors"
+                  title="Zavřít"
+                >
+                  <X size={18} />
+                </button>
               </div>
+            </div>
 
-              {/* Input */}
-              {error !== "no_budget" && (
-                <div className="flex items-end gap-2 px-4 py-3 border-t border-black/5">
-                  <textarea
-                    ref={inputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value.slice(0, 2000))}
-                    onFocus={activateFocus}
-                    placeholder="Napiš zprávu..."
-                    className="flex-1 px-3.5 py-2.5 border border-black/10 rounded-xl bg-white/80 text-sm min-h-[40px] max-h-[100px] resize-y focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
-                    disabled={sending}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSend}
-                    disabled={!input.trim() || sending}
-                    className="p-2.5 rounded-xl bg-accent text-white hover:bg-accent-hover disabled:opacity-40 transition-colors shrink-0"
-                  >
-                    <Send size={16} />
-                  </button>
+            {/* Loading */}
+            {loading && (
+              <div className="flex items-center justify-center py-16">
+                <div className="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+              </div>
+            )}
+
+            {/* Chat content */}
+            {!loading && (
+              <>
+                {/* Messages — scrollable area */}
+                <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5 min-h-0">
+                  {messages.map((m, i) => (
+                    <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
+                          m.role === "user"
+                            ? "bg-accent/10 rounded-br-sm"
+                            : "bg-black/[0.03] rounded-bl-sm"
+                        }`}
+                      >
+                        <p className={`text-sm leading-relaxed whitespace-pre-wrap ${
+                          m.role === "user" ? "text-foreground/80" : "text-foreground/75"
+                        }`}>
+                          {m.content}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {sending && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+                      <p className="text-xs text-foreground/50">Kouč přemýšlí...</p>
+                    </div>
+                  )}
+
+                  {error === "no_budget" && (
+                    <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+                      AI rozpočet je vyčerpaný. Obnoví se s dalším předplatným.
+                    </div>
+                  )}
+                  {error && error !== "no_budget" && (
+                    <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-700">
+                      {error}
+                    </div>
+                  )}
                 </div>
-              )}
 
-              {/* Booking bar */}
-              <Link
-                href="/koucing#rezervace"
-                className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-black/5 bg-white/50 hover:bg-accent/5 transition-colors"
-              >
-                <CalendarPlus size={14} className="text-accent" />
-                <span className="text-xs font-semibold text-accent">Objednat koučovací sezení</span>
-              </Link>
-            </>
-          )}
+                {/* Input */}
+                {error !== "no_budget" && (
+                  <div className="flex items-end gap-2 px-4 py-3 border-t border-black/5 shrink-0">
+                    <textarea
+                      ref={inputRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value.slice(0, 2000))}
+                      placeholder="Napiš zprávu..."
+                      className="flex-1 px-3.5 py-2.5 border border-black/10 rounded-xl bg-white/80 text-sm min-h-[40px] max-h-[100px] resize-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+                      disabled={sending}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSend();
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSend}
+                      disabled={!input.trim() || sending}
+                      className="p-2.5 rounded-xl bg-accent text-white hover:bg-accent-hover disabled:opacity-40 transition-colors shrink-0"
+                    >
+                      <Send size={16} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Booking bar */}
+                <Link
+                  href="/koucing#rezervace"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-black/5 bg-white/50 hover:bg-accent/5 transition-colors shrink-0"
+                >
+                  <CalendarPlus size={14} className="text-accent" />
+                  <span className="text-xs font-semibold text-accent">Objednat koučovací sezení</span>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       )}
-    </div>
     </>
   );
 }
