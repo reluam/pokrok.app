@@ -140,20 +140,26 @@ export default function PrioritiesWidget({ data: externalData, onChange }: Props
   const [data, setData] = useState<PrioritiesData>(externalData ?? EMPTY);
   const [loaded, setLoaded] = useState(!!externalData);
 
-  // Load from API if no external data provided
-  useEffect(() => {
+  const loadPriorities = useCallback(async () => {
     if (externalData) { setData(externalData); setLoaded(true); return; }
-    (async () => {
-      try {
-        const res = await fetch("/api/laborator/user-context");
-        if (res.ok) {
-          const d = await res.json();
-          if (d.context?.priorities) setData(d.context.priorities);
-        }
-      } catch {}
-      setLoaded(true);
-    })();
+    try {
+      const res = await fetch("/api/laborator/user-context");
+      if (res.ok) {
+        const d = await res.json();
+        if (d.context?.priorities) setData(d.context.priorities);
+      }
+    } catch {}
+    setLoaded(true);
   }, [externalData]);
+
+  useEffect(() => { loadPriorities(); }, [loadPriorities]);
+
+  // Auto-refresh every 3 minutes to sync with mobile
+  useEffect(() => {
+    if (externalData) return; // skip if data is passed as prop
+    const interval = setInterval(loadPriorities, 3 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [loadPriorities, externalData]);
 
   const save = useCallback(async (newData: PrioritiesData) => {
     setData(newData);

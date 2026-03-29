@@ -311,6 +311,12 @@ export default function LaboratorDashboard() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Auto-refresh every 3 minutes to sync with web
+  useEffect(() => {
+    const interval = setInterval(() => { load(); }, 3 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [load]);
+
   const onRefresh = async () => { setRefreshing(true); await load(); setRefreshing(false); };
 
   // ── Todo actions ──

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { ritualsById, SLOT_LABELS } from "@/data/adhdRituals";
 
@@ -31,19 +31,25 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
   const [stats, setStats] = useState<Record<string, number>>({});
   const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch("/api/laborator/ritual-completions");
-        if (res.ok) {
-          const d = await res.json();
-          setCompletedToday(new Set(d.today ?? []));
-          setStats(d.stats ?? {});
-        }
-      } catch {}
-      setLoaded(true);
-    })();
+  const loadCompletions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/laborator/ritual-completions");
+      if (res.ok) {
+        const d = await res.json();
+        setCompletedToday(new Set(d.today ?? []));
+        setStats(d.stats ?? {});
+      }
+    } catch {}
+    setLoaded(true);
   }, []);
+
+  useEffect(() => { loadCompletions(); }, [loadCompletions]);
+
+  // Auto-refresh every 3 minutes to sync with mobile
+  useEffect(() => {
+    const interval = setInterval(loadCompletions, 3 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [loadCompletions]);
 
   const toggleRitual = async (ritualId: string) => {
     const isCompleted = completedToday.has(ritualId);

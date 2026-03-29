@@ -88,21 +88,27 @@ export default function DailyTodosWidget() {
   const [showYesterday, setShowYesterday] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch("/api/laborator/daily-todos");
-        if (res.ok) {
-          const d = await res.json();
-          setTodos(d.today?.todos ?? []);
-          setNiceTodos(d.today?.niceTodos ?? []);
-          setYesterdayTodos(d.yesterday?.todos ?? []);
-          setYesterdayNice(d.yesterday?.niceTodos ?? []);
-        }
-      } catch {}
-      setLoaded(true);
-    })();
+  const loadTodos = useCallback(async () => {
+    try {
+      const res = await fetch("/api/laborator/daily-todos");
+      if (res.ok) {
+        const d = await res.json();
+        setTodos(d.today?.todos ?? []);
+        setNiceTodos(d.today?.niceTodos ?? []);
+        setYesterdayTodos(d.yesterday?.todos ?? []);
+        setYesterdayNice(d.yesterday?.niceTodos ?? []);
+      }
+    } catch {}
+    setLoaded(true);
   }, []);
+
+  useEffect(() => { loadTodos(); }, [loadTodos]);
+
+  // Auto-refresh every 3 minutes to sync with mobile
+  useEffect(() => {
+    const interval = setInterval(loadTodos, 3 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [loadTodos]);
 
   const save = useCallback(async (newTodos: TodoItem[], newNice: TodoItem[]) => {
     setTodos(newTodos);
