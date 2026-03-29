@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Send, CalendarPlus, Sparkles, X } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useBookingPopup } from "@/components/BookingPopup";
 
 interface Message {
@@ -255,11 +257,17 @@ export default function CoachingChatPanel() {
                             : "bg-black/[0.03] rounded-bl-sm"
                         }`}
                       >
-                        <p className={`text-sm leading-relaxed whitespace-pre-wrap ${
-                          m.role === "user" ? "text-foreground/80" : "text-foreground/75"
-                        }`}>
-                          {m.content}
-                        </p>
+                        {m.role === "user" ? (
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/80">
+                            {m.content}
+                          </p>
+                        ) : (
+                          <div className="text-sm leading-relaxed text-foreground/75 prose prose-sm prose-neutral max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2 [&>li]:mb-0.5">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {m.content}
+                            </ReactMarkdown>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
