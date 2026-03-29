@@ -43,6 +43,9 @@ export default function CoachingChatPanel() {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [budget, setBudget] = useState<BudgetInfo | null>(null);
+  const [focused, setFocused] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -92,9 +95,10 @@ export default function CoachingChatPanel() {
     loadBudget();
   }, [expanded, loaded, loadBudget]);
 
-  // Auto-scroll
+  // Auto-scroll inside the chat container (not the page)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages.length, sending]);
 
   // Focus input when expanded
@@ -102,11 +106,39 @@ export default function CoachingChatPanel() {
     if (expanded && loaded) setTimeout(() => inputRef.current?.focus(), 150);
   }, [expanded, loaded]);
 
+  // Focus mode: activate when user interacts with the panel, deactivate on outside click/scroll
+  useEffect(() => {
+    if (!focused) return;
+    const handleOutside = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setFocused(false);
+      }
+    };
+    const handleScroll = () => {
+      // Only deactivate if the scroll is NOT inside our chat container
+      if (scrollRef.current && !scrollRef.current.matches(":hover")) {
+        setFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [focused]);
+
+  // Activate focus mode when sending a message
+  const activateFocus = () => {
+    if (!focused) setFocused(true);
+  };
+
   const handleSend = async () => {
     const text = input.trim();
     if (!text || sending) return;
     setInput("");
     setError(null);
+    activateFocus();
 
     const userMsg: Message = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
@@ -142,7 +174,20 @@ export default function CoachingChatPanel() {
     : null;
 
   return (
-    <div className="paper-card rounded-[24px] border-2 border-accent/15 overflow-hidden">
+    <>
+    {/* Backdrop overlay when focused */}
+    {focused && (
+      <div
+        className="fixed inset-0 bg-black/15 z-30 transition-opacity duration-300"
+        onClick={() => setFocused(false)}
+      />
+    )}
+    <div
+      ref={panelRef}
+      className={`paper-card rounded-[24px] border-2 overflow-hidden transition-all duration-300 ${
+        focused ? "border-accent/30 shadow-lg relative z-40" : "border-accent/15"
+      }`}
+    >
       {/* Header — always visible, clickable to toggle */}
       <button
         onClick={toggleExpanded}
@@ -192,7 +237,7 @@ export default function CoachingChatPanel() {
           {/* Messages */}
           {!loading && (
             <>
-              <div className="max-h-[420px] overflow-y-auto px-4 py-3 space-y-2.5">
+              <div ref={scrollRef} className="max-h-[420px] overflow-y-auto px-4 py-3 space-y-2.5">
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                     <div
@@ -239,6 +284,7 @@ export default function CoachingChatPanel() {
                     ref={inputRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value.slice(0, 2000))}
+                    onFocus={activateFocus}
                     placeholder="Napiš zprávu..."
                     className="flex-1 px-3.5 py-2.5 border border-black/10 rounded-xl bg-white/80 text-sm min-h-[40px] max-h-[100px] resize-y focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
                     disabled={sending}
@@ -273,5 +319,6 @@ export default function CoachingChatPanel() {
         </div>
       )}
     </div>
+    </>
   );
 }
