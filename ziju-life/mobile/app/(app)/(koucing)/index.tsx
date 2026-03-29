@@ -147,7 +147,7 @@ Tak povídej — co právě řešíš? 🌱`,
         {/* Booking bar */}
         <TouchableOpacity
           style={s.bookingBar}
-          onPress={() => Linking.openURL("https://ziju.life/koucing")}
+          onPress={() => Linking.openURL("https://ziju.life/koucing#rezervace")}
           activeOpacity={0.8}
         >
           <CalendarPlus size={18} color={colors.accent} />

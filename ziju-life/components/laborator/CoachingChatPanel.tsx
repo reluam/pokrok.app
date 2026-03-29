@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Send, CalendarPlus, Sparkles, X } from "lucide-react";
-import Link from "next/link";
+import { useBookingPopup } from "@/components/BookingPopup";
 
 interface Message {
   role: "user" | "assistant";
@@ -31,6 +31,7 @@ Naše konverzace se ukládá — kdykoli se vrátíš, navážeme tam, kde jsme 
 Tak povídej — co právě řešíš? 🌱`;
 
 export default function CoachingChatPanel() {
+  const booking = useBookingPopup();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -182,6 +183,7 @@ export default function CoachingChatPanel() {
       {open && createPortal(
         <div
           className="fixed inset-0 flex items-center justify-center p-4"
+          data-lenis-prevent
           style={{ zIndex: 9999, animation: "coachFadeIn 200ms ease-out" }}
         >
           <style>{`
@@ -196,7 +198,7 @@ export default function CoachingChatPanel() {
 
           {/* Modal panel */}
           <div
-            className="relative z-10 w-full max-w-3xl bg-white rounded-[24px] shadow-2xl border border-black/10 flex flex-col overflow-hidden max-h-[85vh]"
+            className="relative z-10 w-full max-w-3xl bg-white rounded-[24px] shadow-2xl border border-black/10 flex flex-col max-h-[85vh] overflow-y-auto overscroll-contain"
             style={{ animation: "coachScaleIn 200ms ease-out" }}
           >
             {/* Header */}
@@ -310,14 +312,14 @@ export default function CoachingChatPanel() {
                 )}
 
                 {/* Booking bar */}
-                <Link
-                  href="/koucing#rezervace"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-black/5 bg-white/50 hover:bg-accent/5 transition-colors shrink-0"
+                <button
+                  type="button"
+                  onClick={() => { setOpen(false); booking?.openBookingPopup(); }}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-black/5 bg-white/50 hover:bg-accent/5 transition-colors shrink-0 w-full"
                 >
                   <CalendarPlus size={14} className="text-accent" />
                   <span className="text-xs font-semibold text-accent">Objednat koučovací sezení</span>
-                </Link>
+                </button>
               </>
             )}
           </div>
