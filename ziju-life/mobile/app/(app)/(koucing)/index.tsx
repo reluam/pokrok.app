@@ -12,6 +12,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Markdown from "react-native-markdown-display";
 import { getCoachingHistory, sendCoachingMessage } from "@/api/laborator";
 import { Send, CalendarPlus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
@@ -21,6 +22,21 @@ interface Message {
   content: string;
   created_at?: string;
 }
+
+const mdStyles = StyleSheet.create({
+  body: { fontSize: 15, color: colors.foreground, lineHeight: 22 },
+  heading1: { fontSize: 18, fontWeight: "800" as const, color: colors.foreground, marginTop: 16, marginBottom: 6 },
+  heading2: { fontSize: 16, fontWeight: "700" as const, color: colors.foreground, marginTop: 12, marginBottom: 4 },
+  heading3: { fontSize: 15, fontWeight: "700" as const, color: colors.foreground, marginTop: 10, marginBottom: 4 },
+  paragraph: { marginBottom: 8, marginTop: 0 },
+  strong: { fontWeight: "700" as const, color: colors.foreground },
+  em: { fontStyle: "italic" as const },
+  list_item: { marginBottom: 2 },
+  bullet_list: { marginBottom: 8 },
+  ordered_list: { marginBottom: 8 },
+  hr: { borderBottomWidth: 1, borderBottomColor: colors.borderLight, marginVertical: 12 },
+  link: { color: colors.accent, textDecorationLine: "underline" as const },
+});
 
 export default function KoucingScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -63,6 +79,13 @@ Tak povídej — co právě řešíš? 🌱`,
       setLoading(false);
     })();
   }, []);
+
+  // Scroll to end after messages load
+  useEffect(() => {
+    if (!loading && messages.length > 0) {
+      setTimeout(() => flatRef.current?.scrollToEnd({ animated: false }), 100);
+    }
+  }, [loading, messages.length === 0]);
 
   const handleSend = async () => {
     const text = input.trim();
@@ -108,7 +131,11 @@ Tak povídej — co právě řešíš? 🌱`,
           onContentSizeChange={() => flatRef.current?.scrollToEnd({ animated: true })}
           renderItem={({ item }) => (
             <View style={[s.bubble, item.role === "user" ? s.bubbleUser : s.bubbleAI]}>
-              <Text style={s.bubbleText}>{item.content}</Text>
+              {item.role === "user" ? (
+                <Text style={s.bubbleText}>{item.content}</Text>
+              ) : (
+                <Markdown style={mdStyles}>{item.content}</Markdown>
+              )}
             </View>
           )}
         />
