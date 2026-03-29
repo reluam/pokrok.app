@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Send, CalendarPlus, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 
@@ -177,11 +178,11 @@ export default function CoachingChatPanel() {
         )}
       </button>
 
-      {/* Modal overlay */}
-      {open && (
+      {/* Modal overlay — rendered via portal to escape scroll wrappers */}
+      {open && createPortal(
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-          style={{ animation: "coachFadeIn 200ms ease-out" }}
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{ zIndex: 9999, animation: "coachFadeIn 200ms ease-out" }}
         >
           <style>{`
             @keyframes coachFadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -320,7 +321,8 @@ export default function CoachingChatPanel() {
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
