@@ -434,6 +434,9 @@ function WeeklyCheckinWidget({
   const prevCheckin = checkins.length >= 2 ? checkins[checkins.length - 2] : null;
   const lastCheckin = checkins[checkins.length - 1];
 
+  // Skip values step if no values defined
+  const effectiveStep = step === "values" && values.length === 0 ? "areas" : step;
+
   // ── Done state: show results ──
   if (thisWeekDone && lastCheckin) {
     const aS = lastCheckin.area_scores ?? {};
@@ -476,7 +479,7 @@ function WeeklyCheckinWidget({
   }
 
   // ── Step: values ──
-  if (step === "values") {
+  if (effectiveStep === "values") {
     return (
       <div className="space-y-5">
         <div>
