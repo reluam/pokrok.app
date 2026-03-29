@@ -176,11 +176,27 @@ Můžeš použít markdown formátování (**tučné**, seznamy, nadpisy) pro le
       messages: history.map(m => ({ role: m.role as "user" | "assistant", content: m.content })),
     });
 
-    const aiText = result.content[0]?.type === "text" ? result.content[0].text : "";
+    const rawText = result.content[0]?.type === "text" ? result.content[0].text : "";
     const inputTokens = result.usage?.input_tokens ?? 0;
     const outputTokens = result.usage?.output_tokens ?? 0;
 
-    // Save AI response
+    // Try to parse JSON response (may contain actions/recommendations)
+    let aiText = rawText;
+    let actions: unknown[] = [];
+    try {
+      const t = rawText.trim();
+      const tryParse = (s: string) => { try { return JSON.parse(s); } catch { return null; } };
+      let parsed = tryParse(t);
+      if (!parsed) { const m = t.match(/```(?:json)?\s*([\s\S]*?)\s*```/); if (m) parsed = tryParse(m[1].trim()); }
+      if (!parsed) { const bs = t.indexOf("{"), be = t.lastIndexOf("}"); if (bs !== -1 && be > bs) parsed = tryParse(t.slice(bs, be + 1)); }
+      if (parsed && typeof parsed === "object") {
+        if (parsed.summary) aiText = parsed.summary;
+        if (parsed.closingNote) aiText += "\n\n" + parsed.closingNote;
+        if (Array.isArray(parsed.actions)) actions = parsed.actions;
+      }
+    } catch {}
+
+    // Save AI response (store the display text, not raw JSON)
     const aiMsgId = `cm_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     await sql`
       INSERT INTO coaching_messages (id, user_id, role, content, created_at)
@@ -202,6 +218,7 @@ Můžeš použít markdown formátování (**tučné**, seznamy, nadpisy) pro le
 
     return NextResponse.json({
       message: aiText,
+      actions,
       budget: await getAIBudgetBalance(user.id),
     });
   } catch (error) {
