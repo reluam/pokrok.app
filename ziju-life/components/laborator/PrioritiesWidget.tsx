@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus, X, Check } from "lucide-react";
+import { Plus, X, Check, AlertTriangle } from "lucide-react";
 
 interface PriorityItem {
   text: string;
   done: boolean;
+  overdue?: boolean;
 }
 
 export interface PrioritiesData {
@@ -59,8 +60,33 @@ function PrioritySection({
       {items.length === 0 && !adding && (
         <p className="text-xs text-foreground/30 italic mb-1">Zatím žádné priority</p>
       )}
+      {/* Overdue items */}
+      {items.some(i => i.overdue && !i.done) && (
+        <div className="bg-red-50 border border-red-200/50 rounded-xl px-3 py-2 mb-2">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <AlertTriangle size={12} className="text-red-500" />
+            <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Zpožděné</span>
+          </div>
+          <ul className="space-y-1">
+            {items.filter(i => i.overdue && !i.done).map((item) => {
+              const idx = items.indexOf(item);
+              return (
+                <li key={idx} className="flex items-start gap-2 group">
+                  <button onClick={() => onToggle(idx)}
+                    className="mt-0.5 w-4 h-4 rounded border border-red-300 flex-shrink-0 flex items-center justify-center hover:border-red-500 transition-colors" />
+                  <span className="text-sm flex-1 leading-snug text-red-600">{item.text}</span>
+                  <button onClick={() => onRemove(idx)}
+                    className="opacity-0 group-hover:opacity-100 p-0.5 text-foreground/30 hover:text-red-500 transition-all"><X size={12} /></button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
       <ul className="space-y-1">
-        {items.map((item, i) => (
+        {items.filter(i => !i.overdue).map((item) => {
+          const i = items.indexOf(item);
+          return (
           <li key={i} className="flex items-start gap-2 group">
             <button
               onClick={() => onToggle(i)}
@@ -82,7 +108,8 @@ function PrioritySection({
               <X size={12} />
             </button>
           </li>
-        ))}
+          );
+        })}
       </ul>
       {adding ? (
         <div className="flex items-center gap-1.5 mt-1.5">

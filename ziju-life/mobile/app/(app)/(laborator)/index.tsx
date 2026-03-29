@@ -21,7 +21,7 @@ import {
   toggleRitualCompletion,
   aiCoach,
 } from "@/api/laborator";
-import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2 } from "lucide-react-native";
+import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
 const { height: SCREEN_H } = Dimensions.get("window");
@@ -32,7 +32,7 @@ const MAX_TODO = 3;
 type Tab = "todo" | "priorities" | "rituals";
 
 interface TodoItem { text: string; done: boolean }
-interface PriorityItem { text: string; done: boolean }
+interface PriorityItem { text: string; done: boolean; overdue?: boolean }
 interface PrioritiesData { weekly: PriorityItem[]; monthly: PriorityItem[]; yearly: PriorityItem[] }
 interface RitualItem { id: string; name: string; done: boolean; streak: number }
 interface ChatBubble { role: "user" | "assistant"; text: string }
@@ -198,9 +198,13 @@ export default function LaboratorDashboard() {
   // To-Do (daily)
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [niceTodos, setNiceTodos] = useState<TodoItem[]>([]);
+  const [yesterdayTodos, setYesterdayTodos] = useState<TodoItem[]>([]);
+  const [yesterdayNice, setYesterdayNice] = useState<TodoItem[]>([]);
+  const [showYesterday, setShowYesterday] = useState(false);
 
-  // Priorities
+  // Priorities (current + overdue)
   const [priorities, setPriorities] = useState<PrioritiesData>({ weekly: [], monthly: [], yearly: [] });
+  const [overdue, setOverdue] = useState<PrioritiesData>({ weekly: [], monthly: [], yearly: [] });
 
   // Rituals
   const [ritualItems, setRitualItems] = useState<{ morning: RitualItem[]; daily: RitualItem[]; evening: RitualItem[] }>({
@@ -224,19 +228,25 @@ export default function LaboratorDashboard() {
       setLoadError(false);
       const data = await getDashboardData();
 
-      // Todos
+      // Todos (today + yesterday)
       setTodos(data.todos.today?.todos ?? []);
       setNiceTodos(data.todos.today?.niceTodos ?? []);
+      setYesterdayTodos(data.todos.yesterday?.todos ?? []);
+      setYesterdayNice(data.todos.yesterday?.niceTodos ?? []);
 
-      // Priorities
+      // Priorities (current + detect overdue)
       const ctx = data.context || {};
       if (ctx.priorities && typeof ctx.priorities === "object") {
-        const p = ctx.priorities as PrioritiesData;
+        const p = ctx.priorities as PrioritiesData & { _overdue?: PrioritiesData };
         setPriorities({
           weekly: Array.isArray(p.weekly) ? p.weekly : [],
           monthly: Array.isArray(p.monthly) ? p.monthly : [],
           yearly: Array.isArray(p.yearly) ? p.yearly : [],
         });
+        // Overdue items from previous periods (if backend provides them)
+        if (p._overdue) {
+          setOverdue(p._overdue);
+        }
       }
 
       // Rituals
@@ -402,33 +412,105 @@ export default function LaboratorDashboard() {
         maxReached={niceTodos.length >= MAX_TODO}
         onAdd={(text) => saveTodos(todos, [...niceTodos, { text, done: false }])}
       />
+
+      {/* Yesterday */}
+      {(yesterdayTodos.length > 0 || yesterdayNice.length > 0) && (
+        <View style={s.yesterdaySection}>
+          <TouchableOpacity
+            style={s.yesterdayToggle}
+            onPress={() => setShowYesterday(!showYesterday)}
+          >
+            {showYesterday
+              ? <ChevronUp size={14} color={colors.muted} />
+              : <ChevronDown size={14} color={colors.muted} />}
+            <Text style={s.yesterdayLabel}>Včera</Text>
+          </TouchableOpacity>
+          {showYesterday && (
+            <View style={s.yesterdayContent}>
+              {yesterdayTodos.map((t, i) => (
+                <Text key={`yt${i}`} style={[s.yesterdayItem, t.done && s.yesterdayDone]}>
+                  {t.done ? "✓" : "○"} {t.text}
+                </Text>
+              ))}
+              {yesterdayNice.map((t, i) => (
+                <Text key={`yn${i}`} style={[s.yesterdayItem, t.done && s.yesterdayDone]}>
+                  {t.done ? "✓" : "○"} {t.text}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 
-  const renderPriorities = () => (
-    <View>
-      {(["weekly", "monthly", "yearly"] as const).map(scope => (
-        <View key={scope} style={{ marginBottom: 24 }}>
-          <Text style={s.sectionTitle}>
-            {scope === "weekly" ? "Tento týden" : scope === "monthly" ? "Tento měsíc" : "Tento rok"}
-          </Text>
-          {priorities[scope].length === 0 && <Text style={s.emptyText}>Žádné priority</Text>}
-          {priorities[scope].map((item, i) => (
-            <CheckItem
-              key={i}
-              item={item}
-              onToggle={() => togglePriority(scope, i)}
-              onRemove={() => removePriority(scope, i)}
-            />
-          ))}
-          <AddInline
-            placeholder={scope === "weekly" ? "Nová týdenní priorita..." : scope === "monthly" ? "Nová měsíční priorita..." : "Nová roční priorita..."}
-            onAdd={(text) => addPriority(scope, text)}
-          />
-        </View>
-      ))}
-    </View>
-  );
+  const renderPriorities = () => {
+    const scopeLabels = { weekly: "Tento týden", monthly: "Tento měsíc", yearly: "Tento rok" };
+    const scopePlaceholders = { weekly: "Nová týdenní priorita...", monthly: "Nová měsíční priorita...", yearly: "Nová roční priorita..." };
+
+    return (
+      <View>
+        {(["weekly", "monthly", "yearly"] as const).map(scope => {
+          const items = priorities[scope];
+          const overdueItems = items.filter(p => p.overdue && !p.done);
+          const currentItems = items.filter(p => !p.overdue);
+
+          return (
+            <View key={scope} style={{ marginBottom: 24 }}>
+              <Text style={s.sectionTitle}>{scopeLabels[scope]}</Text>
+
+              {/* Overdue items */}
+              {overdueItems.length > 0 && (
+                <View style={s.overdueBox}>
+                  <View style={s.overdueHeader}>
+                    <AlertTriangle size={14} color="#dc2626" />
+                    <Text style={s.overdueLabel}>Zpožděné</Text>
+                  </View>
+                  {overdueItems.map((item, i) => {
+                    const realIdx = items.indexOf(item);
+                    return (
+                      <View key={`o${i}`} style={s.checkRow}>
+                        <TouchableOpacity
+                          style={[s.checkbox, { borderColor: "#dc2626" }]}
+                          onPress={() => togglePriority(scope, realIdx)}
+                        >
+                          {item.done && <Check size={12} color="#fff" />}
+                        </TouchableOpacity>
+                        <Text style={[s.checkText, { color: "#dc2626" }]}>{item.text}</Text>
+                        <TouchableOpacity onPress={() => removePriority(scope, realIdx)} hitSlop={8} style={{ padding: 4 }}>
+                          <Trash2 size={14} color={colors.muted} />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
+
+              {/* Current items */}
+              {currentItems.length === 0 && overdueItems.length === 0 && (
+                <Text style={s.emptyText}>Žádné priority</Text>
+              )}
+              {currentItems.map((item, i) => {
+                const realIdx = items.indexOf(item);
+                return (
+                  <CheckItem
+                    key={i}
+                    item={item}
+                    onToggle={() => togglePriority(scope, realIdx)}
+                    onRemove={() => removePriority(scope, realIdx)}
+                  />
+                );
+              })}
+              <AddInline
+                placeholder={scopePlaceholders[scope]}
+                onAdd={(text) => addPriority(scope, text)}
+              />
+            </View>
+          );
+        })}
+      </View>
+    );
+  };
 
   const renderRituals = () => {
     const slots = [
@@ -627,4 +709,20 @@ const s = StyleSheet.create({
     width: 38, height: 38, borderRadius: 19, backgroundColor: colors.accent,
     justifyContent: "center", alignItems: "center",
   },
+
+  // Yesterday
+  yesterdaySection: { marginTop: 24, borderTopWidth: 1, borderTopColor: colors.borderLight, paddingTop: 12 },
+  yesterdayToggle: { flexDirection: "row", alignItems: "center", gap: 6 },
+  yesterdayLabel: { fontSize: 13, color: colors.muted },
+  yesterdayContent: { marginTop: 8, opacity: 0.6 },
+  yesterdayItem: { fontSize: 13, color: colors.muted, lineHeight: 20, paddingVertical: 2 },
+  yesterdayDone: { textDecorationLine: "line-through", color: "rgba(0,0,0,0.25)" },
+
+  // Overdue
+  overdueBox: {
+    backgroundColor: "rgba(220,38,38,0.05)", borderRadius: 12, borderWidth: 1,
+    borderColor: "rgba(220,38,38,0.15)", padding: 12, marginBottom: 12,
+  },
+  overdueHeader: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 8 },
+  overdueLabel: { fontSize: 12, fontWeight: "700", color: "#dc2626", textTransform: "uppercase", letterSpacing: 0.5 },
 });

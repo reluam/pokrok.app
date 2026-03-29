@@ -81,10 +81,74 @@ export async function GET(request: NextRequest) {
     const yesterdayData = (todoRows as { date: unknown; todos: unknown; nice_todos: unknown }[])
       .find((r) => toDateStr(r.date) === yesterday);
 
-    // Compose context
+    // Compose context + mark overdue priorities
     const context: Record<string, unknown> = {};
     for (const row of contextRows as { context_type: string; data: unknown }[]) {
       context[row.context_type] = row.data;
+    }
+
+    // Mark overdue priorities: unsolved items from previous periods
+    if (context.priorities && typeof context.priorities === "object") {
+      const p = context.priorities as {
+        weekly?: { text: string; done: boolean; overdue?: boolean; addedAt?: string }[];
+        monthly?: { text: string; done: boolean; overdue?: boolean; addedAt?: string }[];
+        yearly?: { text: string; done: boolean; overdue?: boolean; addedAt?: string }[];
+        _lastWeekStart?: string;
+        _lastMonthStart?: string;
+        _lastYearStart?: string;
+      };
+
+      const now = new Date(Date.now());
+      // Current week start (Monday)
+      const dayOfWeek = now.getDay();
+      const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      const thisWeekStart = getLocalDate(mondayOffset);
+      // Current month start
+      const thisMonthStart = today.slice(0, 7) + "-01";
+      // Current year start
+      const thisYearStart = today.slice(0, 4) + "-01-01";
+
+      // If week changed, mark unfinished weekly items as overdue
+      if (p._lastWeekStart && p._lastWeekStart < thisWeekStart && Array.isArray(p.weekly)) {
+        p.weekly = p.weekly.map(item =>
+          !item.done && !item.overdue ? { ...item, overdue: true } : item
+        );
+      }
+      p._lastWeekStart = thisWeekStart;
+
+      // If month changed
+      if (p._lastMonthStart && p._lastMonthStart < thisMonthStart && Array.isArray(p.monthly)) {
+        p.monthly = p.monthly.map(item =>
+          !item.done && !item.overdue ? { ...item, overdue: true } : item
+        );
+      }
+      p._lastMonthStart = thisMonthStart;
+
+      // If year changed
+      if (p._lastYearStart && p._lastYearStart < thisYearStart && Array.isArray(p.yearly)) {
+        p.yearly = p.yearly.map(item =>
+          !item.done && !item.overdue ? { ...item, overdue: true } : item
+        );
+      }
+      p._lastYearStart = thisYearStart;
+
+      // Save updated priorities back if any overdue marking happened
+      const hasOverdue = [
+        ...(p.weekly ?? []), ...(p.monthly ?? []), ...(p.yearly ?? []),
+      ].some(i => i.overdue);
+
+      if (hasOverdue || p._lastWeekStart || p._lastMonthStart || p._lastYearStart) {
+        context.priorities = p;
+        // Persist the overdue state
+        try {
+          await sql`
+            INSERT INTO user_lab_context (id, user_id, context_type, data, updated_at)
+            VALUES (${"ctx_" + user.id + "_priorities"}, ${user.id}, 'priorities', ${JSON.stringify(p)}::jsonb, NOW())
+            ON CONFLICT (user_id, context_type)
+            DO UPDATE SET data = ${JSON.stringify(p)}::jsonb, updated_at = NOW()
+          `;
+        } catch {}
+      }
     }
 
     return NextResponse.json({
