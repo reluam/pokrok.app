@@ -180,7 +180,7 @@ export default function CoachingChatPanel() {
       {/* Modal overlay */}
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           style={{ animation: "coachFadeIn 200ms ease-out" }}
         >
           <style>{`
@@ -195,7 +195,7 @@ export default function CoachingChatPanel() {
 
           {/* Modal panel */}
           <div
-            className="relative z-10 w-full max-w-lg bg-white rounded-[24px] shadow-2xl border border-black/10 flex flex-col overflow-hidden max-h-[85vh]"
+            className="relative z-10 w-full max-w-3xl bg-white rounded-[24px] shadow-2xl border border-black/10 flex flex-col overflow-hidden max-h-[85vh]"
             style={{ animation: "coachScaleIn 200ms ease-out" }}
           >
             {/* Header */}
