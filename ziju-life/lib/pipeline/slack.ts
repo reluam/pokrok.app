@@ -27,7 +27,6 @@ export async function sendDailyBrief(): Promise<void> {
   `
 
   if (articles.length === 0) {
-    // Send a notice that there were no articles today
     await fetch(SLACK_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,23 +47,6 @@ export async function sendDailyBrief(): Promise<void> {
     day: 'numeric',
   })
 
-  // === TOP 5 ===
-  let topSection = ''
-  topArticles.forEach((article, index) => {
-    const emoji = CATEGORY_EMOJI[article.primary_category] || '📌'
-    topSection += `\n*${index + 1}. ${emoji} ${article.title}*\n`
-    topSection += `${article.summary_cs}\n`
-    topSection += `💡 _Content angle:_ ${article.content_angle}\n`
-    topSection += `🔗 <${article.url}|Zdroj: ${article.source_name}> · Relevance: ${article.relevance_score}/10\n`
-  })
-
-  // === OTHER ===
-  let otherSection = ''
-  otherArticles.forEach((article) => {
-    const emoji = CATEGORY_EMOJI[article.primary_category] || '📌'
-    otherSection += `${emoji} <${article.url}|${article.title}> — ${article.key_insight} _(${article.relevance_score}/10)_\n`
-  })
-
   // === STATS ===
   const categoryCount: Record<string, number> = {}
   articles.forEach((a) => {
@@ -74,43 +56,46 @@ export async function sendDailyBrief(): Promise<void> {
     .map(([cat, count]) => `${CATEGORY_EMOJI[cat] || ''} ${count}`)
     .join(' · ')
 
-  // Build Slack blocks
+  // Build blocks — each top article is its own section to stay under 3000 char limit
   const blocks: unknown[] = [
     {
       type: 'header',
-      text: {
-        type: 'plain_text',
-        text: '📬 žiju life — Denní brief',
-        emoji: true,
-      },
+      text: { type: 'plain_text', text: '📬 žiju life — Denní brief', emoji: true },
     },
     {
       type: 'context',
-      elements: [
-        {
-          type: 'mrkdwn',
-          text: `${today} · ${articles.length} nových položek · ${statsLine}`,
-        },
-      ],
+      elements: [{ type: 'mrkdwn', text: `${today} · ${articles.length} zpracovaných · ${statsLine}` }],
     },
     { type: 'divider' },
-    {
+  ]
+
+  // Top 5 — each as its own block
+  topArticles.forEach((article, index) => {
+    const emoji = CATEGORY_EMOJI[article.primary_category] || '📌'
+    blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `*🏆 Top 5 dnes*${topSection}`,
+        text: `*${index + 1}. ${emoji} ${article.title}*\n${article.summary_cs}\n💡 _${article.content_angle}_\n🔗 <${article.url}|${article.source_name}> · ${article.relevance_score}/10`,
       },
-    },
-  ]
+    })
+  })
 
+  // Other interesting — compact list in one block
   if (otherArticles.length > 0) {
+    const lines = otherArticles.map((a) => {
+      const emoji = CATEGORY_EMOJI[a.primary_category] || '📌'
+      return `${emoji} <${a.url}|${a.title}> _(${a.relevance_score}/10)_`
+    })
+
     blocks.push(
       { type: 'divider' },
       {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `*📋 Další zajímavé*\n${otherSection}`,
+          // Slack section text limit is 3000 chars — truncate if needed
+          text: `*📋 Další zajímavé*\n${lines.join('\n').substring(0, 2900)}`,
         },
       }
     )
@@ -123,7 +108,8 @@ export async function sendDailyBrief(): Promise<void> {
   })
 
   if (!response.ok) {
-    throw new Error(`Slack webhook failed: ${response.status}`)
+    const body = await response.text()
+    throw new Error(`Slack webhook failed: ${response.status} — ${body}`)
   }
 
   // Archive daily brief

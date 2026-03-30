@@ -39,17 +39,22 @@ Pravidla pro relevance_score:
  * Call this endpoint multiple times to process all articles.
  */
 export async function processUnprocessedArticles(batchSize = 3): Promise<{ processed: number; remaining: number }> {
-  const unprocessed = await sql`
+  const batch = await sql`
     SELECT a.* FROM pipeline_articles a
     LEFT JOIN pipeline_briefs b ON a.id = b.article_id
     WHERE b.id IS NULL
       AND a.fetched_at > NOW() - INTERVAL '48 hours'
     ORDER BY a.published_at DESC
-    LIMIT ${batchSize + 50}
+    LIMIT ${batchSize}
   `
 
-  const remaining = Math.max(0, unprocessed.length - batchSize)
-  const batch = unprocessed.slice(0, batchSize)
+  const countResult = await sql`
+    SELECT COUNT(*)::int as cnt FROM pipeline_articles a
+    LEFT JOIN pipeline_briefs b ON a.id = b.article_id
+    WHERE b.id IS NULL
+      AND a.fetched_at > NOW() - INTERVAL '48 hours'
+  `
+  const remaining = Math.max(0, (countResult[0]?.cnt || 0) - batch.length)
   let processedCount = 0
 
   for (const article of batch) {
