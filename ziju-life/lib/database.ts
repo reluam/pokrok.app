@@ -574,6 +574,38 @@ export async function initializeDatabase() {
       )
     `
 
+    // ── Curated Posts (Feed) ────────────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS curated_posts (
+        id VARCHAR(255) PRIMARY KEY,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        type VARCHAR(20) NOT NULL CHECK (type IN ('tip', 'digest')),
+        title TEXT NOT NULL,
+        subtitle TEXT,
+        body_markdown TEXT NOT NULL DEFAULT '',
+        body_html TEXT,
+        video_script TEXT,
+        cover_image_url TEXT,
+        pipeline_brief_ids INTEGER[] DEFAULT ARRAY[]::INTEGER[],
+        curator_note TEXT,
+        categories TEXT[] DEFAULT ARRAY[]::TEXT[],
+        tags TEXT[] DEFAULT ARRAY[]::TEXT[],
+        status VARCHAR(20) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+        is_premium BOOLEAN DEFAULT false,
+        published_at TIMESTAMPTZ,
+        week_number INTEGER,
+        week_year INTEGER,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_slug ON curated_posts(slug)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_status ON curated_posts(status)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_type ON curated_posts(type)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_published ON curated_posts(published_at DESC)`
+
     // ── Uživatelský kontext Laboratoře (sync kompas/hodnoty/rituály) ────────
 
     await sql`

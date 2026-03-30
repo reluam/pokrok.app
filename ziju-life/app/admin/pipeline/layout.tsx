@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Newspaper, KanbanSquare, BarChart3, Rss, ArrowLeft } from 'lucide-react'
+import { LayoutDashboard, Newspaper, KanbanSquare, BarChart3, Rss, ArrowLeft, FileEdit } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/admin/pipeline', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/pipeline/feed', label: 'Feed', icon: Newspaper },
+  { href: '/admin/pipeline/digest', label: 'Digest', icon: FileEdit },
   { href: '/admin/pipeline/kanban', label: 'Pipeline', icon: KanbanSquare },
   { href: '/admin/pipeline/stats', label: 'Statistiky', icon: BarChart3 },
   { href: '/admin/pipeline/sources', label: 'Zdroje', icon: Rss },

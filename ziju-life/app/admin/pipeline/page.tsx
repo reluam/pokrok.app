@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { CATEGORY_CONFIG, relevanceBadgeClass } from '@/components/pipeline/constants'
-import { Play, RefreshCw, Loader2, Bookmark, PenLine, Archive } from 'lucide-react'
+import { Play, RefreshCw, Loader2, Bookmark, PenLine, Archive, Share2 } from 'lucide-react'
+import ShareModal from '@/components/pipeline/ShareModal'
 
 interface PipelineCount { pipeline_status: string; count: number }
 interface Article {
@@ -21,6 +22,7 @@ export default function PipelineDashboard() {
   const [topArticles, setTopArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
   const [triggering, setTriggering] = useState<string | null>(null)
+  const [shareArticle, setShareArticle] = useState<Article | null>(null)
 
   useEffect(() => { loadData() }, [])
 
@@ -146,11 +148,11 @@ export default function PipelineDashboard() {
                     </div>
                     <div className="flex flex-col gap-1.5 shrink-0">
                       <span className="text-xs text-foreground/40 font-medium mb-1">{article.source_name}</span>
+                      <button onClick={() => setShareArticle(article)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border-2 border-accent/30 text-accent hover:bg-accent hover:text-white transition-colors">
+                        <Share2 size={12} /> Sdílet
+                      </button>
                       <button onClick={() => updateStatus(article.brief_id, 'saved')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-colors">
                         <Bookmark size={12} /> Uložit
-                      </button>
-                      <button onClick={() => updateStatus(article.brief_id, 'in_progress')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 transition-colors">
-                        <PenLine size={12} /> Tvořit
                       </button>
                       <button onClick={() => updateStatus(article.brief_id, 'archived')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-foreground/40 hover:border-black/20 hover:bg-black/5 transition-colors">
                         <Archive size={12} /> Archiv
@@ -163,6 +165,19 @@ export default function PipelineDashboard() {
           </div>
         )}
       </div>
+
+      {shareArticle && (
+        <ShareModal
+          briefId={shareArticle.brief_id}
+          title={shareArticle.title}
+          summary={shareArticle.summary_cs}
+          onClose={() => setShareArticle(null)}
+          onShared={() => {
+            setTopArticles((prev) => prev.filter((a) => a.brief_id !== shareArticle.brief_id))
+            setShareArticle(null)
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { CATEGORY_CONFIG, PIPELINE_STATUSES, relevanceBadgeClass } from '@/components/pipeline/constants'
-import { Search, Loader2, Bookmark, PenLine, Archive, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Loader2, Bookmark, Archive, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
+import ShareModal from '@/components/pipeline/ShareModal'
 
 interface Article {
   brief_id: number
@@ -28,6 +29,7 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({ category: '', minRelevance: '1', status: 'inbox', search: '' })
   const [page, setPage] = useState(1)
+  const [shareArticle, setShareArticle] = useState<Article | null>(null)
 
   const loadArticles = useCallback(async () => {
     setLoading(true)
@@ -146,11 +148,11 @@ export default function FeedPage() {
                     )}
                   </div>
                   <div className="flex flex-col gap-1.5 shrink-0">
+                    <button onClick={() => setShareArticle(article)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border-2 border-accent/30 text-accent hover:bg-accent hover:text-white transition-colors">
+                      <Share2 size={12} /> Sdílet
+                    </button>
                     <button onClick={() => updateStatus(article.brief_id, 'saved')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-colors">
                       <Bookmark size={12} /> Uložit
-                    </button>
-                    <button onClick={() => updateStatus(article.brief_id, 'in_progress')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 transition-colors">
-                      <PenLine size={12} /> Tvořit
                     </button>
                     <button onClick={() => updateStatus(article.brief_id, 'archived')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-foreground/40 hover:border-black/20 hover:bg-black/5 transition-colors">
                       <Archive size={12} /> Archiv
@@ -174,6 +176,19 @@ export default function FeedPage() {
             <ChevronRight size={16} />
           </button>
         </div>
+      )}
+      {shareArticle && (
+        <ShareModal
+          briefId={shareArticle.brief_id}
+          title={shareArticle.title}
+          summary={shareArticle.summary_cs}
+          onClose={() => setShareArticle(null)}
+          onShared={() => {
+            setArticles((prev) => prev.filter((a) => a.brief_id !== shareArticle.brief_id))
+            setPagination((prev) => ({ ...prev, total: prev.total - 1 }))
+            setShareArticle(null)
+          }}
+        />
       )}
     </div>
   )
