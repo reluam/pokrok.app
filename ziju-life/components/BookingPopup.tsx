@@ -76,7 +76,7 @@ type MeetingType = {
 
 const DEFAULT_MEETING_TYPES: MeetingType[] = [
   { id: "intro_free", label: "Úvodní 30min sezení zdarma", isPaid: false },
-  { id: "coaching_paid", label: "Koučovací sezení (placené)", isPaid: true },
+  { id: "coaching_paid", label: "Osobní sezení (placené)", isPaid: true },
 ];
 
 const FIRST_DAY_OF_WEEK = 1;

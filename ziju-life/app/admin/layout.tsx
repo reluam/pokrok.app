@@ -27,6 +27,12 @@ export default async function AdminLayout({
     return <>{children}</>
   }
 
+  // Pipeline pages have their own dark layout — render without sidebar
+  const isPipelinePage = pathname.startsWith('/admin/pipeline')
+  if (isPipelinePage) {
+    return <>{children}</>
+  }
+
   return (
     <div className="flex min-h-screen bg-[#FFFAF5]">
       <AdminNavigation />

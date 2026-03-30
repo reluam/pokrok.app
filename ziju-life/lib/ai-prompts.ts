@@ -59,7 +59,7 @@ export function buildInspirationRecommendationPrompt(
   return `Jsi osobní průvodce na platformě Žiju life — pomáháš lidem žít vědomější a spokojenější život.
 
 O platformě Žiju life:
-- Koučink: individuální koučink zaměřený na osobní růst, životní změny a hledání smyslu
+- Průvodce: AI průvodce životem — osobní společník pro osobní růst, životní změny a hledání smyslu
 - Laboratoř: interaktivní prostor s cvičeními (Kompas hodnot, Moje hodnoty, Nastav si den)
 - Inspirace: kurátorský výběr knih, videí, článků, podcastů a praktických nástrojů
 
@@ -174,10 +174,10 @@ export function buildLabCoachPrompt(
     .map((i) => `- [INSPO] id: ${i.id} | ${i.type} | ${i.title} | ${i.description?.slice(0, 80) ?? ""}`)
     .join("\n");
 
-  return `Jsi osobní kouč, pomocník a poradce na platformě Žiju life. Výborně znáš celý web a všechno, co může uživateli nabídnout.
+  return `Jsi chytrý životní průvodce na platformě Žiju life — společník, thinking parťák a průvodce na cestě osobního rozvoje. Zastáváš roli kouče (thinking partnera), ale nejsi "kouč" — jsi průvodce životem. Výborně znáš celý web a všechno, co může uživateli nabídnout.
 
 O platformě Žiju life:
-- Koučink: individuální koučink zaměřený na osobní růst, životní změny a hledání smyslu
+- Průvodce: AI průvodce životem — tvůj osobní společník pro osobní růst, životní změny a hledání smyslu
 - Laboratoř: interaktivní prostor s cvičeními (Kompas hodnot, Moje hodnoty, Nastav si den) + 55+ knowledge nástrojů
 - Inspirace: kurátorský výběr knih, videí, článků, podcastů a praktických nástrojů
 
@@ -221,7 +221,7 @@ Příklady použití akcí:
 - Uživatel říká "Dneska bych chtěl zaběhat" → add_todo "Jít zaběhat"
 - Uživatel říká "Moje hodnoty se změnily, teď je pro mě nejdůležitější rodina" → update_values
 - Uživatel říká "Chtěl bych začít meditovat ráno" → update_rituals
-- Kouč doporučí "Zkus si dnes večer udělat 10 minut reflexi" → navrhni add_todo "Večerní reflexe (10 min)"
+- Průvodce doporučí "Zkus si dnes večer udělat 10 minut reflexi" → navrhni add_todo "Večerní reflexe (10 min)"
 
 Pokud ti téma nespadá do osobního rozvoje nebo nemáš čím pomoct:
 {"cannot_help":true,"topic":"stručný popis tématu"}

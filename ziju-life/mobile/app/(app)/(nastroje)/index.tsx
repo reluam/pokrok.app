@@ -1,35 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
   ScrollView,
   FlatList,
-  TextInput,
   TouchableOpacity,
   RefreshControl,
+  Image,
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { getUserContext } from "@/api/laborator";
-import { getTools, type Tool } from "@/api/toolbox";
-import { Compass, Heart, Sun, Search } from "lucide-react-native";
+import { getFeed, type InspirationItem } from "@/api/inspiration";
+import { Compass, Heart, Sun } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
-type SubTab = "cviceni" | "nastroje";
+type SubTab = "cviceni" | "inspirace";
 
-const CATEGORIES = [
-  { id: "", label: "Vše" },
-  { id: "rozhodovani", label: "🎯 Rozhodování" },
-  { id: "planovani", label: "📋 Plánování" },
-  { id: "reflexe", label: "🪞 Reflexe" },
-  { id: "komunikace", label: "💬 Komunikace" },
-  { id: "mysleni", label: "🧠 Myšlení" },
-  { id: "navyky", label: "🔗 Návyky" },
-  { id: "emoce", label: "🌊 Emoce" },
-  { id: "produktivita", label: "⚡ Produktivita" },
-  { id: "kreativita", label: "🎨 Kreativita" },
-  { id: "vztahy", label: "🤝 Vztahy" },
+const TYPE_FILTERS = [
+  { key: "", label: "Vše" },
+  { key: "book", label: "📚 Knihy" },
+  { key: "video", label: "▶️ Videa" },
+  { key: "article", label: "📄 Články" },
+  { key: "blog", label: "✍️ Blog" },
+  { key: "music", label: "🎵 Hudba" },
+  { key: "reel", label: "📱 Reely" },
+  { key: "princip", label: "🧭 Principy" },
+  { key: "tool", label: "🔧 Nástroje" },
 ];
 
 export default function NastrojeScreen() {
@@ -41,10 +39,11 @@ export default function NastrojeScreen() {
   const [hasValues, setHasValues] = useState(false);
   const [hasRituals, setHasRituals] = useState(false);
 
-  // Nástroje state
-  const [tools, setTools] = useState<Tool[]>([]);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+  // Inspirace state
+  const [inspItems, setInspItems] = useState<InspirationItem[]>([]);
+  const [inspType, setInspType] = useState("");
+  const [inspOffset, setInspOffset] = useState(0);
+  const [inspHasMore, setInspHasMore] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -59,23 +58,29 @@ export default function NastrojeScreen() {
     })();
   }, []);
 
-  const loadTools = async () => {
+  const loadInspirace = useCallback(async (reset = false) => {
+    const off = reset ? 0 : inspOffset;
     try {
-      const params: { q?: string; category?: string } = {};
-      if (search.trim()) params.q = search.trim();
-      if (category) params.category = category;
-      const result = await getTools({ ...params, limit: 50 });
-      setTools(result.tools);
+      const result = await getFeed({ type: inspType || undefined, offset: off, limit: 20 });
+      const newItems = result.items ?? [];
+      if (reset) {
+        setInspItems(newItems);
+        setInspOffset(newItems.length);
+      } else {
+        setInspItems(prev => [...prev, ...newItems]);
+        setInspOffset(off + newItems.length);
+      }
+      setInspHasMore(newItems.length === 20);
     } catch {}
-  };
+  }, [inspType, inspOffset]);
 
   useEffect(() => {
-    if (subTab === "nastroje") loadTools();
-  }, [subTab, search, category]);
+    if (subTab === "inspirace") { setInspOffset(0); loadInspirace(true); }
+  }, [subTab, inspType]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    if (subTab === "nastroje") await loadTools();
+    if (subTab === "inspirace") await loadInspirace(true);
     setRefreshing(false);
   };
 
@@ -108,62 +113,53 @@ export default function NastrojeScreen() {
     </ScrollView>
   );
 
-  const renderNastroje = () => (
+  const renderInspirace = () => (
     <View style={s.flex}>
-      <View style={s.searchRow}>
-        <Search size={16} color={colors.muted} />
-        <TextInput
-          style={s.searchInput}
-          placeholder="Hledat nástroje..."
-          placeholderTextColor="#aaa"
-          value={search}
-          onChangeText={setSearch}
-        />
-      </View>
-
       <FlatList
         horizontal
-        data={CATEGORIES}
+        data={TYPE_FILTERS}
         style={s.catRow}
         contentContainerStyle={{ paddingHorizontal: 16, gap: 6 }}
         showsHorizontalScrollIndicator={false}
-        keyExtractor={c => c.id || "all"}
-        renderItem={({ item: c }) => (
+        keyExtractor={f => f.key || "all"}
+        renderItem={({ item: f }) => (
           <TouchableOpacity
-            style={[s.catChip, category === c.id && s.catChipActive]}
-            onPress={() => setCategory(c.id)}
+            style={[s.catChip, inspType === f.key && s.catChipActive]}
+            onPress={() => setInspType(f.key)}
           >
-            <Text style={[s.catText, category === c.id && s.catTextActive]}>{c.label}</Text>
+            <Text style={[s.catText, inspType === f.key && s.catTextActive]}>{f.label}</Text>
           </TouchableOpacity>
         )}
       />
 
       <FlatList
-        data={tools}
+        data={inspItems}
         style={s.flex}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}
-        keyExtractor={t => t.slug}
+        keyExtractor={(item, index) => `${item.id}_${index}`}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
+        onEndReached={() => inspHasMore && !refreshing && loadInspirace(false)}
+        onEndReachedThreshold={0.3}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={s.toolCard}
-            onPress={() => router.push({ pathname: "/(app)/(nastroje)/[slug]", params: { slug: item.slug } })}
+            style={s.inspCard}
+            onPress={() => router.push({ pathname: "/(app)/(inspirace)/[id]", params: { id: item.id } })}
             activeOpacity={0.7}
           >
-            <Text style={s.toolTitle}>{item.title}</Text>
-            <Text style={s.toolDesc} numberOfLines={2}>{item.description}</Text>
-            <View style={s.toolMeta}>
-              <Text style={s.toolCat}>{item.category}</Text>
-              {item.duration && <Text style={s.toolDur}>{item.duration}</Text>}
-              <View style={s.toolDots}>
-                {[1, 2, 3].map(d => (
-                  <View key={d} style={[s.dot, d <= (item.difficulty || 1) && s.dotFilled]} />
-                ))}
+            {(item.thumbnail || item.imageUrl) && (
+              <Image source={{ uri: item.thumbnail || item.imageUrl }} style={s.inspImage} resizeMode="cover" />
+            )}
+            <View style={s.inspBody}>
+              <View style={s.inspMeta}>
+                <Text style={s.inspType}>{item.type}</Text>
+                {item.author && <Text style={s.inspAuthor}>{item.author}</Text>}
               </View>
+              <Text style={s.inspTitle} numberOfLines={2}>{item.title}</Text>
+              {item.description && <Text style={s.inspDesc} numberOfLines={2}>{item.description}</Text>}
             </View>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<Text style={s.emptyText}>Žádné nástroje</Text>}
+        ListEmptyComponent={<Text style={s.emptyText}>Žádné inspirace</Text>}
       />
     </View>
   );
@@ -172,7 +168,7 @@ export default function NastrojeScreen() {
     <SafeAreaView style={s.safe} edges={["top"]}>
       {/* Sub-tab switcher */}
       <View style={s.tabBar}>
-        {([["cviceni", "Cvičení"], ["nastroje", "Nástroje"]] as [SubTab, string][]).map(
+        {([["cviceni", "Cvičení"], ["inspirace", "Inspirace"]] as [SubTab, string][]).map(
           ([key, label]) => (
             <TouchableOpacity
               key={key}
@@ -185,7 +181,7 @@ export default function NastrojeScreen() {
         )}
       </View>
 
-      {subTab === "cviceni" ? renderCviceni() : renderNastroje()}
+      {subTab === "cviceni" ? renderCviceni() : renderInspirace()}
     </SafeAreaView>
   );
 }
@@ -234,33 +230,25 @@ const s = StyleSheet.create({
   exBadge: { backgroundColor: "rgba(255,140,66,0.1)", borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 },
   exBadgeText: { fontSize: 12, fontWeight: "600", color: colors.accent },
 
-  // Nástroje search
-  searchRow: {
-    flexDirection: "row", alignItems: "center", marginHorizontal: 16, marginBottom: 8,
-    backgroundColor: colors.white, borderRadius: 14, borderWidth: 1, borderColor: colors.borderLight,
-    paddingHorizontal: 12, gap: 8,
-  },
-  searchInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: colors.foreground },
-
-  // Categories
-  catRow: { maxHeight: 44, marginBottom: 8 },
-  catChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.borderLight },
+  // Categories / Filters
+  catRow: { maxHeight: 48, paddingVertical: 6 },
+  catChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.borderLight },
   catChipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   catText: { fontSize: 12, fontWeight: "600", color: colors.foreground },
   catTextActive: { color: "#fff" },
 
-  // Tool cards
-  toolCard: {
-    backgroundColor: colors.white, borderRadius: 16, padding: 16, marginBottom: 8,
+  // Inspiration cards
+  inspCard: {
+    backgroundColor: colors.white, borderRadius: 18, marginBottom: 10, overflow: "hidden",
     borderWidth: 1, borderColor: colors.borderLight,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
   },
-  toolTitle: { fontSize: 15, fontWeight: "700", color: colors.foreground, marginBottom: 4 },
-  toolDesc: { fontSize: 13, color: colors.muted, lineHeight: 18, marginBottom: 8 },
-  toolMeta: { flexDirection: "row", alignItems: "center", gap: 8 },
-  toolCat: { fontSize: 11, fontWeight: "600", color: colors.accent, backgroundColor: "rgba(255,140,66,0.08)", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
-  toolDur: { fontSize: 11, color: colors.muted },
-  toolDots: { flexDirection: "row", gap: 3 },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.borderLight },
-  dotFilled: { backgroundColor: colors.accent },
+  inspImage: { width: "100%", height: 160 },
+  inspBody: { padding: 14 },
+  inspMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
+  inspType: { fontSize: 11, fontWeight: "700", color: colors.accent, textTransform: "uppercase" },
+  inspAuthor: { fontSize: 12, color: colors.muted },
+  inspTitle: { fontSize: 16, fontWeight: "700", color: colors.foreground },
+  inspDesc: { fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 18 },
   emptyText: { fontSize: 14, color: colors.muted, textAlign: "center", paddingVertical: 40 },
 });

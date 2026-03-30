@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { LayoutDashboard, MessageCircle, Wrench, Lightbulb, User } from "lucide-react-native";
+import { CalendarDays, MessageCircle, FlaskConical, User } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
 export default function AppLayout() {
@@ -26,16 +26,16 @@ export default function AppLayout() {
       <Tabs.Screen
         name="(laborator)"
         options={{
-          title: "Přehled",
+          title: "Dnes",
           tabBarIcon: ({ color, size }) => (
-            <LayoutDashboard size={size} color={color} />
+            <CalendarDays size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="(koucing)"
         options={{
-          title: "Koučing",
+          title: "Průvodce",
           tabBarIcon: ({ color, size }) => (
             <MessageCircle size={size} color={color} />
           ),
@@ -44,19 +44,16 @@ export default function AppLayout() {
       <Tabs.Screen
         name="(nastroje)"
         options={{
-          title: "Nástroje",
+          title: "Laboratoř",
           tabBarIcon: ({ color, size }) => (
-            <Wrench size={size} color={color} />
+            <FlaskConical size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="(inspirace)"
         options={{
-          title: "Inspirace",
-          tabBarIcon: ({ color, size }) => (
-            <Lightbulb size={size} color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen

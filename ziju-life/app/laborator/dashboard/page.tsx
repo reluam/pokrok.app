@@ -785,14 +785,12 @@ function PrehledTab({
   ritualSelection,
   kompasData,
   hodnotyData,
-  reflectionDone,
   onTabChange,
   onDataChanged,
 }: {
   ritualSelection: RitualSelection | null;
   kompasData: KompasData | null;
   hodnotyData: HodnotyData | null;
-  reflectionDone: boolean;
   onTabChange: (tab: string) => void;
   onDataChanged?: () => void;
 }) {
@@ -825,7 +823,7 @@ function PrehledTab({
   return (
     <div className="space-y-6">
 
-      {/* AI Kouč panel */}
+      {/* AI Průvodce panel */}
       <CoachingChatPanel />
 
       {/* 3-column layout: ToDo | Priority | Rituály */}
@@ -853,20 +851,6 @@ function PrehledTab({
         />
       )}
 
-      {/* Reflexe nudge — when not yet filled this week */}
-      {!reflectionDone && (
-        <button
-          onClick={() => onTabChange("reflexe")}
-          className="w-full paper-card rounded-[20px] px-5 py-4 flex items-center gap-3 hover:border-accent/30 transition-colors text-left"
-        >
-          <span className="text-2xl">🔍</span>
-          <div className="flex-1">
-            <p className="font-bold text-foreground text-sm">Týdenní reflexe</p>
-            <p className="text-xs text-foreground/50">Ohodnoť hodnoty a životní oblasti — zabere to 2 minuty.</p>
-          </div>
-          <span className="text-accent font-semibold text-sm shrink-0">Vyplnit →</span>
-        </button>
-      )}
     </div>
   );
 }
@@ -1142,7 +1126,6 @@ function DashboardContent() {
 
   const tabs = [
     { id: "prehled",       label: "Přehled",       emoji: "📊" },
-    { id: "reflexe",       label: "Reflexe",       emoji: "🔍", done: reflectionDone },
     { id: "moje-hodnoty",  label: "Hodnoty",   emoji: "💎",  done: hasHodnoty },
     { id: "tvuj-kompas",   label: "Kompas",    emoji: "🧭",  done: hasKompas },
     { id: "nastav-si-den", label: "Rituály",   emoji: "⏱️", done: hasRituals },
@@ -1245,7 +1228,6 @@ function DashboardContent() {
           ritualSelection={ritualSelection}
           kompasData={kompasData}
           hodnotyData={hodnotyData}
-          reflectionDone={reflectionDone}
           onTabChange={goToTab}
           onDataChanged={() => {
             // Reload localStorage data after AI action
@@ -1253,20 +1235,6 @@ function DashboardContent() {
             try { const h = localStorage.getItem("hodnoty-data"); if (h) setHodnotyData(JSON.parse(h)); } catch {}
             try { const s = localStorage.getItem(LS_KEY); if (s) setRitualSelection(JSON.parse(s)); } catch {}
           }}
-        />
-      );
-    }
-
-    if (activeTab === "reflexe") {
-      return (
-        <ReflexeTab
-          checkins={checkins}
-          reflectionDone={reflectionDone}
-          kompasData={kompasData}
-          hodnotyData={hodnotyData}
-          onCheckinSave={handleCheckinSave}
-          onKompasSaved={handleKompasSaved}
-          onHodnotySaved={handleHodnotySaved}
         />
       );
     }

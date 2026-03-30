@@ -46,7 +46,7 @@ export default function Footer() {
                 href="/koucing"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
-                Koučink
+                Průvodce
               </Link>
               <Link
                 href="/o-mne"

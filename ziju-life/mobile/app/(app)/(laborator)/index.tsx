@@ -21,9 +21,7 @@ import {
   toggleRitualCompletion,
   aiCoach,
 } from "@/api/laborator";
-import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle, Search } from "lucide-react-native";
-import { useRouter } from "expo-router";
-import { getCheckins } from "@/api/laborator";
+import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
 const { height: SCREEN_H } = Dimensions.get("window");
@@ -155,7 +153,7 @@ function AICoachBar({
         <TouchableOpacity onPress={onToggle} hitSlop={8}>
           <Minimize2 size={18} color={colors.muted} />
         </TouchableOpacity>
-        <Text style={s.aiBarTitle}>AI Kouč</Text>
+        <Text style={s.aiBarTitle}>AI Průvodce</Text>
         <TouchableOpacity onPress={onFullScreen} hitSlop={8}>
           {fullScreen ? <Minimize2 size={18} color={colors.muted} /> : <Maximize2 size={18} color={colors.muted} />}
         </TouchableOpacity>
@@ -195,10 +193,7 @@ function AICoachBar({
 // ── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function LaboratorDashboard() {
-  const router = useRouter();
   const [tab, setTab] = useState<Tab>("todo");
-  const [reflectionDone, setReflectionDone] = useState(true); // default true to hide until loaded
-
   // To-Do (daily)
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [niceTodos, setNiceTodos] = useState<TodoItem[]>([]);
@@ -230,13 +225,7 @@ export default function LaboratorDashboard() {
   const load = useCallback(async () => {
     try {
       setLoadError(false);
-      const [data, checkinData] = await Promise.all([
-        getDashboardData(),
-        getCheckins().catch(() => null),
-      ]);
-      if (checkinData) {
-        setReflectionDone(checkinData.reflectionDone ?? false);
-      }
+      const data = await getDashboardData();
 
       // Todos (today + yesterday)
       setTodos(data.todos.today?.todos ?? []);
@@ -388,6 +377,19 @@ export default function LaboratorDashboard() {
     }
     setSending(false);
   };
+
+  // ── Next ritual helper ──
+
+  const getNextRitual = (): { item: RitualItem; slot: "morning" | "daily" | "evening" } | null => {
+    for (const slot of ["morning", "daily", "evening"] as const) {
+      for (const item of ritualItems[slot]) {
+        if (!item.done) return { item, slot };
+      }
+    }
+    return null;
+  };
+
+  const SLOT_EMOJI: Record<string, string> = { morning: "🌅", daily: "☀️", evening: "🌙" };
 
   // ── Render tabs ──
 
@@ -615,28 +617,39 @@ export default function LaboratorDashboard() {
             </View>
           ) : (
             <>
+              {/* Next ritual card */}
+              {(() => {
+                const next = getNextRitual();
+                if (!next) return null;
+                return (
+                  <TouchableOpacity
+                    style={s.nextRitualCard}
+                    onPress={() => {
+                      const slotIdx = ritualItems[next.slot].findIndex(r => r.id === next.item.id);
+                      if (slotIdx >= 0) handleToggleRitual(next.slot, slotIdx);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={s.nextRitualCheck}>
+                      <Check size={14} color={colors.accent} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.nextRitualLabel}>Následující rituál {SLOT_EMOJI[next.slot]}</Text>
+                      <Text style={s.nextRitualName}>{next.item.name}</Text>
+                    </View>
+                    {next.item.streak > 0 && (
+                      <Text style={s.nextRitualStreak}>{next.item.streak}×</Text>
+                    )}
+                  </TouchableOpacity>
+                );
+              })()}
+
               {tab === "todo" && renderTodo()}
               {tab === "priorities" && renderPriorities()}
               {tab === "rituals" && renderRituals()}
             </>
           )}
         </ScrollView>
-
-        {/* Reflection bar — shown when not filled this week */}
-        {!reflectionDone && (
-          <TouchableOpacity
-            style={s.reflectionBar}
-            onPress={() => router.push("/(app)/(laborator)/checkin")}
-            activeOpacity={0.8}
-          >
-            <Search size={20} color={colors.accent} />
-            <View style={{ flex: 1 }}>
-              <Text style={s.reflectionTitle}>Týdenní reflexe</Text>
-              <Text style={s.reflectionSubtitle}>Ohodnoť hodnoty a oblasti — 2 min</Text>
-            </View>
-            <Text style={s.reflectionCta}>Vyplnit →</Text>
-          </TouchableOpacity>
-        )}
 
         {/* AI Coach */}
         <AICoachBar
@@ -666,6 +679,21 @@ const s = StyleSheet.create({
   tabItemActive: { backgroundColor: colors.accent },
   tabText: { fontSize: 14, fontWeight: "600", color: colors.muted },
   tabTextActive: { color: "#fff" },
+
+  // Next ritual
+  nextRitualCard: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    backgroundColor: colors.white, borderRadius: 16, padding: 16, marginBottom: 16,
+    borderWidth: 1, borderColor: "rgba(255,140,66,0.2)",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+  },
+  nextRitualCheck: {
+    width: 32, height: 32, borderRadius: 10, borderWidth: 2, borderColor: colors.accent,
+    justifyContent: "center", alignItems: "center",
+  },
+  nextRitualLabel: { fontSize: 11, fontWeight: "600", color: colors.muted, textTransform: "uppercase", letterSpacing: 0.5 },
+  nextRitualName: { fontSize: 16, fontWeight: "700", color: colors.foreground, marginTop: 2 },
+  nextRitualStreak: { fontSize: 13, fontWeight: "600", color: colors.muted },
 
   // Sections
   sectionLabel: { fontSize: 11, fontWeight: "700", color: colors.muted, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 },
@@ -703,16 +731,6 @@ const s = StyleSheet.create({
   progressBg: { flex: 1, height: 6, backgroundColor: colors.boxBg, borderRadius: 999, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: colors.accent, borderRadius: 999 },
   progressText: { fontSize: 13, fontWeight: "600", color: colors.muted },
-
-  // Reflection bar
-  reflectionBar: {
-    flexDirection: "row", alignItems: "center", gap: 10,
-    backgroundColor: "rgba(255,140,66,0.06)", borderTopWidth: 1, borderTopColor: "rgba(255,140,66,0.15)",
-    paddingHorizontal: 20, paddingVertical: 14,
-  },
-  reflectionTitle: { fontSize: 14, fontWeight: "700", color: colors.foreground },
-  reflectionSubtitle: { fontSize: 12, color: colors.muted, marginTop: 1 },
-  reflectionCta: { fontSize: 13, fontWeight: "600", color: colors.accent },
 
   // AI collapsed
   aiBarCollapsed: {

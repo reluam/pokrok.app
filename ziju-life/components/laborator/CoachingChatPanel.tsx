@@ -24,9 +24,9 @@ interface BudgetInfo {
   spentCzk: number;
 }
 
-const WELCOME_MESSAGE = `Ahoj! 👋 Jsem tvůj osobní AI kouč.
+const WELCOME_MESSAGE = `Ahoj! 👋 Jsem tvůj chytrý průvodce životem.
 
-Funguju jako tvůj společník na cestě osobního rozvoje. Můžeš se mnou probírat cokoliv — své cíle, výzvy, nápady, pocity. Čím víc toho o tobě vím, tím lépe ti dokážu pomoct.
+Funguju jako tvůj společník a thinking parťák na cestě osobního rozvoje. Můžeš se mnou probírat cokoliv — své cíle, výzvy, nápady, pocity. Čím víc toho o tobě vím, tím lépe ti dokážu pomoct.
 
 Co ode mě můžeš čekat:
 • Naslouchám a kladu otázky, které ti pomůžou přemýšlet jinak
@@ -82,7 +82,7 @@ export default function CoachingChatPanel() {
           setMessages([{ role: "assistant", content: WELCOME_MESSAGE }]);
         }
       } catch {
-        setMessages([{ role: "assistant", content: "Ahoj! 👋 Jsem tvůj osobní AI kouč. Povídej mi o sobě — co řešíš, na čem pracuješ. 🌱" }]);
+        setMessages([{ role: "assistant", content: "Ahoj! 👋 Jsem tvůj chytrý průvodce životem. Povídej mi o sobě — co řešíš, na čem pracuješ. 🌱" }]);
       }
       setLoaded(true);
       setLoading(false);
@@ -269,8 +269,8 @@ export default function CoachingChatPanel() {
           <Sparkles size={18} className="text-accent" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-foreground group-hover:text-accent transition-colors">AI Kouč</p>
-          <p className="text-xs text-foreground/45">Tvůj osobní průvodce s pamětí</p>
+          <p className="text-sm font-bold text-foreground group-hover:text-accent transition-colors">AI Průvodce</p>
+          <p className="text-xs text-foreground/45">Tvůj chytrý životní průvodce</p>
         </div>
         {budgetPct !== null && (
           <div className="flex items-center gap-1.5" title={`Spotřeba: ${budget!.spentCzk.toFixed(1)} / ${budget!.totalBudgetCzk} Kč`}>
@@ -314,8 +314,8 @@ export default function CoachingChatPanel() {
               <div className="flex items-center gap-2.5">
                 <Sparkles size={18} className="text-accent" />
                 <div>
-                  <p className="text-sm font-bold text-foreground">AI Kouč</p>
-                  <p className="text-[11px] text-foreground/40">Tvůj osobní průvodce s pamětí</p>
+                  <p className="text-sm font-bold text-foreground">AI Průvodce</p>
+                  <p className="text-[11px] text-foreground/40">Tvůj chytrý životní průvodce</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -420,7 +420,7 @@ export default function CoachingChatPanel() {
                   {sending && (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                      <p className="text-xs text-foreground/50">Kouč přemýšlí...</p>
+                      <p className="text-xs text-foreground/50">Průvodce přemýšlí...</p>
                     </div>
                   )}
 
@@ -471,7 +471,7 @@ export default function CoachingChatPanel() {
                   className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-black/5 bg-white/50 hover:bg-accent/5 transition-colors shrink-0 w-full"
                 >
                   <CalendarPlus size={14} className="text-accent" />
-                  <span className="text-xs font-semibold text-accent">Objednat koučovací sezení</span>
+                  <span className="text-xs font-semibold text-accent">Objednat osobní sezení</span>
                 </button>
               </>
             )}

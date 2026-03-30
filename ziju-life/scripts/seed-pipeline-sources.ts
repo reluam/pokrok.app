@@ -92,6 +92,29 @@ async function seedSources() {
   await sql`CREATE INDEX IF NOT EXISTS idx_pipeline_briefs_category ON pipeline_briefs(primary_category)`
   await sql`CREATE INDEX IF NOT EXISTS idx_pipeline_briefs_used ON pipeline_briefs(is_used)`
 
+  // Phase 2: content pipeline columns
+  await sql`ALTER TABLE pipeline_briefs ADD COLUMN IF NOT EXISTS pipeline_status VARCHAR(30) DEFAULT 'inbox'`
+  await sql`ALTER TABLE pipeline_briefs ADD COLUMN IF NOT EXISTS pipeline_notes TEXT`
+  await sql`ALTER TABLE pipeline_briefs ADD COLUMN IF NOT EXISTS saved_at TIMESTAMPTZ`
+  await sql`ALTER TABLE pipeline_briefs ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ`
+  await sql`ALTER TABLE pipeline_briefs ADD COLUMN IF NOT EXISTS published_url TEXT`
+  await sql`CREATE INDEX IF NOT EXISTS idx_pipeline_briefs_status ON pipeline_briefs(pipeline_status)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_pipeline_briefs_saved ON pipeline_briefs(saved_at DESC)`
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS pipeline_trend_clusters (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      description TEXT,
+      article_ids INTEGER[] NOT NULL,
+      first_seen DATE NOT NULL,
+      last_seen DATE NOT NULL,
+      article_count INTEGER DEFAULT 1,
+      is_active BOOLEAN DEFAULT true,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `
+
   await sql`
     CREATE TABLE IF NOT EXISTS pipeline_daily_briefs (
       id SERIAL PRIMARY KEY,

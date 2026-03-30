@@ -55,9 +55,9 @@ export default function KoucingScreen() {
           // Welcome message for new users
           setMessages([{
             role: "assistant",
-            content: `Ahoj! 👋 Jsem tvůj osobní AI kouč.
+            content: `Ahoj! 👋 Jsem tvůj chytrý průvodce životem.
 
-Funguju jako tvůj společník na cestě osobního rozvoje. Můžeš se mnou probírat cokoliv — své cíle, výzvy, nápady, pocity. Čím víc toho o tobě vím, tím lépe ti dokážu pomoct.
+Funguju jako tvůj společník a thinking parťák na cestě osobního rozvoje. Můžeš se mnou probírat cokoliv — své cíle, výzvy, nápady, pocity. Čím víc toho o tobě vím, tím lépe ti dokážu pomoct.
 
 Co ode mě můžeš čekat:
 • Naslouchám a kladu otázky, které ti pomůžou přemýšlet jinak
@@ -73,7 +73,7 @@ Tak povídej — co právě řešíš? 🌱`,
       } catch {
         setMessages([{
           role: "assistant",
-          content: "Ahoj! 👋 Jsem tvůj osobní AI kouč. Povídej mi o sobě — co řešíš, na čem pracuješ. Čím víc toho o tobě vím, tím lépe ti pomůžu. 🌱",
+          content: "Ahoj! 👋 Jsem tvůj chytrý průvodce životem. Povídej mi o sobě — co řešíš, na čem pracuješ. Čím víc toho o tobě vím, tím lépe ti pomůžu. 🌱",
         }]);
       }
       setLoading(false);
@@ -118,7 +118,7 @@ Tak povídej — co právě řešíš? 🌱`,
       <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         {/* Header */}
         <View style={s.header}>
-          <Text style={s.headerTitle}>Koučing</Text>
+          <Text style={s.headerTitle}>AI Průvodce</Text>
         </View>
 
         {/* Messages */}
@@ -144,7 +144,7 @@ Tak povídej — co právě řešíš? 🌱`,
         {sending && (
           <View style={s.typingRow}>
             <ActivityIndicator size="small" color={colors.accent} />
-            <Text style={s.typingText}>Kouč přemýšlí...</Text>
+            <Text style={s.typingText}>Průvodce přemýšlí...</Text>
           </View>
         )}
 
@@ -178,7 +178,7 @@ Tak povídej — co právě řešíš? 🌱`,
           activeOpacity={0.8}
         >
           <CalendarPlus size={18} color={colors.accent} />
-          <Text style={s.bookingText}>Objednat koučovací sezení</Text>
+          <Text style={s.bookingText}>Objednat osobní sezení</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>

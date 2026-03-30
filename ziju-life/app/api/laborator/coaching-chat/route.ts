@@ -158,8 +158,8 @@ export async function POST(request: NextRequest) {
 
     const systemPrompt = `${basePrompt}${profileSection}
 
-## Kontext koučovací konverzace
-Toto je dlouhodobá koučovací konverzace. Pamatuješ si celou historii. Buď empatický, podporující kouč.
+## Kontext konverzace s průvodcem
+Toto je dlouhodobá konverzace. Pamatuješ si celou historii. Buď empatický, podporující průvodce a thinking parťák.
 Pomáhej uživateli růst. Odpovídej stručně, ale s hloubkou.
 
 Můžeš použít markdown formátování (**tučné**, seznamy, nadpisy) pro lepší čitelnost.`;
@@ -242,7 +242,7 @@ async function updateAIProfile(
   const result = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 500,
-    system: `Jsi analytik. Z konverzace mezi koučem a uživatelem vytvoř stručný profil uživatele (max 300 slov).
+    system: `Jsi analytik. Z konverzace mezi AI průvodcem a uživatelem vytvoř stručný profil uživatele (max 300 slov).
 Zaměř se na: cíle, hodnoty, výzvy, silné stránky, osobnostní rysy, aktuální životní situace, motivace.
 Piš ve 3. osobě, česky. Jen fakta zjištěná z konverzace, žádné domněnky.`,
     messages: [{ role: "user", content: `Konverzace:\n${summaryMessages}\n\nVytvoř profil uživatele:` }],

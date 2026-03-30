@@ -73,7 +73,7 @@ export default function CoachingTeaser() {
           <div className="flex flex-col justify-between gap-8 px-8 py-10 md:px-12 md:py-14">
             <div className="flex flex-col gap-6">
               <h2 className="text-4xl md:text-5xl font-extrabold text-foreground leading-tight">
-                Koučink
+                Osobní průvodce
               </h2>
 
               <p className="text-base text-foreground/65 leading-relaxed">
@@ -104,7 +104,7 @@ export default function CoachingTeaser() {
                 href="/koucing"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold bg-accent text-white hover:bg-accent-hover transition-colors shadow-md"
               >
-                Zjistit víc o koučinku →
+                Zjistit víc →
               </Link>
             </div>
           </div>

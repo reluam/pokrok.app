@@ -13,6 +13,7 @@ import {
   FlaskConical,
   Wrench,
   BarChart3,
+  Rss,
 } from "lucide-react";
 
 type AdminSection =
@@ -143,6 +144,29 @@ export default function AdminNavigation() {
           })}
         </ul>
       </nav>
+
+      {/* Pipeline link */}
+      <div className="px-4 pb-2">
+        <div className="border-t border-black/10 pt-3 mb-1">
+          <p className="px-4 text-xs font-bold text-foreground/40 uppercase tracking-wider mb-2">Knowledge Pipeline</p>
+        </div>
+        {[
+          { href: '/admin/pipeline', label: 'Dashboard' },
+          { href: '/admin/pipeline/feed', label: 'Feed' },
+          { href: '/admin/pipeline/kanban', label: 'Content Pipeline' },
+          { href: '/admin/pipeline/stats', label: 'Statistiky' },
+          { href: '/admin/pipeline/sources', label: 'Zdroje' },
+        ].map((item) => (
+          <button
+            key={item.href}
+            onClick={() => router.push(item.href)}
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-foreground/70 hover:bg-black/5 hover:text-foreground transition-colors"
+          >
+            <Rss size={16} />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
 
       {/* Logout */}
       <div className="p-4 border-t border-black/10">

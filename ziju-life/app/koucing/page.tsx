@@ -23,7 +23,7 @@ export default function KoucingPage() {
               <div className="relative px-4 sm:px-8 py-10 md:py-14">
                 <div className="max-w-4xl mx-auto text-center space-y-6">
                   <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight text-foreground font-bold">
-                    Upřímně: možná koučink vůbec nepotřebuješ.
+                    Upřímně: možná průvodce vůbec nepotřebuješ.
                   </h1>
                   <p className="text-xl md:text-2xl text-foreground/70 leading-relaxed max-w-3xl mx-auto">
                     Na Žiju.life najdeš{" "}
@@ -44,7 +44,7 @@ export default function KoucingPage() {
                       onClick={() => scrollTo("jak-to-funguje")}
                       className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
                     >
-                      O koučingu
+                      O průvodci
                     </button>
                   </div>
                 </div>
@@ -134,7 +134,7 @@ export default function KoucingPage() {
                 ))}
               </ul>
               <p className="text-xl text-foreground/80 leading-relaxed">
-                Koučink není o dalších informacích. Je o tom, dostat se pod povrch — zjistit, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracovat na akci, ne jen na pochopení.
+                Průvodce ti nepřidá další informace. Jde pod povrch — zjistí, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracujeme na akci, ne jen na pochopení.
               </p>
               <p className="text-base text-foreground/65 leading-relaxed">
                 Nedívám se na jednu izolovanou oblast — dívám se na tvůj život jako celek. Kariéra, vztahy, zdraví, energie, smysl — všechno se vzájemně ovlivňuje. Společně hledáme tu správnou kombinaci věcí, která ti začne dávat smysl. A pak ji krok za krokem přetavíme do reality.
@@ -158,7 +158,7 @@ export default function KoucingPage() {
           <div className="max-w-4xl mx-auto space-y-10">
             <div className="text-center">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-                Jak koučink funguje
+                Jak to funguje
               </h2>
             </div>
             <div className="space-y-5">
@@ -254,9 +254,9 @@ export default function KoucingPage() {
               </div>
             </div>
 
-            {/* Koučinkové možnosti */}
+            {/* Možnosti pokračování */}
             <div className="rounded-[24px] border border-white/60 bg-white/70 backdrop-blur shadow-md px-8 py-8 space-y-5">
-              <h3 className="text-xl font-bold text-foreground">Jak koučink vypadá dál?</h3>
+              <h3 className="text-xl font-bold text-foreground">Jak to vypadá dál?</h3>
               <p className="text-base text-foreground/65 leading-relaxed">
                 Pokud se po konzultaci rozhodneme pokračovat, díváme se na tvůj život jako na celek — a pracujeme na tom, co je právě teď nejdůležitější. Každé sezení má jasný výstup a konkrétní kroky k akci.
               </p>

@@ -17,8 +17,8 @@ const links = [
     color: "var(--accent-secondary)",
   },
   {
-    label: "Koučink",
-    description: "1:1 sezení pro tvůj posun",
+    label: "Průvodce",
+    description: "Osobní průvodce na cestě životem",
     href: "/koucing",
     icon: "🎯",
     color: "var(--accent-primary)",
