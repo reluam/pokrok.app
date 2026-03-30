@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, Clock, ArrowRight, Loader2 } from 'lucide-react'
@@ -38,6 +38,14 @@ interface CuratedPost {
 }
 
 export default function FeedPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="animate-spin text-foreground/30" size={28} /></div>}>
+      <FeedContent />
+    </Suspense>
+  )
+}
+
+function FeedContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const typeFilter = searchParams.get('type') || ''
