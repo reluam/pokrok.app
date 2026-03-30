@@ -471,6 +471,84 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_ai_credit_packs_user ON ai_credit_packs(user_id)
     `
 
+    // ── Knowledge Pipeline ──────────────────────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS pipeline_sources (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        url TEXT NOT NULL UNIQUE,
+        type VARCHAR(50) NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        priority VARCHAR(20) DEFAULT 'medium',
+        is_active BOOLEAN DEFAULT true,
+        last_fetched_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS pipeline_articles (
+        id SERIAL PRIMARY KEY,
+        source_id INTEGER REFERENCES pipeline_sources(id),
+        title TEXT NOT NULL,
+        url TEXT NOT NULL UNIQUE,
+        author VARCHAR(255),
+        published_at TIMESTAMPTZ,
+        raw_content TEXT,
+        content_type VARCHAR(50),
+        fetched_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pipeline_articles_published ON pipeline_articles(published_at DESC)
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pipeline_articles_url ON pipeline_articles(url)
+    `
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS pipeline_briefs (
+        id SERIAL PRIMARY KEY,
+        article_id INTEGER REFERENCES pipeline_articles(id) UNIQUE,
+        summary_cs TEXT NOT NULL,
+        summary_en TEXT,
+        relevance_score INTEGER NOT NULL CHECK (relevance_score BETWEEN 1 AND 10),
+        categories TEXT[] NOT NULL,
+        primary_category VARCHAR(50) NOT NULL,
+        content_angle TEXT,
+        key_insight TEXT,
+        tags TEXT[],
+        is_used BOOLEAN DEFAULT false,
+        processed_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pipeline_briefs_relevance ON pipeline_briefs(relevance_score DESC)
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pipeline_briefs_category ON pipeline_briefs(primary_category)
+    `
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pipeline_briefs_used ON pipeline_briefs(is_used)
+    `
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS pipeline_daily_briefs (
+        id SERIAL PRIMARY KEY,
+        brief_date DATE NOT NULL UNIQUE,
+        top_articles INTEGER[] NOT NULL,
+        other_articles INTEGER[],
+        slack_message_ts VARCHAR(50),
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `
+
     // ── Uživatelský kontext Laboratoře (sync kompas/hodnoty/rituály) ────────
 
     await sql`

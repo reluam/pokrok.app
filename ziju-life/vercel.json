@@ -1,5 +1,8 @@
 {
-  "crons": [{"path": "/api/cron/send-newsletters", "schedule": "33 11 * * *"}],
+  "crons": [
+    {"path": "/api/cron/send-newsletters", "schedule": "33 11 * * *"},
+    {"path": "/api/cron/daily-brief", "schedule": "0 5 * * *"}
+  ],
   "headers": [
     {
       "source": "/(.*)",
