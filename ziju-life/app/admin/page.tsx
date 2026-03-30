@@ -2,7 +2,6 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, Suspense } from "react";
-import InspiraceContent from "@/components/admin/InspiraceContent";
 import NewsletterContent from "@/components/admin/NewsletterContent";
 import NewsletterCampaigns from "@/components/admin/NewsletterCampaigns";
 import SettingsContent from "@/components/admin/SettingsContent";
@@ -10,31 +9,27 @@ import CrmContent from "@/components/admin/CrmContent";
 import AuditAccessContent from "@/components/admin/AuditAccessContent";
 import BookingSlotsContent from "@/components/admin/BookingSlotsContent";
 import LaboratorGrantsContent from "@/components/admin/LaboratorGrantsContent";
-import ToolboxContent from "@/components/admin/ToolboxContent";
 import AIStatsContent from "@/components/admin/AIStatsContent";
 
 function AdminContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const section = searchParams.get("section") || "blog";
+  const section = searchParams.get("section") || "newsletter";
 
   useEffect(() => {
     if (!searchParams.get("section")) {
-      router.replace("/admin?section=blog");
+      router.replace("/admin?section=newsletter");
     }
   }, [searchParams, router]);
 
   return (
     <div className="max-w-7xl mx-auto">
-      {section === "blog" && <InspiraceContent mode="blog" />}
-      {section === "inspirace" && <InspiraceContent mode="inspirace" />}
       {section === "newsletter" && <NewsletterContent />}
       {section === "newsletter-campaigns" && <NewsletterCampaigns />}
       {section === "crm" && <CrmContent />}
       {section === "rezervace" && <BookingSlotsContent />}
-{section === "audit-access" && <AuditAccessContent />}
+      {section === "audit-access" && <AuditAccessContent />}
       {section === "laborator-grants" && <LaboratorGrantsContent />}
-      {section === "toolbox" && <ToolboxContent />}
       {section === "ai-stats" && <AIStatsContent />}
       {section === "settings" && <SettingsContent />}
     </div>

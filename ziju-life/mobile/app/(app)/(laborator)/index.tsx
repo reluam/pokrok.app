@@ -617,8 +617,8 @@ export default function LaboratorDashboard() {
             </View>
           ) : (
             <>
-              {/* Next ritual card */}
-              {(() => {
+              {/* Next ritual card — only in To-Do tab */}
+              {tab === "todo" && (() => {
                 const next = getNextRitual();
                 if (!next) return null;
                 return (
@@ -643,7 +643,6 @@ export default function LaboratorDashboard() {
                   </TouchableOpacity>
                 );
               })()}
-
               {tab === "todo" && renderTodo()}
               {tab === "priorities" && renderPriorities()}
               {tab === "rituals" && renderRituals()}

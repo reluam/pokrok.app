@@ -37,10 +37,10 @@ export default function Footer() {
                 Laboratoř
               </Link>
               <Link
-                href="/inspirace"
+                href="/feed"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
-                Inspirace
+                Feed
               </Link>
               <Link
                 href="/koucing"

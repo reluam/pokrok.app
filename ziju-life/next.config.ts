@@ -20,17 +20,17 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/blog", destination: "/inspirace", permanent: true },
-      { source: "/blog/:path*", destination: "/inspirace/:path*", permanent: true },
+      { source: "/blog", destination: "/feed", permanent: true },
+      { source: "/blog/:path*", destination: "/feed", permanent: true },
+      { source: "/inspirace", destination: "/feed", permanent: false },
+      { source: "/inspirace/:path*", destination: "/feed", permanent: false },
       { source: "/jak-ziju", destination: "/muj-kompas", permanent: true },
       { source: "/manual", destination: "/laborator/tvuj-kompas", permanent: true },
       { source: "/manual/:path*", destination: "/laborator/tvuj-kompas", permanent: true },
       { source: "/audit-zivota", destination: "/laborator/tvuj-kompas", permanent: true },
       { source: "/audit-zivota/:path*", destination: "/laborator/tvuj-kompas", permanent: true },
       { source: "/navod-na-zivot", destination: "/muj-kompas", permanent: true },
-      { source: "/muj-kompas", destination: "/inspirace", permanent: false },
-      { source: "/principy", destination: "/inspirace?type=princip", permanent: false },
-      { source: "/principy/:path*", destination: "/inspirace?type=princip", permanent: false },
+      { source: "/muj-kompas", destination: "/feed", permanent: false },
     ];
   },
   async rewrites() {

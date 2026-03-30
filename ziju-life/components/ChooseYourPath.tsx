@@ -2,120 +2,37 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Book, Video, FileText, PenTool, HelpCircle, Mail } from "lucide-react";
-import type { InspirationData, InspirationItem } from "@/lib/inspiration";
-import { getBookCoverObjectPosition } from "@/lib/book-cover-position";
 
-interface MixedItem {
+interface FeedItem {
   id: string;
+  slug: string;
   title: string;
-  description: string;
+  subtitle?: string;
   type: string;
-  date: string;
-  href: string;
-  author?: string;
-  thumbnail?: string;
-  imageUrl?: string;
-  bookCoverFit?: "cover" | "contain";
-  bookCoverPosition?: string;
-  bookCoverPositionX?: number;
-  bookCoverPositionY?: number;
-  url?: string;
+  published_at: string;
+  categories?: string[];
 }
 
-const getTypeLabel = (type: string): string => {
-  switch (type) {
-    case "blog": return "Blog";
-    case "newsletter": return "Newsletter";
-    case "video": return "Video";
-    case "book": return "Kniha";
-    case "article": return "Článek";
-    case "other": return "Ostatní";
-    default: return type;
-  }
-};
-
-const getTypeIcon = (type: string) => {
-  switch (type) {
-    case "blog": return PenTool;
-    case "newsletter": return Mail;
-    case "video": return Video;
-    case "book": return Book;
-    case "article": return FileText;
-    case "other": return HelpCircle;
-    default: return FileText;
-  }
-};
-
-const getVideoThumbnail = (url: string) => {
-  const youtubeMatch = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
-  if (youtubeMatch) return `https://img.youtube.com/vi/${youtubeMatch[1]}/mqdefault.jpg`;
-  return null;
+const CATEGORY_EMOJI: Record<string, string> = {
+  psychology: "🧠",
+  neuroscience: "⚡",
+  health: "💪",
+  productivity: "⏰",
+  mindfulness: "🧘",
+  relationships: "🤝",
 };
 
 export default function ChooseYourPath() {
-  const router = useRouter();
-  const [latestItems, setLatestItems] = useState<MixedItem[]>([]);
+  const [latestItems, setLatestItems] = useState<FeedItem[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
 
   useEffect(() => {
     const fetchLatest = async () => {
       try {
-        const inspirationRes = await fetch("/api/inspiration");
-        const inspirationData: InspirationData = await inspirationRes.json();
-
-        const items: MixedItem[] = [];
-
-        // Inspirace: videos, books, articles, other
-        const inspiraceItems = [
-          ...inspirationData.videos,
-          ...inspirationData.books,
-          ...inspirationData.articles,
-          ...inspirationData.other,
-        ].filter((i) => i.isActive !== false);
-
-        inspiraceItems.forEach((item) => {
-          items.push({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            type: item.type,
-            date: item.createdAt,
-            href: `/inspirace/${item.id}`,
-            author: item.author,
-            thumbnail: item.thumbnail,
-            imageUrl: (item as InspirationItem).imageUrl,
-            bookCoverFit: (item as InspirationItem).bookCoverFit,
-            bookCoverPosition: (item as InspirationItem).bookCoverPosition,
-            bookCoverPositionX: (item as InspirationItem).bookCoverPositionX,
-            bookCoverPositionY: (item as InspirationItem).bookCoverPositionY,
-            url: item.url,
-          });
-        });
-
-        // Blog inspirations
-        (inspirationData.blogs || [])
-          .filter((i) => i.isActive !== false)
-          .forEach((item) => {
-            items.push({
-              id: item.id,
-              title: item.title,
-              description: item.description,
-              type: "blog",
-              date: item.createdAt,
-              href: `/inspirace/${item.id}`,
-              author: item.author,
-            });
-          });
-
-        const sorted = items
-          .filter((i) => i.date)
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-          .slice(0, 3);
-
-        setLatestItems(sorted);
+        const res = await fetch("/api/feed?limit=3");
+        const data = await res.json();
+        setLatestItems(data.posts ?? []);
       } catch (e) {
         console.error(e);
       } finally {
@@ -131,10 +48,9 @@ export default function ChooseYourPath() {
       className="relative py-20 md:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       <div className="max-w-6xl mx-auto relative z-10 space-y-16">
-        {/* Inspirace */}
         <div className="space-y-6">
           <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center">
-            Inspiruj se články, knihami, videi a dalšími zdroji.
+            Nejnovější z feedu
           </h3>
 
           {loadingItems ? (
@@ -142,54 +58,36 @@ export default function ChooseYourPath() {
           ) : latestItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {latestItems.map((item, index) => {
-                const Icon = getTypeIcon(item.type);
-                const videoThumbnail = item.type === "video" ? (item.thumbnail || getVideoThumbnail(item.url || "")) : null;
+                const emoji = item.categories?.[0] ? CATEGORY_EMOJI[item.categories[0]] ?? "📝" : "📝";
 
                 return (
                   <motion.div
-                    key={`${item.type}-${item.id}`}
+                    key={item.id}
                     initial={{ opacity: 0, y: 28 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.55, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <button
-                      onClick={() => router.push(item.href)}
-                      className="block text-left w-full cursor-pointer"
+                    <Link
+                      href={`/feed/${item.slug}`}
+                      className="block text-left w-full"
                     >
                       <article
                         className="bg-white rounded-2xl p-6 border-2 border-black/5 shadow-sm hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-2 h-full"
                         style={{ transform: `rotate(${index % 2 === 0 ? "-0.5deg" : "0.5deg"})` }}
                       >
-                      {item.type === "video" && videoThumbnail && (
-                        <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
-                          <img src={videoThumbnail} alt={item.title} className="w-full h-full object-cover" />
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-lg">{emoji}</span>
+                          <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full border border-accent/20">
+                            {item.type === "digest" ? "Digest" : "Tip"}
+                          </span>
                         </div>
-                      )}
-                      {item.type === "book" && item.imageUrl && (
-                        <div className="w-full aspect-[2/3] max-h-36 rounded-xl overflow-hidden bg-gray-100 mb-4">
-                          <img
-                            src={item.imageUrl}
-                            alt={item.title}
-                            className={`w-full h-full ${item.bookCoverFit === "contain" ? "object-contain" : "object-cover"}`}
-                            style={
-                              item.bookCoverFit !== "contain"
-                                ? { objectPosition: getBookCoverObjectPosition(item) }
-                                : undefined
-                            }
-                          />
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 mb-2">
-                        <Icon className="text-accent" size={18} />
-                        <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full border border-accent/20">
-                          {getTypeLabel(item.type)}
-                        </span>
-                      </div>
-                      <h4 className="text-lg font-bold text-foreground mb-1 line-clamp-2">{item.title}</h4>
-                      <p className="text-foreground/70 text-sm line-clamp-2 leading-relaxed">{item.description}</p>
-                    </article>
-                  </button>
+                        <h4 className="text-lg font-bold text-foreground mb-1 line-clamp-2">{item.title}</h4>
+                        {item.subtitle && (
+                          <p className="text-foreground/70 text-sm line-clamp-2 leading-relaxed">{item.subtitle}</p>
+                        )}
+                      </article>
+                    </Link>
                   </motion.div>
                 );
               })}
@@ -198,14 +96,13 @@ export default function ChooseYourPath() {
 
           <div className="text-center">
             <Link
-              href="/inspirace"
+              href="/feed"
               className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
             >
               Zobrazit více
             </Link>
           </div>
         </div>
-
       </div>
     </section>
   );

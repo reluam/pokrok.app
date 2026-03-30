@@ -70,7 +70,6 @@ export default function Navigation() {
     { href: "/laborator", label: "Laboratoř" },
     { href: "/koucing", label: "Koučing" },
     { href: "/feed", label: "Feed" },
-    { href: "/inspirace", label: "Knihovna" },
     { href: "/o-mne", label: "O mně" },
   ];
 

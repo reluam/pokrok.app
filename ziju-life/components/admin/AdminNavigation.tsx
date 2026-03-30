@@ -2,8 +2,6 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  PenTool,
-  Book,
   Mail,
   LogOut,
   Settings,
@@ -11,46 +9,32 @@ import {
   Calendar,
   ShieldCheck,
   FlaskConical,
-  Wrench,
   BarChart3,
   Rss,
 } from "lucide-react";
 
 type AdminSection =
-  | "blog"
-  | "inspirace"
   | "newsletter"
   | "newsletter-campaigns"
   | "crm"
   | "rezervace"
   | "audit-access"
   | "laborator-grants"
-  | "toolbox"
   | "ai-stats"
   | "settings";
 
 interface NavItem {
   id: AdminSection;
   label: string;
-  icon: typeof PenTool;
+  icon: typeof Mail;
 }
 
 export default function AdminNavigation() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentSection = (searchParams.get("section") || "blog") as AdminSection;
+  const currentSection = (searchParams.get("section") || "newsletter") as AdminSection;
 
   const navItems: NavItem[] = [
-    {
-      id: "blog",
-      label: "Blog",
-      icon: PenTool,
-    },
-    {
-      id: "inspirace",
-      label: "Inspirace",
-      icon: Book,
-    },
     {
       id: "newsletter",
       label: "Newsletter",
@@ -80,11 +64,6 @@ export default function AdminNavigation() {
       id: "laborator-grants",
       label: "Laboratoř — přístupy",
       icon: FlaskConical,
-    },
-    {
-      id: "toolbox",
-      label: "Nástrojárna",
-      icon: Wrench,
     },
     {
       id: "ai-stats",

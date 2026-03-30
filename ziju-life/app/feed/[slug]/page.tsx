@@ -119,7 +119,7 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
       <div className="mt-12 bg-accent/5 rounded-2xl p-8 text-center">
         <p className="font-bold text-foreground text-lg">Chceš dostávat tipy pravidelně?</p>
         <p className="text-foreground/60 mt-1 text-sm">Sleduj žiju.life pro další výzkumy a tipy o vědomém žití.</p>
-        <Link href="/inspirace" className="inline-block mt-4 px-6 py-3 rounded-full bg-accent text-white font-bold text-sm hover:bg-accent-hover transition-colors">
+        <Link href="/feed" className="inline-block mt-4 px-6 py-3 rounded-full bg-accent text-white font-bold text-sm hover:bg-accent-hover transition-colors">
           Prozkoumat knihovnu
         </Link>
       </div>

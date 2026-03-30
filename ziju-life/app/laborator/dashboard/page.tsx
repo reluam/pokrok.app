@@ -9,7 +9,6 @@ import HodnotyFlow, { PrintHodnotyButton, type HodnotyData } from "@/components/
 import NastavSiDenWizard, { DownloadPDFButton, type RitualSelection as WizardSelection } from "@/components/NastavSiDenWizard";
 import dynamic from "next/dynamic";
 
-const ToolboxTab = dynamic(() => import("@/components/laborator/ToolboxTab"), { ssr: false });
 const CoachingChatPanel = dynamic(() => import("@/components/laborator/CoachingChatPanel"), { ssr: false });
 const PrioritiesWidget = dynamic(() => import("@/components/laborator/PrioritiesWidget"), { ssr: false });
 const DailyTodosWidget = dynamic(() => import("@/components/laborator/DailyTodosWidget"), { ssr: false });
@@ -1129,7 +1128,6 @@ function DashboardContent() {
     { id: "moje-hodnoty",  label: "Hodnoty",   emoji: "💎",  done: hasHodnoty },
     { id: "tvuj-kompas",   label: "Kompas",    emoji: "🧭",  done: hasKompas },
     { id: "nastav-si-den", label: "Rituály",   emoji: "⏱️", done: hasRituals },
-    { id: "nastrojarna",   label: "Nástrojárna", emoji: "🧰" },
   ] as { id: string; label: string; emoji: string; done?: boolean }[];
 
   if (!checked) {
@@ -1298,10 +1296,6 @@ function DashboardContent() {
           <HodnotyFlow onSaved={handleHodnotySaved} />
         </div>
       );
-    }
-
-    if (activeTab === "nastrojarna") {
-      return <ToolboxTab onNavigateTab={goToTab} />;
     }
 
     return null;

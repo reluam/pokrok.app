@@ -137,6 +137,7 @@ export default function DailyTodosWidget() {
           onToggle={(i) => save(todos.map((t, j) => j === i ? { ...t, done: !t.done } : t), niceTodos)}
           onAdd={(text) => save([...todos, { text, done: false }], niceTodos)}
           onRemove={(i) => save(todos.filter((_, j) => j !== i), niceTodos)}
+          accent
         />
         <TodoSection
           label="Nice To Do"

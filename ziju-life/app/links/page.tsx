@@ -26,7 +26,7 @@ const links = [
   {
     label: "Inspirace",
     description: "Články, principy a myšlenky",
-    href: "/inspirace",
+    href: "/feed",
     icon: "✨",
     color: "var(--accent-tertiary)",
   },

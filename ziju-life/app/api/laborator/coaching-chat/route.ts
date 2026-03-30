@@ -3,8 +3,6 @@ import Anthropic from "@anthropic-ai/sdk";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
 import { getLaboratorUser } from "@/lib/laborator-user";
 import { getAIBudgetBalance, recordAIInteraction } from "@/lib/ai-credits";
-import { getToolCards } from "@/lib/toolbox-db";
-import { getInspirationData } from "@/lib/inspiration-db";
 import { buildLabCoachPrompt, type LabUserContext } from "@/lib/ai-prompts";
 import { sql } from "@/lib/database";
 
@@ -142,15 +140,8 @@ export async function POST(request: NextRequest) {
 
     // Build system prompt
     const userContext = await loadUserContext(user.id);
-    const { tools } = await getToolCards({ limit: 200 });
-    const inspirationData = await getInspirationData(false);
-    const allInspirations = [
-      ...inspirationData.blogs, ...inspirationData.videos, ...inspirationData.books,
-      ...inspirationData.articles, ...inspirationData.other, ...inspirationData.music,
-      ...inspirationData.reels, ...inspirationData.princips,
-    ].filter(i => i.isActive !== false);
 
-    const basePrompt = buildLabCoachPrompt(userContext, tools, allInspirations);
+    const basePrompt = buildLabCoachPrompt(userContext);
 
     const profileSection = profileSummary
       ? `\n\n## Profil uživatele (z předchozích konverzací)\n${profileSummary}\n`

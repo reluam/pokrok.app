@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, Save, X } from "lucide-react";
 import type { Principle } from "@/lib/principles";
-import type { InspirationItem } from "@/lib/inspiration-db";
 
 type PrincipleRow = Pick<
   Principle,
@@ -14,7 +13,6 @@ type PrincipleRow = Pick<
   | "contentMarkdown"
   | "orderIndex"
   | "isActive"
-  | "relatedInspirationIds"
 >;
 
 interface FormState {
@@ -25,7 +23,6 @@ interface FormState {
   contentMarkdown: string;
   orderIndex: number;
   isActive: boolean;
-  relatedInspirationIds: string[];
 }
 
 function slugify(value: string): string {
@@ -46,13 +43,9 @@ export default function PrinciplesContent() {
   const [form, setForm] = useState<FormState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPrinciples, setShowPrinciples] = useState(true);
-  const [inspirations, setInspirations] = useState<InspirationItem[]>([]);
-  const [loadingInspirations, setLoadingInspirations] = useState(false);
-
   useEffect(() => {
     loadPrinciples();
     loadSettings();
-    loadInspirations();
   }, []);
 
   const loadSettings = async () => {
@@ -68,29 +61,6 @@ export default function PrinciplesContent() {
       }
     } catch {
       setShowPrinciples(true);
-    }
-  };
-
-  const loadInspirations = async () => {
-    setLoadingInspirations(true);
-    try {
-      const res = await fetch("/api/inspiration?includeInactive=true");
-      const data = await res.json();
-      if (res.ok) {
-        const all: InspirationItem[] = [
-          ...(data.blogs || []),
-          ...(data.videos || []),
-          ...(data.books || []),
-          ...(data.articles || []),
-          ...(data.other || []),
-          ...(data.music || []),
-        ];
-        setInspirations(all);
-      }
-    } catch {
-      setInspirations([]);
-    } finally {
-      setLoadingInspirations(false);
     }
   };
 
@@ -126,7 +96,6 @@ export default function PrinciplesContent() {
           ? Math.max(...principles.map((p) => p.orderIndex ?? 0)) + 1
           : 1,
       isActive: true,
-      relatedInspirationIds: [],
     });
   };
 
@@ -140,7 +109,6 @@ export default function PrinciplesContent() {
       contentMarkdown: p.contentMarkdown,
       orderIndex: p.orderIndex ?? 0,
       isActive: p.isActive,
-      relatedInspirationIds: p.relatedInspirationIds ?? [],
     });
   };
 
@@ -151,24 +119,21 @@ export default function PrinciplesContent() {
 
   const handleFormChange = (
     field: keyof FormState,
-    value: string | number | boolean | string[]
+    value: string | number | boolean
   ) => {
     setForm((prev) => {
       if (!prev) return prev;
-      let next: FormState = { ...prev, [field]: value } as FormState;
+      const next: FormState = { ...prev }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(next as any)[field] = value;
 
       if (field === "title" && !prev.slug) {
         const auto = slugify(String(value));
-        if (auto) {
-          next.slug = auto;
-        }
+        if (auto) next.slug = auto;
       }
-
       if (field === "orderIndex") {
-        const n = Number(value);
-        next.orderIndex = Number.isNaN(n) ? 0 : n;
+        next.orderIndex = Number.isNaN(Number(value)) ? 0 : Number(value);
       }
-
       return next;
     });
   };
@@ -191,7 +156,7 @@ export default function PrinciplesContent() {
         contentMarkdown: form.contentMarkdown.trim() || form.shortDescription.trim(),
         orderIndex: form.orderIndex ?? 0,
         isActive: form.isActive,
-        relatedInspirationIds: form.relatedInspirationIds ?? [],
+        relatedInspirationIds: [],
       };
 
       const method = form.id ? "PUT" : "POST";
@@ -232,11 +197,6 @@ export default function PrinciplesContent() {
     } catch {
       alert("Chyba při ukládání nastavení viditelnosti.");
     }
-  };
-
-  const getSelectedInspirations = (ids: string[]) => {
-    if (!ids || ids.length === 0) return [];
-    return inspirations.filter((i) => ids.includes(i.id));
   };
 
   const handleDelete = async (id: string) => {
@@ -297,7 +257,7 @@ export default function PrinciplesContent() {
             htmlFor="toggle-show-principles"
             className="text-sm text-foreground/80"
           >
-            Zobrazit „Principy“ v menu a zápatí
+            Zobrazit „Principy" v menu a zápatí
           </label>
         </div>
       </div>
@@ -326,7 +286,7 @@ export default function PrinciplesContent() {
       <div className="bg-white rounded-2xl border-2 border-black/10 overflow-hidden">
         {principles.length === 0 ? (
           <div className="py-10 text-center text-foreground/60">
-            Zatím žádné principy. Klikni na „Přidat princip“ a začni první.
+            Zatím žádné principy. Klikni na „Přidat princip" a začni první.
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -525,68 +485,6 @@ export default function PrinciplesContent() {
               <span className="font-semibold">Markdown</span> (nadpisy,
               odrážky, tučný text, kurzíva…).
             </p>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-foreground">
-              Přiřazené inspirace (volitelné)
-            </label>
-            {loadingInspirations ? (
-              <p className="text-xs text-foreground/60">
-                Načítám inspirace…
-              </p>
-            ) : inspirations.length === 0 ? (
-              <p className="text-xs text-foreground/60">
-                Zatím nemáš žádné inspirace. Nejprve je přidej v sekci
-                „Inspirace“.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                <div className="max-h-48 overflow-y-auto rounded-xl border border-black/10 bg-black/2 p-2">
-                  {inspirations.map((item) => {
-                    const selected =
-                      form.relatedInspirationIds?.includes(item.id);
-                    return (
-                      <label
-                        key={item.id}
-                        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-black/5 text-xs cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selected}
-                          onChange={(e) => {
-                            const next = new Set(form.relatedInspirationIds);
-                            if (e.target.checked) {
-                              next.add(item.id);
-                            } else {
-                              next.delete(item.id);
-                            }
-                            handleFormChange(
-                              "relatedInspirationIds",
-                              Array.from(next)
-                            );
-                          }}
-                          className="h-3.5 w-3.5 rounded border-black/20 text-accent focus:ring-accent"
-                        />
-                        <span className="flex-1 text-foreground/80">
-                          <span className="font-semibold">{item.title}</span>
-                          <span className="text-foreground/50">
-                            {" "}
-                            – {item.type}
-                          </span>
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-                {form.relatedInspirationIds.length > 0 && (
-                  <p className="text-[11px] text-foreground/50">
-                    Vybráno {form.relatedInspirationIds.length} inspirací –
-                    zobrazí se na detailu principu.
-                  </p>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-2">

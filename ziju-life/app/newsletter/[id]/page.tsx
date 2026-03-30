@@ -49,7 +49,7 @@ export default function NewsletterDetailPage() {
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-foreground/60">Newsletter nenalezen</p>
           <button
-            onClick={() => router.push("/inspirace")}
+            onClick={() => router.push("/feed")}
             className="mt-4 px-6 py-2 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
           >
             Zpět na inspirace
@@ -71,7 +71,7 @@ export default function NewsletterDetailPage() {
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <button
-          onClick={() => router.push("/inspirace")}
+          onClick={() => router.push("/feed")}
           className="flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors"
         >
           <ArrowLeft size={18} />

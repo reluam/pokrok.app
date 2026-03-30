@@ -61,7 +61,7 @@ const PRINCIPLES: Principle[] = [
       "Zvyš příjem zdravých tuků a zeleniny (tučné ryby, avokádo, ořechy, brokolice...).",
     ],
     resources: [
-      { label: "Geniální potraviny", href: "/inspirace/1772998750188", prefix: "Moje inspirace" },
+      { label: "Geniální potraviny", href: "/feed1772998750188", prefix: "Moje inspirace" },
     ],
   },
   {
@@ -77,7 +77,7 @@ const PRINCIPLES: Principle[] = [
       "Nachoď za den minimálně 10 000 kroků (20 000 je ještě lepších).",
     ],
     resources: [
-      { label: "Čtyřhodinové tělo", href: "/inspirace/1772999485170", prefix: "Moje inspirace" },
+      { label: "Čtyřhodinové tělo", href: "/feed1772999485170", prefix: "Moje inspirace" },
     ],
   },
   {

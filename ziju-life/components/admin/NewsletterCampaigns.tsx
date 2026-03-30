@@ -3,8 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Plus, Edit2, Trash2, Eye, Send, Save, X, Link as LinkIcon, Copy, Loader2, Bold, Italic, Heading2, Quote, FileText } from "lucide-react";
 import type { NewsletterCampaign, NewsletterTemplate } from "@/lib/newsletter-campaigns-db";
-import type { InspirationItem, InspirationData } from "@/lib/inspiration";
-
 type ViewMode = "list" | "edit" | "preview" | "view";
 
 const TEMPLATE_STORAGE_KEY = "newsletter_template";
@@ -23,9 +21,6 @@ export default function NewsletterCampaigns() {
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [savedSelection, setSavedSelection] = useState<Range | null>(null);
-  const [showArticleDialog, setShowArticleDialog] = useState(false);
-  const [articles, setArticles] = useState<InspirationItem[]>([]);
-  const [loadingArticles, setLoadingArticles] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
@@ -282,99 +277,7 @@ export default function NewsletterCampaigns() {
     setShowLinkDialog(true);
   };
 
-  const handleAddArticle = async () => {
-    setShowArticleDialog(true);
-    setLoadingArticles(true);
-    
-    try {
-      const res = await fetch("/api/inspiration");
-      if (!res.ok) throw new Error("Failed to fetch articles");
-      const data: InspirationData = await res.json();
       
-      // Combine all article types
-      const allArticles: InspirationItem[] = [
-        ...(data.blogs || []),
-        ...(data.articles || []),
-        ...(data.videos || []),
-        ...(data.books || []),
-        ...(data.other || []),
-      ].filter(item => item.isActive !== false); // Only active items
-      
-      // Sort by creation date (newest first)
-      allArticles.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      
-      setArticles(allArticles);
-    } catch (err) {
-      console.error("Error fetching articles:", err);
-      alert("Chyba při načítání článků");
-    } finally {
-      setLoadingArticles(false);
-    }
-  };
-
-  const insertArticle = (article: InspirationItem) => {
-    const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://ziju.life';
-    
-    // For blog type articles, generate URL from ID if no URL exists
-    let articleUrl: string;
-    if (article.type === 'blog' && !article.url) {
-      articleUrl = `${siteUrl}/inspirace/${article.id}`;
-    } else if (!article.url) {
-      alert("Článek nemá URL");
-      return;
-    } else {
-      articleUrl = article.url.startsWith('http') ? article.url : `${siteUrl}${article.url}`;
-    }
-    
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      
-      // Create a link element with article title
-      const link = document.createElement('a');
-      link.href = articleUrl;
-      link.textContent = article.title || 'Článek';
-      link.style.cssText = 'color: #FF8C42; text-decoration: underline;';
-      
-      // Insert link at cursor position
-      range.insertNode(link);
-      
-      // Move cursor after the link
-      const newRange = document.createRange();
-      newRange.setStartAfter(link);
-      newRange.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(newRange);
-      
-      // Update form data
-      if (bodyEditorRef.current) {
-        setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
-      }
-    } else {
-      // If no selection, insert at end of editor
-      if (bodyEditorRef.current) {
-        const link = document.createElement('a');
-        link.href = articleUrl;
-        link.textContent = article.title || 'Článek';
-        link.style.cssText = 'color: #FF8C42; text-decoration: underline;';
-        
-        bodyEditorRef.current.appendChild(link);
-        bodyEditorRef.current.appendChild(document.createTextNode(' '));
-        
-        setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
-      }
-    }
-    
-    setShowArticleDialog(false);
-    
-    // Restore focus
-    if (bodyEditorRef.current) {
-      bodyEditorRef.current.focus();
-    }
-  };
-
   const insertLink = () => {
     if (!linkUrl.trim()) {
       alert("Zadej URL");
@@ -794,14 +697,6 @@ export default function NewsletterCampaigns() {
               >
                 <LinkIcon size={18} />
               </button>
-              <button
-                type="button"
-                onClick={handleAddArticle}
-                className="p-2 hover:bg-white rounded transition-colors"
-                title="Vložit článek"
-              >
-                <FileText size={18} />
-              </button>
             </div>
 
             {/* Rich text editor */}
@@ -907,55 +802,6 @@ export default function NewsletterCampaigns() {
           </div>
         )}
 
-        {/* Article Dialog */}
-        {showArticleDialog && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-6 border-2 border-black/10 max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-foreground">Vložit článek</h3>
-                <button
-                  onClick={() => {
-                    setShowArticleDialog(false);
-                    setArticles([]);
-                  }}
-                  className="p-1 hover:bg-black/5 rounded transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              
-              {loadingArticles ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="animate-spin text-accent" size={24} />
-                  <span className="ml-3 text-foreground/60">Načítání článků...</span>
-                </div>
-              ) : articles.length === 0 ? (
-                <div className="text-center py-8 text-foreground/60">
-                  Žádné články k dispozici
-                </div>
-              ) : (
-                <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-                  {articles.map((article) => (
-                    <button
-                      key={article.id}
-                      onClick={() => insertArticle(article)}
-                      className="w-full text-left p-4 border border-black/10 rounded-lg hover:border-accent hover:bg-accent/5 transition-colors"
-                    >
-                      <div className="font-semibold text-foreground mb-1">{article.title}</div>
-                      {article.description && (
-                        <div className="text-sm text-foreground/60 line-clamp-2">{article.description}</div>
-                      )}
-                      <div className="flex items-center gap-2 mt-2 text-xs text-foreground/40">
-                        <span className="px-2 py-1 bg-black/5 rounded">{article.type}</span>
-                        {article.author && <span>• {article.author}</span>}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     );
   }

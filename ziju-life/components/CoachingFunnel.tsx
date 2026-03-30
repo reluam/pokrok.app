@@ -30,7 +30,6 @@ import {
   FileText,
   type LucideIcon,
 } from "lucide-react";
-import type { InspirationData, InspirationItem } from "@/lib/inspiration";
 
 /** Oddělovač sekce ve stylu Perspective: čára – kroužek s číslem – čára */
 function FunnelSectionDivider({ number }: { number: number }) {
@@ -209,7 +208,6 @@ export default function CoachingFunnel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [multiSelection, setMultiSelection] = useState<string[]>([]);
-  const [latestInspirace, setLatestInspirace] = useState<InspirationItem[]>([]);
   const [showPostBookingMessage, setShowPostBookingMessage] = useState(false);
   const [pathChoice, setPathChoice] = useState<"audit" | "free" | null>(null);
   const [auditPromoRemaining, setAuditPromoRemaining] = useState<number | null>(null);
@@ -219,24 +217,6 @@ export default function CoachingFunnel() {
 
   const step = STEPS[stepIndex];
   const contactStepIndex = STEPS.findIndex((s) => s.id === "contact");
-
-  useEffect(() => {
-    fetch("/api/inspiration")
-      .then((res) => res.json())
-      .then((d: InspirationData) => {
-        const items = [
-          ...(d.videos || []),
-          ...(d.books || []),
-          ...(d.articles || []),
-          ...(d.other || []),
-        ].filter((i: InspirationItem) => i.isActive !== false);
-        const sorted = items
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-          .slice(0, 6);
-        setLatestInspirace(sorted);
-      })
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     const fetchPromo = async () => {
@@ -531,30 +511,6 @@ export default function CoachingFunnel() {
               <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
                 Jak převzít řízení?
               </h2>
-              {latestInspirace.length > 0 && (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {latestInspirace.map((item, index) => {
-                      const Icon = getTypeIcon(item.type);
-                      const isSixthOnMobile = index === 5;
-                      return (
-                        <Link
-                          key={item.id}
-                          href={`/inspirace/${item.id}`}
-                          className={`block text-left bg-white rounded-xl p-4 border-2 border-black/5 hover:border-accent/40 transition-all ${isSixthOnMobile ? "hidden sm:block" : ""}`}
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Icon className="text-accent shrink-0" size={18} />
-                            <span className="text-xs font-medium text-foreground/70 uppercase">{item.type}</span>
-                          </div>
-                          <h3 className="font-semibold text-foreground line-clamp-2 text-sm">{item.title}</h3>
-                          <p className="text-foreground/70 text-xs line-clamp-2 mt-1">{item.description}</p>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
               <div className="pt-2">
                 <button
                   type="button"
@@ -740,7 +696,7 @@ export default function CoachingFunnel() {
                   </p>
                 </div>
                 <Link
-                  href="/inspirace"
+                  href="/feed"
                   className="inline-block px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors"
                 >
                   Přejít na inspirace

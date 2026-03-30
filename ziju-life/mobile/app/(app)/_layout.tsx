@@ -51,12 +51,6 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="(inspirace)"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
         name="(profil)"
         options={{
           title: "Profil",

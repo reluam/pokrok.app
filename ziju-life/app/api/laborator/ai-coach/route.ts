@@ -3,8 +3,6 @@ import Anthropic from "@anthropic-ai/sdk";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
 import { getLaboratorUser } from "@/lib/laborator-user";
 import { getAIBudgetBalance, recordAIInteraction } from "@/lib/ai-credits";
-import { getToolCards } from "@/lib/toolbox-db";
-import { getInspirationData } from "@/lib/inspiration-db";
 import { buildLabCoachPrompt, type LabUserContext } from "@/lib/ai-prompts";
 import { sql } from "@/lib/database";
 import { sendContentRequestEmail } from "@/lib/user-email";
@@ -109,19 +107,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "AI služba není nakonfigurovaná." }, { status: 500 });
     }
 
-    // Load context + catalogs
+    // Load context
     const userContext = await loadUserContext(user.id);
-    const { tools } = await getToolCards({ limit: 200 });
-    const inspirationData = await getInspirationData(false);
-    const allInspirations = [
-      ...inspirationData.blogs, ...inspirationData.videos, ...inspirationData.books,
-      ...inspirationData.articles, ...inspirationData.other, ...inspirationData.music,
-      ...inspirationData.reels, ...inspirationData.princips,
-    ].filter((i) => i.isActive !== false);
 
     const profileSummary = await getAIProfileSummary(user.id);
     const profileSection = profileSummary ? `\n\n## Profil uživatele\n${profileSummary}` : "";
-    const systemPrompt = buildLabCoachPrompt(userContext, tools, allInspirations) + profileSection;
+    const systemPrompt = buildLabCoachPrompt(userContext) + profileSection;
 
     // Call Anthropic
     const anthropic = new Anthropic({ apiKey });
