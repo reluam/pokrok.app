@@ -16,13 +16,14 @@ export default function ConditionalShell({
   const pathname = usePathname();
   const isFunnel = pathname?.startsWith("/form");
   const isLinks = pathname === "/links";
+  const isAdmin = pathname?.startsWith("/admin");
 
   return (
     <BookingPopupProvider>
-      {!isFunnel && !isLinks && <Navigation />}
+      {!isFunnel && !isLinks && !isAdmin && <Navigation />}
       {children}
-      {!isFunnel && !isLinks && <Footer />}
-      {!isFunnel && !isLinks && <FloatingAIHelper />}
+      {!isFunnel && !isLinks && !isAdmin && <Footer />}
+      {!isFunnel && !isLinks && !isAdmin && <FloatingAIHelper />}
     </BookingPopupProvider>
   );
 }
