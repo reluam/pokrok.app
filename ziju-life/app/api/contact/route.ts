@@ -108,12 +108,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Sestavení emailu
-    const emailSubject = `Nová zpráva z koučink formuláře od ${firstName}${lastName ? ` ${lastName}` : ''}`
+    const emailSubject = `Nová zpráva z koučing formuláře od ${firstName}${lastName ? ` ${lastName}` : ''}`
     
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333; border-bottom: 2px solid #E8871E; padding-bottom: 10px;">
-          Nová zpráva z koučink formuláře
+          Nová zpráva z koučing formuláře
         </h2>
         
         <div style="margin-top: 20px;">

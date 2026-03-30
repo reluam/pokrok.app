@@ -68,7 +68,7 @@ export default function Navigation() {
 
   const navItems: Array<{ href: string; label: string }> = [
     { href: "/laborator", label: "Laboratoř" },
-    { href: "/koucing", label: "Průvodce" },
+    { href: "/koucing", label: "Koučing" },
     { href: "/feed", label: "Feed" },
     { href: "/inspirace", label: "Knihovna" },
     { href: "/o-mne", label: "O mně" },

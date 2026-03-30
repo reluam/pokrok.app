@@ -23,28 +23,25 @@ export default function KoucingPage() {
               <div className="relative px-4 sm:px-8 py-10 md:py-14">
                 <div className="max-w-4xl mx-auto text-center space-y-6">
                   <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight text-foreground font-bold">
-                    Upřímně: možná průvodce vůbec nepotřebuješ.
+                    Upřímně: možná koučing vůbec nepotřebuješ.
                   </h1>
                   <p className="text-xl md:text-2xl text-foreground/70 leading-relaxed max-w-3xl mx-auto">
                     Na Žiju.life najdeš{" "}
-                    <a href="/inspirace" className="text-accent hover:opacity-80 transition-opacity">inspiraci</a>,{" "}
-                    <a href="/laborator/tvuj-kompas" className="text-accent hover:opacity-80 transition-opacity">cvičení</a>{" "}
-                    i{" "}
-                    <a href="/muj-kompas" className="text-accent hover:opacity-80 transition-opacity">průvodce</a>{" "}
-                    pro vytvoření svého vlastního manuálu pro život.
+                    <Link href="/feed" className="text-accent hover:opacity-80 transition-opacity">feed</Link>{" "}
+                    plný inspirace i praktické nástroje pro vytvoření svého vlastního manuálu pro život.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button
-                      onClick={() => scrollTo("zdroje")}
+                    <Link
+                      href="/feed"
                       className="px-8 py-4 bg-white border-2 border-accent text-accent rounded-full text-lg font-semibold hover:bg-accent/5 transition-colors shadow-md"
                     >
-                      Zdroje zdarma
-                    </button>
+                      Feed zdarma
+                    </Link>
                     <button
                       onClick={() => scrollTo("jak-to-funguje")}
                       className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
                     >
-                      O průvodci
+                      O koučingu
                     </button>
                   </div>
                 </div>
@@ -54,55 +51,26 @@ export default function KoucingPage() {
         </div>
       </section>
 
-      {/* VOLNÉ ZDROJE */}
+      {/* FEED */}
       <RevealSection>
         <section id="zdroje" className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
           <DecorativeShapes position="left" />
-          <div className="max-w-4xl mx-auto space-y-10 relative z-10">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Začni tady — je to zdarma
-              </h2>
-              <p className="text-lg text-foreground/65 max-w-2xl mx-auto leading-relaxed">
-                Připravil jsem tři místa, kde se můžeš ponořit do tématu smysluplného života na vlastní pěst. Mnoho lidí zjistí, že jim to stačí.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-5">
-              {[
-                {
-                  href: "/jak-zit",
-                  label: "Jak žít?",
-                  icon: "🧭",
-                  desc: "Základní otázky o směru, hodnotách a tom, co vlastně od života chceš. Dobrý začátek pro každého.",
-                },
-                {
-                  href: "/laborator/tvuj-kompas",
-                  label: "Kompas",
-                  icon: "🗺️",
-                  desc: "Sedm zastávek od 'kde jsem' po 'žiju podle sebe'. Ke každé najdeš cvičení, šablony a materiály.",
-                },
-                {
-                  href: "/inspirace",
-                  label: "Inspirace",
-                  icon: "✨",
-                  desc: "Knihy, podcasty, články a nápady, které mě formovaly a možná budou užitečné i pro tebe.",
-                },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="group flex flex-col gap-4 bg-white/85 rounded-[24px] p-7 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
-                >
-                  <span className="text-3xl">{item.icon}</span>
-                  <div>
-                    <p className="text-lg font-bold text-foreground group-hover:text-accent transition-colors mb-1">{item.label}</p>
-                    <p className="text-sm text-foreground/65 leading-relaxed">{item.desc}</p>
-                  </div>
-                  <span className="text-xs font-semibold text-accent mt-auto">Prozkoumat →</span>
-                </Link>
-              ))}
-            </div>
+          <div className="max-w-4xl mx-auto relative z-10">
+            <Link
+              href="/feed"
+              className="group flex flex-col md:flex-row items-center gap-6 bg-white/85 rounded-[28px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
+            >
+              <span className="text-5xl flex-shrink-0">📡</span>
+              <div className="text-center md:text-left space-y-2">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground group-hover:text-accent transition-colors">
+                  Začni tady — je to zdarma
+                </h2>
+                <p className="text-base text-foreground/65 leading-relaxed max-w-xl">
+                  Ve feedu najdeš myšlenky, postřehy a tipy na téma smysluplného života. Bez poplatku, bez registrace.
+                </p>
+                <span className="inline-block text-sm font-semibold text-accent mt-1">Prozkoumat feed →</span>
+              </div>
+            </Link>
           </div>
         </section>
       </RevealSection>
@@ -134,7 +102,7 @@ export default function KoucingPage() {
                 ))}
               </ul>
               <p className="text-xl text-foreground/80 leading-relaxed">
-                Průvodce ti nepřidá další informace. Jde pod povrch — zjistí, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracujeme na akci, ne jen na pochopení.
+                Koučing ti nepřidá další informace. Jde pod povrch — zjistí, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracujeme na akci, ne jen na pochopení.
               </p>
               <p className="text-base text-foreground/65 leading-relaxed">
                 Nedívám se na jednu izolovanou oblast — dívám se na tvůj život jako celek. Kariéra, vztahy, zdraví, energie, smysl — všechno se vzájemně ovlivňuje. Společně hledáme tu správnou kombinaci věcí, která ti začne dávat smysl. A pak ji krok za krokem přetavíme do reality.

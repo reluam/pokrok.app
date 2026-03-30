@@ -440,7 +440,7 @@ export default function ManualFunnel() {
                   Většinu života jsem strávil snahou pochopit, jak se tenhle život hraje. Experimentuji s vědou, technologiemi, biorytmy i meditací.
                 </p>
                 <p>
-                  Tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly – inspirace v textech, podpora v komunitě a individuální koučink, pokud to chceš vzít od podlahy.
+                  Tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly – inspirace v textech, podpora v komunitě a individuální koučing, pokud to chceš vzít od podlahy.
                 </p>
               </div>
             </section>

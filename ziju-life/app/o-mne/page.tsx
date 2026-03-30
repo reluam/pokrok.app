@@ -172,7 +172,7 @@ export default function OMnePage() {
                 href="/koucing"
                 className="text-base text-foreground/55 hover:text-foreground transition-colors"
               >
-                Nebo se potkejme na koučinku
+                Nebo se potkejme na koučingu
               </a>
             </div>
           </div>

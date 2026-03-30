@@ -37,7 +37,7 @@ export async function createLeadInNotion(lead: Lead): Promise<{ ok: boolean; err
       select: {
         name:
           lead.source === 'koucing'
-            ? 'Koučink'
+            ? 'Koučing'
             : lead.source === 'homepage'
               ? 'Homepage'
               : lead.source === 'funnel'
