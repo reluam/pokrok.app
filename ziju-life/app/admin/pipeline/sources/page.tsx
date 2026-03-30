@@ -1,20 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { CATEGORY_CONFIG, cardStyle, inputStyle } from '@/components/pipeline/constants'
+import { CATEGORY_CONFIG } from '@/components/pipeline/constants'
 import { Loader2, Plus, Power, X } from 'lucide-react'
 
 interface Source {
-  id: number
-  name: string
-  url: string
-  type: string
-  category: string
-  priority: string
-  is_active: boolean
-  last_fetched_at: string | null
-  article_count: number
-  avg_relevance: number | null
+  id: number; name: string; url: string; type: string; category: string; priority: string
+  is_active: boolean; last_fetched_at: string | null; article_count: number; avg_relevance: number | null
 }
 
 export default function SourcesPage() {
@@ -24,9 +16,7 @@ export default function SourcesPage() {
   const [newSource, setNewSource] = useState({ name: '', url: '', type: 'rss', category: 'psychology', priority: 'medium' })
   const [adding, setAdding] = useState(false)
 
-  useEffect(() => {
-    loadSources()
-  }, [])
+  useEffect(() => { loadSources() }, [])
 
   async function loadSources() {
     setLoading(true)
@@ -34,9 +24,7 @@ export default function SourcesPage() {
       const res = await fetch('/api/admin/pipeline/sources')
       const data = await res.json()
       setSources(data.sources || [])
-    } catch (e) {
-      console.error('Failed to load sources:', e)
-    }
+    } catch (e) { console.error(e) }
     setLoading(false)
   }
 
@@ -61,47 +49,45 @@ export default function SourcesPage() {
       setNewSource({ name: '', url: '', type: 'rss', category: 'psychology', priority: 'medium' })
       setShowAdd(false)
       await loadSources()
-    } catch (e) {
-      console.error('Failed to add source:', e)
-    }
+    } catch (e) { console.error(e) }
     setAdding(false)
   }
 
+  const inputClass = 'px-3 py-2 rounded-xl text-sm border-2 border-black/10 bg-white focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-colors'
+
   if (loading) {
-    return <div className="flex justify-center py-12"><Loader2 className="animate-spin" size={24} style={{ color: '#888' }} /></div>
+    return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-foreground/30" size={24} /></div>
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Zdroje</h1>
+        <h1 className="text-3xl font-bold text-foreground">Zdroje</h1>
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium border transition-colors"
-          style={{ borderColor: '#2a2a2a', background: showAdd ? '#2a2a2a' : '#1a1a1a' }}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 border-black/10 hover:border-accent hover:text-accent transition-colors"
         >
           {showAdd ? <X size={14} /> : <Plus size={14} />}
           {showAdd ? 'Zrušit' : 'Přidat zdroj'}
         </button>
       </div>
 
-      {/* Add form */}
       {showAdd && (
-        <div className="rounded-lg p-4 border space-y-3" style={cardStyle}>
+        <div className="bg-white rounded-2xl p-6 border-2 border-black/10 space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <input placeholder="Název" value={newSource.name} onChange={(e) => setNewSource((s) => ({ ...s, name: e.target.value }))} className="px-3 py-2 rounded-md text-sm border" style={inputStyle} />
-            <input placeholder="RSS URL" value={newSource.url} onChange={(e) => setNewSource((s) => ({ ...s, url: e.target.value }))} className="px-3 py-2 rounded-md text-sm border" style={inputStyle} />
-            <select value={newSource.category} onChange={(e) => setNewSource((s) => ({ ...s, category: e.target.value }))} className="px-3 py-2 rounded-md text-sm border" style={inputStyle}>
+            <input placeholder="Název" value={newSource.name} onChange={(e) => setNewSource((s) => ({ ...s, name: e.target.value }))} className={inputClass} />
+            <input placeholder="RSS URL" value={newSource.url} onChange={(e) => setNewSource((s) => ({ ...s, url: e.target.value }))} className={inputClass} />
+            <select value={newSource.category} onChange={(e) => setNewSource((s) => ({ ...s, category: e.target.value }))} className={inputClass}>
               {Object.entries(CATEGORY_CONFIG).map(([key, { emoji, label }]) => (
                 <option key={key} value={key}>{emoji} {label}</option>
               ))}
             </select>
             <div className="flex gap-3">
-              <select value={newSource.type} onChange={(e) => setNewSource((s) => ({ ...s, type: e.target.value }))} className="flex-1 px-3 py-2 rounded-md text-sm border" style={inputStyle}>
+              <select value={newSource.type} onChange={(e) => setNewSource((s) => ({ ...s, type: e.target.value }))} className={`${inputClass} flex-1`}>
                 <option value="rss">RSS</option>
                 <option value="podcast_rss">Podcast RSS</option>
               </select>
-              <select value={newSource.priority} onChange={(e) => setNewSource((s) => ({ ...s, priority: e.target.value }))} className="flex-1 px-3 py-2 rounded-md text-sm border" style={inputStyle}>
+              <select value={newSource.priority} onChange={(e) => setNewSource((s) => ({ ...s, priority: e.target.value }))} className={`${inputClass} flex-1`}>
                 <option value="high">High</option>
                 <option value="medium">Medium</option>
                 <option value="low">Low</option>
@@ -111,56 +97,54 @@ export default function SourcesPage() {
           <button
             onClick={addSource}
             disabled={adding || !newSource.name || !newSource.url}
-            className="px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50"
-            style={{ background: '#38bdf8', color: '#000' }}
+            className="px-6 py-2.5 rounded-xl text-sm font-bold bg-accent text-white hover:bg-accent-hover transition-colors disabled:opacity-40"
           >
-            {adding ? 'Přidávám...' : 'Přidat'}
+            {adding ? 'Přidávám...' : 'Přidat zdroj'}
           </button>
         </div>
       )}
 
-      {/* Sources table */}
-      <div className="rounded-lg border overflow-hidden" style={cardStyle}>
+      <div className="bg-white rounded-2xl border-2 border-black/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ background: '#141414', color: '#666' }}>
-              <th className="text-left px-4 py-3 font-medium">Název</th>
-              <th className="text-left px-4 py-3 font-medium">Kategorie</th>
-              <th className="text-center px-4 py-3 font-medium">Priorita</th>
-              <th className="text-right px-4 py-3 font-medium">Články</th>
-              <th className="text-right px-4 py-3 font-medium">Ø Rel.</th>
-              <th className="text-right px-4 py-3 font-medium">Poslední fetch</th>
-              <th className="text-center px-4 py-3 font-medium">Stav</th>
+            <tr className="bg-black/[0.02] border-b-2 border-black/10 text-foreground/50">
+              <th className="text-left px-5 py-3 font-semibold">Název</th>
+              <th className="text-left px-5 py-3 font-semibold">Kategorie</th>
+              <th className="text-center px-5 py-3 font-semibold">Priorita</th>
+              <th className="text-right px-5 py-3 font-semibold">Články</th>
+              <th className="text-right px-5 py-3 font-semibold">Ø Rel.</th>
+              <th className="text-right px-5 py-3 font-semibold">Poslední fetch</th>
+              <th className="text-center px-5 py-3 font-semibold">Stav</th>
             </tr>
           </thead>
           <tbody>
             {sources.map((source) => {
               const cat = CATEGORY_CONFIG[source.category]
               return (
-                <tr key={source.id} className="border-t" style={{ borderColor: '#2a2a2a', opacity: source.is_active ? 1 : 0.4 }}>
-                  <td className="px-4 py-3">
-                    <span className="font-medium">{source.name}</span>
+                <tr key={source.id} className={`border-b border-black/5 hover:bg-black/[0.01] transition-colors ${!source.is_active ? 'opacity-40' : ''}`}>
+                  <td className="px-5 py-3">
+                    <span className="font-semibold text-foreground">{source.name}</span>
                     <br />
-                    <span className="text-xs" style={{ color: '#555' }}>{source.type}</span>
+                    <span className="text-xs text-foreground/40">{source.type}</span>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: `${cat?.color}20`, color: cat?.color }}>
+                  <td className="px-5 py-3">
+                    <span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{ background: `${cat?.color}15`, color: cat?.color }}>
                       {cat?.emoji} {cat?.label}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="text-xs font-mono" style={{ color: source.priority === 'high' ? '#34d399' : '#888' }}>
+                  <td className="px-5 py-3 text-center">
+                    <span className={`text-xs font-bold font-mono ${source.priority === 'high' ? 'text-emerald-600' : 'text-foreground/40'}`}>
                       {source.priority}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono" style={{ color: '#888' }}>{source.article_count}</td>
-                  <td className="px-4 py-3 text-right font-mono" style={{ color: '#888' }}>{source.avg_relevance || '—'}</td>
-                  <td className="px-4 py-3 text-right text-xs" style={{ color: '#555' }}>
+                  <td className="px-5 py-3 text-right font-mono text-foreground/50">{source.article_count}</td>
+                  <td className="px-5 py-3 text-right font-mono text-foreground/50">{source.avg_relevance || '—'}</td>
+                  <td className="px-5 py-3 text-right text-xs text-foreground/40">
                     {source.last_fetched_at ? new Date(source.last_fetched_at).toLocaleDateString('cs-CZ') : '—'}
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    <button onClick={() => toggleActive(source.id, source.is_active)} title={source.is_active ? 'Deaktivovat' : 'Aktivovat'}>
-                      <Power size={16} style={{ color: source.is_active ? '#34d399' : '#555' }} />
+                  <td className="px-5 py-3 text-center">
+                    <button onClick={() => toggleActive(source.id, source.is_active)} title={source.is_active ? 'Deaktivovat' : 'Aktivovat'} className="hover:scale-110 transition-transform">
+                      <Power size={16} className={source.is_active ? 'text-emerald-500' : 'text-foreground/20'} />
                     </button>
                   </td>
                 </tr>

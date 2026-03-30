@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { CATEGORY_CONFIG, relevanceBadgeStyle, cardStyle } from '@/components/pipeline/constants'
+import { CATEGORY_CONFIG, relevanceBadgeClass } from '@/components/pipeline/constants'
 import { Play, RefreshCw, Loader2 } from 'lucide-react'
 
 interface PipelineCount { pipeline_status: string; count: number }
@@ -14,7 +14,6 @@ interface Article {
   primary_category: string
   content_angle: string
   source_name: string
-  published_at: string
 }
 
 export default function PipelineDashboard() {
@@ -23,9 +22,7 @@ export default function PipelineDashboard() {
   const [loading, setLoading] = useState(true)
   const [triggering, setTriggering] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadData()
-  }, [])
+  useEffect(() => { loadData() }, [])
 
   async function loadData() {
     setLoading(true)
@@ -38,9 +35,7 @@ export default function PipelineDashboard() {
       const articles = await articlesRes.json()
       setPipelineCounts(stats.pipeline || [])
       setTopArticles(articles.articles || [])
-    } catch (e) {
-      console.error('Failed to load dashboard:', e)
-    }
+    } catch (e) { console.error(e) }
     setLoading(false)
   }
 
@@ -53,39 +48,38 @@ export default function PipelineDashboard() {
         body: JSON.stringify({ step }),
       })
       await loadData()
-    } catch (e) {
-      console.error('Trigger failed:', e)
-    }
+    } catch (e) { console.error(e) }
     setTriggering(null)
   }
 
-  function getCount(status: string) {
-    return pipelineCounts.find((p) => p.pipeline_status === status)?.count || 0
-  }
+  const getCount = (status: string) => pipelineCounts.find((p) => p.pipeline_status === status)?.count || 0
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin" size={24} style={{ color: '#888' }} /></div>
+    return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-foreground/30" size={24} /></div>
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Knowledge Pipeline</h1>
-          <p className="text-sm mt-1" style={{ color: '#888' }}>Přehled dnešního briefu a stav pipeline</p>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-foreground/60 mt-1">Přehled pipeline a dnešní top články</p>
         </div>
         <div className="flex items-center gap-2">
-          {['fetch', 'process', 'brief'].map((step) => (
+          {[
+            { step: 'fetch', label: 'Fetch RSS', icon: RefreshCw },
+            { step: 'process', label: 'Process AI', icon: Play },
+            { step: 'brief', label: 'Odeslat brief', icon: Play },
+          ].map(({ step, label, icon: Icon }) => (
             <button
               key={step}
               onClick={() => triggerStep(step)}
               disabled={triggering !== null}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-              style={{ background: '#1a1a1a', borderColor: '#2a2a2a', border: '1px solid #2a2a2a', color: '#e5e5e5', opacity: triggering ? 0.5 : 1 }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 border-black/10 hover:border-accent hover:text-accent transition-colors disabled:opacity-40"
             >
-              {triggering === step ? <Loader2 size={14} className="animate-spin" /> : step === 'fetch' ? <RefreshCw size={14} /> : <Play size={14} />}
-              {step === 'fetch' ? 'Fetch RSS' : step === 'process' ? 'Process AI' : 'Odeslat brief'}
+              {triggering === step ? <Loader2 size={14} className="animate-spin" /> : <Icon size={14} />}
+              {label}
             </button>
           ))}
         </div>
@@ -94,57 +88,60 @@ export default function PipelineDashboard() {
       {/* Pipeline counts */}
       <div className="grid grid-cols-5 gap-4">
         {[
-          { key: 'inbox', label: 'Inbox' },
-          { key: 'saved', label: 'Uložené' },
-          { key: 'in_progress', label: 'Rozpracované' },
-          { key: 'drafted', label: 'Drafty' },
-          { key: 'published', label: 'Publikované' },
-        ].map(({ key, label }) => (
-          <div key={key} className="rounded-lg p-4 border" style={cardStyle}>
-            <p className="text-sm font-medium" style={{ color: '#888' }}>{label}</p>
-            <p className="text-3xl font-bold mt-1">{getCount(key)}</p>
+          { key: 'inbox', label: 'Inbox', color: 'text-foreground' },
+          { key: 'saved', label: 'Uložené', color: 'text-blue-600' },
+          { key: 'in_progress', label: 'Rozpracované', color: 'text-amber-600' },
+          { key: 'drafted', label: 'Drafty', color: 'text-purple-600' },
+          { key: 'published', label: 'Publikované', color: 'text-emerald-600' },
+        ].map(({ key, label, color }) => (
+          <div key={key} className="bg-white rounded-2xl p-5 border-2 border-black/10">
+            <p className="text-sm font-semibold text-foreground/60">{label}</p>
+            <p className={`text-3xl font-bold mt-1 ${color}`}>{getCount(key)}</p>
           </div>
         ))}
       </div>
 
-      {/* Top articles today */}
+      {/* Top articles */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Top články (relevance 7+)</h2>
-        <div className="space-y-3">
-          {topArticles.length === 0 && (
-            <p className="text-sm" style={{ color: '#555' }}>Zatím žádné zpracované články.</p>
-          )}
-          {topArticles.map((article) => {
-            const cat = CATEGORY_CONFIG[article.primary_category]
-            const badge = relevanceBadgeStyle(article.relevance_score)
-            return (
-              <div key={article.brief_id} className="rounded-lg p-4 border" style={cardStyle}>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${cat?.color}20`, color: cat?.color }}>
-                        {cat?.emoji} {cat?.label}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full font-mono font-bold" style={badge}>
-                        {article.relevance_score}/10
-                      </span>
+        <h2 className="text-xl font-bold text-foreground mb-4">Top články (relevance 7+)</h2>
+        {topArticles.length === 0 ? (
+          <p className="text-foreground/40 text-sm">Zatím žádné zpracované články.</p>
+        ) : (
+          <div className="space-y-3">
+            {topArticles.map((article) => {
+              const cat = CATEGORY_CONFIG[article.primary_category]
+              return (
+                <div key={article.brief_id} className="bg-white rounded-2xl p-5 border-2 border-black/10 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span
+                          className="text-xs px-2.5 py-1 rounded-full font-semibold"
+                          style={{ background: `${cat?.color}15`, color: cat?.color }}
+                        >
+                          {cat?.emoji} {cat?.label}
+                        </span>
+                        <span className={`text-xs px-2.5 py-1 rounded-full font-bold font-mono ${relevanceBadgeClass(article.relevance_score)}`}>
+                          {article.relevance_score}/10
+                        </span>
+                      </div>
+                      <a href={article.url} target="_blank" rel="noopener noreferrer" className="font-bold text-foreground hover:text-accent transition-colors">
+                        {article.title}
+                      </a>
+                      <p className="text-sm text-foreground/60 mt-1.5 leading-relaxed">{article.summary_cs}</p>
+                      {article.content_angle && (
+                        <p className="text-xs text-foreground/40 mt-2 leading-relaxed">
+                          💡 {article.content_angle}
+                        </p>
+                      )}
                     </div>
-                    <a href={article.url} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline text-sm">
-                      {article.title}
-                    </a>
-                    <p className="text-sm mt-1" style={{ color: '#888' }}>{article.summary_cs}</p>
-                    {article.content_angle && (
-                      <p className="text-xs mt-2" style={{ color: '#666' }}>
-                        💡 {article.content_angle}
-                      </p>
-                    )}
+                    <span className="text-xs text-foreground/40 whitespace-nowrap font-medium">{article.source_name}</span>
                   </div>
-                  <span className="text-xs whitespace-nowrap" style={{ color: '#555' }}>{article.source_name}</span>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

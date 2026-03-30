@@ -16,42 +16,48 @@ export default function PipelineLayout({ children }: { children: React.ReactNode
   const pathname = usePathname()
 
   return (
-    <div className="min-h-screen" style={{ background: '#0a0a0a', color: '#e5e5e5' }}>
-      {/* Top nav */}
-      <header className="sticky top-0 z-50 border-b" style={{ background: '#0a0a0a', borderColor: '#2a2a2a' }}>
-        <div className="max-w-[1400px] mx-auto px-6 h-14 flex items-center gap-6">
-          <Link href="/admin" className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity" style={{ color: '#888' }}>
-            <ArrowLeft size={16} />
+    <div className="min-h-screen">
+      {/* Sub-navigation */}
+      <div className="border-b-2 border-black/10 bg-white/60 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-6 flex items-center gap-6 h-12">
+          <Link
+            href="/admin"
+            className="flex items-center gap-1.5 text-sm text-foreground/50 hover:text-foreground transition-colors"
+          >
+            <ArrowLeft size={15} />
             Admin
           </Link>
-          <div className="h-5 w-px" style={{ background: '#2a2a2a' }} />
-          <span className="font-semibold text-sm">Knowledge Pipeline</span>
-          <nav className="flex items-center gap-1 ml-6">
+
+          <div className="h-5 w-px bg-black/10" />
+
+          <span className="text-sm font-bold text-foreground">Knowledge Pipeline</span>
+
+          <nav className="flex items-center gap-1 ml-4">
             {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
               const isActive = pathname === href
               return (
                 <Link
                   key={href}
                   href={href}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-                  style={{
-                    background: isActive ? '#1a1a1a' : 'transparent',
-                    color: isActive ? '#e5e5e5' : '#888',
-                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
+                    isActive
+                      ? 'bg-accent text-white'
+                      : 'text-foreground/60 hover:bg-black/5 hover:text-foreground'
+                  }`}
                 >
-                  <Icon size={15} />
+                  <Icon size={14} />
                   {label}
                 </Link>
               )
             })}
           </nav>
         </div>
-      </header>
+      </div>
 
       {/* Content */}
-      <main className="max-w-[1400px] mx-auto px-6 py-6">
+      <div className="max-w-6xl mx-auto px-6 py-6">
         {children}
-      </main>
+      </div>
     </div>
   )
 }
