@@ -33,19 +33,26 @@ Pravidla pro relevance_score:
 - 3-4: Okrajově relevantní. Spíše pro informaci.
 - 1-2: Minimální relevance pro žiju life.`
 
-export async function processUnprocessedArticles(): Promise<number> {
+/**
+ * Process a small batch of unprocessed articles.
+ * Designed for Vercel hobby plan (10s limit) — processes max 3 articles per call.
+ * Call this endpoint multiple times to process all articles.
+ */
+export async function processUnprocessedArticles(batchSize = 3): Promise<{ processed: number; remaining: number }> {
   const unprocessed = await sql`
     SELECT a.* FROM pipeline_articles a
     LEFT JOIN pipeline_briefs b ON a.id = b.article_id
     WHERE b.id IS NULL
       AND a.fetched_at > NOW() - INTERVAL '48 hours'
     ORDER BY a.published_at DESC
-    LIMIT 30
+    LIMIT ${batchSize + 50}
   `
 
+  const remaining = Math.max(0, unprocessed.length - batchSize)
+  const batch = unprocessed.slice(0, batchSize)
   let processedCount = 0
 
-  for (const article of unprocessed) {
+  for (const article of batch) {
     try {
       const message = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
@@ -84,13 +91,10 @@ Datum: ${article.published_at}`,
       `
 
       processedCount++
-
-      // Rate limiting
-      await new Promise((resolve) => setTimeout(resolve, 1000))
     } catch (error) {
       console.error(`Failed to process article ${article.id}:`, error)
     }
   }
 
-  return processedCount
+  return { processed: processedCount, remaining }
 }

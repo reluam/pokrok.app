@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { processUnprocessedArticles } from '@/lib/pipeline/processor'
 
-export const maxDuration = 300
-
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -10,11 +8,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const processedCount = await processUnprocessedArticles()
+    const { processed, remaining } = await processUnprocessedArticles(3)
 
     return NextResponse.json({
       success: true,
-      processed: processedCount,
+      processed,
+      remaining,
+      hint: remaining > 0 ? 'Call this endpoint again to process more articles.' : 'All articles processed.',
     })
   } catch (error) {
     return NextResponse.json(
