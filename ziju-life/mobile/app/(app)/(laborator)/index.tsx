@@ -21,7 +21,9 @@ import {
   toggleRitualCompletion,
   aiCoach,
 } from "@/api/laborator";
-import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react-native";
+import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle, Search } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { getCheckins } from "@/api/laborator";
 import { colors } from "@/constants/theme";
 
 const { height: SCREEN_H } = Dimensions.get("window");
@@ -193,7 +195,9 @@ function AICoachBar({
 // ── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function LaboratorDashboard() {
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("todo");
+  const [reflectionDone, setReflectionDone] = useState(true); // default true to hide until loaded
 
   // To-Do (daily)
   const [todos, setTodos] = useState<TodoItem[]>([]);
@@ -226,7 +230,13 @@ export default function LaboratorDashboard() {
   const load = useCallback(async () => {
     try {
       setLoadError(false);
-      const data = await getDashboardData();
+      const [data, checkinData] = await Promise.all([
+        getDashboardData(),
+        getCheckins().catch(() => null),
+      ]);
+      if (checkinData) {
+        setReflectionDone(checkinData.reflectionDone ?? false);
+      }
 
       // Todos (today + yesterday)
       setTodos(data.todos.today?.todos ?? []);
@@ -389,7 +399,7 @@ export default function LaboratorDashboard() {
         <CheckItem
           key={`t${i}`}
           item={item}
-          accentColor="#22c55e"
+          accentColor={colors.accent}
           onToggle={() => saveTodos(todos.map((t, j) => j === i ? { ...t, done: !t.done } : t), niceTodos)}
           onRemove={() => saveTodos(todos.filter((_, j) => j !== i), niceTodos)}
         />
@@ -612,6 +622,22 @@ export default function LaboratorDashboard() {
           )}
         </ScrollView>
 
+        {/* Reflection bar — shown when not filled this week */}
+        {!reflectionDone && (
+          <TouchableOpacity
+            style={s.reflectionBar}
+            onPress={() => router.push("/(app)/(laborator)/checkin")}
+            activeOpacity={0.8}
+          >
+            <Search size={20} color={colors.accent} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.reflectionTitle}>Týdenní reflexe</Text>
+              <Text style={s.reflectionSubtitle}>Ohodnoť hodnoty a oblasti — 2 min</Text>
+            </View>
+            <Text style={s.reflectionCta}>Vyplnit →</Text>
+          </TouchableOpacity>
+        )}
+
         {/* AI Coach */}
         <AICoachBar
           expanded={aiExpanded}
@@ -677,6 +703,16 @@ const s = StyleSheet.create({
   progressBg: { flex: 1, height: 6, backgroundColor: colors.boxBg, borderRadius: 999, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: colors.accent, borderRadius: 999 },
   progressText: { fontSize: 13, fontWeight: "600", color: colors.muted },
+
+  // Reflection bar
+  reflectionBar: {
+    flexDirection: "row", alignItems: "center", gap: 10,
+    backgroundColor: "rgba(255,140,66,0.06)", borderTopWidth: 1, borderTopColor: "rgba(255,140,66,0.15)",
+    paddingHorizontal: 20, paddingVertical: 14,
+  },
+  reflectionTitle: { fontSize: 14, fontWeight: "700", color: colors.foreground },
+  reflectionSubtitle: { fontSize: 12, color: colors.muted, marginTop: 1 },
+  reflectionCta: { fontSize: 13, fontWeight: "600", color: colors.accent },
 
   // AI collapsed
   aiBarCollapsed: {

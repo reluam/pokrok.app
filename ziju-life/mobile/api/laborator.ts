@@ -48,6 +48,7 @@ export async function getCheckins(): Promise<{
   }>;
   thisWeekDone: boolean;
   thisWeek: string;
+  reflectionDone: boolean;
 }> {
   return apiFetch("/api/laborator/checkin");
 }

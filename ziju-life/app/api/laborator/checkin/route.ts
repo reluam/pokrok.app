@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkLaboratorAccess } from "@/lib/laborator-auth";
-import { getLaboratorUser, getWeekStart } from "@/lib/laborator-user";
+import { getLaboratorUser, getWeekStart, getLastSunday } from "@/lib/laborator-user";
 import { sql } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
@@ -26,10 +26,21 @@ export async function GET(request: NextRequest) {
   const thisWeek = getWeekStart();
   const thisWeekDone = rows.some((r) => r.week_start_date.startsWith(thisWeek));
 
+  // Reflection is due if no checkin was created since last Sunday midnight (UTC)
+  const lastSunday = getLastSunday();
+  const reflectionRows = await sql`
+    SELECT 1 FROM weekly_checkins
+    WHERE user_id = ${user.id}
+      AND created_at >= ${lastSunday + "T00:00:00Z"}::timestamptz
+    LIMIT 1
+  ` as unknown[];
+  const reflectionDone = reflectionRows.length > 0;
+
   return NextResponse.json({
     checkins: rows.reverse(), // oldest first for charts
     thisWeekDone,
     thisWeek,
+    reflectionDone,
   });
 }
 
@@ -64,7 +75,8 @@ export async function POST(req: NextRequest) {
     ON CONFLICT (user_id, week_start_date) DO UPDATE
       SET score = EXCLUDED.score,
           value_scores = EXCLUDED.value_scores,
-          area_scores = EXCLUDED.area_scores
+          area_scores = EXCLUDED.area_scores,
+          created_at = NOW()
   `;
 
   return NextResponse.json({ ok: true, week: weekStart, avgScore });

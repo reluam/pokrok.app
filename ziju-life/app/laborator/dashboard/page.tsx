@@ -652,27 +652,148 @@ function DashboardSection({ title, isFirst, hasData, onEdit, children }: {
   );
 }
 
+// ── ReflexeTab ──────────────────────────────────────────────────────────────────
+
+function ReflexeTab({
+  checkins,
+  reflectionDone,
+  kompasData,
+  hodnotyData,
+  onCheckinSave,
+  onKompasSaved,
+  onHodnotySaved,
+}: {
+  checkins: CheckinEntry[];
+  reflectionDone: boolean;
+  kompasData: KompasData | null;
+  hodnotyData: HodnotyData | null;
+  onCheckinSave: (data: { valueScores: Record<string, number>; areaScores: Record<string, number> }) => Promise<void>;
+  onKompasSaved: () => void;
+  onHodnotySaved: () => void;
+}) {
+  const lastCheckin = checkins[checkins.length - 1];
+  const hasKompas = !!kompasData;
+  const hasHodnoty = (hodnotyData?.finalValues?.length ?? 0) > 0;
+
+  const [expandKompas, setExpandKompas] = useState(false);
+  const [expandHodnoty, setExpandHodnoty] = useState(false);
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Reflexe</h2>
+        <p className="text-sm text-foreground/55 mt-1">
+          Každou neděli se ti tu objeví dvě rychlá cvičení — ohodnoť své hodnoty a životní oblasti.
+          Po vyplnění zmizí do další neděle.
+        </p>
+      </div>
+
+      {/* Setup prompts — Kompas & Hodnoty if not filled */}
+      {(!hasKompas || !hasHodnoty) && (
+        <div className="space-y-3">
+          {!hasKompas && (
+            <div className="paper-card rounded-[20px] overflow-hidden">
+              <button
+                onClick={() => setExpandKompas(!expandKompas)}
+                className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-black/[0.02] transition-colors"
+              >
+                <span className="text-2xl">🧭</span>
+                <div className="flex-1">
+                  <p className="font-bold text-foreground text-sm">Vyplň si kompas</p>
+                  <p className="text-xs text-foreground/50">Ohodnoť 8 životních oblastí — aktuální stav a cíl. Pavouk se ti pak zobrazí v týdenní reflexi.</p>
+                </div>
+                <span className="text-foreground/30 text-sm">{expandKompas ? "▲" : "▼"}</span>
+              </button>
+              {expandKompas && (
+                <div className="px-5 pb-5 border-t border-black/5">
+                  <KompasFlow onSaved={onKompasSaved} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {!hasHodnoty && (
+            <div className="paper-card rounded-[20px] overflow-hidden">
+              <button
+                onClick={() => setExpandHodnoty(!expandHodnoty)}
+                className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-black/[0.02] transition-colors"
+              >
+                <span className="text-2xl">💎</span>
+                <div className="flex-1">
+                  <p className="font-bold text-foreground text-sm">Vyplň si hodnoty</p>
+                  <p className="text-xs text-foreground/50">Vyber své klíčové hodnoty a ohodnoť soulad. Pak je budeš moct sledovat v týdenní reflexi.</p>
+                </div>
+                <span className="text-foreground/30 text-sm">{expandHodnoty ? "▲" : "▼"}</span>
+              </button>
+              {expandHodnoty && (
+                <div className="px-5 pb-5 border-t border-black/5">
+                  <HodnotyFlow onSaved={onHodnotySaved} />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Weekly reflection check-in */}
+      {!reflectionDone ? (
+        <div className="paper-card rounded-[20px] px-5 py-5">
+          <WeeklyCheckinWidget
+            checkins={checkins}
+            thisWeekDone={false}
+            hodnotyData={hodnotyData}
+            onSave={onCheckinSave}
+          />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="paper-card rounded-[20px] px-5 py-5 text-center space-y-3">
+            <p className="text-3xl">✅</p>
+            <p className="font-bold text-foreground">Tento týden vyplněno</p>
+            <p className="text-sm text-foreground/50">Další reflexe se zobrazí v neděli.</p>
+          </div>
+
+          {/* Show results */}
+          {lastCheckin && (
+            <div className="paper-card rounded-[20px] px-5 py-5">
+              <WeeklyCheckinWidget
+                checkins={checkins}
+                thisWeekDone={true}
+                hodnotyData={hodnotyData}
+                onSave={onCheckinSave}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Historical sparklines always visible */}
+      {checkins.length >= 2 && (
+        <div className="paper-card rounded-[20px] px-5 py-5 space-y-4">
+          <p className="text-sm font-bold text-foreground">Trend</p>
+          <Sparkline checkins={checkins} />
+          <AreaSparklines checkins={checkins} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── PrehledTab ─────────────────────────────────────────────────────────────────
 
 function PrehledTab({
   ritualSelection,
   kompasData,
   hodnotyData,
-  checkins,
-  checkinLoaded,
-  thisWeekDone,
+  reflectionDone,
   onTabChange,
-  onCheckinSave,
   onDataChanged,
 }: {
   ritualSelection: RitualSelection | null;
   kompasData: KompasData | null;
   hodnotyData: HodnotyData | null;
-  checkins: CheckinEntry[];
-  checkinLoaded: boolean;
-  thisWeekDone: boolean;
+  reflectionDone: boolean;
   onTabChange: (tab: string) => void;
-  onCheckinSave: (data: { valueScores: Record<string, number>; areaScores: Record<string, number> }) => Promise<void>;
   onDataChanged?: () => void;
 }) {
   const hasRituals = (ritualSelection?.morning.length ?? 0) + (ritualSelection?.daily.length ?? 0) + (ritualSelection?.evening.length ?? 0) > 0;
@@ -732,11 +853,19 @@ function PrehledTab({
         />
       )}
 
-      {/* Týdenní check-in — only when not done this week */}
-      {checkinLoaded && !thisWeekDone && (
-        <div className="paper-card rounded-[20px] px-5 py-5">
-          <WeeklyCheckinWidget checkins={checkins} thisWeekDone={thisWeekDone} hodnotyData={hodnotyData} onSave={onCheckinSave} />
-        </div>
+      {/* Reflexe nudge — when not yet filled this week */}
+      {!reflectionDone && (
+        <button
+          onClick={() => onTabChange("reflexe")}
+          className="w-full paper-card rounded-[20px] px-5 py-4 flex items-center gap-3 hover:border-accent/30 transition-colors text-left"
+        >
+          <span className="text-2xl">🔍</span>
+          <div className="flex-1">
+            <p className="font-bold text-foreground text-sm">Týdenní reflexe</p>
+            <p className="text-xs text-foreground/50">Ohodnoť hodnoty a životní oblasti — zabere to 2 minuty.</p>
+          </div>
+          <span className="text-accent font-semibold text-sm shrink-0">Vyplnit →</span>
+        </button>
       )}
     </div>
   );
@@ -868,6 +997,7 @@ function DashboardContent() {
   // Check-in state
   const [checkins, setCheckins] = useState<CheckinEntry[]>([]);
   const [thisWeekDone, setThisWeekDone] = useState(false);
+  const [reflectionDone, setReflectionDone] = useState(false);
   const [checkinLoaded, setCheckinLoaded] = useState(false);
 
   // Completion screen state: null | "hodnoty" | "kompas" | "nastav-si-den"
@@ -934,6 +1064,7 @@ function DashboardContent() {
       .then((d) => {
         setCheckins(d.checkins ?? []);
         setThisWeekDone(d.thisWeekDone ?? false);
+        setReflectionDone(d.reflectionDone ?? false);
       })
       .catch(() => {})
       .finally(() => setCheckinLoaded(true));
@@ -999,6 +1130,7 @@ function DashboardContent() {
           return [...filtered, { score: data.avgScore ?? null, week_start_date: week, value_scores: valueScores, area_scores: areaScores }];
         });
         setThisWeekDone(true);
+        setReflectionDone(true);
       }
     } catch {}
   }, []);
@@ -1010,6 +1142,7 @@ function DashboardContent() {
 
   const tabs = [
     { id: "prehled",       label: "Přehled",       emoji: "📊" },
+    { id: "reflexe",       label: "Reflexe",       emoji: "🔍", done: reflectionDone },
     { id: "moje-hodnoty",  label: "Hodnoty",   emoji: "💎",  done: hasHodnoty },
     { id: "tvuj-kompas",   label: "Kompas",    emoji: "🧭",  done: hasKompas },
     { id: "nastav-si-den", label: "Rituály",   emoji: "⏱️", done: hasRituals },
@@ -1112,17 +1245,28 @@ function DashboardContent() {
           ritualSelection={ritualSelection}
           kompasData={kompasData}
           hodnotyData={hodnotyData}
-          checkins={checkins}
-          checkinLoaded={checkinLoaded}
-          thisWeekDone={thisWeekDone}
+          reflectionDone={reflectionDone}
           onTabChange={goToTab}
-          onCheckinSave={handleCheckinSave}
           onDataChanged={() => {
             // Reload localStorage data after AI action
             try { const k = localStorage.getItem("kompas-data"); if (k) setKompasData(JSON.parse(k)); } catch {}
             try { const h = localStorage.getItem("hodnoty-data"); if (h) setHodnotyData(JSON.parse(h)); } catch {}
             try { const s = localStorage.getItem(LS_KEY); if (s) setRitualSelection(JSON.parse(s)); } catch {}
           }}
+        />
+      );
+    }
+
+    if (activeTab === "reflexe") {
+      return (
+        <ReflexeTab
+          checkins={checkins}
+          reflectionDone={reflectionDone}
+          kompasData={kompasData}
+          hodnotyData={hodnotyData}
+          onCheckinSave={handleCheckinSave}
+          onKompasSaved={handleKompasSaved}
+          onHodnotySaved={handleHodnotySaved}
         />
       );
     }

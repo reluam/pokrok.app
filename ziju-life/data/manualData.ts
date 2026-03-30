@@ -175,7 +175,7 @@ export const steps: Step[] = [
       "Komunita", "Kreativita", "Láska", "Loajalita", "Materiální zabezpečení",
       "Mír", "Moudrost", "Nadhled", "Nezávislost", "Odvaha",
       "Otevřenost", "Peníze", "Příroda", "Poctivost", "Pochopení",
-      "Pokora", "Postavení", "Poznání", "Pravdivost", "Přátelství",
+      "Pokora", "Postavení", "Pravdivost", "Přátelství",
       "Radost", "Rodina", "Síla", "Sláva", "Spiritualita",
       "Spolehlivost", "Spravedlnost", "Svědomí", "Svoboda", "Štěstí",
       "Tolerance", "Upřímnost", "Úspěch", "Víra", "Volný čas",

@@ -52,3 +52,11 @@ export function getWeekStart(date: Date = new Date()): string {
   d.setUTCDate(d.getUTCDate() + diff);
   return d.toISOString().split("T")[0];
 }
+
+/** Returns the most recent Sunday (today if Sunday) as YYYY-MM-DD, UTC-based. */
+export function getLastSunday(date: Date = new Date()): string {
+  const d = new Date(date);
+  const day = d.getUTCDay(); // 0=Sun
+  d.setUTCDate(d.getUTCDate() - day);
+  return d.toISOString().split("T")[0];
+}
