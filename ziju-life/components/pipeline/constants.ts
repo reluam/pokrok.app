@@ -13,7 +13,6 @@ export const PIPELINE_STATUSES = [
   { value: 'in_progress', label: 'Rozpracované' },
   { value: 'drafted', label: 'Draft' },
   { value: 'published', label: 'Publikované' },
-  { value: 'archived', label: 'Archivované' },
 ] as const
 
 export function relevanceBadgeClass(score: number): string {

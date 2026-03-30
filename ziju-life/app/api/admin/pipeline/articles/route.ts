@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
       WHERE b.relevance_score >= ${minRelevance}
         AND (${category}::text IS NULL OR b.primary_category = ${category})
         AND (${status}::text IS NULL OR b.pipeline_status = ${status})
+        AND (${status}::text IS NOT NULL OR b.pipeline_status != 'archived')
         AND (${search}::text IS NULL OR (
           b.summary_cs ILIKE ${'%' + (search || '') + '%'}
           OR a.title ILIKE ${'%' + (search || '') + '%'}
@@ -71,6 +72,7 @@ export async function GET(request: NextRequest) {
       WHERE b.relevance_score >= ${minRelevance}
         AND (${category}::text IS NULL OR b.primary_category = ${category})
         AND (${status}::text IS NULL OR b.pipeline_status = ${status})
+        AND (${status}::text IS NOT NULL OR b.pipeline_status != 'archived')
         AND (${search}::text IS NULL OR (
           b.summary_cs ILIKE ${'%' + (search || '') + '%'}
           OR a.title ILIKE ${'%' + (search || '') + '%'}
