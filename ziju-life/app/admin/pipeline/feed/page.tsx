@@ -26,7 +26,7 @@ export default function FeedPage() {
   const [articles, setArticles] = useState<Article[]>([])
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 })
   const [loading, setLoading] = useState(true)
-  const [filters, setFilters] = useState({ category: '', minRelevance: '1', status: '', search: '' })
+  const [filters, setFilters] = useState({ category: '', minRelevance: '1', status: 'inbox', search: '' })
   const [page, setPage] = useState(1)
 
   const loadArticles = useCallback(async () => {
@@ -53,7 +53,8 @@ export default function FeedPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ briefId, status }),
     })
-    setArticles((prev) => prev.map((a) => (a.brief_id === briefId ? { ...a, pipeline_status: status } : a)))
+    setArticles((prev) => prev.filter((a) => a.brief_id !== briefId))
+    setPagination((prev) => ({ ...prev, total: prev.total - 1 }))
   }
 
   const inputClass = 'px-3 py-2 rounded-xl text-sm border-2 border-black/10 bg-white focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-colors'

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { CATEGORY_CONFIG, relevanceBadgeClass } from '@/components/pipeline/constants'
-import { Play, RefreshCw, Loader2 } from 'lucide-react'
+import { Play, RefreshCw, Loader2, Bookmark, PenLine, Archive } from 'lucide-react'
 
 interface PipelineCount { pipeline_status: string; count: number }
 interface Article {
@@ -29,7 +29,7 @@ export default function PipelineDashboard() {
     try {
       const [statsRes, articlesRes] = await Promise.all([
         fetch('/api/admin/pipeline/stats'),
-        fetch('/api/admin/pipeline/articles?limit=5&minRelevance=7'),
+        fetch('/api/admin/pipeline/articles?limit=5&minRelevance=7&status=inbox'),
       ])
       const stats = await statsRes.json()
       const articles = await articlesRes.json()
@@ -50,6 +50,15 @@ export default function PipelineDashboard() {
       await loadData()
     } catch (e) { console.error(e) }
     setTriggering(null)
+  }
+
+  async function updateStatus(briefId: number, status: string) {
+    setTopArticles((prev) => prev.filter((a) => a.brief_id !== briefId))
+    await fetch('/api/admin/pipeline/articles/status', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ briefId, status }),
+    })
   }
 
   const getCount = (status: string) => pipelineCounts.find((p) => p.pipeline_status === status)?.count || 0
@@ -135,7 +144,18 @@ export default function PipelineDashboard() {
                         </p>
                       )}
                     </div>
-                    <span className="text-xs text-foreground/40 whitespace-nowrap font-medium">{article.source_name}</span>
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      <span className="text-xs text-foreground/40 font-medium mb-1">{article.source_name}</span>
+                      <button onClick={() => updateStatus(article.brief_id, 'saved')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-blue-600 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                        <Bookmark size={12} /> Uložit
+                      </button>
+                      <button onClick={() => updateStatus(article.brief_id, 'in_progress')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 transition-colors">
+                        <PenLine size={12} /> Tvořit
+                      </button>
+                      <button onClick={() => updateStatus(article.brief_id, 'archived')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border-2 border-black/10 text-foreground/40 hover:border-black/20 hover:bg-black/5 transition-colors">
+                        <Archive size={12} /> Archiv
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
