@@ -10,15 +10,15 @@ const CODE_LENGTH = 6;
 const faqs = [
   {
     q: "Co je Laboratoř?",
-    a: "Sada interaktivních nástrojů a cvičení, které ti pomůžou poskládat si vlastní návod na život. Žádné přednášky, žádné čtení — procházíš cvičeními sám, ve svém tempu.",
+    a: "Interaktivní cvičení (Kompas, Hodnoty, Rituály), doprovodná aplikace pro každodenní život (dashboard, to-do, check-iny) a AI průvodce, který tě zná a pomáhá ti vidět věci z nových perspektiv.",
   },
   {
     q: "Pro koho to je?",
-    a: "Pro tebe, pokud: vyzkoušel/a jsi pár cest, ale žádná nebyla tvoje. Víš, kam chceš dojít, ale ta mezera mezi vizí a realitou tě ochromuje. Nebo máš pocit, že ostatní to zvládají přirozeně — jen ty ne.",
+    a: "Pro tebe, pokud chceš žít vědoměji. Ať už hledáš směr, chceš si pojmenovat hodnoty, nebo potřebuješ parťáka na přemýšlení — Laboratoř je místo, kde experimentuješ sám se sebou.",
   },
   {
     q: "Co dostanu?",
-    a: "Přístup ke všem nástrojům v Laboratoři — teď i do budoucna. Každý nástroj tě provede konkrétním tématem (směr, hodnoty, návyky) a na konci máš jasný výstup, se kterým můžeš pracovat dál.",
+    a: "Přístup ke všem cvičením, aplikaci a AI průvodci — teď i do budoucna. Nové funkce automaticky v ceně. Za 490 Kč ročně, což je méně než 1 káva měsíčně.",
   },
   {
     q: "Můžu předplatné zrušit?",
@@ -305,10 +305,9 @@ function LaboratorContent() {
           Laboratoř
         </h1>
         <p className="text-lg text-foreground/65 leading-relaxed mb-10 max-w-xl mx-auto">
-          Místo, kde si vytvoříš vlastní návod na život. Cizí knížky a
-          frameworky ti nefungují, protože nikdo jiný neví, co je důležité pro
-          tebe. Tady experimentuješ sám se sebou — a skládáš si systém, který
-          sedí tobě. Dílek po dílku.
+          Interaktivní cvičení, doprovodná aplikace pro každodenní život a AI průvodce
+          pro více vědomý život. Experimentuj sám se sebou — a skládej si systém, který
+          sedí tobě.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <AccessButton loading={buying} onClick={handleBuy} />
@@ -327,9 +326,37 @@ function LaboratorContent() {
         </p>
       </section>
 
-      {/* Nástroje — interaktivní ukázky */}
-      <section className="max-w-5xl mx-auto px-5 pb-20">
+      {/* Tři pilíře */}
+      <section className="max-w-5xl mx-auto px-5 pb-12">
         <h2 className="text-xl font-bold mb-6">Co v Laboratoři najdeš</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-2">
+            <span className="text-3xl">🧭</span>
+            <h3 className="font-bold text-foreground">Interaktivní cvičení</h3>
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Kompas životních oblastí, pojmenování hodnot, nastavení denních rituálů. Projdeš ve svém tempu — na konci máš jasný výstup.
+            </p>
+          </div>
+          <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-2">
+            <span className="text-3xl">📱</span>
+            <h3 className="font-bold text-foreground">Aplikace pro každý den</h3>
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Dashboard s denním to-do, prioritami, check-iny a reflexemi. Tvůj osobní přehled, který ti pomůže žít vědoměji — každý den.
+            </p>
+          </div>
+          <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-2">
+            <span className="text-3xl">🤖</span>
+            <h3 className="font-bold text-foreground">AI průvodce</h3>
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Osobní thinking parťák, který tě zná. Dokáže ukázat nové perspektivy, položit správnou otázku a pomoct ti najít vlastní odpovědi.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Interaktivní ukázky */}
+      <section className="max-w-5xl mx-auto px-5 pb-20">
+        <h2 className="text-xl font-bold mb-6">Vyzkoušej si to</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <KompasPreview />
           <HodnotyPreview />
@@ -356,10 +383,11 @@ function LaboratorContent() {
           )}
           <ul className="mt-8 space-y-2 text-sm text-foreground/60 text-left">
             {[
-              "Přístup ke všem nástrojům v Laboratoři",
-              "Nové nástroje automaticky v ceně",
+              "Interaktivní cvičení (Kompas, Hodnoty, Rituály)",
+              "Aplikace pro každodenní život (dashboard, to-do, check-iny)",
+              "AI průvodce — osobní thinking parťák",
+              "Nové funkce automaticky v ceně",
               "Zrušit lze kdykoliv přes Stripe",
-              "Platba přes Stripe — karta nebo Apple Pay",
             ].map((item) => (
               <li key={item} className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-accent rounded-full shrink-0" />

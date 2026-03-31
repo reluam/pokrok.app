@@ -27,15 +27,17 @@ export default function KoucingPage() {
                   </h1>
                   <p className="text-xl md:text-2xl text-foreground/70 leading-relaxed max-w-3xl mx-auto">
                     Na Žiju.life najdeš{" "}
-                    <Link href="/knihovna" className="text-accent hover:opacity-80 transition-opacity">feed</Link>{" "}
-                    plný inspirace i praktické nástroje pro vytvoření svého vlastního manuálu pro život.
+                    <Link href="/knihovna" className="text-accent hover:opacity-80 transition-opacity">Knihovnu</Link>{" "}
+                    plnou novinek, tipů a inspirací a{" "}
+                    <Link href="/laborator" className="text-accent hover:opacity-80 transition-opacity">Laboratoř</Link>{" "}
+                    s interaktivními cvičeními a AI pomocníkem pro každodenní život.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
                       href="/knihovna"
                       className="px-8 py-4 bg-white border-2 border-accent text-accent rounded-full text-lg font-semibold hover:bg-accent/5 transition-colors shadow-md"
                     >
-                      Feed zdarma
+                      Knihovna zdarma
                     </Link>
                     <button
                       onClick={() => scrollTo("jak-to-funguje")}
@@ -51,24 +53,42 @@ export default function KoucingPage() {
         </div>
       </section>
 
-      {/* FEED */}
+      {/* KNIHOVNA + LABORATOŘ */}
       <RevealSection>
         <section id="zdroje" className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
           <DecorativeShapes position="left" />
-          <div className="max-w-4xl mx-auto relative z-10">
+          <div className="max-w-5xl mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Knihovna */}
             <Link
               href="/knihovna"
-              className="group flex flex-col md:flex-row items-center gap-6 bg-white/85 rounded-[28px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
+              className="group flex flex-col items-center gap-4 bg-white/85 rounded-[28px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur text-center"
             >
-              <span className="text-5xl flex-shrink-0">📡</span>
-              <div className="text-center md:text-left space-y-2">
+              <span className="text-5xl">📚</span>
+              <div className="space-y-2">
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground group-hover:text-accent transition-colors">
-                  Začni tady — je to zdarma
+                  Knihovna — zdarma
                 </h2>
-                <p className="text-base text-foreground/65 leading-relaxed max-w-xl">
-                  Ve feedu najdeš myšlenky, postřehy a tipy na téma smysluplného života. Bez poplatku, bez registrace.
+                <p className="text-base text-foreground/65 leading-relaxed">
+                  Knihy, videa, výzkumy a tipy o vědomém žití. Bez poplatku, bez registrace. Začni tady.
                 </p>
-                <span className="inline-block text-sm font-semibold text-accent mt-1">Prozkoumat feed →</span>
+                <span className="inline-block text-sm font-semibold text-accent mt-1">Prozkoumat knihovnu →</span>
+              </div>
+            </Link>
+
+            {/* Laboratoř */}
+            <Link
+              href="/laborator"
+              className="group flex flex-col items-center gap-4 bg-white/85 rounded-[28px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur text-center"
+            >
+              <span className="text-5xl">🧪</span>
+              <div className="space-y-2">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground group-hover:text-accent transition-colors">
+                  Laboratoř — 490 Kč/rok
+                </h2>
+                <p className="text-base text-foreground/65 leading-relaxed">
+                  Interaktivní cvičení, doprovodná aplikace pro každodenní život a AI průvodce, který ti ukáže nové perspektivy. Méně než 1 káva měsíčně.
+                </p>
+                <span className="inline-block text-sm font-semibold text-accent mt-1">Vstoupit do laboratoře →</span>
               </div>
             </Link>
           </div>
