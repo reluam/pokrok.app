@@ -95,24 +95,13 @@ export default function KoucingPage() {
         </section>
       </RevealSection>
 
-      {/* BRIDGE TO COACHING */}
-      <RevealSection>
-        <section className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
-              A co když jsi už hodně přečetl, hodně vyzkoušel — a pořád hledáš?
-            </h2>
-          </div>
-        </section>
-      </RevealSection>
-
-      {/* PRO KOHO JE KOUČINK */}
+      {/* BRIDGE + PRO KOHO JE KOUČINK */}
       <RevealSection>
         <section className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Poznáváš se v tom?
+            <div className="text-center">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
+                A co když jsi už hodně přečetl, hodně vyzkoušel — a pořád hledáš?
               </h2>
             </div>
 
