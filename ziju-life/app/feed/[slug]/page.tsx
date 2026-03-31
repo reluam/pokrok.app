@@ -3,7 +3,13 @@ import { getCuratedPost } from '@/lib/curated-posts-db'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Clock } from 'lucide-react'
+import {
+  ArrowLeft, Calendar, Clock, ExternalLink, Share2,
+  Book, Video, PenTool, Music, Play, HelpCircle,
+} from 'lucide-react'
+import ShareButtons from './ShareButtons'
+
+// ── Constants ────────────────────────────────────────────────────────────────
 
 const CATEGORY_COLORS: Record<string, string> = {
   psychology: '#a78bfa', neuroscience: '#f59e0b', health: '#10b981',
@@ -13,6 +19,45 @@ const CATEGORY_EMOJI: Record<string, string> = {
   psychology: '🧠', neuroscience: '⚡', health: '💪',
   productivity: '⏰', mindfulness: '🧘', relationships: '🤝',
 }
+const TYPE_LABEL: Record<string, string> = {
+  kniha: 'Kniha', video: 'Video', blog: 'Článek', reel: 'Reel',
+  hudba: 'Hudba', 'článek': 'Článek', ostatní: 'Ostatní',
+}
+const TYPE_ICON: Record<string, React.ElementType> = {
+  kniha: Book, video: Video, blog: PenTool, reel: Play,
+  hudba: Music, 'článek': PenTool, ostatní: HelpCircle,
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function getItemType(tags: string[]): string | null {
+  return tags?.find(t => Object.keys(TYPE_LABEL).includes(t)) || null
+}
+
+function extractUrl(markdown: string): string | null {
+  const match = markdown.match(/\[.*?\]\((https?:\/\/[^\s)]+)\)/)
+  return match ? match[1] : null
+}
+
+function getVideoEmbedUrl(url: string): string | null {
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`
+  const vm = url.match(/vimeo\.com\/(\d+)/)
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`
+  return null
+}
+
+function getReelEmbed(url: string): { embedUrl: string; vertical: boolean } | null {
+  const ig = url.match(/instagram\.com\/(?:reel|p)\/([A-Za-z0-9_-]+)/)
+  if (ig) return { embedUrl: `https://www.instagram.com/reel/${ig[1]}/embed/`, vertical: true }
+  const tt = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/)
+  if (tt) return { embedUrl: `https://www.tiktok.com/embed/v2/${tt[1]}`, vertical: true }
+  const ytShorts = url.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]+)/)
+  if (ytShorts) return { embedUrl: `https://www.youtube.com/embed/${ytShorts[1]}`, vertical: true }
+  return null
+}
+
+// ── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -26,9 +71,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: post.subtitle || post.body_markdown?.substring(0, 160),
       type: 'article',
       publishedTime: post.published_at,
+      ...(post.cover_image_url ? { images: [post.cover_image_url] } : {}),
     },
   }
 }
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function FeedPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -38,24 +86,43 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
     notFound()
   }
 
+  const isMigrated = post.tags?.includes('migrated-inspiration')
+  const itemType = isMigrated ? getItemType(post.tags) : null
+  const Icon = itemType ? TYPE_ICON[itemType] || HelpCircle : null
+  const externalUrl = extractUrl(post.body_markdown)
+  const videoEmbed = externalUrl ? getVideoEmbedUrl(externalUrl) : null
+  const reelEmbed = externalUrl ? getReelEmbed(externalUrl) : null
+
   const wordCount = post.body_markdown?.split(/\s+/).length || 0
   const readTime = Math.max(1, Math.round(wordCount / 200))
   const publishDate = new Date(post.published_at).toLocaleDateString('cs-CZ', {
     day: 'numeric', month: 'long', year: 'numeric',
   })
 
+  // Extract description lines (skip author line and link line)
+  const descriptionLines = post.body_markdown
+    .split('\n')
+    .filter((l: string) => l.trim() && !l.startsWith('**Autor') && !l.match(/^\[.*\]\(http/))
+    .join('\n')
+
   return (
-    <article className="max-w-2xl mx-auto px-6 py-12">
+    <article className="max-w-3xl mx-auto px-6 sm:px-10 py-12 sm:py-16">
       {/* Back link */}
       <Link href="/feed" className="inline-flex items-center gap-1.5 text-sm text-foreground/50 hover:text-accent transition-colors mb-8">
         <ArrowLeft size={15} />
-        Zpět na feed
+        Zpět do knihovny
       </Link>
 
       {/* Header */}
       <header className="mb-8">
-        <div className="flex items-center gap-2 mb-3">
-          {post.type === 'digest' && (
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
+          {itemType && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold">
+              {Icon && <Icon size={11} />}
+              {TYPE_LABEL[itemType]}
+            </span>
+          )}
+          {!isMigrated && post.type === 'digest' && (
             <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-accent/10 text-accent">
               Týdenní přehled
             </span>
@@ -74,9 +141,62 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
 
         <div className="flex items-center gap-4 mt-4 text-sm text-foreground/40">
           <span className="flex items-center gap-1"><Calendar size={14} /> {publishDate}</span>
-          <span className="flex items-center gap-1"><Clock size={14} /> {readTime} min čtení</span>
+          {!isMigrated && (
+            <span className="flex items-center gap-1"><Clock size={14} /> {readTime} min čtení</span>
+          )}
         </div>
       </header>
+
+      {/* Cover image (book cover) */}
+      {post.cover_image_url && itemType === 'kniha' && (
+        <div className="mb-8">
+          {externalUrl ? (
+            <a href={externalUrl} target="_blank" rel="noopener noreferrer"
+              className="block w-fit rounded-xl overflow-hidden border-2 border-black/10 hover:border-accent/50 transition-colors shadow-lg hover:shadow-xl">
+              <img src={post.cover_image_url} alt={post.title} className="w-36 sm:w-44 aspect-[2/3] object-cover" />
+            </a>
+          ) : (
+            <div className="w-fit rounded-xl overflow-hidden border-2 border-black/10 shadow-lg">
+              <img src={post.cover_image_url} alt={post.title} className="w-36 sm:w-44 aspect-[2/3] object-cover" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Cover image (non-book) */}
+      {post.cover_image_url && itemType !== 'kniha' && !videoEmbed && (
+        <div className="mb-8 rounded-2xl overflow-hidden border-2 border-black/10">
+          <img src={post.cover_image_url} alt={post.title} className="w-full aspect-video object-cover" />
+        </div>
+      )}
+
+      {/* Video embed */}
+      {(itemType === 'video' || itemType === 'hudba') && videoEmbed && (
+        <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black mb-8">
+          <iframe
+            src={videoEmbed}
+            className="absolute inset-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      )}
+
+      {/* Reel embed */}
+      {itemType === 'reel' && externalUrl && reelEmbed && (
+        <div className="mb-8 flex justify-center">
+          <iframe
+            src={reelEmbed.embedUrl}
+            width={reelEmbed.vertical ? 320 : 560}
+            height={reelEmbed.vertical ? 568 : 315}
+            style={{ border: 0, borderRadius: 16, maxWidth: '100%' }}
+            scrolling="no"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            title={post.title}
+          />
+        </div>
+      )}
 
       {/* Curator note */}
       {post.curator_note && (
@@ -86,13 +206,40 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
       )}
 
       {/* Body */}
-      <div className="prose prose-lg max-w-none text-foreground/80 [&_h2]:text-foreground [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-3 [&_h3]:text-foreground [&_h3]:font-bold [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline [&_blockquote]:border-accent/30 [&_blockquote]:text-foreground/60">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {post.body_markdown}
-        </ReactMarkdown>
-      </div>
+      {isMigrated ? (
+        <div className="prose prose-lg max-w-none text-foreground/80 prose-p:leading-[1.8] prose-p:mb-5 prose-li:leading-[1.8] [&_h2]:text-foreground [&_h2]:font-bold [&_h2]:text-2xl [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-foreground [&_h3]:font-bold [&_h3]:text-xl [&_h3]:mt-8 [&_h3]:mb-3 [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline [&_blockquote]:border-accent/30 [&_blockquote]:text-foreground/60 [&_blockquote]:my-6">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {descriptionLines}
+          </ReactMarkdown>
+        </div>
+      ) : (
+        <div className="prose prose-lg max-w-none text-foreground/80 prose-p:leading-[1.8] prose-p:mb-5 prose-li:leading-[1.8] [&_h2]:text-foreground [&_h2]:font-bold [&_h2]:text-2xl [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-foreground [&_h3]:font-bold [&_h3]:text-xl [&_h3]:mt-8 [&_h3]:mb-3 [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline [&_blockquote]:border-accent/30 [&_blockquote]:text-foreground/60 [&_blockquote]:my-6">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {post.body_markdown}
+          </ReactMarkdown>
+        </div>
+      )}
 
-      {/* Video script (collapsible) */}
+      {/* External link button */}
+      {externalUrl && isMigrated && (
+        <div className="mt-8">
+          <a
+            href={externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors text-sm"
+          >
+            <ExternalLink size={16} />
+            {itemType === 'kniha' ? 'Koupit / Zobrazit knihu' :
+             itemType === 'video' ? 'Otevřít video' :
+             itemType === 'hudba' ? 'Otevřít v přehrávači' :
+             itemType === 'reel' ? 'Otevřít reel' :
+             'Otevřít odkaz'}
+          </a>
+        </div>
+      )}
+
+      {/* Video script */}
       {post.video_script && (
         <details className="mt-10 bg-black/[0.02] rounded-2xl border-2 border-black/10">
           <summary className="cursor-pointer px-6 py-4 text-sm font-bold text-foreground/60 hover:text-foreground transition-colors">
@@ -105,9 +252,9 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
       )}
 
       {/* Tags */}
-      {post.tags?.length > 0 && (
+      {post.tags?.filter((t: string) => t !== 'migrated-inspiration').length > 0 && (
         <div className="flex flex-wrap gap-2 mt-8">
-          {post.tags.map((tag: string) => (
+          {post.tags.filter((t: string) => t !== 'migrated-inspiration').map((tag: string) => (
             <span key={tag} className="text-xs px-2.5 py-1 rounded-xl bg-black/5 text-foreground/50 font-medium">
               {tag}
             </span>
@@ -115,10 +262,15 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
         </div>
       )}
 
+      {/* Share */}
+      <div className="mt-12 pt-8 border-t border-black/10">
+        <ShareButtons title={post.title} slug={post.slug} />
+      </div>
+
       {/* CTA */}
-      <div className="mt-12 bg-accent/5 rounded-2xl p-8 text-center">
-        <p className="font-bold text-foreground text-lg">Chceš dostávat tipy pravidelně?</p>
-        <p className="text-foreground/60 mt-1 text-sm">Sleduj žiju.life pro další výzkumy a tipy o vědomém žití.</p>
+      <div className="mt-10 bg-accent/5 rounded-2xl p-8 text-center">
+        <p className="font-bold text-foreground text-lg">Chceš objevovat další?</p>
+        <p className="text-foreground/60 mt-1 text-sm">Prozkoumej knihovnu plnou knih, videí a tipů o vědomém žití.</p>
         <Link href="/feed" className="inline-block mt-4 px-6 py-3 rounded-full bg-accent text-white font-bold text-sm hover:bg-accent-hover transition-colors">
           Prozkoumat knihovnu
         </Link>

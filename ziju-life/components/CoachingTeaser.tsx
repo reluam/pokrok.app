@@ -22,7 +22,7 @@ const benefits = [
   {
     emoji: "🤝",
     name: "Průvodce, ne rádce",
-    desc: "Nejsem tu, abych ti říkal, co máš dělat. Jsem tu, abych tě podržel, když to děláš.",
+    desc: "Nejsem tu, abych ti říkal, co máš dělat. Jsem tu, abych tě podpořil na tvé vlastní cestě životem.",
     tag: "Podpora",
     iconBg: "rgba(255,217,102,0.25)",
     tagBg: "rgba(255,217,102,0.25)",
@@ -73,11 +73,11 @@ export default function CoachingTeaser() {
           <div className="flex flex-col justify-between gap-8 px-8 py-10 md:px-12 md:py-14">
             <div className="flex flex-col gap-6">
               <h2 className="text-4xl md:text-5xl font-extrabold text-foreground leading-tight">
-                Osobní průvodce
+                Koučing
               </h2>
 
               <p className="text-base text-foreground/65 leading-relaxed">
-                Laboratoř a inspirace ti dají nástroje a podněty. Ale někdy potřebuješ někoho, kdo se tě zeptá na tu správnou otázku, pomůže ti vidět, co sám nevidíš, a podrží tě v akci. Ne další informace — ale průvodce, který jde pod povrch.
+                Laboratoř a inspirace ti dají nástroje a podněty. Ale někdy potřebuješ někoho, kdo se tě zeptá na tu správnou otázku, pomůže ti vidět, co sám nevidíš, a podrží tě v akci. Ne další informace — ale parťáka na přemýšlení.
               </p>
 
               <div>

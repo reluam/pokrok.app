@@ -4,18 +4,27 @@ import Link from "next/link";
 
 const tools = [
   {
+    emoji: "📊",
+    name: "Přehled & AI průvodce",
+    desc: "Tvůj osobní dashboard s AI průvodcem, který tě zná. Denní to-do, priority, check-iny a reflexe.",
+    tag: "Dashboard",
+    iconBg: "rgba(255,140,66,0.15)",
+    tagBg: "rgba(255,140,66,0.15)",
+    tagColor: "#c56a20",
+  },
+  {
     emoji: "🧭",
     name: "Kompas",
-    desc: "Zmapuj kde jsi, na čem ti záleží a kam chceš jít. Sedm kroků — na konci máš vlastní dokument.",
+    desc: "Zmapuj kde jsi a kam chceš jít. Sedm kroků — na konci máš jasno v životních oblastech.",
     tag: "7 kroků",
     iconBg: "rgba(78,205,196,0.15)",
     tagBg: "rgba(78,205,196,0.15)",
     tagColor: "#2a9d95",
   },
   {
-    emoji: "⭐",
+    emoji: "💎",
     name: "Hodnoty",
-    desc: "Pojmenuj, na čem ti opravdu záleží. Když to víš, rozhodování se zřídka stává jednodušším.",
+    desc: "Pojmenuj, na čem ti opravdu záleží. Když to víš, rozhodování se stává jednodušším.",
     tag: "Cvičení",
     iconBg: "rgba(176,167,245,0.2)",
     tagBg: "rgba(176,167,245,0.2)",
@@ -23,9 +32,9 @@ const tools = [
   },
   {
     emoji: "⏱️",
-    name: "Denní rituály",
-    desc: "Nastav si strukturu dne, která ti dává energii místo toho, aby ti ji brala.",
-    tag: "Průvodce",
+    name: "Nastav si den",
+    desc: "Vytvoř si ranní, denní a večerní rituály, které ti dávají energii místo toho, aby ti ji braly.",
+    tag: "Rituály",
     iconBg: "rgba(255,217,102,0.25)",
     tagBg: "rgba(255,217,102,0.25)",
     tagColor: "#a07c00",

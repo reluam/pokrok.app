@@ -136,6 +136,25 @@ export async function listCuratedPosts(options: {
   }
 }
 
+export async function getAllPublishedPostsFull() {
+  const posts = await sql`
+    SELECT id, slug, type, title, subtitle, body_markdown, categories, tags
+    FROM curated_posts
+    WHERE status = 'published'
+    ORDER BY published_at DESC NULLS LAST
+  `
+  return posts as {
+    id: string
+    slug: string
+    type: string
+    title: string
+    subtitle: string | null
+    body_markdown: string
+    categories: string[]
+    tags: string[]
+  }[]
+}
+
 export async function deleteCuratedPost(id: string) {
   await sql`DELETE FROM curated_posts WHERE id = ${id}`
 }
