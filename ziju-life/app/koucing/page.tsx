@@ -18,7 +18,7 @@ export default function KoucingPage() {
       <section className="relative flex items-center justify-center pt-24 pb-12 overflow-hidden paper-texture -mt-4 md:-mt-6">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-7xl mx-auto relative z-10">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150">
+            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-[#FDFDF7]/80 shadow-xl backdrop-blur-xl backdrop-saturate-150">
               <DecorativeShapes variant="hero" />
               <div className="relative px-4 sm:px-8 py-10 md:py-14">
                 <div className="max-w-4xl mx-auto text-center space-y-6">
