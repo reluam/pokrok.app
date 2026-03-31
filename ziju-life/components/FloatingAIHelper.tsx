@@ -74,6 +74,7 @@ export default function FloatingAIHelper() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [budget, setBudget] = useState<BudgetInfo | null>(null);
+  const [guestRemaining, setGuestRemaining] = useState<number | null>(null);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -159,7 +160,8 @@ export default function FloatingAIHelper() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/laborator/ai-coach", {
+      const endpoint = authed ? "/api/laborator/ai-coach" : "/api/guest-chat";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: newApiMsgs }),
@@ -167,7 +169,10 @@ export default function FloatingAIHelper() {
       const data = await res.json();
 
       if (res.status === 402) { setError("no_budget"); setLoading(false); return; }
+      if (res.status === 429) { setError("guest_limit"); setLoading(false); return; }
       if (!res.ok) throw new Error(data.error || "Chyba");
+
+      if (data.remaining !== undefined) setGuestRemaining(data.remaining);
 
       if (data.budget) setBudget(data.budget);
 
@@ -289,8 +294,8 @@ export default function FloatingAIHelper() {
     setLoading(false);
   };
 
-  // Don't render on hidden paths or if not authenticated
-  if (hidden || authed === false) return null;
+  // Don't render on hidden paths
+  if (hidden) return null;
   // Still checking auth — don't show yet
   if (authed === null) return null;
 
@@ -332,7 +337,7 @@ export default function FloatingAIHelper() {
                 <span className="text-sm font-bold text-foreground">AI Pomocník</span>
               </div>
               <div className="flex items-center gap-1.5">
-                {budgetPct !== null && (
+                {authed && budgetPct !== null && (
                   <div className="flex items-center gap-1.5" title={`Spotřeba: ${budget!.spentCzk.toFixed(1)} / ${budget!.totalBudgetCzk} Kč`}>
                     <div className="w-12 h-1.5 bg-black/10 rounded-full overflow-hidden">
                       <div
@@ -344,6 +349,11 @@ export default function FloatingAIHelper() {
                       />
                     </div>
                   </div>
+                )}
+                {!authed && guestRemaining !== null && (
+                  <span className="text-[10px] text-foreground/40" title="Zbývající zprávy tento měsíc">
+                    {guestRemaining}/{10}
+                  </span>
                 )}
                 {bubbles.length > 0 && (
                   <button
@@ -369,8 +379,12 @@ export default function FloatingAIHelper() {
               {bubbles.length === 0 && !loading && (
                 <div className="text-center py-8">
                   <MessageCircle size={32} className="mx-auto text-foreground/15 mb-3" />
-                  <p className="text-sm text-foreground/40">Potřebuješ s něčím pomoct?</p>
-                  <p className="text-xs text-foreground/25 mt-1">Popiš, co teď řešíš...</p>
+                  <p className="text-sm text-foreground/40">
+                    {authed ? "Potřebuješ s něčím pomoct?" : "Zajímá tě osobní rozvoj?"}
+                  </p>
+                  <p className="text-xs text-foreground/25 mt-1">
+                    {authed ? "Popiš, co teď řešíš..." : "Zeptej se mě na cokoliv..."}
+                  </p>
                 </div>
               )}
 
@@ -469,6 +483,15 @@ export default function FloatingAIHelper() {
                   AI rozpočet je vyčerpaný. Obnoví se s dalším předplatným.
                 </div>
               )}
+              {error === "guest_limit" && (
+                <div className="rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-xs text-amber-800">
+                  Dosáhl jsi měsíčního limitu zpráv.{" "}
+                  <a href="/laborator" className="underline font-medium text-accent hover:text-accent-hover">
+                    Zaregistruj se
+                  </a>{" "}
+                  pro neomezený přístup k AI průvodci.
+                </div>
+              )}
               {error && error !== "no_budget" && (
                 <div className="rounded-lg bg-red-50 border border-red-200 p-2.5 text-xs text-red-700 flex items-start gap-2">
                   <AlertCircle size={14} className="mt-0.5 shrink-0" />
@@ -480,7 +503,7 @@ export default function FloatingAIHelper() {
             </div>
 
             {/* Input */}
-            {error !== "no_budget" && (
+            {error !== "no_budget" && error !== "guest_limit" && (
               <div className="flex items-end gap-2 px-3.5 py-2.5 border-t border-black/5 bg-white shrink-0">
                 <textarea
                   ref={inputRef}
