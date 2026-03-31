@@ -54,7 +54,7 @@ export default function ChooseYourPath() {
 
         <div className="text-center">
           <Link
-            href="/feed"
+            href="/knihovna"
             className="btn-playful inline-flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
           >
             Celá knihovna

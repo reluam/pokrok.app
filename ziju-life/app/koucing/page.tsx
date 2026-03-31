@@ -27,12 +27,12 @@ export default function KoucingPage() {
                   </h1>
                   <p className="text-xl md:text-2xl text-foreground/70 leading-relaxed max-w-3xl mx-auto">
                     Na Žiju.life najdeš{" "}
-                    <Link href="/feed" className="text-accent hover:opacity-80 transition-opacity">feed</Link>{" "}
+                    <Link href="/knihovna" className="text-accent hover:opacity-80 transition-opacity">feed</Link>{" "}
                     plný inspirace i praktické nástroje pro vytvoření svého vlastního manuálu pro život.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
-                      href="/feed"
+                      href="/knihovna"
                       className="px-8 py-4 bg-white border-2 border-accent text-accent rounded-full text-lg font-semibold hover:bg-accent/5 transition-colors shadow-md"
                     >
                       Feed zdarma
@@ -57,7 +57,7 @@ export default function KoucingPage() {
           <DecorativeShapes position="left" />
           <div className="max-w-4xl mx-auto relative z-10">
             <Link
-              href="/feed"
+              href="/knihovna"
               className="group flex flex-col md:flex-row items-center gap-6 bg-white/85 rounded-[28px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur"
             >
               <span className="text-5xl flex-shrink-0">📡</span>

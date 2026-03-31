@@ -37,7 +37,7 @@ export default function Footer() {
                 Laboratoř
               </Link>
               <Link
-                href="/feed"
+                href="/knihovna"
                 className="text-sm text-foreground/70 hover:text-accent transition-colors"
               >
                 Knihovna

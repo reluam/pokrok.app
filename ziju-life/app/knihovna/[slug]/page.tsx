@@ -113,7 +113,7 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
   return (
     <article className="max-w-3xl mx-auto px-6 sm:px-10 py-12 sm:py-16">
       {/* Back link */}
-      <Link href="/feed" className="inline-flex items-center gap-1.5 text-sm text-foreground/50 hover:text-accent transition-colors mb-8">
+      <Link href="/knihovna" className="inline-flex items-center gap-1.5 text-sm text-foreground/50 hover:text-accent transition-colors mb-8">
         <ArrowLeft size={15} />
         Zpět do knihovny
       </Link>
@@ -276,7 +276,7 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
       <div className="mt-10 bg-accent/5 rounded-3xl p-10 sm:p-12 text-center">
         <p className="font-bold text-foreground text-2xl">Chceš objevovat další?</p>
         <p className="text-foreground/60 mt-2 text-base">Prozkoumej knihovnu plnou knih, videí a tipů o vědomém žití.</p>
-        <Link href="/feed" className="inline-block mt-6 px-8 py-4 rounded-full bg-accent text-white font-bold text-base hover:bg-accent-hover transition-colors shadow-md">
+        <Link href="/knihovna" className="inline-block mt-6 px-8 py-4 rounded-full bg-accent text-white font-bold text-base hover:bg-accent-hover transition-colors shadow-md">
           Prozkoumat knihovnu
         </Link>
       </div>

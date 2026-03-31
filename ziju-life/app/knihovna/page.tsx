@@ -122,7 +122,7 @@ function FeedContent() {
         ].map((tab) => (
           <button
             key={tab.value}
-            onClick={() => router.push(tab.value ? `/feed?type=${tab.value}` : '/feed')}
+            onClick={() => router.push(tab.value ? `/knihovna?type=${tab.value}` : '/knihovna')}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
               typeFilter === tab.value
                 ? 'bg-accent text-white'

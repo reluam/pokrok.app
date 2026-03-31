@@ -103,7 +103,7 @@ export const steps: Step[] = [
     ],
     resources: [
       { label: "Tvoje mapa", type: "Cvičení", free: true, href: "/tvoje-mapa/audit" },
-      { label: "Jak najít směr", type: "Článek", free: true, href: "/feed" },
+      { label: "Jak najít směr", type: "Článek", free: true, href: "/knihovna" },
     ],
   },
 
@@ -254,7 +254,7 @@ export const steps: Step[] = [
     ],
     resources: [
       { label: "Vizualizace budoucnosti", type: "Cvičení", free: true, href: "/tvoje-mapa/vize" },
-      { label: "Průvodce vizí", type: "Článek", free: true, href: "/feed" },
+      { label: "Průvodce vizí", type: "Článek", free: true, href: "/knihovna" },
     ],
   },
 
@@ -397,7 +397,7 @@ export const steps: Step[] = [
     ],
     resources: [
       { label: "Týdenní plánování", type: "Šablona", free: true, href: "/tvoje-mapa/tyden" },
-      { label: "Návyková smyčka", type: "Článek", free: true, href: "/feed" },
+      { label: "Návyková smyčka", type: "Článek", free: true, href: "/knihovna" },
     ],
   },
 

@@ -596,7 +596,7 @@ export default function ManualFunnel() {
                   </p>
                 </div>
                 <Link
-                  href="/feed"
+                  href="/knihovna"
                   className="inline-block px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-colors"
                 >
                   Přejít na inspirace
