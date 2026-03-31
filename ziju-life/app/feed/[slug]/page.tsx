@@ -105,6 +105,11 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
     .filter((l: string) => l.trim() && !l.startsWith('**Autor') && !l.match(/^\[.*\]\(http/))
     .join('\n')
 
+  // Preserve line breaks: single \n → \n\n (new paragraph in markdown)
+  function preserveBreaks(text: string): string {
+    return text.replace(/(?<!\n)\n(?!\n)/g, '\n\n')
+  }
+
   return (
     <article className="max-w-3xl mx-auto px-6 sm:px-10 py-12 sm:py-16">
       {/* Back link */}
@@ -207,15 +212,15 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
 
       {/* Body */}
       {isMigrated ? (
-        <div className="prose prose-lg max-w-none text-foreground/80 prose-p:leading-[1.8] prose-p:mb-5 prose-li:leading-[1.8] [&_h2]:text-foreground [&_h2]:font-bold [&_h2]:text-2xl [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-foreground [&_h3]:font-bold [&_h3]:text-xl [&_h3]:mt-8 [&_h3]:mb-3 [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline [&_blockquote]:border-accent/30 [&_blockquote]:text-foreground/60 [&_blockquote]:my-6">
+        <div className="prose prose-xl max-w-none [&_*]:!font-[Georgia,_serif] [&_*]:!font-normal text-foreground/85 prose-p:leading-[1.9] prose-p:mb-6 prose-li:leading-[1.9] [&_h2]:text-foreground [&_h2]:!font-semibold [&_h2]:text-2xl [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-foreground [&_h3]:!font-semibold [&_h3]:text-xl [&_h3]:mt-8 [&_h3]:mb-3 [&_strong]:!font-semibold [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline [&_blockquote]:border-accent/30 [&_blockquote]:bg-accent/5 [&_blockquote]:px-5 [&_blockquote]:py-3 [&_blockquote]:rounded-r-xl [&_blockquote]:my-6">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {descriptionLines}
+            {preserveBreaks(descriptionLines)}
           </ReactMarkdown>
         </div>
       ) : (
-        <div className="prose prose-lg max-w-none text-foreground/80 prose-p:leading-[1.8] prose-p:mb-5 prose-li:leading-[1.8] [&_h2]:text-foreground [&_h2]:font-bold [&_h2]:text-2xl [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-foreground [&_h3]:font-bold [&_h3]:text-xl [&_h3]:mt-8 [&_h3]:mb-3 [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline [&_blockquote]:border-accent/30 [&_blockquote]:text-foreground/60 [&_blockquote]:my-6">
+        <div className="prose prose-xl max-w-none [&_*]:!font-[Georgia,_serif] [&_*]:!font-normal text-foreground/85 prose-p:leading-[1.9] prose-p:mb-6 prose-li:leading-[1.9] [&_h2]:text-foreground [&_h2]:!font-semibold [&_h2]:text-2xl [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-foreground [&_h3]:!font-semibold [&_h3]:text-xl [&_h3]:mt-8 [&_h3]:mb-3 [&_strong]:!font-semibold [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline [&_blockquote]:border-accent/30 [&_blockquote]:bg-accent/5 [&_blockquote]:px-5 [&_blockquote]:py-3 [&_blockquote]:rounded-r-xl [&_blockquote]:my-6">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {post.body_markdown}
+            {preserveBreaks(post.body_markdown)}
           </ReactMarkdown>
         </div>
       )}
@@ -268,10 +273,10 @@ export default async function FeedPostPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* CTA */}
-      <div className="mt-10 bg-accent/5 rounded-2xl p-8 text-center">
-        <p className="font-bold text-foreground text-lg">Chceš objevovat další?</p>
-        <p className="text-foreground/60 mt-1 text-sm">Prozkoumej knihovnu plnou knih, videí a tipů o vědomém žití.</p>
-        <Link href="/feed" className="inline-block mt-4 px-6 py-3 rounded-full bg-accent text-white font-bold text-sm hover:bg-accent-hover transition-colors">
+      <div className="mt-10 bg-accent/5 rounded-3xl p-10 sm:p-12 text-center">
+        <p className="font-bold text-foreground text-2xl">Chceš objevovat další?</p>
+        <p className="text-foreground/60 mt-2 text-base">Prozkoumej knihovnu plnou knih, videí a tipů o vědomém žití.</p>
+        <Link href="/feed" className="inline-block mt-6 px-8 py-4 rounded-full bg-accent text-white font-bold text-base hover:bg-accent-hover transition-colors shadow-md">
           Prozkoumat knihovnu
         </Link>
       </div>
