@@ -3,13 +3,25 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type React from "react";
-import { Lock, LockOpen } from "lucide-react";
+import { User } from "lucide-react";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const transparentNavPages = ["/", "/laborator", "/koucing", "/knihovna", "/o-mne"];
+  const hasTransparentNav = transparentNavPages.includes(pathname || "");
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 80);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const handleSmoothScroll = (e: Event) => {
@@ -81,10 +93,18 @@ export default function Navigation() {
     }
   };
 
+  const showSolid = !hasTransparentNav || isScrolled;
+
   return (
-    <nav className="sticky top-3 md:top-5 z-50">
+    <nav className="fixed top-0 left-0 right-0 z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-14 md:h-16 rounded-[32px] border border-white/40 bg-white/60 shadow-lg backdrop-blur-xl backdrop-saturate-150 px-4 md:px-6 glass-grain">
+        <div
+          className={`max-w-7xl mx-auto flex items-center justify-between h-14 md:h-16 rounded-[32px] px-4 md:px-6 transition-all duration-500 ease-out relative ${
+            showSolid
+              ? "border border-white/40 bg-white/60 shadow-lg backdrop-blur-xl backdrop-saturate-150 glass-grain"
+              : "bg-transparent"
+          }`}
+        >
           <Link href="/" className="flex items-center h-10 md:h-12">
             <Image
               src="/ziju-life-logo.png"
@@ -97,8 +117,8 @@ export default function Navigation() {
             />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+          {/* Desktop Navigation — centered links */}
+          <div className="hidden md:flex items-center gap-6 lg:gap-8 absolute left-1/2 -translate-x-1/2">
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
               return (
@@ -106,14 +126,17 @@ export default function Navigation() {
                   key={item.href}
                   href={item.href}
                   className={`text-base transition-colors ${
-                    isActive ? "text-accent font-medium" : "text-foreground/70 hover:text-foreground"
+                    isActive ? "text-accent font-medium" : "text-foreground hover:text-foreground/80"
                   }`}
                 >
                   {item.label}
                 </Link>
               );
             })}
+          </div>
 
+          {/* Desktop right side — CTA + profile */}
+          <div className="hidden md:flex items-center gap-3">
             <Link
               href="/koucing#rezervace"
               onClick={handleChciZmenuClick}
@@ -125,11 +148,13 @@ export default function Navigation() {
             <Link
               href="/ucet"
               aria-label="Můj účet"
-              className={`p-2 rounded-full transition-colors ${
-                pathname === "/ucet" ? "text-accent" : "text-foreground/50 hover:text-foreground"
+              className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-colors ${
+                pathname === "/ucet"
+                  ? "border-accent text-accent"
+                  : "border-foreground/20 text-foreground/40 hover:border-foreground/40 hover:text-foreground/60"
               }`}
             >
-              {isUserLoggedIn ? <LockOpen className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+              <User className="w-4 h-4" />
             </Link>
           </div>
 
@@ -139,11 +164,13 @@ export default function Navigation() {
               href="/ucet"
               aria-label="Můj účet"
               onClick={() => setIsMenuOpen(false)}
-              className={`p-2 rounded-full transition-colors ${
-                pathname === "/ucet" ? "text-accent" : "text-foreground/50 hover:text-foreground"
+              className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
+                pathname === "/ucet"
+                  ? "border-accent text-accent"
+                  : "border-foreground/20 text-foreground/40 hover:border-foreground/40"
               }`}
             >
-              <Lock className="w-5 h-5" />
+              <User className="w-4 h-4" />
             </Link>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -159,7 +186,9 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-3 py-4 px-4 space-y-1 text-center rounded-3xl border border-white/60 bg-white/90 shadow-lg backdrop-blur-xl glass-grain">
+          <div className={`md:hidden mt-3 py-4 px-4 space-y-1 text-center rounded-3xl border border-white/60 shadow-lg backdrop-blur-xl glass-grain ${
+            showSolid ? "bg-white/90" : "bg-white/80"
+          }`}>
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
               return (
@@ -168,7 +197,7 @@ export default function Navigation() {
                   href={item.href}
                   onClick={() => setIsMenuOpen(false)}
                   className={`block py-2.5 text-base transition-colors ${
-                    isActive ? "text-accent font-medium" : "text-foreground/70 hover:text-foreground"
+                    isActive ? "text-accent font-medium" : "text-foreground hover:text-foreground/80"
                   }`}
                 >
                   {item.label}

@@ -89,8 +89,8 @@ export function TypeBadge({ itemType }: { itemType: string }) {
   const Icon = TYPE_ICON[itemType] || HelpCircle;
   const label = TYPE_LABEL[itemType] || itemType;
   return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold">
-      <Icon size={11} />
+    <span className="inline-flex items-center gap-1.5 text-accent text-xs font-semibold">
+      <Icon size={12} />
       {label}
     </span>
   );
@@ -152,7 +152,7 @@ export function getCoverKeyword(tags: string[]): string | null {
   return tag ? tag.slice(6).toUpperCase() : null;
 }
 
-export function FeedCard({ post }: { post: CuratedPost }) {
+export function FeedCard({ post, featured = false, bento = false }: { post: CuratedPost; featured?: boolean; bento?: boolean }) {
   const itemType = getItemType(post.tags);
   const isMigrated = post.tags?.includes("migrated-inspiration");
   const mainCategory = post.categories?.[0];
@@ -178,73 +178,133 @@ export function FeedCard({ post }: { post: CuratedPost }) {
     .trim()
     .substring(0, 800) || "";
 
-  // ── Reel ──
+  const isVideo = !!videoEmbed || !!reelEmbed || itemType === "video" || itemType === "reel" || itemType === "hudba";
+  const hasPlayButton = isVideo && !reelEmbed && !videoEmbed;
+  const thumbnail = imageUrl || (isVideo ? getVideoThumbnail(post.body_markdown) : null);
+
+  // ── Reel (embed) ──
   if (reelEmbed) {
+    if (bento) {
+      // Bento reel — iframe fills the tall card
+      return (
+        <article className="relative rounded-2xl overflow-hidden h-full bg-black">
+          <iframe
+            src={reelEmbed.embedUrl}
+            className="w-full h-full"
+            style={{ border: 0 }}
+            scrolling="no"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            title={post.title}
+          />
+        </article>
+      );
+    }
     return <ReelCard post={post} embedUrl={reelEmbed.embedUrl} vertical={reelEmbed.vertical} href={href} />;
   }
 
-  // ── Video / Hudba ──
-  if (videoEmbed) {
+  // ── Bento mode (homepage) ──
+  if (bento) {
+    const bgImage = thumbnail || imageUrl;
+
     return (
-      <article className="bg-white rounded-2xl border-2 border-black/10 overflow-hidden h-full flex flex-col hover:shadow-xl hover:border-accent/30 hover:-translate-y-1 transition-all duration-200">
-        <div className="relative w-full aspect-video bg-black">
-          <iframe
-            src={videoEmbed}
-            className="absolute inset-0 w-full h-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-        <Link href={href} className="p-5 flex-1 flex flex-col gap-2 group">
-          <div className="flex items-center gap-2 flex-wrap">
-            <TypeBadge itemType={itemType || "video"} />
+      <Link href={href} className="block group h-full">
+        <article className="relative rounded-2xl overflow-hidden h-full bg-gray-100 hover:shadow-lg transition-all duration-200">
+          {/* Background */}
+          {bgImage ? (
+            <img
+              src={bgImage}
+              alt={post.title}
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : coverKeyword ? (
+            <div className="absolute inset-0"><CoverKeyword keyword={coverKeyword} seed={post.id} /></div>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200" />
+          )}
+
+          {/* Play button */}
+          {isVideo && (
+            <div className="absolute top-3 right-3 z-10">
+              <div className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center group-hover:bg-accent transition-colors">
+                <Play size={14} className="text-white ml-0.5" fill="white" />
+              </div>
+            </div>
+          )}
+
+          {/* Text overlay */}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-10 pb-3 px-3">
+            <h3 className="text-xs font-bold text-white leading-snug line-clamp-2 drop-shadow-sm">
+              {post.title}
+            </h3>
+            <p className="text-[10px] text-white/60 mt-0.5">
+              {itemType ? TYPE_LABEL[itemType] || "" : ""}
+            </p>
           </div>
-          <h3 className="text-base font-bold text-foreground leading-snug line-clamp-2 group-hover:text-accent transition-colors">{post.title}</h3>
-          {post.subtitle && <p className="text-sm text-foreground/50">{post.subtitle}</p>}
-          {descText && <p className="text-sm text-foreground/60 leading-relaxed line-clamp-2">{descText}</p>}
-        </Link>
-      </article>
+        </article>
+      </Link>
     );
   }
 
-  // ── Standard (books, articles, tips, digests) ──
+  // ── Standard mode (knihovna page) ──
+  const isBook = itemType === "kniha";
+  const dateStr = new Date(post.published_at).toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" });
+
   return (
-    <Link href={href} className="block group">
-      <article className="bg-white rounded-2xl border-2 border-black/10 overflow-hidden hover:shadow-xl hover:border-accent/30 hover:-translate-y-1 transition-all duration-200 h-full flex flex-col">
-        {imageUrl ? (
-          <div className={`relative w-full overflow-hidden flex items-center justify-center ${itemType === "kniha" ? "pt-4 pb-2 aspect-[16/10]" : "bg-gray-100 aspect-[16/10]"}`}>
+    <Link href={href} className="block group h-full">
+      <article className="bg-white rounded-2xl border border-black/8 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full flex flex-col">
+        {/* Image area */}
+        <div className={`relative w-full aspect-[4/3] overflow-hidden rounded-t-2xl flex items-center justify-center ${isBook ? "bg-white" : "bg-gray-50"}`}>
+          {(thumbnail || (videoEmbed && imageUrl)) ? (
             <img
-              src={imageUrl}
+              src={thumbnail || imageUrl || ""}
               alt={post.title}
-              className={`group-hover:scale-105 transition-transform duration-300 ${itemType === "kniha" ? "h-full object-contain drop-shadow-md" : "w-full h-full object-cover"}`}
+              className={`group-hover:scale-105 transition-transform duration-300 ${
+                isBook ? "h-[75%] w-auto object-contain drop-shadow-md" : "w-full h-full object-cover"
+              }`}
             />
-          </div>
-        ) : coverKeyword ? (
-          <CoverKeyword keyword={coverKeyword} seed={post.id} />
-        ) : null}
-        <div className="p-5 flex-1 flex flex-col gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            {itemType && <TypeBadge itemType={itemType} />}
-            {!isMigrated && post.type === "digest" && (
-              <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-accent/10 text-accent">Týdenní přehled</span>
-            )}
-            {mainCategory && !isMigrated && (
-              <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${CATEGORY_COLORS[mainCategory]}15`, color: CATEGORY_COLORS[mainCategory] }}>
-                {CATEGORY_EMOJI[mainCategory]} {mainCategory}
-              </span>
-            )}
-          </div>
-          <h3 className="text-base font-bold text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2">{post.title}</h3>
-          {post.subtitle && <p className="text-sm text-foreground/50">{post.subtitle}</p>}
-          {descText && <p className="text-sm text-foreground/60 leading-relaxed line-clamp-3">{descText}</p>}
-          <div className="flex items-center justify-between mt-auto pt-2">
-            <span className="text-xs text-foreground/35">
-              {new Date(post.published_at).toLocaleDateString("cs-CZ", { day: "numeric", month: "short", year: "numeric" })}
-            </span>
+          ) : coverKeyword ? (
+            <CoverKeyword keyword={coverKeyword} seed={post.id} />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              {itemType && (() => { const Icon = TYPE_ICON[itemType] || HelpCircle; return <Icon size={32} className="text-foreground/15" />; })()}
+            </div>
+          )}
+
+          {/* Play button for video */}
+          {isVideo && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Play size={20} className="text-white ml-0.5" fill="white" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="px-5 pt-3 pb-4 flex-1 flex flex-col gap-1.5">
+          {itemType && <TypeBadge itemType={itemType} />}
+
+          <h3 className="text-base font-bold text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2">
+            {post.title}
+          </h3>
+
+          {post.subtitle && (
+            <p className="text-sm text-foreground/50">{post.subtitle}</p>
+          )}
+
+          {descText && (
+            <p className="text-sm text-foreground/55 leading-relaxed line-clamp-3">
+              {descText}
+            </p>
+          )}
+
+          <div className="flex items-center justify-between text-[11px] text-foreground/40 mt-auto pt-2">
+            <span>{dateStr}</span>
             {externalUrl && isMigrated ? (
-              <span className="text-xs text-accent font-semibold flex items-center gap-1"><ExternalLink size={10} /> Zdroj</span>
+              <span className="flex items-center gap-1 text-accent font-semibold"><ExternalLink size={10} /> Zdroj</span>
             ) : (
-              <span className="text-xs text-accent font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">Číst <ArrowRight size={12} /></span>
+              <span className="flex items-center gap-1 text-accent font-semibold group-hover:gap-2 transition-all">Číst <ArrowRight size={11} /></span>
             )}
           </div>
         </div>

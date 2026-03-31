@@ -6,7 +6,7 @@ import DecorativeShapes from "./DecorativeShapes";
 
 export default function Hero() {
   return (
-    <section className="relative flex items-center justify-center pt-20 pb-10 overflow-hidden paper-texture -mt-4 md:-mt-6">
+    <section className="relative flex items-center justify-center pt-6 pb-10 overflow-hidden paper-texture">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <motion.div
           className="w-full max-w-7xl mx-auto relative z-10"

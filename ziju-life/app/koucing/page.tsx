@@ -15,90 +15,36 @@ export default function KoucingPage() {
     <main className="min-h-screen">
 
       {/* HERO */}
-      <section className="relative flex items-center justify-center pt-24 pb-12 overflow-hidden paper-texture -mt-4 md:-mt-6">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="w-full max-w-7xl mx-auto relative z-10">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-[#FDFDF7]/80 shadow-xl backdrop-blur-xl backdrop-saturate-150">
-              <DecorativeShapes variant="hero" />
-              <div className="relative px-4 sm:px-8 py-10 md:py-14">
-                <div className="max-w-4xl mx-auto text-center space-y-6">
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight text-foreground font-bold">
+      <section className="max-w-5xl mx-auto px-5 pt-6 pb-12">
+        <div className="relative overflow-hidden rounded-[32px] border border-black/8 bg-[#fdf0e6]/50">
+          <DecorativeShapes variant="hero" />
+          <div className="relative px-8 md:px-16 py-14 md:py-20">
+            <div className="max-w-3xl mx-auto text-center space-y-6">
+                  <h1 className="text-5xl md:text-6xl font-extrabold text-foreground leading-tight">
                     Upřímně: možná koučing vůbec nepotřebuješ.
                   </h1>
-                  <p className="text-xl md:text-2xl text-foreground/70 leading-relaxed max-w-3xl mx-auto">
+                  <p className="text-lg md:text-xl text-foreground/65 leading-relaxed max-w-2xl mx-auto">
                     Na Žiju.life najdeš{" "}
                     <Link href="/knihovna" className="text-accent hover:opacity-80 transition-opacity">Knihovnu</Link>{" "}
-                    plnou novinek, tipů a inspirací a{" "}
+                    plnou knih, videí a tipů zdarma a{" "}
                     <Link href="/laborator" className="text-accent hover:opacity-80 transition-opacity">Laboratoř</Link>{" "}
-                    s interaktivními cvičeními a AI pomocníkem pro každodenní život.
+                    s interaktivními cvičeními a AI průvodcem. Koučing je pro chvíle, kdy chceš jít hlouběji — s někým po boku.
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link
-                      href="/knihovna"
-                      className="px-8 py-4 bg-white border-2 border-accent text-accent rounded-full text-lg font-semibold hover:bg-accent/5 transition-colors shadow-md"
-                    >
-                      Knihovna zdarma
-                    </Link>
-                    <button
-                      onClick={() => scrollTo("jak-to-funguje")}
-                      className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
-                    >
-                      O koučingu
-                    </button>
-                  </div>
-                </div>
-              </div>
+                  <button
+                    onClick={() => scrollTo("rezervace")}
+                    className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    Rezervovat konzultaci zdarma
+                  </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* KNIHOVNA + LABORATOŘ */}
-      <RevealSection>
-        <section id="zdroje" className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-          <DecorativeShapes position="left" />
-          <div className="max-w-5xl mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Knihovna */}
-            <Link
-              href="/knihovna"
-              className="group flex flex-col items-center gap-4 bg-white/85 rounded-[28px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur text-center"
-            >
-              <span className="text-5xl">📚</span>
-              <div className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground group-hover:text-accent transition-colors">
-                  Knihovna — zdarma
-                </h2>
-                <p className="text-base text-foreground/65 leading-relaxed">
-                  Knihy, videa, výzkumy a tipy o vědomém žití. Bez poplatku, bez registrace. Začni tady.
-                </p>
-                <span className="inline-block text-sm font-semibold text-accent mt-1">Prozkoumat knihovnu →</span>
-              </div>
-            </Link>
-
-            {/* Laboratoř */}
-            <Link
-              href="/laborator"
-              className="group flex flex-col items-center gap-4 bg-white/85 rounded-[28px] p-8 md:p-10 border border-white/60 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all backdrop-blur text-center"
-            >
-              <span className="text-5xl">🧪</span>
-              <div className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground group-hover:text-accent transition-colors">
-                  Laboratoř — 490 Kč/rok
-                </h2>
-                <p className="text-base text-foreground/65 leading-relaxed">
-                  Interaktivní cvičení, doprovodná aplikace pro každodenní život a AI průvodce, který ti ukáže nové perspektivy. Méně než 1 káva měsíčně.
-                </p>
-                <span className="inline-block text-sm font-semibold text-accent mt-1">Vstoupit do laboratoře →</span>
-              </div>
-            </Link>
-          </div>
-        </section>
-      </RevealSection>
-
       {/* BRIDGE + PRO KOHO JE KOUČINK */}
       <RevealSection>
-        <section className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto space-y-8">
+        <section className="max-w-5xl mx-auto px-5 py-16 md:py-20">
+          <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
                 A co když jsi už hodně přečetl, hodně vyzkoušel — a pořád hledáš?
@@ -142,39 +88,80 @@ export default function KoucingPage() {
 
       {/* JAK TO FUNGUJE */}
       <RevealSection>
-        <section id="jak-to-funguje" className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto space-y-10">
-            <div className="text-center">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-                Jak to funguje
-              </h2>
-            </div>
-            <div className="space-y-5">
+        <section id="jak-to-funguje" className="max-w-5xl mx-auto px-5 py-16 md:py-20">
+          <div className="space-y-10">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground text-center">
+              Jak to funguje
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {[
                 {
                   n: "1",
                   title: "Kde opravdu jsi",
                   text: "Začneme tím, co se skutečně děje — ne co by se dít mělo. Podíváme se na tvoji situaci bez příkras, aby bylo jasné, s čím vlastně pracujeme.",
+                  icon: (
+                    <svg viewBox="0 0 80 80" fill="none" className="w-full h-full">
+                      {/* Lupa / hledání */}
+                      <circle cx="34" cy="34" r="18" stroke="#d4873a" strokeWidth="3" fill="#fdf0e6" />
+                      <line x1="47" y1="47" x2="62" y2="62" stroke="#d4873a" strokeWidth="4" strokeLinecap="round" />
+                      {/* Oko uvnitř lupy */}
+                      <ellipse cx="34" cy="34" rx="10" ry="6" stroke="#FF8C42" strokeWidth="2" fill="none" />
+                      <circle cx="34" cy="34" r="3" fill="#FF8C42" />
+                      <circle cx="35" cy="33" r="1" fill="white" />
+                    </svg>
+                  ),
                 },
                 {
                   n: "2",
                   title: "Co tě drží",
                   text: "Většinou to není to, co si myslíš. Pod povrchem bývá vzorec, přesvědčení nebo strach, který tiše řídí tvoje rozhodnutí. Tohle je ta těžší, ale důležitější část.",
+                  icon: (
+                    <svg viewBox="0 0 80 80" fill="none" className="w-full h-full">
+                      {/* Řetěz / pouta */}
+                      <ellipse cx="28" cy="40" rx="12" ry="8" stroke="#d4873a" strokeWidth="3" fill="#fdf0e6" />
+                      <ellipse cx="44" cy="40" rx="12" ry="8" stroke="#d4873a" strokeWidth="3" fill="#fdf0e6" />
+                      {/* Prasklina */}
+                      <path d="M36 32 L36 48" stroke="#FF6B1A" strokeWidth="2" strokeDasharray="3 2" />
+                      {/* Zámek */}
+                      <rect x="52" y="18" width="18" height="14" rx="3" fill="#FF8C42" stroke="#d4873a" strokeWidth="2" />
+                      <path d="M56 18 V13 Q61 6 66 13 V18" stroke="#d4873a" strokeWidth="2" fill="none" />
+                      <circle cx="61" cy="24" r="2" fill="#fdf0e6" />
+                    </svg>
+                  ),
                 },
                 {
                   n: "3",
                   title: "Akce, ne záměry",
                   text: "Pochopení nestačí. Každé sezení končí konkrétním krokem — ne obecným předsevzetím, ale jasnou akcí na tento týden.",
+                  icon: (
+                    <svg viewBox="0 0 80 80" fill="none" className="w-full h-full">
+                      {/* Raketa */}
+                      <path d="M40 12 C40 12 28 30 28 48 L40 54 L52 48 C52 30 40 12 40 12Z" fill="#fdf0e6" stroke="#d4873a" strokeWidth="2.5" />
+                      <circle cx="40" cy="32" r="5" fill="#FF8C42" />
+                      <circle cx="40" cy="32" r="2" fill="white" />
+                      {/* Křídla */}
+                      <path d="M28 48 L20 50 L28 40" fill="#FF6B1A" stroke="#d4873a" strokeWidth="1.5" />
+                      <path d="M52 48 L60 50 L52 40" fill="#FF6B1A" stroke="#d4873a" strokeWidth="1.5" />
+                      {/* Plamen */}
+                      <path d="M35 54 L37 64 L40 58 L43 64 L45 54" fill="#FFD966" stroke="#d4873a" strokeWidth="1.5" />
+                      {/* Šipka doprava */}
+                      <path d="M60 28 L72 22" stroke="#FF8C42" strokeWidth="2.5" strokeLinecap="round" />
+                      <path d="M67 18 L72 22 L67 26" stroke="#FF8C42" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    </svg>
+                  ),
                 },
               ].map((item) => (
-                <div key={item.n} className="flex gap-5 bg-white/85 rounded-[24px] p-7 border border-white/60 shadow-md backdrop-blur">
-                  <span className="flex-shrink-0 w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold text-base">
+                <div key={item.n} className="bg-white border border-black/8 rounded-[24px] px-6 py-8 flex flex-col items-center text-center gap-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 relative">
+                  {/* Číslo */}
+                  <span className="absolute top-4 left-5 w-8 h-8 rounded-full bg-[#f5f0e6] flex items-center justify-center text-foreground/50 font-bold text-sm">
                     {item.n}
                   </span>
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground mb-1">{item.title}</h3>
-                    <p className="text-base text-foreground/75 leading-relaxed">{item.text}</p>
+                  {/* Ilustrace */}
+                  <div className="w-24 h-24">
+                    {item.icon}
                   </div>
+                  <h3 className="text-xl font-bold text-foreground">{item.title}</h3>
+                  <p className="text-base text-foreground/60 leading-relaxed">{item.text}</p>
                 </div>
               ))}
             </div>
@@ -184,9 +171,9 @@ export default function KoucingPage() {
 
       {/* KONZULTACE + BALÍČKY */}
       <RevealSection>
-        <section id="rezervace" className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <section id="rezervace" className="max-w-5xl mx-auto px-5 py-16 md:py-24 relative overflow-hidden">
           <DecorativeShapes position="right" />
-          <div className="max-w-3xl mx-auto relative z-10 space-y-10">
+          <div className="relative z-10 space-y-10">
             <div className="text-center space-y-3">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
                 Pojďme se nejdřív potkat

@@ -4,116 +4,114 @@ import Link from "next/link";
 
 const tools = [
   {
-    emoji: "📊",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
     name: "Přehled & AI průvodce",
-    desc: "Tvůj osobní dashboard s AI průvodcem, který tě zná. Denní to-do, priority, check-iny a reflexe.",
-    tag: "Dashboard",
-    iconBg: "rgba(255,140,66,0.15)",
-    tagBg: "rgba(255,140,66,0.15)",
-    tagColor: "#c56a20",
+    desc: "Přehled a AI průvodce.",
   },
   {
-    emoji: "🧭",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
     name: "Kompas",
-    desc: "Zmapuj kde jsi a kam chceš jít. Sedm kroků — na konci máš jasno v životních oblastech.",
-    tag: "7 kroků",
-    iconBg: "rgba(78,205,196,0.15)",
-    tagBg: "rgba(78,205,196,0.15)",
-    tagColor: "#2a9d95",
+    desc: "Sestavte si inspirativní směr.",
   },
   {
-    emoji: "💎",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
     name: "Hodnoty",
-    desc: "Pojmenuj, na čem ti opravdu záleží. Když to víš, rozhodování se stává jednodušším.",
-    tag: "Cvičení",
-    iconBg: "rgba(176,167,245,0.2)",
-    tagBg: "rgba(176,167,245,0.2)",
-    tagColor: "#7b6fcf",
+    desc: "Poznejte své priority a hodnoty.",
   },
   {
-    emoji: "⏱️",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
     name: "Nastav si den",
-    desc: "Vytvoř si ranní, denní a večerní rituály, které ti dávají energii místo toho, aby ti ji braly.",
-    tag: "Rituály",
-    iconBg: "rgba(255,217,102,0.25)",
-    tagBg: "rgba(255,217,102,0.25)",
-    tagColor: "#a07c00",
+    desc: "Nastav si den, jaký chceš mít.",
   },
 ];
 
-const bullets = [
-  "Víš, jak chceš žít, ale nedokážeš s tím začít.",
-  "Zkoušel/a jsi knížky, appky, frameworky — ale nic ti nevydrželo.",
-  "Máš pocit, že ostatní to zvládají přirozeně — jen ty ne.",
-];
+function LabIllustration() {
+  return (
+    <svg viewBox="0 0 200 200" fill="none" className="w-full h-full opacity-20" aria-hidden="true">
+      {/* Erlenmeyerova baňka */}
+      <path d="M85 40h30v50l25 55H60l25-55V40z" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path d="M85 40h30" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      <ellipse cx="100" cy="130" rx="12" ry="4" fill="currentColor" opacity="0.15" />
+      {/* Zkumavka */}
+      <rect x="140" y="55" width="14" height="60" rx="7" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path d="M142 85h10" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+      <path d="M142 78h10" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      {/* Bubliny */}
+      <circle cx="97" cy="115" r="3" fill="currentColor" opacity="0.2" />
+      <circle cx="103" cy="108" r="2" fill="currentColor" opacity="0.15" />
+      <circle cx="95" cy="105" r="2.5" fill="currentColor" opacity="0.18" />
+      {/* Mikroskop */}
+      <path d="M45 145h30M60 145v-25l-8-15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="48" cy="103" r="8" stroke="currentColor" strokeWidth="2" fill="none" />
+      {/* Atom */}
+      <circle cx="160" cy="45" r="3" fill="currentColor" opacity="0.3" />
+      <ellipse cx="160" cy="45" rx="18" ry="7" stroke="currentColor" strokeWidth="1.2" opacity="0.25" transform="rotate(-30 160 45)" />
+      <ellipse cx="160" cy="45" rx="18" ry="7" stroke="currentColor" strokeWidth="1.2" opacity="0.25" transform="rotate(30 160 45)" />
+      <ellipse cx="160" cy="45" rx="18" ry="7" stroke="currentColor" strokeWidth="1.2" opacity="0.25" />
+    </svg>
+  );
+}
 
 export default function ManualTeaser() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-0 rounded-[36px] border border-black/6 shadow-lg overflow-hidden bg-white/80 backdrop-blur">
+    <section className="px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      <div className="max-w-7xl mx-auto">
+        <div className="relative rounded-[32px] border border-white/40 shadow-lg overflow-hidden bg-[#fdf0e6]/50 backdrop-blur">
 
-          {/* Levý sloupec */}
-          <div className="flex flex-col justify-between gap-8 px-8 py-10 md:px-12 md:py-14 lg:border-r border-black/6">
-            <div className="flex flex-col gap-6">
-              <h2 className="text-4xl md:text-5xl font-extrabold text-foreground leading-tight">
-                Laboratoř
-              </h2>
-
-              <p className="text-base text-foreground/65 leading-relaxed">
-                Tady najdeš to, co jsem objevil — jako interaktivní nástroje a cvičení, které ti pomůžou žít vědoměji. Projdeš jimi sám, ve svém tempu, a na konci každého víš o sobě víc než předtím.
-              </p>
-
-              <div>
-                <p className="text-sm font-semibold text-foreground/45 mb-3">Pro tebe, pokud:</p>
-                <ul className="space-y-2.5">
-                  {bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-3">
-                      <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full border-2 border-accent/50 flex items-center justify-center">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent/60" />
-                      </span>
-                      <span className="text-sm text-foreground/70 leading-snug">{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div>
-              <Link
-                href="/laborator"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-bold bg-accent text-white hover:bg-accent-hover transition-colors shadow-md"
-              >
-                Vstup do laboratoře →
-              </Link>
-            </div>
+          {/* Ilustrace v pozadí vpravo nahoře */}
+          <div className="absolute top-0 right-0 w-72 h-72 text-foreground/70 pointer-events-none">
+            <LabIllustration />
           </div>
 
-          {/* Pravý sloupec — kartičky nástrojů */}
-          <div className="flex flex-col justify-center gap-3 px-8 py-10 md:px-10 md:py-14">
-            {tools.map((t) => (
-              <div
-                key={t.name}
-                className="flex items-start gap-4 rounded-2xl px-5 py-4 border border-black/5 bg-white/60"
-              >
+          {/* Nadpis + kartičky */}
+          <div className="relative flex flex-col gap-8 px-8 py-10 md:px-12 md:py-14">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
+              Laboratoř:<br />
+              Tvoje vědomá cesta
+            </h2>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {tools.map((t) => (
                 <div
-                  className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl"
-                  style={{ background: t.iconBg }}
+                  key={t.name}
+                  className="flex flex-col gap-3 rounded-2xl px-5 py-6 bg-white/80 border border-white/60 shadow-sm"
                 >
-                  {t.emoji}
+                  <div className="text-foreground/60">
+                    {t.icon}
+                  </div>
+                  <div>
+                    <p className="font-bold text-foreground text-base leading-snug">{t.name}</p>
+                    <p className="text-sm text-foreground/55 leading-relaxed mt-1">{t.desc}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-foreground text-sm mb-0.5">{t.name}</p>
-                  <p className="text-sm text-foreground/55 leading-relaxed mb-2">{t.desc}</p>
-                  <span
-                    className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                    style={{ background: t.tagBg, color: t.tagColor }}
-                  >
-                    {t.tag}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* CTA tlačítko uprostřed */}
+            <div className="flex justify-center pt-2">
+              <Link
+                href="/laborator"
+                className="btn-playful inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-bold bg-accent text-white hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
+              >
+                Vstup do laboratoře &rarr;
+              </Link>
+            </div>
           </div>
 
         </div>

@@ -101,46 +101,47 @@ function FeedContent() {
 
   // Browse mode
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Hero */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-foreground mb-3">Knihovna</h1>
-        <p className="text-lg text-foreground/60 max-w-xl mx-auto mb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      {/* Header */}
+      <div className="text-center mb-10 space-y-5">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-foreground">Knihovna</h1>
+        <p className="text-lg text-foreground/60 max-w-xl mx-auto">
           Knihy, videa, výzkumy a tipy o tom, jak žít vědoměji.
         </p>
+
         <div className="max-w-xl mx-auto">
           <FeedAskBox onAsk={(q) => handleAsk(q)} loading={askLoading} />
         </div>
+
+        {/* Filter tabs */}
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          {[
+            { value: '', label: 'Vše' },
+            { value: 'tip', label: 'Tipy' },
+            { value: 'digest', label: 'Týdenní přehledy' },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => router.push(tab.value ? `/knihovna?type=${tab.value}` : '/knihovna')}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+                typeFilter === tab.value
+                  ? 'bg-accent text-white'
+                  : 'bg-black/5 text-foreground/60 hover:bg-black/10'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Type filter tabs */}
-      <div className="flex items-center justify-center gap-2 mb-8 flex-wrap">
-        {[
-          { value: '', label: 'Vše' },
-          { value: 'tip', label: 'Tipy' },
-          { value: 'digest', label: 'Týdenní přehledy' },
-        ].map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => router.push(tab.value ? `/knihovna?type=${tab.value}` : '/knihovna')}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-              typeFilter === tab.value
-                ? 'bg-accent text-white'
-                : 'bg-black/5 text-foreground/60 hover:bg-black/10'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Posts grid */}
+      {/* Masonry grid */}
       {loading && posts.length === 0 ? (
         <div className="flex justify-center py-16"><Loader2 className="animate-spin text-foreground/30" size={28} /></div>
       ) : posts.length === 0 ? (
         <p className="text-center py-16 text-foreground/40">Zatím žádné příspěvky.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-fr">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {posts.map((post) => (
             <FeedCard key={post.id} post={post} />
           ))}
@@ -149,11 +150,11 @@ function FeedContent() {
 
       {/* Load more */}
       {hasMore && posts.length > 0 && (
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center mt-10">
           <button
             onClick={() => setPage(p => p + 1)}
             disabled={loading}
-            className="px-6 py-3 rounded-full text-sm font-semibold border-2 border-black/10 hover:border-accent hover:text-accent transition-colors disabled:opacity-40"
+            className="px-8 py-3 rounded-full text-sm font-semibold bg-accent text-white hover:bg-accent-hover transition-colors disabled:opacity-40"
           >
             {loading ? 'Načítám...' : 'Načíst další'}
           </button>

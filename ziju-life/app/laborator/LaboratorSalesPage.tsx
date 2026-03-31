@@ -297,56 +297,108 @@ function LaboratorContent() {
       {showMagic && <MagicLinkModal onClose={() => setShowMagic(false)} />}
 
       {/* Hero */}
-      <section className="max-w-2xl mx-auto px-5 pt-20 pb-16 text-center">
-        <p className="text-xs font-bold text-accent uppercase tracking-widest mb-4">
-          žiju life
-        </p>
-        <h1 className="text-5xl md:text-6xl font-extrabold text-foreground mb-6 leading-tight">
-          Laboratoř
-        </h1>
-        <p className="text-lg text-foreground/65 leading-relaxed mb-10 max-w-xl mx-auto">
-          Interaktivní cvičení, doprovodná aplikace pro každodenní život a AI průvodce
-          pro více vědomý život. Experimentuj sám se sebou — a skládej si systém, který
-          sedí tobě.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <AccessButton loading={buying} onClick={handleBuy} />
-          <button
-            onClick={() => setShowMagic(true)}
-            className="inline-flex items-center gap-1.5 px-6 py-4 rounded-full
-              border border-foreground/15 font-semibold text-base text-foreground/70
-              hover:border-foreground/30 hover:text-foreground transition-colors bg-white/60"
-          >
-            Přihlásit se
-          </button>
+      <section className="max-w-5xl mx-auto px-5 pt-10 pb-16">
+        <div className="bg-[#fdf0e6]/50 border border-black/8 rounded-[32px] px-8 md:px-16 py-14 md:py-20 text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-foreground mb-6 leading-tight">
+            Laboratoř
+          </h1>
+          <p className="text-lg text-foreground/65 leading-relaxed mb-10 max-w-xl mx-auto">
+            Interaktivní cvičení, doprovodná aplikace pro každodenní život a AI průvodce
+            pro více vědomý život. Experimentuj sám se sebou — a skládej si systém, který
+            sedí tobě.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <AccessButton loading={buying} onClick={handleBuy} />
+            <button
+              onClick={() => setShowMagic(true)}
+              className="inline-flex items-center gap-1.5 px-6 py-4 rounded-full
+                border border-foreground/15 font-semibold text-base text-foreground/70
+                hover:border-foreground/30 hover:text-foreground transition-colors bg-white/60"
+            >
+              Přihlásit se
+            </button>
+          </div>
+          {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
+          <p className="mt-5 text-xs text-foreground/35">
+            490 Kč / rok · Přístup ke všem nástrojům · Zrušit lze kdykoliv
+          </p>
         </div>
-        {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
-        <p className="mt-5 text-xs text-foreground/35">
-          490 Kč / rok · Přístup ke všem nástrojům · Zrušit lze kdykoliv
-        </p>
       </section>
 
       {/* Tři pilíře */}
-      <section className="max-w-5xl mx-auto px-5 pb-12">
-        <h2 className="text-xl font-bold mb-6">Co v Laboratoři najdeš</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-2">
-            <span className="text-3xl">🧭</span>
-            <h3 className="font-bold text-foreground">Interaktivní cvičení</h3>
+      <section className="max-w-5xl mx-auto px-5 pb-16">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-foreground text-center mb-10">
+          Co v Laboratoři najdeš
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Interaktivní cvičení */}
+          <div className="bg-white border border-black/8 rounded-[24px] px-6 py-8 flex flex-col items-center text-center gap-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+            <div className="w-28 h-28 flex items-center justify-center">
+              <svg viewBox="0 0 120 120" fill="none" className="w-full h-full">
+                <circle cx="60" cy="60" r="50" stroke="#d4a574" strokeWidth="4" fill="#faf3eb" />
+                <circle cx="60" cy="60" r="42" stroke="#c49660" strokeWidth="2" fill="none" />
+                <text x="60" y="22" textAnchor="middle" fill="#8b6b47" fontSize="10" fontWeight="bold">S</text>
+                <text x="60" y="106" textAnchor="middle" fill="#8b6b47" fontSize="10" fontWeight="bold">J</text>
+                <text x="16" y="64" textAnchor="middle" fill="#8b6b47" fontSize="10" fontWeight="bold">Z</text>
+                <text x="104" y="64" textAnchor="middle" fill="#8b6b47" fontSize="10" fontWeight="bold">V</text>
+                <line x1="60" y1="28" x2="60" y2="92" stroke="#c49660" strokeWidth="1" opacity="0.3" />
+                <line x1="28" y1="60" x2="92" y2="60" stroke="#c49660" strokeWidth="1" opacity="0.3" />
+                <polygon points="60,30 56,50 64,50" fill="#4a90d9" />
+                <polygon points="60,90 56,70 64,70" fill="#d94a4a" />
+                <circle cx="60" cy="60" r="4" fill="#c49660" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-foreground">Interaktivní cvičení</h3>
             <p className="text-sm text-foreground/60 leading-relaxed">
               Kompas životních oblastí, pojmenování hodnot, nastavení denních rituálů. Projdeš ve svém tempu — na konci máš jasný výstup.
             </p>
           </div>
-          <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-2">
-            <span className="text-3xl">📱</span>
-            <h3 className="font-bold text-foreground">Aplikace pro každý den</h3>
+
+          {/* Aplikace pro každý den */}
+          <div className="bg-white border border-black/8 rounded-[24px] px-6 py-8 flex flex-col items-center text-center gap-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+            <div className="w-28 h-28 flex items-center justify-center">
+              <svg viewBox="0 0 100 140" fill="none" className="h-full">
+                <rect x="15" y="5" width="70" height="130" rx="14" stroke="#c49660" strokeWidth="3" fill="#faf3eb" />
+                <rect x="20" y="20" width="60" height="95" rx="4" fill="white" stroke="#e8dcc8" strokeWidth="1" />
+                <circle cx="50" cy="125" r="5" stroke="#c49660" strokeWidth="2" fill="none" />
+                <rect x="28" y="28" width="44" height="6" rx="3" fill="#FF8C42" opacity="0.3" />
+                <rect x="28" y="40" width="30" height="4" rx="2" fill="#e8dcc8" />
+                <rect x="28" y="50" width="38" height="4" rx="2" fill="#e8dcc8" />
+                <rect x="28" y="60" width="25" height="4" rx="2" fill="#e8dcc8" />
+                <circle cx="30" cy="76" r="3" fill="#FF8C42" opacity="0.4" />
+                <rect x="38" y="74" width="28" height="4" rx="2" fill="#e8dcc8" />
+                <circle cx="30" cy="88" r="3" fill="#4ECDC4" opacity="0.4" />
+                <rect x="38" y="86" width="22" height="4" rx="2" fill="#e8dcc8" />
+                <circle cx="30" cy="100" r="3" fill="#B0A7F5" opacity="0.4" />
+                <rect x="38" y="98" width="32" height="4" rx="2" fill="#e8dcc8" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-foreground">Aplikace pro každý den</h3>
             <p className="text-sm text-foreground/60 leading-relaxed">
               Dashboard s denním to-do, prioritami, check-iny a reflexemi. Tvůj osobní přehled, který ti pomůže žít vědoměji — každý den.
             </p>
           </div>
-          <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-2">
-            <span className="text-3xl">🤖</span>
-            <h3 className="font-bold text-foreground">AI průvodce</h3>
+
+          {/* AI průvodce */}
+          <div className="bg-white border border-black/8 rounded-[24px] px-6 py-8 flex flex-col items-center text-center gap-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+            <div className="w-28 h-28 flex items-center justify-center">
+              <svg viewBox="0 0 120 120" fill="none" className="w-full h-full">
+                <ellipse cx="60" cy="95" rx="30" ry="8" fill="#e8dcc8" opacity="0.5" />
+                <rect x="35" y="45" width="50" height="45" rx="10" fill="#d4e4f7" stroke="#8bb0d4" strokeWidth="2" />
+                <rect x="30" y="30" width="60" height="40" rx="14" fill="#e8f0fa" stroke="#8bb0d4" strokeWidth="2" />
+                <circle cx="47" cy="48" r="5" fill="#4a90d9" />
+                <circle cx="73" cy="48" r="5" fill="#4a90d9" />
+                <circle cx="47" cy="47" r="2" fill="white" />
+                <circle cx="73" cy="47" r="2" fill="white" />
+                <path d="M52 58 Q60 64 68 58" stroke="#8bb0d4" strokeWidth="2" fill="none" strokeLinecap="round" />
+                <rect x="22" y="55" width="12" height="8" rx="4" fill="#d4e4f7" stroke="#8bb0d4" strokeWidth="1.5" />
+                <rect x="86" y="55" width="12" height="8" rx="4" fill="#d4e4f7" stroke="#8bb0d4" strokeWidth="1.5" />
+                <circle cx="90" cy="30" r="8" fill="#FFD966" stroke="#e8b830" strokeWidth="1.5" />
+                <path d="M90 24 L90 30 L94 30" stroke="#e8b830" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M84 18 L86 22 M96 18 L94 22 M90 14 L90 19" stroke="#e8b830" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-foreground">AI průvodce</h3>
             <p className="text-sm text-foreground/60 leading-relaxed">
               Osobní thinking parťák, který tě zná. Dokáže ukázat nové perspektivy, položit správnou otázku a pomoct ti najít vlastní odpovědi.
             </p>
@@ -356,20 +408,24 @@ function LaboratorContent() {
 
 
       {/* Pricing */}
-      <section className="max-w-md mx-auto px-5 pb-20">
-        <div className="paper-card rounded-[32px] px-8 py-10 text-center">
-          <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-3">
-            Předplatné
-          </p>
-          <p className="text-5xl font-extrabold text-foreground mb-1">
-            490 Kč
-          </p>
-          <p className="text-sm text-foreground/50 mb-8">za rok</p>
-          <AccessButton loading={buying} onClick={handleBuy} />
-          {buyError && (
-            <p className="mt-3 text-sm text-red-500">{buyError}</p>
-          )}
-          <ul className="mt-8 space-y-2 text-sm text-foreground/60 text-left">
+      <section className="max-w-5xl mx-auto px-5 pb-20">
+        <div className="bg-[#fdf0e6]/50 border border-black/8 rounded-[28px] px-8 md:px-12 py-10 flex flex-col md:flex-row md:items-center gap-8">
+          {/* Levá strana — cena + CTA */}
+          <div className="md:w-1/2 space-y-5">
+            <p className="text-xs font-bold text-foreground/50 uppercase tracking-widest">
+              Předplatné
+            </p>
+            <p className="text-4xl md:text-5xl font-extrabold text-foreground">
+              490 Kč za rok
+            </p>
+            <AccessButton loading={buying} onClick={handleBuy} />
+            {buyError && (
+              <p className="text-sm text-red-500">{buyError}</p>
+            )}
+          </div>
+
+          {/* Pravá strana — seznam */}
+          <ul className="md:w-1/2 space-y-3 text-sm text-foreground/70">
             {[
               "Interaktivní cvičení (Kompas, Hodnoty, Rituály)",
               "Aplikace pro každodenní život (dashboard, to-do, check-iny)",
@@ -377,8 +433,8 @@ function LaboratorContent() {
               "Nové funkce automaticky v ceně",
               "Zrušit lze kdykoliv přes Stripe",
             ].map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-accent rounded-full shrink-0" />
+              <li key={item} className="flex items-start gap-2.5">
+                <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full shrink-0 mt-1.5" />
                 {item}
               </li>
             ))}
@@ -387,9 +443,9 @@ function LaboratorContent() {
       </section>
 
       {/* FAQ */}
-      <section className="max-w-2xl mx-auto px-5 pb-24">
-        <h2 className="text-xl font-bold mb-6">Časté otázky</h2>
-        <div className="space-y-3">
+      <section className="max-w-5xl mx-auto px-5 pb-24">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-foreground text-center mb-8">Časté otázky</h2>
+        <div className="divide-y divide-black/8">
           {faqs.map((f) => (
             <FaqItem key={f.q} q={f.q} a={f.a} />
           ))}
@@ -440,117 +496,26 @@ function AccessButton({
 
 // ── Interactive tool previews ─────────────────────────────────────────────────
 
-function KompasPreview() {
-  const [revealed, setRevealed] = useState(false);
-  return (
-    <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-3">
-      <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">🧭 Kompas</span>
-      <p className="text-sm text-foreground/80 leading-relaxed italic">
-        &ldquo;Kdy naposledy jsi udělal/a něco, co ti dávalo smysl — ne proto, že jsi musel/a?&rdquo;
-      </p>
-      {!revealed ? (
-        <button
-          onClick={() => setRevealed(true)}
-          className="self-start text-xs font-semibold text-accent hover:text-accent-hover transition-colors"
-        >
-          Co s tím Kompas dělá? →
-        </button>
-      ) : (
-        <p className="text-xs text-foreground/55 leading-relaxed">
-          Tohle je jedna z otázek, kterými Kompas začíná. Sedm kroků od &bdquo;kde jsem&ldquo; po &bdquo;kam chci jít.&ldquo;
-        </p>
-      )}
-    </div>
-  );
-}
-
-const SAMPLE_VALUES = ["Svoboda", "Bezpečí", "Zvídavost", "Uznání"];
-
-function HodnotyPreview() {
-  const [selected, setSelected] = useState<string | null>(null);
-  return (
-    <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-3">
-      <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">⭐ Hodnoty</span>
-      <div className="flex flex-wrap gap-1.5">
-        {SAMPLE_VALUES.map((v) => (
-          <button
-            key={v}
-            onClick={() => setSelected(selected === v ? null : v)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-              selected === v
-                ? "bg-accent text-white border-accent shadow-md scale-105"
-                : "bg-white/80 text-foreground/70 border-foreground/12 hover:border-accent/40 hover:text-accent"
-            }`}
-          >
-            {v}
-          </button>
-        ))}
-      </div>
-      {selected ? (
-        <p className="text-xs text-foreground/55 leading-relaxed">
-          <span className="font-semibold text-foreground/70">{selected}</span> — proč zrovna ta? Projdeš všech 56 a najdeš ty svoje.
-        </p>
-      ) : (
-        <p className="text-xs text-foreground/40">Klikni a zamysli se — proč zrovna ta?</p>
-      )}
-    </div>
-  );
-}
-
-const MORNING_OPTIONS = [
-  "Scrolluju telefon",
-  "Nemám rutinu",
-  "Rutinu nedodržím",
-];
-
-function DenPreview() {
-  const [picked, setPicked] = useState<number | null>(null);
-  return (
-    <div className="paper-card rounded-[20px] px-5 py-5 flex flex-col gap-3">
-      <span className="text-xs font-semibold text-foreground/40 uppercase tracking-wider">⏱️ Tvůj den</span>
-      <p className="text-xs text-foreground/55 mb-0.5">Jak vypadá tvoje ráno?</p>
-      <div className="flex flex-col gap-1.5">
-        {MORNING_OPTIONS.map((opt, i) => (
-          <button
-            key={i}
-            onClick={() => setPicked(picked === i ? null : i)}
-            className={`text-left px-3 py-2 rounded-xl text-xs border transition-all ${
-              picked === i
-                ? "bg-accent/10 border-accent/30 text-foreground font-semibold"
-                : "bg-white/80 border-foreground/8 text-foreground/65 hover:border-accent/25"
-            }`}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-      {picked !== null && (
-        <p className="text-xs text-foreground/55 leading-relaxed">
-          Sestav si ráno, den i večer z rituálů, které dávají smysl tvému mozku.
-        </p>
-      )}
-    </div>
-  );
-}
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="paper-card rounded-[20px] overflow-hidden">
+    <div>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full px-6 py-4 flex items-center justify-between text-left gap-4"
+        className="w-full py-5 flex items-center justify-between text-left gap-4"
       >
-        <span className="font-semibold text-sm">{q}</span>
-        <span
-          className={`text-foreground/40 transition-transform shrink-0 ${open ? "rotate-45" : ""}`}
+        <span className="font-bold text-lg text-foreground">{q}</span>
+        <svg
+          className={`w-5 h-5 text-foreground/40 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
         >
-          +
-        </span>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
       {open && (
-        <div className="px-6 pb-5">
-          <p className="text-sm text-foreground/60 leading-relaxed">{a}</p>
+        <div className="pb-5">
+          <p className="text-base text-foreground/60 leading-relaxed">{a}</p>
         </div>
       )}
     </div>

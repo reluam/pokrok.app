@@ -22,8 +22,8 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Žiju life. Místo, kde se učíme žít život podle sebe.",
-  description: "Život nemá manuál a většina z nás se v něm prostě jen snaží neztratit. Já věřím, že v tom nemusíme být sami. Tvořím komunitu pro všechny, kteří chtějí život opravdu prožít, zkoušet nové věci, získat nadhled a zjistit, o čem je štěstí.",
+  title: "Žiju life",
+  description: "Jsem průzkumník životem — hledám, co funguje, a pomáhám lidem skutečně žít.",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
