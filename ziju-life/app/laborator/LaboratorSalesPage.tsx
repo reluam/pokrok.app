@@ -354,18 +354,6 @@ function LaboratorContent() {
         </div>
       </section>
 
-      {/* Interaktivní ukázky */}
-      <section className="max-w-5xl mx-auto px-5 pb-20">
-        <h2 className="text-xl font-bold mb-6">Vyzkoušej si to</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <KompasPreview />
-          <HodnotyPreview />
-          <DenPreview />
-        </div>
-        <p className="text-xs text-foreground/35 mt-5 text-center">
-          Další nástroje průběžně přibývají — všechny v ceně předplatného.
-        </p>
-      </section>
 
       {/* Pricing */}
       <section className="max-w-md mx-auto px-5 pb-20">
