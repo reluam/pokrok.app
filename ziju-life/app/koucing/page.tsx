@@ -184,48 +184,54 @@ export default function KoucingPage() {
             </div>
 
             {/* Konzultace box */}
-            <div className="rounded-[28px] border-2 border-accent/40 bg-white/90 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-8 py-10 space-y-7 flex flex-col relative">
+            <div className="rounded-[28px] border-2 border-accent/40 bg-white/90 shadow-xl backdrop-blur-xl backdrop-saturate-150 px-8 py-10 relative">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <span className="bg-accent text-white text-xs font-bold px-4 py-1 rounded-full">Zdarma</span>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 mb-7">
                 <h3 className="text-2xl font-bold text-foreground">Nezávazná konzultace</h3>
                 <p className="text-foreground/65 leading-relaxed">
                   30 minut, kde si projdeme tvoji situaci a zjistíme, jestli a jak ti mohu pomoct. Pokud smysl nedává, řekneme si to rovnou.
                 </p>
               </div>
 
-              <div className="text-4xl font-extrabold text-accent">Zdarma</div>
+              <div className="flex flex-col md:flex-row md:gap-10 gap-8">
+                {/* Left: Zdarma + bullet points */}
+                <div className="flex-1 space-y-5">
+                  <div className="text-4xl font-extrabold text-accent">Zdarma</div>
 
-              <ul className="space-y-2">
-                {[
-                  "30 minut jeden na jednoho",
-                  "Projdeme tvoji situaci bez příkras",
-                  "Zjistíme, jestli a jak mohu pomoct",
-                  "Žádný závazek ani tlak",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mt-0.5">
-                      <span className="text-accent font-bold text-xs">✓</span>
-                    </span>
-                    <span className="text-base text-foreground/80">{item}</span>
-                  </li>
-                ))}
-              </ul>
+                  <ul className="space-y-2">
+                    {[
+                      "30 minut jeden na jednoho",
+                      "Projdeme tvoji situaci bez příkras",
+                      "Zjistíme, jestli a jak mohu pomoct",
+                      "Žádný závazek ani tlak",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mt-0.5">
+                          <span className="text-accent font-bold text-xs">✓</span>
+                        </span>
+                        <span className="text-base text-foreground/80">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-              <div className="space-y-2">
-                <LeadForm
-                  source="koucing_konzultace"
-                  compact
-                  preferredKind="free"
-                  preferredMeetingTypeId="intro_free"
-                  lockMeetingType
-                  submitLabel="Zarezervovat konzultaci zdarma"
-                />
-                <p className="text-[11px] text-foreground/50 text-center">
-                  Nejprve vyplníš údaje, hned poté si vybereš termín.
-                </p>
+                {/* Right: form */}
+                <div className="flex-1 flex flex-col justify-center space-y-2">
+                  <LeadForm
+                    source="koucing_konzultace"
+                    compact
+                    preferredKind="free"
+                    preferredMeetingTypeId="intro_free"
+                    lockMeetingType
+                    submitLabel="Zarezervovat konzultaci zdarma"
+                  />
+                  <p className="text-[11px] text-foreground/50 text-center">
+                    Nejprve vyplníš údaje, hned poté si vybereš termín.
+                  </p>
+                </div>
               </div>
             </div>
 

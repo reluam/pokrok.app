@@ -1,6 +1,4 @@
 import Image from "next/image";
-import DecorativeShapes from "@/components/DecorativeShapes";
-import RevealSection from "@/components/RevealSection";
 
 export const dynamic = "force-static";
 
@@ -34,151 +32,157 @@ const pillars: Pillar[] = [
 
 export default function OMnePage() {
   return (
-    <main className="min-h-screen">
-      {/* Sekce 1: Ten moment – ve skleněném boxu */}
-      <RevealSection>
-        <section className="relative py-12 md:py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
-          <DecorativeShapes position="left" />
-          <div className="max-w-5xl mx-auto relative z-10">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-6 md:px-10 py-8 md:py-10">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center">
-                <div className="md:col-span-2">
-                  <h1
-                    className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-6"
-                    style={{ fontWeight: 600 }}
-                  >
-                    Už mi není dvacet
-                  </h1>
-                  <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
-                    <p className="text-lg md:text-xl">
-                      Kolem třicítky mě to trefilo. Došlo mi, že pokud budu mít fakt štěstí, mám před
-                      sebou už jen dvě třetiny života. Tu první jsem strávil jako pozorovatel – učil jsem
-                      se o lidech, o světě i o sobě, ale pořád jsem stál tak trochu bokem. Štvalo mě, že
-                      ostatní mají tu sílu se světem hýbat a tvořit si ho podle sebe. Došlo mi, že už
-                      nechci jen doufat, že to <em>nějak vytočím</em>. Chci s tím světem konečně začít
-                      interagovat.
-                    </p>
-                  </div>
-                </div>
-                <div className="relative w-full aspect-square washi-tape-photo washi-tape-sides">
-                  <Image
-                    src="/o-mne-moment.jpg"
-                    alt="Ten moment"
-                    fill
-                    className="object-cover rounded-lg"
-                    sizes="(max-width: 768px) 100vw, 400px"
-                  />
-                </div>
-              </div>
+    <main className="min-h-screen bg-[#FDFDF7]">
+      {/* Hero: Ten moment */}
+      <section className="max-w-5xl mx-auto px-5 pt-10 pb-16">
+        <div className="bg-[#fdf0e6]/50 border border-black/8 rounded-[32px] px-8 md:px-16 py-14 md:py-20">
+          <div className="flex flex-col md:flex-row gap-10 md:gap-14 items-center">
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-6 leading-tight">
+                Hledám odpovědi
+              </h1>
+              <p className="text-lg text-foreground/65 leading-relaxed mb-6">
+                Jsem Matěj. Bývalý muzikant, projektový manažer a věčný hledač. Většinu života jsem strávil snahou přijít na to, jak se tenhle život vlastně &bdquo;hraje&ldquo;. Přečetl jsem víc knih o produktivitě, než je zdravé, abych nakonec zjistil, že odpovědi se neschovávají v kapitolách, ale v tom, co dělám každý den. Tady začala moje cesta od nekonečného hloubání k žité realitě.
+              </p>
+              <a
+                href="#moje-cesta"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-foreground/15 font-semibold text-base text-foreground/70 hover:border-foreground/30 hover:text-foreground transition-colors bg-white/60"
+              >
+                Moje cesta: Jak jsem přestal čekat na zázrak ↓
+              </a>
+            </div>
+            <div className="relative w-full md:w-72 aspect-square rounded-2xl overflow-hidden shrink-0">
+              <Image
+                src="/o-mne-moment.jpg"
+                alt="Ten moment"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 288px"
+              />
             </div>
           </div>
-        </section>
-      </RevealSection>
+        </div>
+      </section>
 
-      {/* Sekce 2: Od hloubání k Žiju life – také ve skleněném boxu */}
-      <RevealSection>
-        <section className="relative py-12 md:py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
-          <DecorativeShapes position="right" />
-          <div className="max-w-5xl mx-auto relative z-10">
-            <div className="relative overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-xl backdrop-blur-xl backdrop-saturate-150 glass-grain px-6 md:px-10 py-8 md:py-10">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center">
-                <div className="order-2 md:order-1 relative w-full aspect-square washi-tape-photo">
-                  <Image
-                    src="/o-mne-hloubani.jpg"
-                    alt="Od hloubání k Žiju life"
-                    fill
-                    className="object-cover rounded-lg"
-                    sizes="(max-width: 768px) 100vw, 400px"
-                  />
-                </div>
-                <div className="order-1 md:order-2 md:col-span-2">
-                  <h2
-                    className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-6"
-                    style={{ fontWeight: 600 }}
-                  >
-                    <span className="hand-drawn-underline">Od hloubání k Žiju life</span>
-                  </h2>
-                  <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
-                    <p className="text-lg md:text-xl">
-                      Půl roku jsem to v sobě převaloval. Hledal jsem způsob, jak zkušenosti z první
-                      třetiny života nevyhodit z okna, ale předávat je dál a přitom se nepřestat učit.
-                      Proto vzniklo Žiju life. Místo, kde společně můžeme přicházet na to, jak ten život
-                      vlastně hrát.
-                    </p>
-                  </div>
-                </div>
-              </div>
+      {/* Od hloubání k Žiju life */}
+      <section className="max-w-5xl mx-auto px-5 pb-16">
+        <div className="bg-white border border-black/8 rounded-[32px] px-8 md:px-16 py-14 md:py-20">
+          <div className="flex flex-col md:flex-row gap-10 md:gap-14 items-center">
+            <div className="relative w-full md:w-72 aspect-square rounded-2xl overflow-hidden shrink-0 order-2 md:order-1">
+              <Image
+                src="/o-mne-hloubani.jpg"
+                alt="Od hloubání k Žiju life"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 288px"
+              />
             </div>
-          </div>
-        </section>
-      </RevealSection>
-
-      {/* Sekce 3: 5 věcí, o které se opírám */}
-      <RevealSection>
-        <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
-          <div className="max-w-6xl mx-auto relative z-10">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-12 text-center" style={{ fontWeight: 600 }}>
-              <span className="hand-drawn-underline">5 věcí, o které se opírám</span>
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {pillars.map((pillar, index) => (
-                <div
-                  key={index}
-                  className="bg-white/85 rounded-[24px] p-6 md:p-8 border border-white/60 shadow-md hover:shadow-xl transition-all hover:-translate-y-1 backdrop-blur"
-                  style={{ transform: `rotate(${index % 2 === 0 ? '-0.5deg' : '0.5deg'})` }}
-                >
-                  <h3 className="text-xl md:text-2xl text-foreground mb-4" style={{ fontWeight: 600 }}>
-                    <span className="text-accent font-bold">{pillar.title}</span>
-                  </h3>
-                  <p className="text-foreground/80 leading-relaxed">
-                    {pillar.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-            
-            <div className="mt-12 text-center">
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-                Takhle žiju life já. Pokud tě tenhle přístup baví, načerpej více inspirace níže nebo si{" "}
-                <a href="/koucing#rezervace" className="text-accent font-semibold hover:underline">
-                  tady
-                </a>{" "}
-                zarezervuj 30 minutovou konzultaci, kde probereme, jestli ti můžu pomoct žít tvůj život více podle tebe.
+            <div className="flex-1 order-1 md:order-2">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-6 leading-tight">
+                Od hloubání k Žiju life
+              </h2>
+              <p className="text-lg text-foreground/65 leading-relaxed">
+                Právě z tohohle zjištění vzniklo Žiju.life. Došlo mi totiž, že smysl života se nehledá — ten se tvoří. Každý den a každým jedním rozhodnutím. Vytvářím tady prostor pro lidi, kteří už nechtějí žít podle cizích pravidel, ale podle vlastních hodnot a svědomí. Skrz praktické nástroje, inspiraci a lidský rozhovor ti pomůžu složit vlastní životní mozaiku. Protože právě v té každodennosti se skrývá život, který stojí za to prožít.
               </p>
             </div>
           </div>
-        </section>
-      </RevealSection>
+        </div>
+      </section>
+
+      {/* 5 věcí, o které se opírám */}
+      <section className="max-w-5xl mx-auto px-5 pb-16">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-foreground text-center mb-10">
+          5 věcí, o které se opírám
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {pillars.map((pillar) => (
+            <div
+              key={pillar.title}
+              className="bg-white border border-black/8 rounded-[24px] px-6 py-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+            >
+              <h3 className="text-lg font-bold text-accent mb-3">
+                {pillar.title}
+              </h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                {pillar.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Moje cesta */}
+      <section id="moje-cesta" className="max-w-5xl mx-auto px-5 pb-16 scroll-mt-8">
+        <div className="bg-white border border-black/8 rounded-[32px] px-8 md:px-16 py-14 md:py-20 space-y-8">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight">
+            Moje cesta: Od úniku k přítomnosti
+          </h2>
+          <div className="space-y-6 text-lg text-foreground/65 leading-relaxed">
+            <p>
+              Od mala jsem si přál jediné — fungovat jako normální člověk. Jenže čím víc jsem se snažil, tím míň to šlo. Ostatní jako by věděli, co se životem dělat. Já ne. Ten pocit tam byl vždycky. Tiše, v pozadí, jako něco, co jsem si nechtěl přiznat.
+            </p>
+            <p>
+              Tak jsem zkoušel. Skládal jsem hudbu. Rozjížděl e-shopy. Organizoval festivaly. Četl jsem hory knížek, testoval frameworky a aplikace. Měnil jsem směr tolikrát, že jsem si začal připadat jako podvodník. A mezi tím vším jsem tajně doufal, že mě někdo zachrání. Že přijde moment, kdy si mě někdo všimne a rázem se všechno vyřeší. Chtěl jsem být speciální. Chtěl jsem, aby pro mě neplatila běžná pravidla.
+            </p>
+            <p className="text-xl font-bold text-foreground">
+              Problém nebyl v tom, že jsem nevěděl, co chci. Problém byl, že jsem žil v budoucnu.
+            </p>
+            <p>
+              Nechtěl jsem vidět tu propast mezi tím, kde jsem, a tím, kde chci být. Ta mezera mě ochromovala. Místo abych udělal jeden malý krok, čekal jsem na zázrak, který mě přenese na druhou stranu. Nakonec mě to dovedlo na terapii. Ne z odvahy, ale proto, že jsem odkládal rozhodnutí tak dlouho, až se věci začaly sypat samy.
+            </p>
+            <p>
+              Moje terapeutka mi opakovala pořád to samé: <em>&bdquo;Tvůj život je mozaika. Máš skvělou představu, jak má vypadat. Teď ji musíš začít skládat. Den po dni.&ldquo;</em>
+            </p>
+            <p>
+              Strašně se mi to příčilo. Chtěl jsem zkratku. Chtěl jsem, aby to za mě vyřešil někdo jiný. Chtěl jsem to zabalit a najít si jinou terapeutku. Ale neudělal jsem to. Říkal jsem si, že už nemám co ztratit — všechny moje předchozí strategie stejně selhaly.
+            </p>
+            <p>
+              Tak jsem to zkusil. Ze začátku mi to přišlo nesmyslné. Přestat snít o &bdquo;krásných zítřcích&ldquo; a začít se probírat každodenní realitou pro mě znamenalo připustit si tu šeď. Žádná velká vize. Jen dnešek. Pokračoval jsem v tom hlavně proto, abych jí dokázal, že to nefunguje.
+            </p>
+            <p className="text-xl font-bold text-foreground">
+              A pak se stala zvláštní věc.
+            </p>
+            <p>
+              Právě ve chvíli, kdy jsem si tu propast připustil — kdy jsem se přestal tvářit, že neexistuje — jsem začal dělat největší pokroky. Ne proto, že bych našel lepší systém. Ale proto, že jsem konečně začal reálně něco dělat.
+            </p>
+            <p>
+              Postupně se to stalo mým normálem. Začal jsem dělat důležitá rozhodnutí včas a nenechával je vyhnít. Začal jsem věci dotahovat. Začal jsem být dochvilný — ne proto, že bych si hlídal hodinky, ale protože jsem začal dělat vědomá rozhodnutí o svém čase. Čím víc jsem se soustředil na to, co dělám právě teď, tím víc jsem ten život skutečně prožíval.
+            </p>
+            <p>
+              Celý život jsem utíkal před &bdquo;normálností&ldquo;. Ironií je, že právě přijetí obyčejného, každodenního života mi dalo víc než roky hledání výjimečnosti.
+            </p>
+            <p>
+              Tohle byl můj největší zlom. Pořád jsem na cestě, ale jedno vím jistě: Chci zkoumat, jak žít skutečně prožitý život. A předávat dál, co jsem zjistil.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* CTA */}
-      <RevealSection>
-        <section className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto text-center space-y-5">
-            <p className="text-2xl md:text-3xl font-bold text-foreground leading-snug">
-              Chceš zjistit, kde teď jsi a kam chceš?
-            </p>
-            <p className="text-lg text-foreground/60 leading-relaxed">
-              Vytvoř si svůj kompas — zdarma.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="/laborator/tvuj-kompas"
-                className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
-              >
-                Kompas →
-              </a>
-              <a
-                href="/koucing"
-                className="text-base text-foreground/55 hover:text-foreground transition-colors"
-              >
-                Nebo se potkejme na koučingu
-              </a>
-            </div>
+      <section className="max-w-5xl mx-auto px-5 pb-24">
+        <div className="bg-[#fdf0e6]/50 border border-black/8 rounded-[28px] px-8 md:px-12 py-10 text-center space-y-5">
+          <p className="text-2xl md:text-3xl font-extrabold text-foreground leading-snug">
+            Chceš zjistit, kde teď jsi a kam chceš?
+          </p>
+          <p className="text-lg text-foreground/60 leading-relaxed">
+            Vyber si cestu, která ti dává smysl.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="/laborator"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors shadow-lg"
+            >
+              Laboratoř →
+            </a>
+            <a
+              href="/koucing"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors shadow-lg"
+            >
+              Koučing →
+            </a>
           </div>
-        </section>
-      </RevealSection>
-
+        </div>
+      </section>
     </main>
   );
 }
