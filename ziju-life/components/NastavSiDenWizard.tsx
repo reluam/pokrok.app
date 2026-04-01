@@ -704,7 +704,7 @@ function PreviewCard({ slot, ids, overrides }: { slot: Slot; ids: string[]; over
       </ul>
       <div className="border-t border-foreground/5 px-5 py-3">
         <p className="text-xs text-foreground/30 italic">
-          Dnes nemusí být dokonalý den. Stačí, že je lepší než včera.
+          Dnes nemusí být dokonalý den.
         </p>
       </div>
     </div>
@@ -752,6 +752,9 @@ export function DownloadPDFButton({
         toBase64("/fonts/Roboto-Bold.ttf"),
       ]);
 
+      // Load logo
+      const logoBase64 = await toBase64("/ziju-life-logo.png");
+
       const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       doc.addFileToVFS("Roboto-Regular.ttf", fontRegular);
       doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
@@ -759,8 +762,10 @@ export function DownloadPDFButton({
       doc.addFont("Roboto-Bold.ttf", "Roboto", "bold");
 
       const pageW = 210, pageH = 297, margin = 12;
-      const cardW = pageW - margin * 2;
-      const cardH = (pageH - margin * 4) / 3;
+      const contentW = pageW - margin * 2;
+      const colGap = 5;
+      const colW = (contentW - colGap * 2) / 3;
+      const accent = { r: 255, g: 140, b: 66 };
 
       const slots: Array<{ slot: Slot; label: string }> = [
         { slot: "morning", label: "RANNÍ RUTINA" },
@@ -768,67 +773,111 @@ export function DownloadPDFButton({
         { slot: "evening", label: "VEČERNÍ RUTINA" },
       ];
 
-      slots.forEach(({ slot, label }, idx) => {
-        const ids = selection[slot];
-        const rituals = ids.map((id) => ({ id, ...getRitual(id, selection.durationOverrides) }));
-        const totalMin = rituals.reduce((s, r) => s + r.duration_min, 0);
-        const yTop = margin + idx * (cardH + margin);
+      // Calculate row height based on max rituals
+      const maxRituals = Math.max(selection.morning.length, selection.daily.length, selection.evening.length, 1);
+      const colHeaderH = 8;
+      const dateFieldH = 7;
+      const rowGap = 3;
+      const fullRowH = dateFieldH + colHeaderH + maxRituals * 7 + 4;
+      const footerH = 10;
+      const availableH = pageH - margin * 2 - footerH;
+      const rowsOnPage = Math.max(1, Math.floor((availableH + rowGap) / (fullRowH + rowGap)));
 
-        doc.setFillColor(255, 255, 255);
-        doc.setDrawColor(220, 220, 215);
-        doc.roundedRect(margin, yTop, cardW, cardH, 4, 4, "FD");
-        doc.setFillColor(23, 23, 23);
-        doc.roundedRect(margin, yTop, cardW, 18, 4, 4, "F");
-        doc.setFillColor(23, 23, 23);
-        doc.rect(margin, yTop + 10, cardW, 8, "F");
+      // --- Render function for one page ---
+      function renderPage() {
+        // Background
+        doc.setFillColor(253, 253, 247); // #FDFDF7
+        doc.rect(0, 0, pageW, pageH, "F");
 
-        doc.setFont("Roboto", "bold");
-        doc.setFontSize(7);
-        doc.setTextColor(120, 120, 120);
-        doc.text(label, margin + 6, yTop + 7);
-        doc.setFontSize(9);
-        doc.setTextColor(255, 255, 255);
-        doc.text(totalMin > 0 ? `${totalMin} min celkem` : "bez časového limitu", margin + 6, yTop + 14);
+        for (let row = 0; row < rowsOnPage; row++) {
+          const rowY = margin + row * (fullRowH + rowGap);
 
-        doc.setFont("Roboto", "normal");
-        doc.setTextColor(30, 30, 30);
-        let y = yTop + 25;
+          // Row separator
+          if (row > 0) {
+            doc.setDrawColor(230, 230, 225);
+            doc.setLineDashPattern([1, 1], 0);
+            doc.line(margin, rowY - 2, pageW - margin, rowY - 2);
+            doc.setLineDashPattern([], 0);
+          }
 
-        if (rituals.length === 0) {
-          doc.setFontSize(9);
-          doc.setTextColor(150, 150, 150);
-          doc.text("Žádné rituály nebyly vybrány.", margin + 6, y);
-        } else {
-          rituals.forEach((r) => {
-            if (y > yTop + cardH - 14) return;
-            doc.setDrawColor(180, 180, 180);
-            doc.setFillColor(255, 255, 255);
-            doc.roundedRect(margin + 4, y - 3.5, 4, 4, 0.5, 0.5, "FD");
-            doc.setFontSize(9);
-            doc.setTextColor(30, 30, 30);
-            const name = r.name.length > 42 ? r.name.slice(0, 42) + "…" : r.name;
-            doc.text(name, margin + 10, y);
-            if (r.duration_min > 0) {
+          // Date field for this row
+          doc.setFont("Roboto", "normal");
+          doc.setFontSize(7.5);
+          doc.setTextColor(180, 180, 175);
+          doc.text("Datum:", margin + 1, rowY + 4);
+          doc.setDrawColor(200, 200, 195);
+          doc.line(margin + 16, rowY + 5, margin + 55, rowY + 5);
+
+          // Column headers for this row
+          const headerY = rowY + dateFieldH;
+          slots.forEach(({ label }, colIdx) => {
+            const colX = margin + colIdx * (colW + colGap);
+            doc.setFillColor(255, 248, 240);
+            doc.roundedRect(colX, headerY, colW, colHeaderH, 1.5, 1.5, "F");
+            doc.setFont("Roboto", "bold");
+            doc.setFontSize(7);
+            doc.setTextColor(accent.r, accent.g, accent.b);
+            doc.text(label, colX + colW / 2, headerY + 5, { align: "center" });
+          });
+
+          // Rituals for this row
+          const ritualsY = headerY + colHeaderH + 2;
+          slots.forEach(({ slot }, colIdx) => {
+            const colX = margin + colIdx * (colW + colGap);
+            const ids = selection[slot];
+            const rituals = ids.map((id) => ({ id, ...getRitual(id, selection.durationOverrides) }));
+
+            let y = ritualsY;
+
+            if (rituals.length === 0) {
               doc.setFontSize(7.5);
-              doc.setTextColor(150, 150, 150);
-              doc.text(`${r.duration_min} min`, pageW - margin - 6, y, { align: "right" });
+              doc.setTextColor(200, 200, 195);
+              doc.text("—", colX + 2, y + 3);
+            } else {
+              rituals.forEach((r) => {
+                doc.setDrawColor(210, 210, 205);
+                doc.setFillColor(255, 255, 255);
+                doc.roundedRect(colX + 1, y, 4, 4, 0.8, 0.8, "FD");
+
+                doc.setFont("Roboto", "normal");
+                doc.setFontSize(8);
+                doc.setTextColor(60, 60, 60);
+                const maxChars = Math.floor((colW - 16) / 1.7);
+                const name = r.name.length > maxChars ? r.name.slice(0, maxChars - 1) + "…" : r.name;
+                doc.text(name, colX + 7, y + 3);
+
+                if (r.duration_min > 0) {
+                  doc.setFontSize(6.5);
+                  doc.setTextColor(180, 180, 175);
+                  doc.text(`${r.duration_min} min`, colX + colW - 1, y + 3, { align: "right" });
+                }
+
+                y += 7;
+              });
             }
-            y += 7;
           });
         }
 
-        const footerY = yTop + cardH - 10;
-        doc.setDrawColor(230, 230, 225);
-        doc.line(margin + 4, footerY - 2, margin + cardW - 4, footerY - 2);
-        doc.setFont("Roboto", "normal");
-        doc.setFontSize(7);
-        doc.setTextColor(160, 160, 150);
-        doc.text("Dnes nemusí být dokonalý den. Stačí, že je lepší než včera.", margin + 6, footerY + 3);
-        doc.setFontSize(6.5);
-        doc.text("ziju.life", pageW - margin - 6, footerY + 3, { align: "right" });
-      });
+        // Footer with logo
+        const footerY = pageH - margin;
+        doc.setDrawColor(accent.r, accent.g, accent.b);
+        doc.setLineWidth(0.3);
+        doc.line(margin, footerY - 6, pageW - margin, footerY - 6);
+        doc.setLineWidth(0.2);
 
-      doc.save("nastav-si-den.pdf");
+        try {
+          doc.addImage(logoBase64, "PNG", margin, footerY - 5, 18, 6);
+        } catch {}
+
+        doc.setFont("Roboto", "normal");
+        doc.setFontSize(6);
+        doc.setTextColor(200, 200, 195);
+        doc.text("Dnes nemusí být dokonalý den.", pageW / 2, footerY - 1, { align: "center" });
+      }
+
+      renderPage();
+
+      doc.save("ritualy.pdf");
     } catch (err) {
       console.error("PDF generation failed:", err);
     } finally {
@@ -853,6 +902,236 @@ export function DownloadPDFButton({
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
           Stáhnout jako PDF
+        </>
+      )}
+    </button>
+  );
+}
+
+// ── PrintDayOverviewButton — A5 x2 on A4, blank daily planner ────────────────
+
+export function PrintDayOverviewButton({
+  selection,
+  className,
+}: {
+  selection: RitualSelection;
+  className?: string;
+}) {
+  const [generating, setGenerating] = useState(false);
+
+  const handleClick = useCallback(async () => {
+    setGenerating(true);
+    try {
+      const { default: jsPDF } = await import("jspdf");
+
+      async function toBase64(url: string): Promise<string> {
+        const buf = await fetch(url).then((r) => r.arrayBuffer());
+        const bytes = new Uint8Array(buf);
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary);
+      }
+      const [fontRegular, fontBold, logoBase64] = await Promise.all([
+        toBase64("/fonts/Roboto-Regular.ttf"),
+        toBase64("/fonts/Roboto-Bold.ttf"),
+        toBase64("/ziju-life-logo.png"),
+      ]);
+
+      // A4 landscape → two A5 portrait side by side
+      const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "landscape" });
+      doc.addFileToVFS("Roboto-Regular.ttf", fontRegular);
+      doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+      doc.addFileToVFS("Roboto-Bold.ttf", fontBold);
+      doc.addFont("Roboto-Bold.ttf", "Roboto", "bold");
+
+      const pageW = 297, pageH = 210;
+      const a5W = pageW / 2; // ~148.5
+      const a5H = pageH;     // 210
+      const accent = { r: 255, g: 140, b: 66 };
+
+      function renderA5(offsetX: number) {
+        const m = 8;
+        const left = offsetX + m;
+        const w = a5W - m * 2;
+        const h = a5H;
+
+        // Background
+        doc.setFillColor(253, 253, 247);
+        doc.rect(offsetX, 0, a5W, a5H, "F");
+
+        // Cut line between halves
+        if (offsetX > 0) {
+          doc.setDrawColor(210, 210, 210);
+          doc.setLineDashPattern([2, 2], 0);
+          doc.line(offsetX, 0, offsetX, pageH);
+          doc.setLineDashPattern([], 0);
+        }
+
+        // Header: "Můj den" + underline for date
+        let y = m + 5;
+        doc.setFont("Roboto", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(50, 50, 50);
+        doc.text("Můj den", left, y);
+        const titleW = doc.getTextWidth("Můj den");
+        doc.setDrawColor(200, 200, 195);
+        doc.line(left + titleW + 3, y + 1, left + titleW + 45, y + 1);
+
+        try { doc.addImage(logoBase64, "PNG", left + w - 20, m, 20, 7); } catch {}
+
+        y += 4;
+        doc.setDrawColor(accent.r, accent.g, accent.b);
+        doc.setLineWidth(0.4);
+        doc.line(left, y, left + w, y);
+        doc.setLineWidth(0.2);
+
+        y += 5;
+
+        // --- To Do ---
+        doc.setFont("Roboto", "bold");
+        doc.setFontSize(7.5);
+        doc.setTextColor(accent.r, accent.g, accent.b);
+        doc.text("TO DO", left, y);
+        y += 5.5;
+        for (let i = 0; i < 3; i++) {
+          doc.setDrawColor(210, 210, 205);
+          doc.setFillColor(255, 255, 255);
+          doc.roundedRect(left, y, 3.5, 3.5, 0.6, 0.6, "FD");
+          doc.setDrawColor(230, 230, 225);
+          doc.line(left + 5.5, y + 3.5, left + w, y + 3.5);
+          y += 7.5;
+        }
+
+        y += 3;
+
+        // --- Nice To Do ---
+        doc.setFont("Roboto", "bold");
+        doc.setFontSize(7.5);
+        doc.setTextColor(accent.r, accent.g, accent.b);
+        doc.text("NICE TO DO", left, y);
+        y += 5.5;
+        for (let i = 0; i < 3; i++) {
+          doc.setDrawColor(210, 210, 205);
+          doc.setFillColor(255, 255, 255);
+          doc.roundedRect(left, y, 3.5, 3.5, 0.6, 0.6, "FD");
+          doc.setDrawColor(230, 230, 225);
+          doc.line(left + 5.5, y + 3.5, left + w, y + 3.5);
+          y += 7.5;
+        }
+
+        y += 4;
+
+        // --- Priority ---
+        const scopes = [
+          { label: "TÝDEN", count: 3 },
+          { label: "MĚSÍC", count: 3 },
+          { label: "ROK", count: 3 },
+        ];
+        scopes.forEach(({ label, count }) => {
+          doc.setFont("Roboto", "bold");
+          doc.setFontSize(6.5);
+          doc.setTextColor(160, 160, 155);
+          doc.text(label, left, y);
+          y += 4;
+          for (let i = 0; i < count; i++) {
+            doc.setDrawColor(230, 230, 225);
+            doc.line(left, y + 3, left + w, y + 3);
+            y += 6;
+          }
+          y += 2.5;
+        });
+
+        // --- Rituály ---
+        const rSlots: Array<{ slot: Slot; label: string }> = [
+          { slot: "morning", label: "RANNÍ" },
+          { slot: "daily", label: "DENNÍ" },
+          { slot: "evening", label: "VEČERNÍ" },
+        ];
+
+        y += 2;
+
+        rSlots.forEach(({ slot, label }) => {
+          const ids = selection[slot];
+          const rituals = ids.map((id) => ({ id, ...getRitual(id, selection.durationOverrides) }));
+
+          doc.setFont("Roboto", "bold");
+          doc.setFontSize(7.5);
+          doc.setTextColor(accent.r, accent.g, accent.b);
+          doc.text(label, left, y);
+          const labelW = doc.getTextWidth(label);
+
+          if (rituals.length === 0) {
+            doc.setFont("Roboto", "normal");
+            doc.setFontSize(7);
+            doc.setTextColor(200, 200, 195);
+            doc.text(" —", left + labelW, y);
+          } else {
+            let x = left + labelW + 3;
+            const baseY = y - 2.8; // align checkboxes with label baseline
+            let curY = baseY;
+            rituals.forEach((r, i) => {
+              doc.setDrawColor(210, 210, 205);
+              doc.setFillColor(255, 255, 255);
+              doc.roundedRect(x, curY, 3.5, 3.5, 0.6, 0.6, "FD");
+
+              doc.setFont("Roboto", "normal");
+              doc.setFontSize(7.5);
+              doc.setTextColor(60, 60, 60);
+              const name = r.name.length > 20 ? r.name.slice(0, 19) + "…" : r.name;
+              doc.text(name, x + 4.5, curY + 2.8);
+              const nameW = doc.getTextWidth(name);
+              x += 4.5 + nameW + 5;
+
+              if (x > left + w - 15 && i < rituals.length - 1) {
+                x = left;
+                curY += 6;
+                y = curY + 2.8;
+              }
+            });
+          }
+          y += 7;
+        });
+
+        // Footer
+        doc.setDrawColor(accent.r, accent.g, accent.b);
+        doc.setLineWidth(0.3);
+        doc.line(left, h - m - 4, left + w, h - m - 4);
+        doc.setLineWidth(0.2);
+        doc.setFont("Roboto", "normal");
+        doc.setFontSize(5.5);
+        doc.setTextColor(210, 210, 205);
+        doc.text("Dnes nemusí být dokonalý den.", left + w / 2, h - m, { align: "center" });
+      }
+
+      // Render two A5 side by side
+      renderA5(0);
+      renderA5(a5W);
+
+      doc.save("prehled-dne.pdf");
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+    } finally {
+      setGenerating(false);
+    }
+  }, [selection]);
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={generating}
+      className={className ?? "inline-flex items-center gap-1.5 text-sm text-foreground/50 hover:text-foreground/70 transition-colors disabled:opacity-40"}
+    >
+      {generating ? (
+        <>
+          <span className="w-3.5 h-3.5 border-2 border-foreground/20 border-t-foreground/50 rounded-full animate-spin" />
+          Generuji…
+        </>
+      ) : (
+        <>
+          <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+            <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+          </svg>
+          Tisk přehledu
         </>
       )}
     </button>

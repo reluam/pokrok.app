@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
     // Parse messages
     const body = await request.json();
     const messages: { role: "user" | "assistant"; content: string }[] = body.messages ?? [];
+    const pageContext = String(body.pageContext ?? "").trim();
     if (body.message && !messages.length) {
       messages.push({ role: "user", content: String(body.message).trim() });
     }
@@ -112,7 +113,8 @@ export async function POST(request: NextRequest) {
 
     const profileSummary = await getAIProfileSummary(user.id);
     const profileSection = profileSummary ? `\n\n## Profil uživatele\n${profileSummary}` : "";
-    const systemPrompt = buildLabCoachPrompt(userContext) + profileSection;
+    const pageSection = pageContext ? `\n\n## Aktuální stránka\nUživatel se právě nachází na: ${pageContext}` : "";
+    const systemPrompt = buildLabCoachPrompt(userContext) + profileSection + pageSection;
 
     // Call Anthropic
     const anthropic = new Anthropic({ apiKey });

@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus, X, Check, AlertTriangle } from "lucide-react";
+import { Plus, X, Check, Pencil } from "lucide-react";
 
 interface PriorityItem {
   text: string;
   done: boolean;
-  overdue?: boolean;
 }
 
 export interface PrioritiesData {
@@ -22,27 +21,35 @@ interface Props {
 
 const EMPTY: PrioritiesData = { weekly: [], monthly: [], yearly: [] };
 
-const SCOPE_LABELS: Record<string, string> = {
-  weekly: "Tento týden",
-  monthly: "Tento měsíc",
-  yearly: "Tento rok",
+const SCOPE_CONFIG: Record<string, { label: string; max: number }> = {
+  weekly: { label: "Tento týden", max: 3 },
+  monthly: { label: "Tento měsíc", max: 4 },
+  yearly: { label: "Tento rok", max: 5 },
 };
 
 function PrioritySection({
   scope,
   items,
+  maxItems,
   onToggle,
   onAdd,
   onRemove,
+  onEdit,
 }: {
   scope: string;
   items: PriorityItem[];
+  maxItems: number;
   onToggle: (index: number) => void;
   onAdd: (text: string) => void;
   onRemove: (index: number) => void;
+  onEdit: (index: number, text: string) => void;
 }) {
   const [adding, setAdding] = useState(false);
   const [newText, setNewText] = useState("");
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const activeCount = items.filter(i => !i.done).length;
+  const canAdd = activeCount < maxItems;
 
   const handleAdd = () => {
     if (newText.trim()) {
@@ -52,86 +59,120 @@ function PrioritySection({
     }
   };
 
+  const activeItems = items.filter(i => !i.done);
+  const doneItems = items.filter(i => i.done);
+
   return (
-    <div>
-      <p className="text-[11px] font-semibold text-foreground/40 uppercase tracking-wider mb-2">
-        {SCOPE_LABELS[scope] ?? scope}
-      </p>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-bold text-foreground/60 uppercase tracking-wider">
+          {SCOPE_CONFIG[scope]?.label ?? scope}
+        </p>
+        <span className="text-xs text-foreground/30 font-medium">{activeCount}/{maxItems}</span>
+      </div>
+
       {items.length === 0 && !adding && (
-        <p className="text-xs text-foreground/30 italic mb-1">Zatím žádné priority</p>
+        <p className="text-base text-foreground/30 italic py-1">Na čem se chceš soustředit?</p>
       )}
-      {/* Overdue items */}
-      {items.some(i => i.overdue && !i.done) && (
-        <div className="bg-red-50 border border-red-200/50 rounded-xl px-3 py-2 mb-2">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <AlertTriangle size={12} className="text-red-500" />
-            <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Zpožděné</span>
-          </div>
-          <ul className="space-y-1">
-            {items.filter(i => i.overdue && !i.done).map((item) => {
-              const idx = items.indexOf(item);
-              return (
-                <li key={idx} className="flex items-start gap-2 group">
-                  <button onClick={() => onToggle(idx)}
-                    className="mt-0.5 w-4 h-4 rounded border border-red-300 flex-shrink-0 flex items-center justify-center hover:border-red-500 transition-colors" />
-                  <span className="text-sm flex-1 leading-snug text-red-600">{item.text}</span>
-                  <button onClick={() => onRemove(idx)}
-                    className="opacity-0 group-hover:opacity-100 p-0.5 text-foreground/30 hover:text-red-500 transition-all"><X size={12} /></button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-      <ul className="space-y-1">
-        {items.filter(i => !i.overdue).map((item) => {
+
+      {/* Active priorities */}
+      <ul className="space-y-2.5">
+        {activeItems.map((item) => {
           const i = items.indexOf(item);
+          const isEditing = editingIndex === i;
           return (
-          <li key={i} className="flex items-start gap-2 group">
-            <button
-              onClick={() => onToggle(i)}
-              className={`mt-0.5 w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-colors ${
-                item.done
-                  ? "bg-accent border-accent text-white"
-                  : "border-black/20 hover:border-accent/50"
-              }`}
-            >
-              {item.done && <Check size={10} />}
-            </button>
-            <span className={`text-sm flex-1 leading-snug ${item.done ? "line-through text-foreground/35" : "text-foreground/70"}`}>
-              {item.text}
-            </span>
-            <button
-              onClick={() => onRemove(i)}
-              className="opacity-0 group-hover:opacity-100 p-0.5 text-foreground/30 hover:text-red-500 transition-all"
-            >
-              <X size={12} />
-            </button>
-          </li>
+            <li key={i} className="flex items-center gap-3 group bg-accent/5 rounded-xl px-4 py-3 border border-accent/10">
+              <button
+                onClick={() => onToggle(i)}
+                className="w-6 h-6 rounded-lg border-2 border-accent/30 flex-shrink-0 flex items-center justify-center hover:border-accent hover:bg-accent/10 transition-colors"
+              >
+              </button>
+              {isEditing ? (
+                <input
+                  autoFocus
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && editText.trim()) { onEdit(i, editText.trim()); setEditingIndex(null); }
+                    if (e.key === "Escape") setEditingIndex(null);
+                  }}
+                  onBlur={() => { if (editText.trim()) onEdit(i, editText.trim()); setEditingIndex(null); }}
+                  className="text-base font-medium flex-1 bg-transparent outline-none border-b border-accent/30 focus:border-accent py-0"
+                />
+              ) : (
+                <span
+                  className="text-base font-medium flex-1 text-foreground cursor-pointer"
+                  onDoubleClick={() => { setEditingIndex(i); setEditText(item.text); }}
+                >
+                  {item.text}
+                </span>
+              )}
+              <button
+                onClick={() => { setEditingIndex(i); setEditText(item.text); }}
+                className="opacity-0 group-hover:opacity-100 p-1 text-foreground/25 hover:text-accent transition-all"
+              >
+                <Pencil size={13} />
+              </button>
+              <button
+                onClick={() => onRemove(i)}
+                className="opacity-0 group-hover:opacity-100 p-1 text-foreground/25 hover:text-red-500 transition-all"
+              >
+                <X size={14} />
+              </button>
+            </li>
           );
         })}
       </ul>
+
+      {/* Done priorities */}
+      {doneItems.length > 0 && (
+        <ul className="space-y-1.5">
+          {doneItems.map((item) => {
+            const i = items.indexOf(item);
+            return (
+              <li key={i} className="flex items-center gap-3 group px-4 py-2">
+                <button
+                  onClick={() => onToggle(i)}
+                  className="w-6 h-6 rounded-lg bg-accent border-2 border-accent flex-shrink-0 flex items-center justify-center"
+                >
+                  <Check size={14} strokeWidth={3} className="text-white" />
+                </button>
+                <span className="text-sm flex-1 line-through text-foreground/30">
+                  {item.text}
+                </span>
+                <button
+                  onClick={() => onRemove(i)}
+                  className="opacity-0 group-hover:opacity-100 p-1 text-foreground/25 hover:text-red-500 transition-all"
+                >
+                  <X size={14} />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
       {adding ? (
-        <div className="flex items-center gap-1.5 mt-1.5">
+        <div className="flex items-center gap-2">
           <input
             autoFocus
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); if (e.key === "Escape") { setAdding(false); setNewText(""); } }}
-            placeholder="Nová priorita..."
-            className="flex-1 text-sm px-2 py-1 border border-black/10 rounded-lg bg-white/80 focus:ring-1 focus:ring-accent/30 focus:border-accent"
+            placeholder="Na co se chci soustředit..."
+            className="flex-1 text-base px-4 py-2.5 border border-black/10 rounded-xl bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
           />
-          <button onClick={handleAdd} className="p-1 text-accent hover:text-accent-hover"><Check size={14} /></button>
-          <button onClick={() => { setAdding(false); setNewText(""); }} className="p-1 text-foreground/30 hover:text-foreground/60"><X size={14} /></button>
+          <button onClick={handleAdd} className="p-2 text-accent hover:text-accent-hover"><Check size={18} /></button>
+          <button onClick={() => { setAdding(false); setNewText(""); }} className="p-2 text-foreground/30 hover:text-foreground/60"><X size={18} /></button>
         </div>
-      ) : (
+      ) : canAdd ? (
         <button
           onClick={() => setAdding(true)}
-          className="flex items-center gap-1 text-xs text-foreground/35 hover:text-accent mt-1.5 transition-colors"
+          className="flex items-center gap-2 text-sm font-medium text-accent/60 hover:text-accent transition-colors py-1"
         >
-          <Plus size={12} /> Přidat
+          <Plus size={16} /> Přidat prioritu
         </button>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -154,9 +195,8 @@ export default function PrioritiesWidget({ data: externalData, onChange }: Props
 
   useEffect(() => { loadPriorities(); }, [loadPriorities]);
 
-  // Auto-refresh every 3 minutes to sync with mobile
   useEffect(() => {
-    if (externalData) return; // skip if data is passed as prop
+    if (externalData) return;
     const interval = setInterval(loadPriorities, 3 * 60 * 1000);
     return () => clearInterval(interval);
   }, [loadPriorities, externalData]);
@@ -179,6 +219,8 @@ export default function PrioritiesWidget({ data: externalData, onChange }: Props
   };
 
   const handleAdd = (scope: keyof PrioritiesData, text: string) => {
+    const activeCount = data[scope].filter(i => !i.done).length;
+    if (activeCount >= SCOPE_CONFIG[scope].max) return;
     const newData = { ...data, [scope]: [...data[scope], { text, done: false }] };
     save(newData);
   };
@@ -188,21 +230,32 @@ export default function PrioritiesWidget({ data: externalData, onChange }: Props
     save(newData);
   };
 
+  const handleEdit = (scope: keyof PrioritiesData, index: number, text: string) => {
+    const newData = { ...data, [scope]: data[scope].map((item, i) => i === index ? { ...item, text } : item) };
+    save(newData);
+  };
+
   if (!loaded) return null;
 
   return (
-    <div className="paper-card rounded-[20px] px-5 py-5 space-y-4">
-      <h3 className="text-sm font-bold text-foreground">Priority</h3>
-      <div className="space-y-4">
+    <div className="bg-white border border-black/8 rounded-[24px] px-7 py-7 space-y-7">
+      <div>
+        <h3 className="text-xl font-extrabold text-foreground">Priority</h3>
+        <p className="text-sm text-foreground/40 mt-0.5">Na co se soustředím</p>
+      </div>
+      <div className="space-y-7 divide-y divide-black/5">
         {(["weekly", "monthly", "yearly"] as const).map((scope) => (
-          <PrioritySection
-            key={scope}
-            scope={scope}
-            items={data[scope]}
-            onToggle={(i) => handleToggle(scope, i)}
-            onAdd={(text) => handleAdd(scope, text)}
-            onRemove={(i) => handleRemove(scope, i)}
-          />
+          <div key={scope} className={scope !== "weekly" ? "pt-7" : ""}>
+            <PrioritySection
+              scope={scope}
+              items={data[scope]}
+              maxItems={SCOPE_CONFIG[scope].max}
+              onToggle={(i) => handleToggle(scope, i)}
+              onAdd={(text) => handleAdd(scope, text)}
+              onRemove={(i) => handleRemove(scope, i)}
+              onEdit={(i, text) => handleEdit(scope, i, text)}
+            />
+          </div>
         ))}
       </div>
     </div>

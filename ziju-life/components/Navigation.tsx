@@ -11,8 +11,8 @@ export default function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const transparentNavPages = ["/", "/laborator", "/koucing", "/knihovna", "/o-mne"];
-  const hasTransparentNav = transparentNavPages.includes(pathname || "");
+  const transparentNavPrefixes = ["/laborator", "/koucing", "/knihovna", "/o-mne"];
+  const hasTransparentNav = pathname === "/" || transparentNavPrefixes.some(p => pathname?.startsWith(p));
 
   useEffect(() => {
     const onScroll = () => {
@@ -101,7 +101,7 @@ export default function Navigation() {
         <div
           className={`max-w-7xl mx-auto flex items-center justify-between h-14 md:h-16 rounded-[32px] px-4 md:px-6 transition-all duration-500 ease-out relative ${
             showSolid
-              ? "border border-white/40 bg-white/60 shadow-lg backdrop-blur-xl backdrop-saturate-150 glass-grain"
+              ? "border border-foreground bg-[#FDFDF7] shadow-lg shadow-black/15"
               : "bg-transparent"
           }`}
         >

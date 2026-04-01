@@ -13,14 +13,12 @@ function TodoSection({
   onToggle,
   onAdd,
   onRemove,
-  accent = false,
 }: {
   label: string;
   items: TodoItem[];
   onToggle: (i: number) => void;
   onAdd: (text: string) => void;
   onRemove: (i: number) => void;
-  accent?: boolean;
 }) {
   const [adding, setAdding] = useState(false);
   const [text, setText] = useState("");
@@ -30,49 +28,50 @@ function TodoSection({
   };
 
   return (
-    <div>
-      <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2 ${accent ? "text-accent/60" : "text-foreground/40"}`}>
-        {label} <span className="normal-case tracking-normal font-normal">({items.length}/{MAX_ITEMS})</span>
-      </p>
-      <ul className="space-y-1">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-bold text-foreground/60 uppercase tracking-wider">{label}</p>
+        <span className="text-xs text-foreground/30 font-medium">{items.length}/{MAX_ITEMS}</span>
+      </div>
+      <ul className="space-y-2">
         {items.map((item, i) => (
-          <li key={i} className="flex items-start gap-2 group">
+          <li key={i} className="flex items-center gap-3 group">
             <button
               onClick={() => onToggle(i)}
-              className={`mt-0.5 w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-colors ${
+              className={`w-6 h-6 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
                 item.done
-                  ? accent ? "bg-accent border-accent text-white" : "bg-emerald-500 border-emerald-500 text-white"
-                  : "border-black/20 hover:border-accent/50"
+                  ? "bg-accent border-accent text-white"
+                  : "border-black/15 hover:border-accent/50"
               }`}
             >
-              {item.done && <Check size={10} />}
+              {item.done && <Check size={14} strokeWidth={3} />}
             </button>
-            <span className={`text-sm flex-1 leading-snug ${item.done ? "line-through text-foreground/35" : "text-foreground/70"}`}>
+            <span className={`text-base flex-1 leading-snug ${item.done ? "line-through text-foreground/30" : "text-foreground/80"}`}>
               {item.text}
             </span>
-            <button onClick={() => onRemove(i)} className="opacity-0 group-hover:opacity-100 p-0.5 text-foreground/30 hover:text-red-500 transition-all">
-              <X size={12} />
+            <button onClick={() => onRemove(i)} className="opacity-0 group-hover:opacity-100 p-1 text-foreground/25 hover:text-red-500 transition-all">
+              <X size={14} />
             </button>
           </li>
         ))}
       </ul>
       {items.length < MAX_ITEMS && (
         adding ? (
-          <div className="flex items-center gap-1.5 mt-1.5">
+          <div className="flex items-center gap-2">
             <input
               autoFocus
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); if (e.key === "Escape") { setAdding(false); setText(""); } }}
               placeholder="..."
-              className="flex-1 text-sm px-2 py-1 border border-black/10 rounded-lg bg-white/80 focus:ring-1 focus:ring-accent/30 focus:border-accent"
+              className="flex-1 text-base px-4 py-2.5 border border-black/10 rounded-xl bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
             />
-            <button onClick={handleAdd} className="p-1 text-accent"><Check size={14} /></button>
-            <button onClick={() => { setAdding(false); setText(""); }} className="p-1 text-foreground/30"><X size={14} /></button>
+            <button onClick={handleAdd} className="p-2 text-accent"><Check size={18} /></button>
+            <button onClick={() => { setAdding(false); setText(""); }} className="p-2 text-foreground/30"><X size={18} /></button>
           </div>
         ) : (
-          <button onClick={() => setAdding(true)} className="flex items-center gap-1 text-xs text-foreground/35 hover:text-accent mt-1.5 transition-colors">
-            <Plus size={12} /> Přidat
+          <button onClick={() => setAdding(true)} className="flex items-center gap-2 text-sm font-medium text-accent/60 hover:text-accent transition-colors py-1">
+            <Plus size={16} /> Přidat
           </button>
         )
       )}
@@ -104,7 +103,6 @@ export default function DailyTodosWidget() {
 
   useEffect(() => { loadTodos(); }, [loadTodos]);
 
-  // Auto-refresh every 3 minutes to sync with mobile
   useEffect(() => {
     const interval = setInterval(loadTodos, 3 * 60 * 1000);
     return () => clearInterval(interval);
@@ -127,53 +125,53 @@ export default function DailyTodosWidget() {
   const hasYesterday = yesterdayTodos.length > 0 || yesterdayNice.length > 0;
 
   return (
-    <div className="paper-card rounded-[20px] px-5 py-5 space-y-4">
-      <h3 className="text-sm font-bold text-foreground">Dnešek</h3>
+    <div className="bg-white border border-black/8 rounded-[24px] px-7 py-7 space-y-6">
+      <h3 className="text-xl font-extrabold text-foreground">Dnešek</h3>
 
-      <div className="space-y-4">
+      <div className="space-y-6 divide-y divide-black/5">
         <TodoSection
           label="To Do"
           items={todos}
           onToggle={(i) => save(todos.map((t, j) => j === i ? { ...t, done: !t.done } : t), niceTodos)}
           onAdd={(text) => save([...todos, { text, done: false }], niceTodos)}
           onRemove={(i) => save(todos.filter((_, j) => j !== i), niceTodos)}
-          accent
         />
-        <TodoSection
-          label="Nice To Do"
-          items={niceTodos}
-          onToggle={(i) => save(todos, niceTodos.map((t, j) => j === i ? { ...t, done: !t.done } : t))}
-          onAdd={(text) => save(todos, [...niceTodos, { text, done: false }])}
-          onRemove={(i) => save(todos, niceTodos.filter((_, j) => j !== i))}
-          accent
-        />
+        <div className="pt-6">
+          <TodoSection
+            label="Nice To Do"
+            items={niceTodos}
+            onToggle={(i) => save(todos, niceTodos.map((t, j) => j === i ? { ...t, done: !t.done } : t))}
+            onAdd={(text) => save(todos, [...niceTodos, { text, done: false }])}
+            onRemove={(i) => save(todos, niceTodos.filter((_, j) => j !== i))}
+          />
+        </div>
       </div>
 
       {hasYesterday && (
-        <div className="border-t border-black/5 pt-3">
+        <div className="border-t border-black/5 pt-4">
           <button
             onClick={() => setShowYesterday(!showYesterday)}
-            className="flex items-center gap-1.5 text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
           >
-            {showYesterday ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            {showYesterday ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             Včera
           </button>
           {showYesterday && (
-            <div className="space-y-2 mt-2 opacity-60">
-              <div>
+            <div className="space-y-3 mt-3 opacity-60">
+              <ul className="space-y-1">
                 {yesterdayTodos.map((t, i) => (
-                  <p key={i} className={`text-xs leading-snug ${t.done ? "line-through text-foreground/30" : "text-foreground/50"}`}>
+                  <li key={i} className={`text-sm leading-snug ${t.done ? "line-through text-foreground/30" : "text-foreground/50"}`}>
                     {t.done ? "✓" : "○"} {t.text}
-                  </p>
+                  </li>
                 ))}
-              </div>
-              <div>
+              </ul>
+              <ul className="space-y-1">
                 {yesterdayNice.map((t, i) => (
-                  <p key={i} className={`text-xs leading-snug ${t.done ? "line-through text-foreground/30" : "text-foreground/50"}`}>
+                  <li key={i} className={`text-sm leading-snug ${t.done ? "line-through text-foreground/30" : "text-foreground/50"}`}>
                     {t.done ? "✓" : "○"} {t.text}
-                  </p>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
         </div>

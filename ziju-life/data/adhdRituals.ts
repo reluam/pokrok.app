@@ -36,7 +36,7 @@ export const categories: Category[] = [
     rituals: [
       {
         id: "cold-shower",
-        name: "Ledová sprcha / otužování",
+        name: "Ledová sprcha",
         duration_min: 5,
         difficulty: 3,
         slots: ["morning"],
@@ -48,7 +48,7 @@ export const categories: Category[] = [
       },
       {
         id: "yoga",
-        name: "Jóga / protažení",
+        name: "Jóga",
         duration_min: 20,
         difficulty: 1,
         slots: ["morning", "evening"],
@@ -60,7 +60,7 @@ export const categories: Category[] = [
       },
       {
         id: "exercise",
-        name: "Cvičení (síla / kardio)",
+        name: "Cvičení",
         duration_min: 30,
         difficulty: 2,
         slots: ["morning", "daily"],
@@ -72,7 +72,7 @@ export const categories: Category[] = [
       },
       {
         id: "walk",
-        name: "Procházka (min 20 min)",
+        name: "Procházka",
         duration_min: 20,
         difficulty: 1,
         slots: ["morning", "daily", "evening"],
@@ -84,7 +84,7 @@ export const categories: Category[] = [
       },
       {
         id: "breathing",
-        name: "Dýchání (box breathing / Wim Hof)",
+        name: "Dýchání",
         duration_min: 5,
         difficulty: 1,
         slots: ["morning", "daily", "evening"],
@@ -103,7 +103,7 @@ export const categories: Category[] = [
     rituals: [
       {
         id: "meditation",
-        name: "Meditace (řízená / tichá)",
+        name: "Meditace",
         duration_min: 15,
         difficulty: 2,
         slots: ["morning", "evening"],
@@ -115,7 +115,7 @@ export const categories: Category[] = [
       },
       {
         id: "boredom",
-        name: "Cílená nuda (žádný input)",
+        name: "Nuda",
         duration_min: 15,
         difficulty: 3,
         slots: ["daily"],
@@ -139,7 +139,7 @@ export const categories: Category[] = [
       },
       {
         id: "gratitude",
-        name: "3 věci za které jsem vděčný",
+        name: "Vděčnost",
         duration_min: 3,
         difficulty: 1,
         slots: ["evening"],
@@ -151,7 +151,7 @@ export const categories: Category[] = [
       },
       {
         id: "reading",
-        name: "Čtení (bez obrazovky)",
+        name: "Čtení",
         duration_min: 30,
         difficulty: 2,
         slots: ["daily", "evening"],
@@ -170,7 +170,7 @@ export const categories: Category[] = [
     rituals: [
       {
         id: "mindful-eating",
-        name: "Vědomé jídlo (bez telefonu)",
+        name: "Vědomé jídlo",
         duration_min: 20,
         difficulty: 2,
         slots: ["daily"],
@@ -181,20 +181,8 @@ export const categories: Category[] = [
         supportsTags: ["zdraví", "klid"],
       },
       {
-        id: "neti-pot",
-        name: "Výplach nosu (neti pot)",
-        duration_min: 5,
-        difficulty: 1,
-        slots: ["morning"],
-        why: "Nosní dýchání je klíčové pro optimální okysličení mozku. Výplach odstraňuje alergeny a zánět, které zhoršují brain fog. Zlepšuje kvalitu spánku přes nosní dýchání v noci.",
-        tip: "Vlažná voda + sůl. Ráno po sprše, stane se to automatické.",
-        categoryId: "nutrition",
-        categoryColor: "#BA7517",
-        supportsTags: ["zdraví", "spánek", "energie"],
-      },
-      {
         id: "screen-curfew",
-        name: "Žádné displeje po večerce",
+        name: "Večerka",
         duration_min: 0,
         difficulty: 3,
         slots: ["evening"],
@@ -206,7 +194,7 @@ export const categories: Category[] = [
       },
       {
         id: "keto",
-        name: "Keto / low-carb protokol",
+        name: "Low-carb",
         duration_min: 0,
         difficulty: 3,
         slots: ["daily"],
@@ -218,7 +206,7 @@ export const categories: Category[] = [
       },
       {
         id: "hydration",
-        name: "Hydratace první hodinu",
+        name: "Hydratace",
         duration_min: 5,
         difficulty: 1,
         slots: ["morning"],
@@ -237,7 +225,7 @@ export const categories: Category[] = [
     rituals: [
       {
         id: "3-priorities",
-        name: "3 priority dne (ne víc)",
+        name: "3 priority dne",
         duration_min: 5,
         difficulty: 1,
         slots: ["morning", "daily"],
@@ -285,7 +273,7 @@ export const categories: Category[] = [
       },
       {
         id: "tomorrow-prep",
-        name: "Příprava na zítřek (večer)",
+        name: "Příprava na zítřek",
         duration_min: 10,
         difficulty: 1,
         slots: ["evening"],
@@ -303,7 +291,7 @@ export const featuredBuild: FeaturedBuild = {
   name: "Matějův systém",
   description:
     "Tenhle systém jsem si sestavil po měsících experimentování. Funguje pro mě — ale nemusí fungovat pro tebe. Použij ho jako inspiraci, ne jako předpis.",
-  morning: ["meditation", "yoga", "cold-shower", "neti-pot", "hydration"],
+  morning: ["meditation", "yoga", "cold-shower", "hydration"],
   daily: ["reading", "boredom", "3-priorities", "brain-dump"],
   evening: ["screen-curfew", "journaling", "gratitude", "tomorrow-prep"],
 };

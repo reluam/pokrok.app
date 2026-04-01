@@ -110,6 +110,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const userMessage = String(body.message ?? "").trim();
+    const pageContext = String(body.pageContext ?? "").trim();
     if (!userMessage || userMessage.length > 2000) {
       return NextResponse.json({ error: "Zpráva musí mít 1–2000 znaků." }, { status: 400 });
     }
@@ -147,11 +148,14 @@ export async function POST(request: NextRequest) {
       ? `\n\n## Profil uživatele (z předchozích konverzací)\n${profileSummary}\n`
       : "";
 
-    const systemPrompt = `${basePrompt}${profileSection}
+    const pageSection = pageContext ? `\n\n## Aktuální stránka\nUživatel se právě nachází na: ${pageContext}` : "";
+
+    const systemPrompt = `${basePrompt}${profileSection}${pageSection}
 
 ## Kontext konverzace s průvodcem
 Toto je dlouhodobá konverzace. Pamatuješ si celou historii. Buď empatický, podporující průvodce a thinking parťák.
 Pomáhej uživateli růst. Odpovídej stručně, ale s hloubkou.
+Pokud uživatel mluví o stránce nebo sekci, ve které se právě nachází, vezmi to v úvahu.
 
 Můžeš použít markdown formátování (**tučné**, seznamy, nadpisy) pro lepší čitelnost.`;
 

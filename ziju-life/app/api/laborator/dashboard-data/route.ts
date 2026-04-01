@@ -108,36 +108,30 @@ export async function GET(request: NextRequest) {
       // Current year start
       const thisYearStart = today.slice(0, 4) + "-01-01";
 
-      // If week changed, mark unfinished weekly items as overdue
-      if (p._lastWeekStart && p._lastWeekStart < thisWeekStart && Array.isArray(p.weekly)) {
-        p.weekly = p.weekly.map(item =>
-          !item.done && !item.overdue ? { ...item, overdue: true } : item
-        );
+      let changed = false;
+
+      // If week changed or no tracking yet, clear weekly priorities
+      if (p._lastWeekStart !== thisWeekStart && Array.isArray(p.weekly) && p.weekly.length > 0) {
+        p.weekly = [];
+        changed = true;
       }
       p._lastWeekStart = thisWeekStart;
 
-      // If month changed
-      if (p._lastMonthStart && p._lastMonthStart < thisMonthStart && Array.isArray(p.monthly)) {
-        p.monthly = p.monthly.map(item =>
-          !item.done && !item.overdue ? { ...item, overdue: true } : item
-        );
+      // If month changed or no tracking yet, clear monthly priorities
+      if (p._lastMonthStart !== thisMonthStart && Array.isArray(p.monthly) && p.monthly.length > 0) {
+        p.monthly = [];
+        changed = true;
       }
       p._lastMonthStart = thisMonthStart;
 
-      // If year changed
-      if (p._lastYearStart && p._lastYearStart < thisYearStart && Array.isArray(p.yearly)) {
-        p.yearly = p.yearly.map(item =>
-          !item.done && !item.overdue ? { ...item, overdue: true } : item
-        );
+      // If year changed or no tracking yet, clear yearly priorities
+      if (p._lastYearStart !== thisYearStart && Array.isArray(p.yearly) && p.yearly.length > 0) {
+        p.yearly = [];
+        changed = true;
       }
       p._lastYearStart = thisYearStart;
 
-      // Save updated priorities back if any overdue marking happened
-      const hasOverdue = [
-        ...(p.weekly ?? []), ...(p.monthly ?? []), ...(p.yearly ?? []),
-      ].some(i => i.overdue);
-
-      if (hasOverdue || p._lastWeekStart || p._lastMonthStart || p._lastYearStart) {
+      if (changed || p._lastWeekStart || p._lastMonthStart || p._lastYearStart) {
         context.priorities = p;
         // Persist the overdue state
         try {

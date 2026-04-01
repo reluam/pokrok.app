@@ -561,30 +561,3 @@
   filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.08));
 }
 
-/* Breathing glow for accent buttons */
-@keyframes btn-breathe {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 140, 66, 0);
-    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
-  }
-  50% {
-    transform: scale(1.015);
-    box-shadow: 0 0 16px 2px rgba(255, 140, 66, 0.18);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-  }
-}
-
-button.bg-accent,
-a.bg-accent {
-  animation: btn-breathe 3.5s ease-in-out infinite;
-}
-
-button.bg-accent:hover,
-a.bg-accent:hover {
-  animation: none;
-}
-
-button.bg-accent:disabled {
-  animation: none;
-}
