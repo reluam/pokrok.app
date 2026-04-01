@@ -8,7 +8,7 @@ import SettingsContent from "@/components/admin/SettingsContent";
 import CrmContent from "@/components/admin/CrmContent";
 import AuditAccessContent from "@/components/admin/AuditAccessContent";
 import BookingSlotsContent from "@/components/admin/BookingSlotsContent";
-import LaboratorGrantsContent from "@/components/admin/LaboratorGrantsContent";
+import DilnaGrantsContent from "@/components/admin/DilnaGrantsContent";
 import AIStatsContent from "@/components/admin/AIStatsContent";
 
 function AdminContent() {
@@ -29,7 +29,7 @@ function AdminContent() {
       {section === "crm" && <CrmContent />}
       {section === "rezervace" && <BookingSlotsContent />}
       {section === "audit-access" && <AuditAccessContent />}
-      {section === "laborator-grants" && <LaboratorGrantsContent />}
+      {section === "dilna-grants" && <DilnaGrantsContent />}
       {section === "ai-stats" && <AIStatsContent />}
       {section === "settings" && <SettingsContent />}
     </div>

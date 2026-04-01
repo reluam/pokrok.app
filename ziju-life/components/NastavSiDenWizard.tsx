@@ -55,7 +55,7 @@ export interface RitualSelection {
 interface Props {
   /** Called from step 4 "Uložit" — saves data but keeps wizard open */
   onSave: (selection: RitualSelection) => void;
-  /** Called from step 5 "Přejít do laboratoře" — closes wizard */
+  /** Called from step 5 "Přejít do dílnae" — closes wizard */
   onComplete: (selection: RitualSelection) => void;
 }
 
@@ -1148,7 +1148,7 @@ function Step5Download({
   return (
     <div className="pt-4">
       <h2 className="text-2xl font-extrabold mb-2">Hotovo. 🎉</h2>
-      <p className="text-sm text-foreground/60 mb-8">Systém je uložený. Stáhni PDF nebo se vrať do laboratoře.</p>
+      <p className="text-sm text-foreground/60 mb-8">Systém je uložený. Stáhni PDF nebo se vrať do dílnae.</p>
 
       <div className="flex gap-3 mb-8">
         <DownloadPDFButton
@@ -1159,7 +1159,7 @@ function Step5Download({
           onClick={onComplete}
           className="flex-1 py-4 rounded-full border border-foreground/15 font-semibold text-foreground/60 hover:border-foreground/30 hover:text-foreground/80 transition-colors"
         >
-          Přejít do laboratoře
+          Přejít do dílnae
         </button>
       </div>
 

@@ -44,26 +44,22 @@ const tools = [
 function LabIllustration() {
   return (
     <svg viewBox="0 0 200 200" fill="none" className="w-full h-full opacity-20" aria-hidden="true">
-      {/* Erlenmeyerova baňka */}
-      <path d="M85 40h30v50l25 55H60l25-55V40z" stroke="currentColor" strokeWidth="2" fill="none" />
-      <path d="M85 40h30" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      <ellipse cx="100" cy="130" rx="12" ry="4" fill="currentColor" opacity="0.15" />
-      {/* Zkumavka */}
-      <rect x="140" y="55" width="14" height="60" rx="7" stroke="currentColor" strokeWidth="2" fill="none" />
-      <path d="M142 85h10" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
-      <path d="M142 78h10" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
-      {/* Bubliny */}
-      <circle cx="97" cy="115" r="3" fill="currentColor" opacity="0.2" />
-      <circle cx="103" cy="108" r="2" fill="currentColor" opacity="0.15" />
-      <circle cx="95" cy="105" r="2.5" fill="currentColor" opacity="0.18" />
-      {/* Mikroskop */}
-      <path d="M45 145h30M60 145v-25l-8-15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="48" cy="103" r="8" stroke="currentColor" strokeWidth="2" fill="none" />
-      {/* Atom */}
-      <circle cx="160" cy="45" r="3" fill="currentColor" opacity="0.3" />
-      <ellipse cx="160" cy="45" rx="18" ry="7" stroke="currentColor" strokeWidth="1.2" opacity="0.25" transform="rotate(-30 160 45)" />
-      <ellipse cx="160" cy="45" rx="18" ry="7" stroke="currentColor" strokeWidth="1.2" opacity="0.25" transform="rotate(30 160 45)" />
-      <ellipse cx="160" cy="45" rx="18" ry="7" stroke="currentColor" strokeWidth="1.2" opacity="0.25" />
+      {/* Kladivo */}
+      <path d="M55 50l25-15 10 18-25 15z" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path d="M70 60l-15 55" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      {/* Ozubené kolo */}
+      <circle cx="145" cy="55" r="18" stroke="currentColor" strokeWidth="2" fill="none" />
+      <circle cx="145" cy="55" r="8" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <path d="M145 35v-4M145 75v4M125 55h-4M165 55h4M131 41l-3-3M159 69l3 3M131 69l-3 3M159 41l3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+      {/* Puzzle dílek */}
+      <path d="M80 130h25v-8a7 7 0 0114 0v8h25v25h-8a7 7 0 000 14h8v25H80v-25h8a7 7 0 000-14h-8z" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.3" />
+      {/* Kompas */}
+      <circle cx="160" cy="145" r="15" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path d="M160 133v5M160 152v5M148 145h5M167 145h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+      <path d="M160 140l4 5-4 5-4-5z" fill="currentColor" opacity="0.2" />
+      {/* Tužka */}
+      <path d="M40 155l5-35 8 1-5 35z" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.25" />
+      <path d="M42.5 155l1.5-5 5 0.7z" fill="currentColor" opacity="0.15" />
     </svg>
   );
 }
@@ -82,7 +78,7 @@ export default function ManualTeaser() {
           {/* Nadpis + kartičky */}
           <div className="relative flex flex-col gap-8 px-8 py-10 md:px-12 md:py-14">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
-              Laboratoř:<br />
+              Dílna:<br />
               Tvoje vědomá cesta
             </h2>
 
@@ -106,10 +102,10 @@ export default function ManualTeaser() {
             {/* CTA tlačítko uprostřed */}
             <div className="flex justify-center pt-2">
               <Link
-                href="/laborator"
+                href="/dilna"
                 className="btn-playful inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-bold bg-accent text-white hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
               >
-                Vstup do laboratoře &rarr;
+                Vstup do dílny &rarr;
               </Link>
             </div>
           </div>

@@ -68,7 +68,7 @@ export function buildLabCoachPrompt(
 
 O platformě Žiju life:
 - Průvodce: AI průvodce životem — tvůj osobní společník pro osobní růst, životní změny a hledání smyslu
-- Laboratoř: interaktivní prostor s cvičeními (Kompas hodnot, Moje hodnoty, Nastav si den)
+- Dílna: interaktivní prostor s cvičeními (Kompas hodnot, Moje hodnoty, Nastav si den)
 - Feed: kurátorský výběr tipů a digestů z oblasti osobního rozvoje
 
 Tvůj přístup — rozhoduj se sám podle situace:

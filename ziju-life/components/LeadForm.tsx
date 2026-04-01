@@ -147,7 +147,7 @@ export default function LeadForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
-            placeholder="vas@email.cz"
+            placeholder="tvuj@mail.cz"
             disabled={loading}
           />
         </div>

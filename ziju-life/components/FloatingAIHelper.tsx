@@ -100,7 +100,7 @@ export default function FloatingAIHelper() {
           setAuthed(true);
           // Check lab access via ai-credits endpoint
           try {
-            const credRes = await fetch("/api/laborator/ai-credits");
+            const credRes = await fetch("/api/dilna/ai-credits");
             setHasLabAccess(credRes.ok);
           } catch {
             setHasLabAccess(false);
@@ -119,7 +119,7 @@ export default function FloatingAIHelper() {
   // Load budget when panel opens
   const loadBudget = useCallback(async () => {
     try {
-      const res = await fetch("/api/laborator/ai-credits");
+      const res = await fetch("/api/dilna/ai-credits");
       if (res.ok) {
         const data = await res.json();
         setBudget({ remainingCzk: data.available, totalBudgetCzk: data.total, spentCzk: data.used });
@@ -183,8 +183,8 @@ export default function FloatingAIHelper() {
     try {
       const pageContext = pathname || "/";
       const endpoint = chatMode === "pruvodce"
-        ? "/api/laborator/coaching-chat"
-        : "/api/laborator/ai-coach";
+        ? "/api/dilna/coaching-chat"
+        : "/api/dilna/ai-coach";
       const body = chatMode === "pruvodce"
         ? JSON.stringify({ message: userText, pageContext })
         : JSON.stringify({ messages: newApiMsgs, pageContext });
@@ -243,7 +243,7 @@ export default function FloatingAIHelper() {
   const confirmAction = async (action: AIAction, bubbleIndex: number) => {
     try {
       if (action.type === "set_priorities" || action.type === "add_priority") {
-        const res = await fetch("/api/laborator/user-context");
+        const res = await fetch("/api/dilna/user-context");
         const d = await res.json();
         const current = d.context?.priorities ?? { weekly: [], monthly: [], yearly: [] };
         const scope = (action.scope as string) ?? "weekly";
@@ -252,13 +252,13 @@ export default function FloatingAIHelper() {
         } else if (action.type === "add_priority" && action.text) {
           current[scope] = [...(current[scope] ?? []), { text: action.text as string, done: false }];
         }
-        await fetch("/api/laborator/user-context", {
+        await fetch("/api/dilna/user-context", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type: "priorities", data: current }),
         });
       } else if (action.type === "update_compass") {
-        const res = await fetch("/api/laborator/user-context");
+        const res = await fetch("/api/dilna/user-context");
         const d = await res.json();
         const current = d.context?.compass ?? [];
         if (action.area) {
@@ -268,19 +268,19 @@ export default function FloatingAIHelper() {
             if (action.goal !== undefined) existing.goal = action.goal;
           }
         }
-        await fetch("/api/laborator/user-context", {
+        await fetch("/api/dilna/user-context", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type: "compass", data: current }),
         });
       } else if (action.type === "update_values" && Array.isArray(action.values)) {
-        await fetch("/api/laborator/user-context", {
+        await fetch("/api/dilna/user-context", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type: "values", data: action.values }),
         });
       } else if (action.type === "update_rituals" && Array.isArray(action.rituals)) {
-        await fetch("/api/laborator/user-context", {
+        await fetch("/api/dilna/user-context", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type: "rituals", data: action.rituals }),
@@ -331,7 +331,7 @@ export default function FloatingAIHelper() {
       // Load coaching history
       setPruvodceLoading(true);
       try {
-        const res = await fetch("/api/laborator/coaching-chat");
+        const res = await fetch("/api/dilna/coaching-chat");
         if (res.ok) {
           const data = await res.json();
           if (data.messages && data.messages.length > 0) {

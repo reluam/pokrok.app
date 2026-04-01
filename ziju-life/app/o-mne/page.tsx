@@ -169,10 +169,10 @@ export default function OMnePage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="/laborator"
+              href="/dilna"
               className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors shadow-lg"
             >
-              Laboratoř →
+              Dílna →
             </a>
             <a
               href="/koucing"

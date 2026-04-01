@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useAuth } from "@/contexts/AuthContext";
-import { getAICredits } from "@/api/laborator";
+import { getAICredits } from "@/api/dilna";
 import Constants from "expo-constants";
 import { Mail, CreditCard, ExternalLink, LogOut } from "lucide-react-native";
 import { colors } from "@/constants/theme";
@@ -75,7 +75,7 @@ export default function ProfilScreen() {
 
       <TouchableOpacity
         style={s.actionRow}
-        onPress={() => Linking.openURL("https://ziju.life/laborator")}
+        onPress={() => Linking.openURL("https://ziju.life/dilna")}
         activeOpacity={0.7}
       >
         <ExternalLink size={20} color={colors.accent} />

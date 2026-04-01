@@ -632,7 +632,7 @@ export function PrintHodnotyButton({
       doc.setFontSize(7);
       doc.setTextColor(170, 165, 155);
       doc.text("Víš, co je pro tebe důležité. Teď žij podle toho.", margin, y);
-      doc.text("žiju.life/laborator", pageW - margin, y, { align: "right" });
+      doc.text("žiju.life/dilna", pageW - margin, y, { align: "right" });
 
       doc.save("hodnoty.pdf");
     } finally {

@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ChevronLeft, ArrowUp, ArrowDown, X } from "lucide-react-native";
-import { getUserContext, saveUserContext } from "@/api/laborator";
+import { getUserContext, saveUserContext } from "@/api/dilna";
 import { colors } from "@/constants/theme";
 
 // ── Constants ────────────────────────────────────────────────────────────────

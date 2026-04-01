@@ -27,12 +27,14 @@ const nextConfig: NextConfig = {
       { source: "/inspirace", destination: "/knihovna", permanent: false },
       { source: "/inspirace/:path*", destination: "/knihovna", permanent: false },
       { source: "/jak-ziju", destination: "/muj-kompas", permanent: true },
-      { source: "/manual", destination: "/laborator/tvuj-kompas", permanent: true },
-      { source: "/manual/:path*", destination: "/laborator/tvuj-kompas", permanent: true },
-      { source: "/audit-zivota", destination: "/laborator/tvuj-kompas", permanent: true },
-      { source: "/audit-zivota/:path*", destination: "/laborator/tvuj-kompas", permanent: true },
+      { source: "/manual", destination: "/dilna/tvuj-kompas", permanent: true },
+      { source: "/manual/:path*", destination: "/dilna/tvuj-kompas", permanent: true },
+      { source: "/audit-zivota", destination: "/dilna/tvuj-kompas", permanent: true },
+      { source: "/audit-zivota/:path*", destination: "/dilna/tvuj-kompas", permanent: true },
       { source: "/navod-na-zivot", destination: "/muj-kompas", permanent: true },
       { source: "/muj-kompas", destination: "/knihovna", permanent: false },
+      { source: "/laborator", destination: "/dilna", permanent: true },
+      { source: "/laborator/:path*", destination: "/dilna/:path*", permanent: true },
     ];
   },
   async rewrites() {

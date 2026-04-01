@@ -1,5 +1,5 @@
 import { verifyUserSession, getUserPurchases, type Purchase } from '@/lib/user-auth'
-import { checkLaboratorAccess } from '@/lib/laborator-auth'
+import { checkDilnaAccess } from '@/lib/dilna-auth'
 import LoginForm from './LoginForm'
 import LogoutButton from './LogoutButton'
 import AuditPurchaseActions from './AuditPurchaseActions'
@@ -13,9 +13,9 @@ function formatDate(date: Date) {
   })
 }
 
-// ── Laboratoř card ────────────────────────────────────────────────────────────
+// ── Dílna card ────────────────────────────────────────────────────────────
 
-function LaboratorCard({ hasAccess }: { hasAccess: boolean }) {
+function DilnaCard({ hasAccess }: { hasAccess: boolean }) {
   if (hasAccess) {
     return (
       <div className="paper-card rounded-[24px] px-6 py-6 flex items-center justify-between gap-4 flex-wrap">
@@ -27,11 +27,11 @@ function LaboratorCard({ hasAccess }: { hasAccess: boolean }) {
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-foreground/40 mb-0.5">
               Aktivní předplatné
             </p>
-            <p className="font-bold text-foreground">Laboratoř</p>
+            <p className="font-bold text-foreground">Dílna</p>
           </div>
         </div>
         <Link
-          href="/laborator/dashboard"
+          href="/dilna/dashboard"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors shrink-0"
         >
           Vstoupit →
@@ -47,14 +47,14 @@ function LaboratorCard({ hasAccess }: { hasAccess: boolean }) {
           🧪
         </div>
         <div>
-          <p className="font-semibold text-foreground">Laboratoř</p>
+          <p className="font-semibold text-foreground">Dílna</p>
           <p className="text-xs text-foreground/50 mt-0.5">
             Interaktivní nástroje a cvičení. 490 Kč / rok.
           </p>
         </div>
       </div>
       <Link
-        href="/laborator"
+        href="/dilna"
         className="inline-flex items-center gap-2 px-5 py-2.5 border border-foreground/15 rounded-full text-sm font-semibold text-foreground/70 hover:border-foreground/30 hover:text-foreground transition-colors shrink-0"
       >
         Získat přístup
@@ -100,9 +100,9 @@ function ExerciseCard({ purchase }: { purchase: Purchase }) {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 async function Dashboard({ userId, email }: { userId: string; email: string }) {
-  const [purchases, hasLaboratorAccess] = await Promise.all([
+  const [purchases, hasDilnaAccess] = await Promise.all([
     getUserPurchases(userId),
-    checkLaboratorAccess(),
+    checkDilnaAccess(),
   ])
 
   const audits = purchases.filter((p) => p.product_slug === 'audit-zivota')
@@ -122,8 +122,8 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
         <LogoutButton />
       </div>
 
-      {/* Laboratoř */}
-      <LaboratorCard hasAccess={hasLaboratorAccess} />
+      {/* Dílna */}
+      <DilnaCard hasAccess={hasDilnaAccess} />
 
       {/* Výsledky cvičení */}
       {audits.length > 0 && (
@@ -144,7 +144,7 @@ async function Dashboard({ userId, email }: { userId: string; email: string }) {
                 Chceš projít Kompas znovu — s čistým listem?
               </p>
               <Link
-                href="/laborator/tvuj-kompas"
+                href="/dilna/tvuj-kompas"
                 className="shrink-0 px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
               >
                 Zahájit nový

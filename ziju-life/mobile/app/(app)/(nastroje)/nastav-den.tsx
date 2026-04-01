@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ChevronLeft, Check, X, ChevronDown, ChevronUp } from "lucide-react-native";
-import { saveUserContext, getUserContext } from "@/api/laborator";
+import { saveUserContext, getUserContext } from "@/api/dilna";
 import { colors } from "@/constants/theme";
 import {
   categories,
@@ -531,7 +531,7 @@ function Step5Done({ onComplete }: { onComplete: () => void }) {
         Systém je uložený. Tvoje rituály se budou zobrazovat na hlavní stránce, kde je můžeš každý den odškrtávat.
       </Text>
       <TouchableOpacity onPress={onComplete} style={[s.btnPrimary, { marginTop: 24 }]} activeOpacity={0.8}>
-        <Text style={s.btnPrimaryText}>Přejít do laboratoře</Text>
+        <Text style={s.btnPrimaryText}>Přejít do dílnae</Text>
       </TouchableOpacity>
     </View>
   );

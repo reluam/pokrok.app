@@ -234,7 +234,7 @@ export async function sendContentRequestEmail(
 
   const content = `
     <p style="color: ${TEXT_DARK}; font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
-      AI průvodce v Laboratoři nedokázal pomoct uživateli s tímto tématem:
+      AI průvodce v Dílnai nedokázal pomoct uživateli s tímto tématem:
     </p>
 
     <div style="padding: 16px 20px; background-color: ${BOX_BG}; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid ${ACCENT};">

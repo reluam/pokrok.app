@@ -27,7 +27,7 @@ export default function KoucingPage() {
                     Na Žiju.life najdeš{" "}
                     <Link href="/knihovna" className="text-accent hover:opacity-80 transition-opacity">Knihovnu</Link>{" "}
                     plnou knih, videí a tipů zdarma a{" "}
-                    <Link href="/laborator" className="text-accent hover:opacity-80 transition-opacity">Laboratoř</Link>{" "}
+                    <Link href="/dilna" className="text-accent hover:opacity-80 transition-opacity">dílnu</Link>{" "}
                     s interaktivními cvičeními a AI průvodcem. Koučing je pro chvíle, kdy chceš jít hlouběji — s někým po boku.
                   </p>
                   <button

@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Markdown from "react-native-markdown-display";
-import { getCoachingHistory, sendCoachingMessage } from "@/api/laborator";
+import { getCoachingHistory, sendCoachingMessage } from "@/api/dilna";
 import { Send, CalendarPlus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 

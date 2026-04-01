@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getToken, setToken, clearToken } from "@/api/client";
 import { checkSession } from "@/api/auth";
-import { checkAccess } from "@/api/laborator";
+import { checkAccess } from "@/api/dilna";
 
 interface AuthState {
   isLoading: boolean;
