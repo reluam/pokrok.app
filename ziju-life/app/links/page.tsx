@@ -171,7 +171,7 @@ export default async function LinksPage() {
                     Interaktivní nástroje
                   </div>
                   <div className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-foreground/80 transition-colors">
-                    Manuál
+                    Manuál <span className="text-sm font-normal text-foreground/45">(Dříve laboratoř)</span>
                   </div>
                   <div className="text-sm text-foreground/45 mt-0.5">
                     Poskládej si život podle sebe.
