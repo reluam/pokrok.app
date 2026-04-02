@@ -374,27 +374,8 @@ function PipelineTab() {
         <div className="space-y-3">
           {briefs.map(brief => (
             <div key={brief.brief_id} className="bg-white rounded-xl border-2 border-black/10 p-4">
-              <div className="flex items-start gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                      {CATEGORY_EMOJI[brief.primary_category] || ''} {brief.primary_category}
-                    </span>
-                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
-                      brief.relevance_score >= 8 ? 'bg-emerald-100 text-emerald-700' :
-                      brief.relevance_score >= 6 ? 'bg-yellow-100 text-yellow-700' : 'bg-black/5 text-foreground/50'
-                    }`}>{brief.relevance_score}/10</span>
-                    <span className="text-xs text-foreground/40">{brief.source_name}</span>
-                  </div>
-                  <h4 className="font-bold text-foreground text-sm">{brief.title}</h4>
-                  <p className="text-sm text-foreground/60 mt-1 leading-relaxed">{brief.summary_cs}</p>
-                  {brief.key_insight && <p className="text-xs text-foreground/40 mt-1 italic">💡 {brief.key_insight}</p>}
-                  {brief.tags?.length > 0 && (
-                    <div className="flex gap-1 mt-2 flex-wrap">
-                      {brief.tags.map(t => <span key={t} className="text-[10px] px-1.5 py-0.5 bg-black/5 rounded text-foreground/50">{t}</span>)}
-                    </div>
-                  )}
-                </div>
+              <div className="flex items-center gap-4">
+                <p className="flex-1 text-base text-foreground leading-relaxed">{brief.summary_cs}</p>
                 <div className="flex flex-col gap-1 shrink-0">
                   {brief.pipeline_status === 'inbox' && (
                     <button onClick={() => handleStatusChange(brief.brief_id, 'saved')}

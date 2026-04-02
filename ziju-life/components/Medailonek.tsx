@@ -16,18 +16,18 @@ export default function Medailonek() {
                 className="absolute inset-0"
                 style={{
                   background: "#2d3039",
-                  borderRadius: "45% 55% 52% 48% / 40% 38% 62% 60%",
+                  borderRadius: "60% 40% 55% 45% / 45% 65% 35% 55%",
                 }}
               />
               {/* Fotka uvnitř */}
               <div className="absolute inset-[6px] overflow-hidden" style={{
-                borderRadius: "44% 54% 51% 49% / 39% 37% 63% 61%",
+                borderRadius: "59% 39% 54% 44% / 44% 64% 34% 54%",
               }}>
                 <Image
                   src="/matej-photo.jpg"
                   alt="Matěj"
                   fill
-                  className="object-cover object-top scale-105"
+                  className="object-cover scale-105" style={{ objectPosition: "center 10%" }}
                   priority
                   fetchPriority="high"
                   sizes="(max-width: 768px) 256px, 320px"

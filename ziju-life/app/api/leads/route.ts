@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { addLead, setLeadClickUpTaskId } from '@/lib/leads-db'
-import { createLeadInNotion } from '@/lib/notion'
-import { createLeadTask } from '@/lib/clickup'
-import { getBookingSettings } from '@/lib/booking-settings'
+import { addLead } from '@/lib/leads-db'
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,26 +35,6 @@ export async function POST(request: NextRequest) {
       utm_medium,
       utm_campaign,
     })
-
-    const notionResult = await createLeadInNotion(lead)
-    if (!notionResult.ok) {
-      console.warn('Notion sync failed (lead saved locally):', notionResult.error)
-    }
-
-    const { clickupListId: listId, clickupFieldConfig } = await getBookingSettings()
-    const clickUpResult = await createLeadTask({
-      listId: listId ?? '',
-      name: name ?? '',
-      email,
-      note: message,
-      source,
-      fieldConfig: clickupFieldConfig,
-    })
-    if (clickUpResult.ok && clickUpResult.taskId) {
-      await setLeadClickUpTaskId(lead.id, clickUpResult.taskId)
-    } else if (!clickUpResult.ok) {
-      console.warn('ClickUp lead task (Reach out):', clickUpResult.error)
-    }
 
     return NextResponse.json(
       { success: true, leadId: lead.id },

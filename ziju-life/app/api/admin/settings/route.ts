@@ -10,21 +10,9 @@ export async function GET(request: NextRequest) {
 
   try {
     type Row = {
-      notion_api_key: string | null;
-      notion_database_id: string | null;
       cal_link: string | null;
-      booking_embed_url?: string | null;
-      clickup_list_id?: string | null;
       google_calendar_id?: string | null;
       google_refresh_token?: string | null;
-      clickup_field_mail?: string | null;
-      clickup_field_zdroj?: string | null;
-      clickup_field_jmeno?: string | null;
-      clickup_field_status?: string | null;
-      clickup_status_reach_out?: string | null;
-      clickup_status_meeting?: string | null;
-      clickup_status_name_reach_out?: string | null;
-      clickup_status_name_meeting?: string | null;
       show_principles?: boolean | null;
       booking_meeting_types?: string | null;
       audit_zivota_price_id?: string | null;
@@ -33,22 +21,10 @@ export async function GET(request: NextRequest) {
     let result: Row[];
     try {
       result = await sql`
-        SELECT 
-          notion_api_key,
-          notion_database_id,
+        SELECT
           cal_link,
-          booking_embed_url,
-          clickup_list_id,
           google_calendar_id,
           google_refresh_token,
-          clickup_field_mail,
-          clickup_field_zdroj,
-          clickup_field_jmeno,
-          clickup_field_status,
-          clickup_status_reach_out,
-          clickup_status_meeting,
-          clickup_status_name_reach_out,
-          clickup_status_name_meeting,
           show_principles,
           booking_meeting_types,
           audit_zivota_price_id,
@@ -58,12 +34,8 @@ export async function GET(request: NextRequest) {
       ` as Row[];
     } catch {
       result = await sql`
-        SELECT 
-          notion_api_key,
-          notion_database_id,
+        SELECT
           cal_link,
-          booking_embed_url,
-          clickup_list_id,
           google_calendar_id,
           google_refresh_token
         FROM admin_settings
@@ -82,19 +54,7 @@ export async function GET(request: NextRequest) {
         }
       }
       return NextResponse.json({
-        notionApiKey: row.notion_api_key || process.env.NOTION_API_KEY || "",
-        notionDatabaseId: row.notion_database_id || process.env.NOTION_DATABASE_ID || "",
         calLink: row.cal_link || process.env.NEXT_PUBLIC_CAL_LINK || "",
-        bookingEmbedUrl: row.booking_embed_url ?? process.env.NEXT_PUBLIC_BOOKING_EMBED_URL ?? "",
-        clickupListId: row.clickup_list_id ?? process.env.CLICKUP_LIST_ID ?? "",
-        clickupFieldMail: row.clickup_field_mail ?? "",
-        clickupFieldZdroj: row.clickup_field_zdroj ?? "",
-        clickupFieldJmeno: row.clickup_field_jmeno ?? "",
-        clickupFieldStatus: row.clickup_field_status ?? "",
-        clickupStatusReachOut: row.clickup_status_reach_out ?? "",
-        clickupStatusMeeting: row.clickup_status_meeting ?? "",
-        clickupStatusNameReachOut: row.clickup_status_name_reach_out ?? "",
-        clickupStatusNameMeeting: row.clickup_status_name_meeting ?? "",
         googleCalendarId: row.google_calendar_id ?? process.env.GOOGLE_CALENDAR_ID ?? "primary",
         googleCalendarConnected: Boolean(row?.google_refresh_token?.trim()),
         showPrinciples: row.show_principles ?? true,
@@ -105,19 +65,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      notionApiKey: process.env.NOTION_API_KEY ? "••••••••••••••••" : "",
-      notionDatabaseId: process.env.NOTION_DATABASE_ID ? "••••••••••••••••" : "",
       calLink: process.env.NEXT_PUBLIC_CAL_LINK || "",
-      bookingEmbedUrl: process.env.NEXT_PUBLIC_BOOKING_EMBED_URL || "",
-      clickupListId: process.env.CLICKUP_LIST_ID ?? "",
-      clickupFieldMail: "",
-      clickupFieldZdroj: "",
-      clickupFieldJmeno: "",
-      clickupFieldStatus: "",
-      clickupStatusReachOut: "",
-      clickupStatusMeeting: "",
-      clickupStatusNameReachOut: "",
-      clickupStatusNameMeeting: "",
       googleCalendarId: process.env.GOOGLE_CALENDAR_ID ?? "primary",
       googleCalendarConnected: Boolean(process.env.GOOGLE_REFRESH_TOKEN?.trim()),
       showPrinciples: true,
@@ -143,20 +91,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
-      notionApiKey,
-      notionDatabaseId,
       calLink,
-      bookingEmbedUrl,
-      clickupListId,
       googleCalendarId,
-      clickupFieldMail,
-      clickupFieldZdroj,
-      clickupFieldJmeno,
-      clickupFieldStatus,
-      clickupStatusReachOut,
-      clickupStatusMeeting,
-      clickupStatusNameReachOut,
-      clickupStatusNameMeeting,
       showPrinciples,
       bookingMeetingTypes,
       auditZivotaPriceId,
@@ -174,18 +110,8 @@ export async function POST(request: NextRequest) {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `;
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS booking_embed_url TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_list_id TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS google_calendar_id TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS google_refresh_token TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_field_mail TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_field_zdroj TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_field_jmeno TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_field_status TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_reach_out TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_meeting TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_name_reach_out TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS clickup_status_name_meeting TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS show_principles BOOLEAN`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS booking_meeting_types TEXT`; } catch { /* already exists */ }
     try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_price_id TEXT`; } catch { /* already exists */ }
@@ -195,20 +121,8 @@ export async function POST(request: NextRequest) {
     if (existing.length > 0) {
       await sql`
         UPDATE admin_settings SET
-          notion_api_key = ${notionApiKey ?? null},
-          notion_database_id = ${notionDatabaseId ?? null},
           cal_link = ${calLink ?? null},
-          booking_embed_url = ${bookingEmbedUrl?.trim() || null},
-          clickup_list_id = ${clickupListId?.trim() || null},
           google_calendar_id = ${googleCalendarId?.trim() || null},
-          clickup_field_mail = ${clickupFieldMail?.trim() || null},
-          clickup_field_zdroj = ${clickupFieldZdroj?.trim() || null},
-          clickup_field_jmeno = ${clickupFieldJmeno?.trim() || null},
-          clickup_field_status = ${clickupFieldStatus?.trim() || null},
-          clickup_status_reach_out = ${clickupStatusReachOut?.trim() || null},
-          clickup_status_meeting = ${clickupStatusMeeting?.trim() || null},
-          clickup_status_name_reach_out = ${clickupStatusNameReachOut?.trim() || null},
-          clickup_status_name_meeting = ${clickupStatusNameMeeting?.trim() || null},
           show_principles = ${typeof showPrinciples === "boolean" ? showPrinciples : null},
           booking_meeting_types = ${Array.isArray(bookingMeetingTypes) ? JSON.stringify(bookingMeetingTypes) : null},
           audit_zivota_price_id = ${auditZivotaPriceId?.trim() || null},
@@ -219,20 +133,8 @@ export async function POST(request: NextRequest) {
     } else {
       await sql`
         INSERT INTO admin_settings (
-          notion_api_key,
-          notion_database_id,
           cal_link,
-          booking_embed_url,
-          clickup_list_id,
           google_calendar_id,
-          clickup_field_mail,
-          clickup_field_zdroj,
-          clickup_field_jmeno,
-          clickup_field_status,
-          clickup_status_reach_out,
-          clickup_status_meeting,
-          clickup_status_name_reach_out,
-          clickup_status_name_meeting,
           show_principles,
           booking_meeting_types,
           audit_zivota_price_id,
@@ -240,20 +142,8 @@ export async function POST(request: NextRequest) {
           updated_at
         )
         VALUES (
-          ${notionApiKey ?? null},
-          ${notionDatabaseId ?? null},
           ${calLink ?? null},
-          ${bookingEmbedUrl?.trim() || null},
-          ${clickupListId?.trim() || null},
           ${googleCalendarId?.trim() || null},
-          ${clickupFieldMail?.trim() || null},
-          ${clickupFieldZdroj?.trim() || null},
-          ${clickupFieldJmeno?.trim() || null},
-          ${clickupFieldStatus?.trim() || null},
-          ${clickupStatusReachOut?.trim() || null},
-          ${clickupStatusMeeting?.trim() || null},
-          ${clickupStatusNameReachOut?.trim() || null},
-          ${clickupStatusNameMeeting?.trim() || null},
           ${typeof showPrinciples === "boolean" ? showPrinciples : null},
           ${Array.isArray(bookingMeetingTypes) ? JSON.stringify(bookingMeetingTypes) : null},
           ${auditZivotaPriceId?.trim() || null},
@@ -263,8 +153,6 @@ export async function POST(request: NextRequest) {
       `;
     }
 
-    // Poznámka: V produkci bys měl tyto hodnoty nastavit jako env proměnné na Vercelu
-    // Tato DB slouží jen jako UI pro správu, skutečné hodnoty se berou z .env
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("POST /api/admin/settings error:", error);

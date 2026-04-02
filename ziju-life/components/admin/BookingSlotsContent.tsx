@@ -343,7 +343,7 @@ export default function BookingSlotsContent() {
           <h3 className="text-xl font-bold text-foreground mb-2">Typy schůzek</h3>
           <p className="text-sm text-foreground/60 mb-2">
             Zatím nemáš definované žádné typy schůzek. Nastav je v Nastavení, sekce „Rezervace –
-            ClickUp a Google Kalendář“.
+            Google Kalendář”.
           </p>
           <button
             type="button"

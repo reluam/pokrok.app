@@ -2,14 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sql } from "@/lib/database";
 import { getSlotById, isSlotFree, createBooking } from "@/lib/booking-slots-db";
-import { getBookingSettings } from "@/lib/booking-settings";
 import {
   sendBookingConfirmationToClient,
   sendBookingConfirmationToAdmin,
 } from "@/lib/booking-email";
 import { sendAuditZivotaAccessEmail } from "@/lib/user-email";
-import { getLeadById } from "@/lib/leads-db";
-import { createBookingTask, updateTaskToBooking } from "@/lib/clickup";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -271,9 +268,6 @@ export async function POST(req: NextRequest) {
       }
 
       // e-maily
-      const { clickupListId: listId, clickupFieldConfig } = await getBookingSettings();
-      const lead = resolvedLeadId ? await getLeadById(resolvedLeadId) : null;
-
       const [clientEmailResult, adminEmailResult] = await Promise.all([
         sendBookingConfirmationToClient({
           to: email,
@@ -298,37 +292,6 @@ export async function POST(req: NextRequest) {
       if (!adminEmailResult.ok) {
         console.warn("[stripe webhook] E-mail admin:", adminEmailResult.error);
       }
-
-      // ClickUp (stejná logika jako v rezervaci)
-      if (lead?.clickupTaskId) {
-        const result = await updateTaskToBooking({
-          taskId: lead.clickupTaskId,
-          name,
-          email,
-          source,
-          note,
-          slotStartAt: slot.start_at,
-          durationMinutes: slot.duration_minutes,
-          fieldConfig: clickupFieldConfig,
-        });
-        if (!result.ok) {
-          console.warn("[stripe webhook] ClickUp update úkolu:", result.error);
-        }
-      } else if (listId) {
-        const result = await createBookingTask({
-          listId,
-          name,
-          email,
-          note,
-          source,
-          slotStartAt: slot.start_at,
-          durationMinutes: slot.duration_minutes,
-          fieldConfig: clickupFieldConfig,
-        });
-        if (!result.ok) {
-          console.warn("[stripe webhook] ClickUp úkol se nevytvořil:", result.error);
-        }
-      }
     } catch (err) {
       console.error("Stripe webhook booking error:", err);
     }
@@ -336,4 +299,3 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ received: true });
 }
-
