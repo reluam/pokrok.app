@@ -49,7 +49,7 @@ const socials = [
 ];
 
 const navItems = [
-  { label: "Manuál", href: "/manual", icon: "🛠️" },
+  { label: "Manuál", href: "/manual", icon: "📖" },
   { label: "Koučing", href: "/koucing", icon: "🎯" },
   { label: "Knihovna", href: "/knihovna", icon: "✨" },
   { label: "O mně", href: "/o-mne", icon: "👋" },
@@ -130,20 +130,24 @@ export default async function LinksPage() {
               className="relative bg-gradient-to-br from-[#FF8C42]/10 to-[#FDFDF7] rounded-3xl p-5 sm:p-6 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-[#FF8C42]/12"
               style={{ borderBottom: "3px solid #FF8C42" }}
             >
-              {/* Background SVG illustration — tools */}
+              {/* Background SVG illustration — manual/guide */}
               <svg viewBox="0 0 200 200" fill="none" className="absolute top-0 right-0 w-28 h-28 sm:w-36 sm:h-36 text-[#FF8C42] opacity-[0.12]" aria-hidden="true">
-                {/* Ozubené kolo */}
-                <circle cx="130" cy="60" r="22" stroke="currentColor" strokeWidth="2" fill="none" />
-                <circle cx="130" cy="60" r="10" stroke="currentColor" strokeWidth="1.5" fill="none" />
-                <path d="M130 36v-5M130 84v5M106 60h-5M154 60h5M114 44l-3-3M146 76l3 3M114 76l-3 3M146 44l3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
-                {/* Puzzle */}
-                <path d="M50 110h20v-6a5 5 0 0110 0v6h20v20h-6a5 5 0 000 10h6v20H50v-20h6a5 5 0 000-10h-6z" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.3" />
+                {/* Otevřená kniha */}
+                <path d="M60 40c20-6 35-1 45 4v65c-10-5-25-10-45-4z" stroke="currentColor" strokeWidth="2" fill="none" />
+                <path d="M150 40c-20-6-35-1-45 4v65c10-5 25-10 45-4z" stroke="currentColor" strokeWidth="2" fill="none" />
+                <path d="M105 44v65" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+                {/* Záložka */}
+                <path d="M140 35v20l-6-5-6 5V35z" fill="currentColor" opacity="0.15" />
+                {/* Checklist */}
+                <path d="M70 125l4 4 8-8M70 142l4 4 8-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
+                <path d="M88 128h20M88 145h16" stroke="currentColor" strokeWidth="1.5" opacity="0.2" strokeLinecap="round" />
               </svg>
               <div className="flex items-center gap-4 relative z-10">
-                {/* Tools icon */}
+                {/* Manual/book icon */}
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FF8C42]/12 flex items-center justify-center shrink-0">
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 text-[#FF8C42]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+                    <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+                    <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
                   </svg>
                 </div>
                 <div className="min-w-0 flex-1">

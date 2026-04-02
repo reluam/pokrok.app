@@ -41,25 +41,26 @@ const tools = [
   },
 ];
 
-function LabIllustration() {
+function ManualIllustration() {
   return (
     <svg viewBox="0 0 200 200" fill="none" className="w-full h-full opacity-20" aria-hidden="true">
-      {/* Kladivo */}
-      <path d="M55 50l25-15 10 18-25 15z" stroke="currentColor" strokeWidth="2" fill="none" />
-      <path d="M70 60l-15 55" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      {/* Ozubené kolo */}
-      <circle cx="145" cy="55" r="18" stroke="currentColor" strokeWidth="2" fill="none" />
-      <circle cx="145" cy="55" r="8" stroke="currentColor" strokeWidth="1.5" fill="none" />
-      <path d="M145 35v-4M145 75v4M125 55h-4M165 55h4M131 41l-3-3M159 69l3 3M131 69l-3 3M159 41l3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
-      {/* Puzzle dílek */}
-      <path d="M80 130h25v-8a7 7 0 0114 0v8h25v25h-8a7 7 0 000 14h8v25H80v-25h8a7 7 0 000-14h-8z" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.3" />
+      {/* Otevřená kniha / manuál */}
+      <path d="M40 55c25-8 45-2 60 5v90c-15-7-35-13-60-5z" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path d="M160 55c-25-8-45-2-60 5v90c15-7 35-13 60-5z" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path d="M100 60v90" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      {/* Řádky textu na stránkách */}
+      <path d="M55 80h35M55 90h30M55 100h25M55 110h32" stroke="currentColor" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      <path d="M110 80h35M110 90h30M110 100h25M110 110h32" stroke="currentColor" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      {/* Záložka */}
+      <path d="M145 48v25l-8-6-8 6V48z" stroke="currentColor" strokeWidth="1.8" fill="currentColor" opacity="0.12" />
+      {/* Checklist */}
+      <rect x="30" y="140" width="40" height="50" rx="4" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.25" />
+      <path d="M37 152l4 4 8-8M37 167l4 4 8-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
+      <path d="M53 155h12M53 170h10" stroke="currentColor" strokeWidth="1.2" opacity="0.15" strokeLinecap="round" />
       {/* Kompas */}
-      <circle cx="160" cy="145" r="15" stroke="currentColor" strokeWidth="2" fill="none" />
-      <path d="M160 133v5M160 152v5M148 145h5M167 145h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
-      <path d="M160 140l4 5-4 5-4-5z" fill="currentColor" opacity="0.2" />
-      {/* Tužka */}
-      <path d="M40 155l5-35 8 1-5 35z" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.25" />
-      <path d="M42.5 155l1.5-5 5 0.7z" fill="currentColor" opacity="0.15" />
+      <circle cx="155" cy="165" r="16" stroke="currentColor" strokeWidth="1.8" fill="none" opacity="0.25" />
+      <path d="M155 152v5M155 175v5M142 165h5M163 165h5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.2" />
+      <path d="M155 160l4 5-4 5-4-5z" fill="currentColor" opacity="0.15" />
     </svg>
   );
 }
@@ -72,7 +73,7 @@ export default function ManualTeaser() {
 
           {/* Ilustrace v pozadí vpravo nahoře */}
           <div className="absolute top-0 right-0 w-72 h-72 text-foreground/70 pointer-events-none">
-            <LabIllustration />
+            <ManualIllustration />
           </div>
 
           {/* Nadpis + kartičky */}
