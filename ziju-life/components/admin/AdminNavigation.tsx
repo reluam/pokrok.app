@@ -92,7 +92,7 @@ export default function AdminNavigation() {
   };
 
   return (
-    <div className="w-64 shrink-0 bg-white border-r border-black/10 flex flex-col h-screen sticky top-0">
+    <div className="w-64 shrink-0 bg-white border-r border-black/10 flex flex-col h-full overflow-y-auto">
       {/* Header */}
       <div className="p-6 border-b border-black/10">
         <h1 className="text-2xl font-bold text-foreground">Admin</h1>

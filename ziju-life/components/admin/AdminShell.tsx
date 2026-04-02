@@ -12,9 +12,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className="flex min-h-screen bg-[#FFFAF5]">
+    <div className="flex h-screen bg-[#FFFAF5] overflow-hidden">
       <AdminNavigation />
-      <main className="flex-1 min-w-0 p-8 min-h-screen">
+      <main className="flex-1 min-w-0 p-8 overflow-y-auto">
         {children}
       </main>
     </div>

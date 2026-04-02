@@ -399,12 +399,12 @@ function PipelineTab() {
           ))}
         </div>
       ) : (
-        /* Uložené / Archiv: split-panel */
-        <div className="flex gap-6 min-h-[500px]">
+        /* Uložené / Archiv: split-panel, plná výška */
+        <div className="flex gap-6" style={{ height: 'calc(100vh - 240px)' }}>
           {/* Left: list */}
-          <div className="w-80 shrink-0 space-y-1">
+          <div className="w-80 shrink-0 flex flex-col">
             <p className="text-xs text-foreground/40 mb-2">{briefs.length} článků</p>
-            <div className="space-y-1 max-h-[600px] overflow-y-auto">
+            <div className="space-y-1 overflow-y-auto flex-1 pr-1">
               {briefs.map(brief => (
                 <button key={brief.brief_id} onClick={() => setSelectedBrief(brief)}
                   className={`w-full text-left p-3 rounded-xl transition-colors ${
@@ -428,18 +428,19 @@ function PipelineTab() {
             </div>
           </div>
 
-          {/* Right: detail */}
-          <div className="flex-1 min-w-0">
+          {/* Right: article detail + iframe */}
+          <div className="flex-1 min-w-0 flex flex-col">
             {!selectedBrief ? (
-              <div className="flex items-center justify-center h-full border-2 border-dashed border-black/10 rounded-2xl">
+              <div className="flex items-center justify-center flex-1 border-2 border-dashed border-black/10 rounded-2xl">
                 <div className="text-center">
                   <BookOpen size={28} className="mx-auto text-foreground/20 mb-2" />
                   <p className="text-sm text-foreground/40">Vyber článek vlevo</p>
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl border-2 border-black/10 p-6 space-y-4">
-                <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-col flex-1 min-h-0">
+                {/* Header bar */}
+                <div className="bg-white rounded-t-2xl border-2 border-black/10 border-b-0 px-5 py-3 flex items-center gap-3 flex-wrap shrink-0">
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
                     {CATEGORY_EMOJI[selectedBrief.primary_category] || ''} {selectedBrief.primary_category}
                   </span>
@@ -447,43 +448,26 @@ function PipelineTab() {
                     selectedBrief.relevance_score >= 8 ? 'bg-emerald-100 text-emerald-700' :
                     selectedBrief.relevance_score >= 6 ? 'bg-yellow-100 text-yellow-700' : 'bg-black/5 text-foreground/50'
                   }`}>{selectedBrief.relevance_score}/10</span>
-                  <span className="text-xs text-foreground/40">{selectedBrief.source_name}</span>
-                </div>
-
-                <h2 className="text-xl font-bold text-foreground">{selectedBrief.title}</h2>
-
-                <p className="text-base text-foreground/70 leading-relaxed">{selectedBrief.summary_cs}</p>
-
-                {selectedBrief.key_insight && (
-                  <div className="bg-accent/5 rounded-xl p-4">
-                    <p className="text-sm text-foreground/70 italic">{selectedBrief.key_insight}</p>
-                  </div>
-                )}
-
-                {selectedBrief.content_angle && (
-                  <div>
-                    <p className="text-xs font-semibold text-foreground/40 uppercase mb-1">Content angle</p>
-                    <p className="text-sm text-foreground/60">{selectedBrief.content_angle}</p>
-                  </div>
-                )}
-
-                {selectedBrief.tags?.length > 0 && (
-                  <div className="flex gap-1.5 flex-wrap">
-                    {selectedBrief.tags.map(t => (
-                      <span key={t} className="text-xs px-2 py-0.5 bg-black/5 rounded-full text-foreground/50">{t}</span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 pt-2 border-t border-black/10">
+                  <h3 className="text-sm font-bold text-foreground truncate flex-1">{selectedBrief.title}</h3>
                   <a href={selectedBrief.url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 text-sm font-semibold hover:bg-black/5">
-                    <ExternalLink size={14} /> Otevřít zdroj
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold hover:bg-black/5">
+                    <ExternalLink size={12} /> Nová karta
                   </a>
                   <button onClick={() => { handleStatusChange(selectedBrief.brief_id, 'archived'); setSelectedBrief(null) }}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 text-sm font-semibold text-foreground/50 hover:bg-black/5">
-                    <Archive size={14} /> Archivovat
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
+                    <Archive size={12} /> Archivovat
                   </button>
+                </div>
+                {/* Article iframe */}
+                <div className="flex-1 min-h-0 border-2 border-black/10 border-t rounded-b-2xl overflow-hidden bg-white">
+                  <iframe
+                    key={selectedBrief.brief_id}
+                    src={selectedBrief.url}
+                    title={selectedBrief.title}
+                    className="w-full h-full border-0"
+                    sandbox="allow-scripts allow-same-origin allow-popups"
+                    referrerPolicy="no-referrer"
+                  />
                 </div>
               </div>
             )}
@@ -796,14 +780,14 @@ function DraftsTab() {
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-foreground/30" size={24} /></div>
 
   return (
-    <div className="flex gap-6 min-h-[500px]">
+    <div className="flex gap-6" style={{ height: 'calc(100vh - 240px)' }}>
       {/* Left: drafts list */}
-      <div className="w-72 shrink-0 space-y-1">
+      <div className="w-72 shrink-0 flex flex-col">
         <p className="text-xs text-foreground/40 mb-2">{drafts.length} konceptů</p>
         {drafts.length === 0 ? (
           <p className="text-sm text-foreground/40 py-8 text-center">Žádné rozpracované příspěvky.</p>
         ) : (
-          <div className="space-y-1 max-h-[600px] overflow-y-auto">
+          <div className="space-y-1 overflow-y-auto flex-1 pr-1">
             {drafts.map(d => (
               <button key={d.id} onClick={() => selectDraft(d)}
                 className={`w-full text-left p-3 rounded-xl transition-colors ${
@@ -823,7 +807,7 @@ function DraftsTab() {
       </div>
 
       {/* Right: edit form */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 overflow-y-auto">
         {!selectedDraft ? (
           <div className="flex items-center justify-center h-full border-2 border-dashed border-black/10 rounded-2xl">
             <div className="text-center">
