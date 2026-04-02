@@ -28,7 +28,7 @@ export interface AIBudgetBalance {
   hasSubscription: boolean;
 }
 
-// Keep old interface for backward compatibility with Dilna dashboard
+// Keep old interface for backward compatibility with Manual dashboard
 export interface AICreditsBalance {
   available: number;
   total: number;

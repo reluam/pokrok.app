@@ -5,7 +5,7 @@ import { colors } from "@/constants/theme";
 export default function AppLayout() {
   return (
     <Tabs
-      initialRouteName="(dilna)"
+      initialRouteName="(manual)"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.accent,
@@ -24,7 +24,7 @@ export default function AppLayout() {
       }}
     >
       <Tabs.Screen
-        name="(dilna)"
+        name="(manual)"
         options={{
           title: "Dnes",
           tabBarIcon: ({ color, size }) => (
@@ -44,7 +44,7 @@ export default function AppLayout() {
       <Tabs.Screen
         name="(nastroje)"
         options={{
-          title: "Dílna",
+          title: "Manuál",
           tabBarIcon: ({ color, size }) => (
             <FlaskConical size={size} color={color} />
           ),

@@ -332,7 +332,7 @@ export async function initializeDatabase() {
       ADD COLUMN IF NOT EXISTS category_id VARCHAR(255) REFERENCES inspiration_categories(id) ON DELETE SET NULL
     `
 
-    // Dílna free-access grants (admin-granted, no Stripe subscription required)
+    // Manuál free-access grants (admin-granted, no Stripe subscription required)
     await sql`
       CREATE TABLE IF NOT EXISTS laborator_grants (
         id VARCHAR(255) PRIMARY KEY,
@@ -347,7 +347,7 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_laborator_grants_email ON laborator_grants(email)
     `
 
-    // ── Dílna: týdenní check-in ────────────────────────────────────────────
+    // ── Manuál: týdenní check-in ────────────────────────────────────────────
 
     await sql`
       CREATE TABLE IF NOT EXISTS weekly_checkins (
@@ -370,7 +370,7 @@ export async function initializeDatabase() {
     await sql`ALTER TABLE weekly_checkins ADD COLUMN IF NOT EXISTS value_scores JSONB DEFAULT '{}'::jsonb`
     await sql`ALTER TABLE weekly_checkins ADD COLUMN IF NOT EXISTS area_scores  JSONB DEFAULT '{}'::jsonb`
 
-    // ── Dílna: focus area history ──────────────────────────────────────────
+    // ── Manuál: focus area history ──────────────────────────────────────────
 
     await sql`
       CREATE TABLE IF NOT EXISTS user_focus_areas (
@@ -606,7 +606,7 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_type ON curated_posts(type)`
     await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_published ON curated_posts(published_at DESC)`
 
-    // ── Uživatelský kontext Dílnae (sync kompas/hodnoty/rituály) ────────
+    // ── Uživatelský kontext Manuálu (sync kompas/hodnoty/rituály) ────────
 
     await sql`
       CREATE TABLE IF NOT EXISTS user_lab_context (

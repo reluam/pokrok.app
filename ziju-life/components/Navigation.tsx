@@ -11,7 +11,7 @@ export default function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const transparentNavPrefixes = ["/dilna", "/koucing", "/knihovna", "/o-mne"];
+  const transparentNavPrefixes = ["/manual", "/koucing", "/knihovna", "/o-mne"];
   const hasTransparentNav = pathname === "/" || transparentNavPrefixes.some(p => pathname?.startsWith(p));
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function Navigation() {
   }, [pathname]);
 
   const navItems: Array<{ href: string; label: string }> = [
-    { href: "/dilna", label: "Dílna" },
+    { href: "/manual", label: "Manuál" },
     { href: "/koucing", label: "Koučing" },
     { href: "/knihovna", label: "Knihovna" },
     { href: "/o-mne", label: "O mně" },

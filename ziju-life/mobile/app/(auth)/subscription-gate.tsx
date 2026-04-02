@@ -23,13 +23,13 @@ export default function SubscriptionGateScreen() {
 
         <Text style={s.title}>Aktivní předplatné vyžadováno</Text>
         <Text style={s.text}>
-          Pro používání aplikace potřebuješ aktivní předplatné Dílnae.
+          Pro používání aplikace potřebuješ aktivní předplatné Manuálu.
         </Text>
         {email && <Text style={s.email}>Přihlášen/a jako {email}</Text>}
 
         <TouchableOpacity
           style={s.primaryBtn}
-          onPress={() => Linking.openURL("https://ziju.life/dilna")}
+          onPress={() => Linking.openURL("https://ziju.life/manual")}
           activeOpacity={0.8}
         >
           <Text style={s.primaryBtnText}>Získat předplatné →</Text>

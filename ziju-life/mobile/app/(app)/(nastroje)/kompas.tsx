@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Polygon, Line, Circle, Text as SvgText, G } from "react-native-svg";
 import { useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
-import { getUserContext, saveUserContext } from "@/api/dilna";
+import { getUserContext, saveUserContext } from "@/api/manual";
 import { colors } from "@/constants/theme";
 
 // ── Constants ────────────────────────────────────────────────────────────────

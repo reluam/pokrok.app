@@ -55,7 +55,7 @@ export default function AuditPurchaseActions({
 
   return (
     <a
-      href="/dilna/tvuj-kompas"
+      href="/manual/tvuj-kompas"
       className="inline-block mt-3 px-4 py-1.5 bg-accent text-white text-sm font-semibold rounded-full hover:bg-accent-hover transition-colors"
     >
       Pokračovat →

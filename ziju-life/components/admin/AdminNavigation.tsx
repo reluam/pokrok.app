@@ -19,7 +19,7 @@ type AdminSection =
   | "crm"
   | "rezervace"
   | "audit-access"
-  | "dilna-grants"
+  | "manual-grants"
   | "ai-stats"
   | "settings";
 
@@ -61,8 +61,8 @@ export default function AdminNavigation() {
       icon: ShieldCheck,
     },
     {
-      id: "dilna-grants",
-      label: "Dílna — přístupy",
+      id: "manual-grants",
+      label: "Manuál — přístupy",
       icon: FlaskConical,
     },
     {

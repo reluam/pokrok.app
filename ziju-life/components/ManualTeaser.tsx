@@ -78,7 +78,7 @@ export default function ManualTeaser() {
           {/* Nadpis + kartičky */}
           <div className="relative flex flex-col gap-8 px-8 py-10 md:px-12 md:py-14">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
-              Dílna:<br />
+              Manuál:<br />
               Tvoje vědomá cesta
             </h2>
 
@@ -102,10 +102,10 @@ export default function ManualTeaser() {
             {/* CTA tlačítko uprostřed */}
             <div className="flex justify-center pt-2">
               <Link
-                href="/dilna"
+                href="/manual"
                 className="btn-playful inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-base font-bold bg-accent text-white hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
               >
-                Vstup do dílny &rarr;
+                Vstup do Manuálu &rarr;
               </Link>
             </div>
           </div>

@@ -286,7 +286,7 @@ export default function NavodNaZivotPage() {
                   Sdílím ho proto, aby ti mohl posloužit jako inspirace — ne jako návod k okopírování.
                   Tvůj život potřebuje tvůj vlastní kompas a tvou mapu.{" "}
                   <span className="inline-flex items-center gap-1 text-accent font-semibold">
-                    <Link href="/dilna/tvuj-kompas" className="hover:underline">Nakresli si ji →</Link>
+                    <Link href="/manual/tvuj-kompas" className="hover:underline">Nakresli si ji →</Link>
                   </span>
                 </p>
               </div>
@@ -316,7 +316,7 @@ export default function NavodNaZivotPage() {
                 </ul>
                 <div className="mt-auto flex flex-col gap-2">
                   <Link
-                    href="/dilna/tvuj-kompas"
+                    href="/manual/tvuj-kompas"
                     className="flex items-center justify-center gap-2 w-full px-5 py-3 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors shadow-md hover:shadow-lg"
                   >
                     Nakresli si svou mapu →

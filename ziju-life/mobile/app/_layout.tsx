@@ -23,7 +23,7 @@ function AuthGate() {
     } else if (isLoggedIn && !hasSubscription && !inAuth) {
       router.replace("/(auth)/subscription-gate");
     } else if (isLoggedIn && hasSubscription && inAuth) {
-      router.replace("/(app)/(dilna)");
+      router.replace("/(app)/(manual)");
     }
   }, [isLoading, isLoggedIn, hasSubscription, segments]);
 

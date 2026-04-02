@@ -51,7 +51,7 @@ export default function LoginScreen() {
             <Text style={s.logoEmoji}>🌱</Text>
             <Text style={s.title}>Žiju Life</Text>
           </View>
-          <Text style={s.subtitle}>Přihlas se do své Dílnae</Text>
+          <Text style={s.subtitle}>Přihlas se do svého Manuálu</Text>
 
           <View style={s.formCard}>
             <Text style={s.label}>Tvůj e-mail</Text>

@@ -49,7 +49,7 @@ const socials = [
 ];
 
 const navItems = [
-  { label: "Dílna", href: "/dilna", icon: "🛠️" },
+  { label: "Manuál", href: "/manual", icon: "🛠️" },
   { label: "Koučing", href: "/koucing", icon: "🎯" },
   { label: "Knihovna", href: "/knihovna", icon: "✨" },
   { label: "O mně", href: "/o-mne", icon: "👋" },
@@ -124,8 +124,8 @@ export default async function LinksPage() {
 
         {/* === BENTO GRID === */}
         <div className="w-full mt-8 flex flex-col gap-3">
-          {/* 1. Dílna — full width hero card */}
-          <Link href="/dilna" className="group block">
+          {/* 1. Manuál — full width hero card */}
+          <Link href="/manual" className="group block">
             <div
               className="relative bg-gradient-to-br from-[#FF8C42]/10 to-[#FDFDF7] rounded-3xl p-5 sm:p-6 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-[#FF8C42]/12"
               style={{ borderBottom: "3px solid #FF8C42" }}
@@ -151,7 +151,7 @@ export default async function LinksPage() {
                     Interaktivní nástroje
                   </div>
                   <div className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-foreground/80 transition-colors">
-                    Dílna
+                    Manuál
                   </div>
                   <div className="text-sm text-foreground/45 mt-0.5">
                     Poskládej si život podle sebe.
