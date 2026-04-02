@@ -310,7 +310,6 @@ function PipelineTab() {
   const [minRelevance, setMinRelevance] = useState(5)
   const [triggering, setTriggering] = useState<string | null>(null)
   const [selectedBrief, setSelectedBrief] = useState<PipelineBrief | null>(null)
-  const [iframeError, setIframeError] = useState(false)
 
   const loadBriefs = useCallback(async () => {
     setLoading(true)
@@ -349,7 +348,7 @@ function PipelineTab() {
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-3 flex-wrap shrink-0 mb-4">
         {['inbox', 'saved', 'archived'].map(s => (
-          <button key={s} onClick={() => { setStatusFilter(s); setSelectedBrief(null); setIframeError(false) }}
+          <button key={s} onClick={() => { setStatusFilter(s); setSelectedBrief(null) }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
               statusFilter === s ? 'bg-accent text-white' : 'bg-black/5 text-foreground/60 hover:bg-black/10'
             }`}>
@@ -409,7 +408,7 @@ function PipelineTab() {
             <p className="text-xs text-foreground/40 mb-2 shrink-0">{briefs.length} článků</p>
             <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
               {briefs.map(brief => (
-                <button key={brief.brief_id} onClick={() => { setSelectedBrief(brief); setIframeError(false) }}
+                <button key={brief.brief_id} onClick={() => setSelectedBrief(brief)}
                   className={`w-full text-left p-3 rounded-xl transition-colors ${
                     selectedBrief?.brief_id === brief.brief_id
                       ? 'bg-accent/10 border-2 border-accent'
@@ -461,57 +460,16 @@ function PipelineTab() {
                     <Archive size={12} /> Archivovat
                   </button>
                 </div>
-                {/* Article: iframe with fallback to summary */}
+                {/* Article iframe */}
                 <div className="flex-1 min-h-0 border-2 border-black/10 border-t rounded-b-2xl overflow-hidden bg-white">
-                  {!iframeError ? (
-                    <iframe
-                      key={selectedBrief.brief_id}
-                      src={selectedBrief.url}
-                      title={selectedBrief.title}
-                      className="w-full h-full border-0"
-                      sandbox="allow-scripts allow-same-origin allow-popups"
-                      referrerPolicy="no-referrer"
-                      onError={() => setIframeError(true)}
-                      onLoad={(e) => {
-                        try {
-                          // If we can't access contentDocument, the site blocked framing
-                          const doc = (e.target as HTMLIFrameElement).contentDocument
-                          if (!doc || !doc.body || doc.body.innerHTML === '') setIframeError(true)
-                        } catch {
-                          // Cross-origin = blocked
-                          setIframeError(true)
-                        }
-                      }}
-                    />
-                  ) : (
-                    <div className="overflow-y-auto h-full p-6 space-y-5">
-                      <h2 className="text-xl font-bold text-foreground">{selectedBrief.title}</h2>
-                      <p className="text-base text-foreground/70 leading-relaxed">{selectedBrief.summary_cs}</p>
-                      {selectedBrief.key_insight && (
-                        <div className="bg-accent/5 rounded-xl p-4">
-                          <p className="text-sm text-foreground/70 italic">{selectedBrief.key_insight}</p>
-                        </div>
-                      )}
-                      {selectedBrief.content_angle && (
-                        <div>
-                          <p className="text-xs font-semibold text-foreground/40 uppercase mb-1">Content angle</p>
-                          <p className="text-sm text-foreground/60">{selectedBrief.content_angle}</p>
-                        </div>
-                      )}
-                      {selectedBrief.tags?.length > 0 && (
-                        <div className="flex gap-1.5 flex-wrap">
-                          {selectedBrief.tags.map(t => (
-                            <span key={t} className="text-xs px-2 py-0.5 bg-black/5 rounded-full text-foreground/50">{t}</span>
-                          ))}
-                        </div>
-                      )}
-                      <div className="pt-2">
-                        <p className="text-xs text-foreground/30 mb-1">{selectedBrief.source_name}</p>
-                        <a href={selectedBrief.url} target="_blank" rel="noopener noreferrer"
-                          className="text-sm text-accent hover:underline break-all">{selectedBrief.url}</a>
-                      </div>
-                    </div>
-                  )}
+                  <iframe
+                    key={selectedBrief.brief_id}
+                    src={selectedBrief.url}
+                    title={selectedBrief.title}
+                    className="w-full h-full border-0"
+                    sandbox="allow-scripts allow-same-origin allow-popups"
+                    referrerPolicy="no-referrer"
+                  />
                 </div>
               </div>
             )}
