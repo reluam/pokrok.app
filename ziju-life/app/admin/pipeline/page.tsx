@@ -307,6 +307,7 @@ function PipelineTab() {
   const [statusFilter, setStatusFilter] = useState('inbox')
   const [minRelevance, setMinRelevance] = useState(5)
   const [triggering, setTriggering] = useState<string | null>(null)
+  const [selectedBrief, setSelectedBrief] = useState<PipelineBrief | null>(null)
 
   const loadBriefs = useCallback(async () => {
     setLoading(true)
@@ -345,7 +346,7 @@ function PipelineTab() {
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
         {['inbox', 'saved', 'archived'].map(s => (
-          <button key={s} onClick={() => setStatusFilter(s)}
+          <button key={s} onClick={() => { setStatusFilter(s); setSelectedBrief(null) }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
               statusFilter === s ? 'bg-accent text-white' : 'bg-black/5 text-foreground/60 hover:bg-black/10'
             }`}>
@@ -372,66 +373,121 @@ function PipelineTab() {
         <div className="flex justify-center py-12"><Loader2 className="animate-spin text-foreground/30" size={24} /></div>
       ) : briefs.length === 0 ? (
         <p className="text-center text-foreground/40 py-12">Žádné články v tomto filtru.</p>
-      ) : (
+      ) : statusFilter === 'inbox' ? (
+        /* Inbox: jednoduché karty */
         <div className="space-y-3">
           {briefs.map(brief => (
             <div key={brief.brief_id} className="bg-white rounded-xl border-2 border-black/10 p-4">
-              {statusFilter === 'inbox' ? (
-                /* Inbox: jen české shrnutí + akce */
-                <div className="flex items-center gap-4">
-                  <p className="flex-1 text-base text-foreground leading-relaxed">{brief.summary_cs}</p>
-                  <div className="flex flex-col gap-1 shrink-0">
-                    <button onClick={() => handleStatusChange(brief.brief_id, 'saved')}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold hover:bg-black/5">
-                      <Bookmark size={12} /> Uložit
-                    </button>
-                    <button onClick={() => handleStatusChange(brief.brief_id, 'archived')}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
-                      <Archive size={12} /> Archiv
-                    </button>
-                    <a href={brief.url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
-                      <ExternalLink size={12} /> Zdroj
-                    </a>
-                  </div>
+              <div className="flex items-center gap-4">
+                <p className="flex-1 text-base text-foreground leading-relaxed">{brief.summary_cs}</p>
+                <div className="flex flex-col gap-1 shrink-0">
+                  <button onClick={() => handleStatusChange(brief.brief_id, 'saved')}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold hover:bg-black/5">
+                    <Bookmark size={12} /> Uložit
+                  </button>
+                  <button onClick={() => handleStatusChange(brief.brief_id, 'archived')}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
+                    <Archive size={12} /> Archiv
+                  </button>
+                  <a href={brief.url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
+                    <ExternalLink size={12} /> Zdroj
+                  </a>
                 </div>
-              ) : (
-                /* Uložené / Archiv: plný detail */
-                <div className="flex items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                        {CATEGORY_EMOJI[brief.primary_category] || ''} {brief.primary_category}
-                      </span>
-                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
-                        brief.relevance_score >= 8 ? 'bg-emerald-100 text-emerald-700' :
-                        brief.relevance_score >= 6 ? 'bg-yellow-100 text-yellow-700' : 'bg-black/5 text-foreground/50'
-                      }`}>{brief.relevance_score}/10</span>
-                      <span className="text-xs text-foreground/40">{brief.source_name}</span>
-                    </div>
-                    <h4 className="font-bold text-foreground text-sm">{brief.title}</h4>
-                    <p className="text-sm text-foreground/60 mt-1 leading-relaxed">{brief.summary_cs}</p>
-                    {brief.key_insight && <p className="text-xs text-foreground/40 mt-1 italic">{brief.key_insight}</p>}
-                    {brief.tags?.length > 0 && (
-                      <div className="flex gap-1 mt-2 flex-wrap">
-                        {brief.tags.map(t => <span key={t} className="text-[10px] px-1.5 py-0.5 bg-black/5 rounded text-foreground/50">{t}</span>)}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1 shrink-0">
-                    <button onClick={() => handleStatusChange(brief.brief_id, 'archived')}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
-                      <Archive size={12} /> Archiv
-                    </button>
-                    <a href={brief.url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
-                      <ExternalLink size={12} /> Zdroj
-                    </a>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           ))}
+        </div>
+      ) : (
+        /* Uložené / Archiv: split-panel */
+        <div className="flex gap-6 min-h-[500px]">
+          {/* Left: list */}
+          <div className="w-80 shrink-0 space-y-1">
+            <p className="text-xs text-foreground/40 mb-2">{briefs.length} článků</p>
+            <div className="space-y-1 max-h-[600px] overflow-y-auto">
+              {briefs.map(brief => (
+                <button key={brief.brief_id} onClick={() => setSelectedBrief(brief)}
+                  className={`w-full text-left p-3 rounded-xl transition-colors ${
+                    selectedBrief?.brief_id === brief.brief_id
+                      ? 'bg-accent/10 border-2 border-accent'
+                      : 'bg-white border-2 border-black/10 hover:border-accent/30'
+                  }`}>
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent">
+                      {CATEGORY_EMOJI[brief.primary_category] || ''} {brief.primary_category}
+                    </span>
+                    <span className={`text-[10px] font-bold px-1 py-0.5 rounded ${
+                      brief.relevance_score >= 8 ? 'bg-emerald-100 text-emerald-700' :
+                      brief.relevance_score >= 6 ? 'bg-yellow-100 text-yellow-700' : 'bg-black/5 text-foreground/50'
+                    }`}>{brief.relevance_score}/10</span>
+                  </div>
+                  <p className="text-sm font-semibold text-foreground line-clamp-2">{brief.title}</p>
+                  <p className="text-xs text-foreground/40 mt-0.5 line-clamp-1">{brief.source_name}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: detail */}
+          <div className="flex-1 min-w-0">
+            {!selectedBrief ? (
+              <div className="flex items-center justify-center h-full border-2 border-dashed border-black/10 rounded-2xl">
+                <div className="text-center">
+                  <BookOpen size={28} className="mx-auto text-foreground/20 mb-2" />
+                  <p className="text-sm text-foreground/40">Vyber článek vlevo</p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border-2 border-black/10 p-6 space-y-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                    {CATEGORY_EMOJI[selectedBrief.primary_category] || ''} {selectedBrief.primary_category}
+                  </span>
+                  <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
+                    selectedBrief.relevance_score >= 8 ? 'bg-emerald-100 text-emerald-700' :
+                    selectedBrief.relevance_score >= 6 ? 'bg-yellow-100 text-yellow-700' : 'bg-black/5 text-foreground/50'
+                  }`}>{selectedBrief.relevance_score}/10</span>
+                  <span className="text-xs text-foreground/40">{selectedBrief.source_name}</span>
+                </div>
+
+                <h2 className="text-xl font-bold text-foreground">{selectedBrief.title}</h2>
+
+                <p className="text-base text-foreground/70 leading-relaxed">{selectedBrief.summary_cs}</p>
+
+                {selectedBrief.key_insight && (
+                  <div className="bg-accent/5 rounded-xl p-4">
+                    <p className="text-sm text-foreground/70 italic">{selectedBrief.key_insight}</p>
+                  </div>
+                )}
+
+                {selectedBrief.content_angle && (
+                  <div>
+                    <p className="text-xs font-semibold text-foreground/40 uppercase mb-1">Content angle</p>
+                    <p className="text-sm text-foreground/60">{selectedBrief.content_angle}</p>
+                  </div>
+                )}
+
+                {selectedBrief.tags?.length > 0 && (
+                  <div className="flex gap-1.5 flex-wrap">
+                    {selectedBrief.tags.map(t => (
+                      <span key={t} className="text-xs px-2 py-0.5 bg-black/5 rounded-full text-foreground/50">{t}</span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 pt-2 border-t border-black/10">
+                  <a href={selectedBrief.url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 text-sm font-semibold hover:bg-black/5">
+                    <ExternalLink size={14} /> Otevřít zdroj
+                  </a>
+                  <button onClick={() => { handleStatusChange(selectedBrief.brief_id, 'archived'); setSelectedBrief(null) }}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-black/10 text-sm font-semibold text-foreground/50 hover:bg-black/5">
+                    <Archive size={14} /> Archivovat
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
