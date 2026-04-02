@@ -458,16 +458,38 @@ function PipelineTab() {
                     <Archive size={12} /> Archivovat
                   </button>
                 </div>
-                {/* Article iframe */}
-                <div className="flex-1 min-h-0 border-2 border-black/10 border-t rounded-b-2xl overflow-hidden bg-white">
-                  <iframe
-                    key={selectedBrief.brief_id}
-                    src={selectedBrief.url}
-                    title={selectedBrief.title}
-                    className="w-full h-full border-0"
-                    sandbox="allow-scripts allow-same-origin allow-popups"
-                    referrerPolicy="no-referrer"
-                  />
+                {/* Article content */}
+                <div className="flex-1 min-h-0 border-2 border-black/10 border-t rounded-b-2xl overflow-y-auto bg-white p-6 space-y-5">
+                  <h2 className="text-xl font-bold text-foreground">{selectedBrief.title}</h2>
+
+                  <p className="text-base text-foreground/70 leading-relaxed">{selectedBrief.summary_cs}</p>
+
+                  {selectedBrief.key_insight && (
+                    <div className="bg-accent/5 rounded-xl p-4">
+                      <p className="text-sm text-foreground/70 italic">{selectedBrief.key_insight}</p>
+                    </div>
+                  )}
+
+                  {selectedBrief.content_angle && (
+                    <div>
+                      <p className="text-xs font-semibold text-foreground/40 uppercase mb-1">Content angle</p>
+                      <p className="text-sm text-foreground/60">{selectedBrief.content_angle}</p>
+                    </div>
+                  )}
+
+                  {selectedBrief.tags?.length > 0 && (
+                    <div className="flex gap-1.5 flex-wrap">
+                      {selectedBrief.tags.map(t => (
+                        <span key={t} className="text-xs px-2 py-0.5 bg-black/5 rounded-full text-foreground/50">{t}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <p className="text-xs text-foreground/30 mb-1">{selectedBrief.source_name}</p>
+                    <a href={selectedBrief.url} target="_blank" rel="noopener noreferrer"
+                      className="text-sm text-accent hover:underline break-all">{selectedBrief.url}</a>
+                  </div>
                 </div>
               </div>
             )}
