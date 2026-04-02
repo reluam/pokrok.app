@@ -61,14 +61,14 @@ export default function PipelineCMS() {
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
+      <div className="shrink-0">
         <h1 className="text-3xl font-bold text-foreground">Správa obsahu</h1>
         <p className="text-foreground/60 mt-1">CMS pro knihovnu — příspěvky, pipeline a zdroje.</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b-2 border-black/10 -mx-8 px-8">
+      <div className="flex gap-1 border-b-2 border-black/10 -mx-8 px-8 mt-6 shrink-0">
         {tabs.map(t => {
           const Icon = t.icon
           return (
@@ -88,12 +88,14 @@ export default function PipelineCMS() {
         })}
       </div>
 
-      {tab === 'posts' && <PostsTab />}
-      {tab === 'pipeline' && <PipelineTab />}
-      {tab === 'new' && <NewPostTab onCreated={() => setTab('posts')} />}
-      {tab === 'drafts' && <DraftsTab />}
-      {tab === 'digest' && <DigestTab />}
-      {tab === 'sources' && <SourcesTab />}
+      <div className="flex-1 min-h-0 mt-4">
+        {tab === 'posts' && <PostsTab />}
+        {tab === 'pipeline' && <PipelineTab />}
+        {tab === 'new' && <NewPostTab onCreated={() => setTab('posts')} />}
+        {tab === 'drafts' && <DraftsTab />}
+        {tab === 'digest' && <DigestTab />}
+        {tab === 'sources' && <SourcesTab />}
+      </div>
     </div>
   )
 }
@@ -344,8 +346,8 @@ function PipelineTab() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3 flex-wrap">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center gap-3 flex-wrap shrink-0 mb-4">
         {['inbox', 'saved', 'archived'].map(s => (
           <button key={s} onClick={() => { setStatusFilter(s); setSelectedBrief(null); setIframeError(false) }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
@@ -376,7 +378,7 @@ function PipelineTab() {
         <p className="text-center text-foreground/40 py-12">Žádné články v tomto filtru.</p>
       ) : statusFilter === 'inbox' ? (
         /* Inbox: jednoduché karty */
-        <div className="space-y-3">
+        <div className="space-y-3 flex-1 min-h-0 overflow-y-auto">
           {briefs.map(brief => (
             <div key={brief.brief_id} className="bg-white rounded-xl border-2 border-black/10 p-4">
               <div className="flex items-center gap-4">
@@ -401,11 +403,11 @@ function PipelineTab() {
         </div>
       ) : (
         /* Uložené / Archiv: split-panel, plná výška */
-        <div className="flex gap-6" style={{ height: 'calc(100vh - 240px)' }}>
+        <div className="flex gap-6 flex-1 min-h-0">
           {/* Left: list */}
-          <div className="w-80 shrink-0 flex flex-col">
-            <p className="text-xs text-foreground/40 mb-2">{briefs.length} článků</p>
-            <div className="space-y-1 overflow-y-auto flex-1 pr-1">
+          <div className="w-80 shrink-0 flex flex-col min-h-0">
+            <p className="text-xs text-foreground/40 mb-2 shrink-0">{briefs.length} článků</p>
+            <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
               {briefs.map(brief => (
                 <button key={brief.brief_id} onClick={() => { setSelectedBrief(brief); setIframeError(false) }}
                   className={`w-full text-left p-3 rounded-xl transition-colors ${
@@ -822,14 +824,14 @@ function DraftsTab() {
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-foreground/30" size={24} /></div>
 
   return (
-    <div className="flex gap-6" style={{ height: 'calc(100vh - 240px)' }}>
+    <div className="flex gap-6 h-full">
       {/* Left: drafts list */}
-      <div className="w-72 shrink-0 flex flex-col">
-        <p className="text-xs text-foreground/40 mb-2">{drafts.length} konceptů</p>
+      <div className="w-72 shrink-0 flex flex-col min-h-0">
+        <p className="text-xs text-foreground/40 mb-2 shrink-0">{drafts.length} konceptů</p>
         {drafts.length === 0 ? (
           <p className="text-sm text-foreground/40 py-8 text-center">Žádné rozpracované příspěvky.</p>
         ) : (
-          <div className="space-y-1 overflow-y-auto flex-1 pr-1">
+          <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
             {drafts.map(d => (
               <button key={d.id} onClick={() => selectDraft(d)}
                 className={`w-full text-left p-3 rounded-xl transition-colors ${
