@@ -118,9 +118,12 @@ export default async function LinksPage() {
             sizes="140px"
           />
         </Link>
+        <p className="text-foreground/60 text-center mt-2 text-sm sm:text-base max-w-xs leading-relaxed">
+          Učím se žít life podle sebe. A za pochodu.
+        </p>
 
         {/* Social icons — top */}
-        <div className="flex items-center gap-1 mt-3">
+        <div className="flex items-center gap-1 mt-4">
           {socials.map((social) => (
             <a
               key={social.label}
@@ -135,12 +138,8 @@ export default async function LinksPage() {
           ))}
         </div>
 
-        <p className="text-foreground/60 text-center mt-2 text-sm sm:text-base max-w-xs leading-relaxed">
-          Učím se žít life podle sebe. A za pochodu.
-        </p>
-
         {/* === BENTO GRID === */}
-        <div className="w-full mt-8 flex flex-col gap-3">
+        <div className="w-full mt-6 flex flex-col gap-3">
           {/* 1. Manuál — full width hero card */}
           <Link href="/manual" className="group block">
             <div
