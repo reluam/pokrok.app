@@ -118,6 +118,23 @@ export default async function LinksPage() {
             sizes="140px"
           />
         </Link>
+
+        {/* Social icons — top */}
+        <div className="flex items-center gap-1 mt-3">
+          {socials.map((social) => (
+            <a
+              key={social.label}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-foreground/30 hover:text-[var(--accent-primary)] hover:scale-110 transition-all duration-200"
+              aria-label={social.label}
+            >
+              {social.icon}
+            </a>
+          ))}
+        </div>
+
         <p className="text-foreground/60 text-center mt-2 text-sm sm:text-base max-w-xs leading-relaxed">
           Učím se žít life podle sebe. A za pochodu.
         </p>
