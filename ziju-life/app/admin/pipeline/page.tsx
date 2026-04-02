@@ -30,7 +30,7 @@ interface RssSource {
   priority: string; is_active: boolean; article_count: number; last_fetched_at: string | null
 }
 
-type Tab = 'posts' | 'pipeline' | 'new' | 'digest' | 'sources'
+type Tab = 'posts' | 'pipeline' | 'new' | 'drafts' | 'digest' | 'sources'
 
 const TYPE_OPTIONS = [
   { value: 'tip', label: 'Tip / Článek', icon: PenTool },
@@ -55,6 +55,7 @@ export default function PipelineCMS() {
     { id: 'posts', label: 'Příspěvky', icon: PenTool },
     { id: 'pipeline', label: 'Pipeline Inbox', icon: Rss },
     { id: 'new', label: 'Nový příspěvek', icon: Plus },
+    { id: 'drafts', label: 'Rozpracované', icon: Edit2 },
     { id: 'digest', label: 'Týdenní digest', icon: Sparkles },
     { id: 'sources', label: 'Zdroje', icon: Rss },
   ]
@@ -90,6 +91,7 @@ export default function PipelineCMS() {
       {tab === 'posts' && <PostsTab />}
       {tab === 'pipeline' && <PipelineTab />}
       {tab === 'new' && <NewPostTab onCreated={() => setTab('posts')} />}
+      {tab === 'drafts' && <DraftsTab />}
       {tab === 'digest' && <DigestTab />}
       {tab === 'sources' && <SourcesTab />}
     </div>
@@ -342,12 +344,12 @@ function PipelineTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
-        {['inbox', 'saved', 'in_progress', 'archived'].map(s => (
+        {['inbox', 'saved', 'archived'].map(s => (
           <button key={s} onClick={() => setStatusFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
               statusFilter === s ? 'bg-accent text-white' : 'bg-black/5 text-foreground/60 hover:bg-black/10'
             }`}>
-            {s === 'inbox' ? 'Inbox' : s === 'saved' ? 'Uložené' : s === 'in_progress' ? 'Rozpracované' : 'Archiv'}
+            {s === 'inbox' ? 'Inbox' : s === 'saved' ? 'Uložené' : 'Archiv'}
           </button>
         ))}
         <select value={minRelevance} onChange={e => setMinRelevance(Number(e.target.value))}
@@ -374,25 +376,60 @@ function PipelineTab() {
         <div className="space-y-3">
           {briefs.map(brief => (
             <div key={brief.brief_id} className="bg-white rounded-xl border-2 border-black/10 p-4">
-              <div className="flex items-center gap-4">
-                <p className="flex-1 text-base text-foreground leading-relaxed">{brief.summary_cs}</p>
-                <div className="flex flex-col gap-1 shrink-0">
-                  {brief.pipeline_status === 'inbox' && (
+              {statusFilter === 'inbox' ? (
+                /* Inbox: jen české shrnutí + akce */
+                <div className="flex items-center gap-4">
+                  <p className="flex-1 text-base text-foreground leading-relaxed">{brief.summary_cs}</p>
+                  <div className="flex flex-col gap-1 shrink-0">
                     <button onClick={() => handleStatusChange(brief.brief_id, 'saved')}
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold hover:bg-black/5">
                       <Bookmark size={12} /> Uložit
                     </button>
-                  )}
-                  <button onClick={() => handleStatusChange(brief.brief_id, 'archived')}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
-                    <Archive size={12} /> Archiv
-                  </button>
-                  <a href={brief.url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
-                    <ExternalLink size={12} /> Zdroj
-                  </a>
+                    <button onClick={() => handleStatusChange(brief.brief_id, 'archived')}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
+                      <Archive size={12} /> Archiv
+                    </button>
+                    <a href={brief.url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
+                      <ExternalLink size={12} /> Zdroj
+                    </a>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                /* Uložené / Archiv: plný detail */
+                <div className="flex items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                        {CATEGORY_EMOJI[brief.primary_category] || ''} {brief.primary_category}
+                      </span>
+                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
+                        brief.relevance_score >= 8 ? 'bg-emerald-100 text-emerald-700' :
+                        brief.relevance_score >= 6 ? 'bg-yellow-100 text-yellow-700' : 'bg-black/5 text-foreground/50'
+                      }`}>{brief.relevance_score}/10</span>
+                      <span className="text-xs text-foreground/40">{brief.source_name}</span>
+                    </div>
+                    <h4 className="font-bold text-foreground text-sm">{brief.title}</h4>
+                    <p className="text-sm text-foreground/60 mt-1 leading-relaxed">{brief.summary_cs}</p>
+                    {brief.key_insight && <p className="text-xs text-foreground/40 mt-1 italic">{brief.key_insight}</p>}
+                    {brief.tags?.length > 0 && (
+                      <div className="flex gap-1 mt-2 flex-wrap">
+                        {brief.tags.map(t => <span key={t} className="text-[10px] px-1.5 py-0.5 bg-black/5 rounded text-foreground/50">{t}</span>)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <button onClick={() => handleStatusChange(brief.brief_id, 'archived')}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
+                      <Archive size={12} /> Archiv
+                    </button>
+                    <a href={brief.url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
+                      <ExternalLink size={12} /> Zdroj
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -628,6 +665,167 @@ function NewPostTab({ onCreated }: { onCreated: () => void }) {
           className="px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent-hover disabled:opacity-50">
           {saving ? 'Ukládám...' : 'Publikovat'}
         </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Drafts Tab (Rozpracované) ────────────────────────────────────────────────
+
+function DraftsTab() {
+  const [drafts, setDrafts] = useState<CuratedPost[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedDraft, setSelectedDraft] = useState<CuratedPost | null>(null)
+
+  // Edit form state
+  const [title, setTitle] = useState('')
+  const [subtitle, setSubtitle] = useState('')
+  const [body, setBody] = useState('')
+  const [coverUrl, setCoverUrl] = useState('')
+  const [coverKeyword, setCoverKeyword] = useState('')
+  const [tags, setTags] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const loadDrafts = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/curated-posts?status=draft&limit=100')
+      const data = await res.json()
+      setDrafts(data.posts || [])
+    } catch (e) { console.error(e) }
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { loadDrafts() }, [loadDrafts])
+
+  const selectDraft = (post: CuratedPost) => {
+    setSelectedDraft(post)
+    const existingKeywordTag = post.tags?.find(t => t.startsWith('cover:'))
+    setTitle(post.title)
+    setSubtitle(post.subtitle || '')
+    setBody(post.body_markdown)
+    setCoverUrl(post.cover_image_url || '')
+    setCoverKeyword(existingKeywordTag ? existingKeywordTag.slice(6) : '')
+    setTags(post.tags?.filter(t => !t.startsWith('cover:')).join(', ') || '')
+  }
+
+  const handleSave = async (status: 'draft' | 'published') => {
+    if (!selectedDraft) return
+    setSaving(true)
+    const allTags = [
+      ...tags.split(',').map(t => t.trim()).filter(Boolean),
+      ...(coverKeyword.trim() ? [`cover:${coverKeyword.trim().toUpperCase()}`] : []),
+    ]
+    await fetch('/api/admin/curated-posts', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: selectedDraft.id, title, subtitle: subtitle || null,
+        body_markdown: body, cover_image_url: coverUrl || null,
+        tags: allTags, status,
+      }),
+    })
+    setSaving(false)
+    if (status === 'published') setSelectedDraft(null)
+    loadDrafts()
+  }
+
+  const handleDelete = async () => {
+    if (!selectedDraft || !confirm('Smazat rozpracovaný příspěvek?')) return
+    await fetch(`/api/admin/curated-posts?id=${selectedDraft.id}`, { method: 'DELETE' })
+    setSelectedDraft(null)
+    loadDrafts()
+  }
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-foreground/30" size={24} /></div>
+
+  return (
+    <div className="flex gap-6 min-h-[500px]">
+      {/* Left: drafts list */}
+      <div className="w-72 shrink-0 space-y-1">
+        <p className="text-xs text-foreground/40 mb-2">{drafts.length} konceptů</p>
+        {drafts.length === 0 ? (
+          <p className="text-sm text-foreground/40 py-8 text-center">Žádné rozpracované příspěvky.</p>
+        ) : (
+          <div className="space-y-1 max-h-[600px] overflow-y-auto">
+            {drafts.map(d => (
+              <button key={d.id} onClick={() => selectDraft(d)}
+                className={`w-full text-left p-3 rounded-xl transition-colors ${
+                  selectedDraft?.id === d.id
+                    ? 'bg-accent/10 border-2 border-accent'
+                    : 'bg-white border-2 border-black/10 hover:border-accent/30'
+                }`}>
+                <p className="text-sm font-semibold text-foreground line-clamp-2">{d.title}</p>
+                {d.subtitle && <p className="text-xs text-foreground/40 mt-0.5 line-clamp-1">{d.subtitle}</p>}
+                <p className="text-[10px] text-foreground/30 mt-1">
+                  {new Date(d.created_at).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Right: edit form */}
+      <div className="flex-1 min-w-0">
+        {!selectedDraft ? (
+          <div className="flex items-center justify-center h-full border-2 border-dashed border-black/10 rounded-2xl">
+            <div className="text-center">
+              <Edit2 size={28} className="mx-auto text-foreground/20 mb-2" />
+              <p className="text-sm text-foreground/40">Vyber rozpracovaný příspěvek vlevo</p>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border-2 border-black/10 p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1">Název</label>
+              <input value={title} onChange={e => setTitle(e.target.value)}
+                className="w-full px-4 py-2.5 border-2 border-black/10 rounded-xl text-sm focus:border-accent outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1">Podtitulek / zdroj</label>
+              <input value={subtitle} onChange={e => setSubtitle(e.target.value)}
+                className="w-full px-4 py-2.5 border-2 border-black/10 rounded-xl text-sm focus:border-accent outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1">Obrázek (URL)</label>
+              <input value={coverUrl} onChange={e => setCoverUrl(e.target.value)} placeholder="https://..."
+                className="w-full px-4 py-2.5 border-2 border-black/10 rounded-xl text-sm focus:border-accent outline-none" />
+              {coverUrl && <img src={coverUrl} alt="Preview" className="mt-2 h-24 rounded-lg object-contain border border-black/10" />}
+            </div>
+            {!coverUrl && (
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-1">Cover keyword (místo obrázku)</label>
+                <input value={coverKeyword} onChange={e => setCoverKeyword(e.target.value)} placeholder="MBTI, NÁVYKY..."
+                  className="w-full px-4 py-2.5 border-2 border-black/10 rounded-xl text-sm focus:border-accent outline-none uppercase tracking-wider font-mono" />
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1">Obsah (Markdown)</label>
+              <textarea value={body} onChange={e => setBody(e.target.value)}
+                className="w-full px-4 py-2.5 border-2 border-black/10 rounded-xl text-sm focus:border-accent outline-none min-h-[200px] font-mono" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1">Tagy</label>
+              <input value={tags} onChange={e => setTags(e.target.value)} placeholder="spánek, produktivita..."
+                className="w-full px-4 py-2.5 border-2 border-black/10 rounded-xl text-sm focus:border-accent outline-none" />
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button onClick={() => handleSave('draft')} disabled={saving}
+                className="px-5 py-2.5 rounded-xl border-2 border-black/10 text-sm font-semibold hover:bg-black/5 disabled:opacity-50">
+                Uložit koncept
+              </button>
+              <button onClick={() => handleSave('published')} disabled={saving}
+                className="px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent-hover disabled:opacity-50">
+                {saving ? 'Ukládám...' : 'Publikovat'}
+              </button>
+              <button onClick={handleDelete}
+                className="ml-auto p-2 rounded-lg hover:bg-red-50 text-foreground/40 hover:text-red-600">
+                <Trash2 size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
