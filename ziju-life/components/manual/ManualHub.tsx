@@ -22,7 +22,6 @@ import { IkigaiCard } from "./cards/IkigaiCard";
 import { EnergieCard } from "./cards/EnergieCard";
 import { PresvedceniCard } from "./cards/PresvedceniCard";
 import { VztahyCard } from "./cards/VztahyCard";
-import { OblastiCard } from "./cards/OblastiCard";
 import KompasFlow, { type KompasData } from "@/components/KompasFlow";
 import HodnotyFlow, { PrintHodnotyButton, type HodnotyData } from "@/components/HodnotyFlow";
 import dynamic from "next/dynamic";
@@ -43,7 +42,7 @@ type RitualSelection = { morning: string[]; daily: string[]; evening: string[]; 
 function StateBadge({ state, progress }: { state: ExerciseState; progress?: string | null }) {
   if (state === "completed") {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold">
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-sm font-semibold">
         <span className="w-3.5 h-3.5 rounded-full bg-green-500 text-white text-[8px] font-bold flex items-center justify-center">✓</span>
         Hotovo
       </span>
@@ -51,7 +50,7 @@ function StateBadge({ state, progress }: { state: ExerciseState; progress?: stri
   }
   if (state === "in_progress") {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold">
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-sm font-semibold">
         <span className="w-2 h-2 rounded-full bg-amber-400" />
         V procesu{progress ? ` · ${progress}` : ""}
       </span>
@@ -88,8 +87,8 @@ function ExerciseCard({
         <div className="flex items-center gap-3">
           <span className="text-2xl">{exercise.emoji}</span>
           <div>
-            <p className="font-bold text-foreground text-sm">{exercise.title}</p>
-            <p className="text-xs text-foreground/50 mt-0.5 leading-relaxed">{exercise.description}</p>
+            <p className="font-bold text-foreground text-base">{exercise.title}</p>
+            <p className="text-sm text-foreground/50 mt-0.5 leading-relaxed">{exercise.description}</p>
           </div>
         </div>
         <StateBadge state={state} progress={progress} />
@@ -98,7 +97,7 @@ function ExerciseCard({
       {/* Summary for completed/in-progress */}
       {summary && (
         <div className="pl-[44px]">
-          <p className="text-xs text-foreground/60">{summary.label}</p>
+          <p className="text-sm text-foreground/60">{summary.label}</p>
           {summary.details && (
             <div className="flex flex-wrap gap-1 mt-1">
               {summary.details.map((d, i) => (
@@ -113,7 +112,7 @@ function ExerciseCard({
 
       {/* CTA */}
       <div className="pl-[44px]">
-        <span className={`text-xs font-semibold ${
+        <span className={`text-sm font-semibold ${
           state === "not_started" ? "text-accent" :
           state === "in_progress" ? "text-amber-600" : "text-foreground/40"
         }`}>
@@ -177,7 +176,6 @@ export function ManualHub({
   const energyData = context.energy as EnergyAuditData | null;
   const beliefsData = context.beliefs as BeliefsData | null;
   const relationshipsData = context.relationships as RelationshipMapData | null;
-  const areasData = context.areas as AreaSetupData | null;
   const dailyValuesData = context["daily-values"] as DailyValuesData | null;
 
   // ── Dashboard ──
@@ -195,7 +193,6 @@ export function ManualHub({
             onTabChange={() => setActiveExercise("hodnoty")}
           />
         </div>
-        <OblastiCard data={areasData} saveContext={saveContext} />
         <CtvrtletniCard data={quarterlyData} saveContext={saveContext} />
       </DashboardSection>
 
@@ -253,7 +250,7 @@ function renderExercise(
   const backButton = (
     <button
       onClick={goBack}
-      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-sm font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors mb-4"
+      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-base font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors mb-4"
     >
       ← Zpět na Manuál
     </button>
@@ -275,11 +272,11 @@ function renderExercise(
             <div className="space-y-3">
               {focusLabel && (
                 <div className="px-4 py-3 rounded-2xl bg-accent/8 border border-accent/20">
-                  <p className="text-xs font-bold text-accent/70 uppercase tracking-wider mb-0.5">Oblast k rozvoji</p>
+                  <p className="text-sm font-bold text-accent/70 uppercase tracking-wider mb-0.5">Oblast k rozvoji</p>
                   <p className="font-bold text-foreground">{focusLabel}</p>
                 </div>
               )}
-              <p className="text-xs text-foreground/45">Aktuální vs. cílové hodnoty a fokus oblast jsou teď viditelné v dashboardu.</p>
+              <p className="text-sm text-foreground/45">Aktuální vs. cílové hodnoty a fokus oblast jsou teď viditelné v dashboardu.</p>
             </div>
           }
           onGoPrehled={goBack}
@@ -300,7 +297,7 @@ function renderExercise(
               goBack();
             }}
             printNode={
-              <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-sm font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors">
+              <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-base font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors">
                 Vytisknout
               </button>
             }
@@ -326,14 +323,14 @@ function renderExercise(
           title="Hodnoty uloženy!"
           summary={
             <div className="space-y-3">
-              <p className="text-sm font-semibold text-foreground/60">Tvoje top 5 hodnot:</p>
+              <p className="text-base font-semibold text-foreground/60">Tvoje top 5 hodnot:</p>
               <div className="flex flex-wrap gap-2">
                 {hodnotyData.finalValues.slice(0, 5).map((v, i) => (
-                  <span key={i} className="px-3 py-1.5 rounded-xl text-sm font-medium border border-[#FF8C42] bg-orange-50 text-orange-900">{v}</span>
+                  <span key={i} className="px-3 py-1.5 rounded-xl text-base font-medium border border-[#FF8C42] bg-orange-50 text-orange-900">{v}</span>
                 ))}
               </div>
               {hodnotyData.alignmentScores && (
-                <p className="text-xs text-foreground/45 mt-2">Přidal/a jsi i skóre souladu.</p>
+                <p className="text-sm text-foreground/45 mt-2">Přidal/a jsi i skóre souladu.</p>
               )}
             </div>
           }
@@ -357,7 +354,7 @@ function renderExercise(
             printNode={
               <PrintHodnotyButton
                 data={hodnotyData}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-sm font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-base font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors disabled:opacity-50"
               />
             }
           />
@@ -543,7 +540,7 @@ function renderExercise(
   return (
     <div className="text-center py-12">
       <p className="text-foreground/50">Toto cvičení ještě není dostupné.</p>
-      <button onClick={goBack} className="mt-4 px-5 py-2 bg-accent text-white rounded-full text-sm font-semibold">
+      <button onClick={goBack} className="mt-4 px-5 py-2 bg-accent text-white rounded-full text-base font-semibold">
         ← Zpět na Manuál
       </button>
     </div>

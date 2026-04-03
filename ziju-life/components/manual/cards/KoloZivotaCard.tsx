@@ -62,12 +62,10 @@ function ViewMode({ data }: { data: KompasData }) {
   const steps = (data.actionSteps ?? []).filter((s) => s.trim());
 
   return (
-    <div className="space-y-4">
-      {/* Spider chart */}
-      <div className="space-y-1">
-        <div className="flex justify-center">
-          <SpiderChart vals={data.currentVals} goalVals={data.goalVals} size={200} />
-        </div>
+    <div className="flex gap-4 items-start">
+      {/* Spider chart — left */}
+      <div className="flex-shrink-0 space-y-1">
+        <SpiderChart vals={data.currentVals} goalVals={data.goalVals} size={200} />
         <div className="flex items-center justify-center gap-3 text-[10px] text-foreground/40">
           <span className="flex items-center gap-1">
             <span className="inline-block w-2.5 h-1 rounded-full bg-[#FF8C42]" />
@@ -82,38 +80,28 @@ function ViewMode({ data }: { data: KompasData }) {
         </div>
       </div>
 
-      {/* Areas breakdown */}
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-        {WHEEL_AREAS.map((a) => {
-          const cur = data.currentVals[a.key] ?? 0;
-          const goal = data.goalVals?.[a.key];
-          const isFocus = data.focusArea === a.key;
-          return (
-            <div key={a.key} className={`flex items-center gap-2 ${isFocus ? "font-semibold" : ""}`}>
-              <span className="text-xs text-foreground/50 flex-1 truncate">
-                {isFocus && <span className="text-accent mr-0.5">●</span>}
-                {a.short}
-              </span>
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-bold text-foreground/60 w-4 text-right">{cur}</span>
-                {goal != null && goal !== cur && (
-                  <span className="text-[10px] text-[#4ECDC4]">→ {goal}</span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {/* Divider */}
+      <div className="w-px self-stretch bg-black/[0.07]" />
 
-      {/* Focus + action steps */}
-      {steps.length > 0 && (
-        <div className="space-y-1 pt-1 border-t border-black/[0.05]">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">Kroky</p>
-          {steps.map((step, i) => (
-            <p key={i} className="text-xs text-foreground/55">{i + 1}. {step}</p>
-          ))}
-        </div>
-      )}
+      {/* Focus + action steps — right */}
+      <div className="flex-1 min-w-0 space-y-3 pt-2">
+        {focusArea ? (
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">Focus</p>
+            <p className="text-sm font-bold text-accent mt-0.5">{focusArea.short}</p>
+          </div>
+        ) : (
+          <p className="text-xs text-foreground/35 italic">Zatím nemáš vybranou fokus oblast.</p>
+        )}
+        {steps.length > 0 && (
+          <div className="space-y-1">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">Kroky</p>
+            {steps.map((step, i) => (
+              <p key={i} className="text-sm text-foreground/55">{i + 1}. {step}</p>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -131,7 +119,7 @@ function SliderRow({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-foreground/50 w-20 truncate">{label}</span>
+      <span className="text-sm text-foreground/50 w-20 truncate">{label}</span>
       <input
         type="range"
         min={1}
@@ -143,7 +131,7 @@ function SliderRow({
           background: `linear-gradient(to right, ${color} ${((value - 1) / 9) * 100}%, rgba(0,0,0,0.08) ${((value - 1) / 9) * 100}%)`,
         }}
       />
-      <span className="text-xs font-bold text-foreground/60 w-5 text-right">{value}</span>
+      <span className="text-sm font-bold text-foreground/60 w-5 text-right">{value}</span>
     </div>
   );
 }
@@ -254,7 +242,7 @@ function EditFlow({
 
       {/* Step description */}
       <div>
-        <p className="text-xs font-bold text-foreground/70">{info.title}</p>
+        <p className="text-sm font-bold text-foreground/70">{info.title}</p>
         <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{info.desc}</p>
       </div>
 
@@ -317,14 +305,14 @@ function EditFlow({
                 <button
                   key={a.key}
                   onClick={() => setFocusArea(a.key)}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-sm transition-all"
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-base transition-all"
                   style={focusArea === a.key
                     ? { borderColor: "#FF8C42", background: "rgba(255,140,66,0.06)" }
                     : { borderColor: "rgba(0,0,0,0.07)" }
                   }
                 >
                   <span className="font-medium text-foreground/70 flex-1">{a.short}</span>
-                  <span className="text-xs text-foreground/40">{cur} → {goal}</span>
+                  <span className="text-sm text-foreground/40">{cur} → {goal}</span>
                   {a.diff > 0 && (
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500">+{a.diff}</span>
                   )}
@@ -347,7 +335,7 @@ function EditFlow({
                 setActionSteps(next);
               }}
               placeholder={`Krok ${i + 1}${i > 0 ? " (volitelný)" : ""}`}
-              className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
+              className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
             />
           ))}
         </div>
@@ -360,14 +348,14 @@ function EditFlow({
         {stepIdx > 0 && (
           <button
             onClick={() => setStep(STEPS[stepIdx - 1])}
-            className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold hover:border-foreground/30 transition-colors"
+            className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-base font-semibold hover:border-foreground/30 transition-colors"
           >
             ← Zpět
           </button>
         )}
         <button
           onClick={step === "actions" ? handleFinish : handleNext}
-          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
+          className="px-5 py-2 bg-accent text-white rounded-full text-base font-bold hover:bg-accent-hover transition-colors"
         >
           {step === "actions" ? "Hotovo ✓" : "Dál →"}
         </button>
