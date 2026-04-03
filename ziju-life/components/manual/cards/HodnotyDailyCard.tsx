@@ -1,42 +1,12 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
 import { DashboardCard } from "./DashboardCard";
 import type { HodnotyData } from "@/components/HodnotyFlow";
 import type { DailyValuesData } from "@/lib/exercise-registry";
 
-function ScoreBar5({ value, onChange }: { value: number; onChange: (n: number) => void }) {
-  const [hovered, setHovered] = useState<number | null>(null);
-  return (
-    <div className="flex gap-1 flex-shrink-0 w-[140px]">
-      {[1, 2, 3, 4, 5].map((n) => {
-        const fill = hovered !== null ? n <= hovered : n <= value;
-        return (
-          <button
-            key={n}
-            onMouseEnter={() => setHovered(n)}
-            onMouseLeave={() => setHovered(null)}
-            onClick={() => onChange(n)}
-            className={`flex-1 h-7 rounded text-lg font-bold transition-all ${
-              fill ? "bg-accent text-white" : "bg-foreground/6 text-foreground/35 hover:bg-accent/15 hover:text-accent"
-            }`}
-          >
-            {n}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 export function HodnotyDailyCard({
   hodnotyData,
   dailyData,
-  saveContext,
   onTabChange,
 }: {
   hodnotyData: HodnotyData | null;
@@ -45,49 +15,13 @@ export function HodnotyDailyCard({
   onTabChange?: (tab: string) => void;
 }) {
   const values = hodnotyData?.finalValues ?? [];
-  const today = todayKey();
-
-  const todayEntry = dailyData?.entries?.find((e) => e.date === today);
-  const [scores, setScores] = useState<Record<string, number>>(todayEntry?.scores ?? {});
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Reset when day changes
-  useEffect(() => {
-    const entry = dailyData?.entries?.find((e) => e.date === todayKey());
-    setScores(entry?.scores ?? {});
-  }, [dailyData]);
-
-  const saveDailyValues = useCallback(
-    (newScores: Record<string, number>) => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(async () => {
-        const entries = [...(dailyData?.entries ?? [])];
-        const idx = entries.findIndex((e) => e.date === today);
-        if (idx >= 0) {
-          entries[idx] = { date: today, scores: newScores };
-        } else {
-          entries.push({ date: today, scores: newScores });
-        }
-        // Keep max 90 days
-        const trimmed = entries.slice(-90);
-        await saveContext("daily-values", { entries: trimmed });
-      }, 500);
-    },
-    [dailyData, today, saveContext]
-  );
-
-  const handleChange = (value: string, score: number) => {
-    const next = { ...scores, [value]: score };
-    setScores(next);
-    saveDailyValues(next);
-  };
 
   if (values.length === 0) {
     return (
       <DashboardCard emoji="💎" title="Hodnoty" isEmpty emptyDescription="Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.">
         <div className="text-center py-4 space-y-2">
           <span className="text-2xl">💎</span>
-          <p className="text-base font-semibold text-foreground">Hodnoty</p>
+          <p className="text-xl font-extrabold text-foreground">Hodnoty</p>
           <p className="text-lg text-foreground/45 leading-relaxed max-w-xs mx-auto">Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.</p>
           <button
             onClick={() => onTabChange?.("manual")}
@@ -100,54 +34,84 @@ export function HodnotyDailyCard({
     );
   }
 
-  const filled = Object.keys(scores).filter((k) => scores[k] > 0).length;
-  const total = values.length;
-  const avg = filled > 0 ? (Object.values(scores).reduce((s, v) => s + v, 0) / filled).toFixed(1) : "—";
+  const entries = dailyData?.entries ?? [];
+  const recent = entries.slice(-14); // last 14 entries for the chart
 
-  // Stats: average per value over last 7 entries
-  const statsContent = dailyData?.entries && dailyData.entries.length > 1 ? (
-    <div className="space-y-2">
-      <p className="text-base font-semibold text-foreground/40 uppercase tracking-wider">
-        Průměr za {Math.min(dailyData.entries.length, 7)} dní
-      </p>
-      {values.map((v) => {
-        const recent = dailyData.entries!.slice(-7);
-        const scored = recent.filter((e) => (e.scores[v] ?? 0) > 0);
-        const valAvg = scored.length > 0 ? scored.reduce((s, e) => s + (e.scores[v] ?? 0), 0) / scored.length : 0;
-        return (
-          <div key={v} className="flex items-center gap-2">
-            <span className="text-base text-foreground/60 flex-1 truncate">{v}</span>
-            <div className="w-24 h-2 bg-foreground/5 rounded-full overflow-hidden">
-              <div className="h-full rounded-full bg-accent" style={{ width: `${(valAvg / 5) * 100}%` }} />
-            </div>
-            <span className="text-base font-bold text-foreground/50 w-8 text-right">{valAvg > 0 ? valAvg.toFixed(1) : "—"}</span>
-          </div>
-        );
-      })}
-    </div>
-  ) : undefined;
+  // Compute per-value averages
+  const valueStats = values.map((v) => {
+    const scored = entries.filter((e) => (e.scores[v] ?? 0) > 0);
+    const avg = scored.length > 0 ? scored.reduce((s, e) => s + (e.scores[v] ?? 0), 0) / scored.length : 0;
+    return { value: v, avg };
+  });
+
+  const overallAvgs = recent.map((e) => {
+    const vals = values.map((v) => e.scores[v] ?? 0).filter((s) => s > 0);
+    return { date: e.date, avg: vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : 0 };
+  });
+
+  const totalAvg = valueStats.filter(v => v.avg > 0).length > 0
+    ? (valueStats.filter(v => v.avg > 0).reduce((s, v) => s + v.avg, 0) / valueStats.filter(v => v.avg > 0).length).toFixed(1)
+    : "—";
 
   return (
-    <DashboardCard emoji="💎" title="Hodnoty" statsContent={statsContent}>
-      <div className="space-y-2">
+    <DashboardCard emoji="💎" title="Hodnoty">
+      <div className="space-y-3">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <p className="text-lg text-foreground/40">Jak moc dnes žiješ podle svých hodnot?</p>
-          <span className="text-lg text-foreground/30">
-            {filled}/{total} · {avg}/5
-          </span>
+          <p className="text-base text-foreground/40">
+            {entries.length > 0
+              ? `${entries.length} check-inů · průměr ${totalAvg}/5`
+              : "Zatím žádné check-iny"
+            }
+          </p>
+          <button
+            onClick={() => onTabChange?.("manual")}
+            className="text-base text-accent/60 hover:text-accent font-medium transition-colors"
+          >
+            Upravit →
+          </button>
         </div>
-        {values.map((v) => (
-          <div key={v} className="flex items-center gap-3">
-            <span className="text-base font-medium text-foreground/65 flex-1 min-w-0 truncate">{v}</span>
-            <ScoreBar5 value={scores[v] ?? 0} onChange={(n) => handleChange(v, n)} />
+
+        {/* Mini line chart - overall average over time */}
+        {overallAvgs.length >= 2 && (
+          <div className="space-y-1">
+            <p className="text-base font-semibold text-foreground/30 uppercase tracking-wider">Trend</p>
+            <div className="h-16 flex items-end gap-[2px]">
+              {overallAvgs.map((d, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+                  <div
+                    className="w-full rounded-sm bg-accent/70 min-h-[2px] transition-all"
+                    style={{ height: `${(d.avg / 5) * 100}%` }}
+                    title={`${d.date}: ${d.avg.toFixed(1)}/5`}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between text-xs text-foreground/20">
+              <span>{overallAvgs[0]?.date?.slice(5)}</span>
+              <span>{overallAvgs[overallAvgs.length - 1]?.date?.slice(5)}</span>
+            </div>
           </div>
-        ))}
-        <button
-          onClick={() => onTabChange?.("manual")}
-          className="text-base text-accent/60 hover:text-accent font-medium transition-colors mt-1"
-        >
-          Upravit hodnoty →
-        </button>
+        )}
+
+        {/* Per-value bars */}
+        <div className="space-y-1.5">
+          {valueStats.map(({ value, avg }) => (
+            <div key={value} className="flex items-center gap-2">
+              <span className="text-base text-foreground/60 flex-1 truncate">{value}</span>
+              <div className="w-24 h-2 bg-foreground/5 rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${(avg / 5) * 100}%` }} />
+              </div>
+              <span className="text-base font-bold text-foreground/50 w-8 text-right">{avg > 0 ? avg.toFixed(1) : "—"}</span>
+            </div>
+          ))}
+        </div>
+
+        {entries.length === 0 && (
+          <p className="text-base text-foreground/35 italic text-center py-2">
+            Data z check-inů se tu zobrazí jako graf.
+          </p>
+        )}
       </div>
     </DashboardCard>
   );
