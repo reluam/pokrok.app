@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import { printExercise } from "@/lib/print-exercise";
 import type { FuneralSpeechData } from "@/lib/exercise-registry";
 
@@ -67,6 +67,7 @@ function EditMode({
   data: FuneralSpeechData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [form, setForm] = useState({
     rodina: data?.rodina ?? "",
     blizci: data?.blizci ?? "",
@@ -78,7 +79,8 @@ function EditMode({
     setSaving(true);
     await saveContext("funeral-speech", { ...form, savedAt: new Date().toISOString() });
     setSaving(false);
-  }, [form, saveContext]);
+    done?.();
+  }, [form, saveContext, done]);
 
   return (
     <div className="space-y-3">

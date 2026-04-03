@@ -6,6 +6,8 @@ import { Plus, X, Check, Pencil } from "lucide-react";
 interface PriorityItem {
   text: string;
   done: boolean;
+  source?: string;
+  sourceDate?: string;
 }
 
 export interface PrioritiesData {
@@ -105,6 +107,11 @@ function PrioritySection({
                   onDoubleClick={() => { setEditingIndex(i); setEditText(item.text); }}
                 >
                   {item.text}
+                  {item.source && (
+                    <span className="ml-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent/60 align-middle">
+                      {item.source === "kolo-zivota" ? "🎯 Kolo života" : item.source}
+                    </span>
+                  )}
                 </span>
               )}
               <button

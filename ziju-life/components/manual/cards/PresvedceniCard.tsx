@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import type { BeliefsData } from "@/lib/exercise-registry";
 
 type Belief = { area: string; belief: string; evidence: string; counter: string; reframe: string };
@@ -53,6 +53,7 @@ function EditMode({
   data: BeliefsData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [beliefs, setBeliefs] = useState<Belief[]>(
     data?.beliefs?.length ? [...data.beliefs] : [{ ...EMPTY_BELIEF }, { ...EMPTY_BELIEF }, { ...EMPTY_BELIEF }]
   );
@@ -71,7 +72,8 @@ function EditMode({
     setSaving(true);
     await saveContext("beliefs", { beliefs, savedAt: new Date().toISOString() });
     setSaving(false);
-  }, [beliefs, saveContext]);
+    done?.();
+  }, [beliefs, saveContext, done]);
 
   const addBelief = () => {
     setBeliefs((p) => [...p, { ...EMPTY_BELIEF }]);

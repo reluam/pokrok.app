@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import type { RelationshipMapData } from "@/lib/exercise-registry";
 
 type Person = { name: string; circle: "inner" | "middle" | "outer"; health: number; energizes: boolean; note: string };
@@ -63,6 +63,7 @@ function EditMode({
   data: RelationshipMapData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [people, setPeople] = useState<Person[]>(
     data?.people?.length ? [...data.people] : Array.from({ length: 5 }, () => ({ ...EMPTY_PERSON }))
   );
@@ -73,7 +74,8 @@ function EditMode({
     setSaving(true);
     await saveContext("relationships", { people, insights, savedAt: new Date().toISOString() });
     setSaving(false);
-  }, [people, insights, saveContext]);
+    done?.();
+  }, [people, insights, saveContext, done]);
 
   const addPerson = () => setPeople((p) => [...p, { ...EMPTY_PERSON }]);
 

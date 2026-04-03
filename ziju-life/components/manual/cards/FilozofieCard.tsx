@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import type { PhilosophyData } from "@/lib/exercise-registry";
 
 const EXAMPLES = [
@@ -62,6 +62,7 @@ function EditMode({
   data: PhilosophyData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [statement, setStatement] = useState(data?.statement ?? "");
   const [saving, setSaving] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
@@ -74,7 +75,8 @@ function EditMode({
       savedAt: new Date().toISOString(),
     });
     setSaving(false);
-  }, [statement, data?.principles, saveContext]);
+    done?.();
+  }, [statement, data?.principles, saveContext, done]);
 
   return (
     <div className="space-y-3">

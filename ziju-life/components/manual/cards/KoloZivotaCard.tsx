@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import { SpiderChart, InteractiveSpider } from "../charts/SpiderChart";
 import { WHEEL_AREAS } from "../shared";
 import type { KompasData } from "@/components/KompasFlow";
@@ -153,6 +153,7 @@ function EditFlow({
   data: KompasData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [step, setStep] = useState<Step>("current");
   const [currentVals, setCurrentVals] = useState<Record<string, number>>(data?.currentVals ?? defaultVals());
   const [goalVals, setGoalVals] = useState<Record<string, number>>(data?.goalVals ?? Object.fromEntries(WHEEL_AREAS.map((a) => [a.key, 7])));
@@ -187,6 +188,39 @@ function EditFlow({
     }
   };
 
+  const syncToPriorities = useCallback(async () => {
+    if (!focusArea) return;
+    const areaLabel = WHEEL_AREAS.find((a) => a.key === focusArea)?.short ?? focusArea;
+    const filledSteps = actionSteps.filter((s) => s.trim());
+    const now = new Date().toISOString();
+
+    // Load current priorities
+    try {
+      const res = await fetch("/api/manual/user-context");
+      if (!res.ok) return;
+      const d = await res.json();
+      const priorities = d.context?.priorities ?? { weekly: [], monthly: [], yearly: [] };
+
+      // Remove old kolo-zivota items from monthly
+      const cleaned = (priorities.monthly ?? []).filter(
+        (item: { source?: string }) => item.source !== "kolo-zivota"
+      );
+
+      // Add focus area + action steps
+      const newItems = [
+        { text: `Focus: ${areaLabel}`, done: false, source: "kolo-zivota", sourceDate: now },
+        ...filledSteps.map((s) => ({ text: s, done: false, source: "kolo-zivota", sourceDate: now })),
+      ];
+
+      const updated = { ...priorities, monthly: [...newItems, ...cleaned] };
+      await fetch("/api/manual/user-context", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "priorities", data: updated }),
+      });
+    } catch {}
+  }, [focusArea, actionSteps]);
+
   const handleFinish = async () => {
     const filledSteps = actionSteps.filter((s) => s.trim());
     const now = new Date();
@@ -195,6 +229,8 @@ function EditFlow({
       actionSteps: filledSteps.length > 0 ? filledSteps : undefined,
       reflectionDueAt: filledSteps.length > 0 ? new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString() : undefined,
     });
+    await syncToPriorities();
+    done?.();
   };
 
   return (
@@ -265,28 +301,30 @@ function EditFlow({
 
       {step === "focus" && (
         <div className="space-y-1.5">
-          {WHEEL_AREAS.map((a) => {
-            const cur = currentVals[a.key] ?? 5;
-            const goal = goalVals[a.key] ?? 5;
-            const diff = goal - cur;
-            return (
-              <button
-                key={a.key}
-                onClick={() => setFocusArea(a.key)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-sm transition-all"
-                style={focusArea === a.key
-                  ? { borderColor: "#FF8C42", background: "rgba(255,140,66,0.06)" }
-                  : { borderColor: "rgba(0,0,0,0.07)" }
-                }
-              >
-                <span className="font-medium text-foreground/70 flex-1">{a.short}</span>
-                <span className="text-xs text-foreground/40">{cur} → {goal}</span>
-                {diff > 0 && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500">+{diff}</span>
-                )}
-              </button>
-            );
-          })}
+          {[...WHEEL_AREAS]
+            .map((a) => ({ ...a, diff: (goalVals[a.key] ?? 5) - (currentVals[a.key] ?? 5) }))
+            .sort((a, b) => b.diff - a.diff)
+            .map((a) => {
+              const cur = currentVals[a.key] ?? 5;
+              const goal = goalVals[a.key] ?? 5;
+              return (
+                <button
+                  key={a.key}
+                  onClick={() => setFocusArea(a.key)}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-sm transition-all"
+                  style={focusArea === a.key
+                    ? { borderColor: "#FF8C42", background: "rgba(255,140,66,0.06)" }
+                    : { borderColor: "rgba(0,0,0,0.07)" }
+                  }
+                >
+                  <span className="font-medium text-foreground/70 flex-1">{a.short}</span>
+                  <span className="text-xs text-foreground/40">{cur} → {goal}</span>
+                  {a.diff > 0 && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500">+{a.diff}</span>
+                  )}
+                </button>
+              );
+            })}
         </div>
       )}
 

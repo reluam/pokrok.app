@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import type { IkigaiData } from "@/lib/exercise-registry";
 
 const CIRCLES = [
@@ -76,6 +76,7 @@ function EditMode({
   data: IkigaiData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const d = data ?? EMPTY_DATA;
   const [step, setStep] = useState(0);
   const [love, setLove] = useState([...d.love]);
@@ -107,6 +108,7 @@ function EditMode({
     setSaving(true);
     await saveContext("ikigai", buildData());
     setSaving(false);
+    done?.();
   };
 
   // Steps 0-3: circles, step 4: reflections

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Plus, X } from "lucide-react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import type { PrinciplesData } from "@/lib/exercise-registry";
 
 const EXAMPLES: { text: string; origin: string }[] = [
@@ -64,6 +64,7 @@ function EditMode({
   data: PrinciplesData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [principles, setPrinciples] = useState<{ text: string; origin: string }[]>(
     data?.principles?.length ? data.principles : [{ text: "", origin: "" }]
   );
@@ -78,6 +79,7 @@ function EditMode({
       savedAt: new Date().toISOString(),
     });
     setSaving(false);
+    done?.();
   }, [principles, saveContext]);
 
   const addRow = () => setPrinciples(prev => [...prev, { text: "", origin: "" }]);

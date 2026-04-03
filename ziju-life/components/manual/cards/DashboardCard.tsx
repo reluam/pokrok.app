@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useCallback, createContext, useContext, type ReactNode } from "react";
 import { Printer } from "lucide-react";
+
+// Context to let edit content close itself
+const DoneContext = createContext<(() => void) | null>(null);
+export function useDashboardDone() {
+  return useContext(DoneContext);
+}
 
 export function DashboardCard({
   emoji,
@@ -23,6 +29,7 @@ export function DashboardCard({
   onPrint?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const done = useCallback(() => setEditing(false), []);
 
   // If empty and has edit content, start in edit mode when CTA is clicked
   if (isEmpty && editContent) {
@@ -42,7 +49,9 @@ export function DashboardCard({
                 Zavřít
               </button>
             </div>
-            {editContent}
+            <DoneContext.Provider value={done}>
+              {editContent}
+            </DoneContext.Provider>
           </div>
         ) : (
           <div className="text-center py-4 space-y-2">
@@ -91,7 +100,9 @@ export function DashboardCard({
             )}
           </div>
         </div>
-        {editing && editContent ? editContent : children}
+        <DoneContext.Provider value={done}>
+          {editing && editContent ? editContent : children}
+        </DoneContext.Provider>
       </div>
     </div>
   );

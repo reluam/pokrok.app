@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import { printExercise } from "@/lib/print-exercise";
 import type { VisionData, IdealDayData } from "@/lib/exercise-registry";
 
@@ -69,6 +69,7 @@ function EditMode({
   data: VisionData | IdealDayData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [text, setText] = useState(data?.idealDay ?? "");
   const [saving, setSaving] = useState(false);
 
@@ -77,7 +78,8 @@ function EditMode({
     const saveData: IdealDayData = { idealDay: text, savedAt: new Date().toISOString() };
     await saveContext("vision", saveData);
     setSaving(false);
-  }, [text, saveContext]);
+    done?.();
+  }, [text, saveContext, done]);
 
   const words = text.split(/\s+/).filter(Boolean).length;
 

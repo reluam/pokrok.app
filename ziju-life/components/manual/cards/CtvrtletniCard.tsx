@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import { InteractiveSpider } from "../charts/SpiderChart";
 import { WHEEL_AREAS } from "../shared";
 import type { QuarterlyCheckinData } from "@/lib/exercise-registry";
@@ -64,6 +64,7 @@ function EditMode({
   data: QuarterlyCheckinData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [step, setStep] = useState(0);
   const [celebrations, setCelebrations] = useState<string[]>(data?.celebrations ?? ["", "", ""]);
   const [learnings, setLearnings] = useState<string[]>(data?.learnings ?? ["", "", ""]);
@@ -96,6 +97,7 @@ function EditMode({
     setSaving(true);
     await saveContext("quarterly", buildData());
     setSaving(false);
+    done?.();
   };
 
   const listEditor = (items: string[], setItems: (v: string[]) => void, placeholder: string) => (

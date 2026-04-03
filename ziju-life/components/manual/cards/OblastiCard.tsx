@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import { WHEEL_AREAS } from "../shared";
 import type { AreaSetupData } from "@/lib/exercise-registry";
 
@@ -67,6 +67,7 @@ function EditMode({
   data: AreaSetupData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [areaKey, setAreaKey] = useState(WHEEL_AREAS[0].key);
   const [stepIdx, setStepIdx] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -113,11 +114,13 @@ function EditMode({
       const updated = { ...formData, completedAreas: newCompleted };
       setFormData(updated);
       await handleSave(updated);
-      // Move to next incomplete area
+      // Move to next incomplete area or close if all done
       const nextArea = WHEEL_AREAS.find((a) => !newCompleted.includes(a.key));
       if (nextArea) {
         setAreaKey(nextArea.key);
         setStepIdx(0);
+      } else {
+        done?.();
       }
     }
   };

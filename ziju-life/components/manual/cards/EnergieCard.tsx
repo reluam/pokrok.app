@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard } from "./DashboardCard";
+import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import type { EnergyAuditData } from "@/lib/exercise-registry";
 
 const EMPTY_ACTIVITY = { name: "", rating: 0, frequency: "" };
@@ -59,6 +59,7 @@ function EditMode({
   data: EnergyAuditData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
+  const done = useDashboardDone();
   const [step, setStep] = useState(0);
   const [activities, setActivities] = useState(
     data?.activities?.length ? [...data.activities] : Array.from({ length: 5 }, () => ({ ...EMPTY_ACTIVITY }))
@@ -88,6 +89,7 @@ function EditMode({
     setSaving(true);
     await saveContext("energy", buildData());
     setSaving(false);
+    done?.();
   };
 
   const addActivity = () => setActivities((p) => [...p, { ...EMPTY_ACTIVITY }]);
