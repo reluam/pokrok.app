@@ -181,6 +181,14 @@ export function ManualHub({
 
       {/* ── Audit života ── */}
       <DashboardSection title="Audit života" description="Kde jsi teď a co je pro tebe důležité">
+        <CtvrtletniCard
+          data={quarterlyData}
+          kompasCurrentVals={kompasData?.currentVals}
+          hodnotyData={hodnotyData}
+          energyData={energyData}
+          relationshipsData={relationshipsData}
+          saveContext={saveContext}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
           <KoloZivotaCard data={kompasData} saveContext={saveContext} />
           <HodnotyDailyCard
@@ -190,32 +198,27 @@ export function ManualHub({
             onTabChange={() => setActiveExercise("hodnoty")}
           />
         </div>
-        <CtvrtletniCard data={quarterlyData} kompasCurrentVals={kompasData?.currentVals} saveContext={saveContext} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <EnergieCard data={energyData} saveContext={saveContext} />
+          <VztahyCard data={relationshipsData} saveContext={saveContext} />
+        </div>
       </DashboardSection>
 
       {/* ── Směřování ── */}
       <DashboardSection title="Směřování" description="Kam míříš a jak se tam dostaneš">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DenZa5LetCard data={visionData} saveContext={saveContext} />
           <SmutecniRecCard data={funeralData} saveContext={saveContext} />
+          <DenZa5LetCard data={visionData} saveContext={saveContext} />
         </div>
       </DashboardSection>
 
       {/* ── Životní filozofie ── */}
       <DashboardSection title="Životní filozofie" description="Kdo jsi, jak chceš žít a čím se řídíš">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FilozofieCard data={philosophyData} saveContext={saveContext} />
+          <PresvedceniCard data={beliefsData} saveContext={saveContext} />
           <PrincipyCard data={principlesData} saveContext={saveContext} />
         </div>
-        <PresvedceniCard data={beliefsData} saveContext={saveContext} />
-      </DashboardSection>
-
-      {/* ── Energetický audit ── */}
-      <DashboardSection title="Energetický audit" description="Co a kdo ti dává a bere energii">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <EnergieCard data={energyData} saveContext={saveContext} />
-          <VztahyCard data={relationshipsData} saveContext={saveContext} />
-        </div>
+        <FilozofieCard data={philosophyData} saveContext={saveContext} />
       </DashboardSection>
     </div>
   );

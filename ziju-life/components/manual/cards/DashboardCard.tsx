@@ -59,7 +59,7 @@ export function DashboardCard({
         ) : (
           <div className="text-center py-4 space-y-2">
             <span className="text-2xl">{emoji}</span>
-            <p className="text-base font-semibold text-foreground">{title}</p>
+            <p className="text-xl font-extrabold text-foreground">{title}</p>
             {emptyDescription && (
               <p className="text-lg text-foreground/45 leading-relaxed max-w-xs mx-auto">{emptyDescription}</p>
             )}

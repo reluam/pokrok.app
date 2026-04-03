@@ -55,10 +55,10 @@ function ViewMode({ data }: { data: KompasData }) {
   const steps = (data.actionSteps ?? []).filter((s) => s.trim());
 
   return (
-    <div className="flex gap-4 items-start">
-      {/* Spider chart — left */}
-      <div className="flex-shrink-0 space-y-1">
-        <SpiderChart vals={data.currentVals} goalVals={data.goalVals} size={200} />
+    <div className="space-y-4">
+      {/* Spider chart — top, centered */}
+      <div className="flex flex-col items-center space-y-1">
+        <SpiderChart vals={data.currentVals} goalVals={data.goalVals} size={220} />
         <div className="flex items-center justify-center gap-3 text-base text-foreground/40">
           <span className="flex items-center gap-1">
             <span className="inline-block w-2.5 h-1 rounded-full bg-[#FF8C42]" />
@@ -73,18 +73,17 @@ function ViewMode({ data }: { data: KompasData }) {
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="w-px self-stretch bg-black/[0.07]" />
-
-      {/* Focus + action steps — right */}
-      <div className="flex-1 min-w-0 space-y-3 pt-2">
+      {/* Focus + action steps — below */}
+      <div className="border-t border-black/[0.06] pt-3 space-y-3">
         {focusArea ? (
-          <div>
-            <p className="text-base font-semibold uppercase tracking-wider text-foreground/30">Focus</p>
-            <p className="text-lg font-bold text-accent mt-0.5">{focusArea.short}</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <p className="text-base font-semibold uppercase tracking-wider text-foreground/30">Focus</p>
+              <p className="text-lg font-bold text-accent mt-0.5">{focusArea.short}</p>
+            </div>
           </div>
         ) : (
-          <p className="text-base text-foreground/35 italic">Focus oblast se nastaví v měsíčním check-inu.</p>
+          <p className="text-base text-foreground/35 italic">Focus oblast se nastaví v check-inu.</p>
         )}
         {steps.length > 0 && (
           <div className="space-y-1">

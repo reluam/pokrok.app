@@ -1,94 +1,102 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import { useAutoSave } from "./useAutoSave";
 import { SaveIndicator } from "./SaveIndicator";
 import { InteractiveSpider } from "../charts/SpiderChart";
 import { WHEEL_AREAS } from "../shared";
-import type { QuarterlyCheckinData } from "@/lib/exercise-registry";
+import type { QuarterlyCheckinData, EnergyAuditData, RelationshipMapData } from "@/lib/exercise-registry";
+import type { HodnotyData } from "@/components/HodnotyFlow";
 
-function isDue(data: QuarterlyCheckinData | null): boolean {
-  if (!data?.updatedAt) return true;
-  const last = new Date(data.updatedAt).getTime();
-  const now = Date.now();
-  return now - last >= 30 * 24 * 60 * 60 * 1000;
+function isDoneToday(data: QuarterlyCheckinData | null): boolean {
+  if (!data?.updatedAt) return false;
+  return new Date(data.updatedAt).toISOString().slice(0, 10) === new Date().toISOString().slice(0, 10);
 }
 
-function daysSince(dateStr: string): number {
-  return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" });
 }
 
 export function CtvrtletniCard({
   data,
   kompasCurrentVals,
+  hodnotyData,
+  energyData,
+  relationshipsData,
   saveContext,
 }: {
   data: QuarterlyCheckinData | null;
   kompasCurrentVals?: Record<string, number> | null;
+  hodnotyData?: HodnotyData | null;
+  energyData?: EnergyAuditData | null;
+  relationshipsData?: RelationshipMapData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
-  const isEmpty = !data?.updatedAt;
-  const due = isDue(data);
-
-  // Show a prompt when it's time for a new check-in
-  const showDueBanner = !isEmpty && due;
+  const doneToday = isDoneToday(data);
+  const [open, setOpen] = useState(false);
 
   return (
-    <DashboardCard
-      emoji="🔄"
-      title="Měsíční check-in"
-      isEmpty={isEmpty}
-      emptyDescription="Zastav se jednou za měsíc. Oslav pokrok, aktualizuj životní oblasti a nastav focus na další měsíc."
-      editContent={<EditMode data={data} kompasCurrentVals={kompasCurrentVals} saveContext={saveContext} />}
-    >
-      <ViewMode data={data!} showDue={showDueBanner} />
-    </DashboardCard>
-  );
-}
-
-function ViewMode({ data, showDue }: { data: QuarterlyCheckinData; showDue: boolean }) {
-  const days = daysSince(data.updatedAt);
-  const focusLabel = data.focusArea ? WHEEL_AREAS.find(a => a.key === data.focusArea)?.short : null;
-
-  return (
-    <div className="space-y-2">
+    <div className="rounded-[24px] border border-black/[0.08] bg-white/65 backdrop-blur-sm shadow-sm px-5 py-4">
+      {/* Bar */}
       <div className="flex items-center justify-between">
-        <p className="text-base text-foreground/40">Poslední check-in: před {days} dny</p>
-        {showDue && (
-          <span className="text-base font-semibold text-accent px-2 py-0.5 rounded-full bg-accent/10">
-            Je čas na check-in!
-          </span>
-        )}
-      </div>
-      {focusLabel && (
-        <div>
-          <p className="text-base uppercase tracking-wider text-foreground/30 font-semibold">Focus tento měsíc</p>
-          <p className="text-lg font-bold text-accent">{focusLabel}</p>
+        <div className="flex items-center gap-3">
+          <span className="text-lg">🔄</span>
+          <h3 className="text-xl font-extrabold text-foreground">Check-in</h3>
+          {data?.updatedAt && (
+            <span className="text-base text-foreground/35 ml-1">
+              Poslední: {formatDate(data.updatedAt)}
+            </span>
+          )}
         </div>
-      )}
-      {data.celebrations?.filter(Boolean).length > 0 && (
-        <div>
-          <p className="text-base uppercase tracking-wider text-foreground/30 font-semibold">Úspěchy</p>
-          {data.celebrations.filter(Boolean).slice(0, 3).map((c, i) => (
-            <p key={i} className="text-lg text-foreground/55">+ {c}</p>
-          ))}
+        <button
+          onClick={() => setOpen(!open)}
+          disabled={doneToday}
+          className={`px-4 py-2 rounded-full text-base font-bold transition-colors ${
+            doneToday
+              ? "bg-green-50 text-green-600 border border-green-200 cursor-default"
+              : "bg-accent text-white hover:bg-accent-hover"
+          }`}
+        >
+          {doneToday ? "✓ Hotovo dnes" : open ? "Zavřít" : "Nový check-in →"}
+        </button>
+      </div>
+
+      {/* Check-in flow */}
+      {open && !doneToday && (
+        <div className="mt-4 border-t border-black/[0.06] pt-4">
+          <CheckinFlow
+            data={data}
+            kompasCurrentVals={kompasCurrentVals}
+            hodnotyData={hodnotyData}
+            energyData={energyData}
+            relationshipsData={relationshipsData}
+            saveContext={saveContext}
+            onDone={() => setOpen(false)}
+          />
         </div>
       )}
     </div>
   );
 }
 
-function EditMode({
+function CheckinFlow({
   data,
   kompasCurrentVals,
+  hodnotyData,
+  energyData,
+  relationshipsData,
   saveContext,
+  onDone,
 }: {
   data: QuarterlyCheckinData | null;
   kompasCurrentVals?: Record<string, number> | null;
+  hodnotyData?: HodnotyData | null;
+  energyData?: EnergyAuditData | null;
+  relationshipsData?: RelationshipMapData | null;
   saveContext: (type: string, data: unknown) => Promise<void>;
+  onDone: () => void;
 }) {
-  const done = useDashboardDone();
   const [step, setStep] = useState(0);
   const [celebrations, setCelebrations] = useState<string[]>(["", "", ""]);
   const [learnings, setLearnings] = useState<string[]>(["", "", ""]);
@@ -98,6 +106,11 @@ function EditMode({
   );
   const [focusArea, setFocusArea] = useState(data?.focusArea ?? "");
   const [actionSteps, setActionSteps] = useState<string[]>(["", "", ""]);
+  const [valueScores, setValueScores] = useState<Record<string, number>>({});
+
+  const values = hodnotyData?.finalValues ?? [];
+  const energyItems = (energyData?.items ?? []).filter(a => a.name && !a.dismissed);
+  const people = (relationshipsData?.people ?? []).filter(p => p.name && !p.dismissed);
 
   const buildData = useCallback(
     (): QuarterlyCheckinData => ({
@@ -122,57 +135,44 @@ function EditMode({
       const d = await res.json();
       const compass = d.context?.compass;
       if (!compass) return;
-
       const filledSteps = actionSteps.filter(s => s.trim());
       const now = new Date();
-      const updated = {
-        ...compass,
-        currentVals: areaScores,
-        focusArea,
-        actionSteps: filledSteps.length > 0 ? filledSteps : compass.actionSteps,
-        completedAt: now.toISOString(),
-        reflectionDueAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      };
       await fetch("/api/manual/user-context", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "compass", data: updated }),
-      });
-
-      // Sync focus + steps to monthly priorities
-      const areaLabel = WHEEL_AREAS.find(a => a.key === focusArea)?.short ?? focusArea;
-      const priorities = d.context?.priorities ?? { weekly: [], monthly: [], yearly: [] };
-      const cleaned = (priorities.monthly ?? []).filter(
-        (item: { source?: string }) => item.source !== "kolo-zivota"
-      );
-      const nowStr = now.toISOString();
-      const newItems = [
-        { text: `Focus: ${areaLabel}`, done: false, source: "kolo-zivota", sourceDate: nowStr },
-        ...filledSteps.map(s => ({ text: s, done: false, source: "kolo-zivota", sourceDate: nowStr })),
-      ];
-      await fetch("/api/manual/user-context", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "priorities", data: { ...priorities, monthly: [...newItems, ...cleaned] } }),
+        body: JSON.stringify({
+          type: "compass",
+          data: {
+            ...compass,
+            currentVals: areaScores,
+            focusArea,
+            actionSteps: filledSteps.length > 0 ? filledSteps : compass.actionSteps,
+            completedAt: now.toISOString(),
+          },
+        }),
       });
     } catch {}
   }, [areaScores, focusArea, actionSteps]);
 
-  const handleNext = () => { setStep(s => s + 1); };
   const handleFinish = async () => {
     await saveContext("quarterly", buildData());
+    // Save value scores as daily-values entry
+    if (Object.keys(valueScores).length > 0) {
+      try {
+        const dvRes = await fetch("/api/manual/user-context");
+        if (dvRes.ok) {
+          const dvData = await dvRes.json();
+          const existing = dvData.context?.["daily-values"]?.entries ?? [];
+          const today = new Date().toISOString().slice(0, 10);
+          const filtered = existing.filter((e: { date: string }) => e.date !== today);
+          filtered.push({ date: today, scores: valueScores });
+          await saveContext("daily-values", { entries: filtered.slice(-90) });
+        }
+      } catch {}
+    }
     await syncToKompas();
-    done?.();
+    onDone();
   };
-
-  // Sort areas by gap for focus step
-  const sortedAreas = [...WHEEL_AREAS]
-    .map(a => {
-      const cur = areaScores[a.key] ?? 5;
-      const goal = 10; // aim high
-      return { ...a, cur, diff: goal - cur };
-    })
-    .sort((a, b) => b.diff - a.diff);
 
   const listEditor = (items: string[], setItems: (v: string[]) => void, placeholder: string) => (
     <div className="space-y-1.5">
@@ -193,42 +193,126 @@ function EditMode({
     </div>
   );
 
-  const STEPS = [
-    { label: "Co se povedlo?", desc: "Oslav své úspěchy — i ty malé. Co se ti povedlo za poslední měsíc?", content: listEditor(celebrations, setCelebrations, "Úspěch") },
-    { label: "Co ses naučil/a?", desc: "Jaké lekce ti dal tento měsíc? Z čeho ses poučil/a?", content: listEditor(learnings, setLearnings, "Lekce") },
-    { label: "Co změníš?", desc: "Co uděláš jinak v příštím měsíci? Co přidáš, co ubeřeš?", content: listEditor(adjustments, setAdjustments, "Změna") },
+  const sortedAreas = [...WHEEL_AREAS]
+    .map(a => ({ ...a, cur: areaScores[a.key] ?? 5 }))
+    .sort((a, b) => a.cur - b.cur);
+
+  const STEPS: { label: string; desc: string; content: React.ReactNode }[] = [
+    { label: "Co se povedlo?", desc: "Oslav své úspěchy — i ty malé.", content: listEditor(celebrations, setCelebrations, "Úspěch") },
+    { label: "Co ses naučil/a?", desc: "Jaké lekce ti dal tento period?", content: listEditor(learnings, setLearnings, "Lekce") },
+    { label: "Co změníš?", desc: "Co uděláš jinak? Co přidáš, co ubeřeš?", content: listEditor(adjustments, setAdjustments, "Změna") },
     {
-      label: "Aktualizuj Kolo života",
-      desc: "Jak se změnily tvoje životní oblasti za poslední měsíc? Uprav hodnoty.",
+      label: "Kolo života",
+      desc: "Jak se mají tvoje životní oblasti?",
       content: (
         <div className="space-y-3">
           <div className="flex justify-center">
-            <InteractiveSpider
-              vals={areaScores}
-              onChange={(key, score) => setAreaScores(p => ({ ...p, [key]: score }))}
-              size={220}
-            />
+            <InteractiveSpider vals={areaScores} onChange={(key, score) => setAreaScores(p => ({ ...p, [key]: score }))} size={220} />
           </div>
           <div className="space-y-2 pt-2 border-t border-black/[0.05]">
             {WHEEL_AREAS.map(a => (
               <div key={a.key} className="flex items-center gap-2">
-                <span className="text-lg text-foreground/50 w-20 truncate">{a.short}</span>
+                <span className="text-base text-foreground/50 w-20 truncate">{a.short}</span>
                 <input
                   type="range" min={1} max={10} value={areaScores[a.key] ?? 5}
                   onChange={e => setAreaScores(p => ({ ...p, [a.key]: Number(e.target.value) }))}
                   className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
-                  style={{ background: `linear-gradient(to right, #FF8C42 ${((( areaScores[a.key] ?? 5) - 1) / 9) * 100}%, rgba(0,0,0,0.08) ${(((areaScores[a.key] ?? 5) - 1) / 9) * 100}%)` }}
+                  style={{ background: `linear-gradient(to right, #FF8C42 ${(((areaScores[a.key] ?? 5) - 1) / 9) * 100}%, rgba(0,0,0,0.08) ${(((areaScores[a.key] ?? 5) - 1) / 9) * 100}%)` }}
                 />
-                <span className="text-lg font-bold text-foreground/60 w-5 text-right">{areaScores[a.key] ?? 5}</span>
+                <span className="text-base font-bold text-foreground/60 w-5 text-right">{areaScores[a.key] ?? 5}</span>
               </div>
             ))}
           </div>
         </div>
       ),
     },
+  ];
+
+  // Add values step if user has values
+  if (values.length > 0) {
+    STEPS.push({
+      label: "Hodnoty",
+      desc: "Jak moc teď žiješ podle svých hodnot? (1–5)",
+      content: (
+        <div className="space-y-2">
+          {values.map((v) => (
+            <div key={v} className="flex items-center gap-2">
+              <span className="text-base text-foreground/60 flex-1 truncate">{v}</span>
+              <div className="flex gap-1 w-[140px] shrink-0">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setValueScores(p => ({ ...p, [v]: n }))}
+                    className={`flex-1 h-7 rounded text-base font-bold transition-all ${
+                      (valueScores[v] ?? 0) >= n ? "bg-accent text-white" : "bg-foreground/6 text-foreground/35 hover:bg-accent/15"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  // Add energy audit step if user has items
+  if (energyItems.length > 0 || people.length > 0) {
+    STEPS.push({
+      label: "Energetický audit",
+      desc: "Jak na tom jsi s energií? Posuď aktuální stav.",
+      content: (
+        <div className="space-y-4">
+          {energyItems.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-base font-semibold text-foreground/40 uppercase tracking-wider">Činnosti</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <p className="text-base text-green-600 font-medium">Nabíjí</p>
+                  {energyItems.filter(a => a.rating > 0).map((a, i) => (
+                    <p key={i} className="text-base text-foreground/50">+{a.rating} {a.name}</p>
+                  ))}
+                </div>
+                <div className="space-y-1">
+                  <p className="text-base text-red-500 font-medium">Bere</p>
+                  {energyItems.filter(a => a.rating < 0).map((a, i) => (
+                    <p key={i} className="text-base text-foreground/50">{a.rating} {a.name}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {people.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-base font-semibold text-foreground/40 uppercase tracking-wider">Lidé</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <p className="text-base text-green-600 font-medium">Nabíjí</p>
+                  {people.filter(p => p.rating > 0).map((p, i) => (
+                    <p key={i} className="text-base text-foreground/50">+{p.rating} {p.name}</p>
+                  ))}
+                </div>
+                <div className="space-y-1">
+                  <p className="text-base text-red-500 font-medium">Bere</p>
+                  {people.filter(p => p.rating < 0).map((p, i) => (
+                    <p key={i} className="text-base text-foreground/50">{p.rating} {p.name}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      ),
+    });
+  }
+
+  // Focus + action steps - always last
+  STEPS.push(
     {
       label: "Na co se zaměříš?",
-      desc: "Vyber jednu oblast, které dáš příští měsíc přednost.",
+      desc: "Vyber oblast, které dáš přednost.",
       content: (
         <div className="space-y-1.5">
           {sortedAreas.map(a => (
@@ -236,13 +320,10 @@ function EditMode({
               key={a.key}
               onClick={() => setFocusArea(a.key)}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-base transition-all"
-              style={focusArea === a.key
-                ? { borderColor: "#FF8C42", background: "rgba(255,140,66,0.06)" }
-                : { borderColor: "rgba(0,0,0,0.07)" }
-              }
+              style={focusArea === a.key ? { borderColor: "#FF8C42", background: "rgba(255,140,66,0.06)" } : { borderColor: "rgba(0,0,0,0.07)" }}
             >
               <span className="font-medium text-foreground/70 flex-1">{a.short}</span>
-              <span className="text-lg text-foreground/40">{a.cur}/10</span>
+              <span className="text-base text-foreground/40">{a.cur}/10</span>
             </button>
           ))}
         </div>
@@ -250,10 +331,10 @@ function EditMode({
     },
     {
       label: "Konkrétní kroky",
-      desc: "Zapiš 1–3 kroky, které uděláš tento měsíc ve vybrané oblasti.",
+      desc: "Zapiš 1–3 kroky pro vybranou oblast.",
       content: listEditor(actionSteps, setActionSteps, "Krok"),
     },
-  ];
+  );
 
   return (
     <div className="space-y-3">
@@ -264,7 +345,7 @@ function EditMode({
       </div>
       <div>
         <p className="text-lg font-bold text-foreground/70">{STEPS[step].label}</p>
-        <p className="text-lg text-foreground/40 mt-0.5 leading-relaxed">{STEPS[step].desc}</p>
+        <p className="text-base text-foreground/40 mt-0.5 leading-relaxed">{STEPS[step].desc}</p>
       </div>
       {STEPS[step].content}
       <div className="flex items-center gap-2">
@@ -276,7 +357,7 @@ function EditMode({
           </button>
         )}
         <button
-          onClick={step === STEPS.length - 1 ? handleFinish : handleNext}
+          onClick={step === STEPS.length - 1 ? handleFinish : () => setStep(s => s + 1)}
           className="px-5 py-2 bg-accent text-white rounded-full text-base font-bold"
         >
           {step === STEPS.length - 1 ? "Hotovo ✓" : "Dál →"}

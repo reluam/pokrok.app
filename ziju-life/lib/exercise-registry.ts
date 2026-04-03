@@ -5,7 +5,7 @@ import type { HodnotyData } from "@/components/HodnotyFlow";
 
 export type ExerciseState = "not_started" | "in_progress" | "completed";
 
-export type ExerciseSection = "audit" | "nastavovani" | "smerovani" | "filozofie" | "energie";
+export type ExerciseSection = "audit" | "nastavovani" | "smerovani" | "filozofie";
 
 export interface ExerciseSummary {
   label: string;
@@ -118,7 +118,6 @@ export const SECTIONS: { id: ExerciseSection; title: string; description: string
   { id: "audit", title: "Audit života", description: "Kde jsi teď a co je pro tebe důležité" },
   { id: "smerovani", title: "Směřování", description: "Kam míříš a jak se tam dostaneš" },
   { id: "filozofie", title: "Životní filozofie", description: "Kdo jsi, jak chceš žít a čím se řídíš" },
-  { id: "energie", title: "Energetický audit", description: "Co a kdo ti dává a bere energii" },
 ];
 
 // ── Exercise definitions ─────────────────────────────────────────────────────
@@ -304,8 +303,8 @@ export const EXERCISES: ExerciseDefinition[] = [
     contextType: "quarterly",
     section: "audit",
     emoji: "🔄",
-    title: "Měsíční check-in",
-    description: "Oslav pokrok, aktualizuj Kolo života a nastav focus na další měsíc.",
+    title: "Check-in",
+    description: "Oslav pokrok, aktualizuj Kolo života, hodnoty a nastav focus.",
     getState: (data) => {
       const d = data as QuarterlyCheckinData | null;
       if (!d) return "not_started";
@@ -346,7 +345,7 @@ export const EXERCISES: ExerciseDefinition[] = [
   {
     id: "energie",
     contextType: "energy",
-    section: "energie",
+    section: "audit",
     emoji: "⚡",
     title: "Činnosti",
     description: "Co ti přidává a ubírá energii? Zapiš aktivity a naplánuj, co s tím.",
@@ -369,7 +368,7 @@ export const EXERCISES: ExerciseDefinition[] = [
   {
     id: "vztahy",
     contextType: "relationships",
-    section: "energie",
+    section: "audit",
     emoji: "👥",
     title: "Lidé",
     description: "Kdo ti přidává a ubírá energii? Zmapuj lidi kolem sebe.",
