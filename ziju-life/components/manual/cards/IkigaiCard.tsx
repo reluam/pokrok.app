@@ -42,6 +42,7 @@ export function IkigaiCard({
       emoji="☀️"
       title="Ikigai"
       isEmpty={isEmpty}
+      emptyDescription="Najdi průsečík toho, co miluješ, umíš, svět potřebuje a co tě živí. Tvůj osobní smysl na jednom místě."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />

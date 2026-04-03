@@ -54,10 +54,10 @@ export default function KoucingPage() {
             <div className="bg-white/85 rounded-[28px] border border-white/60 shadow-md backdrop-blur p-8 md:p-10 space-y-6">
               <ul className="space-y-3">
                 {[
-                  "Víš, jak chceš, aby tvůj život vypadal, ale nedokážeš ho začít žít.",
-                  "Máš tisíc plánů v hlavě, ale ráno nevíš, kde začít.",
-                  "Žiješ víc v budoucnosti než v přítomnosti — a ta mezera tě paralyzuje.",
-                  "Zkoušel/a jsi plánovače, knížky, appky — a nic ti nevydrželo víc než týden.",
+                  "Víš, jak chceš, aby tvůj život vypadal, ale nedokážeš ho začít žít?",
+                  "Máš tisíc plánů v hlavě, ale ráno nevíš, kde začít?",
+                  "Žiješ víc v budoucnosti než v přítomnosti — a ta mezera tě paralyzuje?",
+                  "Zkoušel/a jsi plánovače, knížky, appky — a nic ti nevydrželo víc než týden?",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mt-0.5">
@@ -114,7 +114,7 @@ export default function KoucingPage() {
                 {
                   n: "2",
                   title: "Co tě drží",
-                  text: "Většinou to není to, co si myslíš. Pod povrchem bývá vzorec, přesvědčení nebo strach, který tiše řídí tvoje rozhodnutí. Tohle je ta těžší, ale důležitější část.",
+                  text: "Většinou to není to, co si myslíš. Pod povrchem bývá vzorec, přesvědčení nebo strach, který tiše řídí tvoje rozhodnutí. Tohle je ta těžší, ale o to důležitější část.",
                   icon: (
                     <svg viewBox="0 0 80 80" fill="none" className="w-full h-full">
                       {/* Řetěz / pouta */}
@@ -192,7 +192,7 @@ export default function KoucingPage() {
               <div className="space-y-2 mb-7">
                 <h3 className="text-2xl font-bold text-foreground">Nezávazná konzultace</h3>
                 <p className="text-foreground/65 leading-relaxed">
-                  30 minut, kde si projdeme tvoji situaci a zjistíme, jestli a jak ti mohu pomoct. Pokud smysl nedává, řekneme si to rovnou.
+                  30 minut, během kterých projdeme tvoji situaci a zjistíme, jestli a jak ti mohu pomoct. Pokud to smysl nedává, řekneme si to rovnou.
                 </p>
               </div>
 

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard } from "./DashboardCard";
+import { printExercise } from "@/lib/print-exercise";
 import type { FuneralSpeechData } from "@/lib/exercise-registry";
 
 const FIELDS = [
@@ -19,12 +20,21 @@ export function SmutecniRecCard({
 }) {
   const isEmpty = !data?.rodina && !data?.blizci && !data?.znami;
 
+  const handlePrint = () => {
+    const sections = FIELDS
+      .filter((f) => data?.[f.key])
+      .map((f) => ({ heading: f.label, text: data![f.key]! }));
+    printExercise({ title: "Smuteční řeč", sections });
+  };
+
   return (
     <DashboardCard
       emoji="🕯️"
       title="Smuteční řeč"
       isEmpty={isEmpty}
+      emptyDescription="Co bys chtěl, aby o tobě jednou řekli? Tohle cvičení ti ukáže, na čem v životě opravdu záleží."
       editContent={<EditMode data={data} saveContext={saveContext} />}
+      onPrint={isEmpty ? undefined : handlePrint}
     >
       <ViewMode data={data!} />
     </DashboardCard>

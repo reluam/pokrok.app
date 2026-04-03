@@ -42,7 +42,7 @@ export default function OMnePage() {
                 Hledám odpovědi
               </h1>
               <p className="text-lg text-foreground/65 leading-relaxed mb-6">
-                Jsem Matěj. Bývalý muzikant, projektový manažer a věčný hledač. Většinu života jsem strávil snahou přijít na to, jak se tenhle život vlastně &bdquo;hraje&ldquo;. Přečetl jsem víc knih o produktivitě, než je zdravé, abych nakonec zjistil, že odpovědi se neschovávají v kapitolách, ale v tom, co dělám každý den. Tady začala moje cesta od nekonečného hloubání k žité realitě.
+                Jsem Matěj. Bývalý muzikant, projektový manažer a věčný hledač. Většinu života jsem strávil snahou přijít na to, jak se tenhle život vlastně &bdquo;hraje&ldquo;. Přečetl jsem víc knih o produktivitě, než je zdravé, abych nakonec zjistil, že odpovědi se neschovávají v kapitolách, ale v tom, co dělám každý den. Tady začala moje cesta od nekonečného hloubání k opravdovému žití.
               </p>
               <a
                 href="#moje-cesta"

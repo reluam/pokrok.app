@@ -20,6 +20,7 @@ export function EnergieCard({
       emoji="⚡"
       title="Energetický audit"
       isEmpty={isEmpty}
+      emptyDescription="Zjisti, co ti dává energii a co ji bere. Pomůže ti naplánovat dny, ze kterých nebudeš vyčerpaný."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />

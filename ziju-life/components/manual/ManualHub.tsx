@@ -183,7 +183,7 @@ export function ManualHub({
     <div className="space-y-8">
 
       {/* ── Audit života ── */}
-      <DashboardSection title="Audit života">
+      <DashboardSection title="Audit života" description="Kde jsi teď a co je pro tebe důležité">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
           <KoloZivotaCard data={kompasData} saveContext={saveContext} />
           <HodnotyDailyCard
@@ -196,7 +196,7 @@ export function ManualHub({
       </DashboardSection>
 
       {/* ── Směřování ── */}
-      <DashboardSection title="Směřování">
+      <DashboardSection title="Směřování" description="Kam míříš a jak se tam dostaneš">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DenZa5LetCard data={visionData} saveContext={saveContext} />
           <SmutecniRecCard data={funeralData} saveContext={saveContext} />
@@ -206,7 +206,7 @@ export function ManualHub({
       </DashboardSection>
 
       {/* ── Hlubší poznání ── */}
-      <DashboardSection title="Hlubší poznání">
+      <DashboardSection title="Hlubší poznání" description="Účel, energie, přesvědčení a vztahy">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <IkigaiCard data={ikigaiData} saveContext={saveContext} />
           <EnergieCard data={energyData} saveContext={saveContext} />
@@ -218,7 +218,7 @@ export function ManualHub({
       </DashboardSection>
 
       {/* ── Nastavení ── */}
-      <DashboardSection title="Nastavení">
+      <DashboardSection title="Nastavení" description="Principy, lekce a návyky pro každou oblast">
         <OblastiCard data={areasData} saveContext={saveContext} />
       </DashboardSection>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { Printer } from "lucide-react";
 
 export function DashboardCard({
   emoji,
@@ -9,6 +10,8 @@ export function DashboardCard({
   editContent,
   isEmpty,
   emptyCta = "Začít cvičení →",
+  emptyDescription,
+  onPrint,
 }: {
   emoji: string;
   title: string;
@@ -16,6 +19,8 @@ export function DashboardCard({
   editContent?: ReactNode;
   isEmpty?: boolean;
   emptyCta?: string;
+  emptyDescription?: string;
+  onPrint?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
 
@@ -43,6 +48,9 @@ export function DashboardCard({
           <div className="text-center py-4 space-y-2">
             <span className="text-2xl">{emoji}</span>
             <p className="text-sm font-semibold text-foreground">{title}</p>
+            {emptyDescription && (
+              <p className="text-xs text-foreground/45 leading-relaxed max-w-xs mx-auto">{emptyDescription}</p>
+            )}
             <button
               onClick={() => setEditing(true)}
               className="text-sm text-accent font-semibold hover:opacity-80 transition-opacity"
@@ -63,14 +71,25 @@ export function DashboardCard({
             <span className="text-lg">{emoji}</span>
             <h3 className="text-sm font-bold text-foreground">{title}</h3>
           </div>
-          {editContent && (
-            <button
-              onClick={() => setEditing(!editing)}
-              className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
-            >
-              {editing ? "Zavřít" : "Upravit"}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {onPrint && !editing && (
+              <button
+                onClick={onPrint}
+                className="text-foreground/30 hover:text-foreground/60 transition-colors"
+                title="Vytisknout"
+              >
+                <Printer size={14} />
+              </button>
+            )}
+            {editContent && (
+              <button
+                onClick={() => setEditing(!editing)}
+                className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+              >
+                {editing ? "Zavřít" : "Upravit"}
+              </button>
+            )}
+          </div>
         </div>
         {editing && editContent ? editContent : children}
       </div>
@@ -78,12 +97,17 @@ export function DashboardCard({
   );
 }
 
-export function DashboardSection({ title, children }: { title: string; children: ReactNode }) {
+export function DashboardSection({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   return (
     <div className="space-y-3">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35 px-1">
-        {title}
-      </h2>
+      <div className="px-1">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">
+          {title}
+        </h2>
+        {description && (
+          <p className="text-xs text-foreground/35 mt-0.5">{description}</p>
+        )}
+      </div>
       {children}
     </div>
   );

@@ -72,7 +72,7 @@ function PrioritySection({
       </div>
 
       {items.length === 0 && !adding && (
-        <p className="text-base text-foreground/30 italic py-1">Na čem se chceš soustředit?</p>
+        <p className="text-base text-foreground/30 italic py-1">Na co se chceš soustředit?</p>
       )}
 
       {/* Active priorities */}

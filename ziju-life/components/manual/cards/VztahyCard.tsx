@@ -22,6 +22,7 @@ export function VztahyCard({
       emoji="🗺️"
       title="Mapa vztahů"
       isEmpty={isEmpty}
+      emptyDescription="Zmapuj své vztahy — kdo tě nabíjí, kdo vyčerpává. Uvidíš, kam investovat čas a kde nastavit hranice."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />

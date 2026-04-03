@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, RotateCcw, AlertCircle, MessageCircle, Check, X } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { injectLinks } from "@/lib/ai-link-inject";
 
 interface Recommendation {
   itemType: "tool" | "inspiration";
@@ -302,7 +305,9 @@ export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
                   {b.text && (
                     <div className="flex justify-start">
                       <div className="bg-black/[0.03] rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-[85%]">
-                        <p className="text-sm text-foreground/75 leading-relaxed">{b.text}</p>
+                        <div className="text-sm text-foreground/75 leading-relaxed prose prose-sm prose-neutral max-w-none [&>p]:mb-1 [&>p:last-child]:mb-0">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{injectLinks(b.text)}</ReactMarkdown>
+                        </div>
                       </div>
                     </div>
                   )}

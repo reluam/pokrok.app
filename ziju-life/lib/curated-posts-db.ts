@@ -106,17 +106,27 @@ export async function getCuratedPostById(id: string) {
 
 export async function listCuratedPosts(options: {
   type?: string
+  tag?: string
   status?: string
   page?: number
   limit?: number
 } = {}) {
-  const { type, status = 'published', page = 1, limit = 20 } = options
+  const { type, tag, status = 'published', page = 1, limit = 20 } = options
   const offset = (page - 1) * limit
+
+  // "ostatní" = everything NOT kniha, video, článek
+  const isOstatni = tag === 'ostatní'
+  const excludedTags = ['kniha', 'video', 'článek']
 
   const posts = await sql`
     SELECT * FROM curated_posts
     WHERE status = ${status}
       AND (${type}::text IS NULL OR type = ${type})
+      AND (
+        ${tag}::text IS NULL
+        OR (${isOstatni} AND NOT (tags && ${excludedTags}::text[]))
+        OR (NOT ${isOstatni} AND ${tag}::text = ANY(tags))
+      )
     ORDER BY published_at DESC NULLS LAST, created_at DESC
     LIMIT ${limit} OFFSET ${offset}
   `
@@ -125,6 +135,11 @@ export async function listCuratedPosts(options: {
     SELECT COUNT(*)::int as total FROM curated_posts
     WHERE status = ${status}
       AND (${type}::text IS NULL OR type = ${type})
+      AND (
+        ${tag}::text IS NULL
+        OR (${isOstatni} AND NOT (tags && ${excludedTags}::text[]))
+        OR (NOT ${isOstatni} AND ${tag}::text = ANY(tags))
+      )
   `
 
   return {

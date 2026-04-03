@@ -25,6 +25,7 @@ export function CtvrtletniCard({
       emoji="🔄"
       title="Čtvrtletní check-in"
       isEmpty={isEmpty}
+      emptyDescription="Zastav se jednou za čtvrt roku. Oslav pokrok, pouč se z chyb a nastav směr na další 3 měsíce."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />

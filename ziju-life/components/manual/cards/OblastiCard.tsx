@@ -29,6 +29,7 @@ export function OblastiCard({
       emoji="📋"
       title="Nastavení oblastí"
       isEmpty={isEmpty}
+      emptyDescription="Pro každou životní oblast si nastav principy, lekce a konkrétní návyky. Přeměň přání na systém."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} completed={completed} />

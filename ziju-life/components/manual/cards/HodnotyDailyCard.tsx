@@ -84,11 +84,11 @@ export function HodnotyDailyCard({
 
   if (values.length === 0) {
     return (
-      <DashboardCard emoji="💎" title="Hodnoty" isEmpty>
+      <DashboardCard emoji="💎" title="Hodnoty" isEmpty emptyDescription="Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.">
         <div className="text-center py-4 space-y-2">
           <span className="text-2xl">💎</span>
           <p className="text-sm font-semibold text-foreground">Hodnoty</p>
-          <p className="text-xs text-foreground/40">Nejdřív si vyber své hodnoty.</p>
+          <p className="text-xs text-foreground/45 leading-relaxed max-w-xs mx-auto">Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.</p>
           <button
             onClick={() => onTabChange?.("manual")}
             className="text-sm text-accent font-semibold hover:opacity-80 transition-opacity"

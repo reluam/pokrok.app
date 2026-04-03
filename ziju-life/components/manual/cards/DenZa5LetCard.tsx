@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard } from "./DashboardCard";
+import { printExercise } from "@/lib/print-exercise";
 import type { VisionData, IdealDayData } from "@/lib/exercise-registry";
 
 export function DenZa5LetCard({
@@ -14,12 +15,21 @@ export function DenZa5LetCard({
   const idealDay = data?.idealDay ?? "";
   const isEmpty = !idealDay;
 
+  const handlePrint = () => {
+    printExercise({
+      title: "Den za 5 let",
+      sections: [{ text: idealDay }],
+    });
+  };
+
   return (
     <DashboardCard
       emoji="🔭"
       title="Den za 5 let"
       isEmpty={isEmpty}
+      emptyDescription="Představ si svůj ideální den za 5 let. Tenhle obraz ti pomůže pochopit, kam vlastně chceš směřovat."
       editContent={<EditMode data={data} saveContext={saveContext} />}
+      onPrint={isEmpty ? undefined : handlePrint}
     >
       <ViewMode text={idealDay} />
     </DashboardCard>

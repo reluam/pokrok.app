@@ -21,6 +21,7 @@ export function PresvedceniCard({
       emoji="🧠"
       title="Limitující přesvědčení"
       isEmpty={isEmpty}
+      emptyDescription="Odhal myšlenky, které tě brzdí, a přeformuluj je. Často stačí malý posun v přemýšlení, aby se pohnuly velké věci."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />

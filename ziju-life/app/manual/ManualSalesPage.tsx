@@ -7,7 +7,7 @@ import { useScrollLock } from "@/hooks/useScrollLock";
 
 const CODE_LENGTH = 6;
 
-const faqs = [
+const faqs: { q: string; a: React.ReactNode }[] = [
   {
     q: "Co je Manuál?",
     a: "Interaktivní cvičení (Kompas, Hodnoty, Rituály), doprovodná aplikace pro každodenní život (dashboard, to-do, check-iny) a AI průvodce, který tě zná a pomáhá ti vidět věci z nových perspektiv.",
@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "Můžu předplatné zrušit?",
-    a: "Ano, kdykoliv. Přes Stripe zákaznický portál jedním klikem. Žádné podmínky, žádné výpovědní lhůty.",
+    a: <>Ano, kdykoliv. Žádné podmínky, žádné výpovědní lhůty. <a href="https://billing.stripe.com/p/login/4gw4jAdSJ0cMbWE000" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">Zruš přes Stripe</a>.</>,
   },
 ];
 
@@ -432,7 +432,7 @@ function ManualContent() {
               "Aplikace pro každodenní život (dashboard, to-do, check-iny)",
               "AI průvodce — osobní thinking parťák",
               "Nové funkce automaticky v ceně",
-              "Zrušit lze kdykoliv přes Stripe",
+              "Zrušit lze kdykoliv",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5">
                 <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full shrink-0 mt-1.5" />
@@ -498,7 +498,7 @@ function AccessButton({
 // ── Interactive tool previews ─────────────────────────────────────────────────
 
 
-function FaqItem({ q, a }: { q: string; a: string }) {
+function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <div>

@@ -25,6 +25,7 @@ export function KoloZivotaCard({
       emoji="🎯"
       title="Kolo života"
       isEmpty={isEmpty}
+      emptyDescription="Ohodnoť 8 životních oblastí a zjisti, kde jsi teď a kam chceš. Uvidíš, co rozvíjet jako první."
       editContent={<EditFlow data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />

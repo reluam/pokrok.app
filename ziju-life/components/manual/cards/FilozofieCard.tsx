@@ -18,6 +18,7 @@ export function FilozofieCard({
       emoji="🌱"
       title="Životní filozofie"
       isEmpty={isEmpty}
+      emptyDescription="Shrň do pár vět, jak chceš žít. Tvoje životní filozofie je kompas, když přijde těžké rozhodnutí."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />

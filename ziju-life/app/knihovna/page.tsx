@@ -29,7 +29,8 @@ export default function FeedPage() {
 function FeedContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const typeFilter = searchParams.get('type') || ''
+  const tagFilter = searchParams.get('tag') || ''
+  const askParam = searchParams.get('ask') || ''
 
   // Feed state
   const [posts, setPosts] = useState<CuratedPost[]>([])
@@ -38,17 +39,17 @@ function FeedContent() {
   const [hasMore, setHasMore] = useState(true)
 
   // AI Q&A state
-  const [mode, setMode] = useState<'browse' | 'answer'>('browse')
   const [askLoading, setAskLoading] = useState(false)
   const [answerState, setAnswerState] = useState<AnswerState | null>(null)
   const [conversationHistory, setConversationHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([])
+  const [lastProcessedAsk, setLastProcessedAsk] = useState('')
 
   const loadPosts = useCallback(async (reset = false) => {
     const p = reset ? 1 : page
     setLoading(true)
     try {
       const params = new URLSearchParams({ page: String(p), limit: '12' })
-      if (typeFilter) params.set('type', typeFilter)
+      if (tagFilter) params.set('tag', tagFilter)
       const res = await fetch(`/api/feed?${params}`)
       const data = await res.json()
       if (reset) { setPosts(data.posts || []) }
@@ -56,13 +57,25 @@ function FeedContent() {
       setHasMore(p < (data.totalPages || 1))
     } catch (e) { console.error(e) }
     setLoading(false)
-  }, [page, typeFilter])
+  }, [page, tagFilter])
 
-  useEffect(() => { setPage(1); loadPosts(true) }, [typeFilter])
+  useEffect(() => { setPage(1); loadPosts(true) }, [tagFilter])
   useEffect(() => { if (page > 1) loadPosts() }, [page])
 
-  const handleAsk = async (question: string, history: { role: 'user' | 'assistant'; content: string }[] = []) => {
-    setMode('answer')
+  // Handle ask param from URL
+  useEffect(() => {
+    if (askParam && askParam !== lastProcessedAsk) {
+      setLastProcessedAsk(askParam)
+      doAsk(askParam, [])
+    }
+    if (!askParam) {
+      setAnswerState(null)
+      setConversationHistory([])
+      setLastProcessedAsk('')
+    }
+  }, [askParam])
+
+  const doAsk = async (question: string, history: { role: 'user' | 'assistant'; content: string }[]) => {
     setAskLoading(true)
     setAnswerState({ question, answer: '', sources: [], followUps: [], hasZijuContent: false })
     try {
@@ -83,8 +96,18 @@ function FeedContent() {
     } finally { setAskLoading(false) }
   }
 
+  const handleAsk = (question: string) => {
+    router.push(`/knihovna?ask=${encodeURIComponent(question)}`)
+  }
+
+  const handleFollowUp = (question: string) => {
+    setLastProcessedAsk(question)
+    router.push(`/knihovna?ask=${encodeURIComponent(question)}`, { scroll: false })
+    doAsk(question, conversationHistory)
+  }
+
   // Answer mode
-  if (mode === 'answer' && answerState) {
+  if (askParam && answerState) {
     return (
       <FeedAnswerView
         question={answerState.question}
@@ -93,8 +116,8 @@ function FeedContent() {
         followUps={answerState.followUps}
         hasZijuContent={answerState.hasZijuContent}
         loading={askLoading}
-        onBack={() => { setMode('browse'); setAnswerState(null); setConversationHistory([]) }}
-        onFollowUp={(q) => handleAsk(q, conversationHistory)}
+        onBack={() => router.push('/knihovna')}
+        onFollowUp={handleFollowUp}
       />
     )
   }
@@ -110,21 +133,23 @@ function FeedContent() {
         </p>
 
         <div className="max-w-xl mx-auto">
-          <FeedAskBox onAsk={(q) => handleAsk(q)} loading={askLoading} />
+          <FeedAskBox onAsk={handleAsk} loading={askLoading} />
         </div>
 
         {/* Filter tabs */}
         <div className="flex items-center justify-center gap-2 flex-wrap">
           {[
             { value: '', label: 'Vše' },
-            { value: 'tip', label: 'Tipy' },
-            { value: 'digest', label: 'Týdenní přehledy' },
+            { value: 'kniha', label: 'Knihy' },
+            { value: 'video', label: 'Videa' },
+            { value: 'článek', label: 'Články' },
+            { value: 'ostatní', label: 'Ostatní' },
           ].map((tab) => (
             <button
               key={tab.value}
-              onClick={() => router.push(tab.value ? `/knihovna?type=${tab.value}` : '/knihovna')}
+              onClick={() => router.push(tab.value ? `/knihovna?tag=${tab.value}` : '/knihovna')}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
-                typeFilter === tab.value
+                tagFilter === tab.value
                   ? 'bg-accent text-white'
                   : 'bg-black/5 text-foreground/60 hover:bg-black/10'
               }`}

@@ -6,6 +6,7 @@ import { Send, CalendarPlus, Sparkles, X, Check } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useBookingPopup } from "@/components/BookingPopup";
+import { injectLinks } from "@/lib/ai-link-inject";
 
 interface AIAction {
   type: string;
@@ -29,12 +30,13 @@ const WELCOME_MESSAGE = `Ahoj! 👋 Jsem tvůj chytrý průvodce životem.
 Funguju jako tvůj společník a thinking parťák na cestě osobního rozvoje. Můžeš se mnou probírat cokoliv — své cíle, výzvy, nápady, pocity. Čím víc toho o tobě vím, tím lépe ti dokážu pomoct.
 
 Co ode mě můžeš čekat:
-• Naslouchám a kladu otázky, které ti pomůžou přemýšlet jinak
-• Pamatuju si naši konverzaci a buduji tvůj profil
-• Doporučuju nástroje a inspirace šité na míru tobě
-• Pomáhám ti stanovit priority a udržet směr
 
-Naše konverzace se ukládá — kdykoli se vrátíš, navážeme tam, kde jsme skončili.
+- Naslouchám a kladu otázky, které ti pomůžou přemýšlet jinak
+- Pamatuju si naši konverzaci a buduji tvůj profil
+- Doporučuju nástroje a inspirace šité na míru tobě
+- Pomáhám ti stanovit priority a udržet směr
+
+Naši konverzaci si pamatuju — kdykoli se vrátíš, navážeme tam, kde jsme skončili.
 
 Tak povídej — co právě řešíš? 🌱`;
 
@@ -289,7 +291,7 @@ export default function CoachingChatPanel() {
                     ) : (
                       <div className="text-sm leading-relaxed text-foreground/75 prose prose-sm prose-neutral max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2 [&>li]:mb-0.5">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {m.content}
+                          {injectLinks(m.content)}
                         </ReactMarkdown>
                       </div>
                     )}
