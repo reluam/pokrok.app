@@ -10,8 +10,8 @@ import type { KompasData } from "@/components/KompasFlow";
 
 const defaultVals = () => Object.fromEntries(WHEEL_AREAS.map((a) => [a.key, 5]));
 
-type Step = "current" | "goal" | "focus" | "actions";
-const STEPS: Step[] = ["current", "goal", "focus", "actions"];
+type Step = "current" | "goal";
+const STEPS: Step[] = ["current", "goal"];
 
 const STEP_INFO: Record<Step, { title: string; desc: string }> = {
   current: {
@@ -21,14 +21,6 @@ const STEP_INFO: Record<Step, { title: string; desc: string }> = {
   goal: {
     title: "Kde chceš být?",
     desc: "Nastav cílové hodnoty. Šedý obrys ukazuje tvůj aktuální stav — rozdíl ukáže, kam směřovat.",
-  },
-  focus: {
-    title: "Na co se zaměříš?",
-    desc: "Vyber jednu oblast, které dáš tento měsíc přednost. Největší rozdíl = největší příležitost.",
-  },
-  actions: {
-    title: "Konkrétní kroky",
-    desc: "Zapiš 1–3 kroky, které uděláš tento měsíc. Konkrétní, měřitelné, proveditelné.",
   },
 };
 
@@ -91,7 +83,7 @@ function ViewMode({ data }: { data: KompasData }) {
             <p className="text-sm font-bold text-accent mt-0.5">{focusArea.short}</p>
           </div>
         ) : (
-          <p className="text-xs text-foreground/35 italic">Zatím nemáš vybranou fokus oblast.</p>
+          <p className="text-xs text-foreground/35 italic">Focus oblast se nastaví v měsíčním check-inu.</p>
         )}
         {steps.length > 0 && (
           <div className="space-y-1">
@@ -147,8 +139,6 @@ function EditFlow({
   const [step, setStep] = useState<Step>("current");
   const [currentVals, setCurrentVals] = useState<Record<string, number>>(data?.currentVals ?? defaultVals());
   const [goalVals, setGoalVals] = useState<Record<string, number>>(data?.goalVals ?? Object.fromEntries(WHEEL_AREAS.map((a) => [a.key, 7])));
-  const [focusArea, setFocusArea] = useState(data?.focusArea ?? "");
-  const [actionSteps, setActionSteps] = useState<string[]>(data?.actionSteps ?? ["", "", ""]);
 
   const stepIdx = STEPS.indexOf(step);
   const info = STEP_INFO[step];
@@ -158,72 +148,26 @@ function EditFlow({
     goalVals,
     reflectionAnswers: data?.reflectionAnswers ?? {},
     areaAnswers: data?.areaAnswers ?? {},
-    focusArea,
-    actionSteps: actionSteps.filter((s) => s.trim()),
+    focusArea: data?.focusArea,
+    actionSteps: data?.actionSteps,
     completedAt: data?.completedAt ?? new Date().toISOString(),
     ...partial,
-  }), [currentVals, goalVals, focusArea, actionSteps, data]);
+  }), [currentVals, goalVals, data]);
 
-  const depsKey = JSON.stringify(currentVals) + JSON.stringify(goalVals) + focusArea + JSON.stringify(actionSteps);
-  const { saving, saved, flush } = useAutoSave(
+  const depsKey = JSON.stringify(currentVals) + JSON.stringify(goalVals);
+  const { saving, saved } = useAutoSave(
     async () => { await saveContext("compass", buildMerged()); },
     [depsKey],
   );
 
-  const save = useCallback(async (partial: Partial<KompasData>) => {
-    await saveContext("compass", buildMerged(partial));
-  }, [buildMerged, saveContext]);
-
-  const handleNext = async () => {
+  const handleNext = () => {
     if (stepIdx < STEPS.length - 1) {
-      const nextStep = STEPS[stepIdx + 1];
-      setStep(nextStep);
-      await save({});
+      setStep(STEPS[stepIdx + 1]);
     }
   };
 
-  const syncToPriorities = useCallback(async () => {
-    if (!focusArea) return;
-    const areaLabel = WHEEL_AREAS.find((a) => a.key === focusArea)?.short ?? focusArea;
-    const filledSteps = actionSteps.filter((s) => s.trim());
-    const now = new Date().toISOString();
-
-    // Load current priorities
-    try {
-      const res = await fetch("/api/manual/user-context");
-      if (!res.ok) return;
-      const d = await res.json();
-      const priorities = d.context?.priorities ?? { weekly: [], monthly: [], yearly: [] };
-
-      // Remove old kolo-zivota items from monthly
-      const cleaned = (priorities.monthly ?? []).filter(
-        (item: { source?: string }) => item.source !== "kolo-zivota"
-      );
-
-      // Add focus area + action steps
-      const newItems = [
-        { text: `Focus: ${areaLabel}`, done: false, source: "kolo-zivota", sourceDate: now },
-        ...filledSteps.map((s) => ({ text: s, done: false, source: "kolo-zivota", sourceDate: now })),
-      ];
-
-      const updated = { ...priorities, monthly: [...newItems, ...cleaned] };
-      await fetch("/api/manual/user-context", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "priorities", data: updated }),
-      });
-    } catch {}
-  }, [focusArea, actionSteps]);
-
   const handleFinish = async () => {
-    const filledSteps = actionSteps.filter((s) => s.trim());
-    const now = new Date();
-    await save({
-      completedAt: now.toISOString(),
-      actionSteps: filledSteps.length > 0 ? filledSteps : undefined,
-      reflectionDueAt: filledSteps.length > 0 ? new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString() : undefined,
-    });
-    await syncToPriorities();
+    await saveContext("compass", buildMerged({ completedAt: new Date().toISOString() }));
     done?.();
   };
 
@@ -293,54 +237,6 @@ function EditFlow({
         </div>
       )}
 
-      {step === "focus" && (
-        <div className="space-y-1.5">
-          {[...WHEEL_AREAS]
-            .map((a) => ({ ...a, diff: (goalVals[a.key] ?? 5) - (currentVals[a.key] ?? 5) }))
-            .sort((a, b) => b.diff - a.diff)
-            .map((a) => {
-              const cur = currentVals[a.key] ?? 5;
-              const goal = goalVals[a.key] ?? 5;
-              return (
-                <button
-                  key={a.key}
-                  onClick={() => setFocusArea(a.key)}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-base transition-all"
-                  style={focusArea === a.key
-                    ? { borderColor: "#FF8C42", background: "rgba(255,140,66,0.06)" }
-                    : { borderColor: "rgba(0,0,0,0.07)" }
-                  }
-                >
-                  <span className="font-medium text-foreground/70 flex-1">{a.short}</span>
-                  <span className="text-sm text-foreground/40">{cur} → {goal}</span>
-                  {a.diff > 0 && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500">+{a.diff}</span>
-                  )}
-                </button>
-              );
-            })}
-        </div>
-      )}
-
-      {step === "actions" && (
-        <div className="space-y-2">
-          {[0, 1, 2].map((i) => (
-            <input
-              key={i}
-              type="text"
-              value={actionSteps[i] ?? ""}
-              onChange={(e) => {
-                const next = [...actionSteps];
-                next[i] = e.target.value;
-                setActionSteps(next);
-              }}
-              placeholder={`Krok ${i + 1}${i > 0 ? " (volitelný)" : ""}`}
-              className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
-            />
-          ))}
-        </div>
-      )}
-
       {/* Navigation */}
       <div className="flex items-center gap-2">
         <SaveIndicator saving={saving} saved={saved} />
@@ -354,10 +250,10 @@ function EditFlow({
           </button>
         )}
         <button
-          onClick={step === "actions" ? handleFinish : handleNext}
+          onClick={step === "goal" ? handleFinish : handleNext}
           className="px-5 py-2 bg-accent text-white rounded-full text-base font-bold hover:bg-accent-hover transition-colors"
         >
-          {step === "actions" ? "Hotovo ✓" : "Dál →"}
+          {step === "goal" ? "Hotovo ✓" : "Dál →"}
         </button>
       </div>
     </div>

@@ -193,7 +193,7 @@ export function ManualHub({
             onTabChange={() => setActiveExercise("hodnoty")}
           />
         </div>
-        <CtvrtletniCard data={quarterlyData} saveContext={saveContext} />
+        <CtvrtletniCard data={quarterlyData} kompasCurrentVals={kompasData?.currentVals} saveContext={saveContext} />
       </DashboardSection>
 
       {/* ── Směřování ── */}

@@ -66,6 +66,8 @@ export type QuarterlyCheckinData = {
   learnings: string[];
   adjustments: string[];
   areaScores: Record<string, number>;
+  focusArea?: string;
+  actionSteps?: string[];
   updatedAt: string;
 };
 
@@ -301,12 +303,12 @@ export const EXERCISES: ExerciseDefinition[] = [
     },
   },
   {
-    id: "ctvrtletni-checkin",
+    id: "mesicni-checkin",
     contextType: "quarterly",
-    section: "smerovani",
+    section: "audit",
     emoji: "🔄",
-    title: "Čtvrtletní check-in",
-    description: "Oslav pokrok, zamysli se a aktualizuj svůj manuál.",
+    title: "Měsíční check-in",
+    description: "Oslav pokrok, aktualizuj Kolo života a nastav focus na další měsíc.",
     getState: (data) => {
       const d = data as QuarterlyCheckinData | null;
       if (!d) return "not_started";
@@ -316,8 +318,9 @@ export const EXERCISES: ExerciseDefinition[] = [
     },
     getSummary: (data) => {
       const d = data as QuarterlyCheckinData | null;
-      if (!d?.quarter) return null;
-      return { label: d.quarter };
+      if (!d?.updatedAt) return null;
+      const date = new Date(d.updatedAt);
+      return { label: `Poslední: ${date.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long' })}` };
     },
   },
   // ── Hlubší poznání ──

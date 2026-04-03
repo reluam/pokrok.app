@@ -1,6 +1,6 @@
 // Map of Žiju.life feature mentions → markdown links (longest patterns first)
 const LINK_MAP: [RegExp, string][] = [
-  [/Čtvrtletní check-?in/gi, "[Čtvrtletní check-in](/manual/dashboard#ctvrtletni-checkin)"],
+  [/Měsíční check-?in/gi, "[Měsíční check-in](/manual/dashboard#mesicni-checkin)"],
   [/Energetick(?:ý|ého|ém) audit(?:u)?/gi, "[Energetický audit](/manual/dashboard#energie)"],
   [/Životní(?:ch)? filosof(?:ie|ii)/gi, "[Životní filozofie](/manual/dashboard#filozofie)"],
   [/Životní(?:ch)? oblast(?:í|i|ech)/gi, "[Životní oblasti](/manual/dashboard#oblasti)"],

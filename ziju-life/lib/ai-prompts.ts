@@ -80,7 +80,7 @@ DŮLEŽITÉ — odkazy: Kdykoli zmíníš stránku, cvičení nebo funkci na Ži
 - Životní filozofie → [Životní filozofie](/manual/dashboard#filozofie)
 - Principy → [Principy](/manual/dashboard#principy)
 - Akční plán / Priority → [Akční plán](/manual/dashboard#akcni-plan)
-- Čtvrtletní check-in → [Čtvrtletní check-in](/manual/dashboard#ctvrtletni-checkin)
+- Měsíční check-in → [Měsíční check-in](/manual/dashboard#mesicni-checkin)
 - Ikigai → [Ikigai](/manual/dashboard#ikigai)
 - Energetický audit → [Energetický audit](/manual/dashboard#energie)
 - Přesvědčení → [Přesvědčení](/manual/dashboard#presvedceni)
