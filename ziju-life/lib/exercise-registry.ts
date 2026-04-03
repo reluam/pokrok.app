@@ -224,8 +224,8 @@ export const EXERCISES: ExerciseDefinition[] = [
     contextType: "funeral-speech",
     section: "smerovani",
     emoji: "🕯️",
-    title: "Smuteční řeč",
-    description: "Co bys chtěl, aby o tobě řekla rodina, blízcí a známí?",
+    title: "Na smrtelné posteli",
+    description: "Přemítej nad životem — za co jsi vděčný/á, čeho lituješ a co chceš, aby se ještě stalo.",
     getState: (data) => {
       const d = data as FuneralSpeechData | null;
       if (!d) return "not_started";
@@ -237,7 +237,7 @@ export const EXERCISES: ExerciseDefinition[] = [
       const d = data as FuneralSpeechData | null;
       if (!d?.rodina && !d?.blizci && !d?.znami) return null;
       const filled = [d.rodina, d.blizci, d.znami].filter(Boolean).length;
-      return { label: `${filled}/3 řečí napsáno` };
+      return { label: `${filled}/3 částí napsáno` };
     },
   },
   // ── Životní filozofie ──
@@ -247,7 +247,7 @@ export const EXERCISES: ExerciseDefinition[] = [
     section: "filozofie",
     emoji: "🌱",
     title: "Životní filozofie",
-    description: "Jak bys chtěl, aby tě popsal dobrý známý? Popiš člověka, kterým chceš být.",
+    description: "Jak bys chtěl, aby tě popsal dobrý známý? Jak chceš, aby tě vnímali ostatní?",
     getState: (data) => {
       const d = data as PhilosophyData | null;
       if (!d) return "not_started";

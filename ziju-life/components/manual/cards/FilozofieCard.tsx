@@ -26,7 +26,7 @@ export function FilozofieCard({
       emoji="🌱"
       title="Životní filozofie"
       isEmpty={isEmpty}
-      emptyDescription="Jak bys chtěl, aby tě popsal dobrý známý? Popiš člověka, kterým chceš být — je to tvůj kompas pro velká i malá rozhodnutí."
+      emptyDescription="Jak bys chtěl, aby tě popsal dobrý známý? Jak chceš, aby tě vnímali ostatní? Tvoje filozofie je kompas pro velká i malá rozhodnutí."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />
@@ -42,13 +42,13 @@ function ViewMode({ data }: { data: PhilosophyData }) {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-foreground/60 leading-relaxed italic">
+      <p className="text-base text-foreground/60 leading-relaxed italic">
         &ldquo;{expanded ? text : preview}{isLong && !expanded ? "…" : ""}&rdquo;
       </p>
       {isLong && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs text-accent hover:opacity-80 transition-opacity"
+          className="text-sm text-accent hover:opacity-80 transition-opacity"
         >
           {expanded ? "Méně" : "Celý text →"}
         </button>
@@ -81,30 +81,30 @@ function EditMode({
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        <p className="text-xs text-foreground/50 leading-relaxed">
-          Představ si, že se o tobě vyjadřuje tvůj dobrý známý. Jak bys chtěl, aby tě popsal? Jaký člověk chceš být?
+        <p className="text-sm text-foreground/50 leading-relaxed">
+          Představ si, že se o tobě vyjadřuje tvůj dobrý známý. Jak bys chtěl, aby tě popsal? Jak chceš, aby tě vnímali ostatní?
         </p>
         <textarea
           value={statement}
           onChange={(e) => setStatement(e.target.value)}
           placeholder="Je to člověk, který..."
           rows={5}
-          className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-y focus:outline-none focus:border-black/20 transition-all"
+          className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-y focus:outline-none focus:border-black/20 transition-all"
         />
       </div>
 
       <button
         onClick={() => setShowExamples(!showExamples)}
-        className="text-xs text-accent/70 hover:text-accent transition-colors"
+        className="text-sm text-accent/70 hover:text-accent transition-colors"
       >
         {showExamples ? "Skrýt příklady" : "Ukázat příklady pro inspiraci →"}
       </button>
 
       {showExamples && (
         <div className="space-y-2 p-3 rounded-xl bg-accent/5 border border-accent/10">
-          <p className="text-[10px] font-bold text-accent/60 uppercase tracking-wider">Příklady</p>
+          <p className="text-xs font-bold text-accent/60 uppercase tracking-wider">Příklady</p>
           {EXAMPLES.map((ex, i) => (
-            <p key={i} className="text-xs text-foreground/50 leading-relaxed italic border-l-2 border-accent/20 pl-2.5">
+            <p key={i} className="text-sm text-foreground/50 leading-relaxed italic border-l-2 border-accent/20 pl-2.5">
               &ldquo;{ex}&rdquo;
             </p>
           ))}
@@ -116,7 +116,7 @@ function EditMode({
         <button
           onClick={handleDone}
           disabled={!statement.trim()}
-          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-accent text-white rounded-full text-base font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
           Hotovo ✓
         </button>

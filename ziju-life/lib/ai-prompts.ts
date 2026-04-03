@@ -76,7 +76,7 @@ DŮLEŽITÉ — odkazy: Kdykoli zmíníš stránku, cvičení nebo funkci na Ži
 - Moje hodnoty / Hodnoty → [Moje hodnoty](/manual/dashboard#hodnoty)
 - Životní oblasti → [Životní oblasti](/manual/dashboard#oblasti)
 - Den za 5 let / Vize → [Den za 5 let](/manual/dashboard#vize)
-- Smuteční řeč → [Smuteční řeč](/manual/dashboard#smutecni-rec)
+- Na smrtelné posteli / Smuteční řeč → [Na smrtelné posteli](/manual/dashboard#smutecni-rec)
 - Životní filozofie → [Životní filozofie](/manual/dashboard#filozofie)
 - Principy → [Principy](/manual/dashboard#principy)
 - Akční plán / Priority → [Akční plán](/manual/dashboard#akcni-plan)
