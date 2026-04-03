@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useUserContext } from "@/hooks/useUserContext"
+import { kompasFromApi, kompasToApi } from "@/lib/context-transforms"
 
 // ── Konstanty ───────────────────────────────────────────────────────────────
 
@@ -810,35 +812,41 @@ function KompasDashboard({ data, onReset }: { data: KompasData; onReset: () => v
 // ── Hlavní komponenta ────────────────────────────────────────────────────────
 
 export default function KompasFlow({ onSaved }: { onSaved?: () => void } = {}) {
-  const [kompasData, setKompasData] = useState<KompasData | null>(null)
-  const [phase, setPhase]           = useState<"loading" | "flow" | "done">("loading")
+  const fromLs = useCallback((raw: string) => {
+    try { return JSON.parse(raw) as KompasData } catch { return null }
+  }, [])
+
+  const ctx = useUserContext<KompasData>({
+    contextType: "compass",
+    lsKey: LS_KEY,
+    fromApi: kompasFromApi,
+    toApi: kompasToApi,
+    fromLs,
+  })
+
+  const [phase, setPhase] = useState<"loading" | "flow" | "done">("loading")
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LS_KEY)
-      if (saved) {
-        setKompasData(JSON.parse(saved) as KompasData)
-        setPhase("done")
-      } else {
-        setPhase("flow")
-      }
-    } catch {
+    if (ctx.loading) return
+    if (ctx.data) {
+      setPhase("done")
+    } else if (phase === "loading") {
       setPhase("flow")
     }
-  }, [])
+  }, [ctx.loading, ctx.data]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const kompasData = ctx.data
 
   const handleComplete = useCallback((data: KompasData) => {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(data)) } catch {}
-    setKompasData(data)
+    ctx.save(data)
     setPhase("done")
     onSaved?.()
-  }, [onSaved])
+  }, [onSaved, ctx])
 
   const handleReset = useCallback(() => {
-    try { localStorage.removeItem(LS_KEY) } catch {}
-    setKompasData(null)
+    ctx.clear()
     setPhase("flow")
-  }, [])
+  }, [ctx])
 
   if (phase === "loading") {
     return (

@@ -5,6 +5,8 @@ import { getManualUser } from "@/lib/manual-user";
 import { getAIBudgetBalance, recordAIInteraction } from "@/lib/ai-credits";
 import { buildLabCoachPrompt, type LabUserContext } from "@/lib/ai-prompts";
 import { sql } from "@/lib/database";
+import { extractCompassForAI, extractFocusAreaForAI, extractRitualsForAI } from "@/lib/context-transforms";
+import { ritualsById } from "@/data/adhdRituals";
 
 export const dynamic = "force-dynamic";
 
@@ -40,12 +42,23 @@ async function loadUserContext(userId: string): Promise<LabUserContext> {
 
   const context: LabUserContext = {};
   for (const row of rows) {
-    if (row.context_type === "values" && Array.isArray(row.data)) {
-      context.values = row.data as { name: string; alignment: number }[];
-    } else if (row.context_type === "compass" && Array.isArray(row.data)) {
-      context.compass = row.data as { area: string; current: number; goal: number }[];
-    } else if (row.context_type === "rituals" && Array.isArray(row.data)) {
-      context.rituals = row.data as { slot: string; name: string; duration?: string }[];
+    if (row.context_type === "values") {
+      if (Array.isArray(row.data)) {
+        context.values = row.data as { name: string; alignment: number }[];
+      } else if (row.data && typeof row.data === "object" && "finalValues" in row.data) {
+        const d = row.data as { finalValues: string[]; alignmentScores?: Record<string, number> };
+        context.values = d.finalValues.slice(0, 10).map(name => ({
+          name, alignment: d.alignmentScores?.[name] ?? 0,
+        }));
+      }
+    } else if (row.context_type === "compass") {
+      const compass = extractCompassForAI(row.data);
+      if (compass) context.compass = compass;
+      const focusArea = extractFocusAreaForAI(row.data);
+      if (focusArea) context.focusArea = focusArea;
+    } else if (row.context_type === "rituals") {
+      const rituals = extractRitualsForAI(row.data, ritualsById);
+      if (rituals) context.rituals = rituals;
     } else if (row.context_type === "priorities" && row.data) {
       context.priorities = row.data as LabUserContext["priorities"];
     }

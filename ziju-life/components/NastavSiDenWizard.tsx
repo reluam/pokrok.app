@@ -913,9 +913,11 @@ export function DownloadPDFButton({
 export function PrintDayOverviewButton({
   selection,
   className,
+  iconOnly,
 }: {
   selection: RitualSelection;
   className?: string;
+  iconOnly?: boolean;
 }) {
   const [generating, setGenerating] = useState(false);
 
@@ -1122,18 +1124,14 @@ export function PrintDayOverviewButton({
       className={className ?? "inline-flex items-center gap-1.5 text-sm text-foreground/50 hover:text-foreground/70 transition-colors disabled:opacity-40"}
     >
       {generating ? (
-        <>
-          <span className="w-3.5 h-3.5 border-2 border-foreground/20 border-t-foreground/50 rounded-full animate-spin" />
-          Generuji…
-        </>
+        <span className="w-4 h-4 border-2 border-foreground/20 border-t-foreground/50 rounded-full animate-spin" />
       ) : (
-        <>
-          <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-            <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
-          </svg>
-          Tisk přehledu
-        </>
+        <svg viewBox="0 0 20 20" fill="currentColor" className={iconOnly ? "w-[18px] h-[18px]" : "w-4 h-4"}>
+          <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+        </svg>
       )}
+      {!iconOnly && !generating && " Tisk přehledu"}
+      {!iconOnly && generating && " Generuji…"}
     </button>
   );
 }

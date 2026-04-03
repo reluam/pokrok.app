@@ -7,6 +7,8 @@ import { buildLabCoachPrompt, type LabUserContext } from "@/lib/ai-prompts";
 import { sql } from "@/lib/database";
 import { sendContentRequestEmail } from "@/lib/user-email";
 import { getAIProfileSummary } from "@/lib/ai-profile";
+import { extractCompassForAI, extractFocusAreaForAI, extractRitualsForAI } from "@/lib/context-transforms";
+import { ritualsById } from "@/data/adhdRituals";
 
 export const dynamic = "force-dynamic";
 
@@ -31,12 +33,26 @@ async function loadUserContext(userId: string): Promise<LabUserContext> {
   const context: LabUserContext = {};
 
   for (const row of rows) {
-    if (row.context_type === "values" && Array.isArray(row.data)) {
-      context.values = (row.data as { name: string; alignment: number }[]).slice(0, 10);
-    } else if (row.context_type === "compass" && Array.isArray(row.data)) {
-      context.compass = (row.data as { area: string; current: number; goal: number }[]);
-    } else if (row.context_type === "rituals" && Array.isArray(row.data)) {
-      context.rituals = (row.data as { slot: string; name: string; duration?: string }[]);
+    if (row.context_type === "values") {
+      // Handle both flat [{name, alignment}] and full HodnotyData formats
+      if (Array.isArray(row.data)) {
+        context.values = (row.data as { name: string; alignment: number }[]).slice(0, 10);
+      } else if (row.data && typeof row.data === "object" && "finalValues" in row.data) {
+        const d = row.data as { finalValues: string[]; alignmentScores?: Record<string, number> };
+        context.values = d.finalValues.slice(0, 10).map(name => ({
+          name, alignment: d.alignmentScores?.[name] ?? 0,
+        }));
+      }
+    } else if (row.context_type === "compass") {
+      // Handle both flat [{area, current, goal}] and full KompasData formats
+      const compass = extractCompassForAI(row.data);
+      if (compass) context.compass = compass;
+      const focusArea = extractFocusAreaForAI(row.data);
+      if (focusArea) context.focusArea = focusArea;
+    } else if (row.context_type === "rituals") {
+      // Handle both flat [{slot, name}] and structured {morning, daily, evening} formats
+      const rituals = extractRitualsForAI(row.data, ritualsById);
+      if (rituals) context.rituals = rituals;
     } else if (row.context_type === "priorities" && row.data && typeof row.data === "object") {
       context.priorities = row.data as LabUserContext["priorities"];
     }

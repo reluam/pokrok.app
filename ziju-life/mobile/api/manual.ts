@@ -111,12 +111,22 @@ export async function getRitualCompletions(): Promise<{
 
 export async function toggleRitualCompletion(
   ritualId: string,
-  completed: boolean
+  completed: boolean,
+  date?: string
 ): Promise<{ ok: boolean }> {
   return apiFetch("/api/manual/ritual-completions", {
     method: "POST",
-    body: JSON.stringify({ ritualId, completed }),
+    body: JSON.stringify({ ritualId, completed, date }),
   });
+}
+
+export async function getRitualCompletionsFull(): Promise<{
+  today: string[];
+  stats: Record<string, number>;
+  days: string[];
+  history: Record<string, string[]>;
+}> {
+  return apiFetch("/api/manual/ritual-completions");
 }
 
 // Coaching chat (persistent)

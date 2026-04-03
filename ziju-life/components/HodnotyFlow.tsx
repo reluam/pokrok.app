@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useRef, useCallback, useEffect } from "react"
+import { useUserContext } from "@/hooks/useUserContext"
+import { hodnotyFromApi, hodnotyToApi } from "@/lib/context-transforms"
 
 // ── Konstanty ───────────────────────────────────────────────────────────────
 
@@ -425,23 +427,32 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
 // ── Hlavní komponenta ────────────────────────────────────────────────────────
 
 export default function HodnotyFlow({ onSaved }: { onSaved?: () => void } = {}) {
-  const [hodnotyData, setHodnotyData] = useState<HodnotyData | null>(null)
-  const [phase, setPhase]             = useState<"loading" | "flow" | "alignment" | "done">("loading")
+  const fromLs = useCallback((raw: string) => {
+    try { return JSON.parse(raw) as HodnotyData } catch { return null }
+  }, [])
+
+  const ctx = useUserContext<HodnotyData>({
+    contextType: "values",
+    lsKey: LS_KEY,
+    fromApi: hodnotyFromApi,
+    toApi: hodnotyToApi,
+    fromLs,
+  })
+
+  const [phase, setPhase] = useState<"loading" | "flow" | "alignment" | "done">("loading")
   const [pendingValues, setPendingValues] = useState<string[]>([])
 
+  // Sync phase with context loading state
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LS_KEY)
-      if (saved) {
-        setHodnotyData(JSON.parse(saved) as HodnotyData)
-        setPhase("done")
-      } else {
-        setPhase("flow")
-      }
-    } catch {
+    if (ctx.loading) return
+    if (ctx.data) {
+      setPhase("done")
+    } else if (phase === "loading") {
       setPhase("flow")
     }
-  }, [])
+  }, [ctx.loading, ctx.data]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const hodnotyData = ctx.data
 
   const handleGameComplete = useCallback((values: string[]) => {
     setPendingValues(values)
@@ -454,18 +465,16 @@ export default function HodnotyFlow({ onSaved }: { onSaved?: () => void } = {}) 
       alignmentScores: scores,
       savedAt: new Date().toISOString(),
     }
-    try { localStorage.setItem(LS_KEY, JSON.stringify(data)) } catch {}
-    setHodnotyData(data)
+    ctx.save(data)
     setPhase("done")
     onSaved?.()
-  }, [pendingValues, onSaved])
+  }, [pendingValues, onSaved, ctx])
 
   const handleReset = useCallback(() => {
-    try { localStorage.removeItem(LS_KEY) } catch {}
-    setHodnotyData(null)
+    ctx.clear()
     setPendingValues([])
     setPhase("flow")
-  }, [])
+  }, [ctx])
 
   if (phase === "loading") {
     return (

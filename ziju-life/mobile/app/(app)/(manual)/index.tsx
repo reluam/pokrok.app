@@ -19,10 +19,27 @@ import {
   getDashboardData,
   saveDailyTodos,
   toggleRitualCompletion,
+  getRitualCompletionsFull,
   aiCoach,
 } from "@/api/manual";
-import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react-native";
+import Markdown from "react-native-markdown-display";
+import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react-native";
 import { colors } from "@/constants/theme";
+import { syncWidgetData } from "@/lib/widgetSync";
+
+const mdStyles = StyleSheet.create({
+  body: { fontSize: 14, color: colors.foreground, lineHeight: 20 },
+  heading1: { fontSize: 17, fontWeight: "800" as const, color: colors.foreground, marginTop: 12, marginBottom: 4 },
+  heading2: { fontSize: 15, fontWeight: "700" as const, color: colors.foreground, marginTop: 10, marginBottom: 4 },
+  heading3: { fontSize: 14, fontWeight: "700" as const, color: colors.foreground, marginTop: 8, marginBottom: 2 },
+  paragraph: { marginBottom: 6, marginTop: 0 },
+  strong: { fontWeight: "700" as const, color: colors.foreground },
+  em: { fontStyle: "italic" as const },
+  list_item: { marginBottom: 2 },
+  bullet_list: { marginBottom: 6 },
+  ordered_list: { marginBottom: 6 },
+  link: { color: colors.accent, textDecorationLine: "underline" as const },
+});
 
 const { height: SCREEN_H } = Dimensions.get("window");
 const MAX_TODO = 3;
@@ -43,14 +60,27 @@ function CheckItem({
   item,
   onToggle,
   onRemove,
+  onEdit,
   accentColor,
 }: {
   item: { text: string; done: boolean };
   onToggle: () => void;
   onRemove?: () => void;
+  onEdit?: (newText: string) => void;
   accentColor?: string;
 }) {
   const color = accentColor || colors.accent;
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(item.text);
+
+  const commitEdit = () => {
+    const trimmed = editText.trim();
+    if (trimmed && trimmed !== item.text && onEdit) {
+      onEdit(trimmed);
+    }
+    setEditing(false);
+  };
+
   return (
     <View style={s.checkRow}>
       <TouchableOpacity
@@ -59,8 +89,26 @@ function CheckItem({
       >
         {item.done && <Check size={12} color="#fff" />}
       </TouchableOpacity>
-      <Text style={[s.checkText, item.done && s.checkTextDone]}>{item.text}</Text>
-      {onRemove && (
+      {editing ? (
+        <TextInput
+          style={[s.checkText, { flex: 1, borderBottomWidth: 1, borderBottomColor: colors.accent, paddingVertical: 2 }]}
+          value={editText}
+          onChangeText={setEditText}
+          onBlur={commitEdit}
+          onSubmitEditing={commitEdit}
+          autoFocus
+          returnKeyType="done"
+        />
+      ) : (
+        <TouchableOpacity
+          style={{ flex: 1 }}
+          onLongPress={() => { if (onEdit && !item.done) { setEditText(item.text); setEditing(true); } }}
+          activeOpacity={0.7}
+        >
+          <Text style={[s.checkText, item.done && s.checkTextDone]}>{item.text}</Text>
+        </TouchableOpacity>
+      )}
+      {onRemove && !editing && (
         <TouchableOpacity onPress={onRemove} hitSlop={8} style={{ padding: 4 }}>
           <Trash2 size={14} color={colors.muted} />
         </TouchableOpacity>
@@ -167,7 +215,11 @@ function AICoachBar({
         onContentSizeChange={() => flatRef.current?.scrollToEnd({ animated: true })}
         renderItem={({ item }) => (
           <View style={[s.bubble, item.role === "user" ? s.bubbleUser : s.bubbleAssistant]}>
-            <Text style={s.bubbleText}>{item.text}</Text>
+            {item.role === "user" ? (
+              <Text style={s.bubbleText}>{item.text}</Text>
+            ) : (
+              <Markdown style={mdStyles}>{item.text}</Markdown>
+            )}
           </View>
         )}
         ListEmptyComponent={<Text style={s.chatEmpty}>Zeptej se na cokoliv.</Text>}
@@ -209,6 +261,10 @@ export default function ManualDashboard() {
   const [ritualItems, setRitualItems] = useState<{ morning: RitualItem[]; daily: RitualItem[]; evening: RitualItem[] }>({
     morning: [], daily: [], evening: [],
   });
+  const [ritualDays, setRitualDays] = useState<string[]>([]);
+  const [ritualHistory, setRitualHistory] = useState<Record<string, Set<string>>>({});
+  const [ritualDayIdx, setRitualDayIdx] = useState(-1);
+  const [ritualSelectionRaw, setRitualSelectionRaw] = useState<{ morning?: string[]; daily?: string[]; evening?: string[] } | null>(null);
 
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -266,15 +322,20 @@ export default function ManualDashboard() {
           morning: [], daily: [], evening: [],
         };
 
+        const parseName = (id: string) => {
+          if (id.startsWith("custom::")) return id.split("::")[1] ?? id;
+          return id.replace(/-/g, " ").replace(/^\w/, c => c.toUpperCase());
+        };
+
         if (Array.isArray(ctx.rituals)) {
           // Format A: [{slot, name, ritualId?}, ...]
           for (const r of ctx.rituals as { slot: string; name: string; ritualId?: string }[]) {
             const slotKey = SLOT_MAP[r.slot] || SLOT_MAP[r.slot?.toLowerCase()];
             if (slotKey && grouped[slotKey]) {
-              // Use ritualId (original ID like "cold-shower") if available, fall back to name
               const id = r.ritualId || r.name;
+              const displayName = id.startsWith("custom::") ? parseName(id) : r.name;
               grouped[slotKey].push({
-                id, name: r.name,
+                id, name: displayName,
                 done: completedToday.has(id),
                 streak: stats[id] ?? 0,
               });
@@ -283,10 +344,6 @@ export default function ManualDashboard() {
         } else if (typeof ctx.rituals === "object") {
           // Format B: {morning: ["id1", ...], daily: [...], evening: [...]}
           const sel = ctx.rituals as { morning?: string[]; daily?: string[]; evening?: string[] };
-          const parseName = (id: string) => {
-            if (id.startsWith("custom::")) return id.split("::")[1] ?? id;
-            return id.replace(/-/g, " ").replace(/^\w/, c => c.toUpperCase());
-          };
           for (const slot of ["morning", "daily", "evening"] as const) {
             for (const id of sel[slot] ?? []) {
               grouped[slot].push({
@@ -299,7 +356,30 @@ export default function ManualDashboard() {
         }
 
         setRitualItems(grouped);
+        setRitualSelectionRaw(typeof ctx.rituals === "object" && !Array.isArray(ctx.rituals) ? ctx.rituals as any : null);
+
+        // Sync widget with latest data
+        syncWidgetData(
+          data.todos.today?.todos ?? [],
+          data.todos.today?.niceTodos ?? [],
+          grouped
+        );
       }
+
+      // Load full ritual history with days
+      try {
+        const full = await getRitualCompletionsFull();
+        const loadedDays = full.days ?? [];
+        setRitualDays(loadedDays);
+        const h: Record<string, Set<string>> = {};
+        for (const [rid, dates] of Object.entries(full.history ?? {})) {
+          h[rid] = new Set(dates as string[]);
+        }
+        setRitualHistory(h);
+        if (loadedDays.length > 0) {
+          setRitualDayIdx(prev => prev === -1 ? loadedDays.length - 1 : prev);
+        }
+      } catch {}
     } catch (err) {
       console.error("Dashboard load error:", err);
       setLoadError(true);
@@ -322,6 +402,7 @@ export default function ManualDashboard() {
 
   const saveTodos = async (t: TodoItem[], n: TodoItem[]) => {
     setTodos(t); setNiceTodos(n);
+    syncWidgetData(t, n, ritualItems);
     try { await saveDailyTodos(t, n); } catch {}
   };
 
@@ -347,16 +428,45 @@ export default function ManualDashboard() {
     savePriorities(u);
   };
 
+  const editPriority = (scope: keyof PrioritiesData, idx: number, newText: string) => {
+    const u = { ...priorities, [scope]: priorities[scope].map((p, i) => i === idx ? { ...p, text: newText } : p) };
+    savePriorities(u);
+  };
+
   // ── Ritual actions ──
+
+  const selectedRitualDate = ritualDays[ritualDayIdx] ?? "";
+  const todayRitualDate = ritualDays.length > 0 ? ritualDays[ritualDays.length - 1] : "";
+  const isRitualToday = selectedRitualDate === todayRitualDate;
+
+  const isRitualDoneOnDay = (ritualId: string) => {
+    if (!selectedRitualDate) return false;
+    return ritualHistory[ritualId]?.has(selectedRitualDate) ?? false;
+  };
 
   const handleToggleRitual = async (slot: "morning" | "daily" | "evening", idx: number) => {
     const item = ritualItems[slot][idx];
-    const newDone = !item.done;
-    setRitualItems(prev => ({
-      ...prev,
-      [slot]: prev[slot].map((r, i) => i === idx ? { ...r, done: newDone } : r),
-    }));
-    try { await toggleRitualCompletion(item.id, newDone); } catch {}
+    const isDone = isRitualDoneOnDay(item.id);
+    const newDone = !isDone;
+
+    // Optimistic history update
+    setRitualHistory(prev => {
+      const newSet = new Set(prev[item.id] ?? []);
+      if (isDone) newSet.delete(selectedRitualDate); else newSet.add(selectedRitualDate);
+      return { ...prev, [item.id]: newSet };
+    });
+
+    // Also update ritualItems.done if viewing today
+    if (isRitualToday) {
+      const updatedRituals = {
+        ...ritualItems,
+        [slot]: ritualItems[slot].map((r, i) => i === idx ? { ...r, done: newDone } : r),
+      };
+      setRitualItems(updatedRituals);
+      syncWidgetData(todos, niceTodos, updatedRituals);
+    }
+
+    try { await toggleRitualCompletion(item.id, newDone, selectedRitualDate); } catch {}
   };
 
   // ── AI ──
@@ -404,6 +514,7 @@ export default function ManualDashboard() {
           accentColor={colors.accent}
           onToggle={() => saveTodos(todos.map((t, j) => j === i ? { ...t, done: !t.done } : t), niceTodos)}
           onRemove={() => saveTodos(todos.filter((_, j) => j !== i), niceTodos)}
+          onEdit={(newText) => saveTodos(todos.map((t, j) => j === i ? { ...t, text: newText } : t), niceTodos)}
         />
       ))}
       <AddInline
@@ -423,6 +534,7 @@ export default function ManualDashboard() {
           accentColor={colors.accent}
           onToggle={() => saveTodos(todos, niceTodos.map((t, j) => j === i ? { ...t, done: !t.done } : t))}
           onRemove={() => saveTodos(todos, niceTodos.filter((_, j) => j !== i))}
+          onEdit={(newText) => saveTodos(todos, niceTodos.map((t, j) => j === i ? { ...t, text: newText } : t))}
         />
       ))}
       <AddInline
@@ -516,6 +628,7 @@ export default function ManualDashboard() {
                     item={item}
                     onToggle={() => togglePriority(scope, realIdx)}
                     onRemove={() => removePriority(scope, realIdx)}
+                    onEdit={(newText) => editPriority(scope, realIdx, newText)}
                   />
                 );
               })}
@@ -530,6 +643,16 @@ export default function ManualDashboard() {
     );
   };
 
+  const formatRitualDayLabel = (dateStr: string) => {
+    if (dateStr === todayRitualDate) return "Dnes";
+    const d = new Date(dateStr + "T12:00:00");
+    const today = new Date(todayRitualDate + "T12:00:00");
+    const diff = Math.round((today.getTime() - d.getTime()) / 86400000);
+    if (diff === 1) return "Včera";
+    const dayNames = ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"];
+    return `${dayNames[d.getDay()]} ${d.getDate()}.${d.getMonth() + 1}.`;
+  };
+
   const renderRituals = () => {
     const slots = [
       { key: "morning" as const, label: "Ráno 🌅", items: ritualItems.morning },
@@ -537,10 +660,35 @@ export default function ManualDashboard() {
       { key: "evening" as const, label: "Večer 🌙", items: ritualItems.evening },
     ];
     const total = slots.reduce((a, s) => a + s.items.length, 0);
-    const doneCount = slots.reduce((a, s) => a + s.items.filter(i => i.done).length, 0);
+    const doneCount = slots.reduce((a, s) => a + s.items.filter(i => isRitualDoneOnDay(i.id)).length, 0);
+    const canLeft = ritualDayIdx > 0;
+    const canRight = ritualDayIdx < ritualDays.length - 1;
 
     return (
       <View>
+        {/* Day navigator */}
+        {ritualDays.length > 1 && (
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 12, gap: 12 }}>
+            <TouchableOpacity
+              onPress={() => canLeft && setRitualDayIdx(i => i - 1)}
+              disabled={!canLeft}
+              style={{ padding: 6, opacity: canLeft ? 1 : 0.2 }}
+            >
+              <ChevronLeft size={20} color={colors.foreground} />
+            </TouchableOpacity>
+            <Text style={{ fontSize: 14, fontWeight: "700", color: isRitualToday ? colors.accent : colors.foreground, minWidth: 100, textAlign: "center" }}>
+              {selectedRitualDate ? formatRitualDayLabel(selectedRitualDate) : ""}
+            </Text>
+            <TouchableOpacity
+              onPress={() => canRight && setRitualDayIdx(i => i + 1)}
+              disabled={!canRight}
+              style={{ padding: 6, opacity: canRight ? 1 : 0.2 }}
+            >
+              <ChevronRight size={20} color={colors.foreground} />
+            </TouchableOpacity>
+          </View>
+        )}
+
         {total > 0 && (
           <View style={s.progressRow}>
             <View style={s.progressBg}>
@@ -553,18 +701,21 @@ export default function ManualDashboard() {
           <View key={slot.key} style={s.ritualSlot}>
             <Text style={s.ritualSlotLabel}>{slot.label}</Text>
             {slot.items.length === 0 && <Text style={s.emptyText}>Žádné rituály</Text>}
-            {slot.items.map((item, i) => (
-              <View key={i} style={s.checkRow}>
-                <TouchableOpacity
-                  style={[s.checkbox, item.done && { backgroundColor: colors.accent, borderColor: colors.accent }]}
-                  onPress={() => handleToggleRitual(slot.key, i)}
-                >
-                  {item.done && <Check size={12} color="#fff" />}
-                </TouchableOpacity>
-                <Text style={[s.checkText, item.done && s.checkTextDone, { flex: 1 }]}>{item.name}</Text>
-                {item.streak > 0 && <Text style={s.streakText}>{item.streak}×</Text>}
-              </View>
-            ))}
+            {slot.items.map((item, i) => {
+              const done = isRitualDoneOnDay(item.id);
+              return (
+                <View key={i} style={s.checkRow}>
+                  <TouchableOpacity
+                    style={[s.checkbox, done && { backgroundColor: colors.accent, borderColor: colors.accent }]}
+                    onPress={() => handleToggleRitual(slot.key, i)}
+                  >
+                    {done && <Check size={12} color="#fff" />}
+                  </TouchableOpacity>
+                  <Text style={[s.checkText, done && s.checkTextDone, { flex: 1 }]}>{item.name}</Text>
+                  {item.streak > 0 && <Text style={s.streakText}>{item.streak}×</Text>}
+                </View>
+              );
+            })}
           </View>
         ))}
         {total === 0 && (
