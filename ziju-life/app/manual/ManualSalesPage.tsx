@@ -303,8 +303,10 @@ function ManualContent() {
             Manuál
           </h1>
           <p className="text-lg text-foreground/65 leading-relaxed mb-10 max-w-xl mx-auto">
-            Interaktivní cvičení, doprovodná aplikace pro každodenní život a AI průvodce
-            pro více vědomý život. Experimentuj sám se sebou — a poskládej si život podle sebe.
+            Posledních 10 let si buduji vlastní systém na to, jak žít vědomě. Složil jsem ho z&nbsp;toho,
+            co mi reálně funguje — denní rituály, priority, hodnoty, směřování. Tady ti ho dávám
+            k&nbsp;dispozici. Není to univerzální návod — je to framework, který si ohneš podle sebe.
+            Vezmi si, co ti sedí. Zbytek klidně zahoď.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <AccessButton loading={buying} onClick={handleBuy} />
