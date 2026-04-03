@@ -47,7 +47,16 @@ export type KompasData = {
   reflectionAnswers:  Record<string, string>   // kept for backwards compat
   areaAnswers:        Record<string, string[]>
   focusArea?:         string                   // oblast vybraná uživatelem pro tento měsíc
+  actionSteps?:       string[]                 // 1–3 konkrétní kroky na příští měsíc
   completedAt:        string
+  reflectionDueAt?:   string                   // completedAt + 30 dní
+  reflectionHistory?: ReflectionEntry[]        // historie reflexí
+}
+
+export type ReflectionEntry = {
+  completedSteps:  boolean[]       // které kroky uživatel splnil
+  previousSteps:   string[]        // kroky, na které se ptal
+  reflectedAt:     string
 }
 
 // ── Spider SVG ───────────────────────────────────────────────────────────────
@@ -347,13 +356,15 @@ function SlideGoalSpider({
 // ── Slide: Oblast ───────────────────────────────────────────────────────────
 
 function SlideArea({
-  area, current, goal, answers, onChange,
+  area, current, goal, answers, onChange, actionSteps, onActionStepsChange,
 }: {
   area:     typeof WHEEL_AREAS[number]
   current:  number
   goal:     number
   answers:  string[]
   onChange: (v: string[]) => void
+  actionSteps:          string[]
+  onActionStepsChange:  (v: string[]) => void
 }) {
   return (
     <div className="space-y-4">
@@ -385,6 +396,32 @@ function SlideArea({
             />
           </div>
         ))}
+
+        {/* 5. Konkrétní kroky na příští měsíc */}
+        <div className="space-y-2 pt-2 border-t border-black/[0.06]">
+          <label className="text-sm font-medium text-foreground/65 block leading-snug">
+            <span className="text-foreground/30 mr-1.5">5.</span>Což znamená, že v příštím měsíci se zaměřím na tyto konkrétní kroky:
+          </label>
+          {[0, 1, 2].map(i => (
+            <div key={i} className="flex items-start gap-2">
+              <span className="text-xs font-bold text-foreground/25 pt-2.5 w-4 text-right flex-shrink-0">{i + 1}.</span>
+              <input
+                type="text"
+                value={actionSteps[i] ?? ""}
+                onChange={e => {
+                  const next = [...actionSteps]
+                  next[i] = e.target.value
+                  onActionStepsChange(next)
+                }}
+                placeholder={i === 0 ? "Např. 3× týdně běhání po 20 min" : i === 1 ? "Volitelný krok…" : "Volitelný krok…"}
+                className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 focus:bg-white transition-all"
+              />
+            </div>
+          ))}
+          <p className="text-[11px] text-foreground/35 leading-relaxed">
+            Za měsíc se ti tu zobrazí připomínka k reflexi — podíváš se, co se povedlo, a nastavíš si nový směr.
+          </p>
+        </div>
       </div>
     </div>
   )
@@ -478,6 +515,7 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
   const [areaAnswers, setAreaAnswers] = useState<Record<string, string[]>>(
     Object.fromEntries(WHEEL_AREAS.map(a => [a.key, ["", "", "", ""]]))
   )
+  const [actionSteps, setActionSteps] = useState<string[]>(["", "", ""])
   // Default focus = area with biggest positive gap
   const defaultFocus = WHEEL_AREAS.reduce((best, a) => {
     const d = (goalVals[a.key] ?? 5) - (currentVals[a.key] ?? 5)
@@ -500,7 +538,15 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
 
   const handleNext = () => {
     if (isLastSlide) {
-      onComplete({ currentVals, goalVals, reflectionAnswers: {}, areaAnswers, focusArea, completedAt: new Date().toISOString() })
+      const now = new Date()
+      const dueDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+      const filledSteps = actionSteps.filter(s => s.trim())
+      onComplete({
+        currentVals, goalVals, reflectionAnswers: {}, areaAnswers, focusArea,
+        actionSteps: filledSteps.length > 0 ? filledSteps : undefined,
+        completedAt: now.toISOString(),
+        reflectionDueAt: filledSteps.length > 0 ? dueDate.toISOString() : undefined,
+      })
       return
     }
     setSlide(s => s + 1)
@@ -549,6 +595,8 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
         goal={goalVals[focusAreaObj.key] ?? 5}
         answers={areaAnswers[focusAreaObj.key] ?? ["", "", "", ""]}
         onChange={(v: string[]) => setAreaAnswers(prev => ({ ...prev, [focusAreaObj.key]: v }))}
+        actionSteps={actionSteps}
+        onActionStepsChange={setActionSteps}
       />
     )
   }
@@ -595,11 +643,210 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
   )
 }
 
+// ── Reflection flow (po měsíci) ─────────────────────────────────────────────
+
+function ReflectionFlow({
+  data,
+  onComplete,
+  onDismiss,
+}: {
+  data: KompasData
+  onComplete: (updated: KompasData) => void
+  onDismiss: () => void
+}) {
+  const steps = data.actionSteps ?? []
+  const [reflectionStep, setReflectionStep] = useState<"review" | "spider" | "focus">("review")
+  const [completedSteps, setCompletedSteps] = useState<boolean[]>(steps.map(() => false))
+  const [newCurrentVals, setNewCurrentVals] = useState<Record<string, number>>(
+    () => ({ ...data.currentVals })
+  )
+  const [newFocusArea, setNewFocusArea] = useState(data.focusArea ?? "")
+
+  const focusAreaObj = WHEEL_AREAS.find(a => a.key === data.focusArea)
+
+  const handleFinish = () => {
+    const now = new Date()
+    const dueDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+    const entry: ReflectionEntry = {
+      completedSteps,
+      previousSteps: steps,
+      reflectedAt: now.toISOString(),
+    }
+    onComplete({
+      ...data,
+      currentVals: newCurrentVals,
+      focusArea: newFocusArea,
+      actionSteps: [],
+      completedAt: now.toISOString(),
+      reflectionDueAt: dueDate.toISOString(),
+      reflectionHistory: [...(data.reflectionHistory ?? []), entry],
+    })
+  }
+
+  if (reflectionStep === "review") {
+    return (
+      <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600/70">Měsíční reflexe</p>
+          <p className="text-sm text-foreground/60 mt-1 leading-relaxed">
+            Uplynul měsíc od tvého posledního kola života.
+            {focusAreaObj && <> Zaměřil/a ses na <strong>{focusAreaObj.label}</strong>.</>}
+            {" "}Podívej se, co se povedlo:
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          {steps.map((step, i) => (
+            <button
+              key={i}
+              onClick={() => setCompletedSteps(prev => {
+                const next = [...prev]
+                next[i] = !next[i]
+                return next
+              })}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border-2 text-left transition-all"
+              style={completedSteps[i]
+                ? { borderColor: "#22c55e", background: "rgba(34,197,94,0.06)" }
+                : { borderColor: "rgba(0,0,0,0.07)", background: "rgba(255,255,255,0.5)" }
+              }
+            >
+              <span className="w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all text-xs"
+                style={completedSteps[i]
+                  ? { borderColor: "#22c55e", background: "#22c55e", color: "white" }
+                  : { borderColor: "rgba(0,0,0,0.2)" }
+                }
+              >
+                {completedSteps[i] && "✓"}
+              </span>
+              <span className="flex-1 text-sm text-foreground/70">{step}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <button
+            onClick={onDismiss}
+            className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+          >
+            Později
+          </button>
+          <button
+            onClick={() => setReflectionStep("spider")}
+            className="flex-1 py-2.5 text-white rounded-full font-bold text-sm transition-colors"
+            style={{ background: COLOR_ORANGE }}
+          >
+            Dál — nový pavouk →
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (reflectionStep === "spider") {
+    return (
+      <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600/70">Nový pavouk</p>
+          <p className="text-sm text-foreground/60 mt-1 leading-relaxed">
+            Jak vypadá tvůj život teď? Aktualizuj hodnocení oblastí po měsíci práce.
+          </p>
+        </div>
+
+        <div className="flex justify-center">
+          <SpiderSVG
+            vals={newCurrentVals}
+            goalVals={data.goalVals}
+            size={260}
+            interactiveVals="current"
+            onChangeVals={setNewCurrentVals}
+          />
+        </div>
+
+        <div className="space-y-2.5 pt-1 border-t border-black/[0.05]">
+          {WHEEL_AREAS.map(a => {
+            const prev = data.currentVals[a.key] ?? 5
+            const now  = newCurrentVals[a.key] ?? 5
+            const diff = now - prev
+            return (
+              <SegmentBar
+                key={a.key}
+                area={a.key}
+                value={now}
+                color={COLOR_ORANGE}
+                label={a.label}
+                subLabel={diff !== 0 ? `před: ${prev} (${diff > 0 ? "+" : ""}${diff})` : `před: ${prev}`}
+                onChange={v => setNewCurrentVals(prev => ({ ...prev, [a.key]: v }))}
+              />
+            )
+          })}
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <button
+            onClick={() => setReflectionStep("review")}
+            className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+          >
+            ← Zpět
+          </button>
+          <button
+            onClick={() => setReflectionStep("focus")}
+            className="flex-1 py-2.5 text-white rounded-full font-bold text-sm transition-colors"
+            style={{ background: COLOR_ORANGE }}
+          >
+            Dál — vyber oblast →
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // focus step
+  return (
+    <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600/70">Nový fokus</p>
+        <p className="text-sm text-foreground/60 mt-1 leading-relaxed">
+          Na kterou oblast se chceš zaměřit příští měsíc?
+        </p>
+      </div>
+
+      <SlideFocusArea
+        currentVals={newCurrentVals}
+        goalVals={data.goalVals}
+        focusArea={newFocusArea}
+        onChange={setNewFocusArea}
+      />
+
+      <div className="flex gap-2 pt-2">
+        <button
+          onClick={() => setReflectionStep("spider")}
+          className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+        >
+          ← Zpět
+        </button>
+        <button
+          onClick={handleFinish}
+          disabled={!newFocusArea}
+          className="flex-1 py-2.5 text-white rounded-full font-bold text-sm transition-colors disabled:opacity-40"
+          style={{ background: COLOR_ORANGE }}
+        >
+          Dokončit reflexi ✓
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ── Dashboard view ───────────────────────────────────────────────────────────
 
-function KompasDashboard({ data, onReset }: { data: KompasData; onReset: () => void }) {
+function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onReset: () => void; onUpdate: (d: KompasData) => void }) {
   const [confirmReset, setConfirmReset] = useState(false)
   const [areaIndex, setAreaIndex]       = useState(0)
+  const [showReflection, setShowReflection] = useState(false)
+  const [reflectionDismissed, setReflectionDismissed] = useState(false)
+
+  const isReflectionDue = !reflectionDismissed && data.reflectionDueAt && new Date(data.reflectionDueAt) <= new Date()
+  const hasActionSteps = (data.actionSteps ?? []).filter(s => s.trim()).length > 0
 
   // Sort areas by priority: score = goal + (goal - current) = 2*goal - current
   const sortedAreas = [...WHEEL_AREAS].sort((a, b) => {
@@ -648,10 +895,64 @@ function KompasDashboard({ data, onReset }: { data: KompasData; onReset: () => v
         )}
       </div>
 
+      {/* Reflection flow */}
+      {showReflection && hasActionSteps && (
+        <ReflectionFlow
+          data={data}
+          onComplete={(updated) => {
+            onUpdate(updated)
+            setShowReflection(false)
+          }}
+          onDismiss={() => {
+            setShowReflection(false)
+            setReflectionDismissed(true)
+          }}
+        />
+      )}
+
+      {/* Reflection due banner */}
+      {!showReflection && isReflectionDue && hasActionSteps && (
+        <button
+          onClick={() => setShowReflection(true)}
+          className="w-full rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 text-left transition-all hover:border-amber-300 hover:shadow-md"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl flex-shrink-0">🔄</span>
+            <div>
+              <p className="text-sm font-bold text-foreground">Je čas na měsíční reflexi</p>
+              <p className="text-xs text-foreground/50 mt-0.5">
+                Uplynul měsíc — podívej se, co se povedlo, a nastav si nový směr.
+              </p>
+            </div>
+            <span className="ml-auto text-foreground/30 text-sm">→</span>
+          </div>
+        </button>
+      )}
+
+      {/* Akční kroky (pokud nejsou v reflexi) */}
+      {!showReflection && hasActionSteps && (
+        <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">
+            Moje kroky na tento měsíc
+          </p>
+          {(data.actionSteps ?? []).filter(s => s.trim()).map((step, i) => (
+            <div key={i} className="flex items-center gap-2.5">
+              <span className="text-xs font-bold text-foreground/25 w-4 text-right flex-shrink-0">{i + 1}.</span>
+              <p className="text-sm text-foreground/65">{step}</p>
+            </div>
+          ))}
+          {data.reflectionDueAt && !isReflectionDue && (
+            <p className="text-[11px] text-foreground/30 pt-1">
+              Reflexe: {new Date(data.reflectionDueAt).toLocaleDateString("cs-CZ", { day: "numeric", month: "long" })}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Combined spider */}
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Kompas</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Kolo života</p>
           <div className="flex items-center gap-4 text-[11px] text-foreground/45">
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-1 rounded-full" style={{ background: COLOR_ORANGE }} />
@@ -857,7 +1158,7 @@ export default function KompasFlow({ onSaved }: { onSaved?: () => void } = {}) {
   }
 
   if (phase === "done" && kompasData) {
-    return <KompasDashboard data={kompasData} onReset={handleReset} />
+    return <KompasDashboard data={kompasData} onReset={handleReset} onUpdate={handleComplete} />
   }
 
   return <KompasFlowSlides onComplete={handleComplete} />

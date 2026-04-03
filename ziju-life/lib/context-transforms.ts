@@ -38,7 +38,10 @@ export function kompasFromApi(apiData: unknown): KompasData | null {
       reflectionAnswers: (d.reflectionAnswers ?? {}) as Record<string, string>,
       areaAnswers: (d.areaAnswers ?? {}) as Record<string, string[]>,
       focusArea: d.focusArea as string | undefined,
+      actionSteps: d.actionSteps as string[] | undefined,
       completedAt: (d.completedAt ?? "") as string,
+      reflectionDueAt: d.reflectionDueAt as string | undefined,
+      reflectionHistory: d.reflectionHistory as KompasData["reflectionHistory"],
     }
   }
 

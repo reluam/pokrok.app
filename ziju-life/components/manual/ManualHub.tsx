@@ -2,9 +2,26 @@
 
 import { useState, useCallback } from "react";
 import { SECTIONS, EXERCISES, getExercisesBySection, type ExerciseDefinition, type ExerciseState } from "@/lib/exercise-registry";
+import type {
+  PhilosophyData, QuarterlyCheckinData, IkigaiData, EnergyAuditData,
+  BeliefsData, RelationshipMapData, AreaSetupData, VisionData, IdealDayData,
+  FuneralSpeechData, DailyValuesData,
+} from "@/lib/exercise-registry";
 import { WHEEL_AREAS } from "./shared";
 import { CompletionScreen } from "./CompletionScreen";
 import { ToolTopBar } from "./ToolTopBar";
+import { DashboardSection } from "./cards/DashboardCard";
+import { KoloZivotaCard } from "./cards/KoloZivotaCard";
+import { HodnotyDailyCard } from "./cards/HodnotyDailyCard";
+import { DenZa5LetCard } from "./cards/DenZa5LetCard";
+import { SmutecniRecCard } from "./cards/SmutecniRecCard";
+import { FilozofieCard } from "./cards/FilozofieCard";
+import { CtvrtletniCard } from "./cards/CtvrtletniCard";
+import { IkigaiCard } from "./cards/IkigaiCard";
+import { EnergieCard } from "./cards/EnergieCard";
+import { PresvedceniCard } from "./cards/PresvedceniCard";
+import { VztahyCard } from "./cards/VztahyCard";
+import { OblastiCard } from "./cards/OblastiCard";
 import KompasFlow, { type KompasData } from "@/components/KompasFlow";
 import HodnotyFlow, { PrintHodnotyButton, type HodnotyData } from "@/components/HodnotyFlow";
 import dynamic from "next/dynamic";
@@ -16,6 +33,7 @@ const IkigaiFlow = dynamic(() => import("./IkigaiFlow"), { ssr: false });
 const EnergyAuditFlow = dynamic(() => import("./EnergyAuditFlow"), { ssr: false });
 const BeliefsFlow = dynamic(() => import("./BeliefsFlow"), { ssr: false });
 const RelationshipMapFlow = dynamic(() => import("./RelationshipMapFlow"), { ssr: false });
+const SmutecniRecFlow = dynamic(() => import("./SmutecniRecFlow"), { ssr: false });
 
 type RitualSelection = { morning: string[]; daily: string[]; evening: string[]; durationOverrides?: Record<string, number> };
 
@@ -129,42 +147,92 @@ export function ManualHub({
     onContextChanged();
   }, [onContextChanged]);
 
-  // ── Render active exercise ──
+  // Shared save function for all cards
+  const saveContext = useCallback(async (type: string, data: unknown) => {
+    try {
+      await fetch("/api/manual/user-context", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, data }),
+      });
+    } catch {}
+    onContextChanged();
+  }, [onContextChanged]);
+
+  // ── Render active exercise (full-screen flows for Kompas, Hodnoty, Oblasti) ──
   if (activeExercise) {
     return renderExercise(activeExercise, justCompleted, context, goBack, handleComplete, onContextChanged);
   }
 
-  // ── Hub grid ──
+  // ── Extract context data ──
+  const kompasData = context.compass as KompasData | null;
+  const hodnotyData = context.values as HodnotyData | null;
+  const visionData = context.vision as (VisionData | IdealDayData) | null;
+  const funeralData = (context["funeral-speech"] as FuneralSpeechData | null) ?? migrateFuneralSpeech(context.vision);
+  const philosophyData = context.philosophy as PhilosophyData | null;
+  const quarterlyData = context.quarterly as QuarterlyCheckinData | null;
+  const ikigaiData = context.ikigai as IkigaiData | null;
+  const energyData = context.energy as EnergyAuditData | null;
+  const beliefsData = context.beliefs as BeliefsData | null;
+  const relationshipsData = context.relationships as RelationshipMapData | null;
+  const areasData = context.areas as AreaSetupData | null;
+  const dailyValuesData = context["daily-values"] as DailyValuesData | null;
+
+  // ── Dashboard ──
   return (
     <div className="space-y-8">
-      {SECTIONS.map((section) => {
-        const exercises = getExercisesBySection(section.id);
-        return (
-          <div key={section.id} className="space-y-3">
-            <div>
-              <h2 className="text-lg font-bold text-foreground">{section.title}</h2>
-              <p className="text-sm text-foreground/50">{section.description}</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {exercises.map((ex) => {
-                const data = context[ex.contextType] ?? null;
-                const state = ex.getState(data);
-                return (
-                  <ExerciseCard
-                    key={ex.id}
-                    exercise={ex}
-                    state={state}
-                    contextData={data}
-                    onOpen={() => setActiveExercise(ex.id)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+
+      {/* ── Audit života ── */}
+      <DashboardSection title="Audit života">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+          <KoloZivotaCard data={kompasData} saveContext={saveContext} />
+          <HodnotyDailyCard
+            hodnotyData={hodnotyData}
+            dailyData={dailyValuesData}
+            saveContext={saveContext}
+            onTabChange={() => setActiveExercise("hodnoty")}
+          />
+        </div>
+      </DashboardSection>
+
+      {/* ── Směřování ── */}
+      <DashboardSection title="Směřování">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DenZa5LetCard data={visionData} saveContext={saveContext} />
+          <SmutecniRecCard data={funeralData} saveContext={saveContext} />
+        </div>
+        <FilozofieCard data={philosophyData} saveContext={saveContext} />
+        <CtvrtletniCard data={quarterlyData} saveContext={saveContext} />
+      </DashboardSection>
+
+      {/* ── Hlubší poznání ── */}
+      <DashboardSection title="Hlubší poznání">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <IkigaiCard data={ikigaiData} saveContext={saveContext} />
+          <EnergieCard data={energyData} saveContext={saveContext} />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <PresvedceniCard data={beliefsData} saveContext={saveContext} />
+          <VztahyCard data={relationshipsData} saveContext={saveContext} />
+        </div>
+      </DashboardSection>
+
+      {/* ── Nastavení ── */}
+      <DashboardSection title="Nastavení">
+        <OblastiCard data={areasData} saveContext={saveContext} />
+      </DashboardSection>
     </div>
   );
+}
+
+/** Migrate old VisionData.eightyBirthday → FuneralSpeechData */
+function migrateFuneralSpeech(vision: unknown): FuneralSpeechData | null {
+  if (!vision || typeof vision !== "object") return null;
+  const v = vision as VisionData;
+  if (!v.eightyBirthday) return null;
+  const { partner, children, colleagues } = v.eightyBirthday;
+  if (!partner && !children && !colleagues) return null;
+  return { rodina: partner ?? "", blizci: children ?? "", znami: colleagues ?? "", savedAt: v.savedAt ?? "" };
 }
 
 // ── Exercise renderer ────────────────────────────────────────────────────────
@@ -196,8 +264,8 @@ function renderExercise(
         : null;
       return (
         <CompletionScreen
-          emoji="🧭"
-          title="Kompas uložen!"
+          emoji="🎯"
+          title="Kolo života uloženo!"
           summary={
             <div className="space-y-3">
               {focusLabel && (
@@ -328,6 +396,23 @@ function renderExercise(
             onContextChanged();
           }}
           onComplete={() => { onComplete("vize"); onContextChanged(); }}
+        />
+      </div>
+    );
+  }
+
+  // ── Smuteční řeč ──
+  if (exerciseId === "smutecni-rec") {
+    return (
+      <div>
+        {backButton}
+        <SmutecniRecFlow
+          initialData={context["funeral-speech"] as any ?? null}
+          onSave={async (data) => {
+            await fetch("/api/manual/user-context", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "funeral-speech", data }) });
+            onContextChanged();
+          }}
+          onComplete={() => { onComplete("smutecni-rec"); onContextChanged(); }}
         />
       </div>
     );

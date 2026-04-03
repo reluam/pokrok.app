@@ -10,7 +10,7 @@ import {
 import JourneyFlow, { type JourneyState } from "@/components/JourneyFlow";
 
 export const metadata: Metadata = {
-  title: "Kompas | Manuál | Žiju life",
+  title: "Kolo života | Manuál | Žiju life",
   description:
     "Projdi životní cestu zastávku po zastávce. Sedm kroků, cvičení, šablony a materiály — vše v jednom průvodci.",
 };

@@ -32,6 +32,23 @@ export type VisionData = {
   savedAt: string;
 };
 
+// New split types for dashboard
+export type IdealDayData = {
+  idealDay: string;
+  savedAt: string;
+};
+
+export type FuneralSpeechData = {
+  rodina: string;
+  blizci: string;
+  znami: string;
+  savedAt: string;
+};
+
+export type DailyValuesData = {
+  entries: { date: string; scores: Record<string, number> }[];
+};
+
 export type PhilosophyData = {
   statement: string;
   principles: string[];
@@ -107,9 +124,9 @@ export const EXERCISES: ExerciseDefinition[] = [
     id: "kompas",
     contextType: "compass",
     section: "audit",
-    emoji: "🧭",
-    title: "Kompas",
-    description: "Ohodnoť 8 životních oblastí — aktuální stav a cíl za 5 let.",
+    emoji: "🎯",
+    title: "Kolo života",
+    description: "Ohodnoť 8 životních oblastí — aktuální stav a cíl.",
     getState: (data) => {
       const d = data as KompasData | null;
       if (!d) return "not_started";
@@ -178,20 +195,41 @@ export const EXERCISES: ExerciseDefinition[] = [
     contextType: "vision",
     section: "smerovani",
     emoji: "🔭",
-    title: "Vize",
-    description: "Popiš svůj ideální den za 5 let a zamysli se nad svým odkazem.",
+    title: "Den za 5 let",
+    description: "Popiš svůj ideální den za 5 let — kde jsi, s kým, co děláš.",
     getState: (data) => {
-      const d = data as VisionData | null;
+      const d = data as VisionData | IdealDayData | null;
       if (!d) return "not_started";
       if (d.idealDay && d.savedAt) return "completed";
-      if (d.idealDay || d.eightyBirthday?.partner) return "in_progress";
+      if (d.idealDay) return "in_progress";
       return "not_started";
     },
     getSummary: (data) => {
-      const d = data as VisionData | null;
+      const d = data as VisionData | IdealDayData | null;
       if (!d?.idealDay) return null;
       const preview = d.idealDay.slice(0, 80) + (d.idealDay.length > 80 ? "…" : "");
       return { label: preview };
+    },
+  },
+  {
+    id: "smutecni-rec",
+    contextType: "funeral-speech",
+    section: "smerovani",
+    emoji: "🕯️",
+    title: "Smuteční řeč",
+    description: "Co bys chtěl, aby o tobě řekla rodina, blízcí a známí?",
+    getState: (data) => {
+      const d = data as FuneralSpeechData | null;
+      if (!d) return "not_started";
+      if (d.savedAt && (d.rodina || d.blizci || d.znami)) return "completed";
+      if (d.rodina || d.blizci || d.znami) return "in_progress";
+      return "not_started";
+    },
+    getSummary: (data) => {
+      const d = data as FuneralSpeechData | null;
+      if (!d?.rodina && !d?.blizci && !d?.znami) return null;
+      const filled = [d.rodina, d.blizci, d.znami].filter(Boolean).length;
+      return { label: `${filled}/3 řečí napsáno` };
     },
   },
   {

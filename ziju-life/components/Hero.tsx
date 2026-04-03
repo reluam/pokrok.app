@@ -57,7 +57,7 @@ function HeroContent() {
         {...fadeInUp}
         transition={{ ...fadeInUp.transition, delay: 0.1 }}
       >
-        Přestaň život plánovat. Začni ho <span className="hand-drawn-underline">žít</span>.
+        Přestaň život plánovat. Začni ho <span className="hand-drawn-underline">žít.</span>
       </motion.h1>
 
       <motion.p

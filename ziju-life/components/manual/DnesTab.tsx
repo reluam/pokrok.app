@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { WHEEL_AREAS, type CheckinEntry } from "./shared";
+import { type CheckinEntry } from "./shared";
 import { Sparkline, AreaSparklines } from "./charts/Sparkline";
 import { WeeklyCheckinWidget } from "./WeeklyCheckinWidget";
 import { MonthlyReflexionCard } from "./MonthlyReflexionCard";
