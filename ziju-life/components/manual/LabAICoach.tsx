@@ -278,7 +278,7 @@ export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
               <div className="w-16 h-1.5 bg-black/10 rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all" style={{ width: `${budgetPct}%`, background: budgetPct > 80 ? "#ef4444" : budgetPct > 50 ? "#f59e0b" : "#22c55e" }} />
               </div>
-              <span className="text-xs text-foreground/35">{budgetPct}%</span>
+              <span className="text-base text-foreground/35">{budgetPct}%</span>
             </div>
           )}
           {bubbles.length > 0 && (
@@ -314,7 +314,7 @@ export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
                   {b.recommendations && b.recommendations.length > 0 && (
                     <div className="flex justify-start">
                       <div className="max-w-[90%] space-y-1.5">
-                        <p className="text-sm text-foreground/40 ml-1">Mohlo by ti pomoct:</p>
+                        <p className="text-lg text-foreground/40 ml-1">Mohlo by ti pomoct:</p>
                         {b.recommendations.map((rec, j) => (
                           <button
                             key={rec.slug || rec.id || j}
@@ -328,7 +328,7 @@ export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
                               <span className="text-base leading-none">{rec.icon || "📖"}</span>
                               <p className="text-base font-semibold text-foreground group-hover:text-accent transition-colors">{rec.title}</p>
                             </div>
-                            <p className="text-sm text-foreground/50 mt-1 leading-relaxed">{rec.reason}</p>
+                            <p className="text-lg text-foreground/50 mt-1 leading-relaxed">{rec.reason}</p>
                           </button>
                         ))}
                       </div>
@@ -337,15 +337,15 @@ export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
                   {b.actions && b.actions.length > 0 && (
                     <div className="flex justify-start">
                       <div className="max-w-[90%] space-y-1.5">
-                        <p className="text-sm text-foreground/40 ml-1">Navrhované změny:</p>
+                        <p className="text-lg text-foreground/40 ml-1">Navrhované změny:</p>
                         {b.actions.map((action, j) => (
                           <div key={j} className="rounded-xl border border-blue-200 bg-blue-50/50 px-3.5 py-2.5">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 min-w-0">
                                 <span className="text-base leading-none">{ACTION_ICONS[action.type] ?? "⚡"}</span>
                                 <div className="min-w-0">
-                                  <p className="text-sm font-semibold text-foreground">{ACTION_LABELS[action.type] ?? action.type}</p>
-                                  <p className="text-sm text-foreground/50 truncate">
+                                  <p className="text-lg font-semibold text-foreground">{ACTION_LABELS[action.type] ?? action.type}</p>
+                                  <p className="text-lg text-foreground/50 truncate">
                                     {action.type === "set_priorities" && Array.isArray(action.items) ? (action.items as string[]).join(", ") : ""}
                                     {action.type === "add_priority" ? String(action.text ?? "") : ""}
                                     {action.type === "set_focus_area" ? String(action.area ?? "") : ""}
@@ -369,7 +369,7 @@ export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
                   )}
                   {b.closingNote && (
                     <div className="flex justify-start">
-                      <p className="text-sm text-foreground/45 italic ml-1">{b.closingNote}</p>
+                      <p className="text-lg text-foreground/45 italic ml-1">{b.closingNote}</p>
                     </div>
                   )}
                 </div>
@@ -379,7 +379,7 @@ export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
           {loading && (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-              <p className="text-sm text-foreground/50">Přemýšlím...</p>
+              <p className="text-lg text-foreground/50">Přemýšlím...</p>
             </div>
           )}
           <div ref={bottomRef} />
@@ -388,12 +388,12 @@ export default function LabAICoach({ onSelectTool, onDataChanged }: Props) {
 
       {/* Errors */}
       {error === "no_budget" && (
-        <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800 mb-3">
+        <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-lg text-amber-800 mb-3">
           AI rozpočet je vyčerpaný. Obnoví se s dalším předplatným.
         </div>
       )}
       {error && error !== "no_budget" && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700 flex items-start gap-2 mb-3">
+        <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-lg text-red-700 flex items-start gap-2 mb-3">
           <AlertCircle size={14} className="mt-0.5 flex-shrink-0" /><span>{error}</span>
         </div>
       )}

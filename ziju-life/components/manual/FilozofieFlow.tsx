@@ -36,7 +36,7 @@ export default function FilozofieFlow({
       {/* Examples toggle */}
       <button
         onClick={() => setShowExamples(!showExamples)}
-        className="text-sm text-accent font-semibold hover:underline"
+        className="text-lg text-accent font-semibold hover:underline"
       >
         {showExamples ? "Skrýt příklady" : "Ukázat příklady pro inspiraci"}
       </button>
@@ -66,7 +66,7 @@ export default function FilozofieFlow({
       {/* Optional principles */}
       <div className="space-y-3">
         <label className="text-base font-semibold text-foreground">Hlavní principy <span className="text-foreground/40 font-normal">(volitelné)</span></label>
-        <p className="text-sm text-foreground/40">3–5 principů, podle kterých se chceš řídit.</p>
+        <p className="text-lg text-foreground/40">3–5 principů, podle kterých se chceš řídit.</p>
         {data.principles.map((p, i) => (
           <input
             key={i}

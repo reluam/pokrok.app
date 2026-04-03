@@ -146,18 +146,18 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
       <div className="lg:w-56 shrink-0">
         <div className="bg-white border border-black/8 rounded-[24px] px-5 py-5 space-y-3 lg:sticky lg:top-24">
           <h3 className="text-base font-extrabold text-foreground">Nabídka</h3>
-          <p className="text-sm text-foreground/40 leading-relaxed">
+          <p className="text-lg text-foreground/40 leading-relaxed">
             Přetáhni do sekce vpravo.
           </p>
 
           {catalogByCategory.length === 0 && unusedCustom.length === 0 && (
-            <p className="text-sm text-foreground/30 italic">Vše přidáno.</p>
+            <p className="text-lg text-foreground/30 italic">Vše přidáno.</p>
           )}
 
-          <div className="space-y-3 max-h-[65vh] overflow-y-auto">
+          <div className="space-y-3 max-h-[65vh] overflow-y-auto overscroll-contain">
             {catalogByCategory.map((cat) => (
               <div key={cat.id}>
-                <p className="text-xs font-semibold text-foreground/35 uppercase tracking-wider mb-1.5">
+                <p className="text-base font-semibold text-foreground/35 uppercase tracking-wider mb-1.5">
                   {cat.name}
                 </p>
                 <div className="space-y-0.5">
@@ -169,7 +169,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                       onDragEnd={() => { setDragId(null); setDragOver(null); }}
                       className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-base text-foreground/60 hover:bg-accent/5 hover:text-accent cursor-grab active:cursor-grabbing transition-colors group"
                     >
-                      <span className="text-foreground/15 group-hover:text-accent/40 text-xs">⠿</span>
+                      <span className="text-foreground/15 group-hover:text-accent/40 text-base">⠿</span>
                       <span className="flex-1 leading-snug truncate">{r.name}</span>
                       <div className="hidden group-hover:flex items-center gap-0.5 shrink-0">
                         {slotMeta.filter((s) => r.slots.includes(s.key)).map((s) => (
@@ -178,7 +178,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                             onClick={() => {
                               if (!sel[s.key].includes(r.id)) persist({ ...sel, [s.key]: [...sel[s.key], r.id] });
                             }}
-                            className="text-xs px-1 py-0.5 rounded bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+                            className="text-base px-1 py-0.5 rounded bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
                             title={`Přidat do ${s.label}`}
                           >
                             {s.emoji}
@@ -193,7 +193,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
 
             {unusedCustom.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-foreground/35 uppercase tracking-wider mb-1.5">
+                <p className="text-base font-semibold text-foreground/35 uppercase tracking-wider mb-1.5">
                   Vlastní
                 </p>
                 <div className="space-y-0.5">
@@ -205,7 +205,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                       onDragEnd={() => { setDragId(null); setDragOver(null); }}
                       className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-base text-foreground/60 hover:bg-accent/5 hover:text-accent cursor-grab active:cursor-grabbing transition-colors group"
                     >
-                      <span className="text-foreground/15 group-hover:text-accent/40 text-xs">⠿</span>
+                      <span className="text-foreground/15 group-hover:text-accent/40 text-base">⠿</span>
                       <span className="flex-1 leading-snug truncate">{customName(id)}</span>
                       <div className="hidden group-hover:flex items-center gap-0.5 shrink-0">
                         {slotMeta.map((s) => (
@@ -214,7 +214,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                             onClick={() => {
                               if (!sel[s.key].includes(id)) persist({ ...sel, [s.key]: [...sel[s.key], id] });
                             }}
-                            className="text-xs px-1 py-0.5 rounded bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+                            className="text-base px-1 py-0.5 rounded bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
                             title={`Přidat do ${s.label}`}
                           >
                             {s.emoji}
@@ -243,7 +243,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                   <span className={`text-[8px] block ${date === today ? "text-foreground/40" : "text-foreground/20"}`}>
                     {getDateNum(date)}.
                   </span>
-                  <span className={`text-xs ${date === today ? "font-bold text-foreground/60" : "text-foreground/30"}`}>
+                  <span className={`text-base ${date === today ? "font-bold text-foreground/60" : "text-foreground/30"}`}>
                     {getDayLabel(date)}
                   </span>
                 </div>
@@ -267,7 +267,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                   isOver ? "bg-accent/[0.03]" : ""
                 }`}
               >
-                <p className="text-xs font-semibold text-foreground/40 uppercase tracking-wider mb-2">
+                <p className="text-base font-semibold text-foreground/40 uppercase tracking-wider mb-2">
                   {emoji} {label}
                 </p>
 
@@ -293,7 +293,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                                 <button
                                   key={date}
                                   onClick={() => toggleDay(id, date)}
-                                  className={`text-center py-0.5 rounded-md text-xs font-semibold transition-colors ${
+                                  className={`text-center py-0.5 rounded-md text-base font-semibold transition-colors ${
                                     done
                                       ? "bg-accent/10 text-accent"
                                       : date === today
@@ -308,7 +308,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                             })}
                           </div>
                         )}
-                        <span className="text-xs text-foreground/25 w-5 text-right shrink-0" title="Celkem splněno">
+                        <span className="text-base text-foreground/25 w-5 text-right shrink-0" title="Celkem splněno">
                           {ritualDates.size > 0 ? ritualDates.size : ""}
                         </span>
                       </div>
@@ -316,7 +316,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                   })}
 
                   {isOver && (
-                    <div className="text-sm text-accent/60 italic py-2 text-center border border-dashed border-accent/30 rounded-xl">
+                    <div className="text-lg text-accent/60 italic py-2 text-center border border-dashed border-accent/30 rounded-xl">
                       Pusť sem
                     </div>
                   )}
@@ -338,7 +338,7 @@ export function NastavSiDenTab({ selection, onSave, onComplete, onReset }: {
                 ) : (
                   <button
                     onClick={() => setAddingSlot(key)}
-                    className="text-sm text-foreground/30 hover:text-accent transition-colors mt-1.5"
+                    className="text-lg text-foreground/30 hover:text-accent transition-colors mt-1.5"
                   >
                     + Přidat vlastní
                   </button>

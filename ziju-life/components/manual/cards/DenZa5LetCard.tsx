@@ -52,12 +52,12 @@ function ViewMode({ text }: { text: string }) {
       {isLong && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-sm text-accent hover:opacity-80 transition-opacity"
+          className="text-lg text-accent hover:opacity-80 transition-opacity"
         >
           {expanded ? "Méně" : "Celý text →"}
         </button>
       )}
-      <p className="text-xs text-foreground/25">
+      <p className="text-base text-foreground/25">
         {text.split(/\s+/).filter(Boolean).length} slov
       </p>
     </div>
@@ -88,8 +88,8 @@ function EditMode({
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-sm font-bold text-foreground/70">Popiš svůj ideální den za 5 let</p>
-        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">
+        <p className="text-lg font-bold text-foreground/70">Popiš svůj ideální den za 5 let</p>
+        <p className="text-lg text-foreground/40 mt-0.5 leading-relaxed">
           Zavři oči a představ si běžný den za 5 let. Kde se probouzíš? S kým? Co děláš ráno, přes den, večer? Čím víc detailů, tím lépe — mozek nerozlišuje živou představu od plánu.
         </p>
       </div>
@@ -102,7 +102,7 @@ function EditMode({
       />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className={`text-sm ${words >= 300 ? "text-green-600" : "text-foreground/30"}`}>
+          <span className={`text-lg ${words >= 300 ? "text-green-600" : "text-foreground/30"}`}>
             {words} slov {words < 300 && "(doporučeno 300+)"}
           </span>
           <SaveIndicator saving={saving} saved={saved} />

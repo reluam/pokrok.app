@@ -142,7 +142,7 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
         onDragStart={e => { dragRef.current = val; e.dataTransfer.effectAllowed = "move"; requestAnimationFrame(() => setDragVal(val)) }}
         onDragEnd={cleanup}
         className={[
-          "px-2.5 py-1.5 rounded-xl text-sm font-medium cursor-grab active:cursor-grabbing select-none flex items-center gap-1.5 transition-opacity",
+          "px-2.5 py-1.5 rounded-xl text-lg font-medium cursor-grab active:cursor-grabbing select-none flex items-center gap-1.5 transition-opacity",
           dragVal === val ? "opacity-20" :
           isPrimary   ? "border-2 border-[#FF8C42] bg-orange-50 text-orange-900 shadow-sm" :
           isSecondary ? "border-2 border-orange-200 bg-orange-50/50 text-orange-800" :
@@ -152,7 +152,7 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
         ].join(" ")}
       >
         {col === "strong" && (
-          <span className={`text-xs font-bold flex-shrink-0 ${isPrimary ? "text-orange-400" : isSecondary ? "text-orange-300" : "text-foreground/20"}`}>
+          <span className={`text-base font-bold flex-shrink-0 ${isPrimary ? "text-orange-400" : isSecondary ? "text-orange-300" : "text-foreground/20"}`}>
             {idx + 1}
           </span>
         )}
@@ -179,7 +179,7 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
             isTarget ? "border-[#FF8C42] bg-orange-50/40" :
             i < STRONG_PRIMARY ? "border-orange-200 bg-orange-50/20" : "border-orange-100 bg-orange-50/10"
           }`}>
-            <span className={`text-xs font-bold ${i < STRONG_PRIMARY ? "text-orange-300" : "text-orange-200"}`}>{i + 1}</span>
+            <span className={`text-base font-bold ${i < STRONG_PRIMARY ? "text-orange-300" : "text-orange-200"}`}>{i + 1}</span>
           </div>
         )}
       </div>
@@ -198,8 +198,8 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
         onDrop={e => { if (e.defaultPrevented) return; if (dragRef.current) moveToCol(dragRef.current, colKey); cleanup() }}
       >
         <div className="flex items-center justify-between mb-1.5">
-          <p className="text-xs font-semibold uppercase tracking-wider leading-tight" style={{ color: accent }}>{label}</p>
-          <span className="text-xs text-foreground/30">{cols[colKey].length}</span>
+          <p className="text-base font-semibold uppercase tracking-wider leading-tight" style={{ color: accent }}>{label}</p>
+          <span className="text-base text-foreground/30">{cols[colKey].length}</span>
         </div>
         {children}
       </div>
@@ -212,8 +212,8 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
       {!swipeDone && (
         <>
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Jaké hodnoty ti rezonují?</p>
-            <span className="text-sm text-foreground/40">{swipeIndex + 1} / {values.length}</span>
+            <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Jaké hodnoty ti rezonují?</p>
+            <span className="text-lg text-foreground/40">{swipeIndex + 1} / {values.length}</span>
           </div>
           <div className="h-1 rounded-full bg-black/[0.06]">
             <div className="h-full rounded-full transition-all duration-300"
@@ -224,13 +224,13 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
             <p className="text-base text-foreground/50 mt-2 leading-relaxed">{VALUE_DESCRIPTIONS[values[swipeIndex]]}</p>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <button onClick={() => rate("no")} className="px-3 py-3 rounded-xl border-2 border-black/10 bg-white/80 text-foreground/50 font-medium text-sm hover:border-black/20 hover:bg-black/[0.03] transition-all leading-snug">
+            <button onClick={() => rate("no")} className="px-3 py-3 rounded-xl border-2 border-black/10 bg-white/80 text-foreground/50 font-medium text-lg hover:border-black/20 hover:bg-black/[0.03] transition-all leading-snug">
               Nesouzním /<br />je mi to jedno
             </button>
-            <button onClick={() => rate("somewhat")} className="px-3 py-3 rounded-xl border-2 border-amber-200 bg-amber-50/80 text-amber-700 font-medium text-sm hover:border-amber-300 hover:bg-amber-100 transition-all leading-snug">
+            <button onClick={() => rate("somewhat")} className="px-3 py-3 rounded-xl border-2 border-amber-200 bg-amber-50/80 text-amber-700 font-medium text-lg hover:border-amber-300 hover:bg-amber-100 transition-all leading-snug">
               Spíše souzním
             </button>
-            <button onClick={() => rate("strong")} className="px-3 py-3 rounded-xl border-2 border-green-200 bg-green-50/80 text-green-700 font-medium text-sm hover:border-green-300 hover:bg-green-100 transition-all leading-snug">
+            <button onClick={() => rate("strong")} className="px-3 py-3 rounded-xl border-2 border-green-200 bg-green-50/80 text-green-700 font-medium text-lg hover:border-green-300 hover:bg-green-100 transition-all leading-snug">
               Naprosto souzním
             </button>
           </div>
@@ -318,7 +318,7 @@ function ValuesAlignment({
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35 mb-1">Žiješ podle svých hodnot?</p>
+        <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35 mb-1">Žiješ podle svých hodnot?</p>
         <p className="text-base text-foreground/55 leading-relaxed">
           Ohodnoť, jak moc teď opravdu žiješ podle každé ze svých hodnot. Ne jak bys chtěl/a — jak to skutečně je.
         </p>
@@ -329,10 +329,10 @@ function ValuesAlignment({
           <div key={v} className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className={`text-xs font-bold ${i < 5 ? "text-orange-400" : "text-orange-300"}`}>{i + 1}</span>
+                <span className={`text-base font-bold ${i < 5 ? "text-orange-400" : "text-orange-300"}`}>{i + 1}</span>
                 <div>
                   <span className="text-base font-semibold text-foreground">{v}</span>
-                  <p className="text-sm text-foreground/40 leading-snug">{VALUE_DESCRIPTIONS[v]}</p>
+                  <p className="text-lg text-foreground/40 leading-snug">{VALUE_DESCRIPTIONS[v]}</p>
                 </div>
               </div>
               <span className="text-base font-bold" style={{ color: COLOR_ACTIVE }}>{scores[v]}</span>
@@ -352,8 +352,8 @@ function ValuesAlignment({
               })}
             </div>
             <div className="flex justify-between">
-              <span className="text-xs text-foreground/30">vůbec ne</span>
-              <span className="text-xs text-foreground/30">naprosto ano</span>
+              <span className="text-base text-foreground/30">vůbec ne</span>
+              <span className="text-base text-foreground/30">naprosto ano</span>
             </div>
           </div>
         ))}
@@ -388,18 +388,18 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
       {/* Header + reset */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Hodnoty</p>
+          <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Hodnoty</p>
           <p className="text-base text-foreground/50 mt-0.5">
             Prvních 5 jsou tvoje klíčové hodnoty — zbytek jsou podpůrné.
           </p>
         </div>
         {confirmReset ? (
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-sm text-foreground/50">Opravdu?</span>
+            <span className="text-lg text-foreground/50">Opravdu?</span>
             <button onClick={() => { setConfirmReset(false); onReset() }}
-              className="text-sm text-red-500 font-semibold hover:text-red-600 transition-colors">Ano</button>
+              className="text-lg text-red-500 font-semibold hover:text-red-600 transition-colors">Ano</button>
             <button onClick={() => setConfirmReset(false)}
-              className="text-sm text-foreground/35 hover:text-foreground/55 transition-colors">Zrušit</button>
+              className="text-lg text-foreground/35 hover:text-foreground/55 transition-colors">Zrušit</button>
           </div>
         ) : (
           <button onClick={() => setConfirmReset(true)}
@@ -425,7 +425,7 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
                         : "border-2 border-orange-200 bg-orange-50/50 text-orange-800"
                     }`}
                   >
-                    <span className={`text-xs font-bold ${isPrimary ? "text-orange-400" : "text-orange-300"}`}>
+                    <span className={`text-base font-bold ${isPrimary ? "text-orange-400" : "text-orange-300"}`}>
                       {i + 1}
                     </span>
                     {val}
@@ -441,11 +441,11 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
                           />
                         ))}
                       </div>
-                      <span className="text-sm font-bold text-foreground/40">{score}</span>
+                      <span className="text-lg font-bold text-foreground/40">{score}</span>
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-foreground/45 pl-3 leading-relaxed">{VALUE_DESCRIPTIONS[val]}</p>
+                <p className="text-lg text-foreground/45 pl-3 leading-relaxed">{VALUE_DESCRIPTIONS[val]}</p>
               </div>
             )
           })}
@@ -462,7 +462,7 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
 
       {/* Context description */}
       <div className="rounded-2xl bg-black/[0.02] border border-black/[0.05] px-4 py-3 space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/30">Jak s hodnotami pracovat</p>
+        <p className="text-lg font-semibold uppercase tracking-wider text-foreground/30">Jak s hodnotami pracovat</p>
         <p className="text-base text-foreground/55 leading-relaxed">
           Hodnoty jsou tvůj vnitřní kompas — ne pravidla, ale kritéria rozhodování. Když se ocitneš na
           rozcestí, zeptej se: <em>„Která z těchto cest je v souladu s mými hodnotami?"</em>

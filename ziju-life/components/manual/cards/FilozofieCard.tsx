@@ -48,7 +48,7 @@ function ViewMode({ data }: { data: PhilosophyData }) {
       {isLong && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-sm text-accent hover:opacity-80 transition-opacity"
+          className="text-lg text-accent hover:opacity-80 transition-opacity"
         >
           {expanded ? "Méně" : "Celý text →"}
         </button>
@@ -81,7 +81,7 @@ function EditMode({
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        <p className="text-sm text-foreground/50 leading-relaxed">
+        <p className="text-lg text-foreground/50 leading-relaxed">
           Představ si, že se o tobě vyjadřuje tvůj dobrý známý. Jak bys chtěl, aby tě popsal? Jak chceš, aby tě vnímali ostatní?
         </p>
         <textarea
@@ -95,16 +95,16 @@ function EditMode({
 
       <button
         onClick={() => setShowExamples(!showExamples)}
-        className="text-sm text-accent/70 hover:text-accent transition-colors"
+        className="text-lg text-accent/70 hover:text-accent transition-colors"
       >
         {showExamples ? "Skrýt příklady" : "Ukázat příklady pro inspiraci →"}
       </button>
 
       {showExamples && (
         <div className="space-y-2 p-3 rounded-xl bg-accent/5 border border-accent/10">
-          <p className="text-xs font-bold text-accent/60 uppercase tracking-wider">Příklady</p>
+          <p className="text-base font-bold text-accent/60 uppercase tracking-wider">Příklady</p>
           {EXAMPLES.map((ex, i) => (
-            <p key={i} className="text-sm text-foreground/50 leading-relaxed italic border-l-2 border-accent/20 pl-2.5">
+            <p key={i} className="text-lg text-foreground/50 leading-relaxed italic border-l-2 border-accent/20 pl-2.5">
               &ldquo;{ex}&rdquo;
             </p>
           ))}

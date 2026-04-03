@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { SECTIONS, EXERCISES, getExercisesBySection, type ExerciseDefinition, type ExerciseState } from "@/lib/exercise-registry";
 import type {
-  PhilosophyData, PrinciplesData, QuarterlyCheckinData, IkigaiData, EnergyAuditData,
+  PhilosophyData, PrinciplesData, QuarterlyCheckinData, EnergyAuditData,
   BeliefsData, RelationshipMapData, AreaSetupData, VisionData, IdealDayData,
   FuneralSpeechData, DailyValuesData,
 } from "@/lib/exercise-registry";
@@ -18,7 +18,6 @@ import { SmutecniRecCard } from "./cards/SmutecniRecCard";
 import { FilozofieCard } from "./cards/FilozofieCard";
 import { PrincipyCard } from "./cards/PrincipyCard";
 import { CtvrtletniCard } from "./cards/CtvrtletniCard";
-import { IkigaiCard } from "./cards/IkigaiCard";
 import { EnergieCard } from "./cards/EnergieCard";
 import { PresvedceniCard } from "./cards/PresvedceniCard";
 import { VztahyCard } from "./cards/VztahyCard";
@@ -29,7 +28,6 @@ const NastaveniOblastiFlow = dynamic(() => import("./NastaveniOblastiFlow"), { s
 const VizeFlow = dynamic(() => import("./VizeFlow"), { ssr: false });
 const FilozofieFlow = dynamic(() => import("./FilozofieFlow"), { ssr: false });
 const QuarterlyCheckinFlow = dynamic(() => import("./QuarterlyCheckinFlow"), { ssr: false });
-const IkigaiFlow = dynamic(() => import("./IkigaiFlow"), { ssr: false });
 const EnergyAuditFlow = dynamic(() => import("./EnergyAuditFlow"), { ssr: false });
 const BeliefsFlow = dynamic(() => import("./BeliefsFlow"), { ssr: false });
 const RelationshipMapFlow = dynamic(() => import("./RelationshipMapFlow"), { ssr: false });
@@ -42,7 +40,7 @@ type RitualSelection = { morning: string[]; daily: string[]; evening: string[]; 
 function StateBadge({ state, progress }: { state: ExerciseState; progress?: string | null }) {
   if (state === "completed") {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-sm font-semibold">
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-lg font-semibold">
         <span className="w-3.5 h-3.5 rounded-full bg-green-500 text-white text-[8px] font-bold flex items-center justify-center">✓</span>
         Hotovo
       </span>
@@ -50,7 +48,7 @@ function StateBadge({ state, progress }: { state: ExerciseState; progress?: stri
   }
   if (state === "in_progress") {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-sm font-semibold">
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-lg font-semibold">
         <span className="w-2 h-2 rounded-full bg-amber-400" />
         V procesu{progress ? ` · ${progress}` : ""}
       </span>
@@ -88,7 +86,7 @@ function ExerciseCard({
           <span className="text-2xl">{exercise.emoji}</span>
           <div>
             <p className="font-bold text-foreground text-base">{exercise.title}</p>
-            <p className="text-sm text-foreground/50 mt-0.5 leading-relaxed">{exercise.description}</p>
+            <p className="text-lg text-foreground/50 mt-0.5 leading-relaxed">{exercise.description}</p>
           </div>
         </div>
         <StateBadge state={state} progress={progress} />
@@ -97,11 +95,11 @@ function ExerciseCard({
       {/* Summary for completed/in-progress */}
       {summary && (
         <div className="pl-[44px]">
-          <p className="text-sm text-foreground/60">{summary.label}</p>
+          <p className="text-lg text-foreground/60">{summary.label}</p>
           {summary.details && (
             <div className="flex flex-wrap gap-1 mt-1">
               {summary.details.map((d, i) => (
-                <span key={i} className="px-2 py-0.5 rounded-lg text-sm font-medium border border-accent/20 bg-accent/5 text-accent/80">
+                <span key={i} className="px-2 py-0.5 rounded-lg text-lg font-medium border border-accent/20 bg-accent/5 text-accent/80">
                   {d}
                 </span>
               ))}
@@ -112,7 +110,7 @@ function ExerciseCard({
 
       {/* CTA */}
       <div className="pl-[44px]">
-        <span className={`text-sm font-semibold ${
+        <span className={`text-lg font-semibold ${
           state === "not_started" ? "text-accent" :
           state === "in_progress" ? "text-amber-600" : "text-foreground/40"
         }`}>
@@ -172,7 +170,6 @@ export function ManualHub({
   const philosophyData = context.philosophy as PhilosophyData | null;
   const principlesData = context.principles as PrinciplesData | null;
   const quarterlyData = context.quarterly as QuarterlyCheckinData | null;
-  const ikigaiData = context.ikigai as IkigaiData | null;
   const energyData = context.energy as EnergyAuditData | null;
   const beliefsData = context.beliefs as BeliefsData | null;
   const relationshipsData = context.relationships as RelationshipMapData | null;
@@ -210,16 +207,13 @@ export function ManualHub({
           <FilozofieCard data={philosophyData} saveContext={saveContext} />
           <PrincipyCard data={principlesData} saveContext={saveContext} />
         </div>
+        <PresvedceniCard data={beliefsData} saveContext={saveContext} />
       </DashboardSection>
 
-      {/* ── Hlubší poznání ── */}
-      <DashboardSection title="Hlubší poznání" description="Účel, energie, přesvědčení a vztahy">
+      {/* ── Energetický audit ── */}
+      <DashboardSection title="Energetický audit" description="Co a kdo ti dává a bere energii">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <IkigaiCard data={ikigaiData} saveContext={saveContext} />
           <EnergieCard data={energyData} saveContext={saveContext} />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <PresvedceniCard data={beliefsData} saveContext={saveContext} />
           <VztahyCard data={relationshipsData} saveContext={saveContext} />
         </div>
       </DashboardSection>
@@ -272,11 +266,11 @@ function renderExercise(
             <div className="space-y-3">
               {focusLabel && (
                 <div className="px-4 py-3 rounded-2xl bg-accent/8 border border-accent/20">
-                  <p className="text-sm font-bold text-accent/70 uppercase tracking-wider mb-0.5">Oblast k rozvoji</p>
+                  <p className="text-lg font-bold text-accent/70 uppercase tracking-wider mb-0.5">Oblast k rozvoji</p>
                   <p className="font-bold text-foreground">{focusLabel}</p>
                 </div>
               )}
-              <p className="text-sm text-foreground/45">Aktuální vs. cílové hodnoty a fokus oblast jsou teď viditelné v dashboardu.</p>
+              <p className="text-lg text-foreground/45">Aktuální vs. cílové hodnoty a fokus oblast jsou teď viditelné v dashboardu.</p>
             </div>
           }
           onGoPrehled={goBack}
@@ -330,7 +324,7 @@ function renderExercise(
                 ))}
               </div>
               {hodnotyData.alignmentScores && (
-                <p className="text-sm text-foreground/45 mt-2">Přidal/a jsi i skóre souladu.</p>
+                <p className="text-lg text-foreground/45 mt-2">Přidal/a jsi i skóre souladu.</p>
               )}
             </div>
           }
@@ -463,23 +457,6 @@ function renderExercise(
             onContextChanged();
           }}
           onComplete={() => { onComplete("ctvrtletni-checkin"); onContextChanged(); }}
-        />
-      </div>
-    );
-  }
-
-  // ── Ikigai ──
-  if (exerciseId === "ikigai") {
-    return (
-      <div>
-        {backButton}
-        <IkigaiFlow
-          initialData={context.ikigai as any ?? null}
-          onSave={async (data) => {
-            await fetch("/api/manual/user-context", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "ikigai", data }) });
-            onContextChanged();
-          }}
-          onComplete={() => { onComplete("ikigai"); onContextChanged(); }}
         />
       </div>
     );

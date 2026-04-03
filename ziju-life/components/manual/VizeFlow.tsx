@@ -39,8 +39,8 @@ export default function VizeFlow({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-foreground/40">Minimálně 300 slov — čím konkrétnější, tím lépe</p>
-          <span className={`text-sm font-bold ${wordCount >= 300 ? "text-green-500" : "text-foreground/30"}`}>
+          <p className="text-lg text-foreground/40">Minimálně 300 slov — čím konkrétnější, tím lépe</p>
+          <span className={`text-lg font-bold ${wordCount >= 300 ? "text-green-500" : "text-foreground/30"}`}>
             {wordCount} slov
           </span>
         </div>

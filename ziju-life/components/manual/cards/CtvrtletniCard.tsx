@@ -54,24 +54,24 @@ function ViewMode({ data, showDue }: { data: QuarterlyCheckinData; showDue: bool
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-foreground/40">Poslední check-in: před {days} dny</p>
+        <p className="text-base text-foreground/40">Poslední check-in: před {days} dny</p>
         {showDue && (
-          <span className="text-xs font-semibold text-accent px-2 py-0.5 rounded-full bg-accent/10">
+          <span className="text-base font-semibold text-accent px-2 py-0.5 rounded-full bg-accent/10">
             Je čas na check-in!
           </span>
         )}
       </div>
       {focusLabel && (
         <div>
-          <p className="text-xs uppercase tracking-wider text-foreground/30 font-semibold">Focus tento měsíc</p>
-          <p className="text-sm font-bold text-accent">{focusLabel}</p>
+          <p className="text-base uppercase tracking-wider text-foreground/30 font-semibold">Focus tento měsíc</p>
+          <p className="text-lg font-bold text-accent">{focusLabel}</p>
         </div>
       )}
       {data.celebrations?.filter(Boolean).length > 0 && (
         <div>
-          <p className="text-xs uppercase tracking-wider text-foreground/30 font-semibold">Úspěchy</p>
+          <p className="text-base uppercase tracking-wider text-foreground/30 font-semibold">Úspěchy</p>
           {data.celebrations.filter(Boolean).slice(0, 3).map((c, i) => (
-            <p key={i} className="text-sm text-foreground/55">+ {c}</p>
+            <p key={i} className="text-lg text-foreground/55">+ {c}</p>
           ))}
         </div>
       )}
@@ -212,14 +212,14 @@ function EditMode({
           <div className="space-y-2 pt-2 border-t border-black/[0.05]">
             {WHEEL_AREAS.map(a => (
               <div key={a.key} className="flex items-center gap-2">
-                <span className="text-sm text-foreground/50 w-20 truncate">{a.short}</span>
+                <span className="text-lg text-foreground/50 w-20 truncate">{a.short}</span>
                 <input
                   type="range" min={1} max={10} value={areaScores[a.key] ?? 5}
                   onChange={e => setAreaScores(p => ({ ...p, [a.key]: Number(e.target.value) }))}
                   className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
                   style={{ background: `linear-gradient(to right, #FF8C42 ${((( areaScores[a.key] ?? 5) - 1) / 9) * 100}%, rgba(0,0,0,0.08) ${(((areaScores[a.key] ?? 5) - 1) / 9) * 100}%)` }}
                 />
-                <span className="text-sm font-bold text-foreground/60 w-5 text-right">{areaScores[a.key] ?? 5}</span>
+                <span className="text-lg font-bold text-foreground/60 w-5 text-right">{areaScores[a.key] ?? 5}</span>
               </div>
             ))}
           </div>
@@ -242,7 +242,7 @@ function EditMode({
               }
             >
               <span className="font-medium text-foreground/70 flex-1">{a.short}</span>
-              <span className="text-sm text-foreground/40">{a.cur}/10</span>
+              <span className="text-lg text-foreground/40">{a.cur}/10</span>
             </button>
           ))}
         </div>
@@ -263,8 +263,8 @@ function EditMode({
         ))}
       </div>
       <div>
-        <p className="text-sm font-bold text-foreground/70">{STEPS[step].label}</p>
-        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">{STEPS[step].desc}</p>
+        <p className="text-lg font-bold text-foreground/70">{STEPS[step].label}</p>
+        <p className="text-lg text-foreground/40 mt-0.5 leading-relaxed">{STEPS[step].desc}</p>
       </div>
       {STEPS[step].content}
       <div className="flex items-center gap-2">

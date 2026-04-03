@@ -121,6 +121,11 @@ function DashboardContent() {
   }, [checked]);
 
   const goToTab = useCallback((tab: string) => {
+    if (tab === "nastav-den") {
+      setDnesSettings(true);
+      router.push("/manual/dashboard", { scroll: false });
+      return;
+    }
     if (tab === "dnes") loadContext();
     setDnesSettings(false);
     const query = tab !== "dnes" ? `?tab=${tab}` : "";
@@ -313,7 +318,7 @@ function DashboardContent() {
 
         <div>{renderTab()}</div>
 
-        {email && <p className="text-sm text-foreground/30 text-center">{email}</p>}
+        {email && <p className="text-lg text-foreground/30 text-center">{email}</p>}
       </div>
     </main>
   );

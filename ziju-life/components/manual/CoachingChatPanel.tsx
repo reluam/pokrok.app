@@ -244,7 +244,7 @@ export default function CoachingChatPanel() {
           <Sparkles size={18} className="text-accent" />
           <div>
             <p className="text-base font-bold text-foreground">AI Průvodce</p>
-            <p className="text-sm text-foreground/40">Tvůj chytrý životní průvodce</p>
+            <p className="text-lg text-foreground/40">Tvůj chytrý životní průvodce</p>
           </div>
         </div>
         {budgetPct !== null && (
@@ -315,8 +315,8 @@ export default function CoachingChatPanel() {
                               <div className="flex items-center gap-2 min-w-0">
                                 <span className="text-base leading-none">{icon}</span>
                                 <div className="min-w-0">
-                                  <p className="text-sm font-semibold text-foreground">{label}</p>
-                                  {detail && <p className="text-sm text-foreground/50 truncate">{detail}</p>}
+                                  <p className="text-lg font-semibold text-foreground">{label}</p>
+                                  {detail && <p className="text-lg text-foreground/50 truncate">{detail}</p>}
                                 </div>
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
@@ -340,17 +340,17 @@ export default function CoachingChatPanel() {
             {sending && (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                <p className="text-sm text-foreground/50">Průvodce přemýšlí...</p>
+                <p className="text-lg text-foreground/50">Průvodce přemýšlí...</p>
               </div>
             )}
 
             {error === "no_budget" && (
-              <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+              <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-lg text-amber-800">
                 AI rozpočet je vyčerpaný. Obnoví se s dalším předplatným.
               </div>
             )}
             {error && error !== "no_budget" && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-lg text-red-700">
                 {error}
               </div>
             )}
@@ -391,7 +391,7 @@ export default function CoachingChatPanel() {
             className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-black/5 bg-white/50 hover:bg-accent/5 transition-colors shrink-0 w-full rounded-b-[24px]"
           >
             <CalendarPlus size={14} className="text-accent" />
-            <span className="text-sm font-semibold text-accent">Objednat osobní sezení</span>
+            <span className="text-lg font-semibold text-accent">Objednat osobní sezení</span>
           </button>
         </>
       )}

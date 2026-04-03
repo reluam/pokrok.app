@@ -31,7 +31,7 @@ function TodoSection({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-base font-bold text-foreground/60 uppercase tracking-wider">{label}</p>
-        <span className="text-sm text-foreground/30 font-medium">{items.length}/{MAX_ITEMS}</span>
+        <span className="text-lg text-foreground/30 font-medium">{items.length}/{MAX_ITEMS}</span>
       </div>
       <ul className="space-y-2">
         {items.map((item, i) => (

@@ -60,7 +60,7 @@ export default async function ManualTvujKompasPage({
 
       <section className="pt-10 pb-2 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-2">
-          <p className="text-sm font-bold text-accent uppercase tracking-widest mb-1">
+          <p className="text-lg font-bold text-accent uppercase tracking-widest mb-1">
             Manuál
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">

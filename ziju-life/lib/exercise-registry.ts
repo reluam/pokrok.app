@@ -5,7 +5,7 @@ import type { HodnotyData } from "@/components/HodnotyFlow";
 
 export type ExerciseState = "not_started" | "in_progress" | "completed";
 
-export type ExerciseSection = "audit" | "nastavovani" | "smerovani" | "filozofie" | "hlubsi";
+export type ExerciseSection = "audit" | "nastavovani" | "smerovani" | "filozofie" | "energie";
 
 export interface ExerciseSummary {
   label: string;
@@ -83,9 +83,7 @@ export type IkigaiData = {
 };
 
 export type EnergyAuditData = {
-  activities: { name: string; rating: number; frequency: string }[];
-  insights: string;
-  idealWeek: string;
+  items: { name: string; rating: number; dismissed: boolean; actionPlan: string }[];
   savedAt: string;
 };
 
@@ -95,8 +93,7 @@ export type BeliefsData = {
 };
 
 export type RelationshipMapData = {
-  people: { name: string; circle: "inner" | "middle" | "outer"; health: number; energizes: boolean; note: string }[];
-  insights: string;
+  people: { name: string; rating: number; dismissed: boolean; note: string }[];
   savedAt: string;
 };
 
@@ -121,7 +118,7 @@ export const SECTIONS: { id: ExerciseSection; title: string; description: string
   { id: "audit", title: "Audit života", description: "Kde jsi teď a co je pro tebe důležité" },
   { id: "smerovani", title: "Směřování", description: "Kam míříš a jak se tam dostaneš" },
   { id: "filozofie", title: "Životní filozofie", description: "Kdo jsi, jak chceš žít a čím se řídíš" },
-  { id: "hlubsi", title: "Hlubší poznání", description: "Účel, energie, přesvědčení a vztahy" },
+  { id: "energie", title: "Energetický audit", description: "Co a kdo ti dává a bere energii" },
 ];
 
 // ── Exercise definitions ─────────────────────────────────────────────────────
@@ -323,58 +320,14 @@ export const EXERCISES: ExerciseDefinition[] = [
       return { label: `Poslední: ${date.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long' })}` };
     },
   },
-  // ── Hlubší poznání ──
-  {
-    id: "ikigai",
-    contextType: "ikigai",
-    section: "hlubsi",
-    emoji: "☀️",
-    title: "Ikigai",
-    description: "Najdi svůj účel na průsečíku toho, co miluješ, umíš, svět potřebuje a co tě živí.",
-    getState: (data) => {
-      const d = data as IkigaiData | null;
-      if (!d) return "not_started";
-      if (d.savedAt && d.reflections?.ikigai) return "completed";
-      if (d.love?.some(Boolean)) return "in_progress";
-      return "not_started";
-    },
-    getSummary: (data) => {
-      const d = data as IkigaiData | null;
-      if (!d?.reflections?.ikigai) return null;
-      const preview = d.reflections.ikigai.slice(0, 80) + (d.reflections.ikigai.length > 80 ? "…" : "");
-      return { label: preview };
-    },
-  },
-  {
-    id: "energie",
-    contextType: "energy",
-    section: "hlubsi",
-    emoji: "⚡",
-    title: "Energetický audit",
-    description: "Co ti dává energii a co ji bere? Identifikuj energizéry a vampýry.",
-    getState: (data) => {
-      const d = data as EnergyAuditData | null;
-      if (!d) return "not_started";
-      if (d.savedAt && d.insights) return "completed";
-      if (d.activities?.some(a => a.name)) return "in_progress";
-      return "not_started";
-    },
-    getSummary: (data) => {
-      const d = data as EnergyAuditData | null;
-      if (!d?.activities) return null;
-      const filled = d.activities.filter(a => a.name && a.rating !== 0);
-      const pos = filled.filter(a => a.rating > 0).length;
-      const neg = filled.filter(a => a.rating < 0).length;
-      return { label: `${pos} energizérů, ${neg} vampýrů` };
-    },
-  },
+  // ── Životní filozofie (pokračování) ──
   {
     id: "presvedceni",
     contextType: "beliefs",
-    section: "hlubsi",
+    section: "filozofie",
     emoji: "🧠",
-    title: "Limitující přesvědčení",
-    description: "Odhal přesvědčení, která blokují změnu, a přeformuluj je.",
+    title: "Přesvědčení",
+    description: "Odhal přesvědčení, která ti brání ve změně — a přeformuluj je.",
     getState: (data) => {
       const d = data as BeliefsData | null;
       if (!d) return "not_started";
@@ -389,25 +342,51 @@ export const EXERCISES: ExerciseDefinition[] = [
       return { label: `${done} přeformulovaných přesvědčení` };
     },
   },
+  // ── Energetický audit ──
+  {
+    id: "energie",
+    contextType: "energy",
+    section: "energie",
+    emoji: "⚡",
+    title: "Činnosti",
+    description: "Co ti přidává a ubírá energii? Zapiš aktivity a naplánuj, co s tím.",
+    getState: (data) => {
+      const d = data as EnergyAuditData | null;
+      if (!d) return "not_started";
+      if (d.savedAt) return "completed";
+      if (d.items?.some(a => a.name)) return "in_progress";
+      return "not_started";
+    },
+    getSummary: (data) => {
+      const d = data as EnergyAuditData | null;
+      if (!d?.items) return null;
+      const active = d.items.filter(a => a.name && !a.dismissed);
+      const pos = active.filter(a => a.rating > 0).length;
+      const neg = active.filter(a => a.rating < 0).length;
+      return { label: `+${pos} energizérů, -${neg} zlodějů` };
+    },
+  },
   {
     id: "vztahy",
     contextType: "relationships",
-    section: "hlubsi",
-    emoji: "🗺️",
-    title: "Mapa vztahů",
-    description: "Zmapuj své vztahy — kdo tě nabíjí, kdo vyčerpává a jak zdravé jsou.",
+    section: "energie",
+    emoji: "👥",
+    title: "Lidé",
+    description: "Kdo ti přidává a ubírá energii? Zmapuj lidi kolem sebe.",
     getState: (data) => {
       const d = data as RelationshipMapData | null;
       if (!d) return "not_started";
-      if (d.savedAt && d.insights) return "completed";
+      if (d.savedAt) return "completed";
       if (d.people?.some(p => p.name)) return "in_progress";
       return "not_started";
     },
     getSummary: (data) => {
       const d = data as RelationshipMapData | null;
       if (!d?.people) return null;
-      const filled = d.people.filter(p => p.name);
-      return { label: `${filled.length} lidí zmapováno` };
+      const active = d.people.filter(p => p.name && !p.dismissed);
+      const pos = active.filter(p => p.rating > 0).length;
+      const neg = active.filter(p => p.rating < 0).length;
+      return { label: `+${pos} nabíjí, -${neg} vyčerpává` };
     },
   },
 ];

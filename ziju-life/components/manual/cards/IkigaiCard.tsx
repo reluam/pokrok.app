@@ -59,7 +59,7 @@ function ViewMode({ data }: { data: IkigaiData }) {
     <div className="space-y-3">
       {ikigai && (
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/30">Tvoje Ikigai</p>
+          <p className="text-base font-semibold uppercase tracking-wider text-foreground/30">Tvoje Ikigai</p>
           <p className="text-base text-foreground/60 leading-relaxed italic mt-0.5">
             &ldquo;{ikigai.slice(0, 200)}{ikigai.length > 200 ? "…" : ""}&rdquo;
           </p>
@@ -72,7 +72,7 @@ function ViewMode({ data }: { data: IkigaiData }) {
           return (
             <div key={r.key} className="space-y-0.5">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">{r.label}</p>
-              <p className="text-xs text-foreground/50 leading-relaxed">{text.slice(0, 80)}{text.length > 80 ? "…" : ""}</p>
+              <p className="text-base text-foreground/50 leading-relaxed">{text.slice(0, 80)}{text.length > 80 ? "…" : ""}</p>
             </div>
           );
         })}
@@ -166,10 +166,10 @@ function EditMode({
       {step < 4 ? (
         <div className="space-y-2">
           <div>
-            <p className="text-sm font-bold text-foreground/70">
+            <p className="text-lg font-bold text-foreground/70">
               {CIRCLES[step].emoji} {CIRCLES[step].label}
             </p>
-            <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">
+            <p className="text-lg text-foreground/40 mt-0.5 leading-relaxed">
               {step === 0 && "Co tě baví natolik, že zapomínáš na čas? Co bys dělal/a i zadarmo?"}
               {step === 1 && "V čem vynikáš? Co ti jde přirozeně lépe než ostatním?"}
               {step === 2 && "Jaký problém ve světě tě trápí? Kde vidíš mezeru, kterou bys mohl/a vyplnit?"}
@@ -194,29 +194,29 @@ function EditMode({
       ) : analyzing ? (
         <div className="flex flex-col items-center justify-center py-8 gap-3">
           <Loader2 size={24} className="animate-spin text-accent" />
-          <p className="text-sm text-foreground/50">Analyzuji průsečíky…</p>
+          <p className="text-lg text-foreground/50">Analyzuji průsečíky…</p>
         </div>
       ) : (
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-bold text-foreground/70">
+            <p className="text-lg font-bold text-foreground/70">
               <Sparkles size={14} className="inline text-accent mr-1" />
               Tvoje Ikigai průsečíky
             </p>
-            <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">
+            <p className="text-lg text-foreground/40 mt-0.5 leading-relaxed">
               AI analyzovalo tvoje odpovědi a našlo průsečíky. Můžeš je upravit.
             </p>
           </div>
           {REFLECTIONS.map((r) => (
             <div key={r.key} className={`space-y-1 p-3 rounded-xl border ${r.key === "ikigai" ? "bg-accent/5 border-accent/15" : "bg-black/[0.02] border-black/[0.05]"}`}>
-              <label className="text-xs font-semibold text-foreground/50">
+              <label className="text-base font-semibold text-foreground/50">
                 {r.label} <span className="text-foreground/30 font-normal">({r.desc})</span>
               </label>
               <textarea
                 value={reflections[r.key]}
                 onChange={(e) => setReflections((p) => ({ ...p, [r.key]: e.target.value }))}
                 rows={r.key === "ikigai" ? 3 : 2}
-                className="w-full text-sm rounded-lg border border-black/[0.06] bg-white/80 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/15 transition-all"
+                className="w-full text-lg rounded-lg border border-black/[0.06] bg-white/80 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/15 transition-all"
               />
             </div>
           ))}
@@ -224,14 +224,14 @@ function EditMode({
           <button
             onClick={analyzeWithAI}
             disabled={analyzing}
-            className="flex items-center gap-1.5 text-xs text-accent/70 hover:text-accent transition-colors"
+            className="flex items-center gap-1.5 text-base text-accent/70 hover:text-accent transition-colors"
           >
             <Sparkles size={12} /> Přegenerovat průsečíky
           </button>
         </div>
       )}
 
-      {analyzeError && <p className="text-xs text-red-500">{analyzeError}</p>}
+      {analyzeError && <p className="text-base text-red-500">{analyzeError}</p>}
 
       <div className="flex items-center gap-2">
         <SaveIndicator saving={saving} saved={saved} />

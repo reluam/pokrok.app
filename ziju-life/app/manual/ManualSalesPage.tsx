@@ -157,7 +157,7 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
               Poslali jsme kód a odkaz na <strong>{email}</strong>.
             </p>
 
-            <p className="text-sm font-semibold text-foreground mb-3">Zadej 6místný kód:</p>
+            <p className="text-lg font-semibold text-foreground mb-3">Zadej 6místný kód:</p>
             <div className="flex justify-center gap-1.5 mb-3">
               {digits.map((d, i) => (
                 <input
@@ -181,14 +181,14 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
               ))}
             </div>
 
-            {verifying && <p className="text-sm text-accent mb-2">Ověřuji...</p>}
-            {codeError && <p className="text-sm text-red-500 mb-2">{codeError}</p>}
+            {verifying && <p className="text-lg text-accent mb-2">Ověřuji...</p>}
+            {codeError && <p className="text-lg text-red-500 mb-2">{codeError}</p>}
 
-            <p className="text-sm text-foreground/40 mb-4">
+            <p className="text-lg text-foreground/40 mb-4">
               Kód je platný 5 minut. Nebo klikni na odkaz v e-mailu.
             </p>
 
-            <div className="flex items-center justify-center gap-3 text-sm text-foreground/40">
+            <div className="flex items-center justify-center gap-3 text-lg text-foreground/40">
               <button
                 onClick={handleResend}
                 className="underline hover:text-foreground/70 transition-colors"
@@ -237,7 +237,7 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
                 )}
               </button>
               {(state === "error") && errorMsg && (
-                <p className="text-sm text-red-500 leading-relaxed">{errorMsg}</p>
+                <p className="text-lg text-red-500 leading-relaxed">{errorMsg}</p>
               )}
             </form>
           </>
@@ -320,7 +320,7 @@ function ManualContent() {
             </button>
           </div>
           {buyError && <p className="mt-3 text-base text-red-500">{buyError}</p>}
-          <p className="mt-5 text-sm text-foreground/35">
+          <p className="mt-5 text-lg text-foreground/35">
             490 Kč / rok · Přístup ke všem nástrojům · Zrušit lze kdykoliv
           </p>
         </div>
@@ -413,7 +413,7 @@ function ManualContent() {
         <div className="bg-[#fdf0e6]/50 border border-black/8 rounded-[28px] px-8 md:px-12 py-10 flex flex-col md:flex-row md:items-center gap-8">
           {/* Levá strana — cena + CTA */}
           <div className="md:w-1/2 space-y-5">
-            <p className="text-sm font-bold text-foreground/50 uppercase tracking-widest">
+            <p className="text-lg font-bold text-foreground/50 uppercase tracking-widest">
               Předplatné
             </p>
             <p className="text-4xl md:text-5xl font-extrabold text-foreground">

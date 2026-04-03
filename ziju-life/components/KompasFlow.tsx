@@ -208,10 +208,10 @@ function SegmentBar({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground/55">{label}</span>
+        <span className="text-lg font-medium text-foreground/55">{label}</span>
         <div className="flex items-center gap-2">
-          {subLabel && <span className="text-sm text-foreground/30">{subLabel}</span>}
-          <span className="text-sm font-bold w-4 text-right" style={{ color }}>{value}</span>
+          {subLabel && <span className="text-lg text-foreground/30">{subLabel}</span>}
+          <span className="text-lg font-bold w-4 text-right" style={{ color }}>{value}</span>
         </div>
       </div>
       <div className="flex rounded-lg overflow-hidden border border-black/[0.08]">
@@ -219,7 +219,7 @@ function SegmentBar({
           <button
             key={n}
             onClick={() => onChange(n)}
-            className="flex-1 py-1.5 text-xs font-semibold transition-colors border-r border-black/[0.06] last:border-r-0"
+            className="flex-1 py-1.5 text-base font-semibold transition-colors border-r border-black/[0.06] last:border-r-0"
             style={{
               background: n <= value ? color : "rgba(0,0,0,0.02)",
               color:      n <= value ? "white" : "rgba(0,0,0,0.25)",
@@ -243,13 +243,13 @@ function SlideCurrentSpider({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Kdo jsi dnes</p>
+        <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Kdo jsi dnes</p>
         <p className="text-base text-foreground/55 mt-1 leading-relaxed">
           Upřímně ohodnoť každou oblast svého života. Kde jsi teď — ne kde bys chtěl být.
         </p>
       </div>
 
-      <div className="flex items-center justify-between text-sm text-foreground/40">
+      <div className="flex items-center justify-between text-lg text-foreground/40">
         <span>Klikni do grafu nebo nastav hodnoty níže</span>
         <span>průměr <strong className="text-foreground/60">{avg}</strong>/10</span>
       </div>
@@ -293,14 +293,14 @@ function SlideGoalSpider({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Kde chceš být</p>
+        <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Kde chceš být</p>
         <p className="text-base text-foreground/55 mt-1 leading-relaxed">
           Nastav si priority. Cílem není mít vše na 10 — je v pořádku mít někde 10 a jinde 6.
           Šedý obrys ukazuje, kde jsi teď.
         </p>
       </div>
 
-      <div className="flex items-center gap-4 text-sm text-foreground/45">
+      <div className="flex items-center gap-4 text-lg text-foreground/45">
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-1 rounded-full opacity-40" style={{ background: COLOR_ORANGE }} />
           Dnes
@@ -369,7 +369,7 @@ function SlideArea({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Oblast</p>
+        <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Oblast</p>
         <div className="flex items-baseline gap-3 mt-1">
           <h3 className="text-lg font-bold text-foreground">{area.label}</h3>
           <span className="text-base text-foreground/40">
@@ -404,7 +404,7 @@ function SlideArea({
           </label>
           {[0, 1, 2].map(i => (
             <div key={i} className="flex items-start gap-2">
-              <span className="text-sm font-bold text-foreground/25 pt-2.5 w-4 text-right flex-shrink-0">{i + 1}.</span>
+              <span className="text-lg font-bold text-foreground/25 pt-2.5 w-4 text-right flex-shrink-0">{i + 1}.</span>
               <input
                 type="text"
                 value={actionSteps[i] ?? ""}
@@ -418,7 +418,7 @@ function SlideArea({
               />
             </div>
           ))}
-          <p className="text-sm text-foreground/35 leading-relaxed">
+          <p className="text-lg text-foreground/35 leading-relaxed">
             Za měsíc se ti tu zobrazí připomínka k reflexi — podíváš se, co se povedlo, a nastavíš si nový směr.
           </p>
         </div>
@@ -446,7 +446,7 @@ function SlideFocusArea({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Vyber svůj dílek mozaiky</p>
+        <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Vyber svůj dílek mozaiky</p>
         <p className="text-base text-foreground/55 mt-1 leading-relaxed">
           Nemůžeš složit celou mozaiku najednou. Vyber jednu oblast, na které budeš pracovat tento měsíc.
         </p>
@@ -476,7 +476,7 @@ function SlideFocusArea({
                 {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
               </span>
               <span className="flex-1 text-base font-semibold text-foreground">{a.label}</span>
-              <span className="text-sm text-foreground/40 flex-shrink-0">
+              <span className="text-lg text-foreground/40 flex-shrink-0">
                 {cur}
                 {diff !== 0 && (
                   <span style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
@@ -485,7 +485,7 @@ function SlideFocusArea({
                 )}
               </span>
               {diff > 0 && (
-                <span className="text-xs font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                <span className="text-base font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
                   style={{ background: "rgba(55,138,221,0.1)", color: COLOR_BLUE }}
                 >
                   +{diff}
@@ -561,10 +561,10 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
         <div className="space-y-4">
           {hodnotyValues.length > 0 && (
             <div className="rounded-xl bg-orange-50/60 border border-orange-100 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/35 mb-1.5">Tvoje hodnoty</p>
+              <p className="text-base font-semibold uppercase tracking-wider text-foreground/35 mb-1.5">Tvoje hodnoty</p>
               <div className="flex flex-wrap gap-1.5">
                 {hodnotyValues.slice(0, 7).map((v, i) => (
-                  <span key={v} className={`text-sm px-2 py-0.5 rounded-lg font-medium ${i < 5 ? "bg-orange-100 text-orange-800" : "bg-orange-50 text-orange-600"}`}>
+                  <span key={v} className={`text-lg px-2 py-0.5 rounded-lg font-medium ${i < 5 ? "bg-orange-100 text-orange-800" : "bg-orange-50 text-orange-600"}`}>
                     {v}
                   </span>
                 ))}
@@ -606,8 +606,8 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
       {/* Progress */}
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm text-foreground/40">{LABELS[slide]}</span>
-          <span className="text-sm text-foreground/30">{slide + 1} / {TOTAL_SLIDES}</span>
+          <span className="text-lg text-foreground/40">{LABELS[slide]}</span>
+          <span className="text-lg text-foreground/30">{slide + 1} / {TOTAL_SLIDES}</span>
         </div>
         <div className="h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
           <div
@@ -687,7 +687,7 @@ function ReflectionFlow({
     return (
       <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-amber-600/70">Měsíční reflexe</p>
+          <p className="text-lg font-semibold uppercase tracking-wider text-amber-600/70">Měsíční reflexe</p>
           <p className="text-base text-foreground/60 mt-1 leading-relaxed">
             Uplynul měsíc od tvého posledního kola života.
             {focusAreaObj && <> Zaměřil/a ses na <strong>{focusAreaObj.label}</strong>.</>}
@@ -710,7 +710,7 @@ function ReflectionFlow({
                 : { borderColor: "rgba(0,0,0,0.07)", background: "rgba(255,255,255,0.5)" }
               }
             >
-              <span className="w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all text-sm"
+              <span className="w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all text-lg"
                 style={completedSteps[i]
                   ? { borderColor: "#22c55e", background: "#22c55e", color: "white" }
                   : { borderColor: "rgba(0,0,0,0.2)" }
@@ -746,7 +746,7 @@ function ReflectionFlow({
     return (
       <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-amber-600/70">Nový pavouk</p>
+          <p className="text-lg font-semibold uppercase tracking-wider text-amber-600/70">Nový pavouk</p>
           <p className="text-base text-foreground/60 mt-1 leading-relaxed">
             Jak vypadá tvůj život teď? Aktualizuj hodnocení oblastí po měsíci práce.
           </p>
@@ -804,7 +804,7 @@ function ReflectionFlow({
   return (
     <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wider text-amber-600/70">Nový fokus</p>
+        <p className="text-lg font-semibold uppercase tracking-wider text-amber-600/70">Nový fokus</p>
         <p className="text-base text-foreground/60 mt-1 leading-relaxed">
           Na kterou oblast se chceš zaměřit příští měsíc?
         </p>
@@ -920,7 +920,7 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
             <span className="text-2xl flex-shrink-0">🔄</span>
             <div>
               <p className="text-base font-bold text-foreground">Je čas na měsíční reflexi</p>
-              <p className="text-sm text-foreground/50 mt-0.5">
+              <p className="text-lg text-foreground/50 mt-0.5">
                 Uplynul měsíc — podívej se, co se povedlo, a nastav si nový směr.
               </p>
             </div>
@@ -932,17 +932,17 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
       {/* Akční kroky (pokud nejsou v reflexi) */}
       {!showReflection && hasActionSteps && (
         <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">
+          <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">
             Moje kroky na tento měsíc
           </p>
           {(data.actionSteps ?? []).filter(s => s.trim()).map((step, i) => (
             <div key={i} className="flex items-center gap-2.5">
-              <span className="text-sm font-bold text-foreground/25 w-4 text-right flex-shrink-0">{i + 1}.</span>
+              <span className="text-lg font-bold text-foreground/25 w-4 text-right flex-shrink-0">{i + 1}.</span>
               <p className="text-base text-foreground/65">{step}</p>
             </div>
           ))}
           {data.reflectionDueAt && !isReflectionDue && (
-            <p className="text-sm text-foreground/30 pt-1">
+            <p className="text-lg text-foreground/30 pt-1">
               Reflexe: {new Date(data.reflectionDueAt).toLocaleDateString("cs-CZ", { day: "numeric", month: "long" })}
             </p>
           )}
@@ -952,8 +952,8 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
       {/* Combined spider */}
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Kolo života</p>
-          <div className="flex items-center gap-4 text-sm text-foreground/45">
+          <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Kolo života</p>
+          <div className="flex items-center gap-4 text-lg text-foreground/45">
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-1 rounded-full" style={{ background: COLOR_ORANGE }} />
               Dnes
@@ -981,7 +981,7 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
             const d   = gl - cur
             return (
               <div key={a.key} className="space-y-0.5">
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-lg">
                   <span className="w-20 text-foreground/50 flex-shrink-0">{a.short}</span>
                   <div className="flex-1 h-2 rounded-full bg-black/[0.05] relative overflow-hidden">
                     <div className="absolute h-full rounded-full"
@@ -993,7 +993,7 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
                   </div>
                   <span className="font-bold w-3 text-right" style={{ color: COLOR_ORANGE }}>{cur}</span>
                   {d !== 0 ? (
-                    <span className="text-xs w-8 font-semibold" style={{ color: d > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
+                    <span className="text-base w-8 font-semibold" style={{ color: d > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
                       {d > 0 ? `→ ${gl}` : `↓ ${gl}`}
                     </span>
                   ) : (
@@ -1015,10 +1015,10 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
           if (items.length === 0) return null
           return (
             <div className="space-y-2 pt-2 border-t border-black/[0.05]">
-              <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Co pro to udělám</p>
+              <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Co pro to udělám</p>
               {items.map(a => (
                 <div key={a.key} className="flex gap-2.5">
-                  <span className="text-sm font-semibold text-foreground/40 w-20 flex-shrink-0 pt-0.5">{a.short}</span>
+                  <span className="text-lg font-semibold text-foreground/40 w-20 flex-shrink-0 pt-0.5">{a.short}</span>
                   <p className="text-base text-foreground/65 leading-relaxed">{data.areaAnswers[a.key][3]}</p>
                 </div>
               ))}
@@ -1031,14 +1031,14 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         {/* Header + navigation */}
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Oblasti</p>
+          <p className="text-lg font-semibold uppercase tracking-wider text-foreground/35">Oblasti</p>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setAreaIndex(i => clamp(i - 1))}
               disabled={areaIndex === 0}
               className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-foreground/50 hover:bg-black/10 disabled:opacity-25 transition-all text-base leading-none"
             >←</button>
-            <span className="text-sm text-foreground/35">{areaIndex + 1} / {sortedAreas.length}</span>
+            <span className="text-lg text-foreground/35">{areaIndex + 1} / {sortedAreas.length}</span>
             <button
               onClick={() => setAreaIndex(i => clamp(i + 1))}
               disabled={areaIndex === sortedAreas.length - 1}
@@ -1059,7 +1059,7 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
                   <>
                     <span className="text-foreground/30">→</span>
                     <span className="font-bold" style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.4)" }}>{goal}</span>
-                    <span className="text-sm font-medium ml-0.5" style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
+                    <span className="text-lg font-medium ml-0.5" style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
                       ({diff > 0 ? "+" : ""}{diff})
                     </span>
                   </>
@@ -1076,7 +1076,7 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
                   if (!ans) return null
                   return (
                     <div key={i} className="space-y-0.5">
-                      <p className="text-sm font-semibold text-foreground/35 uppercase tracking-wide">{q}</p>
+                      <p className="text-lg font-semibold text-foreground/35 uppercase tracking-wide">{q}</p>
                       <p className="text-base text-foreground/65 leading-relaxed">{ans}</p>
                     </div>
                   )

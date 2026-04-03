@@ -70,7 +70,7 @@ function PrioritySection({
         <p className="text-base font-bold text-foreground/60 uppercase tracking-wider">
           {SCOPE_CONFIG[scope]?.label ?? scope}
         </p>
-        <span className="text-sm text-foreground/30 font-medium">{activeCount}/{maxItems}</span>
+        <span className="text-lg text-foreground/30 font-medium">{activeCount}/{maxItems}</span>
       </div>
 
       {items.length === 0 && !adding && (
@@ -108,7 +108,7 @@ function PrioritySection({
                 >
                   {item.text}
                   {item.source && (
-                    <span className="ml-1.5 text-xs font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent/60 align-middle">
+                    <span className="ml-1.5 text-base font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent/60 align-middle">
                       {item.source === "kolo-zivota" ? "🎯 Kolo života" : item.source}
                     </span>
                   )}

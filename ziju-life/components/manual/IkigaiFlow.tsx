@@ -118,10 +118,10 @@ export default function IkigaiFlow({
         <div className="grid grid-cols-2 gap-3">
           {STEPS.map((s) => (
             <div key={s.id} className="px-4 py-3 rounded-2xl bg-accent/5 border border-accent/10">
-              <p className="text-sm font-semibold text-accent/70 mb-1">{s.emoji} {s.title}</p>
+              <p className="text-lg font-semibold text-accent/70 mb-1">{s.emoji} {s.title}</p>
               <ul className="space-y-0.5">
                 {data[s.field].filter(Boolean).map((item, i) => (
-                  <li key={i} className="text-sm text-foreground/60">• {item}</li>
+                  <li key={i} className="text-lg text-foreground/60">• {item}</li>
                 ))}
               </ul>
             </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, createContext, useContext, type ReactNode } from "react";
-import { Printer } from "lucide-react";
+import { BarChart3, Printer } from "lucide-react";
 
 // Context to let edit content close itself
 const DoneContext = createContext<(() => void) | null>(null);
@@ -14,6 +14,7 @@ export function DashboardCard({
   title,
   children,
   editContent,
+  statsContent,
   isEmpty,
   emptyCta = "Začít cvičení →",
   emptyDescription,
@@ -23,12 +24,14 @@ export function DashboardCard({
   title: string;
   children: ReactNode;
   editContent?: ReactNode;
+  statsContent?: ReactNode;
   isEmpty?: boolean;
   emptyCta?: string;
   emptyDescription?: string;
   onPrint?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const done = useCallback(() => setEditing(false), []);
 
   // If empty and has edit content, start in edit mode when CTA is clicked
@@ -40,11 +43,11 @@ export function DashboardCard({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{emoji}</span>
-                <h3 className="text-base font-bold text-foreground">{title}</h3>
+                <h3 className="text-xl font-extrabold text-foreground">{title}</h3>
               </div>
               <button
                 onClick={() => setEditing(false)}
-                className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+                className="text-lg text-foreground/40 hover:text-foreground/60 transition-colors"
               >
                 Zavřít
               </button>
@@ -58,7 +61,7 @@ export function DashboardCard({
             <span className="text-2xl">{emoji}</span>
             <p className="text-base font-semibold text-foreground">{title}</p>
             {emptyDescription && (
-              <p className="text-sm text-foreground/45 leading-relaxed max-w-xs mx-auto">{emptyDescription}</p>
+              <p className="text-lg text-foreground/45 leading-relaxed max-w-xs mx-auto">{emptyDescription}</p>
             )}
             <button
               onClick={() => setEditing(true)}
@@ -78,9 +81,18 @@ export function DashboardCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-lg">{emoji}</span>
-            <h3 className="text-base font-bold text-foreground">{title}</h3>
+            <h3 className="text-xl font-extrabold text-foreground">{title}</h3>
           </div>
           <div className="flex items-center gap-2">
+            {statsContent && !editing && (
+              <button
+                onClick={() => setShowStats(!showStats)}
+                className={`transition-colors ${showStats ? "text-accent" : "text-foreground/30 hover:text-foreground/60"}`}
+                title={showStats ? "Zobrazit data" : "Statistiky"}
+              >
+                <BarChart3 size={14} />
+              </button>
+            )}
             {onPrint && !editing && (
               <button
                 onClick={onPrint}
@@ -92,8 +104,8 @@ export function DashboardCard({
             )}
             {editContent && (
               <button
-                onClick={() => setEditing(!editing)}
-                className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+                onClick={() => { setEditing(!editing); setShowStats(false); }}
+                className="text-lg text-foreground/40 hover:text-foreground/60 transition-colors"
               >
                 {editing ? "Zavřít" : "Upravit"}
               </button>
@@ -101,7 +113,7 @@ export function DashboardCard({
           </div>
         </div>
         <DoneContext.Provider value={done}>
-          {editing && editContent ? editContent : children}
+          {editing && editContent ? editContent : showStats && statsContent ? statsContent : children}
         </DoneContext.Provider>
       </div>
     </div>
@@ -112,11 +124,11 @@ export function DashboardSection({ title, description, children }: { title: stri
   return (
     <div className="space-y-3">
       <div className="px-1">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground/35">
+        <h2 className="text-xl font-extrabold text-foreground">
           {title}
         </h2>
         {description && (
-          <p className="text-sm text-foreground/35 mt-0.5">{description}</p>
+          <p className="text-base text-foreground/40 mt-0.5">{description}</p>
         )}
       </div>
       {children}

@@ -1,24 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import type { RelationshipMapData } from "@/lib/exercise-registry";
 
-export type RelationshipPerson = { name: string; circle: "inner" | "middle" | "outer"; health: number; energizes: boolean; note: string };
+type Person = { name: string; rating: number; dismissed: boolean; note: string };
 
-export type RelationshipMapData = {
-  people: RelationshipPerson[];
-  insights: string;
-  savedAt: string;
-};
-
-type Step = "map" | "reflect";
-
-const EMPTY: RelationshipMapData = {
-  people: [],
-  insights: "",
-  savedAt: "",
-};
-
-const EMPTY_PERSON: RelationshipPerson = { name: "", circle: "inner", health: 5, energizes: true, note: "" };
+const EMPTY_PERSON: Person = { name: "", rating: 0, dismissed: false, note: "" };
 
 export default function RelationshipMapFlow({
   initialData,
@@ -29,201 +16,134 @@ export default function RelationshipMapFlow({
   onSave: (data: RelationshipMapData) => Promise<void>;
   onComplete: () => void;
 }) {
-  const [data, setData] = useState<RelationshipMapData>(initialData?.people?.length ? initialData : {
-    ...EMPTY,
-    people: Array.from({ length: 5 }, () => ({ ...EMPTY_PERSON })),
-  });
-  const [step, setStep] = useState<Step>("map");
+  const [people, setPeople] = useState<Person[]>(
+    initialData?.people?.length ? [...initialData.people] : Array.from({ length: 5 }, () => ({ ...EMPTY_PERSON }))
+  );
   const [saving, setSaving] = useState(false);
 
-  function updatePerson(idx: number, field: keyof RelationshipPerson, value: string | number | boolean) {
-    const next = [...data.people];
+  function updatePerson(idx: number, field: keyof Person, value: string | number | boolean) {
+    const next = [...people];
     next[idx] = { ...next[idx], [field]: value };
-    setData((d) => ({ ...d, people: next }));
+    setPeople(next);
   }
 
   function addPerson() {
-    setData((d) => ({ ...d, people: [...d.people, { ...EMPTY_PERSON }] }));
+    setPeople((prev) => [...prev, { ...EMPTY_PERSON }]);
   }
 
-  // ── Step 1: Map ──
-  if (step === "map") {
-    const circles: { id: RelationshipPerson["circle"]; label: string; emoji: string; desc: string }[] = [
-      { id: "inner", label: "Nejbližší kruh", emoji: "❤️", desc: "5 nejbližších lidí" },
-      { id: "middle", label: "Střední kruh", emoji: "🤝", desc: "Přátelé a blízcí kolegové" },
-      { id: "outer", label: "Vnější kruh", emoji: "👋", desc: "Známí a vzdálenější kontakty" },
-    ];
+  function removePerson(idx: number) {
+    setPeople((prev) => prev.filter((_, i) => i !== idx));
+  }
 
-    return (
-      <div className="max-w-2xl mx-auto space-y-5">
-        <div>
-          <h2 className="text-xl font-bold text-foreground">🗺️ Mapa vztahů</h2>
-          <p className="text-base text-foreground/55 mt-1">
-            Zapiš důležité lidi ve svém životě. Pro každého urči: jak blízký vztah, jak zdravý, a zda tě nabíjí nebo vyčerpává.
-          </p>
-        </div>
+  const filled = people.filter((p) => p.name.trim());
+  const energizers = filled.filter((p) => p.rating > 0 && !p.dismissed);
+  const drainers = filled.filter((p) => p.rating < 0 && !p.dismissed);
 
-        <div className="space-y-4">
-          {data.people.map((p, i) => (
-            <div key={i} className="bg-white border border-black/8 rounded-[20px] px-4 py-4 space-y-3">
+  return (
+    <div className="max-w-2xl mx-auto space-y-5">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">👥 Lidé — kdo ti dává a bere energii</h2>
+        <p className="text-base text-foreground/55 mt-1 leading-relaxed">
+          Zapiš lidi ze svého života — rodinu, přátele, kolegy, známé.
+          Ohodnoť každého na stejné stupnici: <strong className="text-green-600">+5</strong> = maximálně tě nabíjí,{" "}
+          <strong className="text-red-500">-5</strong> = totálně vyčerpává.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {people.map((p, i) => (
+          <div key={i} className={`bg-white border rounded-[20px] px-4 py-4 space-y-2 transition-opacity ${p.dismissed ? "opacity-40 border-black/5" : "border-black/8"}`}>
+            <div className="flex items-center gap-2">
               <input
                 value={p.name}
                 onChange={(e) => updatePerson(i, "name", e.target.value)}
-                className="w-full px-3 py-2 border border-black/10 rounded-xl text-base font-medium bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
-                placeholder={`Jméno osoby ${i + 1}`}
+                className={`flex-1 px-3 py-2 border border-black/10 rounded-xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent ${p.dismissed ? "line-through text-foreground/30" : ""}`}
+                placeholder={`Osoba ${i + 1}...`}
               />
-
               {p.name && (
-                <>
-                  {/* Circle */}
-                  <div className="flex gap-1.5">
-                    {circles.map((c) => (
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => updatePerson(i, "dismissed", !p.dismissed)}
+                    className={`text-lg px-2 py-1 rounded-lg transition-colors ${p.dismissed ? "bg-foreground/10 text-foreground/50" : "bg-foreground/5 text-foreground/30 hover:bg-foreground/10"}`}
+                    title={p.dismissed ? "Obnovit" : "Vyškrtnout"}
+                  >
+                    {p.dismissed ? "↩" : "✕"}
+                  </button>
+                  <button
+                    onClick={() => removePerson(i)}
+                    className="text-lg px-2 py-1 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 transition-colors"
+                    title="Smazat"
+                  >
+                    🗑
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {p.name && !p.dismissed && (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg text-red-400 w-6 shrink-0">-5</span>
+                  <div className="flex-1 flex gap-0.5">
+                    {Array.from({ length: 11 }, (_, j) => j - 5).map((v) => (
                       <button
-                        key={c.id}
-                        onClick={() => updatePerson(i, "circle", c.id)}
-                        className={`flex-1 px-2 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          p.circle === c.id
-                            ? "bg-accent text-white"
-                            : "bg-foreground/5 text-foreground/40 hover:bg-accent/10"
+                        key={v}
+                        onClick={() => updatePerson(i, "rating", v)}
+                        className={`flex-1 h-7 rounded text-base font-bold transition-all ${
+                          v === p.rating
+                            ? v > 0 ? "bg-green-500 text-white" : v < 0 ? "bg-red-500 text-white" : "bg-foreground/20 text-white"
+                            : "bg-foreground/5 text-foreground/30 hover:bg-foreground/10"
                         }`}
                       >
-                        {c.emoji} {c.label}
+                        {v > 0 ? `+${v}` : v}
                       </button>
                     ))}
                   </div>
+                  <span className="text-lg text-green-500 w-6 text-right shrink-0">+5</span>
+                </div>
 
-                  {/* Health 1-10 */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground/40 w-20 shrink-0">Zdraví vztahu:</span>
-                    <div className="flex gap-0.5 flex-1">
-                      {Array.from({ length: 10 }, (_, j) => j + 1).map((v) => (
-                        <button
-                          key={v}
-                          onClick={() => updatePerson(i, "health", v)}
-                          className={`flex-1 h-6 rounded text-xs font-bold transition-all ${
-                            v <= p.health ? "bg-accent text-white" : "bg-foreground/5 text-foreground/25"
-                          }`}
-                        >
-                          {v}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Energizes? */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => updatePerson(i, "energizes", true)}
-                      className={`flex-1 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                        p.energizes ? "bg-green-100 text-green-700 border border-green-200" : "bg-foreground/5 text-foreground/40"
-                      }`}
-                    >
-                      ⚡ Nabíjí mě
-                    </button>
-                    <button
-                      onClick={() => updatePerson(i, "energizes", false)}
-                      className={`flex-1 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                        !p.energizes ? "bg-red-100 text-red-700 border border-red-200" : "bg-foreground/5 text-foreground/40"
-                      }`}
-                    >
-                      🧛 Vyčerpává
-                    </button>
-                  </div>
-
-                  {/* Note */}
-                  <input
-                    value={p.note}
-                    onChange={(e) => updatePerson(i, "note", e.target.value)}
-                    className="w-full px-3 py-2 border border-black/10 rounded-xl text-sm bg-white text-foreground/60"
-                    placeholder="Poznámka (volitelné)..."
-                  />
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <button onClick={addPerson} className="text-sm text-accent font-semibold hover:underline">
-          + Přidat další osobu
-        </button>
-
-        <button
-          onClick={() => setStep("reflect")}
-          className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors"
-        >
-          Dál — reflexe →
-        </button>
-      </div>
-    );
-  }
-
-  // ── Step 2: Reflect ──
-  if (step === "reflect") {
-    const filled = data.people.filter((p) => p.name.trim());
-    const inner = filled.filter((p) => p.circle === "inner");
-    const energizers = filled.filter((p) => p.energizes);
-    const drainers = filled.filter((p) => !p.energizes);
-    const avgHealth = filled.length > 0
-      ? (filled.reduce((s, p) => s + p.health, 0) / filled.length).toFixed(1)
-      : "—";
-
-    return (
-      <div className="max-w-2xl mx-auto space-y-5">
-        <div>
-          <h2 className="text-xl font-bold text-foreground">🗺️ Tvůj vztahový profil</h2>
-          <p className="text-base text-foreground/55 mt-1">Co vidíš? Jaké vzorce se ti odhalují?</p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3 text-center">
-          <div className="px-3 py-3 rounded-2xl bg-accent/5 border border-accent/10">
-            <p className="text-2xl font-bold text-accent">{inner.length}</p>
-            <p className="text-xs text-foreground/40">Nejbližší kruh</p>
+                <input
+                  value={p.note}
+                  onChange={(e) => updatePerson(i, "note", e.target.value)}
+                  className="w-full px-3 py-2 border border-black/10 rounded-xl text-lg bg-white text-foreground/60"
+                  placeholder="Poznámka (volitelné)..."
+                />
+              </>
+            )}
           </div>
-          <div className="px-3 py-3 rounded-2xl bg-green-50 border border-green-200">
+        ))}
+      </div>
+
+      <button onClick={addPerson} className="text-base text-accent font-semibold hover:underline">
+        + Přidat osobu
+      </button>
+
+      {/* Summary */}
+      {filled.length > 0 && (
+        <div className="grid grid-cols-2 gap-3">
+          <div className="px-4 py-3 rounded-2xl bg-green-50 border border-green-200 text-center">
             <p className="text-2xl font-bold text-green-600">{energizers.length}</p>
-            <p className="text-xs text-foreground/40">Nabíjí tě</p>
+            <p className="text-lg text-green-700">nabíjí tě</p>
           </div>
-          <div className="px-3 py-3 rounded-2xl bg-red-50 border border-red-200">
+          <div className="px-4 py-3 rounded-2xl bg-red-50 border border-red-200 text-center">
             <p className="text-2xl font-bold text-red-500">{drainers.length}</p>
-            <p className="text-xs text-foreground/40">Vyčerpává</p>
+            <p className="text-lg text-red-600">vyčerpává</p>
           </div>
         </div>
+      )}
 
-        <p className="text-sm text-foreground/40 text-center">Průměrné zdraví vztahů: {avgHealth}/10</p>
-
-        <div className="space-y-1.5">
-          <label className="text-base font-medium text-foreground/70">
-            Co si uvědomuješ o svých vztazích? Co chceš změnit?
-          </label>
-          <textarea
-            value={data.insights}
-            onChange={(e) => setData((d) => ({ ...d, insights: e.target.value }))}
-            rows={4}
-            className="w-full px-4 py-3 border border-black/10 rounded-2xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
-            placeholder="Uvědomuji si, že..."
-          />
-        </div>
-
-        <div className="flex gap-2">
-          <button onClick={() => setStep("map")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-base">
-            ← Zpět
-          </button>
-          <button
-            onClick={async () => {
-              setSaving(true);
-              await onSave({ ...data, savedAt: new Date().toISOString() });
-              setSaving(false);
-              onComplete();
-            }}
-            disabled={saving}
-            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors disabled:opacity-60"
-          >
-            {saving ? "Ukládám…" : "Uložit mapu ✓"}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+      <button
+        onClick={async () => {
+          setSaving(true);
+          await onSave({ people, savedAt: new Date().toISOString() });
+          setSaving(false);
+          onComplete();
+        }}
+        disabled={saving || filled.length === 0}
+        className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors disabled:opacity-40"
+      >
+        {saving ? "Ukládám…" : "Uložit ✓"}
+      </button>
+    </div>
+  );
 }

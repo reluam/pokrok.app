@@ -79,9 +79,9 @@ export default function NastaveniOblastiFlow({
                   <span className="text-2xl">{area.emoji}</span>
                   <div className="flex-1">
                     <p className="font-bold text-base text-foreground">{area.label}</p>
-                    {done && <p className="text-sm text-green-600 font-semibold">Hotovo ✓</p>}
-                    {!done && hasAnyData && <p className="text-sm text-amber-600 font-semibold">Rozpracováno</p>}
-                    {!done && !hasAnyData && <p className="text-sm text-foreground/40">Začít →</p>}
+                    {done && <p className="text-lg text-green-600 font-semibold">Hotovo ✓</p>}
+                    {!done && hasAnyData && <p className="text-lg text-amber-600 font-semibold">Rozpracováno</p>}
+                    {!done && !hasAnyData && <p className="text-lg text-foreground/40">Začít →</p>}
                   </div>
                 </div>
               </button>
@@ -100,7 +100,7 @@ export default function NastaveniOblastiFlow({
           </div>
         )}
 
-        <p className="text-sm text-foreground/30 text-center">{data.completedAreas.length}/8 oblastí dokončeno</p>
+        <p className="text-lg text-foreground/30 text-center">{data.completedAreas.length}/8 oblastí dokončeno</p>
       </div>
     );
   }
@@ -172,7 +172,7 @@ export default function NastaveniOblastiFlow({
         </div>
 
         {navButtons(null, "principles")}
-        <button onClick={() => { setStep("select"); setActiveArea(null); }} className="w-full text-sm text-foreground/30 hover:text-foreground/50 py-2">
+        <button onClick={() => { setStep("select"); setActiveArea(null); }} className="w-full text-lg text-foreground/30 hover:text-foreground/50 py-2">
           ← Zpět na výběr oblastí
         </button>
       </div>
@@ -191,7 +191,7 @@ export default function NastaveniOblastiFlow({
         <div className="space-y-3">
           {principles.map((p, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="text-sm text-foreground/30 w-5 shrink-0">{i + 1}.</span>
+              <span className="text-lg text-foreground/30 w-5 shrink-0">{i + 1}.</span>
               <input
                 value={p}
                 onChange={(e) => {
@@ -223,7 +223,7 @@ export default function NastaveniOblastiFlow({
         <div className="space-y-3">
           {lessons.map((l, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="text-sm text-foreground/30 w-5 shrink-0">{i + 1}.</span>
+              <span className="text-lg text-foreground/30 w-5 shrink-0">{i + 1}.</span>
               <input
                 value={l}
                 onChange={(e) => {
@@ -254,7 +254,7 @@ export default function NastaveniOblastiFlow({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-green-600 uppercase tracking-wider">Zavádím</p>
+            <p className="text-lg font-semibold text-green-600 uppercase tracking-wider">Zavádím</p>
             {habitsAdd.map((h, i) => (
               <input
                 key={i}
@@ -271,7 +271,7 @@ export default function NastaveniOblastiFlow({
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-red-500 uppercase tracking-wider">Odstraňuji</p>
+            <p className="text-lg font-semibold text-red-500 uppercase tracking-wider">Odstraňuji</p>
             {habitsRemove.map((h, i) => (
               <input
                 key={i}
@@ -305,7 +305,7 @@ export default function NastaveniOblastiFlow({
         <div className="space-y-3">
           {metrics.map((m, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="text-sm text-foreground/30 w-5 shrink-0">{i + 1}.</span>
+              <span className="text-lg text-foreground/30 w-5 shrink-0">{i + 1}.</span>
               <input
                 value={m}
                 onChange={(e) => {

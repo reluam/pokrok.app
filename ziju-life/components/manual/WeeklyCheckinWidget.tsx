@@ -41,18 +41,18 @@ export function WeeklyCheckinWidget({
     const vS = lastCheckin.value_scores ?? {};
     return (
       <div className="space-y-6">
-        <p className="text-sm text-foreground/40">Tento týden vyplněno ✓</p>
+        <p className="text-lg text-foreground/40">Tento týden vyplněno ✓</p>
 
         {Object.keys(vS).length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-foreground/50 uppercase tracking-wider">Hodnoty</p>
+            <p className="text-lg font-semibold text-foreground/50 uppercase tracking-wider">Hodnoty</p>
             {Object.entries(vS).map(([v, s]) => (
               <div key={v} className="flex items-center gap-2">
-                <span className="text-sm text-foreground/60 w-24 truncate">{v}</span>
+                <span className="text-lg text-foreground/60 w-24 truncate">{v}</span>
                 <div className="flex-1 bg-black/5 rounded-full h-1.5 overflow-hidden">
                   <div className="h-full rounded-full bg-accent" style={{ width: `${s * 10}%` }} />
                 </div>
-                <span className="text-sm font-bold text-accent w-4 text-right">{s}</span>
+                <span className="text-lg font-bold text-accent w-4 text-right">{s}</span>
               </div>
             ))}
           </div>
@@ -60,7 +60,7 @@ export function WeeklyCheckinWidget({
 
         {Object.keys(aS).length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-foreground/50 uppercase tracking-wider">
+            <p className="text-lg font-semibold text-foreground/50 uppercase tracking-wider">
               Oblasti{prevCheckin?.area_scores ? " — plná čára = tento týden, přerušovaná = minulý" : ""}
             </p>
             <div className="flex justify-center">
@@ -80,7 +80,7 @@ export function WeeklyCheckinWidget({
       <div className="space-y-5">
         <div>
           <p className="font-semibold text-foreground">Hodnoty — jak jsi je žil/a tento týden?</p>
-          <p className="text-sm text-foreground/45 mt-0.5">
+          <p className="text-lg text-foreground/45 mt-0.5">
             {values.length > 0 ? "Ohodnoť každou hodnotu 1–10." : "Nejdřív si ulož svoje hodnoty v záložce Hodnoty."}
           </p>
         </div>
@@ -91,7 +91,7 @@ export function WeeklyCheckinWidget({
               <div key={v} className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-base font-medium text-foreground/70">{v}</span>
-                  <span className="text-sm font-bold text-accent">{valueScores[v] ?? 5}</span>
+                  <span className="text-lg font-bold text-accent">{valueScores[v] ?? 5}</span>
                 </div>
                 <ScoreBar
                   value={valueScores[v] ?? 5}
@@ -125,7 +125,7 @@ export function WeeklyCheckinWidget({
     <div className="space-y-5">
       <div>
         <p className="font-semibold text-foreground">Oblasti — jak se ti dařilo tento týden?</p>
-        <p className="text-sm text-foreground/45 mt-0.5">Klikni na pavouka — každá osa = oblast, vzdálenost od středu = skóre 1–10.</p>
+        <p className="text-lg text-foreground/45 mt-0.5">Klikni na pavouka — každá osa = oblast, vzdálenost od středu = skóre 1–10.</p>
       </div>
 
       <div className="flex justify-center">

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { DashboardCard } from "./DashboardCard";
-import { VALUE_DESCRIPTIONS, type HodnotyData } from "@/components/HodnotyFlow";
+import type { HodnotyData } from "@/components/HodnotyFlow";
 import type { DailyValuesData } from "@/lib/exercise-registry";
 
 function ScoreBar5({ value, onChange }: { value: number; onChange: (n: number) => void }) {
@@ -17,7 +17,7 @@ function ScoreBar5({ value, onChange }: { value: number; onChange: (n: number) =
             onMouseEnter={() => setHovered(n)}
             onMouseLeave={() => setHovered(null)}
             onClick={() => onChange(n)}
-            className={`flex-1 h-7 rounded text-sm font-bold transition-all ${
+            className={`flex-1 h-7 rounded text-lg font-bold transition-all ${
               fill ? "bg-accent text-white" : "bg-foreground/6 text-foreground/35 hover:bg-accent/15 hover:text-accent"
             }`}
           >
@@ -88,7 +88,7 @@ export function HodnotyDailyCard({
         <div className="text-center py-4 space-y-2">
           <span className="text-2xl">💎</span>
           <p className="text-base font-semibold text-foreground">Hodnoty</p>
-          <p className="text-sm text-foreground/45 leading-relaxed max-w-xs mx-auto">Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.</p>
+          <p className="text-lg text-foreground/45 leading-relaxed max-w-xs mx-auto">Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.</p>
           <button
             onClick={() => onTabChange?.("manual")}
             className="text-base text-accent font-semibold hover:opacity-80 transition-opacity"
@@ -104,24 +104,50 @@ export function HodnotyDailyCard({
   const total = values.length;
   const avg = filled > 0 ? (Object.values(scores).reduce((s, v) => s + v, 0) / filled).toFixed(1) : "—";
 
+  // Stats: average per value over last 7 entries
+  const statsContent = dailyData?.entries && dailyData.entries.length > 1 ? (
+    <div className="space-y-2">
+      <p className="text-base font-semibold text-foreground/40 uppercase tracking-wider">
+        Průměr za {Math.min(dailyData.entries.length, 7)} dní
+      </p>
+      {values.map((v) => {
+        const recent = dailyData.entries!.slice(-7);
+        const scored = recent.filter((e) => (e.scores[v] ?? 0) > 0);
+        const valAvg = scored.length > 0 ? scored.reduce((s, e) => s + (e.scores[v] ?? 0), 0) / scored.length : 0;
+        return (
+          <div key={v} className="flex items-center gap-2">
+            <span className="text-base text-foreground/60 flex-1 truncate">{v}</span>
+            <div className="w-24 h-2 bg-foreground/5 rounded-full overflow-hidden">
+              <div className="h-full rounded-full bg-accent" style={{ width: `${(valAvg / 5) * 100}%` }} />
+            </div>
+            <span className="text-base font-bold text-foreground/50 w-8 text-right">{valAvg > 0 ? valAvg.toFixed(1) : "—"}</span>
+          </div>
+        );
+      })}
+    </div>
+  ) : undefined;
+
   return (
-    <DashboardCard emoji="💎" title="Hodnoty">
+    <DashboardCard emoji="💎" title="Hodnoty" statsContent={statsContent}>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-foreground/40">Jak moc dnes žiješ podle svých hodnot?</p>
-          <span className="text-sm text-foreground/30">
+          <p className="text-lg text-foreground/40">Jak moc dnes žiješ podle svých hodnot?</p>
+          <span className="text-lg text-foreground/30">
             {filled}/{total} · {avg}/5
           </span>
         </div>
         {values.map((v) => (
           <div key={v} className="flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <span className="text-base font-medium text-foreground/65 block truncate">{v}</span>
-              {VALUE_DESCRIPTIONS[v] && <p className="text-sm text-foreground/35 truncate">{VALUE_DESCRIPTIONS[v]}</p>}
-            </div>
+            <span className="text-base font-medium text-foreground/65 flex-1 min-w-0 truncate">{v}</span>
             <ScoreBar5 value={scores[v] ?? 0} onChange={(n) => handleChange(v, n)} />
           </div>
         ))}
+        <button
+          onClick={() => onTabChange?.("manual")}
+          className="text-base text-accent/60 hover:text-accent font-medium transition-colors mt-1"
+        >
+          Upravit hodnoty →
+        </button>
       </div>
     </DashboardCard>
   );

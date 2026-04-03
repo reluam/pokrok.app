@@ -122,7 +122,7 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
           <div className="w-20 h-2 bg-black/8 rounded-full overflow-hidden">
             <div className="h-full rounded-full transition-all bg-accent" style={{ width: `${pct}%` }} />
           </div>
-          <span className="text-sm text-foreground/40 font-medium">{completedCount}/{totalCount}</span>
+          <span className="text-lg text-foreground/40 font-medium">{completedCount}/{totalCount}</span>
         </div>
       </div>
 
@@ -176,7 +176,7 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
                         {getRitualName(id)}
                       </span>
                       {count > 0 && (
-                        <span className="text-sm text-foreground/30" title={`${count}× za posledních 30 dní`}>
+                        <span className="text-lg text-foreground/30" title={`${count}× za posledních 30 dní`}>
                           {count}×
                         </span>
                       )}

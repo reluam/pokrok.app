@@ -51,7 +51,7 @@ function ViewMode({ data }: { data: FuneralSpeechData }) {
         if (!text) return null;
         return (
           <div key={f.key} className="space-y-0.5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/30">{f.label}</p>
+            <p className="text-base font-semibold uppercase tracking-wider text-foreground/30">{f.label}</p>
             <p className="text-base text-foreground/60 leading-relaxed">
               {text.slice(0, 120)}{text.length > 120 ? "…" : ""}
             </p>
@@ -86,14 +86,14 @@ function EditMode({
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-sm font-bold text-foreground/70">Na smrtelné posteli</p>
-        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">
+        <p className="text-lg font-bold text-foreground/70">Na smrtelné posteli</p>
+        <p className="text-lg text-foreground/40 mt-0.5 leading-relaxed">
           Ležíš na smrtelné posteli a přemítáš si celý svůj život. Co vidíš? Piš z pozice toho člověka na konci — co chceš a co nechceš, aby se stalo.
         </p>
       </div>
       {FIELDS.map((f) => (
         <div key={f.key} className="space-y-1">
-          <label className="text-sm font-medium text-foreground/50">{f.question}</label>
+          <label className="text-lg font-medium text-foreground/50">{f.question}</label>
           <textarea
             value={form[f.key]}
             onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}

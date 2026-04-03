@@ -15,10 +15,10 @@ export function ToolTopBar({ onReset, printNode }: {
       {printNode}
       {confirming ? (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-foreground/50">Opravdu smazat vše?</span>
+          <span className="text-lg text-foreground/50">Opravdu smazat vše?</span>
           <button
             onClick={() => { setConfirming(false); onReset(); }}
-            className="px-3 py-1.5 rounded-full bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors"
+            className="px-3 py-1.5 rounded-full bg-red-500 text-white text-lg font-bold hover:bg-red-600 transition-colors"
           >
             Ano, smazat
           </button>

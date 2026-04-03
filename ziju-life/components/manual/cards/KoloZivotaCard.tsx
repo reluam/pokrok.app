@@ -40,6 +40,7 @@ export function KoloZivotaCard({
       isEmpty={isEmpty}
       emptyDescription="Ohodnoť 8 životních oblastí a zjisti, kde jsi teď a kam chceš. Uvidíš, co rozvíjet jako první."
       editContent={<EditFlow data={data} saveContext={saveContext} />}
+      statsContent={data ? <StatsView data={data} /> : undefined}
     >
       <ViewMode data={data!} />
     </DashboardCard>
@@ -58,7 +59,7 @@ function ViewMode({ data }: { data: KompasData }) {
       {/* Spider chart — left */}
       <div className="flex-shrink-0 space-y-1">
         <SpiderChart vals={data.currentVals} goalVals={data.goalVals} size={200} />
-        <div className="flex items-center justify-center gap-3 text-xs text-foreground/40">
+        <div className="flex items-center justify-center gap-3 text-base text-foreground/40">
           <span className="flex items-center gap-1">
             <span className="inline-block w-2.5 h-1 rounded-full bg-[#FF8C42]" />
             Teď ({mean})
@@ -79,20 +80,61 @@ function ViewMode({ data }: { data: KompasData }) {
       <div className="flex-1 min-w-0 space-y-3 pt-2">
         {focusArea ? (
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/30">Focus</p>
-            <p className="text-sm font-bold text-accent mt-0.5">{focusArea.short}</p>
+            <p className="text-base font-semibold uppercase tracking-wider text-foreground/30">Focus</p>
+            <p className="text-lg font-bold text-accent mt-0.5">{focusArea.short}</p>
           </div>
         ) : (
-          <p className="text-xs text-foreground/35 italic">Focus oblast se nastaví v měsíčním check-inu.</p>
+          <p className="text-base text-foreground/35 italic">Focus oblast se nastaví v měsíčním check-inu.</p>
         )}
         {steps.length > 0 && (
           <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/30">Kroky</p>
+            <p className="text-base font-semibold uppercase tracking-wider text-foreground/30">Kroky</p>
             {steps.map((step, i) => (
-              <p key={i} className="text-sm text-foreground/55">{i + 1}. {step}</p>
+              <p key={i} className="text-lg text-foreground/55">{i + 1}. {step}</p>
             ))}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function StatsView({ data }: { data: KompasData }) {
+  const areas = WHEEL_AREAS.map((a) => {
+    const current = data.currentVals?.[a.key] ?? 0;
+    const goal = data.goalVals?.[a.key] ?? 0;
+    const diff = goal - current;
+    return { ...a, current, goal, diff };
+  }).sort((a, b) => b.diff - a.diff);
+
+  const avg = areas.reduce((s, a) => s + a.current, 0) / areas.length;
+  const avgGoal = areas.reduce((s, a) => s + a.goal, 0) / areas.length;
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 text-center">
+        <div className="px-3 py-2 rounded-xl bg-accent/5 border border-accent/10">
+          <p className="text-xl font-bold text-accent">{avg.toFixed(1)}</p>
+          <p className="text-base text-foreground/40">Průměr teď</p>
+        </div>
+        <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200">
+          <p className="text-xl font-bold text-emerald-600">{avgGoal.toFixed(1)}</p>
+          <p className="text-base text-foreground/40">Průměr cíl</p>
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <p className="text-base font-semibold text-foreground/40 uppercase tracking-wider">Největší mezery</p>
+        {areas.filter(a => a.diff > 0).map((a) => (
+          <div key={a.key} className="flex items-center gap-2">
+            <span className="text-base text-foreground/60 flex-1">{a.short}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-base text-foreground/40">{a.current}</span>
+              <span className="text-base text-foreground/20">→</span>
+              <span className="text-base font-bold text-emerald-600">{a.goal}</span>
+            </div>
+            <span className="text-base font-bold text-red-400 w-8 text-right">-{a.diff}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -111,7 +153,7 @@ function SliderRow({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-foreground/50 w-20 truncate">{label}</span>
+      <span className="text-lg text-foreground/50 w-20 truncate">{label}</span>
       <input
         type="range"
         min={1}
@@ -123,7 +165,7 @@ function SliderRow({
           background: `linear-gradient(to right, ${color} ${((value - 1) / 9) * 100}%, rgba(0,0,0,0.08) ${((value - 1) / 9) * 100}%)`,
         }}
       />
-      <span className="text-sm font-bold text-foreground/60 w-5 text-right">{value}</span>
+      <span className="text-lg font-bold text-foreground/60 w-5 text-right">{value}</span>
     </div>
   );
 }
@@ -186,8 +228,8 @@ function EditFlow({
 
       {/* Step description */}
       <div>
-        <p className="text-sm font-bold text-foreground/70">{info.title}</p>
-        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">{info.desc}</p>
+        <p className="text-lg font-bold text-foreground/70">{info.title}</p>
+        <p className="text-lg text-foreground/40 mt-0.5 leading-relaxed">{info.desc}</p>
       </div>
 
       {/* Step content */}
