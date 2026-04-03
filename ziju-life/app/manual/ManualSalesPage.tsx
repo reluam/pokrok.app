@@ -153,11 +153,11 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
           <div className="text-center py-2">
             <div className="text-4xl mb-3">📬</div>
             <p className="font-extrabold text-lg mb-2">Zkontroluj e-mail</p>
-            <p className="text-sm text-foreground/55 leading-relaxed mb-5">
+            <p className="text-base text-foreground/55 leading-relaxed mb-5">
               Poslali jsme kód a odkaz na <strong>{email}</strong>.
             </p>
 
-            <p className="text-xs font-semibold text-foreground mb-3">Zadej 6místný kód:</p>
+            <p className="text-sm font-semibold text-foreground mb-3">Zadej 6místný kód:</p>
             <div className="flex justify-center gap-1.5 mb-3">
               {digits.map((d, i) => (
                 <input
@@ -181,14 +181,14 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
               ))}
             </div>
 
-            {verifying && <p className="text-xs text-accent mb-2">Ověřuji...</p>}
-            {codeError && <p className="text-xs text-red-500 mb-2">{codeError}</p>}
+            {verifying && <p className="text-sm text-accent mb-2">Ověřuji...</p>}
+            {codeError && <p className="text-sm text-red-500 mb-2">{codeError}</p>}
 
-            <p className="text-xs text-foreground/40 mb-4">
+            <p className="text-sm text-foreground/40 mb-4">
               Kód je platný 5 minut. Nebo klikni na odkaz v e-mailu.
             </p>
 
-            <div className="flex items-center justify-center gap-3 text-xs text-foreground/40">
+            <div className="flex items-center justify-center gap-3 text-sm text-foreground/40">
               <button
                 onClick={handleResend}
                 className="underline hover:text-foreground/70 transition-colors"
@@ -207,7 +207,7 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
         ) : (
           <>
             <p className="font-extrabold text-lg mb-1">Přihlásit se</p>
-            <p className="text-sm text-foreground/50 mb-6 leading-relaxed">
+            <p className="text-base text-foreground/50 mb-6 leading-relaxed">
               Zadej e-mail svého účtu — pošleme ti kód pro přihlášení.
             </p>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -219,13 +219,13 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
                 required
                 autoFocus
                 className="w-full px-4 py-3 rounded-2xl border border-foreground/10
-                  bg-white text-sm outline-none focus:border-accent/40 transition-colors"
+                  bg-white text-base outline-none focus:border-accent/40 transition-colors"
               />
               <button
                 type="submit"
                 disabled={state === "loading"}
                 className="w-full py-3 bg-accent text-white rounded-full font-bold
-                  text-sm hover:bg-accent-hover transition-colors disabled:opacity-60"
+                  text-base hover:bg-accent-hover transition-colors disabled:opacity-60"
               >
                 {state === "loading" ? (
                   <span className="flex items-center justify-center gap-2">
@@ -237,7 +237,7 @@ function MagicLinkModal({ onClose }: { onClose: () => void }) {
                 )}
               </button>
               {(state === "error") && errorMsg && (
-                <p className="text-xs text-red-500 leading-relaxed">{errorMsg}</p>
+                <p className="text-sm text-red-500 leading-relaxed">{errorMsg}</p>
               )}
             </form>
           </>
@@ -283,7 +283,7 @@ function ManualContent() {
   return (
     <main className="min-h-screen bg-[#FDFDF7]">
       {expiredBanner && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 text-center text-sm text-amber-800">
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 text-center text-base text-amber-800">
           Přihlašovací odkaz vypršel — pošleme ti nový.{" "}
           <button
             onClick={() => setShowMagic(true)}
@@ -319,8 +319,8 @@ function ManualContent() {
               Přihlásit se
             </button>
           </div>
-          {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
-          <p className="mt-5 text-xs text-foreground/35">
+          {buyError && <p className="mt-3 text-base text-red-500">{buyError}</p>}
+          <p className="mt-5 text-sm text-foreground/35">
             490 Kč / rok · Přístup ke všem nástrojům · Zrušit lze kdykoliv
           </p>
         </div>
@@ -350,7 +350,7 @@ function ManualContent() {
               </svg>
             </div>
             <h3 className="text-lg font-bold text-foreground">Interaktivní cvičení</h3>
-            <p className="text-sm text-foreground/60 leading-relaxed">
+            <p className="text-base text-foreground/60 leading-relaxed">
               Kompas životních oblastí, pojmenování hodnot, nastavení denních rituálů. Projdeš ve svém tempu — na konci máš jasný výstup.
             </p>
           </div>
@@ -375,7 +375,7 @@ function ManualContent() {
               </svg>
             </div>
             <h3 className="text-lg font-bold text-foreground">Aplikace pro každý den</h3>
-            <p className="text-sm text-foreground/60 leading-relaxed">
+            <p className="text-base text-foreground/60 leading-relaxed">
               Dashboard s denním to-do, prioritami, check-iny a reflexemi. Tvůj osobní přehled, který ti pomůže žít vědoměji — každý den.
             </p>
           </div>
@@ -400,7 +400,7 @@ function ManualContent() {
               </svg>
             </div>
             <h3 className="text-lg font-bold text-foreground">AI průvodce</h3>
-            <p className="text-sm text-foreground/60 leading-relaxed">
+            <p className="text-base text-foreground/60 leading-relaxed">
               Osobní thinking parťák, který tě zná. Dokáže ukázat nové perspektivy, položit správnou otázku a pomoct ti najít vlastní odpovědi.
             </p>
           </div>
@@ -413,7 +413,7 @@ function ManualContent() {
         <div className="bg-[#fdf0e6]/50 border border-black/8 rounded-[28px] px-8 md:px-12 py-10 flex flex-col md:flex-row md:items-center gap-8">
           {/* Levá strana — cena + CTA */}
           <div className="md:w-1/2 space-y-5">
-            <p className="text-xs font-bold text-foreground/50 uppercase tracking-widest">
+            <p className="text-sm font-bold text-foreground/50 uppercase tracking-widest">
               Předplatné
             </p>
             <p className="text-4xl md:text-5xl font-extrabold text-foreground">
@@ -421,12 +421,12 @@ function ManualContent() {
             </p>
             <AccessButton loading={buying} onClick={handleBuy} />
             {buyError && (
-              <p className="text-sm text-red-500">{buyError}</p>
+              <p className="text-base text-red-500">{buyError}</p>
             )}
           </div>
 
           {/* Pravá strana — seznam */}
-          <ul className="md:w-1/2 space-y-3 text-sm text-foreground/70">
+          <ul className="md:w-1/2 space-y-3 text-base text-foreground/70">
             {[
               "Interaktivní cvičení (Kompas, Hodnoty, Rituály)",
               "Aplikace pro každodenní život (dashboard, to-do, check-iny)",

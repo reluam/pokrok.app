@@ -47,7 +47,7 @@ export function AreaSparklines({ checkins }: { checkins: CheckinEntry[] }) {
 
   return (
     <div>
-      <p className="text-xs text-foreground/40 mb-3">Vývoj oblastí (posledních {withAreas.length} týdnů)</p>
+      <p className="text-sm text-foreground/40 mb-3">Vývoj oblastí (posledních {withAreas.length} týdnů)</p>
       <div className="grid grid-cols-2 gap-x-4 gap-y-3">
         {WHEEL_AREAS.map((area) => {
           const scores = withAreas.map((c) => c.area_scores?.[area.key] ?? 5);
@@ -62,16 +62,16 @@ export function AreaSparklines({ checkins }: { checkins: CheckinEntry[] }) {
 
           return (
             <div key={area.key} className="flex items-center gap-2">
-              <div className="w-14 text-[10px] text-foreground/50 font-medium truncate">{area.short}</div>
+              <div className="w-14 text-xs text-foreground/50 font-medium truncate">{area.short}</div>
               <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="shrink-0">
                 <polyline points={pts} fill="none" stroke="#FF8C42" strokeWidth="1.5"
                   strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
                 <circle cx={PAD + (scores.length - 1) * xStep} cy={yScale(last)} r="2.5" fill="#FF8C42" />
               </svg>
               <div className="flex items-baseline gap-0.5">
-                <span className="text-xs font-bold text-foreground/70">{last}</span>
+                <span className="text-sm font-bold text-foreground/70">{last}</span>
                 {delta !== 0 && (
-                  <span className={`text-[10px] font-semibold ${delta > 0 ? "text-green-500" : "text-red-400"}`}>
+                  <span className={`text-xs font-semibold ${delta > 0 ? "text-green-500" : "text-red-400"}`}>
                     {delta > 0 ? `+${delta}` : delta}
                   </span>
                 )}

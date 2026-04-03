@@ -243,8 +243,8 @@ export default function CoachingChatPanel() {
         <div className="flex items-center gap-2.5">
           <Sparkles size={18} className="text-accent" />
           <div>
-            <p className="text-sm font-bold text-foreground">AI Průvodce</p>
-            <p className="text-[11px] text-foreground/40">Tvůj chytrý životní průvodce</p>
+            <p className="text-base font-bold text-foreground">AI Průvodce</p>
+            <p className="text-sm text-foreground/40">Tvůj chytrý životní průvodce</p>
           </div>
         </div>
         {budgetPct !== null && (
@@ -285,11 +285,11 @@ export default function CoachingChatPanel() {
                     }`}
                   >
                     {m.role === "user" ? (
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground/80">
+                      <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/80">
                         {m.content}
                       </p>
                     ) : (
-                      <div className="text-sm leading-relaxed text-foreground/75 prose prose-sm prose-neutral max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2 [&>li]:mb-0.5">
+                      <div className="text-base leading-relaxed text-foreground/75 prose prose-sm prose-neutral max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2 [&>li]:mb-0.5">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {injectLinks(m.content)}
                         </ReactMarkdown>
@@ -313,10 +313,10 @@ export default function CoachingChatPanel() {
                           <div key={j} className="rounded-xl border border-blue-200 bg-blue-50/50 px-3 py-2">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2 min-w-0">
-                                <span className="text-sm leading-none">{icon}</span>
+                                <span className="text-base leading-none">{icon}</span>
                                 <div className="min-w-0">
-                                  <p className="text-xs font-semibold text-foreground">{label}</p>
-                                  {detail && <p className="text-[11px] text-foreground/50 truncate">{detail}</p>}
+                                  <p className="text-sm font-semibold text-foreground">{label}</p>
+                                  {detail && <p className="text-sm text-foreground/50 truncate">{detail}</p>}
                                 </div>
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
@@ -340,17 +340,17 @@ export default function CoachingChatPanel() {
             {sending && (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                <p className="text-xs text-foreground/50">Průvodce přemýšlí...</p>
+                <p className="text-sm text-foreground/50">Průvodce přemýšlí...</p>
               </div>
             )}
 
             {error === "no_budget" && (
-              <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+              <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
                 AI rozpočet je vyčerpaný. Obnoví se s dalším předplatným.
               </div>
             )}
             {error && error !== "no_budget" && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-700">
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
                 {error}
               </div>
             )}
@@ -364,7 +364,7 @@ export default function CoachingChatPanel() {
                 value={input}
                 onChange={(e) => setInput(e.target.value.slice(0, 2000))}
                 placeholder="Napiš zprávu..."
-                className="flex-1 px-3.5 py-2.5 border border-black/10 rounded-xl bg-white/80 text-sm min-h-[40px] max-h-[100px] resize-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+                className="flex-1 px-3.5 py-2.5 border border-black/10 rounded-xl bg-white/80 text-base min-h-[40px] max-h-[100px] resize-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
                 disabled={sending}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
@@ -391,7 +391,7 @@ export default function CoachingChatPanel() {
             className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-black/5 bg-white/50 hover:bg-accent/5 transition-colors shrink-0 w-full rounded-b-[24px]"
           >
             <CalendarPlus size={14} className="text-accent" />
-            <span className="text-xs font-semibold text-accent">Objednat osobní sezení</span>
+            <span className="text-sm font-semibold text-accent">Objednat osobní sezení</span>
           </button>
         </>
       )}

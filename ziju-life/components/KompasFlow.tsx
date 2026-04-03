@@ -208,10 +208,10 @@ function SegmentBar({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-foreground/55">{label}</span>
+        <span className="text-sm font-medium text-foreground/55">{label}</span>
         <div className="flex items-center gap-2">
-          {subLabel && <span className="text-[11px] text-foreground/30">{subLabel}</span>}
-          <span className="text-xs font-bold w-4 text-right" style={{ color }}>{value}</span>
+          {subLabel && <span className="text-sm text-foreground/30">{subLabel}</span>}
+          <span className="text-sm font-bold w-4 text-right" style={{ color }}>{value}</span>
         </div>
       </div>
       <div className="flex rounded-lg overflow-hidden border border-black/[0.08]">
@@ -219,7 +219,7 @@ function SegmentBar({
           <button
             key={n}
             onClick={() => onChange(n)}
-            className="flex-1 py-1.5 text-[10px] font-semibold transition-colors border-r border-black/[0.06] last:border-r-0"
+            className="flex-1 py-1.5 text-xs font-semibold transition-colors border-r border-black/[0.06] last:border-r-0"
             style={{
               background: n <= value ? color : "rgba(0,0,0,0.02)",
               color:      n <= value ? "white" : "rgba(0,0,0,0.25)",
@@ -243,13 +243,13 @@ function SlideCurrentSpider({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Kdo jsi dnes</p>
-        <p className="text-sm text-foreground/55 mt-1 leading-relaxed">
+        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Kdo jsi dnes</p>
+        <p className="text-base text-foreground/55 mt-1 leading-relaxed">
           Upřímně ohodnoť každou oblast svého života. Kde jsi teď — ne kde bys chtěl být.
         </p>
       </div>
 
-      <div className="flex items-center justify-between text-xs text-foreground/40">
+      <div className="flex items-center justify-between text-sm text-foreground/40">
         <span>Klikni do grafu nebo nastav hodnoty níže</span>
         <span>průměr <strong className="text-foreground/60">{avg}</strong>/10</span>
       </div>
@@ -293,14 +293,14 @@ function SlideGoalSpider({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Kde chceš být</p>
-        <p className="text-sm text-foreground/55 mt-1 leading-relaxed">
+        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Kde chceš být</p>
+        <p className="text-base text-foreground/55 mt-1 leading-relaxed">
           Nastav si priority. Cílem není mít vše na 10 — je v pořádku mít někde 10 a jinde 6.
           Šedý obrys ukazuje, kde jsi teď.
         </p>
       </div>
 
-      <div className="flex items-center gap-4 text-[11px] text-foreground/45">
+      <div className="flex items-center gap-4 text-sm text-foreground/45">
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-1 rounded-full opacity-40" style={{ background: COLOR_ORANGE }} />
           Dnes
@@ -343,7 +343,7 @@ function SlideGoalSpider({
       {avg > 8 && (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 flex gap-3">
           <span className="text-lg flex-shrink-0">⚠️</span>
-          <p className="text-sm text-amber-800 leading-relaxed">
+          <p className="text-base text-amber-800 leading-relaxed">
             <strong>Průměr cílů je {avg.toFixed(1)}.</strong> Každá oblast, které věnuješ víc energie, bere energii ostatním.
             Zkus si vybrat, co je opravdu důležité — a přijmout, že některé věci mohou zůstat na 6 nebo 7. To není selhání, to je rozhodnutí.
           </p>
@@ -369,10 +369,10 @@ function SlideArea({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Oblast</p>
+        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Oblast</p>
         <div className="flex items-baseline gap-3 mt-1">
           <h3 className="text-lg font-bold text-foreground">{area.label}</h3>
-          <span className="text-sm text-foreground/40">
+          <span className="text-base text-foreground/40">
             {current} <span style={{ color: COLOR_BLUE }}>→ {goal}</span>
           </span>
         </div>
@@ -380,7 +380,7 @@ function SlideArea({
       <div className="space-y-3">
         {AREA_QUESTIONS.map((q, i) => (
           <div key={i} className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground/65 block leading-snug">
+            <label className="text-base font-medium text-foreground/65 block leading-snug">
               <span className="text-foreground/30 mr-1.5">{i + 1}.</span>{q}
             </label>
             <textarea
@@ -392,19 +392,19 @@ function SlideArea({
               }}
               placeholder="Napiš sem svoji odpověď…"
               rows={2}
-              className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 focus:bg-white transition-all"
+              className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 focus:bg-white transition-all"
             />
           </div>
         ))}
 
         {/* 5. Konkrétní kroky na příští měsíc */}
         <div className="space-y-2 pt-2 border-t border-black/[0.06]">
-          <label className="text-sm font-medium text-foreground/65 block leading-snug">
+          <label className="text-base font-medium text-foreground/65 block leading-snug">
             <span className="text-foreground/30 mr-1.5">5.</span>Což znamená, že v příštím měsíci se zaměřím na tyto konkrétní kroky:
           </label>
           {[0, 1, 2].map(i => (
             <div key={i} className="flex items-start gap-2">
-              <span className="text-xs font-bold text-foreground/25 pt-2.5 w-4 text-right flex-shrink-0">{i + 1}.</span>
+              <span className="text-sm font-bold text-foreground/25 pt-2.5 w-4 text-right flex-shrink-0">{i + 1}.</span>
               <input
                 type="text"
                 value={actionSteps[i] ?? ""}
@@ -414,11 +414,11 @@ function SlideArea({
                   onActionStepsChange(next)
                 }}
                 placeholder={i === 0 ? "Např. 3× týdně běhání po 20 min" : i === 1 ? "Volitelný krok…" : "Volitelný krok…"}
-                className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 focus:bg-white transition-all"
+                className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 focus:bg-white transition-all"
               />
             </div>
           ))}
-          <p className="text-[11px] text-foreground/35 leading-relaxed">
+          <p className="text-sm text-foreground/35 leading-relaxed">
             Za měsíc se ti tu zobrazí připomínka k reflexi — podíváš se, co se povedlo, a nastavíš si nový směr.
           </p>
         </div>
@@ -446,8 +446,8 @@ function SlideFocusArea({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Vyber svůj dílek mozaiky</p>
-        <p className="text-sm text-foreground/55 mt-1 leading-relaxed">
+        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Vyber svůj dílek mozaiky</p>
+        <p className="text-base text-foreground/55 mt-1 leading-relaxed">
           Nemůžeš složit celou mozaiku najednou. Vyber jednu oblast, na které budeš pracovat tento měsíc.
         </p>
       </div>
@@ -475,8 +475,8 @@ function SlideFocusArea({
               >
                 {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
               </span>
-              <span className="flex-1 text-sm font-semibold text-foreground">{a.label}</span>
-              <span className="text-xs text-foreground/40 flex-shrink-0">
+              <span className="flex-1 text-base font-semibold text-foreground">{a.label}</span>
+              <span className="text-sm text-foreground/40 flex-shrink-0">
                 {cur}
                 {diff !== 0 && (
                   <span style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
@@ -485,7 +485,7 @@ function SlideFocusArea({
                 )}
               </span>
               {diff > 0 && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                <span className="text-xs font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
                   style={{ background: "rgba(55,138,221,0.1)", color: COLOR_BLUE }}
                 >
                   +{diff}
@@ -561,10 +561,10 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
         <div className="space-y-4">
           {hodnotyValues.length > 0 && (
             <div className="rounded-xl bg-orange-50/60 border border-orange-100 px-4 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/35 mb-1.5">Tvoje hodnoty</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/35 mb-1.5">Tvoje hodnoty</p>
               <div className="flex flex-wrap gap-1.5">
                 {hodnotyValues.slice(0, 7).map((v, i) => (
-                  <span key={v} className={`text-xs px-2 py-0.5 rounded-lg font-medium ${i < 5 ? "bg-orange-100 text-orange-800" : "bg-orange-50 text-orange-600"}`}>
+                  <span key={v} className={`text-sm px-2 py-0.5 rounded-lg font-medium ${i < 5 ? "bg-orange-100 text-orange-800" : "bg-orange-50 text-orange-600"}`}>
                     {v}
                   </span>
                 ))}
@@ -606,8 +606,8 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
       {/* Progress */}
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs text-foreground/40">{LABELS[slide]}</span>
-          <span className="text-xs text-foreground/30">{slide + 1} / {TOTAL_SLIDES}</span>
+          <span className="text-sm text-foreground/40">{LABELS[slide]}</span>
+          <span className="text-sm text-foreground/30">{slide + 1} / {TOTAL_SLIDES}</span>
         </div>
         <div className="h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
           <div
@@ -627,13 +627,13 @@ function KompasFlowSlides({ onComplete }: { onComplete: (data: KompasData) => vo
         <button
           onClick={handleBack}
           disabled={slide === 0}
-          className="px-5 py-2.5 text-sm rounded-xl border border-white/60 bg-white/65 backdrop-blur text-foreground/55 disabled:opacity-25 hover:bg-white/80 hover:text-foreground transition-all"
+          className="px-5 py-2.5 text-base rounded-xl border border-white/60 bg-white/65 backdrop-blur text-foreground/55 disabled:opacity-25 hover:bg-white/80 hover:text-foreground transition-all"
         >
           ← Zpět
         </button>
         <button
           onClick={handleNext}
-          className="px-6 py-2.5 text-sm rounded-xl text-white font-medium transition-all hover:shadow-md"
+          className="px-6 py-2.5 text-base rounded-xl text-white font-medium transition-all hover:shadow-md"
           style={{ background: COLOR_ORANGE }}
         >
           {isLastSlide ? "Dokončit ✓" : "Dál →"}
@@ -687,8 +687,8 @@ function ReflectionFlow({
     return (
       <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600/70">Měsíční reflexe</p>
-          <p className="text-sm text-foreground/60 mt-1 leading-relaxed">
+          <p className="text-sm font-semibold uppercase tracking-wider text-amber-600/70">Měsíční reflexe</p>
+          <p className="text-base text-foreground/60 mt-1 leading-relaxed">
             Uplynul měsíc od tvého posledního kola života.
             {focusAreaObj && <> Zaměřil/a ses na <strong>{focusAreaObj.label}</strong>.</>}
             {" "}Podívej se, co se povedlo:
@@ -710,7 +710,7 @@ function ReflectionFlow({
                 : { borderColor: "rgba(0,0,0,0.07)", background: "rgba(255,255,255,0.5)" }
               }
             >
-              <span className="w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all text-xs"
+              <span className="w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all text-sm"
                 style={completedSteps[i]
                   ? { borderColor: "#22c55e", background: "#22c55e", color: "white" }
                   : { borderColor: "rgba(0,0,0,0.2)" }
@@ -718,7 +718,7 @@ function ReflectionFlow({
               >
                 {completedSteps[i] && "✓"}
               </span>
-              <span className="flex-1 text-sm text-foreground/70">{step}</span>
+              <span className="flex-1 text-base text-foreground/70">{step}</span>
             </button>
           ))}
         </div>
@@ -726,13 +726,13 @@ function ReflectionFlow({
         <div className="flex gap-2 pt-2">
           <button
             onClick={onDismiss}
-            className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+            className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-base hover:border-foreground/30 transition-colors"
           >
             Později
           </button>
           <button
             onClick={() => setReflectionStep("spider")}
-            className="flex-1 py-2.5 text-white rounded-full font-bold text-sm transition-colors"
+            className="flex-1 py-2.5 text-white rounded-full font-bold text-base transition-colors"
             style={{ background: COLOR_ORANGE }}
           >
             Dál — nový pavouk →
@@ -746,8 +746,8 @@ function ReflectionFlow({
     return (
       <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600/70">Nový pavouk</p>
-          <p className="text-sm text-foreground/60 mt-1 leading-relaxed">
+          <p className="text-sm font-semibold uppercase tracking-wider text-amber-600/70">Nový pavouk</p>
+          <p className="text-base text-foreground/60 mt-1 leading-relaxed">
             Jak vypadá tvůj život teď? Aktualizuj hodnocení oblastí po měsíci práce.
           </p>
         </div>
@@ -784,13 +784,13 @@ function ReflectionFlow({
         <div className="flex gap-2 pt-2">
           <button
             onClick={() => setReflectionStep("review")}
-            className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+            className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-base hover:border-foreground/30 transition-colors"
           >
             ← Zpět
           </button>
           <button
             onClick={() => setReflectionStep("focus")}
-            className="flex-1 py-2.5 text-white rounded-full font-bold text-sm transition-colors"
+            className="flex-1 py-2.5 text-white rounded-full font-bold text-base transition-colors"
             style={{ background: COLOR_ORANGE }}
           >
             Dál — vyber oblast →
@@ -804,8 +804,8 @@ function ReflectionFlow({
   return (
     <div className="rounded-[24px] border-2 border-amber-200 bg-amber-50/80 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600/70">Nový fokus</p>
-        <p className="text-sm text-foreground/60 mt-1 leading-relaxed">
+        <p className="text-sm font-semibold uppercase tracking-wider text-amber-600/70">Nový fokus</p>
+        <p className="text-base text-foreground/60 mt-1 leading-relaxed">
           Na kterou oblast se chceš zaměřit příští měsíc?
         </p>
       </div>
@@ -820,14 +820,14 @@ function ReflectionFlow({
       <div className="flex gap-2 pt-2">
         <button
           onClick={() => setReflectionStep("spider")}
-          className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+          className="flex-1 py-2.5 border border-foreground/15 text-foreground/50 rounded-full font-semibold text-base hover:border-foreground/30 transition-colors"
         >
           ← Zpět
         </button>
         <button
           onClick={handleFinish}
           disabled={!newFocusArea}
-          className="flex-1 py-2.5 text-white rounded-full font-bold text-sm transition-colors disabled:opacity-40"
+          className="flex-1 py-2.5 text-white rounded-full font-bold text-base transition-colors disabled:opacity-40"
           style={{ background: COLOR_ORANGE }}
         >
           Dokončit reflexi ✓
@@ -871,16 +871,16 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
       <div className="flex justify-end">
         {confirmReset ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-foreground/60">Opravdu začít znovu?</span>
+            <span className="text-base text-foreground/60">Opravdu začít znovu?</span>
             <button
               onClick={() => { setConfirmReset(false); onReset() }}
-              className="text-sm text-red-500 font-semibold hover:text-red-600 transition-colors"
+              className="text-base text-red-500 font-semibold hover:text-red-600 transition-colors"
             >
               Ano
             </button>
             <button
               onClick={() => setConfirmReset(false)}
-              className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+              className="text-base text-foreground/40 hover:text-foreground/60 transition-colors"
             >
               Zrušit
             </button>
@@ -888,7 +888,7 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
         ) : (
           <button
             onClick={() => setConfirmReset(true)}
-            className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+            className="text-base text-foreground/40 hover:text-foreground/60 transition-colors"
           >
             Projít znovu
           </button>
@@ -919,12 +919,12 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
           <div className="flex items-center gap-3">
             <span className="text-2xl flex-shrink-0">🔄</span>
             <div>
-              <p className="text-sm font-bold text-foreground">Je čas na měsíční reflexi</p>
-              <p className="text-xs text-foreground/50 mt-0.5">
+              <p className="text-base font-bold text-foreground">Je čas na měsíční reflexi</p>
+              <p className="text-sm text-foreground/50 mt-0.5">
                 Uplynul měsíc — podívej se, co se povedlo, a nastav si nový směr.
               </p>
             </div>
-            <span className="ml-auto text-foreground/30 text-sm">→</span>
+            <span className="ml-auto text-foreground/30 text-base">→</span>
           </div>
         </button>
       )}
@@ -932,17 +932,17 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
       {/* Akční kroky (pokud nejsou v reflexi) */}
       {!showReflection && hasActionSteps && (
         <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">
+          <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">
             Moje kroky na tento měsíc
           </p>
           {(data.actionSteps ?? []).filter(s => s.trim()).map((step, i) => (
             <div key={i} className="flex items-center gap-2.5">
-              <span className="text-xs font-bold text-foreground/25 w-4 text-right flex-shrink-0">{i + 1}.</span>
-              <p className="text-sm text-foreground/65">{step}</p>
+              <span className="text-sm font-bold text-foreground/25 w-4 text-right flex-shrink-0">{i + 1}.</span>
+              <p className="text-base text-foreground/65">{step}</p>
             </div>
           ))}
           {data.reflectionDueAt && !isReflectionDue && (
-            <p className="text-[11px] text-foreground/30 pt-1">
+            <p className="text-sm text-foreground/30 pt-1">
               Reflexe: {new Date(data.reflectionDueAt).toLocaleDateString("cs-CZ", { day: "numeric", month: "long" })}
             </p>
           )}
@@ -952,8 +952,8 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
       {/* Combined spider */}
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Kolo života</p>
-          <div className="flex items-center gap-4 text-[11px] text-foreground/45">
+          <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Kolo života</p>
+          <div className="flex items-center gap-4 text-sm text-foreground/45">
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-1 rounded-full" style={{ background: COLOR_ORANGE }} />
               Dnes
@@ -981,7 +981,7 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
             const d   = gl - cur
             return (
               <div key={a.key} className="space-y-0.5">
-                <div className="flex items-center gap-2 text-xs">
+                <div className="flex items-center gap-2 text-sm">
                   <span className="w-20 text-foreground/50 flex-shrink-0">{a.short}</span>
                   <div className="flex-1 h-2 rounded-full bg-black/[0.05] relative overflow-hidden">
                     <div className="absolute h-full rounded-full"
@@ -993,7 +993,7 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
                   </div>
                   <span className="font-bold w-3 text-right" style={{ color: COLOR_ORANGE }}>{cur}</span>
                   {d !== 0 ? (
-                    <span className="text-[10px] w-8 font-semibold" style={{ color: d > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
+                    <span className="text-xs w-8 font-semibold" style={{ color: d > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
                       {d > 0 ? `→ ${gl}` : `↓ ${gl}`}
                     </span>
                   ) : (
@@ -1015,11 +1015,11 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
           if (items.length === 0) return null
           return (
             <div className="space-y-2 pt-2 border-t border-black/[0.05]">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Co pro to udělám</p>
+              <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Co pro to udělám</p>
               {items.map(a => (
                 <div key={a.key} className="flex gap-2.5">
-                  <span className="text-xs font-semibold text-foreground/40 w-20 flex-shrink-0 pt-0.5">{a.short}</span>
-                  <p className="text-sm text-foreground/65 leading-relaxed">{data.areaAnswers[a.key][3]}</p>
+                  <span className="text-sm font-semibold text-foreground/40 w-20 flex-shrink-0 pt-0.5">{a.short}</span>
+                  <p className="text-base text-foreground/65 leading-relaxed">{data.areaAnswers[a.key][3]}</p>
                 </div>
               ))}
             </div>
@@ -1031,18 +1031,18 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
       <div className="rounded-[24px] border border-white/60 bg-white/65 backdrop-blur-sm shadow-sm px-6 py-5 space-y-4">
         {/* Header + navigation */}
         <div className="flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Oblasti</p>
+          <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Oblasti</p>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setAreaIndex(i => clamp(i - 1))}
               disabled={areaIndex === 0}
-              className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-foreground/50 hover:bg-black/10 disabled:opacity-25 transition-all text-sm leading-none"
+              className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-foreground/50 hover:bg-black/10 disabled:opacity-25 transition-all text-base leading-none"
             >←</button>
-            <span className="text-xs text-foreground/35">{areaIndex + 1} / {sortedAreas.length}</span>
+            <span className="text-sm text-foreground/35">{areaIndex + 1} / {sortedAreas.length}</span>
             <button
               onClick={() => setAreaIndex(i => clamp(i + 1))}
               disabled={areaIndex === sortedAreas.length - 1}
-              className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-foreground/50 hover:bg-black/10 disabled:opacity-25 transition-all text-sm leading-none"
+              className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-foreground/50 hover:bg-black/10 disabled:opacity-25 transition-all text-base leading-none"
             >→</button>
           </div>
         </div>
@@ -1053,13 +1053,13 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
             {/* Area title + values */}
             <div className="flex items-baseline justify-between">
               <h3 className="text-base font-bold text-foreground">{area.label}</h3>
-              <div className="flex items-center gap-1.5 text-sm">
+              <div className="flex items-center gap-1.5 text-base">
                 <span className="font-bold" style={{ color: COLOR_ORANGE }}>{current}</span>
                 {diff !== 0 && (
                   <>
                     <span className="text-foreground/30">→</span>
                     <span className="font-bold" style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.4)" }}>{goal}</span>
-                    <span className="text-xs font-medium ml-0.5" style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
+                    <span className="text-sm font-medium ml-0.5" style={{ color: diff > 0 ? COLOR_BLUE : "rgba(0,0,0,0.3)" }}>
                       ({diff > 0 ? "+" : ""}{diff})
                     </span>
                   </>
@@ -1076,14 +1076,14 @@ function KompasDashboard({ data, onReset, onUpdate }: { data: KompasData; onRese
                   if (!ans) return null
                   return (
                     <div key={i} className="space-y-0.5">
-                      <p className="text-[11px] font-semibold text-foreground/35 uppercase tracking-wide">{q}</p>
-                      <p className="text-sm text-foreground/65 leading-relaxed">{ans}</p>
+                      <p className="text-sm font-semibold text-foreground/35 uppercase tracking-wide">{q}</p>
+                      <p className="text-base text-foreground/65 leading-relaxed">{ans}</p>
                     </div>
                   )
                 })}
               </div>
             ) : (
-              <p className="text-sm text-foreground/55 leading-relaxed">
+              <p className="text-base text-foreground/55 leading-relaxed">
                 {AREA_TIPS[area.key]}
               </p>
             )}

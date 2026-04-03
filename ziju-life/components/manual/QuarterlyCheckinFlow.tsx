@@ -51,7 +51,7 @@ export default function QuarterlyCheckinFlow({
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">🎉 Oslav nejdřív</h2>
-          <p className="text-sm text-foreground/55 mt-1">
+          <p className="text-base text-foreground/55 mt-1">
             Napiš 5 věcí, které se ti za poslední 3 měsíce povedlo — malé i velké. Pokrok před analýzou mezer.
           </p>
         </div>
@@ -67,7 +67,7 @@ export default function QuarterlyCheckinFlow({
                   next[i] = e.target.value;
                   setData((d) => ({ ...d, celebrations: next }));
                 }}
-                className="flex-1 px-4 py-2.5 border border-black/10 rounded-xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
+                className="flex-1 px-4 py-2.5 border border-black/10 rounded-xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
                 placeholder={`Co se mi povedlo ${i + 1}...`}
               />
             </div>
@@ -76,7 +76,7 @@ export default function QuarterlyCheckinFlow({
 
         <button
           onClick={() => setStep("learn")}
-          className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors"
+          className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors"
         >
           Dál — co ses naučil/a →
         </button>
@@ -90,7 +90,7 @@ export default function QuarterlyCheckinFlow({
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">📈 Co ses naučil/a o sobě?</h2>
-          <p className="text-sm text-foreground/55 mt-1">
+          <p className="text-base text-foreground/55 mt-1">
             Co se změnilo za poslední 3 měsíce — v okolnostech, myšlení, chování?
           </p>
         </div>
@@ -106,17 +106,17 @@ export default function QuarterlyCheckinFlow({
                 setData((d) => ({ ...d, learnings: next }));
               }}
               rows={2}
-              className="w-full px-4 py-3 border border-black/10 rounded-2xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
+              className="w-full px-4 py-3 border border-black/10 rounded-2xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
               placeholder={`Naučil/a jsem se, že ${i + 1}...`}
             />
           ))}
         </div>
 
         <div className="flex gap-2">
-          <button onClick={() => setStep("celebrate")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm">
+          <button onClick={() => setStep("celebrate")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-base">
             ← Zpět
           </button>
-          <button onClick={() => setStep("adjust")} className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors">
+          <button onClick={() => setStep("adjust")} className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors">
             Dál — co jinak →
           </button>
         </div>
@@ -130,7 +130,7 @@ export default function QuarterlyCheckinFlow({
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">🔄 Co chceš příště jinak?</h2>
-          <p className="text-sm text-foreground/55 mt-1">
+          <p className="text-base text-foreground/55 mt-1">
             Na co se chceš v dalším čtvrtletí zaměřit?
           </p>
         </div>
@@ -146,17 +146,17 @@ export default function QuarterlyCheckinFlow({
                 setData((d) => ({ ...d, adjustments: next }));
               }}
               rows={2}
-              className="w-full px-4 py-3 border border-black/10 rounded-2xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
+              className="w-full px-4 py-3 border border-black/10 rounded-2xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
               placeholder={`Příště chci ${i + 1}...`}
             />
           ))}
         </div>
 
         <div className="flex gap-2">
-          <button onClick={() => setStep("learn")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm">
+          <button onClick={() => setStep("learn")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-base">
             ← Zpět
           </button>
-          <button onClick={() => setStep("rerate")} className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors">
+          <button onClick={() => setStep("rerate")} className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors">
             Dál — přehodnoť oblasti →
           </button>
         </div>
@@ -170,7 +170,7 @@ export default function QuarterlyCheckinFlow({
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">🧭 Přehodnoť oblasti</h2>
-          <p className="text-sm text-foreground/55 mt-1">
+          <p className="text-base text-foreground/55 mt-1">
             Klikni na pavouka — aktualizuj hodnocení oblastí za toto čtvrtletí.
             {kompasData?.currentVals && " Přerušovaná čára = poslední kompas."}
           </p>
@@ -186,7 +186,7 @@ export default function QuarterlyCheckinFlow({
         </div>
 
         <div className="flex gap-2">
-          <button onClick={() => setStep("adjust")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm">
+          <button onClick={() => setStep("adjust")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-base">
             ← Zpět
           </button>
           <button
@@ -197,7 +197,7 @@ export default function QuarterlyCheckinFlow({
               onComplete();
             }}
             disabled={saving}
-            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-60"
+            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors disabled:opacity-60"
           >
             {saving ? "Ukládám…" : "Uložit check-in ✓"}
           </button>

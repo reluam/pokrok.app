@@ -58,7 +58,7 @@ export default function RelationshipMapFlow({
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">🗺️ Mapa vztahů</h2>
-          <p className="text-sm text-foreground/55 mt-1">
+          <p className="text-base text-foreground/55 mt-1">
             Zapiš důležité lidi ve svém životě. Pro každého urči: jak blízký vztah, jak zdravý, a zda tě nabíjí nebo vyčerpává.
           </p>
         </div>
@@ -69,7 +69,7 @@ export default function RelationshipMapFlow({
               <input
                 value={p.name}
                 onChange={(e) => updatePerson(i, "name", e.target.value)}
-                className="w-full px-3 py-2 border border-black/10 rounded-xl text-sm font-medium bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
+                className="w-full px-3 py-2 border border-black/10 rounded-xl text-base font-medium bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
                 placeholder={`Jméno osoby ${i + 1}`}
               />
 
@@ -81,7 +81,7 @@ export default function RelationshipMapFlow({
                       <button
                         key={c.id}
                         onClick={() => updatePerson(i, "circle", c.id)}
-                        className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                        className={`flex-1 px-2 py-1.5 rounded-lg text-sm font-medium transition-all ${
                           p.circle === c.id
                             ? "bg-accent text-white"
                             : "bg-foreground/5 text-foreground/40 hover:bg-accent/10"
@@ -94,13 +94,13 @@ export default function RelationshipMapFlow({
 
                   {/* Health 1-10 */}
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-foreground/40 w-20 shrink-0">Zdraví vztahu:</span>
+                    <span className="text-sm text-foreground/40 w-20 shrink-0">Zdraví vztahu:</span>
                     <div className="flex gap-0.5 flex-1">
                       {Array.from({ length: 10 }, (_, j) => j + 1).map((v) => (
                         <button
                           key={v}
                           onClick={() => updatePerson(i, "health", v)}
-                          className={`flex-1 h-6 rounded text-[10px] font-bold transition-all ${
+                          className={`flex-1 h-6 rounded text-xs font-bold transition-all ${
                             v <= p.health ? "bg-accent text-white" : "bg-foreground/5 text-foreground/25"
                           }`}
                         >
@@ -114,7 +114,7 @@ export default function RelationshipMapFlow({
                   <div className="flex gap-2">
                     <button
                       onClick={() => updatePerson(i, "energizes", true)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      className={`flex-1 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                         p.energizes ? "bg-green-100 text-green-700 border border-green-200" : "bg-foreground/5 text-foreground/40"
                       }`}
                     >
@@ -122,7 +122,7 @@ export default function RelationshipMapFlow({
                     </button>
                     <button
                       onClick={() => updatePerson(i, "energizes", false)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      className={`flex-1 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                         !p.energizes ? "bg-red-100 text-red-700 border border-red-200" : "bg-foreground/5 text-foreground/40"
                       }`}
                     >
@@ -134,7 +134,7 @@ export default function RelationshipMapFlow({
                   <input
                     value={p.note}
                     onChange={(e) => updatePerson(i, "note", e.target.value)}
-                    className="w-full px-3 py-2 border border-black/10 rounded-xl text-xs bg-white text-foreground/60"
+                    className="w-full px-3 py-2 border border-black/10 rounded-xl text-sm bg-white text-foreground/60"
                     placeholder="Poznámka (volitelné)..."
                   />
                 </>
@@ -143,13 +143,13 @@ export default function RelationshipMapFlow({
           ))}
         </div>
 
-        <button onClick={addPerson} className="text-xs text-accent font-semibold hover:underline">
+        <button onClick={addPerson} className="text-sm text-accent font-semibold hover:underline">
           + Přidat další osobu
         </button>
 
         <button
           onClick={() => setStep("reflect")}
-          className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors"
+          className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors"
         >
           Dál — reflexe →
         </button>
@@ -171,41 +171,41 @@ export default function RelationshipMapFlow({
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">🗺️ Tvůj vztahový profil</h2>
-          <p className="text-sm text-foreground/55 mt-1">Co vidíš? Jaké vzorce se ti odhalují?</p>
+          <p className="text-base text-foreground/55 mt-1">Co vidíš? Jaké vzorce se ti odhalují?</p>
         </div>
 
         <div className="grid grid-cols-3 gap-3 text-center">
           <div className="px-3 py-3 rounded-2xl bg-accent/5 border border-accent/10">
             <p className="text-2xl font-bold text-accent">{inner.length}</p>
-            <p className="text-[10px] text-foreground/40">Nejbližší kruh</p>
+            <p className="text-xs text-foreground/40">Nejbližší kruh</p>
           </div>
           <div className="px-3 py-3 rounded-2xl bg-green-50 border border-green-200">
             <p className="text-2xl font-bold text-green-600">{energizers.length}</p>
-            <p className="text-[10px] text-foreground/40">Nabíjí tě</p>
+            <p className="text-xs text-foreground/40">Nabíjí tě</p>
           </div>
           <div className="px-3 py-3 rounded-2xl bg-red-50 border border-red-200">
             <p className="text-2xl font-bold text-red-500">{drainers.length}</p>
-            <p className="text-[10px] text-foreground/40">Vyčerpává</p>
+            <p className="text-xs text-foreground/40">Vyčerpává</p>
           </div>
         </div>
 
-        <p className="text-xs text-foreground/40 text-center">Průměrné zdraví vztahů: {avgHealth}/10</p>
+        <p className="text-sm text-foreground/40 text-center">Průměrné zdraví vztahů: {avgHealth}/10</p>
 
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground/70">
+          <label className="text-base font-medium text-foreground/70">
             Co si uvědomuješ o svých vztazích? Co chceš změnit?
           </label>
           <textarea
             value={data.insights}
             onChange={(e) => setData((d) => ({ ...d, insights: e.target.value }))}
             rows={4}
-            className="w-full px-4 py-3 border border-black/10 rounded-2xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
+            className="w-full px-4 py-3 border border-black/10 rounded-2xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
             placeholder="Uvědomuji si, že..."
           />
         </div>
 
         <div className="flex gap-2">
-          <button onClick={() => setStep("map")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm">
+          <button onClick={() => setStep("map")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-base">
             ← Zpět
           </button>
           <button
@@ -216,7 +216,7 @@ export default function RelationshipMapFlow({
               onComplete();
             }}
             disabled={saving}
-            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-60"
+            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors disabled:opacity-60"
           >
             {saving ? "Ukládám…" : "Uložit mapu ✓"}
           </button>

@@ -28,7 +28,7 @@ export default function FilozofieFlow({
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">🌱 Životní filozofie</h2>
-        <p className="text-sm text-foreground/55 mt-1">
+        <p className="text-base text-foreground/55 mt-1">
           Napiš 2–5 vět, které vystihují, jak chceš žít. Neboj se přepisovat — tohle se bude vyvíjet.
         </p>
       </div>
@@ -36,7 +36,7 @@ export default function FilozofieFlow({
       {/* Examples toggle */}
       <button
         onClick={() => setShowExamples(!showExamples)}
-        className="text-xs text-accent font-semibold hover:underline"
+        className="text-sm text-accent font-semibold hover:underline"
       >
         {showExamples ? "Skrýt příklady" : "Ukázat příklady pro inspiraci"}
       </button>
@@ -45,7 +45,7 @@ export default function FilozofieFlow({
         <div className="space-y-2">
           {EXAMPLES.map((ex, i) => (
             <div key={i} className="px-4 py-3 rounded-2xl bg-accent/5 border border-accent/10">
-              <p className="text-sm text-foreground/60 italic">„{ex}"</p>
+              <p className="text-base text-foreground/60 italic">„{ex}"</p>
             </div>
           ))}
         </div>
@@ -53,20 +53,20 @@ export default function FilozofieFlow({
 
       {/* Statement */}
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-foreground">Moje životní filozofie</label>
+        <label className="text-base font-semibold text-foreground">Moje životní filozofie</label>
         <textarea
           value={data.statement}
           onChange={(e) => setData((d) => ({ ...d, statement: e.target.value }))}
           rows={5}
-          className="w-full px-5 py-4 border border-black/10 rounded-2xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none leading-relaxed"
+          className="w-full px-5 py-4 border border-black/10 rounded-2xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none leading-relaxed"
           placeholder="Žiji..."
         />
       </div>
 
       {/* Optional principles */}
       <div className="space-y-3">
-        <label className="text-sm font-semibold text-foreground">Hlavní principy <span className="text-foreground/40 font-normal">(volitelné)</span></label>
-        <p className="text-xs text-foreground/40">3–5 principů, podle kterých se chceš řídit.</p>
+        <label className="text-base font-semibold text-foreground">Hlavní principy <span className="text-foreground/40 font-normal">(volitelné)</span></label>
+        <p className="text-sm text-foreground/40">3–5 principů, podle kterých se chceš řídit.</p>
         {data.principles.map((p, i) => (
           <input
             key={i}
@@ -76,7 +76,7 @@ export default function FilozofieFlow({
               next[i] = e.target.value;
               setData((d) => ({ ...d, principles: next }));
             }}
-            className="w-full px-4 py-2.5 border border-black/10 rounded-xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
+            className="w-full px-4 py-2.5 border border-black/10 rounded-xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
             placeholder={`Princip ${i + 1}...`}
           />
         ))}
@@ -90,7 +90,7 @@ export default function FilozofieFlow({
           onComplete();
         }}
         disabled={saving || !data.statement.trim()}
-        className="w-full py-3 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-60 shadow-md"
+        className="w-full py-3 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors disabled:opacity-60 shadow-md"
       >
         {saving ? "Ukládám…" : "Uložit filozofii ✓"}
       </button>

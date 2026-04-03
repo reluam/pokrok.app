@@ -46,18 +46,18 @@ function ViewMode({ text }: { text: string }) {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-foreground/60 leading-relaxed whitespace-pre-wrap">
+      <p className="text-base text-foreground/60 leading-relaxed whitespace-pre-wrap">
         {expanded ? text : preview}{isLong && !expanded ? "…" : ""}
       </p>
       {isLong && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs text-accent hover:opacity-80 transition-opacity"
+          className="text-sm text-accent hover:opacity-80 transition-opacity"
         >
           {expanded ? "Méně" : "Celý text →"}
         </button>
       )}
-      <p className="text-[10px] text-foreground/25">
+      <p className="text-xs text-foreground/25">
         {text.split(/\s+/).filter(Boolean).length} slov
       </p>
     </div>
@@ -88,8 +88,8 @@ function EditMode({
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-xs font-bold text-foreground/70">Popiš svůj ideální den za 5 let</p>
-        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">
+        <p className="text-sm font-bold text-foreground/70">Popiš svůj ideální den za 5 let</p>
+        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">
           Zavři oči a představ si běžný den za 5 let. Kde se probouzíš? S kým? Co děláš ráno, přes den, večer? Čím víc detailů, tím lépe — mozek nerozlišuje živou představu od plánu.
         </p>
       </div>
@@ -98,11 +98,11 @@ function EditMode({
         onChange={(e) => setText(e.target.value)}
         placeholder="Je rok 2031. Probouzím se..."
         rows={8}
-        className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-y focus:outline-none focus:border-black/20 transition-all"
+        className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-y focus:outline-none focus:border-black/20 transition-all"
       />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className={`text-xs ${words >= 300 ? "text-green-600" : "text-foreground/30"}`}>
+          <span className={`text-sm ${words >= 300 ? "text-green-600" : "text-foreground/30"}`}>
             {words} slov {words < 300 && "(doporučeno 300+)"}
           </span>
           <SaveIndicator saving={saving} saved={saved} />
@@ -110,7 +110,7 @@ function EditMode({
         <button
           onClick={handleDone}
           disabled={!text.trim()}
-          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-accent text-white rounded-full text-base font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
           Hotovo ✓
         </button>

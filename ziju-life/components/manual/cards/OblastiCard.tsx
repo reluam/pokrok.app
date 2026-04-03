@@ -46,13 +46,13 @@ function ViewMode({ data, completed }: { data: AreaSetupData; completed: number 
         <div className="flex-1 h-2 rounded-full bg-black/[0.05] overflow-hidden">
           <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${(completed / 8) * 100}%` }} />
         </div>
-        <span className="text-xs font-bold text-foreground/40">{completed}/8</span>
+        <span className="text-sm font-bold text-foreground/40">{completed}/8</span>
       </div>
       <div className="flex flex-wrap gap-1.5">
         {WHEEL_AREAS.map((a) => {
           const done = data.completedAreas?.includes(a.key);
           return (
-            <span key={a.key} className={`text-xs px-2 py-0.5 rounded-full ${done ? "bg-accent/10 text-accent font-semibold" : "bg-black/5 text-foreground/30"}`}>
+            <span key={a.key} className={`text-sm px-2 py-0.5 rounded-full ${done ? "bg-accent/10 text-accent font-semibold" : "bg-black/5 text-foreground/30"}`}>
               {a.short}
             </span>
           );
@@ -140,7 +140,7 @@ function EditMode({
             <button
               key={a.key}
               onClick={() => { setAreaKey(a.key); setStepIdx(0); }}
-              className="px-2 py-1 rounded-lg text-[10px] font-semibold transition-all"
+              className="px-2 py-1 rounded-lg text-xs font-semibold transition-all"
               style={a.key === areaKey
                 ? { background: "#FF8C42", color: "white" }
                 : done
@@ -163,8 +163,8 @@ function EditMode({
 
       {/* Step content */}
       <div>
-        <p className="text-xs font-bold text-foreground/70">{area.short} — {currentStep.label}</p>
-        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{currentStep.desc}</p>
+        <p className="text-sm font-bold text-foreground/70">{area.short} — {currentStep.label}</p>
+        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">{currentStep.desc}</p>
       </div>
       <div className="space-y-1.5">
         {items.map((item, i) => (
@@ -178,7 +178,7 @@ function EditMode({
               updateItems(next);
             }}
             placeholder={`${currentStep.label} ${i + 1}`}
-            className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
+            className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
           />
         ))}
       </div>
@@ -187,13 +187,13 @@ function EditMode({
         <SaveIndicator saving={saving} saved={saved} />
         <div className="flex-1" />
         {stepIdx > 0 && (
-          <button onClick={() => setStepIdx((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
+          <button onClick={() => setStepIdx((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-base font-semibold">
             ← Zpět
           </button>
         )}
         <button
           onClick={handleNext}
-          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold"
+          className="px-5 py-2 bg-accent text-white rounded-full text-base font-bold"
         >
           {stepIdx === AREA_STEPS.length - 1 ? "Dokončit oblast ✓" : "Dál →"}
         </button>

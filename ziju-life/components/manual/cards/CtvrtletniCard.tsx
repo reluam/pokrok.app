@@ -63,13 +63,13 @@ function ViewMode({ data, showDue }: { data: QuarterlyCheckinData; showDue: bool
       </div>
       {focusLabel && (
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-foreground/30 font-semibold">Focus tento měsíc</p>
+          <p className="text-xs uppercase tracking-wider text-foreground/30 font-semibold">Focus tento měsíc</p>
           <p className="text-sm font-bold text-accent">{focusLabel}</p>
         </div>
       )}
       {data.celebrations?.filter(Boolean).length > 0 && (
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-foreground/30 font-semibold">Úspěchy</p>
+          <p className="text-xs uppercase tracking-wider text-foreground/30 font-semibold">Úspěchy</p>
           {data.celebrations.filter(Boolean).slice(0, 3).map((c, i) => (
             <p key={i} className="text-sm text-foreground/55">+ {c}</p>
           ))}
@@ -264,7 +264,7 @@ function EditMode({
       </div>
       <div>
         <p className="text-sm font-bold text-foreground/70">{STEPS[step].label}</p>
-        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{STEPS[step].desc}</p>
+        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">{STEPS[step].desc}</p>
       </div>
       {STEPS[step].content}
       <div className="flex items-center gap-2">

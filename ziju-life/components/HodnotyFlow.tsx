@@ -11,20 +11,65 @@ const COLOR_ACTIVE = "#FF8C42"
 const STRONG_PRIMARY = 5
 const STRONG_MAX     = 7
 
-const ALL_VALUES = [
-  "Altruismus", "Autenticita", "Činorodost", "Dobrodružství", "Flexibilita",
-  "Harmonie", "Humor", "Hravost", "Individualita", "Integrita",
-  "Intuice", "Jedinečnost", "Jistota", "Kariéra", "Klid",
-  "Komunita", "Kreativita", "Láska", "Loajalita", "Materiální zabezpečení",
-  "Mír", "Moudrost", "Nadhled", "Nezávislost", "Odvaha",
-  "Otevřenost", "Peníze", "Příroda", "Poctivost", "Pochopení",
-  "Pokora", "Postavení", "Pravdivost", "Přátelství",
-  "Radost", "Rodina", "Síla", "Sláva", "Spiritualita",
-  "Spolehlivost", "Spravedlnost", "Svědomí", "Svoboda", "Štěstí",
-  "Tolerance", "Upřímnost", "Úspěch", "Víra", "Volný čas",
-  "Vděčnost", "Vyrovnanost", "Vzájemnost", "Vzdělání", "Zdraví",
-  "Zvědavost",
-]
+export const VALUE_DESCRIPTIONS: Record<string, string> = {
+  "Altruismus": "Nezištná pomoc druhým, ochota dávat bez očekávání něčeho na oplátku.",
+  "Autenticita": "Být sám sebou, jednat v souladu s tím, kdo doopravdy jsi.",
+  "Činorodost": "Potřeba být aktivní, tvořit a posouvat věci kupředu.",
+  "Dobrodružství": "Touha po nových zážitcích, objevování a vykročení z komfortní zóny.",
+  "Flexibilita": "Schopnost přizpůsobit se změnám a přijímat nečekané situace.",
+  "Harmonie": "Rovnováha ve vztazích, vnitřní klid a bezkonfliktní soužití.",
+  "Humor": "Schopnost vidět svět s nadhledem a nadsázkou, smát se i sobě.",
+  "Hravost": "Lehkost v přístupu k životu, radost z experimentování a zkoušení.",
+  "Individualita": "Respekt k vlastní jedinečnosti, odvaha jít vlastní cestou.",
+  "Integrita": "Soulad mezi tím, co říkáš, a tím, co děláš. Morální celistvost.",
+  "Intuice": "Důvěra ve vnitřní hlas a pocity, rozhodování se i bez racionální analýzy.",
+  "Jedinečnost": "Potřeba odlišit se, vyniknout a být originální.",
+  "Jistota": "Potřeba stability, předvídatelnosti a bezpečného zázemí.",
+  "Kariéra": "Profesní růst, rozvoj dovedností a naplnění z práce.",
+  "Klid": "Vnitřní mír, ticho a prostor pro sebe bez ruchu a spěchu.",
+  "Komunita": "Sounáležitost se skupinou lidí, pocit někam patřit.",
+  "Kreativita": "Potřeba tvořit, vymýšlet nové věci a hledat originální řešení.",
+  "Láska": "Hluboké propojení s druhými, schopnost milovat a být milován.",
+  "Loajalita": "Věrnost lidem, hodnotám nebo principům, na které se lze spolehnout.",
+  "Materiální zabezpečení": "Finanční stabilita a dostatek prostředků pro důstojný život.",
+  "Mír": "Touha po pokojném světě bez násilí a konfliktů.",
+  "Moudrost": "Hluboké porozumění životu, schopnost vidět za povrch věcí.",
+  "Nadhled": "Odstup od každodenních problémů, širší pohled na situace.",
+  "Nezávislost": "Svoboda rozhodovat se sám za sebe, bez závislosti na druhých.",
+  "Odvaha": "Ochota čelit strachu, riskovat a jednat i v nejistotě.",
+  "Otevřenost": "Ochota přijímat nové názory, perspektivy a zkušenosti.",
+  "Peníze": "Finanční prostředky jako nástroj svobody a možností.",
+  "Příroda": "Spojení s přírodou, respekt k životnímu prostředí.",
+  "Poctivost": "Čestné jednání, dodržování pravidel a férový přístup.",
+  "Pochopení": "Empatie a snaha porozumět druhým lidem a jejich pohledu.",
+  "Pokora": "Vědomí vlastních limitů, respekt k tomu, co přesahuje.",
+  "Postavení": "Společenský status, uznání a vliv ve svém okolí.",
+  "Pravdivost": "Závazek k pravdě, odmítání lží a přetvářky.",
+  "Přátelství": "Blízké vztahy založené na důvěře, sdílení a vzájemné podpoře.",
+  "Radost": "Schopnost prožívat štěstí z maličkostí a těšit se z úspěchů druhých.",
+  "Rodina": "Rodinné vazby, blízkost a péče o své nejbližší.",
+  "Síla": "Vnitřní odolnost, fyzická nebo psychická zdatnost.",
+  "Sláva": "Touha být známý, uznávaný a obdivovaný širokým okolím.",
+  "Spiritualita": "Duchovní rozměr života, hledání smyslu přesahujícího hmotný svět.",
+  "Spolehlivost": "Být člověk, na kterého se druzí mohou spolehnout.",
+  "Spravedlnost": "Férovost, rovné zacházení a ochrana práv všech.",
+  "Svědomí": "Vnitřní morální kompas, schopnost rozlišovat správné od špatného.",
+  "Svoboda": "Možnost žít podle vlastních pravidel bez vnějších omezení.",
+  "Štěstí": "Celková životní spokojenost a pocit naplnění.",
+  "Tolerance": "Respekt k odlišnostem, přijímání různých názorů a životních stylů.",
+  "Upřímnost": "Otevřená komunikace, říkat věci na rovinu bez přetvářky.",
+  "Úspěch": "Dosahování cílů, pocit, že to, co děláš, má výsledky.",
+  "Víra": "Důvěra v něco většího — Boha, osud, smysl věcí.",
+  "Volný čas": "Prostor pro odpočinek, koníčky a činnosti mimo povinnosti.",
+  "Vděčnost": "Schopnost ocenit, co máš, a být vděčný za to dobré v životě.",
+  "Vyrovnanost": "Emoční stabilita, klid i v náročných situacích.",
+  "Vzájemnost": "Rovnocenné vztahy, kde obě strany dávají i přijímají.",
+  "Vzdělání": "Celoživotní učení, touha po vědění a osobním rozvoji.",
+  "Zdraví": "Péče o tělo i mysl, fyzická kondice a duševní pohoda.",
+  "Zvědavost": "Touha zjišťovat, jak věci fungují, a klást si otázky.",
+}
+
+const ALL_VALUES = Object.keys(VALUE_DESCRIPTIONS)
 
 // ── Typy ────────────────────────────────────────────────────────────────────
 
@@ -97,7 +142,7 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
         onDragStart={e => { dragRef.current = val; e.dataTransfer.effectAllowed = "move"; requestAnimationFrame(() => setDragVal(val)) }}
         onDragEnd={cleanup}
         className={[
-          "px-2.5 py-1.5 rounded-xl text-xs font-medium cursor-grab active:cursor-grabbing select-none flex items-center gap-1.5 transition-opacity",
+          "px-2.5 py-1.5 rounded-xl text-sm font-medium cursor-grab active:cursor-grabbing select-none flex items-center gap-1.5 transition-opacity",
           dragVal === val ? "opacity-20" :
           isPrimary   ? "border-2 border-[#FF8C42] bg-orange-50 text-orange-900 shadow-sm" :
           isSecondary ? "border-2 border-orange-200 bg-orange-50/50 text-orange-800" :
@@ -107,7 +152,7 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
         ].join(" ")}
       >
         {col === "strong" && (
-          <span className={`text-[9px] font-bold flex-shrink-0 ${isPrimary ? "text-orange-400" : isSecondary ? "text-orange-300" : "text-foreground/20"}`}>
+          <span className={`text-xs font-bold flex-shrink-0 ${isPrimary ? "text-orange-400" : isSecondary ? "text-orange-300" : "text-foreground/20"}`}>
             {idx + 1}
           </span>
         )}
@@ -134,7 +179,7 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
             isTarget ? "border-[#FF8C42] bg-orange-50/40" :
             i < STRONG_PRIMARY ? "border-orange-200 bg-orange-50/20" : "border-orange-100 bg-orange-50/10"
           }`}>
-            <span className={`text-[9px] font-bold ${i < STRONG_PRIMARY ? "text-orange-300" : "text-orange-200"}`}>{i + 1}</span>
+            <span className={`text-xs font-bold ${i < STRONG_PRIMARY ? "text-orange-300" : "text-orange-200"}`}>{i + 1}</span>
           </div>
         )}
       </div>
@@ -153,8 +198,8 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
         onDrop={e => { if (e.defaultPrevented) return; if (dragRef.current) moveToCol(dragRef.current, colKey); cleanup() }}
       >
         <div className="flex items-center justify-between mb-1.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider leading-tight" style={{ color: accent }}>{label}</p>
-          <span className="text-[10px] text-foreground/30">{cols[colKey].length}</span>
+          <p className="text-xs font-semibold uppercase tracking-wider leading-tight" style={{ color: accent }}>{label}</p>
+          <span className="text-xs text-foreground/30">{cols[colKey].length}</span>
         </div>
         {children}
       </div>
@@ -167,8 +212,8 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
       {!swipeDone && (
         <>
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Jaké hodnoty ti rezonují?</p>
-            <span className="text-xs text-foreground/40">{swipeIndex + 1} / {values.length}</span>
+            <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Jaké hodnoty ti rezonují?</p>
+            <span className="text-sm text-foreground/40">{swipeIndex + 1} / {values.length}</span>
           </div>
           <div className="h-1 rounded-full bg-black/[0.06]">
             <div className="h-full rounded-full transition-all duration-300"
@@ -176,15 +221,16 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
           </div>
           <div className="rounded-2xl bg-white border border-black/[0.08] shadow-sm px-6 py-8 text-center">
             <p className="text-2xl font-bold text-foreground">{values[swipeIndex]}</p>
+            <p className="text-base text-foreground/50 mt-2 leading-relaxed">{VALUE_DESCRIPTIONS[values[swipeIndex]]}</p>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <button onClick={() => rate("no")} className="px-3 py-3 rounded-xl border-2 border-black/10 bg-white/80 text-foreground/50 font-medium text-xs hover:border-black/20 hover:bg-black/[0.03] transition-all leading-snug">
+            <button onClick={() => rate("no")} className="px-3 py-3 rounded-xl border-2 border-black/10 bg-white/80 text-foreground/50 font-medium text-sm hover:border-black/20 hover:bg-black/[0.03] transition-all leading-snug">
               Nesouzním /<br />je mi to jedno
             </button>
-            <button onClick={() => rate("somewhat")} className="px-3 py-3 rounded-xl border-2 border-amber-200 bg-amber-50/80 text-amber-700 font-medium text-xs hover:border-amber-300 hover:bg-amber-100 transition-all leading-snug">
+            <button onClick={() => rate("somewhat")} className="px-3 py-3 rounded-xl border-2 border-amber-200 bg-amber-50/80 text-amber-700 font-medium text-sm hover:border-amber-300 hover:bg-amber-100 transition-all leading-snug">
               Spíše souzním
             </button>
-            <button onClick={() => rate("strong")} className="px-3 py-3 rounded-xl border-2 border-green-200 bg-green-50/80 text-green-700 font-medium text-xs hover:border-green-300 hover:bg-green-100 transition-all leading-snug">
+            <button onClick={() => rate("strong")} className="px-3 py-3 rounded-xl border-2 border-green-200 bg-green-50/80 text-green-700 font-medium text-sm hover:border-green-300 hover:bg-green-100 transition-all leading-snug">
               Naprosto souzním
             </button>
           </div>
@@ -195,7 +241,7 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
       {totalRated > 0 && (
         <>
           {swipeDone && (
-            <p className="text-sm text-foreground/55">
+            <p className="text-base text-foreground/55">
               Přetahuj hodnoty mezi sloupci i v rámci sloupce <strong>Naprosto souzním</strong> (změna pořadí).
               Prvních 5 míst jsou tvoje klíčové hodnoty.
             </p>
@@ -234,14 +280,14 @@ function ValuesGame({ onComplete }: { onComplete: (values: string[]) => void }) 
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => { setSwipeIndex(0); setCols({ strong: [], somewhat: [], no: [] }) }}
-                className="px-4 py-2 text-sm rounded-xl border border-black/10 bg-white text-foreground/50 hover:bg-black/[0.03] transition-all"
+                className="px-4 py-2 text-base rounded-xl border border-black/10 bg-white text-foreground/50 hover:bg-black/[0.03] transition-all"
               >
                 ← Znovu
               </button>
               <button
                 onClick={handleConfirm}
                 disabled={!canConfirm}
-                className="flex-1 px-4 py-2 text-sm rounded-xl text-white font-medium transition-all disabled:opacity-30 hover:shadow-md"
+                className="flex-1 px-4 py-2 text-base rounded-xl text-white font-medium transition-all disabled:opacity-30 hover:shadow-md"
                 style={{ background: COLOR_ACTIVE }}
               >
                 Tohle jsou moje hodnoty →
@@ -272,8 +318,8 @@ function ValuesAlignment({
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35 mb-1">Žiješ podle svých hodnot?</p>
-        <p className="text-sm text-foreground/55 leading-relaxed">
+        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35 mb-1">Žiješ podle svých hodnot?</p>
+        <p className="text-base text-foreground/55 leading-relaxed">
           Ohodnoť, jak moc teď opravdu žiješ podle každé ze svých hodnot. Ne jak bys chtěl/a — jak to skutečně je.
         </p>
       </div>
@@ -283,10 +329,13 @@ function ValuesAlignment({
           <div key={v} className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-bold ${i < 5 ? "text-orange-400" : "text-orange-300"}`}>{i + 1}</span>
-                <span className="text-sm font-semibold text-foreground">{v}</span>
+                <span className={`text-xs font-bold ${i < 5 ? "text-orange-400" : "text-orange-300"}`}>{i + 1}</span>
+                <div>
+                  <span className="text-base font-semibold text-foreground">{v}</span>
+                  <p className="text-sm text-foreground/40 leading-snug">{VALUE_DESCRIPTIONS[v]}</p>
+                </div>
               </div>
-              <span className="text-sm font-bold" style={{ color: COLOR_ACTIVE }}>{scores[v]}</span>
+              <span className="text-base font-bold" style={{ color: COLOR_ACTIVE }}>{scores[v]}</span>
             </div>
             <div className="flex gap-1">
               {Array.from({ length: 10 }).map((_, n) => {
@@ -303,8 +352,8 @@ function ValuesAlignment({
               })}
             </div>
             <div className="flex justify-between">
-              <span className="text-[10px] text-foreground/30">vůbec ne</span>
-              <span className="text-[10px] text-foreground/30">naprosto ano</span>
+              <span className="text-xs text-foreground/30">vůbec ne</span>
+              <span className="text-xs text-foreground/30">naprosto ano</span>
             </div>
           </div>
         ))}
@@ -312,7 +361,7 @@ function ValuesAlignment({
 
       <button
         onClick={() => onComplete(scores)}
-        className="w-full py-3 rounded-full text-white font-bold text-sm transition-colors"
+        className="w-full py-3 rounded-full text-white font-bold text-base transition-colors"
         style={{ background: COLOR_ACTIVE }}
       >
         Uložit →
@@ -339,22 +388,22 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
       {/* Header + reset */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Hodnoty</p>
-          <p className="text-sm text-foreground/50 mt-0.5">
+          <p className="text-sm font-semibold uppercase tracking-wider text-foreground/35">Hodnoty</p>
+          <p className="text-base text-foreground/50 mt-0.5">
             Prvních 5 jsou tvoje klíčové hodnoty — zbytek jsou podpůrné.
           </p>
         </div>
         {confirmReset ? (
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs text-foreground/50">Opravdu?</span>
+            <span className="text-sm text-foreground/50">Opravdu?</span>
             <button onClick={() => { setConfirmReset(false); onReset() }}
-              className="text-xs text-red-500 font-semibold hover:text-red-600 transition-colors">Ano</button>
+              className="text-sm text-red-500 font-semibold hover:text-red-600 transition-colors">Ano</button>
             <button onClick={() => setConfirmReset(false)}
-              className="text-xs text-foreground/35 hover:text-foreground/55 transition-colors">Zrušit</button>
+              className="text-sm text-foreground/35 hover:text-foreground/55 transition-colors">Zrušit</button>
           </div>
         ) : (
           <button onClick={() => setConfirmReset(true)}
-            className="text-sm text-foreground/35 hover:text-foreground/55 transition-colors flex-shrink-0">
+            className="text-base text-foreground/35 hover:text-foreground/55 transition-colors flex-shrink-0">
             Projít znovu
           </button>
         )}
@@ -367,33 +416,36 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
             const score = data.alignmentScores?.[val]
             const isPrimary = i < STRONG_PRIMARY
             return (
-              <div key={val} className="flex items-center gap-3">
-                <span
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium flex-1 ${
-                    isPrimary
-                      ? "border-2 border-[#FF8C42] bg-orange-50 text-orange-900 shadow-sm"
-                      : "border-2 border-orange-200 bg-orange-50/50 text-orange-800"
-                  }`}
-                >
-                  <span className={`text-[10px] font-bold ${isPrimary ? "text-orange-400" : "text-orange-300"}`}>
-                    {i + 1}
+              <div key={val} className="space-y-1">
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-base font-medium flex-1 ${
+                      isPrimary
+                        ? "border-2 border-[#FF8C42] bg-orange-50 text-orange-900 shadow-sm"
+                        : "border-2 border-orange-200 bg-orange-50/50 text-orange-800"
+                    }`}
+                  >
+                    <span className={`text-xs font-bold ${isPrimary ? "text-orange-400" : "text-orange-300"}`}>
+                      {i + 1}
+                    </span>
+                    {val}
                   </span>
-                  {val}
-                </span>
-                {score !== undefined && (
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 10 }).map((_, n) => (
-                        <div
-                          key={n}
-                          className="w-2 h-2 rounded-sm"
-                          style={{ background: n < score ? COLOR_ACTIVE : "rgba(0,0,0,0.08)" }}
-                        />
-                      ))}
+                  {score !== undefined && (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 10 }).map((_, n) => (
+                          <div
+                            key={n}
+                            className="w-2 h-2 rounded-sm"
+                            style={{ background: n < score ? COLOR_ACTIVE : "rgba(0,0,0,0.08)" }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm font-bold text-foreground/40">{score}</span>
                     </div>
-                    <span className="text-xs font-bold text-foreground/40">{score}</span>
-                  </div>
-                )}
+                  )}
+                </div>
+                <p className="text-sm text-foreground/45 pl-3 leading-relaxed">{VALUE_DESCRIPTIONS[val]}</p>
               </div>
             )
           })}
@@ -403,19 +455,19 @@ function ValuesResult({ data, onReset }: { data: HodnotyData; onReset: () => voi
       {/* Copy */}
       <button
         onClick={handleCopy}
-        className="w-full px-4 py-2.5 text-sm rounded-xl border border-black/10 bg-white font-medium text-foreground/50 hover:bg-black/[0.03] hover:text-foreground transition-all"
+        className="w-full px-4 py-2.5 text-base rounded-xl border border-black/10 bg-white font-medium text-foreground/50 hover:bg-black/[0.03] hover:text-foreground transition-all"
       >
         {copied ? "✓ Zkopírováno" : "Kopírovat hodnoty"}
       </button>
 
       {/* Context description */}
       <div className="rounded-2xl bg-black/[0.02] border border-black/[0.05] px-4 py-3 space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/30">Jak s hodnotami pracovat</p>
-        <p className="text-sm text-foreground/55 leading-relaxed">
+        <p className="text-sm font-semibold uppercase tracking-wider text-foreground/30">Jak s hodnotami pracovat</p>
+        <p className="text-base text-foreground/55 leading-relaxed">
           Hodnoty jsou tvůj vnitřní kompas — ne pravidla, ale kritéria rozhodování. Když se ocitneš na
           rozcestí, zeptej se: <em>„Která z těchto cest je v souladu s mými hodnotami?"</em>
         </p>
-        <p className="text-sm text-foreground/55 leading-relaxed">
+        <p className="text-base text-foreground/55 leading-relaxed">
           Zkus si jednou týdně říct, zda jsi minulý týden žil v souladu se svými top 5 hodnotami.
           Mezera mezi tím, co říkáš, že je důležité, a tím, jak skutečně žiješ, je nejčastějším zdrojem nespokojenosti.
         </p>
@@ -653,7 +705,7 @@ export function PrintHodnotyButton({
     <button
       onClick={handleClick}
       disabled={generating}
-      className={className ?? "inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-sm font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors disabled:opacity-50"}
+      className={className ?? "inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-foreground/15 bg-white/70 text-base font-semibold text-foreground/50 hover:border-foreground/30 hover:text-foreground/70 transition-colors disabled:opacity-50"}
     >
       {generating ? "Generuji…" : "Vytisknout"}
     </button>

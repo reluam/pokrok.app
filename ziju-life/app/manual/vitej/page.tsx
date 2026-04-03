@@ -31,7 +31,7 @@ function VitejContent() {
       <div className="flex flex-col items-center gap-5 text-center px-5">
         <div className="w-10 h-10 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
         <p className="font-bold text-lg">Platba proběhla, nastavuji přístup…</p>
-        <p className="text-sm text-foreground/50">Za chvíli tě přesměrujeme.</p>
+        <p className="text-base text-foreground/50">Za chvíli tě přesměrujeme.</p>
       </div>
     </div>
   );

@@ -37,18 +37,18 @@ function ViewMode({ data }: { data: EnergyAuditData }) {
 
   return (
     <div className="space-y-2">
-      <div className="flex gap-4 text-xs">
+      <div className="flex gap-4 text-sm">
         <span className="text-green-600">+{energizers.length} energizérů</span>
         <span className="text-red-500">-{vampires.length} vampýrů</span>
       </div>
       {energizers.slice(0, 3).map((a, i) => (
-        <p key={i} className="text-xs text-foreground/50">+ {a.name} ({a.rating > 0 ? "+" : ""}{a.rating})</p>
+        <p key={i} className="text-sm text-foreground/50">+ {a.name} ({a.rating > 0 ? "+" : ""}{a.rating})</p>
       ))}
       {vampires.slice(0, 3).map((a, i) => (
-        <p key={i} className="text-xs text-foreground/50">- {a.name} ({a.rating})</p>
+        <p key={i} className="text-sm text-foreground/50">- {a.name} ({a.rating})</p>
       ))}
       {data.insights && (
-        <p className="text-xs text-foreground/40 italic mt-1">{data.insights.slice(0, 100)}{data.insights.length > 100 ? "…" : ""}</p>
+        <p className="text-sm text-foreground/40 italic mt-1">{data.insights.slice(0, 100)}{data.insights.length > 100 ? "…" : ""}</p>
       )}
     </div>
   );
@@ -104,7 +104,7 @@ function EditMode({
                   setActivities(next);
                 }}
                 placeholder="Aktivita/osoba"
-                className="flex-1 text-sm rounded-lg border border-black/[0.08] bg-white/70 px-2 py-1.5 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
+                className="flex-1 text-base rounded-lg border border-black/[0.08] bg-white/70 px-2 py-1.5 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
               />
               <select
                 value={a.rating}
@@ -113,7 +113,7 @@ function EditMode({
                   next[i] = { ...next[i], rating: Number(e.target.value) };
                   setActivities(next);
                 }}
-                className="w-16 text-xs rounded-lg border border-black/[0.08] bg-white/70 px-1 py-1.5 text-foreground/70 focus:outline-none"
+                className="w-16 text-sm rounded-lg border border-black/[0.08] bg-white/70 px-1 py-1.5 text-foreground/70 focus:outline-none"
               >
                 {[-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5].map((v) => (
                   <option key={v} value={v}>{v > 0 ? `+${v}` : v}</option>
@@ -121,7 +121,7 @@ function EditMode({
               </select>
             </div>
           ))}
-          <button onClick={addActivity} className="text-xs text-accent hover:opacity-80">+ Přidat</button>
+          <button onClick={addActivity} className="text-sm text-accent hover:opacity-80">+ Přidat</button>
         </div>
       ),
     },
@@ -135,14 +135,14 @@ function EditMode({
             onChange={(e) => setInsights(e.target.value)}
             placeholder="Co tě překvapilo? Jaký vzorec vidíš?"
             rows={3}
-            className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
+            className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
           />
           <textarea
             value={idealWeek}
             onChange={(e) => setIdealWeek(e.target.value)}
             placeholder="Jak by vypadal tvůj ideální týden?"
             rows={3}
-            className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
+            className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
           />
         </div>
       ),
@@ -157,21 +157,21 @@ function EditMode({
         ))}
       </div>
       <div>
-        <p className="text-xs font-bold text-foreground/70">{steps[step].label}</p>
-        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{steps[step].desc}</p>
+        <p className="text-sm font-bold text-foreground/70">{steps[step].label}</p>
+        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">{steps[step].desc}</p>
       </div>
       {steps[step].content}
       <div className="flex items-center gap-2">
         <SaveIndicator saving={saving} saved={saved} />
         <div className="flex-1" />
         {step > 0 && (
-          <button onClick={() => setStep((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
+          <button onClick={() => setStep((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-base font-semibold">
             ← Zpět
           </button>
         )}
         <button
           onClick={step === steps.length - 1 ? handleFinish : handleNext}
-          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold"
+          className="px-5 py-2 bg-accent text-white rounded-full text-base font-bold"
         >
           {step === steps.length - 1 ? "Hotovo ✓" : "Dál →"}
         </button>

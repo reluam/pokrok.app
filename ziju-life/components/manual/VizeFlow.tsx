@@ -32,15 +32,15 @@ export default function VizeFlow({
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
         <h2 className="text-xl font-bold text-foreground">🔭 Den v životě za 5 let</h2>
-        <p className="text-sm text-foreground/55 mt-1">
+        <p className="text-base text-foreground/55 mt-1">
           Piš v přítomném čase. Buď konkrétní — kde žiješ, s kým se probouzíš, co děláš, jak se cítíš?
         </p>
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-xs text-foreground/40">Minimálně 300 slov — čím konkrétnější, tím lépe</p>
-          <span className={`text-xs font-bold ${wordCount >= 300 ? "text-green-500" : "text-foreground/30"}`}>
+          <p className="text-sm text-foreground/40">Minimálně 300 slov — čím konkrétnější, tím lépe</p>
+          <span className={`text-sm font-bold ${wordCount >= 300 ? "text-green-500" : "text-foreground/30"}`}>
             {wordCount} slov
           </span>
         </div>
@@ -48,7 +48,7 @@ export default function VizeFlow({
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={14}
-          className="w-full px-5 py-4 border border-black/10 rounded-2xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none leading-relaxed"
+          className="w-full px-5 py-4 border border-black/10 rounded-2xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none leading-relaxed"
           placeholder="Je rok 2031. Probouzím se v..."
         />
       </div>
@@ -56,7 +56,7 @@ export default function VizeFlow({
       <button
         onClick={async () => { await save(); onComplete(); }}
         disabled={saving || !text.trim()}
-        className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-60"
+        className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors disabled:opacity-60"
       >
         {saving ? "Ukládám…" : "Uložit vizi ✓"}
       </button>

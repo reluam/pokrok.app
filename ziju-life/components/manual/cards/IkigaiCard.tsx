@@ -56,12 +56,12 @@ function ViewMode({ data }: { data: IkigaiData }) {
   const ikigai = data.reflections?.ikigai;
   return (
     <div className="space-y-2">
-      {ikigai && <p className="text-sm text-foreground/60 leading-relaxed italic">&ldquo;{ikigai.slice(0, 150)}{ikigai.length > 150 ? "…" : ""}&rdquo;</p>}
+      {ikigai && <p className="text-base text-foreground/60 leading-relaxed italic">&ldquo;{ikigai.slice(0, 150)}{ikigai.length > 150 ? "…" : ""}&rdquo;</p>}
       <div className="flex flex-wrap gap-2">
         {CIRCLES.map((c) => {
           const filled = (data[c.key] ?? []).filter(Boolean).length;
           return (
-            <span key={c.key} className="text-xs text-foreground/40">
+            <span key={c.key} className="text-sm text-foreground/40">
               {c.emoji} {filled}
             </span>
           );
@@ -121,10 +121,10 @@ function EditMode({
       {step < 4 ? (
         <div className="space-y-2">
           <div>
-            <p className="text-xs font-bold text-foreground/70">
+            <p className="text-sm font-bold text-foreground/70">
               {CIRCLES[step].emoji} {CIRCLES[step].label}
             </p>
-            <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">
+            <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">
               {step === 0 && "Co tě baví natolik, že zapomínáš na čas? Co bys dělal/a i zadarmo?"}
               {step === 1 && "V čem vynikáš? Co ti jde přirozeně lépe než ostatním?"}
               {step === 2 && "Jaký problém ve světě tě trápí? Kde vidíš mezeru, kterou bys mohl/a vyplnit?"}
@@ -142,25 +142,25 @@ function EditMode({
                 setters[step](next);
               }}
               placeholder={CIRCLES[step].placeholder}
-              className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
+              className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
             />
           ))}
         </div>
       ) : (
         <div className="space-y-2">
           <div>
-            <p className="text-xs font-bold text-foreground/70">Reflexe průsečíků</p>
-            <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">Podívej se na průsečíky svých odpovědí. Co mají společného? Co je tvůj Ikigai?</p>
+            <p className="text-sm font-bold text-foreground/70">Reflexe průsečíků</p>
+            <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">Podívej se na průsečíky svých odpovědí. Co mají společného? Co je tvůj Ikigai?</p>
           </div>
           {REFLECTIONS.map((r) => (
             <div key={r.key} className="space-y-0.5">
-              <label className="text-xs text-foreground/40">{r.label}</label>
+              <label className="text-sm text-foreground/40">{r.label}</label>
               <textarea
                 value={reflections[r.key]}
                 onChange={(e) => setReflections((p) => ({ ...p, [r.key]: e.target.value }))}
                 placeholder="Tvoje reflexe..."
                 rows={2}
-                className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
+                className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
               />
             </div>
           ))}
@@ -171,13 +171,13 @@ function EditMode({
         <SaveIndicator saving={saving} saved={saved} />
         <div className="flex-1" />
         {step > 0 && (
-          <button onClick={() => setStep((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
+          <button onClick={() => setStep((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-base font-semibold">
             ← Zpět
           </button>
         )}
         <button
           onClick={step === totalSteps - 1 ? handleFinish : handleNext}
-          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold"
+          className="px-5 py-2 bg-accent text-white rounded-full text-base font-bold"
         >
           {step === totalSteps - 1 ? "Hotovo ✓" : "Dál →"}
         </button>

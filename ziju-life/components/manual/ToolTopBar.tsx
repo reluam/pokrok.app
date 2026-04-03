@@ -8,17 +8,17 @@ export function ToolTopBar({ onReset, printNode }: {
 }) {
   const [confirming, setConfirming] = useState(false);
 
-  const btnBase = "inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-semibold transition-colors bg-white/70";
+  const btnBase = "inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-base font-semibold transition-colors bg-white/70";
 
   return (
     <div className="flex items-center justify-end gap-2 mb-5">
       {printNode}
       {confirming ? (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-foreground/50">Opravdu smazat vše?</span>
+          <span className="text-sm text-foreground/50">Opravdu smazat vše?</span>
           <button
             onClick={() => { setConfirming(false); onReset(); }}
-            className="px-3 py-1.5 rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition-colors"
+            className="px-3 py-1.5 rounded-full bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors"
           >
             Ano, smazat
           </button>

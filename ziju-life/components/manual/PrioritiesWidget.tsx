@@ -67,10 +67,10 @@ function PrioritySection({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-bold text-foreground/60 uppercase tracking-wider">
+        <p className="text-base font-bold text-foreground/60 uppercase tracking-wider">
           {SCOPE_CONFIG[scope]?.label ?? scope}
         </p>
-        <span className="text-xs text-foreground/30 font-medium">{activeCount}/{maxItems}</span>
+        <span className="text-sm text-foreground/30 font-medium">{activeCount}/{maxItems}</span>
       </div>
 
       {items.length === 0 && !adding && (
@@ -108,7 +108,7 @@ function PrioritySection({
                 >
                   {item.text}
                   {item.source && (
-                    <span className="ml-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent/60 align-middle">
+                    <span className="ml-1.5 text-xs font-semibold px-1.5 py-0.5 rounded-full bg-accent/10 text-accent/60 align-middle">
                       {item.source === "kolo-zivota" ? "🎯 Kolo života" : item.source}
                     </span>
                   )}
@@ -144,7 +144,7 @@ function PrioritySection({
                 >
                   <Check size={14} strokeWidth={3} className="text-white" />
                 </button>
-                <span className="text-sm flex-1 line-through text-foreground/30">
+                <span className="text-base flex-1 line-through text-foreground/30">
                   {item.text}
                 </span>
                 <button
@@ -175,7 +175,7 @@ function PrioritySection({
       ) : canAdd ? (
         <button
           onClick={() => setAdding(true)}
-          className="flex items-center gap-2 text-sm font-medium text-accent/60 hover:text-accent transition-colors py-1"
+          className="flex items-center gap-2 text-base font-medium text-accent/60 hover:text-accent transition-colors py-1"
         >
           <Plus size={16} /> Přidat prioritu
         </button>
@@ -248,7 +248,7 @@ export default function PrioritiesWidget({ data: externalData, onChange }: Props
     <div className="bg-white border border-black/8 rounded-[24px] px-7 py-7 space-y-7">
       <div>
         <h3 className="text-xl font-extrabold text-foreground">Priority</h3>
-        <p className="text-sm text-foreground/40 mt-0.5">Na co se soustředím</p>
+        <p className="text-base text-foreground/40 mt-0.5">Na co se soustředím</p>
       </div>
       <div className="space-y-7 divide-y divide-black/5">
         {(["weekly", "monthly", "yearly"] as const).map((scope) => (

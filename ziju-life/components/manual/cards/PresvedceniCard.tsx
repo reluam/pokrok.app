@@ -37,11 +37,11 @@ function ViewMode({ data }: { data: BeliefsData }) {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-foreground/40">{reframed}/{beliefs.length} přeformulováno</p>
+      <p className="text-sm text-foreground/40">{reframed}/{beliefs.length} přeformulováno</p>
       {beliefs.slice(0, 3).map((b, i) => (
         <div key={i} className="space-y-0.5">
-          <p className="text-xs text-red-400 line-through">{b.belief}</p>
-          {b.reframe && <p className="text-xs text-green-600">{b.reframe}</p>}
+          <p className="text-sm text-red-400 line-through">{b.belief}</p>
+          {b.reframe && <p className="text-sm text-green-600">{b.reframe}</p>}
         </div>
       ))}
     </div>
@@ -90,7 +90,7 @@ function EditMode({
           <button
             key={i}
             onClick={() => setActiveIdx(i)}
-            className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
+            className="px-2.5 py-1 rounded-lg text-sm font-semibold transition-all"
             style={i === activeIdx
               ? { background: "#FF8C42", color: "white" }
               : { background: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.4)" }
@@ -99,11 +99,11 @@ function EditMode({
             {i + 1}
           </button>
         ))}
-        <button onClick={addBelief} className="px-2 py-1 text-xs text-accent hover:opacity-80">+</button>
+        <button onClick={addBelief} className="px-2 py-1 text-sm text-accent hover:opacity-80">+</button>
       </div>
 
       {/* Description */}
-      <p className="text-[11px] text-foreground/40 leading-relaxed">
+      <p className="text-sm text-foreground/40 leading-relaxed">
         Zapiš přesvědčení, které tě brzdí. Zkoumej důkazy pro i proti a najdi zdravější přeformulaci. Opakuj pro každé přesvědčení.
       </p>
 
@@ -117,13 +117,13 @@ function EditMode({
           { field: "reframe" as const, label: "Přeformulace", placeholder: "Ve skutečnosti..." },
         ].map(({ field, label, placeholder }) => (
           <div key={field} className="space-y-0.5">
-            <label className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">{label}</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-foreground/30">{label}</label>
             <input
               type="text"
               value={b[field]}
               onChange={(e) => update(field, e.target.value)}
               placeholder={placeholder}
-              className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
+              className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
             />
           </div>
         ))}
@@ -133,7 +133,7 @@ function EditMode({
         <SaveIndicator saving={saving} saved={saved} />
         <button
           onClick={handleDone}
-          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
+          className="px-4 py-2 bg-accent text-white rounded-full text-base font-bold disabled:opacity-50"
         >
           Hotovo ✓
         </button>

@@ -33,7 +33,7 @@ export default function SmutecniRecFlow({
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
         <h2 className="text-xl font-bold text-foreground">🕯️ Smuteční řeč</h2>
-        <p className="text-sm text-foreground/55 mt-1">
+        <p className="text-base text-foreground/55 mt-1">
           Co bys chtěl, aby o tobě řekli na tvém pohřbu? Jak by tě popsali lidé z různých kruhů tvého života?
         </p>
       </div>
@@ -41,12 +41,12 @@ export default function SmutecniRecFlow({
       <div className="space-y-4">
         {FIELDS.map((f) => (
           <div key={f.key} className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground/70">{f.label}</label>
+            <label className="text-base font-medium text-foreground/70">{f.label}</label>
             <textarea
               value={form[f.key]}
               onChange={(e) => setForm((d) => ({ ...d, [f.key]: e.target.value }))}
               rows={4}
-              className="w-full px-4 py-3 border border-black/10 rounded-2xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
+              className="w-full px-4 py-3 border border-black/10 rounded-2xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none"
               placeholder={f.placeholder}
             />
           </div>
@@ -56,7 +56,7 @@ export default function SmutecniRecFlow({
       <button
         onClick={async () => { await save(); onComplete(); }}
         disabled={saving || (!form.rodina && !form.blizci && !form.znami)}
-        className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-60"
+        className="w-full py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors disabled:opacity-60"
       >
         {saving ? "Ukládám…" : "Uložit ✓"}
       </button>

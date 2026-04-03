@@ -43,17 +43,17 @@ function ViewMode({ principles }: { principles: { text: string; origin: string }
     <div className="space-y-2">
       {principles.slice(0, 5).map((p, i) => (
         <div key={i} className="flex items-start gap-2">
-          <span className="text-accent/40 font-bold text-xs mt-0.5 shrink-0">{i + 1}.</span>
+          <span className="text-accent/40 font-bold text-sm mt-0.5 shrink-0">{i + 1}.</span>
           <div>
-            <p className="text-sm text-foreground/70 font-medium leading-relaxed">{p.text}</p>
+            <p className="text-base text-foreground/70 font-medium leading-relaxed">{p.text}</p>
             {p.origin && (
-              <p className="text-[11px] text-foreground/35 leading-relaxed">{p.origin}</p>
+              <p className="text-sm text-foreground/35 leading-relaxed">{p.origin}</p>
             )}
           </div>
         </div>
       ))}
       {principles.length > 5 && (
-        <p className="text-xs text-foreground/30">+ {principles.length - 5} dalších</p>
+        <p className="text-sm text-foreground/30">+ {principles.length - 5} dalších</p>
       )}
     </div>
   );
@@ -83,7 +83,6 @@ function EditMode({
   );
 
   const handleDone = async () => { await flush(); done?.(); };
-  }, [principles, saveContext]);
 
   const addRow = () => setPrinciples(prev => [...prev, { text: "", origin: "" }]);
   const removeRow = (i: number) => setPrinciples(prev => prev.filter((_, idx) => idx !== i));
@@ -96,7 +95,7 @@ function EditMode({
   return (
     <div className="space-y-3">
       <div className="space-y-1.5">
-        <p className="text-xs text-foreground/50 leading-relaxed">
+        <p className="text-sm text-foreground/50 leading-relaxed">
           Principy jsou osvědčená řešení situací, které se opakují. Buď ses poučil/a z chyby, nebo to děláš odjakživa a funguje to. Zapiš si je — příště nebudeš přemýšlet, prostě se jimi řídíš.
         </p>
       </div>
@@ -116,13 +115,13 @@ function EditMode({
               value={p.text}
               onChange={(e) => update(i, "text", e.target.value)}
               placeholder={`Princip ${i + 1} — např. „Nikdy se nerozhoduj ve stresu"`}
-              className="w-full text-sm font-medium rounded-lg border border-black/[0.06] bg-white/80 px-3 py-2 text-foreground/70 placeholder:text-foreground/20 focus:outline-none focus:border-black/15 transition-all"
+              className="w-full text-base font-medium rounded-lg border border-black/[0.06] bg-white/80 px-3 py-2 text-foreground/70 placeholder:text-foreground/20 focus:outline-none focus:border-black/15 transition-all"
             />
             <input
               value={p.origin}
               onChange={(e) => update(i, "origin", e.target.value)}
               placeholder="Odkud vzešel? (poučení z chyby, osvědčený přístup...)"
-              className="w-full text-xs rounded-lg border border-black/[0.04] bg-white/60 px-3 py-1.5 text-foreground/50 placeholder:text-foreground/15 focus:outline-none focus:border-black/10 transition-all"
+              className="w-full text-sm rounded-lg border border-black/[0.04] bg-white/60 px-3 py-1.5 text-foreground/50 placeholder:text-foreground/15 focus:outline-none focus:border-black/10 transition-all"
             />
           </div>
         ))}
@@ -130,25 +129,25 @@ function EditMode({
 
       <button
         onClick={addRow}
-        className="flex items-center gap-1.5 text-xs font-medium text-accent/60 hover:text-accent transition-colors"
+        className="flex items-center gap-1.5 text-sm font-medium text-accent/60 hover:text-accent transition-colors"
       >
         <Plus size={14} /> Přidat princip
       </button>
 
       <button
         onClick={() => setShowExamples(!showExamples)}
-        className="text-xs text-accent/70 hover:text-accent transition-colors"
+        className="text-sm text-accent/70 hover:text-accent transition-colors"
       >
         {showExamples ? "Skrýt příklady" : "Ukázat příklady pro inspiraci →"}
       </button>
 
       {showExamples && (
         <div className="space-y-2 p-3 rounded-xl bg-accent/5 border border-accent/10">
-          <p className="text-[10px] font-bold text-accent/60 uppercase tracking-wider">Příklady principů</p>
+          <p className="text-xs font-bold text-accent/60 uppercase tracking-wider">Příklady principů</p>
           {EXAMPLES.map((ex, i) => (
             <div key={i} className="border-l-2 border-accent/20 pl-2.5 space-y-0.5">
-              <p className="text-xs text-foreground/60 font-medium">{ex.text}</p>
-              <p className="text-[11px] text-foreground/35 italic">{ex.origin}</p>
+              <p className="text-sm text-foreground/60 font-medium">{ex.text}</p>
+              <p className="text-sm text-foreground/35 italic">{ex.origin}</p>
             </div>
           ))}
         </div>
@@ -159,7 +158,7 @@ function EditMode({
         <button
           onClick={handleDone}
           disabled={!hasFilled}
-          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-accent text-white rounded-full text-base font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
           Hotovo ✓
         </button>

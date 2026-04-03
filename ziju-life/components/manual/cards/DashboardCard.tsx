@@ -40,11 +40,11 @@ export function DashboardCard({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{emoji}</span>
-                <h3 className="text-sm font-bold text-foreground">{title}</h3>
+                <h3 className="text-base font-bold text-foreground">{title}</h3>
               </div>
               <button
                 onClick={() => setEditing(false)}
-                className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+                className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
               >
                 Zavřít
               </button>
@@ -56,13 +56,13 @@ export function DashboardCard({
         ) : (
           <div className="text-center py-4 space-y-2">
             <span className="text-2xl">{emoji}</span>
-            <p className="text-sm font-semibold text-foreground">{title}</p>
+            <p className="text-base font-semibold text-foreground">{title}</p>
             {emptyDescription && (
-              <p className="text-xs text-foreground/45 leading-relaxed max-w-xs mx-auto">{emptyDescription}</p>
+              <p className="text-sm text-foreground/45 leading-relaxed max-w-xs mx-auto">{emptyDescription}</p>
             )}
             <button
               onClick={() => setEditing(true)}
-              className="text-sm text-accent font-semibold hover:opacity-80 transition-opacity"
+              className="text-base text-accent font-semibold hover:opacity-80 transition-opacity"
             >
               {emptyCta}
             </button>
@@ -78,7 +78,7 @@ export function DashboardCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-lg">{emoji}</span>
-            <h3 className="text-sm font-bold text-foreground">{title}</h3>
+            <h3 className="text-base font-bold text-foreground">{title}</h3>
           </div>
           <div className="flex items-center gap-2">
             {onPrint && !editing && (
@@ -93,7 +93,7 @@ export function DashboardCard({
             {editContent && (
               <button
                 onClick={() => setEditing(!editing)}
-                className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+                className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
               >
                 {editing ? "Zavřít" : "Upravit"}
               </button>
@@ -112,11 +112,11 @@ export function DashboardSection({ title, description, children }: { title: stri
   return (
     <div className="space-y-3">
       <div className="px-1">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground/35">
           {title}
         </h2>
         {description && (
-          <p className="text-xs text-foreground/35 mt-0.5">{description}</p>
+          <p className="text-sm text-foreground/35 mt-0.5">{description}</p>
         )}
       </div>
       {children}

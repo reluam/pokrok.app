@@ -60,7 +60,7 @@ export default function IkigaiFlow({
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">{currentStep.emoji} {currentStep.title}</h2>
-          <p className="text-sm text-foreground/55 mt-1">{currentStep.description}</p>
+          <p className="text-base text-foreground/55 mt-1">{currentStep.description}</p>
         </div>
 
         <div className="space-y-3">
@@ -73,7 +73,7 @@ export default function IkigaiFlow({
                 next[i] = e.target.value;
                 setData((d) => ({ ...d, [currentStep.field]: next }));
               }}
-              className="w-full px-4 py-2.5 border border-black/10 rounded-xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
+              className="w-full px-4 py-2.5 border border-black/10 rounded-xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent"
               placeholder={`${currentStep.placeholder} ${i + 1}`}
             />
           ))}
@@ -81,13 +81,13 @@ export default function IkigaiFlow({
 
         <div className="flex gap-2">
           {stepIdx > 0 && (
-            <button onClick={() => setStep(STEPS[stepIdx - 1].id)} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm">
+            <button onClick={() => setStep(STEPS[stepIdx - 1].id)} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-base">
               ← Zpět
             </button>
           )}
           <button
             onClick={() => setStep(stepIdx < STEPS.length - 1 ? STEPS[stepIdx + 1].id : "reflect")}
-            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors"
+            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors"
           >
             Dál →
           </button>
@@ -109,7 +109,7 @@ export default function IkigaiFlow({
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">☀️ Průsečíky — tvoje Ikigai</h2>
-          <p className="text-sm text-foreground/55 mt-1">
+          <p className="text-base text-foreground/55 mt-1">
             Podívej se na odpovědi výše a najdi průsečíky. Co se opakuje? Kde se kruhy protínají?
           </p>
         </div>
@@ -118,10 +118,10 @@ export default function IkigaiFlow({
         <div className="grid grid-cols-2 gap-3">
           {STEPS.map((s) => (
             <div key={s.id} className="px-4 py-3 rounded-2xl bg-accent/5 border border-accent/10">
-              <p className="text-xs font-semibold text-accent/70 mb-1">{s.emoji} {s.title}</p>
+              <p className="text-sm font-semibold text-accent/70 mb-1">{s.emoji} {s.title}</p>
               <ul className="space-y-0.5">
                 {data[s.field].filter(Boolean).map((item, i) => (
-                  <li key={i} className="text-xs text-foreground/60">• {item}</li>
+                  <li key={i} className="text-sm text-foreground/60">• {item}</li>
                 ))}
               </ul>
             </div>
@@ -132,7 +132,7 @@ export default function IkigaiFlow({
         <div className="space-y-4">
           {INTERSECTIONS.map((inter) => (
             <div key={inter.key} className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground/70">
+              <label className="text-base font-medium text-foreground/70">
                 {inter.emoji} {inter.label} — <span className="text-foreground/40 font-normal">{inter.desc}</span>
               </label>
               <textarea
@@ -142,7 +142,7 @@ export default function IkigaiFlow({
                   reflections: { ...d.reflections, [inter.key]: e.target.value },
                 }))}
                 rows={inter.key === "ikigai" ? 4 : 2}
-                className={`w-full px-4 py-3 border rounded-2xl text-sm bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none ${
+                className={`w-full px-4 py-3 border rounded-2xl text-base bg-white focus:ring-2 focus:ring-accent/20 focus:border-accent resize-none ${
                   inter.key === "ikigai" ? "border-accent/30 bg-accent/[0.02]" : "border-black/10"
                 }`}
                 placeholder={inter.key === "ikigai" ? "Můj účel je..." : `Moje ${inter.label.toLowerCase()} je...`}
@@ -152,7 +152,7 @@ export default function IkigaiFlow({
         </div>
 
         <div className="flex gap-2">
-          <button onClick={() => setStep("paidFor")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm">
+          <button onClick={() => setStep("paidFor")} className="flex-1 py-2.5 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-base">
             ← Zpět
           </button>
           <button
@@ -163,7 +163,7 @@ export default function IkigaiFlow({
               onComplete();
             }}
             disabled={saving}
-            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-60"
+            className="flex-1 py-2.5 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors disabled:opacity-60"
           >
             {saving ? "Ukládám…" : "Uložit Ikigai ✓"}
           </button>

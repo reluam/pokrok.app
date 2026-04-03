@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { DashboardCard } from "./DashboardCard";
-import type { HodnotyData } from "@/components/HodnotyFlow";
+import { VALUE_DESCRIPTIONS, type HodnotyData } from "@/components/HodnotyFlow";
 import type { DailyValuesData } from "@/lib/exercise-registry";
 
 function ScoreBar5({ value, onChange }: { value: number; onChange: (n: number) => void }) {
@@ -17,7 +17,7 @@ function ScoreBar5({ value, onChange }: { value: number; onChange: (n: number) =
             onMouseEnter={() => setHovered(n)}
             onMouseLeave={() => setHovered(null)}
             onClick={() => onChange(n)}
-            className={`flex-1 h-7 rounded text-[11px] font-bold transition-all ${
+            className={`flex-1 h-7 rounded text-sm font-bold transition-all ${
               fill ? "bg-accent text-white" : "bg-foreground/6 text-foreground/35 hover:bg-accent/15 hover:text-accent"
             }`}
           >
@@ -87,11 +87,11 @@ export function HodnotyDailyCard({
       <DashboardCard emoji="💎" title="Hodnoty" isEmpty emptyDescription="Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.">
         <div className="text-center py-4 space-y-2">
           <span className="text-2xl">💎</span>
-          <p className="text-sm font-semibold text-foreground">Hodnoty</p>
-          <p className="text-xs text-foreground/45 leading-relaxed max-w-xs mx-auto">Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.</p>
+          <p className="text-base font-semibold text-foreground">Hodnoty</p>
+          <p className="text-sm text-foreground/45 leading-relaxed max-w-xs mx-auto">Pojmenuj si, co je pro tebe v životě nejdůležitější. Tvoje hodnoty ti pak pomůžou dělat lepší rozhodnutí každý den.</p>
           <button
             onClick={() => onTabChange?.("manual")}
-            className="text-sm text-accent font-semibold hover:opacity-80 transition-opacity"
+            className="text-base text-accent font-semibold hover:opacity-80 transition-opacity"
           >
             Vyplnit hodnoty →
           </button>
@@ -108,14 +108,17 @@ export function HodnotyDailyCard({
     <DashboardCard emoji="💎" title="Hodnoty">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-xs text-foreground/40">Jak moc dnes žiješ podle svých hodnot?</p>
-          <span className="text-xs text-foreground/30">
+          <p className="text-sm text-foreground/40">Jak moc dnes žiješ podle svých hodnot?</p>
+          <span className="text-sm text-foreground/30">
             {filled}/{total} · {avg}/5
           </span>
         </div>
         {values.map((v) => (
           <div key={v} className="flex items-center gap-3">
-            <span className="text-sm font-medium text-foreground/65 flex-1 min-w-0 truncate">{v}</span>
+            <div className="flex-1 min-w-0">
+              <span className="text-base font-medium text-foreground/65 block truncate">{v}</span>
+              {VALUE_DESCRIPTIONS[v] && <p className="text-sm text-foreground/35 truncate">{VALUE_DESCRIPTIONS[v]}</p>}
+            </div>
             <ScoreBar5 value={scores[v] ?? 0} onChange={(n) => handleChange(v, n)} />
           </div>
         ))}

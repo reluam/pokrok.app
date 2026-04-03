@@ -19,13 +19,13 @@ export function CompletionScreen({ emoji, title, summary, onGoPrehled, onEdit }:
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <button
           onClick={onGoPrehled}
-          className="px-7 py-3 bg-accent text-white rounded-full font-bold text-sm hover:bg-accent-hover transition-colors shadow-md"
+          className="px-7 py-3 bg-accent text-white rounded-full font-bold text-base hover:bg-accent-hover transition-colors shadow-md"
         >
           Pokračovat na přehled →
         </button>
         <button
           onClick={onEdit}
-          className="px-7 py-3 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-sm hover:border-foreground/30 transition-colors"
+          className="px-7 py-3 border border-foreground/15 text-foreground/60 rounded-full font-semibold text-base hover:border-foreground/30 transition-colors"
         >
           Upravit odpovědi
         </button>

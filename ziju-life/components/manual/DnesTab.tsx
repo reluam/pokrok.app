@@ -69,7 +69,7 @@ export function DnesTab({
           <RitualsChecklistWidget ritualSelection={ritualSelection} />
         ) : (
           <div className="bg-white border border-black/8 rounded-[24px] px-5 py-5 space-y-3">
-            <h3 className="text-sm font-bold text-foreground">Rituály</h3>
+            <h3 className="text-base font-bold text-foreground">Rituály</h3>
             <EmptyCta emoji="⏱️" title="Sestav si denní rituály"
               description="Vyber rituály pro ráno, den i večer."
               buttonLabel="Nastavit →" onClick={() => onTabChange("manual")} />
@@ -92,7 +92,7 @@ export function DnesTab({
       {/* Historical sparklines */}
       {checkins.length >= 2 && (
         <div className="bg-white border border-black/8 rounded-[24px] px-5 py-5 space-y-4">
-          <p className="text-sm font-bold text-foreground">Trend</p>
+          <p className="text-base font-bold text-foreground">Trend</p>
           <Sparkline checkins={checkins} />
           <AreaSparklines checkins={checkins} />
         </div>

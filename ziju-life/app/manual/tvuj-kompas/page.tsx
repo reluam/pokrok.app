@@ -53,14 +53,14 @@ export default async function ManualTvujKompasPage({
   return (
     <main className="min-h-screen">
       {paymentSuccess && (
-        <div className="bg-green-50 border-b border-green-200 px-4 py-3 text-center text-sm text-green-800">
+        <div className="bg-green-50 border-b border-green-200 px-4 py-3 text-center text-base text-green-800">
           Vítej v Manuálu!
         </div>
       )}
 
       <section className="pt-10 pb-2 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-2">
-          <p className="text-xs font-bold text-accent uppercase tracking-widest mb-1">
+          <p className="text-sm font-bold text-accent uppercase tracking-widest mb-1">
             Manuál
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -76,7 +76,7 @@ export default async function ManualTvujKompasPage({
       {user && (
         <section className="px-4 sm:px-6 lg:px-8 pb-2">
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-green-50 border border-green-200/80 text-sm text-green-800">
+            <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-green-50 border border-green-200/80 text-base text-green-800">
               <span className="flex-shrink-0 mt-0.5">💾</span>
               <p>
                 <strong>Tvůj postup se průběžně ukládá.</strong>{" "}

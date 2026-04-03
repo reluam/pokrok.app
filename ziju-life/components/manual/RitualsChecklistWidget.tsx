@@ -122,7 +122,7 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
           <div className="w-20 h-2 bg-black/8 rounded-full overflow-hidden">
             <div className="h-full rounded-full transition-all bg-accent" style={{ width: `${pct}%` }} />
           </div>
-          <span className="text-xs text-foreground/40 font-medium">{completedCount}/{totalCount}</span>
+          <span className="text-sm text-foreground/40 font-medium">{completedCount}/{totalCount}</span>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
           >
             <ChevronLeft size={18} />
           </button>
-          <span className={`text-sm font-semibold min-w-[100px] text-center ${isToday ? "text-accent" : "text-foreground/60"}`}>
+          <span className={`text-base font-semibold min-w-[100px] text-center ${isToday ? "text-accent" : "text-foreground/60"}`}>
             {selectedDate && formatDayLabel(selectedDate, todayStr)}
           </span>
           <button
@@ -155,7 +155,7 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
           if (ids.length === 0) return null;
           return (
             <div key={slot} className="py-4 first:pt-0 last:pb-0">
-              <p className="text-sm font-bold text-foreground/60 uppercase tracking-wider mb-3">
+              <p className="text-base font-bold text-foreground/60 uppercase tracking-wider mb-3">
                 {SLOT_EMOJI[slot]} {SLOT_LABELS[slot]}
               </p>
               <ul className="space-y-2.5">
@@ -176,7 +176,7 @@ export default function RitualsChecklistWidget({ ritualSelection }: Props) {
                         {getRitualName(id)}
                       </span>
                       {count > 0 && (
-                        <span className="text-xs text-foreground/30" title={`${count}× za posledních 30 dní`}>
+                        <span className="text-sm text-foreground/30" title={`${count}× za posledních 30 dní`}>
                           {count}×
                         </span>
                       )}

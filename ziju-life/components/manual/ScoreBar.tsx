@@ -14,7 +14,7 @@ export function ScoreBar({ value, onChange }: { value: number; onChange: (n: num
             onMouseEnter={() => setHovered(n)}
             onMouseLeave={() => setHovered(null)}
             onClick={() => onChange(n)}
-            className={`flex-1 h-7 rounded text-[11px] font-bold transition-all ${
+            className={`flex-1 h-7 rounded text-sm font-bold transition-all ${
               fill ? "bg-accent text-white" : "bg-foreground/6 text-foreground/35 hover:bg-accent/15 hover:text-accent"
             }`}
           >

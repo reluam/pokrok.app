@@ -58,7 +58,7 @@ function ViewMode({ data }: { data: KompasData }) {
       {/* Spider chart — left */}
       <div className="flex-shrink-0 space-y-1">
         <SpiderChart vals={data.currentVals} goalVals={data.goalVals} size={200} />
-        <div className="flex items-center justify-center gap-3 text-[10px] text-foreground/40">
+        <div className="flex items-center justify-center gap-3 text-xs text-foreground/40">
           <span className="flex items-center gap-1">
             <span className="inline-block w-2.5 h-1 rounded-full bg-[#FF8C42]" />
             Teď ({mean})
@@ -79,7 +79,7 @@ function ViewMode({ data }: { data: KompasData }) {
       <div className="flex-1 min-w-0 space-y-3 pt-2">
         {focusArea ? (
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">Focus</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/30">Focus</p>
             <p className="text-sm font-bold text-accent mt-0.5">{focusArea.short}</p>
           </div>
         ) : (
@@ -87,7 +87,7 @@ function ViewMode({ data }: { data: KompasData }) {
         )}
         {steps.length > 0 && (
           <div className="space-y-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">Kroky</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/30">Kroky</p>
             {steps.map((step, i) => (
               <p key={i} className="text-sm text-foreground/55">{i + 1}. {step}</p>
             ))}
@@ -187,7 +187,7 @@ function EditFlow({
       {/* Step description */}
       <div>
         <p className="text-sm font-bold text-foreground/70">{info.title}</p>
-        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{info.desc}</p>
+        <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">{info.desc}</p>
       </div>
 
       {/* Step content */}
