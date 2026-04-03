@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { Loader2, Sparkles } from "lucide-react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import { useAutoSave } from "./useAutoSave";
 import { SaveIndicator } from "./SaveIndicator";
@@ -14,11 +15,11 @@ const CIRCLES = [
 ];
 
 const REFLECTIONS = [
-  { key: "passion" as const, label: "Vášeň (❤️ + 💪)" },
-  { key: "mission" as const, label: "Mise (❤️ + 🌍)" },
-  { key: "profession" as const, label: "Profese (💪 + 💰)" },
-  { key: "vocation" as const, label: "Poslání (🌍 + 💰)" },
-  { key: "ikigai" as const, label: "Ikigai (průsečík všeho)" },
+  { key: "passion" as const, label: "Vášeň", desc: "❤️ + 💪" },
+  { key: "mission" as const, label: "Mise", desc: "❤️ + 🌍" },
+  { key: "profession" as const, label: "Profese", desc: "💪 + 💰" },
+  { key: "vocation" as const, label: "Poslání", desc: "🌍 + 💰" },
+  { key: "ikigai" as const, label: "Ikigai", desc: "průsečík všeho" },
 ];
 
 const EMPTY_DATA: IkigaiData = {
@@ -55,15 +56,24 @@ export function IkigaiCard({
 function ViewMode({ data }: { data: IkigaiData }) {
   const ikigai = data.reflections?.ikigai;
   return (
-    <div className="space-y-2">
-      {ikigai && <p className="text-base text-foreground/60 leading-relaxed italic">&ldquo;{ikigai.slice(0, 150)}{ikigai.length > 150 ? "…" : ""}&rdquo;</p>}
-      <div className="flex flex-wrap gap-2">
-        {CIRCLES.map((c) => {
-          const filled = (data[c.key] ?? []).filter(Boolean).length;
+    <div className="space-y-3">
+      {ikigai && (
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/30">Tvoje Ikigai</p>
+          <p className="text-base text-foreground/60 leading-relaxed italic mt-0.5">
+            &ldquo;{ikigai.slice(0, 200)}{ikigai.length > 200 ? "…" : ""}&rdquo;
+          </p>
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-2">
+        {REFLECTIONS.slice(0, 4).map((r) => {
+          const text = data.reflections?.[r.key];
+          if (!text) return null;
           return (
-            <span key={c.key} className="text-sm text-foreground/40">
-              {c.emoji} {filled}
-            </span>
+            <div key={r.key} className="space-y-0.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">{r.label}</p>
+              <p className="text-xs text-foreground/50 leading-relaxed">{text.slice(0, 80)}{text.length > 80 ? "…" : ""}</p>
+            </div>
           );
         })}
       </div>
@@ -86,6 +96,8 @@ function EditMode({
   const [worldNeeds, setWorldNeeds] = useState([...d.worldNeeds]);
   const [paidFor, setPaidFor] = useState([...d.paidFor]);
   const [reflections, setReflections] = useState({ ...d.reflections });
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState("");
 
   const lists = [love, goodAt, worldNeeds, paidFor];
   const setters = [setLove, setGoodAt, setWorldNeeds, setPaidFor];
@@ -104,10 +116,43 @@ function EditMode({
     [depsKey],
   );
 
-  const handleNext = () => { setStep((s) => s + 1); };
+  const analyzeWithAI = async () => {
+    setAnalyzing(true);
+    setAnalyzeError("");
+    try {
+      const res = await fetch("/api/manual/ikigai-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ love, goodAt, worldNeeds, paidFor }),
+      });
+      if (!res.ok) throw new Error("Chyba");
+      const result = await res.json();
+      setReflections(result);
+      // Move to results step
+      setStep(4);
+      // Auto-save with new reflections
+      await saveContext("ikigai", {
+        love, goodAt, worldNeeds, paidFor, reflections: result,
+        savedAt: new Date().toISOString(),
+      });
+    } catch {
+      setAnalyzeError("Nepodařilo se analyzovat. Zkus to znovu.");
+    }
+    setAnalyzing(false);
+  };
+
+  const handleNext = () => {
+    if (step < 3) {
+      setStep(s => s + 1);
+    } else if (step === 3) {
+      // After 4th circle, trigger AI analysis
+      analyzeWithAI();
+    }
+  };
+
   const handleFinish = async () => { done?.(); };
 
-  // Steps 0-3: circles, step 4: reflections
+  // 5 steps: 4 circles + 1 AI results
   const totalSteps = 5;
 
   return (
@@ -146,41 +191,64 @@ function EditMode({
             />
           ))}
         </div>
+      ) : analyzing ? (
+        <div className="flex flex-col items-center justify-center py-8 gap-3">
+          <Loader2 size={24} className="animate-spin text-accent" />
+          <p className="text-sm text-foreground/50">Analyzuji průsečíky…</p>
+        </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div>
-            <p className="text-sm font-bold text-foreground/70">Reflexe průsečíků</p>
-            <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">Podívej se na průsečíky svých odpovědí. Co mají společného? Co je tvůj Ikigai?</p>
+            <p className="text-sm font-bold text-foreground/70">
+              <Sparkles size={14} className="inline text-accent mr-1" />
+              Tvoje Ikigai průsečíky
+            </p>
+            <p className="text-sm text-foreground/40 mt-0.5 leading-relaxed">
+              AI analyzovalo tvoje odpovědi a našlo průsečíky. Můžeš je upravit.
+            </p>
           </div>
           {REFLECTIONS.map((r) => (
-            <div key={r.key} className="space-y-0.5">
-              <label className="text-sm text-foreground/40">{r.label}</label>
+            <div key={r.key} className={`space-y-1 p-3 rounded-xl border ${r.key === "ikigai" ? "bg-accent/5 border-accent/15" : "bg-black/[0.02] border-black/[0.05]"}`}>
+              <label className="text-xs font-semibold text-foreground/50">
+                {r.label} <span className="text-foreground/30 font-normal">({r.desc})</span>
+              </label>
               <textarea
                 value={reflections[r.key]}
                 onChange={(e) => setReflections((p) => ({ ...p, [r.key]: e.target.value }))}
-                placeholder="Tvoje reflexe..."
-                rows={2}
-                className="w-full text-base rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
+                rows={r.key === "ikigai" ? 3 : 2}
+                className="w-full text-sm rounded-lg border border-black/[0.06] bg-white/80 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/15 transition-all"
               />
             </div>
           ))}
+
+          <button
+            onClick={analyzeWithAI}
+            disabled={analyzing}
+            className="flex items-center gap-1.5 text-xs text-accent/70 hover:text-accent transition-colors"
+          >
+            <Sparkles size={12} /> Přegenerovat průsečíky
+          </button>
         </div>
       )}
+
+      {analyzeError && <p className="text-xs text-red-500">{analyzeError}</p>}
 
       <div className="flex items-center gap-2">
         <SaveIndicator saving={saving} saved={saved} />
         <div className="flex-1" />
-        {step > 0 && (
+        {step > 0 && !analyzing && (
           <button onClick={() => setStep((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-base font-semibold">
             ← Zpět
           </button>
         )}
-        <button
-          onClick={step === totalSteps - 1 ? handleFinish : handleNext}
-          className="px-5 py-2 bg-accent text-white rounded-full text-base font-bold"
-        >
-          {step === totalSteps - 1 ? "Hotovo ✓" : "Dál →"}
-        </button>
+        {!analyzing && (
+          <button
+            onClick={step >= 4 ? handleFinish : handleNext}
+            className="px-5 py-2 bg-accent text-white rounded-full text-base font-bold"
+          >
+            {step >= 4 ? "Hotovo ✓" : step === 3 ? "Analyzovat ✨" : "Dál →"}
+          </button>
+        )}
       </div>
     </div>
   );
