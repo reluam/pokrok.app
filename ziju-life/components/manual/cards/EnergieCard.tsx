@@ -94,7 +94,8 @@ function EditMode({
 
   const steps = [
     {
-      label: "Aktivity a lidé (-5 vampýr → +5 energizér)",
+      label: "Aktivity a lidé",
+      desc: "Zapiš aktivity, lidi a situace z tvého běžného týdne. Ohodnoť je: +5 = nabíjí tě energií, -5 = kompletně tě vyčerpává.",
       content: (
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {activities.map((a, i) => (
@@ -131,6 +132,7 @@ function EditMode({
     },
     {
       label: "Postřehy a ideální týden",
+      desc: "Co tě překvapilo? Jaký vzorec vidíš? Jak by vypadal týden, ze kterého bys neodcházel/a vyčerpaný/á?",
       content: (
         <div className="space-y-2">
           <textarea
@@ -159,7 +161,10 @@ function EditMode({
           <div key={i} className="h-1 flex-1 rounded-full" style={{ background: i <= step ? "#FF8C42" : "rgba(0,0,0,0.06)" }} />
         ))}
       </div>
-      <p className="text-xs font-medium text-foreground/50">{steps[step].label}</p>
+      <div>
+        <p className="text-xs font-bold text-foreground/70">{steps[step].label}</p>
+        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{steps[step].desc}</p>
+      </div>
       {steps[step].content}
       <div className="flex gap-2">
         {step > 0 && (

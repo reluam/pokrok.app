@@ -118,11 +118,12 @@ function EditMode({
   );
 
   const steps = [
-    { label: "Co se povedlo?", content: listEditor(celebrations, setCelebrations, "Úspěch") },
-    { label: "Co ses naučil/a?", content: listEditor(learnings, setLearnings, "Lekce") },
-    { label: "Co změníš?", content: listEditor(adjustments, setAdjustments, "Změna") },
+    { label: "Co se povedlo?", desc: "Oslav své úspěchy — i ty malé. Co se ti povedlo za poslední 3 měsíce?", content: listEditor(celebrations, setCelebrations, "Úspěch") },
+    { label: "Co ses naučil/a?", desc: "Jaké lekce ti dal tento kvartál? Z čeho ses poučil/a — ať už z úspěchů nebo chyb?", content: listEditor(learnings, setLearnings, "Lekce") },
+    { label: "Co změníš?", desc: "Co uděláš jinak v příštím čtvrtletí? Co přidáš, co ubeřeš, co upravíš?", content: listEditor(adjustments, setAdjustments, "Změna") },
     {
       label: "Aktualizuj oblasti",
+      desc: "Jak se změnily tvoje životní oblasti od posledního check-inu?",
       content: (
         <div className="flex justify-center">
           <InteractiveSpider
@@ -142,7 +143,10 @@ function EditMode({
           <div key={i} className="h-1 flex-1 rounded-full" style={{ background: i <= step ? "#FF8C42" : "rgba(0,0,0,0.06)" }} />
         ))}
       </div>
-      <p className="text-xs font-medium text-foreground/50">{steps[step].label}</p>
+      <div>
+        <p className="text-xs font-bold text-foreground/70">{steps[step].label}</p>
+        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{steps[step].desc}</p>
+      </div>
       {steps[step].content}
       <div className="flex gap-2">
         {step > 0 && (

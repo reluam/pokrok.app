@@ -122,9 +122,17 @@ function EditMode({
 
       {step < 4 ? (
         <div className="space-y-2">
-          <p className="text-xs font-medium text-foreground/50">
-            {CIRCLES[step].emoji} {CIRCLES[step].label}
-          </p>
+          <div>
+            <p className="text-xs font-bold text-foreground/70">
+              {CIRCLES[step].emoji} {CIRCLES[step].label}
+            </p>
+            <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">
+              {step === 0 && "Co tě baví natolik, že zapomínáš na čas? Co bys dělal/a i zadarmo?"}
+              {step === 1 && "V čem vynikáš? Co ti jde přirozeně lépe než ostatním?"}
+              {step === 2 && "Jaký problém ve světě tě trápí? Kde vidíš mezeru, kterou bys mohl/a vyplnit?"}
+              {step === 3 && "Za co ti lidé platí nebo by platili? Jakou hodnotu vytváříš?"}
+            </p>
+          </div>
           {lists[step].map((item, i) => (
             <input
               key={i}
@@ -142,7 +150,10 @@ function EditMode({
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="text-xs font-medium text-foreground/50">Reflexe průsečíků</p>
+          <div>
+            <p className="text-xs font-bold text-foreground/70">Reflexe průsečíků</p>
+            <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">Podívej se na průsečíky svých odpovědí. Co mají společného? Co je tvůj Ikigai?</p>
+          </div>
           {REFLECTIONS.map((r) => (
             <div key={r.key} className="space-y-0.5">
               <label className="text-xs text-foreground/40">{r.label}</label>

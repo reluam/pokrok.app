@@ -98,6 +98,11 @@ function EditMode({
         <button onClick={addBelief} className="px-2 py-1 text-xs text-accent hover:opacity-80">+</button>
       </div>
 
+      {/* Description */}
+      <p className="text-[11px] text-foreground/40 leading-relaxed">
+        Zapiš přesvědčení, které tě brzdí. Zkoumej důkazy pro i proti a najdi zdravější přeformulaci. Opakuj pro každé přesvědčení.
+      </p>
+
       {/* Fields */}
       <div className="space-y-2">
         {[

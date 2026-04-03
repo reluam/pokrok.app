@@ -82,9 +82,12 @@ function EditMode({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-foreground/50">
-        Co bys chtěl, aby o tobě řekli na tvém pohřbu?
-      </p>
+      <div>
+        <p className="text-xs font-bold text-foreground/70">Co bys chtěl, aby o tobě řekli?</p>
+        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">
+          Představ si svůj pohřeb. Co by o tobě řekla rodina, blízcí přátelé a kolegové? Tohle cvičení ti ukáže, na čem ti v životě opravdu záleží.
+        </p>
+      </div>
       {FIELDS.map((f) => (
         <div key={f.key} className="space-y-1">
           <label className="text-xs font-medium text-foreground/50">{f.question}</label>

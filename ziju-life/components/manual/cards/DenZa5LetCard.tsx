@@ -83,9 +83,12 @@ function EditMode({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-foreground/50">
-        Popiš svůj ideální den za 5 let. Kde jsi, s kým, co děláš?
-      </p>
+      <div>
+        <p className="text-xs font-bold text-foreground/70">Popiš svůj ideální den za 5 let</p>
+        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">
+          Zavři oči a představ si běžný den za 5 let. Kde se probouzíš? S kým? Co děláš ráno, přes den, večer? Čím víc detailů, tím lépe — mozek nerozlišuje živou představu od plánu.
+        </p>
+      </div>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}

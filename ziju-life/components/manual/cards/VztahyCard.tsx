@@ -79,6 +79,9 @@ function EditMode({
 
   return (
     <div className="space-y-3">
+      <p className="text-[11px] text-foreground/40 leading-relaxed">
+        Zapiš lidi ze svého života. Roztřiď je do kruhů (blízcí, střed, vnější) a označ, jestli tě nabíjejí (+) nebo vyčerpávají (-).
+      </p>
       <div className="space-y-2 max-h-72 overflow-y-auto">
         {people.map((p, i) => (
           <div key={i} className="flex gap-1.5 items-center">

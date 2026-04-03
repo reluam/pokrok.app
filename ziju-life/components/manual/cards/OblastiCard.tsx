@@ -6,12 +6,12 @@ import { WHEEL_AREAS } from "../shared";
 import type { AreaSetupData } from "@/lib/exercise-registry";
 
 const AREA_STEPS = [
-  { key: "answers", label: "Otázky", count: 5 },
-  { key: "principles", label: "Principy", count: 5 },
-  { key: "lessons", label: "Lekce", count: 3 },
-  { key: "habitsAdd", label: "Návyky (+)", count: 2 },
-  { key: "habitsRemove", label: "Návyky (-)", count: 1 },
-  { key: "metrics", label: "Metriky", count: 3 },
+  { key: "answers", label: "Otázky", desc: "Jaké otázky si v této oblasti potřebuješ pokládat? Co je důležité řešit?", count: 5 },
+  { key: "principles", label: "Principy", desc: "Jaká pravidla chceš v této oblasti dodržovat? Čím se řídit?", count: 5 },
+  { key: "lessons", label: "Lekce", desc: "Co ses v této oblasti naučil/a? Jaké poučení z minulosti si neseš?", count: 3 },
+  { key: "habitsAdd", label: "Návyky (+)", desc: "Jaké nové návyky chceš zavést? Co ti pomůže se posunout?", count: 2 },
+  { key: "habitsRemove", label: "Návyky (-)", desc: "Čeho se chceš zbavit? Co tě brzdí nebo ti škodí?", count: 1 },
+  { key: "metrics", label: "Metriky", desc: "Podle čeho poznáš, že se ti daří? Co budeš měřit nebo sledovat?", count: 3 },
 ];
 
 export function OblastiCard({
@@ -154,9 +154,10 @@ function EditMode({
       </div>
 
       {/* Step content */}
-      <p className="text-xs font-medium text-foreground/50">
-        {area.short} — {currentStep.label}
-      </p>
+      <div>
+        <p className="text-xs font-bold text-foreground/70">{area.short} — {currentStep.label}</p>
+        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{currentStep.desc}</p>
+      </div>
       <div className="space-y-1.5">
         {items.map((item, i) => (
           <input

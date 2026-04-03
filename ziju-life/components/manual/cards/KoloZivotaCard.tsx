@@ -11,6 +11,25 @@ const defaultVals = () => Object.fromEntries(WHEEL_AREAS.map((a) => [a.key, 5]))
 type Step = "current" | "goal" | "focus" | "actions";
 const STEPS: Step[] = ["current", "goal", "focus", "actions"];
 
+const STEP_INFO: Record<Step, { title: string; desc: string }> = {
+  current: {
+    title: "Kde jsi teď?",
+    desc: "Ohodnoť každou oblast 1–10. Buď upřímný/á — nejde o dokonalost, ale o reálný obraz.",
+  },
+  goal: {
+    title: "Kde chceš být?",
+    desc: "Nastav cílové hodnoty. Šedý obrys ukazuje tvůj aktuální stav — rozdíl ukáže, kam směřovat.",
+  },
+  focus: {
+    title: "Na co se zaměříš?",
+    desc: "Vyber jednu oblast, které dáš tento měsíc přednost. Největší rozdíl = největší příležitost.",
+  },
+  actions: {
+    title: "Konkrétní kroky",
+    desc: "Zapiš 1–3 kroky, které uděláš tento měsíc. Konkrétní, měřitelné, proveditelné.",
+  },
+};
+
 export function KoloZivotaCard({
   data,
   saveContext,
@@ -41,10 +60,12 @@ function ViewMode({ data }: { data: KompasData }) {
   const steps = (data.actionSteps ?? []).filter((s) => s.trim());
 
   return (
-    <div className="flex gap-4 items-start">
-      {/* Spider chart — left */}
-      <div className="flex-shrink-0 space-y-1">
-        <SpiderChart vals={data.currentVals} goalVals={data.goalVals} size={200} />
+    <div className="space-y-4">
+      {/* Spider chart */}
+      <div className="space-y-1">
+        <div className="flex justify-center">
+          <SpiderChart vals={data.currentVals} goalVals={data.goalVals} size={200} />
+        </div>
         <div className="flex items-center justify-center gap-3 text-[10px] text-foreground/40">
           <span className="flex items-center gap-1">
             <span className="inline-block w-2.5 h-1 rounded-full bg-[#FF8C42]" />
@@ -59,28 +80,68 @@ function ViewMode({ data }: { data: KompasData }) {
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="w-px self-stretch bg-black/[0.07]" />
-
-      {/* Focus + action steps — right */}
-      <div className="flex-1 min-w-0 space-y-3 pt-2">
-        {focusArea ? (
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">Focus</p>
-            <p className="text-sm font-bold text-accent mt-0.5">{focusArea.short}</p>
-          </div>
-        ) : (
-          <p className="text-xs text-foreground/35 italic">Zatím nemáš vybranou fokus oblast.</p>
-        )}
-        {steps.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">Kroky</p>
-            {steps.map((step, i) => (
-              <p key={i} className="text-xs text-foreground/55">{i + 1}. {step}</p>
-            ))}
-          </div>
-        )}
+      {/* Areas breakdown */}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+        {WHEEL_AREAS.map((a) => {
+          const cur = data.currentVals[a.key] ?? 0;
+          const goal = data.goalVals?.[a.key];
+          const isFocus = data.focusArea === a.key;
+          return (
+            <div key={a.key} className={`flex items-center gap-2 ${isFocus ? "font-semibold" : ""}`}>
+              <span className="text-xs text-foreground/50 flex-1 truncate">
+                {isFocus && <span className="text-accent mr-0.5">●</span>}
+                {a.short}
+              </span>
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-bold text-foreground/60 w-4 text-right">{cur}</span>
+                {goal != null && goal !== cur && (
+                  <span className="text-[10px] text-[#4ECDC4]">→ {goal}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {/* Focus + action steps */}
+      {steps.length > 0 && (
+        <div className="space-y-1 pt-1 border-t border-black/[0.05]">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/30">Kroky</p>
+          {steps.map((step, i) => (
+            <p key={i} className="text-xs text-foreground/55">{i + 1}. {step}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SliderRow({
+  label,
+  value,
+  onChange,
+  color = "#FF8C42",
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  color?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-foreground/50 w-20 truncate">{label}</span>
+      <input
+        type="range"
+        min={1}
+        max={10}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
+        style={{
+          background: `linear-gradient(to right, ${color} ${((value - 1) / 9) * 100}%, rgba(0,0,0,0.08) ${((value - 1) / 9) * 100}%)`,
+        }}
+      />
+      <span className="text-xs font-bold text-foreground/60 w-5 text-right">{value}</span>
     </div>
   );
 }
@@ -100,6 +161,7 @@ function EditFlow({
   const [saving, setSaving] = useState(false);
 
   const stepIdx = STEPS.indexOf(step);
+  const info = STEP_INFO[step];
 
   const save = useCallback(async (partial: Partial<KompasData>) => {
     setSaving(true);
@@ -148,67 +210,88 @@ function EditFlow({
         ))}
       </div>
 
+      {/* Step description */}
+      <div>
+        <p className="text-xs font-bold text-foreground/70">{info.title}</p>
+        <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{info.desc}</p>
+      </div>
+
       {/* Step content */}
       {step === "current" && (
         <div className="space-y-3">
-          <p className="text-xs text-foreground/50">Kde jsi teď? Klikni na graf nebo nastav hodnoty.</p>
           <div className="flex justify-center">
             <InteractiveSpider
               vals={currentVals}
               onChange={(key, score) => setCurrentVals((p) => ({ ...p, [key]: score }))}
-              size={240}
+              size={220}
             />
+          </div>
+          <div className="space-y-2 pt-2 border-t border-black/[0.05]">
+            {WHEEL_AREAS.map((a) => (
+              <SliderRow
+                key={a.key}
+                label={a.short}
+                value={currentVals[a.key] ?? 5}
+                onChange={(v) => setCurrentVals((p) => ({ ...p, [a.key]: v }))}
+              />
+            ))}
           </div>
         </div>
       )}
 
       {step === "goal" && (
         <div className="space-y-3">
-          <p className="text-xs text-foreground/50">Kde chceš být? Šedý obrys = aktuální stav.</p>
           <div className="flex justify-center">
             <InteractiveSpider
               vals={goalVals}
               prevVals={currentVals}
               onChange={(key, score) => setGoalVals((p) => ({ ...p, [key]: score }))}
-              size={240}
+              size={220}
             />
+          </div>
+          <div className="space-y-2 pt-2 border-t border-black/[0.05]">
+            {WHEEL_AREAS.map((a) => (
+              <SliderRow
+                key={a.key}
+                label={a.short}
+                value={goalVals[a.key] ?? 7}
+                onChange={(v) => setGoalVals((p) => ({ ...p, [a.key]: v }))}
+                color="#4ECDC4"
+              />
+            ))}
           </div>
         </div>
       )}
 
       {step === "focus" && (
-        <div className="space-y-3">
-          <p className="text-xs text-foreground/50">Na kterou oblast se zaměříš tento měsíc?</p>
-          <div className="space-y-1.5">
-            {WHEEL_AREAS.map((a) => {
-              const cur = currentVals[a.key] ?? 5;
-              const goal = goalVals[a.key] ?? 5;
-              const diff = goal - cur;
-              return (
-                <button
-                  key={a.key}
-                  onClick={() => setFocusArea(a.key)}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-sm transition-all"
-                  style={focusArea === a.key
-                    ? { borderColor: "#FF8C42", background: "rgba(255,140,66,0.06)" }
-                    : { borderColor: "rgba(0,0,0,0.07)" }
-                  }
-                >
-                  <span className="font-medium text-foreground/70 flex-1">{a.short}</span>
-                  <span className="text-xs text-foreground/40">{cur} → {goal}</span>
-                  {diff > 0 && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500">+{diff}</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+        <div className="space-y-1.5">
+          {WHEEL_AREAS.map((a) => {
+            const cur = currentVals[a.key] ?? 5;
+            const goal = goalVals[a.key] ?? 5;
+            const diff = goal - cur;
+            return (
+              <button
+                key={a.key}
+                onClick={() => setFocusArea(a.key)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-sm transition-all"
+                style={focusArea === a.key
+                  ? { borderColor: "#FF8C42", background: "rgba(255,140,66,0.06)" }
+                  : { borderColor: "rgba(0,0,0,0.07)" }
+                }
+              >
+                <span className="font-medium text-foreground/70 flex-1">{a.short}</span>
+                <span className="text-xs text-foreground/40">{cur} → {goal}</span>
+                {diff > 0 && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500">+{diff}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
       {step === "actions" && (
-        <div className="space-y-3">
-          <p className="text-xs text-foreground/50">Konkrétní kroky na příští měsíc:</p>
+        <div className="space-y-2">
           {[0, 1, 2].map((i) => (
             <input
               key={i}
