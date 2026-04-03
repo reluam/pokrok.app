@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import { InteractiveSpider } from "../charts/SpiderChart";
 import { WHEEL_AREAS } from "../shared";
 import type { QuarterlyCheckinData } from "@/lib/exercise-registry";
@@ -72,33 +74,24 @@ function EditMode({
   const [areaScores, setAreaScores] = useState<Record<string, number>>(
     data?.areaScores ?? Object.fromEntries(WHEEL_AREAS.map((a) => [a.key, 5]))
   );
-  const [saving, setSaving] = useState(false);
 
   const buildData = useCallback(
     (): QuarterlyCheckinData => ({
       quarter: data?.quarter ?? currentQuarter(),
-      celebrations,
-      learnings,
-      adjustments,
-      areaScores,
+      celebrations, learnings, adjustments, areaScores,
       updatedAt: new Date().toISOString(),
     }),
     [data, celebrations, learnings, adjustments, areaScores]
   );
 
-  const handleNext = async () => {
-    setStep((s) => s + 1);
-    setSaving(true);
-    await saveContext("quarterly", buildData());
-    setSaving(false);
-  };
+  const depsKey = JSON.stringify(celebrations) + JSON.stringify(learnings) + JSON.stringify(adjustments) + JSON.stringify(areaScores);
+  const { saving, saved } = useAutoSave(
+    async () => { await saveContext("quarterly", buildData()); },
+    [depsKey],
+  );
 
-  const handleFinish = async () => {
-    setSaving(true);
-    await saveContext("quarterly", buildData());
-    setSaving(false);
-    done?.();
-  };
+  const handleNext = () => { setStep((s) => s + 1); };
+  const handleFinish = async () => { done?.(); };
 
   const listEditor = (items: string[], setItems: (v: string[]) => void, placeholder: string) => (
     <div className="space-y-1.5">
@@ -150,18 +143,19 @@ function EditMode({
         <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{steps[step].desc}</p>
       </div>
       {steps[step].content}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         {step > 0 && (
-          <button onClick={() => setStep((s) => s - 1)} className="flex-1 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
+          <button onClick={() => setStep((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
             ← Zpět
           </button>
         )}
         <button
           onClick={step === steps.length - 1 ? handleFinish : handleNext}
-          disabled={saving}
-          className="flex-1 py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
+          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold"
         >
-          {saving ? "Ukládám…" : step === steps.length - 1 ? "Uložit ✓" : "Dál →"}
+          {step === steps.length - 1 ? "Hotovo ✓" : "Dál →"}
         </button>
       </div>
     </div>

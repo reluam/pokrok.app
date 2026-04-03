@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import { SpiderChart, InteractiveSpider } from "../charts/SpiderChart";
 import { WHEEL_AREAS } from "../shared";
 import type { KompasData } from "@/components/KompasFlow";
@@ -159,26 +161,30 @@ function EditFlow({
   const [goalVals, setGoalVals] = useState<Record<string, number>>(data?.goalVals ?? Object.fromEntries(WHEEL_AREAS.map((a) => [a.key, 7])));
   const [focusArea, setFocusArea] = useState(data?.focusArea ?? "");
   const [actionSteps, setActionSteps] = useState<string[]>(data?.actionSteps ?? ["", "", ""]);
-  const [saving, setSaving] = useState(false);
 
   const stepIdx = STEPS.indexOf(step);
   const info = STEP_INFO[step];
 
+  const buildMerged = useCallback((partial: Partial<KompasData> = {}): KompasData => ({
+    currentVals,
+    goalVals,
+    reflectionAnswers: data?.reflectionAnswers ?? {},
+    areaAnswers: data?.areaAnswers ?? {},
+    focusArea,
+    actionSteps: actionSteps.filter((s) => s.trim()),
+    completedAt: data?.completedAt ?? new Date().toISOString(),
+    ...partial,
+  }), [currentVals, goalVals, focusArea, actionSteps, data]);
+
+  const depsKey = JSON.stringify(currentVals) + JSON.stringify(goalVals) + focusArea + JSON.stringify(actionSteps);
+  const { saving, saved, flush } = useAutoSave(
+    async () => { await saveContext("compass", buildMerged()); },
+    [depsKey],
+  );
+
   const save = useCallback(async (partial: Partial<KompasData>) => {
-    setSaving(true);
-    const merged: KompasData = {
-      currentVals,
-      goalVals,
-      reflectionAnswers: data?.reflectionAnswers ?? {},
-      areaAnswers: data?.areaAnswers ?? {},
-      focusArea,
-      actionSteps: actionSteps.filter((s) => s.trim()),
-      completedAt: data?.completedAt ?? new Date().toISOString(),
-      ...partial,
-    };
-    await saveContext("compass", merged);
-    setSaving(false);
-  }, [currentVals, goalVals, focusArea, actionSteps, data, saveContext]);
+    await saveContext("compass", buildMerged(partial));
+  }, [buildMerged, saveContext]);
 
   const handleNext = async () => {
     if (stepIdx < STEPS.length - 1) {
@@ -348,21 +354,22 @@ function EditFlow({
       )}
 
       {/* Navigation */}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         {stepIdx > 0 && (
           <button
             onClick={() => setStep(STEPS[stepIdx - 1])}
-            className="flex-1 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold hover:border-foreground/30 transition-colors"
+            className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold hover:border-foreground/30 transition-colors"
           >
             ← Zpět
           </button>
         )}
         <button
           onClick={step === "actions" ? handleFinish : handleNext}
-          disabled={saving}
-          className="flex-1 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
         >
-          {saving ? "Ukládám…" : step === "actions" ? "Uložit ✓" : "Dál →"}
+          {step === "actions" ? "Hotovo ✓" : "Dál →"}
         </button>
       </div>
     </div>

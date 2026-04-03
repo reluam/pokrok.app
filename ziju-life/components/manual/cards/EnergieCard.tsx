@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import type { EnergyAuditData } from "@/lib/exercise-registry";
 
 const EMPTY_ACTIVITY = { name: "", rating: 0, frequency: "" };
@@ -66,31 +68,22 @@ function EditMode({
   );
   const [insights, setInsights] = useState(data?.insights ?? "");
   const [idealWeek, setIdealWeek] = useState(data?.idealWeek ?? "");
-  const [saving, setSaving] = useState(false);
 
   const buildData = useCallback(
     (): EnergyAuditData => ({
-      activities,
-      insights,
-      idealWeek,
-      savedAt: new Date().toISOString(),
+      activities, insights, idealWeek, savedAt: new Date().toISOString(),
     }),
     [activities, insights, idealWeek]
   );
 
-  const handleNext = async () => {
-    setStep((s) => s + 1);
-    setSaving(true);
-    await saveContext("energy", buildData());
-    setSaving(false);
-  };
+  const depsKey = JSON.stringify(activities) + insights + idealWeek;
+  const { saving, saved } = useAutoSave(
+    async () => { await saveContext("energy", buildData()); },
+    [depsKey],
+  );
 
-  const handleFinish = async () => {
-    setSaving(true);
-    await saveContext("energy", buildData());
-    setSaving(false);
-    done?.();
-  };
+  const handleNext = () => { setStep((s) => s + 1); };
+  const handleFinish = async () => { done?.(); };
 
   const addActivity = () => setActivities((p) => [...p, { ...EMPTY_ACTIVITY }]);
 
@@ -168,18 +161,19 @@ function EditMode({
         <p className="text-[11px] text-foreground/40 mt-0.5 leading-relaxed">{steps[step].desc}</p>
       </div>
       {steps[step].content}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         {step > 0 && (
-          <button onClick={() => setStep((s) => s - 1)} className="flex-1 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
+          <button onClick={() => setStep((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
             ← Zpět
           </button>
         )}
         <button
           onClick={step === steps.length - 1 ? handleFinish : handleNext}
-          disabled={saving}
-          className="flex-1 py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
+          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold"
         >
-          {saving ? "Ukládám…" : step === steps.length - 1 ? "Uložit ✓" : "Dál →"}
+          {step === steps.length - 1 ? "Hotovo ✓" : "Dál →"}
         </button>
       </div>
     </div>

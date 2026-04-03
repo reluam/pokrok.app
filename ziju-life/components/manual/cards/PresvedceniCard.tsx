@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import type { BeliefsData } from "@/lib/exercise-registry";
 
 type Belief = { area: string; belief: string; evidence: string; counter: string; reframe: string };
@@ -58,7 +60,6 @@ function EditMode({
     data?.beliefs?.length ? [...data.beliefs] : [{ ...EMPTY_BELIEF }, { ...EMPTY_BELIEF }, { ...EMPTY_BELIEF }]
   );
   const [activeIdx, setActiveIdx] = useState(0);
-  const [saving, setSaving] = useState(false);
 
   const b = beliefs[activeIdx] ?? EMPTY_BELIEF;
 
@@ -68,12 +69,13 @@ function EditMode({
     setBeliefs(next);
   };
 
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    await saveContext("beliefs", { beliefs, savedAt: new Date().toISOString() });
-    setSaving(false);
-    done?.();
-  }, [beliefs, saveContext, done]);
+  const depsKey = JSON.stringify(beliefs);
+  const { saving, saved, flush } = useAutoSave(
+    async () => { await saveContext("beliefs", { beliefs, savedAt: new Date().toISOString() }); },
+    [depsKey],
+  );
+
+  const handleDone = async () => { await flush(); done?.(); };
 
   const addBelief = () => {
     setBeliefs((p) => [...p, { ...EMPTY_BELIEF }]);
@@ -127,13 +129,15 @@ function EditMode({
         ))}
       </div>
 
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
-      >
-        {saving ? "Ukládám…" : "Uložit ✓"}
-      </button>
+      <div className="flex items-center justify-between">
+        <SaveIndicator saving={saving} saved={saved} />
+        <button
+          onClick={handleDone}
+          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
+        >
+          Hotovo ✓
+        </button>
+      </div>
     </div>
   );
 }

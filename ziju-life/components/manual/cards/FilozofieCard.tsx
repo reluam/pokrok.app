@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import type { PhilosophyData } from "@/lib/exercise-registry";
 
 const EXAMPLES = [
@@ -64,19 +66,17 @@ function EditMode({
 }) {
   const done = useDashboardDone();
   const [statement, setStatement] = useState(data?.statement ?? "");
-  const [saving, setSaving] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
 
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    await saveContext("philosophy", {
-      statement,
-      principles: data?.principles ?? [],
-      savedAt: new Date().toISOString(),
-    });
-    setSaving(false);
-    done?.();
-  }, [statement, data?.principles, saveContext, done]);
+  const { saving, saved, flush } = useAutoSave(
+    async () => {
+      if (!statement.trim()) return;
+      await saveContext("philosophy", { statement, principles: data?.principles ?? [], savedAt: new Date().toISOString() });
+    },
+    [statement],
+  );
+
+  const handleDone = async () => { await flush(); done?.(); };
 
   return (
     <div className="space-y-3">
@@ -111,13 +111,16 @@ function EditMode({
         </div>
       )}
 
-      <button
-        onClick={handleSave}
-        disabled={saving || !statement.trim()}
-        className="w-full py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
-      >
-        {saving ? "Ukládám…" : "Uložit ✓"}
-      </button>
+      <div className="flex items-center justify-between">
+        <SaveIndicator saving={saving} saved={saved} />
+        <button
+          onClick={handleDone}
+          disabled={!statement.trim()}
+          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
+        >
+          Hotovo ✓
+        </button>
+      </div>
     </div>
   );
 }

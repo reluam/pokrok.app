@@ -3,6 +3,8 @@
 import { useState, useCallback } from "react";
 import { Plus, X } from "lucide-react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import type { PrinciplesData } from "@/lib/exercise-registry";
 
 const EXAMPLES: { text: string; origin: string }[] = [
@@ -68,18 +70,19 @@ function EditMode({
   const [principles, setPrinciples] = useState<{ text: string; origin: string }[]>(
     data?.principles?.length ? data.principles : [{ text: "", origin: "" }]
   );
-  const [saving, setSaving] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
 
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    const filtered = principles.filter(p => p.text.trim());
-    await saveContext("principles", {
-      principles: filtered,
-      savedAt: new Date().toISOString(),
-    });
-    setSaving(false);
-    done?.();
+  const depsKey = JSON.stringify(principles);
+  const { saving, saved, flush } = useAutoSave(
+    async () => {
+      const filtered = principles.filter(p => p.text.trim());
+      if (filtered.length === 0) return;
+      await saveContext("principles", { principles: filtered, savedAt: new Date().toISOString() });
+    },
+    [depsKey],
+  );
+
+  const handleDone = async () => { await flush(); done?.(); };
   }, [principles, saveContext]);
 
   const addRow = () => setPrinciples(prev => [...prev, { text: "", origin: "" }]);
@@ -151,13 +154,16 @@ function EditMode({
         </div>
       )}
 
-      <button
-        onClick={handleSave}
-        disabled={saving || !hasFilled}
-        className="w-full py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
-      >
-        {saving ? "Ukládám…" : "Uložit ✓"}
-      </button>
+      <div className="flex items-center justify-between">
+        <SaveIndicator saving={saving} saved={saved} />
+        <button
+          onClick={handleDone}
+          disabled={!hasFilled}
+          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
+        >
+          Hotovo ✓
+        </button>
+      </div>
     </div>
   );
 }

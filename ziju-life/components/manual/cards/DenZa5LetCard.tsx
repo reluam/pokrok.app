@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import { printExercise } from "@/lib/print-exercise";
 import type { VisionData, IdealDayData } from "@/lib/exercise-registry";
 
@@ -71,16 +73,16 @@ function EditMode({
 }) {
   const done = useDashboardDone();
   const [text, setText] = useState(data?.idealDay ?? "");
-  const [saving, setSaving] = useState(false);
 
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    const saveData: IdealDayData = { idealDay: text, savedAt: new Date().toISOString() };
-    await saveContext("vision", saveData);
-    setSaving(false);
-    done?.();
-  }, [text, saveContext, done]);
+  const { saving, saved, flush } = useAutoSave(
+    async () => {
+      if (!text.trim()) return;
+      await saveContext("vision", { idealDay: text, savedAt: new Date().toISOString() } as IdealDayData);
+    },
+    [text],
+  );
 
+  const handleDone = async () => { await flush(); done?.(); };
   const words = text.split(/\s+/).filter(Boolean).length;
 
   return (
@@ -99,15 +101,18 @@ function EditMode({
         className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-y focus:outline-none focus:border-black/20 transition-all"
       />
       <div className="flex items-center justify-between">
-        <span className={`text-xs ${words >= 300 ? "text-green-600" : "text-foreground/30"}`}>
-          {words} slov {words < 300 && "(doporučeno 300+)"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`text-xs ${words >= 300 ? "text-green-600" : "text-foreground/30"}`}>
+            {words} slov {words < 300 && "(doporučeno 300+)"}
+          </span>
+          <SaveIndicator saving={saving} saved={saved} />
+        </div>
         <button
-          onClick={handleSave}
-          disabled={saving || !text.trim()}
+          onClick={handleDone}
+          disabled={!text.trim()}
           className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
-          {saving ? "Ukládám…" : "Uložit ✓"}
+          Hotovo ✓
         </button>
       </div>
     </div>

@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import type { IkigaiData } from "@/lib/exercise-registry";
 
 const CIRCLES = [
@@ -84,7 +86,6 @@ function EditMode({
   const [worldNeeds, setWorldNeeds] = useState([...d.worldNeeds]);
   const [paidFor, setPaidFor] = useState([...d.paidFor]);
   const [reflections, setReflections] = useState({ ...d.reflections });
-  const [saving, setSaving] = useState(false);
 
   const lists = [love, goodAt, worldNeeds, paidFor];
   const setters = [setLove, setGoodAt, setWorldNeeds, setPaidFor];
@@ -97,19 +98,14 @@ function EditMode({
     [love, goodAt, worldNeeds, paidFor, reflections]
   );
 
-  const handleNext = async () => {
-    setStep((s) => s + 1);
-    setSaving(true);
-    await saveContext("ikigai", buildData());
-    setSaving(false);
-  };
+  const depsKey = JSON.stringify(love) + JSON.stringify(goodAt) + JSON.stringify(worldNeeds) + JSON.stringify(paidFor) + JSON.stringify(reflections);
+  const { saving, saved } = useAutoSave(
+    async () => { await saveContext("ikigai", buildData()); },
+    [depsKey],
+  );
 
-  const handleFinish = async () => {
-    setSaving(true);
-    await saveContext("ikigai", buildData());
-    setSaving(false);
-    done?.();
-  };
+  const handleNext = () => { setStep((s) => s + 1); };
+  const handleFinish = async () => { done?.(); };
 
   // Steps 0-3: circles, step 4: reflections
   const totalSteps = 5;
@@ -171,18 +167,19 @@ function EditMode({
         </div>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         {step > 0 && (
-          <button onClick={() => setStep((s) => s - 1)} className="flex-1 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
+          <button onClick={() => setStep((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
             ← Zpět
           </button>
         )}
         <button
           onClick={step === totalSteps - 1 ? handleFinish : handleNext}
-          disabled={saving}
-          className="flex-1 py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
+          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold"
         >
-          {saving ? "Ukládám…" : step === totalSteps - 1 ? "Uložit ✓" : "Dál →"}
+          {step === totalSteps - 1 ? "Hotovo ✓" : "Dál →"}
         </button>
       </div>
     </div>

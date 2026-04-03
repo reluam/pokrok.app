@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import { printExercise } from "@/lib/print-exercise";
 import type { FuneralSpeechData } from "@/lib/exercise-registry";
 
@@ -73,14 +75,13 @@ function EditMode({
     blizci: data?.blizci ?? "",
     znami: data?.znami ?? "",
   });
-  const [saving, setSaving] = useState(false);
 
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    await saveContext("funeral-speech", { ...form, savedAt: new Date().toISOString() });
-    setSaving(false);
-    done?.();
-  }, [form, saveContext, done]);
+  const { saving, saved, flush } = useAutoSave(
+    async () => { await saveContext("funeral-speech", { ...form, savedAt: new Date().toISOString() }); },
+    [form.rodina, form.blizci, form.znami],
+  );
+
+  const handleDone = async () => { await flush(); done?.(); };
 
   return (
     <div className="space-y-3">
@@ -102,13 +103,15 @@ function EditMode({
           />
         </div>
       ))}
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50"
-      >
-        {saving ? "Ukládám…" : "Uložit ✓"}
-      </button>
+      <div className="flex items-center justify-between">
+        <SaveIndicator saving={saving} saved={saved} />
+        <button
+          onClick={handleDone}
+          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold hover:bg-accent-hover transition-colors"
+        >
+          Hotovo ✓
+        </button>
+      </div>
     </div>
   );
 }

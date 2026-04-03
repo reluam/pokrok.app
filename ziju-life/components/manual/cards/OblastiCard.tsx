@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import { WHEEL_AREAS } from "../shared";
 import type { AreaSetupData } from "@/lib/exercise-registry";
 
@@ -70,7 +72,6 @@ function EditMode({
   const done = useDashboardDone();
   const [areaKey, setAreaKey] = useState(WHEEL_AREAS[0].key);
   const [stepIdx, setStepIdx] = useState(0);
-  const [saving, setSaving] = useState(false);
 
   const emptyArrays = (count: number) => Array.from({ length: count }, () => "");
   const [formData, setFormData] = useState<AreaSetupData>(() => ({
@@ -96,10 +97,14 @@ function EditMode({
     }));
   };
 
+  const depsKey = JSON.stringify(formData);
+  const { saving, saved } = useAutoSave(
+    async () => { await saveContext("areas", { ...formData, savedAt: new Date().toISOString() }); },
+    [depsKey],
+  );
+
   const handleSave = useCallback(async (updatedData: AreaSetupData) => {
-    setSaving(true);
     await saveContext("areas", { ...updatedData, savedAt: new Date().toISOString() });
-    setSaving(false);
   }, [saveContext]);
 
   const handleNext = async () => {
@@ -178,18 +183,19 @@ function EditMode({
         ))}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         {stepIdx > 0 && (
-          <button onClick={() => setStepIdx((s) => s - 1)} className="flex-1 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
+          <button onClick={() => setStepIdx((s) => s - 1)} className="px-4 py-2 border border-foreground/15 text-foreground/50 rounded-full text-sm font-semibold">
             ← Zpět
           </button>
         )}
         <button
           onClick={handleNext}
-          disabled={saving}
-          className="flex-1 py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
+          className="px-5 py-2 bg-accent text-white rounded-full text-sm font-bold"
         >
-          {saving ? "Ukládám…" : stepIdx === AREA_STEPS.length - 1 ? "Dokončit oblast ✓" : "Dál →"}
+          {stepIdx === AREA_STEPS.length - 1 ? "Dokončit oblast ✓" : "Dál →"}
         </button>
       </div>
     </div>

@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
+import { useAutoSave } from "./useAutoSave";
+import { SaveIndicator } from "./SaveIndicator";
 import type { RelationshipMapData } from "@/lib/exercise-registry";
 
 type Person = { name: string; circle: "inner" | "middle" | "outer"; health: number; energizes: boolean; note: string };
@@ -68,14 +70,14 @@ function EditMode({
     data?.people?.length ? [...data.people] : Array.from({ length: 5 }, () => ({ ...EMPTY_PERSON }))
   );
   const [insights, setInsights] = useState(data?.insights ?? "");
-  const [saving, setSaving] = useState(false);
 
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    await saveContext("relationships", { people, insights, savedAt: new Date().toISOString() });
-    setSaving(false);
-    done?.();
-  }, [people, insights, saveContext, done]);
+  const depsKey = JSON.stringify(people) + insights;
+  const { saving, saved, flush } = useAutoSave(
+    async () => { await saveContext("relationships", { people, insights, savedAt: new Date().toISOString() }); },
+    [depsKey],
+  );
+
+  const handleDone = async () => { await flush(); done?.(); };
 
   const addPerson = () => setPeople((p) => [...p, { ...EMPTY_PERSON }]);
 
@@ -132,13 +134,15 @@ function EditMode({
         rows={2}
         className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
       />
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
-      >
-        {saving ? "Ukládám…" : "Uložit ✓"}
-      </button>
+      <div className="flex items-center justify-between">
+        <SaveIndicator saving={saving} saved={saved} />
+        <button
+          onClick={handleDone}
+          className="px-4 py-2 bg-accent text-white rounded-full text-sm font-bold disabled:opacity-50"
+        >
+          Hotovo ✓
+        </button>
+      </div>
     </div>
   );
 }
