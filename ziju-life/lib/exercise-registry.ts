@@ -5,7 +5,7 @@ import type { HodnotyData } from "@/components/HodnotyFlow";
 
 export type ExerciseState = "not_started" | "in_progress" | "completed";
 
-export type ExerciseSection = "audit" | "nastavovani" | "smerovani" | "hlubsi";
+export type ExerciseSection = "audit" | "nastavovani" | "smerovani" | "filozofie" | "hlubsi";
 
 export interface ExerciseSummary {
   label: string;
@@ -52,6 +52,11 @@ export type DailyValuesData = {
 export type PhilosophyData = {
   statement: string;
   principles: string[];
+  savedAt: string;
+};
+
+export type PrinciplesData = {
+  principles: { text: string; origin: string }[];
   savedAt: string;
 };
 
@@ -113,6 +118,7 @@ export const SECTIONS: { id: ExerciseSection; title: string; description: string
   { id: "nastavovani", title: "Nastavování", description: "Principy, lekce a návyky pro každou oblast" },
   { id: "audit", title: "Audit života", description: "Kde jsi teď a co je pro tebe důležité" },
   { id: "smerovani", title: "Směřování", description: "Kam míříš a jak se tam dostaneš" },
+  { id: "filozofie", title: "Životní filozofie", description: "Kdo jsi, jak chceš žít a čím se řídíš" },
   { id: "hlubsi", title: "Hlubší poznání", description: "Účel, energie, přesvědčení a vztahy" },
 ];
 
@@ -232,13 +238,14 @@ export const EXERCISES: ExerciseDefinition[] = [
       return { label: `${filled}/3 řečí napsáno` };
     },
   },
+  // ── Životní filozofie ──
   {
     id: "filozofie",
     contextType: "philosophy",
-    section: "smerovani",
+    section: "filozofie",
     emoji: "🌱",
     title: "Životní filozofie",
-    description: "Napiš 2–5 vět, které vystihují, jak chceš žít.",
+    description: "Jak bys chtěl, aby tě popsal dobrý známý? Popiš člověka, kterým chceš být.",
     getState: (data) => {
       const d = data as PhilosophyData | null;
       if (!d) return "not_started";
@@ -251,6 +258,27 @@ export const EXERCISES: ExerciseDefinition[] = [
       if (!d?.statement) return null;
       const preview = d.statement.slice(0, 100) + (d.statement.length > 100 ? "…" : "");
       return { label: preview };
+    },
+  },
+  {
+    id: "principy",
+    contextType: "principles",
+    section: "filozofie",
+    emoji: "⚖️",
+    title: "Principy",
+    description: "Pravidla, kterými se řídíš — poučení z minulosti a osvědčené přístupy.",
+    getState: (data) => {
+      const d = data as PrinciplesData | null;
+      if (!d) return "not_started";
+      if (d.savedAt && d.principles?.some(p => p.text)) return "completed";
+      if (d.principles?.some(p => p.text)) return "in_progress";
+      return "not_started";
+    },
+    getSummary: (data) => {
+      const d = data as PrinciplesData | null;
+      if (!d?.principles) return null;
+      const filled = d.principles.filter(p => p.text);
+      return { label: `${filled.length} principů` };
     },
   },
   {

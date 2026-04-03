@@ -12,6 +12,7 @@ const LINK_MAP: [RegExp, string][] = [
   [/Nastav(?:ení)? si den/gi, "[Nastav si den](/manual/dashboard)"],
   [/Akční plán(?:u)?/gi, "[Akční plán](/manual/dashboard#akcni-plan)"],
   [/Přesvědčení/gi, "[Přesvědčení](/manual/dashboard#presvedceni)"],
+  [/Princip(?:y|ů|ům|ech)/gi, "[Principy](/manual/dashboard#principy)"],
   [/(?:Moje |Mé |Tvoje |Tvé )?[Hh]odnot(?:y|ám|ami)/gi, "[Hodnoty](/manual/dashboard#hodnoty)"],
   [/Ikigai/gi, "[Ikigai](/manual/dashboard#ikigai)"],
   [/Knihovn(?:a|u|y|ě)/gi, "[Knihovna](/knihovna)"],

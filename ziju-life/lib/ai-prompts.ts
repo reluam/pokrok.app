@@ -78,6 +78,7 @@ DŮLEŽITÉ — odkazy: Kdykoli zmíníš stránku, cvičení nebo funkci na Ži
 - Den za 5 let / Vize → [Den za 5 let](/manual/dashboard#vize)
 - Smuteční řeč → [Smuteční řeč](/manual/dashboard#smutecni-rec)
 - Životní filozofie → [Životní filozofie](/manual/dashboard#filozofie)
+- Principy → [Principy](/manual/dashboard#principy)
 - Akční plán / Priority → [Akční plán](/manual/dashboard#akcni-plan)
 - Čtvrtletní check-in → [Čtvrtletní check-in](/manual/dashboard#ctvrtletni-checkin)
 - Ikigai → [Ikigai](/manual/dashboard#ikigai)

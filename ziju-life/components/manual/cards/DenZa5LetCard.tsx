@@ -18,6 +18,7 @@ export function DenZa5LetCard({
   const handlePrint = () => {
     printExercise({
       title: "Den za 5 let",
+      emoji: "🔭",
       sections: [{ text: idealDay }],
     });
   };

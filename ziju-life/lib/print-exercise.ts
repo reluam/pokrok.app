@@ -2,70 +2,127 @@ function esc(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export function printExercise({ title, sections }: {
+export function printExercise({ title, emoji, sections }: {
   title: string;
+  emoji?: string;
   sections: { heading?: string; text: string }[];
 }) {
+  const logoUrl = `${window.location.origin}/ziju-life-logo.png`;
+  const date = new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' });
+
   const html = `<!DOCTYPE html>
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<title>${title} — Žiju.life</title>
+<title>${esc(title)} — Žiju.life</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   @page { size: A4; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 210mm; height: 297mm; font-family: Georgia, 'Times New Roman', serif; }
+  html, body {
+    width: 210mm; min-height: 297mm;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    background: #FFFAF5;
+    color: #171717;
+  }
   body {
     display: flex; flex-direction: column;
-    padding: 20mm 24mm;
-    color: #1a1a1a;
+    padding: 18mm 22mm 14mm;
   }
+
+  /* ── Header ── */
   .header {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12mm;
-    padding-bottom: 6mm;
-    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 10mm;
+    padding-bottom: 7mm;
+    border-bottom: 2.5px solid #FF8C42;
   }
-  .brand {
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size: 11pt; font-weight: 700; letter-spacing: 0.02em;
-    color: #999;
+  .header-left { display: flex; align-items: center; gap: 4mm; }
+  .header-emoji { font-size: 28pt; }
+  .header-title {
+    font-size: 24pt; font-weight: 800; color: #171717;
+    letter-spacing: -0.01em;
   }
-  .title {
-    font-size: 22pt; font-weight: 700; color: #1a1a1a;
+  .header-logo img { height: 11mm; display: block; }
+
+  /* ── Accent bar ── */
+  .accent-bar {
+    height: 3px;
+    background: linear-gradient(90deg, #FF8C42, #4ECDC4, #B0A7F5, #FFD966);
+    border-radius: 2px;
+    margin-bottom: 8mm;
   }
-  .content { flex: 1; display: flex; flex-direction: column; gap: 8mm; }
+
+  /* ── Content ── */
+  .content { flex: 1; display: flex; flex-direction: column; gap: 7mm; }
+  .section { page-break-inside: avoid; }
   .section-heading {
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size: 9pt; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.1em; color: #999; margin-bottom: 2mm;
+    font-size: 8.5pt; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.12em; color: #FF8C42;
+    margin-bottom: 2.5mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 1.5px solid rgba(255, 140, 66, 0.2);
   }
   .section-text {
-    font-size: 12pt; line-height: 1.7; color: #333;
+    font-size: 11pt; line-height: 1.75; color: #333;
     white-space: pre-wrap;
   }
+
+  /* ── Decorative quote marks for single-section exercises ── */
+  .quote-mark {
+    font-size: 48pt; color: rgba(255, 140, 66, 0.15);
+    font-family: Georgia, serif; line-height: 1;
+    margin-bottom: -4mm;
+  }
+
+  /* ── Footer ── */
   .footer {
-    margin-top: auto; padding-top: 6mm;
-    border-top: 1px solid #e5e5e5;
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size: 8pt; color: #bbb; text-align: center;
+    margin-top: auto;
+    padding-top: 6mm;
+    border-top: 1.5px solid rgba(255, 140, 66, 0.2);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 8pt; color: #999;
+  }
+  .footer-left { font-weight: 600; }
+  .footer-right { }
+  .footer-dot {
+    display: inline-block; width: 4px; height: 4px;
+    border-radius: 50%; background: #FF8C42;
+    margin: 0 2mm; vertical-align: middle;
   }
 </style>
 </head>
 <body>
   <div class="header">
-    <div class="title">${title}</div>
-    <div class="brand">Žiju.life</div>
+    <div class="header-left">
+      ${emoji ? `<span class="header-emoji">${emoji}</span>` : ''}
+      <span class="header-title">${esc(title)}</span>
+    </div>
+    <div class="header-logo">
+      <img src="${logoUrl}" alt="Žiju.life" />
+    </div>
   </div>
+
+  <div class="accent-bar"></div>
+
   <div class="content">
-    ${sections.map(s => `
-      <div>
+    ${sections.length === 1 && !sections[0].heading ? `
+      <div class="section">
+        <div class="quote-mark">"</div>
+        <div class="section-text">${esc(sections[0].text)}</div>
+      </div>
+    ` : sections.map(s => `
+      <div class="section">
         ${s.heading ? `<div class="section-heading">${esc(s.heading)}</div>` : ''}
         <div class="section-text">${esc(s.text)}</div>
       </div>
     `).join('')}
   </div>
-  <div class="footer">Žiju.life — Manuál na život</div>
+
+  <div class="footer">
+    <div class="footer-left">Žiju.life <span class="footer-dot"></span> Manuál na život</div>
+    <div class="footer-right">${date}</div>
+  </div>
 </body>
 </html>`;
 
@@ -73,5 +130,6 @@ export function printExercise({ title, sections }: {
   if (!win) return;
   win.document.write(html);
   win.document.close();
-  win.onload = () => { win.print(); };
+  // Wait for logo + font to load before printing
+  win.onload = () => { setTimeout(() => win.print(), 300); };
 }

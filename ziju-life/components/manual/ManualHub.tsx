@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { SECTIONS, EXERCISES, getExercisesBySection, type ExerciseDefinition, type ExerciseState } from "@/lib/exercise-registry";
 import type {
-  PhilosophyData, QuarterlyCheckinData, IkigaiData, EnergyAuditData,
+  PhilosophyData, PrinciplesData, QuarterlyCheckinData, IkigaiData, EnergyAuditData,
   BeliefsData, RelationshipMapData, AreaSetupData, VisionData, IdealDayData,
   FuneralSpeechData, DailyValuesData,
 } from "@/lib/exercise-registry";
@@ -16,6 +16,7 @@ import { HodnotyDailyCard } from "./cards/HodnotyDailyCard";
 import { DenZa5LetCard } from "./cards/DenZa5LetCard";
 import { SmutecniRecCard } from "./cards/SmutecniRecCard";
 import { FilozofieCard } from "./cards/FilozofieCard";
+import { PrincipyCard } from "./cards/PrincipyCard";
 import { CtvrtletniCard } from "./cards/CtvrtletniCard";
 import { IkigaiCard } from "./cards/IkigaiCard";
 import { EnergieCard } from "./cards/EnergieCard";
@@ -170,6 +171,7 @@ export function ManualHub({
   const visionData = context.vision as (VisionData | IdealDayData) | null;
   const funeralData = (context["funeral-speech"] as FuneralSpeechData | null) ?? migrateFuneralSpeech(context.vision);
   const philosophyData = context.philosophy as PhilosophyData | null;
+  const principlesData = context.principles as PrinciplesData | null;
   const quarterlyData = context.quarterly as QuarterlyCheckinData | null;
   const ikigaiData = context.ikigai as IkigaiData | null;
   const energyData = context.energy as EnergyAuditData | null;
@@ -193,6 +195,8 @@ export function ManualHub({
             onTabChange={() => setActiveExercise("hodnoty")}
           />
         </div>
+        <OblastiCard data={areasData} saveContext={saveContext} />
+        <CtvrtletniCard data={quarterlyData} saveContext={saveContext} />
       </DashboardSection>
 
       {/* ── Směřování ── */}
@@ -201,8 +205,14 @@ export function ManualHub({
           <DenZa5LetCard data={visionData} saveContext={saveContext} />
           <SmutecniRecCard data={funeralData} saveContext={saveContext} />
         </div>
-        <FilozofieCard data={philosophyData} saveContext={saveContext} />
-        <CtvrtletniCard data={quarterlyData} saveContext={saveContext} />
+      </DashboardSection>
+
+      {/* ── Životní filozofie ── */}
+      <DashboardSection title="Životní filozofie" description="Kdo jsi, jak chceš žít a čím se řídíš">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FilozofieCard data={philosophyData} saveContext={saveContext} />
+          <PrincipyCard data={principlesData} saveContext={saveContext} />
+        </div>
       </DashboardSection>
 
       {/* ── Hlubší poznání ── */}
@@ -215,11 +225,6 @@ export function ManualHub({
           <PresvedceniCard data={beliefsData} saveContext={saveContext} />
           <VztahyCard data={relationshipsData} saveContext={saveContext} />
         </div>
-      </DashboardSection>
-
-      {/* ── Nastavení ── */}
-      <DashboardSection title="Nastavení" description="Principy, lekce a návyky pro každou oblast">
-        <OblastiCard data={areasData} saveContext={saveContext} />
       </DashboardSection>
     </div>
   );

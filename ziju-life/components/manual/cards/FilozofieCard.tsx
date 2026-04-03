@@ -4,6 +4,12 @@ import { useState, useCallback } from "react";
 import { DashboardCard } from "./DashboardCard";
 import type { PhilosophyData } from "@/lib/exercise-registry";
 
+const EXAMPLES = [
+  "Je to člověk, který říká věci na rovinu, ale s respektem. Když něco slíbí, udělá to. Nebere se moc vážně, ale to, co dělá, bere vážně.",
+  "Žije přítomností, ale ví kam míří. Najde si čas na lidi, na kterých mu záleží. Nehoní se za dokonalostí — hledá rovnováhu.",
+  "Je zvědavý a nebojí se říct 'nevím'. Když spadne, vstane a jde dál. Inspiruje ostatní tím, jak žije, ne tím, co říká.",
+];
+
 export function FilozofieCard({
   data,
   saveContext,
@@ -18,7 +24,7 @@ export function FilozofieCard({
       emoji="🌱"
       title="Životní filozofie"
       isEmpty={isEmpty}
-      emptyDescription="Shrň do pár vět, jak chceš žít. Tvoje životní filozofie je kompas, když přijde těžké rozhodnutí."
+      emptyDescription="Jak bys chtěl, aby tě popsal dobrý známý? Popiš člověka, kterým chceš být — je to tvůj kompas pro velká i malá rozhodnutí."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />
@@ -27,18 +33,23 @@ export function FilozofieCard({
 }
 
 function ViewMode({ data }: { data: PhilosophyData }) {
-  const principles = (data.principles ?? []).filter(Boolean);
+  const [expanded, setExpanded] = useState(false);
+  const text = data.statement;
+  const preview = text.slice(0, 200);
+  const isLong = text.length > 200;
+
   return (
-    <div className="space-y-3">
-      <p className="text-sm text-foreground/60 leading-relaxed italic">&ldquo;{data.statement}&rdquo;</p>
-      {principles.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {principles.map((p, i) => (
-            <span key={i} className="text-xs px-2 py-0.5 rounded-lg bg-green-50 text-green-700 font-medium">
-              {p}
-            </span>
-          ))}
-        </div>
+    <div className="space-y-2">
+      <p className="text-sm text-foreground/60 leading-relaxed italic">
+        &ldquo;{expanded ? text : preview}{isLong && !expanded ? "…" : ""}&rdquo;
+      </p>
+      {isLong && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-accent hover:opacity-80 transition-opacity"
+        >
+          {expanded ? "Méně" : "Celý text →"}
+        </button>
       )}
     </div>
   );
@@ -52,48 +63,52 @@ function EditMode({
   saveContext: (type: string, data: unknown) => Promise<void>;
 }) {
   const [statement, setStatement] = useState(data?.statement ?? "");
-  const [principles, setPrinciples] = useState<string[]>(data?.principles ?? ["", "", "", "", ""]);
   const [saving, setSaving] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
 
   const handleSave = useCallback(async () => {
     setSaving(true);
     await saveContext("philosophy", {
       statement,
-      principles,
+      principles: data?.principles ?? [],
       savedAt: new Date().toISOString(),
     });
     setSaving(false);
-  }, [statement, principles, saveContext]);
+  }, [statement, data?.principles, saveContext]);
 
   return (
     <div className="space-y-3">
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-foreground/50">Moje životní filozofie (2–5 vět)</label>
+      <div className="space-y-2">
+        <p className="text-xs text-foreground/50 leading-relaxed">
+          Představ si, že se o tobě vyjadřuje tvůj dobrý známý. Jak bys chtěl, aby tě popsal? Jaký člověk chceš být?
+        </p>
         <textarea
           value={statement}
           onChange={(e) => setStatement(e.target.value)}
-          placeholder="Žiji tak, že..."
-          rows={4}
-          className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-none focus:outline-none focus:border-black/20 transition-all"
+          placeholder="Je to člověk, který..."
+          rows={5}
+          className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 resize-y focus:outline-none focus:border-black/20 transition-all"
         />
       </div>
-      <div className="space-y-1.5">
-        <label className="text-xs font-medium text-foreground/50">Hlavní principy (volitelné)</label>
-        {principles.map((p, i) => (
-          <input
-            key={i}
-            type="text"
-            value={p}
-            onChange={(e) => {
-              const next = [...principles];
-              next[i] = e.target.value;
-              setPrinciples(next);
-            }}
-            placeholder={`Princip ${i + 1}`}
-            className="w-full text-sm rounded-xl border border-black/[0.08] bg-white/70 px-3 py-2 text-foreground/70 placeholder:text-foreground/25 focus:outline-none focus:border-black/20 transition-all"
-          />
-        ))}
-      </div>
+
+      <button
+        onClick={() => setShowExamples(!showExamples)}
+        className="text-xs text-accent/70 hover:text-accent transition-colors"
+      >
+        {showExamples ? "Skrýt příklady" : "Ukázat příklady pro inspiraci →"}
+      </button>
+
+      {showExamples && (
+        <div className="space-y-2 p-3 rounded-xl bg-accent/5 border border-accent/10">
+          <p className="text-[10px] font-bold text-accent/60 uppercase tracking-wider">Příklady</p>
+          {EXAMPLES.map((ex, i) => (
+            <p key={i} className="text-xs text-foreground/50 leading-relaxed italic border-l-2 border-accent/20 pl-2.5">
+              &ldquo;{ex}&rdquo;
+            </p>
+          ))}
+        </div>
+      )}
+
       <button
         onClick={handleSave}
         disabled={saving || !statement.trim()}

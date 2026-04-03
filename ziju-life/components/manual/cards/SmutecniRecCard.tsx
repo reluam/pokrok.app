@@ -24,7 +24,7 @@ export function SmutecniRecCard({
     const sections = FIELDS
       .filter((f) => data?.[f.key])
       .map((f) => ({ heading: f.label, text: data![f.key]! }));
-    printExercise({ title: "Smuteční řeč", sections });
+    printExercise({ title: "Smuteční řeč", emoji: "🕯️", sections });
   };
 
   return (
