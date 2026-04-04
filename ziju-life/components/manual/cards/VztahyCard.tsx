@@ -162,6 +162,7 @@ function EditMode({
       </div>
       <div className="flex items-center justify-between">
         <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         <button
           onClick={() => done?.()}
           className="px-4 py-2 bg-accent text-white rounded-full text-base font-bold disabled:opacity-50"

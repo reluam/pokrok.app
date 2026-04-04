@@ -93,6 +93,7 @@ function EditMode({
           </span>
           <SaveIndicator saving={saving} saved={saved} />
         </div>
+        <div className="flex-1" />
         <button
           onClick={handleDone}
           disabled={!text.trim()}

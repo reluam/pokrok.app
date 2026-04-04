@@ -30,7 +30,7 @@ export function PrincipyCard({
       emoji="⚖️"
       title="Principy"
       isEmpty={isEmpty}
-      emptyDescription="Principy jsou optimální řešení opakujících se situací. Vzešly z tvých chyb, zkušeností nebo intuice — a pomáhají ti neopakovat to, co nefunguje."
+      emptyDescription="Principy jsou osvědčená řešení opakujících se situací. Vzešly z tvých chyb, zkušeností nebo intuice. Zapiš si je, ať je máš stále na očích."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode principles={filled} />
@@ -76,7 +76,6 @@ function EditMode({
   const { saving, saved, flush } = useAutoSave(
     async () => {
       const filtered = principles.filter(p => p.text.trim());
-      if (filtered.length === 0) return;
       await saveContext("principles", { principles: filtered, savedAt: new Date().toISOString() });
     },
     [depsKey],
@@ -96,7 +95,7 @@ function EditMode({
     <div className="space-y-3">
       <div className="space-y-1.5">
         <p className="text-lg text-foreground/50 leading-relaxed">
-          Principy jsou osvědčená řešení situací, které se opakují. Buď ses poučil/a z chyby, nebo to děláš odjakživa a funguje to. Zapiš si je — příště nebudeš přemýšlet, prostě se jimi řídíš.
+          Principy jsou osvědčená řešení situací, které se opakují. Buď ses poučil/a z chyby, nebo to děláš odjakživa a funguje to. Zapiš si je, ať je máš stále na očích.
         </p>
       </div>
 
@@ -142,7 +141,7 @@ function EditMode({
       </button>
 
       {showExamples && (
-        <div className="space-y-2 p-3 rounded-xl bg-accent/5 border border-accent/10">
+        <div className="space-y-3 p-3 rounded-xl bg-accent/5 border border-accent/10">
           <p className="text-base font-bold text-accent/60 uppercase tracking-wider">Příklady principů</p>
           {EXAMPLES.map((ex, i) => (
             <div key={i} className="border-l-2 border-accent/20 pl-2.5 space-y-0.5">
@@ -150,11 +149,15 @@ function EditMode({
               <p className="text-lg text-foreground/35 italic">{ex.origin}</p>
             </div>
           ))}
+          <p className="text-lg text-foreground/40 pt-1 border-t border-accent/10">
+            Pro hluboký ponor do tématu doporučujeme knihu <strong className="text-foreground/60">Principy</strong> od Raye Dalia.
+          </p>
         </div>
       )}
 
       <div className="flex items-center justify-between">
         <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         <button
           onClick={handleDone}
           disabled={!hasFilled}

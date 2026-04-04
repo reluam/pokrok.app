@@ -103,6 +103,7 @@ function EditMode({
       ))}
       <div className="flex items-center justify-between">
         <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         <button
           onClick={handleDone}
           className="px-4 py-2 bg-accent text-white rounded-full text-base font-bold hover:bg-accent-hover transition-colors"

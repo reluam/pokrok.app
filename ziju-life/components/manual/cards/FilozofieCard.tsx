@@ -113,6 +113,7 @@ function EditMode({
 
       <div className="flex items-center justify-between">
         <SaveIndicator saving={saving} saved={saved} />
+        <div className="flex-1" />
         <button
           onClick={handleDone}
           disabled={!statement.trim()}
