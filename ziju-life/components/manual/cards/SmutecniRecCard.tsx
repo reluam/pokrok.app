@@ -52,9 +52,7 @@ function ViewMode({ data }: { data: FuneralSpeechData }) {
         return (
           <div key={f.key} className="space-y-0.5">
             <p className="text-base font-semibold uppercase tracking-wider text-foreground/30">{f.label}</p>
-            <p className="text-base text-foreground/60 leading-relaxed">
-              {text.slice(0, 120)}{text.length > 120 ? "…" : ""}
-            </p>
+            <p className="text-base text-foreground/60 leading-relaxed whitespace-pre-wrap">{text}</p>
           </div>
         );
       })}

@@ -54,23 +54,15 @@ export function HodnotyDailyCard({
     : "—";
 
   return (
-    <DashboardCard emoji="💎" title="Hodnoty">
+    <DashboardCard emoji="💎" title="Hodnoty" onEdit={() => onTabChange?.("manual")}>
       <div className="space-y-3">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <p className="text-base text-foreground/40">
-            {entries.length > 0
-              ? `${entries.length} check-inů · průměr ${totalAvg}/5`
-              : "Zatím žádné check-iny"
-            }
-          </p>
-          <button
-            onClick={() => onTabChange?.("manual")}
-            className="text-base text-accent/60 hover:text-accent font-medium transition-colors"
-          >
-            Upravit →
-          </button>
-        </div>
+        <p className="text-base text-foreground/40">
+          {entries.length > 0
+            ? `${entries.length} check-inů · průměr ${totalAvg}/5`
+            : "Zatím žádné check-iny"
+          }
+        </p>
 
         {/* Mini line chart - overall average over time */}
         {overallAvgs.length >= 2 && (

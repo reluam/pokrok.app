@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { DashboardCard, useDashboardDone } from "./DashboardCard";
 import { useAutoSave } from "./useAutoSave";
 import { SaveIndicator } from "./SaveIndicator";
@@ -40,23 +40,9 @@ export function DenZa5LetCard({
 }
 
 function ViewMode({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const preview = text.slice(0, 200);
-  const isLong = text.length > 200;
-
   return (
     <div className="space-y-2">
-      <p className="text-base text-foreground/60 leading-relaxed whitespace-pre-wrap">
-        {expanded ? text : preview}{isLong && !expanded ? "…" : ""}
-      </p>
-      {isLong && (
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="text-lg text-accent hover:opacity-80 transition-opacity"
-        >
-          {expanded ? "Méně" : "Celý text →"}
-        </button>
-      )}
+      <p className="text-base text-foreground/60 leading-relaxed whitespace-pre-wrap">{text}</p>
       <p className="text-base text-foreground/25">
         {text.split(/\s+/).filter(Boolean).length} slov
       </p>

@@ -19,6 +19,7 @@ export function DashboardCard({
   emptyCta = "Začít cvičení →",
   emptyDescription,
   onPrint,
+  onEdit,
 }: {
   emoji: string;
   title: string;
@@ -29,6 +30,7 @@ export function DashboardCard({
   emptyCta?: string;
   emptyDescription?: string;
   onPrint?: () => void;
+  onEdit?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [showStats, setShowStats] = useState(false);
@@ -108,6 +110,14 @@ export function DashboardCard({
                 className="text-lg text-foreground/40 hover:text-foreground/60 transition-colors"
               >
                 {editing ? "Zavřít" : "Upravit"}
+              </button>
+            )}
+            {onEdit && !editContent && !editing && (
+              <button
+                onClick={onEdit}
+                className="text-lg text-foreground/40 hover:text-foreground/60 transition-colors"
+              >
+                Upravit
               </button>
             )}
           </div>
