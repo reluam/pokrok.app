@@ -21,9 +21,9 @@ export function PresvedceniCard({
   return (
     <DashboardCard
       emoji="🧠"
-      title="Přesvědčení"
+      title="Sebe-limitující přesvědčení"
       isEmpty={isEmpty}
-      emptyDescription="Odhal myšlenky, které tě brzdí, a přeformuluj je. Často stačí malý posun v přemýšlení, aby se pohnuly velké věci."
+      emptyDescription="Myšlenky jako ‚Nejsem dost dobrý' nebo ‚Nemůžu se změnit' nás drží na místě. Najdi je, zpochybni a přeformuluj."
       editContent={<EditMode data={data} saveContext={saveContext} />}
     >
       <ViewMode data={data!} />
@@ -100,6 +100,18 @@ function EditMode({
           </button>
         ))}
         <button onClick={addBelief} className="px-2 py-1 text-lg text-accent hover:opacity-80">+</button>
+      </div>
+
+      {/* Explanation + examples */}
+      <div className="space-y-1.5 p-3 rounded-xl bg-foreground/[0.02] border border-foreground/[0.06]">
+        <p className="text-base text-foreground/55 leading-relaxed">
+          Sebe-limitující přesvědčení jsou myšlenky o sobě, které tě drží na místě — i když nejsou pravdivé. Najdi je, zpochybni a přeformuluj.
+        </p>
+        <div className="text-base text-foreground/40 space-y-0.5">
+          <p><span className="text-red-400 line-through">„Nikdy nebudu dost dobrý/á"</span> → <span className="text-green-600">„Rostu a učím se"</span></p>
+          <p><span className="text-red-400 line-through">„Nemůžu se změnit"</span> → <span className="text-green-600">„Už jsem se měnil/a mnohokrát"</span></p>
+          <p><span className="text-red-400 line-through">„Je na to pozdě"</span> → <span className="text-green-600">„Druhý nejlepší čas je teď"</span></p>
+        </div>
       </div>
 
       {/* Fields */}

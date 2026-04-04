@@ -325,8 +325,8 @@ export const EXERCISES: ExerciseDefinition[] = [
     contextType: "beliefs",
     section: "filozofie",
     emoji: "🧠",
-    title: "Přesvědčení",
-    description: "Odhal přesvědčení, která ti brání ve změně — a přeformuluj je.",
+    title: "Sebe-limitující přesvědčení",
+    description: "Odhal myšlenky, které tě drží na místě — a přeformuluj je.",
     getState: (data) => {
       const d = data as BeliefsData | null;
       if (!d) return "not_started";
