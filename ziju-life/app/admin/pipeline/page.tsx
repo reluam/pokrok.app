@@ -410,9 +410,9 @@ function PipelineTab() {
         </div>
       ) : (
         /* Uložené: split-panel, plná výška */
-        <div className="flex gap-6 flex-1 min-h-0">
+        <div className="flex gap-6 flex-1 min-h-0 overflow-hidden">
           {/* Left: list */}
-          <div className="w-80 shrink-0 flex flex-col min-h-0">
+          <div className="w-80 shrink-0 flex flex-col min-h-0 overflow-hidden">
             <p className="text-xs text-foreground/40 mb-2 shrink-0">{briefs.length} článků</p>
             <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
               {briefs.map(brief => (
