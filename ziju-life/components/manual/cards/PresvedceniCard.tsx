@@ -102,17 +102,10 @@ function EditMode({
         <button onClick={addBelief} className="px-2 py-1 text-lg text-accent hover:opacity-80">+</button>
       </div>
 
-      {/* Explanation + examples */}
-      <div className="space-y-1.5 p-3 rounded-xl bg-foreground/[0.02] border border-foreground/[0.06]">
-        <p className="text-base text-foreground/55 leading-relaxed">
-          Sebe-limitující přesvědčení jsou myšlenky o sobě, které tě drží na místě — i když nejsou pravdivé. Najdi je, zpochybni a přeformuluj.
-        </p>
-        <div className="text-base text-foreground/40 space-y-0.5">
-          <p><span className="text-red-400 line-through">„Nikdy nebudu dost dobrý/á"</span> → <span className="text-green-600">„Rostu a učím se"</span></p>
-          <p><span className="text-red-400 line-through">„Nemůžu se změnit"</span> → <span className="text-green-600">„Už jsem se měnil/a mnohokrát"</span></p>
-          <p><span className="text-red-400 line-through">„Je na to pozdě"</span> → <span className="text-green-600">„Druhý nejlepší čas je teď"</span></p>
-        </div>
-      </div>
+      {/* Description */}
+      <p className="text-lg text-foreground/50 leading-relaxed">
+        Sebe-limitující přesvědčení jsou myšlenky o sobě, které tě drží na místě — i když nejsou pravdivé. Najdi je, zpochybni a přeformuluj.
+      </p>
 
       {/* Fields */}
       <div className="space-y-2">
@@ -133,6 +126,17 @@ function EditMode({
             />
           </div>
         ))}
+      </div>
+
+      {/* Examples */}
+      <div className="space-y-1.5">
+        <p className="text-base font-semibold text-foreground/30 uppercase tracking-wider">Příklady</p>
+        <div className="space-y-1 text-base">
+          <p><span className="text-red-400 line-through">Nikdy nebudu dost dobrý/á</span> → <span className="text-green-600">Rostu a učím se</span></p>
+          <p><span className="text-red-400 line-through">Nemůžu se změnit</span> → <span className="text-green-600">Už jsem se měnil/a mnohokrát</span></p>
+          <p><span className="text-red-400 line-through">Kdybych to zkusil/a, selžu</span> → <span className="text-green-600">Neúspěch je zpětná vazba, ne verdikt</span></p>
+          <p><span className="text-red-400 line-through">Je na to pozdě</span> → <span className="text-green-600">Druhý nejlepší čas je teď</span></p>
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
