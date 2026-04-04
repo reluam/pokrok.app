@@ -21,7 +21,7 @@ export function PresvedceniCard({
   return (
     <DashboardCard
       emoji="🧠"
-      title="Limitující přesvědčení"
+      title="Přesvědčení"
       isEmpty={isEmpty}
       emptyDescription="Odhal myšlenky, které tě brzdí, a přeformuluj je. Často stačí malý posun v přemýšlení, aby se pohnuly velké věci."
       editContent={<EditMode data={data} saveContext={saveContext} />}
@@ -38,10 +38,10 @@ function ViewMode({ data }: { data: BeliefsData }) {
   return (
     <div className="space-y-2">
       <p className="text-lg text-foreground/40">{reframed}/{beliefs.length} přeformulováno</p>
-      {beliefs.slice(0, 3).map((b, i) => (
+      {beliefs.map((b, i) => (
         <div key={i} className="space-y-0.5">
-          <p className="text-lg text-red-400 line-through">{b.belief}</p>
-          {b.reframe && <p className="text-lg text-green-600">{b.reframe}</p>}
+          <p className="text-base text-red-400 line-through">{b.belief}</p>
+          {b.reframe && <p className="text-base text-green-600">{b.reframe}</p>}
         </div>
       ))}
     </div>
@@ -102,22 +102,16 @@ function EditMode({
         <button onClick={addBelief} className="px-2 py-1 text-lg text-accent hover:opacity-80">+</button>
       </div>
 
-      {/* Description */}
-      <p className="text-lg text-foreground/40 leading-relaxed">
-        Zapiš přesvědčení, které tě brzdí. Zkoumej důkazy pro i proti a najdi zdravější přeformulaci. Opakuj pro každé přesvědčení.
-      </p>
-
       {/* Fields */}
       <div className="space-y-2">
         {[
-          { field: "area" as const, label: "Oblast", placeholder: "Např. Kariéra" },
-          { field: "belief" as const, label: "Přesvědčení", placeholder: "Já nikdy nebudu..." },
-          { field: "evidence" as const, label: "Proč tomu věřím?", placeholder: "Důkazy pro..." },
-          { field: "counter" as const, label: "Protidůkazy", placeholder: "Kdy to neplatilo?" },
-          { field: "reframe" as const, label: "Přeformulace", placeholder: "Ve skutečnosti..." },
+          { field: "belief" as const, label: "Přesvědčení", placeholder: "Nikdy nebudu…" },
+          { field: "evidence" as const, label: "Proč tomu věřím?", placeholder: "Jak jsem k tomu došel/la?" },
+          { field: "counter" as const, label: "Kdy to neplatilo?", placeholder: "Kdy to nebyla pravda?" },
+          { field: "reframe" as const, label: "Nové přesvědčení", placeholder: "Ve skutečnosti…" },
         ].map(({ field, label, placeholder }) => (
           <div key={field} className="space-y-0.5">
-            <label className="text-base font-semibold uppercase tracking-wider text-foreground/30">{label}</label>
+            <label className="text-base font-semibold text-foreground/50">{label}</label>
             <input
               type="text"
               value={b[field]}
