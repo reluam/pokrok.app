@@ -51,8 +51,8 @@ export async function GET(request: NextRequest) {
       JOIN pipeline_sources s ON a.source_id = s.id
       WHERE b.relevance_score >= ${minRelevance}
         AND (${category}::text IS NULL OR b.primary_category = ${category})
+        AND b.pipeline_status != 'archived'
         AND (${status}::text IS NULL OR b.pipeline_status = ${status})
-        AND (${status}::text IS NOT NULL OR b.pipeline_status != 'archived')
         AND (${search}::text IS NULL OR (
           b.summary_cs ILIKE ${'%' + (search || '') + '%'}
           OR a.title ILIKE ${'%' + (search || '') + '%'}
@@ -71,8 +71,8 @@ export async function GET(request: NextRequest) {
       JOIN pipeline_sources s ON a.source_id = s.id
       WHERE b.relevance_score >= ${minRelevance}
         AND (${category}::text IS NULL OR b.primary_category = ${category})
+        AND b.pipeline_status != 'archived'
         AND (${status}::text IS NULL OR b.pipeline_status = ${status})
-        AND (${status}::text IS NOT NULL OR b.pipeline_status != 'archived')
         AND (${search}::text IS NULL OR (
           b.summary_cs ILIKE ${'%' + (search || '') + '%'}
           OR a.title ILIKE ${'%' + (search || '') + '%'}
@@ -90,5 +90,39 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch articles', details: String(error) }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const isAuthenticated = await verifySession()
+  if (!isAuthenticated) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const { briefId } = await request.json()
+    if (!briefId) {
+      return NextResponse.json({ error: 'Missing briefId' }, { status: 400 })
+    }
+
+    // Get article_id before deleting brief
+    const brief = await sql`SELECT article_id FROM pipeline_briefs WHERE id = ${briefId}`
+    if (brief.length === 0) {
+      return NextResponse.json({ error: 'Brief not found' }, { status: 404 })
+    }
+
+    const articleId = brief[0].article_id
+
+    // Delete the brief first (FK dependency)
+    await sql`DELETE FROM pipeline_briefs WHERE id = ${briefId}`
+    // Delete the article if no other briefs reference it
+    await sql`
+      DELETE FROM pipeline_articles WHERE id = ${articleId}
+        AND NOT EXISTS (SELECT 1 FROM pipeline_briefs WHERE article_id = ${articleId})
+    `
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    return NextResponse.json({ error: 'Delete failed', details: String(error) }, { status: 500 })
   }
 }

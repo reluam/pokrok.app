@@ -5,7 +5,7 @@ import {
   Plus, Edit2, Trash2, ExternalLink, Save, X, Eye, EyeOff,
   Loader2, Search, BookOpen, Video, PenTool, Music, Play,
   HelpCircle, Rss, RefreshCw, Sparkles, ArrowRight,
-  Archive, Bookmark,
+  Bookmark,
 } from 'lucide-react'
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -344,15 +344,23 @@ function PipelineTab() {
     loadBriefs()
   }
 
+  const handleDelete = async (briefId: number) => {
+    await fetch('/api/admin/pipeline/articles', {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ briefId }),
+    })
+    loadBriefs()
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-3 flex-wrap shrink-0 mb-4">
-        {['inbox', 'saved', 'archived'].map(s => (
+        {['inbox', 'saved'].map(s => (
           <button key={s} onClick={() => { setStatusFilter(s); setSelectedBrief(null) }}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
               statusFilter === s ? 'bg-accent text-white' : 'bg-black/5 text-foreground/60 hover:bg-black/10'
             }`}>
-            {s === 'inbox' ? 'Inbox' : s === 'saved' ? 'Uložené' : 'Archiv'}
+            {s === 'inbox' ? 'Inbox' : 'Uložené'}
           </button>
         ))}
         <select value={minRelevance} onChange={e => setMinRelevance(Number(e.target.value))}
@@ -387,9 +395,9 @@ function PipelineTab() {
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold hover:bg-black/5">
                     <Bookmark size={12} /> Uložit
                   </button>
-                  <button onClick={() => handleStatusChange(brief.brief_id, 'archived')}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
-                    <Archive size={12} /> Archiv
+                  <button onClick={() => handleDelete(brief.brief_id)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-200 text-xs font-semibold text-red-400 hover:bg-red-50">
+                    <Trash2 size={12} /> Odstranit
                   </button>
                   <a href={brief.url} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
@@ -401,7 +409,7 @@ function PipelineTab() {
           ))}
         </div>
       ) : (
-        /* Uložené / Archiv: split-panel, plná výška */
+        /* Uložené: split-panel, plná výška */
         <div className="flex gap-6 flex-1 min-h-0">
           {/* Left: list */}
           <div className="w-80 shrink-0 flex flex-col min-h-0">
@@ -455,9 +463,9 @@ function PipelineTab() {
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold hover:bg-black/5">
                     <ExternalLink size={12} /> Nová karta
                   </a>
-                  <button onClick={() => { handleStatusChange(selectedBrief.brief_id, 'archived'); setSelectedBrief(null) }}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-black/10 text-xs font-semibold text-foreground/50 hover:bg-black/5">
-                    <Archive size={12} /> Archivovat
+                  <button onClick={() => { handleDelete(selectedBrief.brief_id); setSelectedBrief(null) }}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-200 text-xs font-semibold text-red-400 hover:bg-red-50">
+                    <Trash2 size={12} /> Odstranit
                   </button>
                 </div>
                 {/* Article iframe */}
