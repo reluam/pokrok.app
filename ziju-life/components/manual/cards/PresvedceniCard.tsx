@@ -48,6 +48,31 @@ function ViewMode({ data }: { data: BeliefsData }) {
   );
 }
 
+function CardExamples() {
+  const [show, setShow] = useState(false);
+  return (
+    <>
+      <button
+        onClick={() => setShow(!show)}
+        className="text-lg text-accent/70 hover:text-accent transition-colors"
+      >
+        {show ? "Skrýt příklady" : "Ukázat příklady pro inspiraci →"}
+      </button>
+      {show && (
+        <div className="space-y-1.5 p-3 rounded-xl bg-accent/5 border border-accent/10">
+          <p className="text-base font-bold text-accent/60 uppercase tracking-wider">Příklady</p>
+          <div className="space-y-1 text-base">
+            <p><span className="text-red-400 line-through">Nikdy nebudu dost dobrý/á</span> → <span className="text-green-600">Rostu a učím se</span></p>
+            <p><span className="text-red-400 line-through">Nemůžu se změnit</span> → <span className="text-green-600">Už jsem se měnil/a mnohokrát</span></p>
+            <p><span className="text-red-400 line-through">Kdybych to zkusil/a, selžu</span> → <span className="text-green-600">Neúspěch je zpětná vazba, ne verdikt</span></p>
+            <p><span className="text-red-400 line-through">Je na to pozdě</span> → <span className="text-green-600">Druhý nejlepší čas je teď</span></p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function EditMode({
   data,
   saveContext,
@@ -128,16 +153,8 @@ function EditMode({
         ))}
       </div>
 
-      {/* Examples */}
-      <div className="space-y-1.5">
-        <p className="text-base font-semibold text-foreground/30 uppercase tracking-wider">Příklady</p>
-        <div className="space-y-1 text-base">
-          <p><span className="text-red-400 line-through">Nikdy nebudu dost dobrý/á</span> → <span className="text-green-600">Rostu a učím se</span></p>
-          <p><span className="text-red-400 line-through">Nemůžu se změnit</span> → <span className="text-green-600">Už jsem se měnil/a mnohokrát</span></p>
-          <p><span className="text-red-400 line-through">Kdybych to zkusil/a, selžu</span> → <span className="text-green-600">Neúspěch je zpětná vazba, ne verdikt</span></p>
-          <p><span className="text-red-400 line-through">Je na to pozdě</span> → <span className="text-green-600">Druhý nejlepší čas je teď</span></p>
-        </div>
-      </div>
+      {/* Examples - collapsible */}
+      <CardExamples />
 
       <div className="flex items-center justify-between">
         <SaveIndicator saving={saving} saved={saved} />
