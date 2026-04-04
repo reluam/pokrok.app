@@ -31,6 +31,31 @@ const EXAMPLES = [
   { belief: "Nejsem dost chytrý/á na to, abych...", reframe: "Inteligence se rozvíjí — záleží na snaze, ne na talentu." },
 ];
 
+function ExamplesSection() {
+  const [show, setShow] = useState(false);
+  return (
+    <>
+      <button
+        onClick={() => setShow(!show)}
+        className="text-lg text-accent/70 hover:text-accent transition-colors"
+      >
+        {show ? "Skrýt příklady" : "Ukázat příklady pro inspiraci →"}
+      </button>
+      {show && (
+        <div className="space-y-3 p-3 rounded-xl bg-accent/5 border border-accent/10">
+          <p className="text-base font-bold text-accent/60 uppercase tracking-wider">Příklady</p>
+          {EXAMPLES.map((ex, i) => (
+            <div key={i} className="space-y-0.5">
+              <p className="text-base text-red-400 line-through">{ex.belief}</p>
+              <p className="text-base text-green-600">{ex.reframe}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function BeliefsFlow({
   initialData,
   onSave,
@@ -168,18 +193,8 @@ export default function BeliefsFlow({
         )}
       </div>
 
-      {/* Examples */}
-      <div className="bg-foreground/[0.02] border border-foreground/[0.06] rounded-[24px] px-5 py-5 space-y-3">
-        <p className="text-base font-semibold text-foreground/40 uppercase tracking-wider">Příklady limitujících přesvědčení</p>
-        <div className="space-y-3">
-          {EXAMPLES.map((ex, i) => (
-            <div key={i} className="space-y-0.5">
-              <p className="text-base text-red-400 line-through">{ex.belief}</p>
-              <p className="text-base text-green-600">{ex.reframe}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Examples - collapsible */}
+      <ExamplesSection />
 
       <button
         onClick={async () => {
