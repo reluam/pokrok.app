@@ -173,7 +173,7 @@ function DashboardContent() {
   const tabs = [
     { id: "dnes",     label: "Dnes",     emoji: "📊" },
     { id: "pruvodce", label: "Průvodce", emoji: "✨" },
-    { id: "manual",   label: "Manuál",   emoji: "📖" },
+    { id: "manual",   label: "Audit",     emoji: "📖" },
   ];
 
   function renderTab() {

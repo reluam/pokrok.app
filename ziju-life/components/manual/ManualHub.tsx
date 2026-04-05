@@ -175,9 +175,51 @@ export function ManualHub({
   const relationshipsData = context.relationships as RelationshipMapData | null;
   const dailyValuesData = context["daily-values"] as DailyValuesData | null;
 
+  // ── Progress ──
+  const exerciseChecks: { label: string; done: boolean }[] = [
+    { label: "Kolo života", done: !!kompasData?.currentVals && Object.keys(kompasData.currentVals).length > 0 },
+    { label: "Hodnoty", done: (hodnotyData?.finalValues?.length ?? 0) > 0 },
+    { label: "Činnosti", done: !!energyData?.savedAt },
+    { label: "Lidé", done: !!relationshipsData?.savedAt },
+    { label: "Na smrtelné posteli", done: !!(funeralData?.rodina || funeralData?.blizci || funeralData?.znami) },
+    { label: "Den za 5 let", done: !!visionData?.idealDay },
+    { label: "Přesvědčení", done: !!beliefsData?.savedAt },
+    { label: "Principy", done: (principlesData?.principles?.filter(p => p.text.trim()).length ?? 0) > 0 },
+    { label: "Životní filozofie", done: !!philosophyData?.savedAt },
+  ];
+  const doneCount = exerciseChecks.filter(e => e.done).length;
+  const totalCount = exerciseChecks.length;
+  const pct = Math.round((doneCount / totalCount) * 100);
+  const remaining = exerciseChecks.filter(e => !e.done);
+
   // ── Dashboard ──
   return (
     <div className="space-y-8">
+
+      {/* ── Progress bar ── */}
+      <div className="rounded-[24px] border border-black/[0.08] bg-white/65 backdrop-blur-sm shadow-sm px-5 py-4">
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-base font-bold text-foreground">
+                Tvůj Audit je {pct}% kompletní
+              </p>
+              <span className="text-base text-foreground/40">{doneCount}/{totalCount}</span>
+            </div>
+            <div className="h-2 bg-black/[0.06] rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-accent transition-all duration-500"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            {remaining.length > 0 && remaining.length <= 4 && (
+              <p className="text-base text-foreground/35 mt-1.5">
+                Zbývá: {remaining.map(e => e.label).join(", ")}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* ── Audit života ── */}
       <DashboardSection title="Audit života" description="Kde jsi teď a co je pro tebe důležité">
