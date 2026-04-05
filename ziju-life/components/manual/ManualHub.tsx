@@ -202,7 +202,7 @@ export function ManualHub({
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1.5">
               <p className="text-base font-bold text-foreground">
-                Tvůj Audit je {pct}% kompletní
+                Tvůj Audit je ze {pct}% kompletní
               </p>
               <span className="text-base text-foreground/40">{doneCount}/{totalCount}</span>
             </div>
