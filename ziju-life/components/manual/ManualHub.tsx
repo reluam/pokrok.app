@@ -176,21 +176,40 @@ export function ManualHub({
   const dailyValuesData = context["daily-values"] as DailyValuesData | null;
 
   // ── Progress ──
-  const exerciseChecks: { label: string; done: boolean }[] = [
-    { label: "Kolo života", done: !!kompasData?.currentVals && Object.keys(kompasData.currentVals).length > 0 },
-    { label: "Hodnoty", done: (hodnotyData?.finalValues?.length ?? 0) > 0 },
-    { label: "Činnosti", done: !!energyData?.savedAt },
-    { label: "Lidé", done: !!relationshipsData?.savedAt },
-    { label: "Na smrtelné posteli", done: !!(funeralData?.rodina || funeralData?.blizci || funeralData?.znami) },
-    { label: "Den za 5 let", done: !!visionData?.idealDay },
-    { label: "Přesvědčení", done: !!beliefsData?.savedAt },
-    { label: "Principy", done: (principlesData?.principles?.filter(p => p.text.trim()).length ?? 0) > 0 },
-    { label: "Životní filozofie", done: !!philosophyData?.savedAt },
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  const exerciseChecks: { label: string; id: string; done: boolean }[] = [
+    { label: "Kolo života", id: "ex-kolo", done: !!kompasData?.currentVals && Object.keys(kompasData.currentVals).length > 0 },
+    { label: "Hodnoty", id: "ex-hodnoty", done: (hodnotyData?.finalValues?.length ?? 0) > 0 },
+    { label: "Činnosti", id: "ex-cinnosti", done: !!energyData?.savedAt },
+    { label: "Lidé", id: "ex-lide", done: !!relationshipsData?.savedAt },
+    { label: "Na smrtelné posteli", id: "ex-smrt", done: !!(funeralData?.rodina || funeralData?.blizci || funeralData?.znami) },
+    { label: "Den za 5 let", id: "ex-vize", done: !!visionData?.idealDay },
+    { label: "Přesvědčení", id: "ex-presvedceni", done: !!beliefsData?.savedAt },
+    { label: "Principy", id: "ex-principy", done: (principlesData?.principles?.filter(p => p.text.trim()).length ?? 0) > 0 },
+    { label: "Životní filozofie", id: "ex-filozofie", done: !!philosophyData?.savedAt },
   ];
+
+  const scrollToExercise = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlightId(id);
+    setTimeout(() => setHighlightId(null), 1500);
+  };
   const doneCount = exerciseChecks.filter(e => e.done).length;
   const totalCount = exerciseChecks.length;
   const pct = Math.round((doneCount / totalCount) * 100);
   const remaining = exerciseChecks.filter(e => !e.done);
+
+  const Hl = ({ id, children }: { id: string; children: React.ReactNode }) => (
+    <div
+      id={id}
+      className={`scroll-mt-24 rounded-[26px] transition-all duration-700 ${highlightId === id ? "ring-2 ring-accent ring-offset-2" : ""}`}
+    >
+      {children}
+    </div>
+  );
 
   // ── Dashboard ──
   return (
@@ -214,7 +233,17 @@ export function ManualHub({
             </div>
             {remaining.length > 0 && remaining.length <= 4 && (
               <p className="text-base text-foreground/35 mt-1.5">
-                Zbývá: {remaining.map(e => e.label).join(", ")}
+                Zbývá: {remaining.map((e, i) => (
+                  <span key={e.id}>
+                    {i > 0 && ", "}
+                    <button
+                      onClick={() => scrollToExercise(e.id)}
+                      className="text-accent/70 hover:text-accent underline decoration-accent/30 hover:decoration-accent transition-colors"
+                    >
+                      {e.label}
+                    </button>
+                  </span>
+                ))}
               </p>
             )}
           </div>
@@ -232,35 +261,37 @@ export function ManualHub({
           saveContext={saveContext}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-          <KoloZivotaCard data={kompasData} saveContext={saveContext} />
-          <HodnotyDailyCard
-            hodnotyData={hodnotyData}
-            dailyData={dailyValuesData}
-            saveContext={saveContext}
-            onTabChange={() => setActiveExercise("hodnoty")}
-          />
+          <Hl id="ex-kolo"><KoloZivotaCard data={kompasData} saveContext={saveContext} /></Hl>
+          <Hl id="ex-hodnoty">
+            <HodnotyDailyCard
+              hodnotyData={hodnotyData}
+              dailyData={dailyValuesData}
+              saveContext={saveContext}
+              onTabChange={() => setActiveExercise("hodnoty")}
+            />
+          </Hl>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <EnergieCard data={energyData} saveContext={saveContext} />
-          <VztahyCard data={relationshipsData} saveContext={saveContext} />
+          <Hl id="ex-cinnosti"><EnergieCard data={energyData} saveContext={saveContext} /></Hl>
+          <Hl id="ex-lide"><VztahyCard data={relationshipsData} saveContext={saveContext} /></Hl>
         </div>
       </DashboardSection>
 
       {/* ── Směřování ── */}
       <DashboardSection title="Směřování" description="Kam míříš a jak se tam dostaneš">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SmutecniRecCard data={funeralData} saveContext={saveContext} />
-          <DenZa5LetCard data={visionData} saveContext={saveContext} />
+          <Hl id="ex-smrt"><SmutecniRecCard data={funeralData} saveContext={saveContext} /></Hl>
+          <Hl id="ex-vize"><DenZa5LetCard data={visionData} saveContext={saveContext} /></Hl>
         </div>
       </DashboardSection>
 
       {/* ── Životní filozofie ── */}
       <DashboardSection title="Životní filozofie" description="Kdo jsi, jak chceš žít a čím se řídíš">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <PresvedceniCard data={beliefsData} saveContext={saveContext} />
-          <PrincipyCard data={principlesData} saveContext={saveContext} />
+          <Hl id="ex-presvedceni"><PresvedceniCard data={beliefsData} saveContext={saveContext} /></Hl>
+          <Hl id="ex-principy"><PrincipyCard data={principlesData} saveContext={saveContext} /></Hl>
         </div>
-        <FilozofieCard data={philosophyData} saveContext={saveContext} />
+        <Hl id="ex-filozofie"><FilozofieCard data={philosophyData} saveContext={saveContext} /></Hl>
       </DashboardSection>
     </div>
   );
