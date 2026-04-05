@@ -9,12 +9,14 @@ const MAX_ITEMS = 3;
 
 function TodoSection({
   label,
+  description,
   items,
   onToggle,
   onAdd,
   onRemove,
 }: {
   label: string;
+  description?: string;
   items: TodoItem[];
   onToggle: (i: number) => void;
   onAdd: (text: string) => void;
@@ -29,9 +31,12 @@ function TodoSection({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-base font-bold text-foreground/60 uppercase tracking-wider">{label}</p>
-        <span className="text-lg text-foreground/30 font-medium">{items.length}/{MAX_ITEMS}</span>
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-base font-bold text-foreground/60 uppercase tracking-wider">{label}</p>
+          <span className="text-lg text-foreground/30 font-medium">{items.length}/{MAX_ITEMS}</span>
+        </div>
+        {description && <p className="text-base text-foreground/35 mt-0.5">{description}</p>}
       </div>
       <ul className="space-y-2">
         {items.map((item, i) => (
@@ -131,6 +136,7 @@ export default function DailyTodosWidget() {
       <div className="space-y-6 divide-y divide-black/5">
         <TodoSection
           label="To Do"
+          description="3 nejdůležitější věci, které dnes udělám"
           items={todos}
           onToggle={(i) => save(todos.map((t, j) => j === i ? { ...t, done: !t.done } : t), niceTodos)}
           onAdd={(text) => save([...todos, { text, done: false }], niceTodos)}
@@ -139,6 +145,7 @@ export default function DailyTodosWidget() {
         <div className="pt-6">
           <TodoSection
             label="Nice To Do"
+            description="3 věci, které chci udělat, pokud mi zbyde čas"
             items={niceTodos}
             onToggle={(i) => save(todos, niceTodos.map((t, j) => j === i ? { ...t, done: !t.done } : t))}
             onAdd={(text) => save(todos, [...niceTodos, { text, done: false }])}
