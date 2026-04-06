@@ -30,6 +30,16 @@ export async function ensureCoreTables() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         UNIQUE(user_id, ritual_id, date)
       )`,
+      sql`CREATE TABLE IF NOT EXISTS weekly_checkins (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        score SMALLINT,
+        week_start_date DATE NOT NULL,
+        value_scores JSONB DEFAULT '{}'::jsonb,
+        area_scores JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(user_id, week_start_date)
+      )`,
       sql`CREATE TABLE IF NOT EXISTS laborator_access (
         email VARCHAR(255) PRIMARY KEY,
         has_access BOOLEAN NOT NULL DEFAULT false,

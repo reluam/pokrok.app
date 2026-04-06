@@ -21,9 +21,11 @@ import {
   toggleRitualCompletion,
   getRitualCompletionsFull,
   aiCoach,
+  getCheckins,
 } from "@/api/manual";
 import Markdown from "react-native-markdown-display";
 import { MessageCircle, Send, Maximize2, Minimize2, Check, Plus, Trash2, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react-native";
+import Svg, { Polygon, Line, Circle, Text as SvgText, G, Polyline } from "react-native-svg";
 import { colors } from "@/constants/theme";
 import { syncWidgetData } from "@/lib/widgetSync";
 
@@ -43,6 +45,17 @@ const mdStyles = StyleSheet.create({
 
 const { height: SCREEN_H } = Dimensions.get("window");
 const MAX_TODO = 3;
+
+const WHEEL_AREAS = [
+  { key: "kariera", short: "Kariéra" },
+  { key: "finance", short: "Finance" },
+  { key: "zdravi", short: "Zdraví" },
+  { key: "rodina", short: "Rodina" },
+  { key: "pratele", short: "Přátelé" },
+  { key: "rozvoj", short: "Rozvoj" },
+  { key: "volny", short: "Volný čas" },
+  { key: "smysl", short: "Smysl" },
+];
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -242,6 +255,137 @@ function AICoachBar({
   );
 }
 
+// ── Read-only Checkin Results ────────────────────────────────────────────────
+
+function ReadOnlySpider({ areaScores, size = 220 }: { areaScores: Record<string, number>; size?: number }) {
+  const C = size / 2;
+  const R = C - 36;
+  const N = WHEEL_AREAS.length;
+
+  const pt = (i: number, v: number): [number, number] => {
+    const a = (2 * Math.PI * i) / N - Math.PI / 2;
+    const r = (v / 10) * R;
+    return [C + r * Math.cos(a), C + r * Math.sin(a)];
+  };
+
+  return (
+    <View style={{ alignItems: "center" }}>
+      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {[2, 4, 6, 8, 10].map((v) => (
+          <Polygon
+            key={v}
+            points={WHEEL_AREAS.map((_, i) => pt(i, v).join(",")).join(" ")}
+            fill="none"
+            stroke="rgba(0,0,0,0.07)"
+            strokeWidth="0.5"
+          />
+        ))}
+        {WHEEL_AREAS.map((_, i) => {
+          const [x, y] = pt(i, 10);
+          return <Line key={i} x1={C} y1={C} x2={x} y2={y} stroke="rgba(0,0,0,0.08)" strokeWidth="0.5" />;
+        })}
+        <Polygon
+          points={WHEEL_AREAS.map((a, i) => pt(i, areaScores[a.key] ?? 5).join(",")).join(" ")}
+          fill="rgba(255,140,66,0.13)"
+          stroke="#FF8C42"
+          strokeWidth="1.5"
+        />
+        {WHEEL_AREAS.map((a, i) => {
+          const [x, y] = pt(i, areaScores[a.key] ?? 5);
+          const ang = (2 * Math.PI * i) / N - Math.PI / 2;
+          const lx = C + (R + 26) * Math.cos(ang);
+          const ly = C + (R + 26) * Math.sin(ang);
+          return (
+            <G key={a.key}>
+              <SvgText x={lx} y={ly} textAnchor="middle" alignmentBaseline="central" fontSize="8" fill="#888" fontFamily="System">
+                {a.short}
+              </SvgText>
+              <Circle cx={x} cy={y} r="3" fill="#FF8C42" />
+              <SvgText x={x} y={y - 8} textAnchor="middle" alignmentBaseline="central" fontSize="8" fontWeight="700" fill="#FF8C42" fontFamily="System">
+                {String(areaScores[a.key] ?? 5)}
+              </SvgText>
+            </G>
+          );
+        })}
+      </Svg>
+    </View>
+  );
+}
+
+function CheckinResultsSection({ checkins }: { checkins: Array<{ score: number | null; week_start_date: string; value_scores: Record<string, number> | null; area_scores: Record<string, number> | null }> }) {
+  const withAreas = checkins.filter(c => c.area_scores && Object.keys(c.area_scores).length > 0);
+  if (withAreas.length === 0) return null;
+
+  const latest = withAreas[withAreas.length - 1];
+  const W = 80;
+  const H = 28;
+  const PAD = 2;
+  const w = W - PAD * 2;
+  const h = H - PAD * 2;
+
+  return (
+    <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: "rgba(0,0,0,0.06)" }}>
+      <Text style={{ fontSize: 14, fontWeight: "700", color: colors.foreground, marginBottom: 12 }}>
+        Poslední check-in
+      </Text>
+
+      {latest.area_scores && <ReadOnlySpider areaScores={latest.area_scores} />}
+
+      {withAreas.length >= 2 && (
+        <View style={{ marginTop: 12 }}>
+          <Text style={{ fontSize: 11, color: colors.muted, marginBottom: 8 }}>
+            Vývoj oblastí ({withAreas.length} týdnů)
+          </Text>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            {WHEEL_AREAS.map(area => {
+              const scores = withAreas.map(c => c.area_scores?.[area.key] ?? 5);
+              const xStep = w / Math.max(scores.length - 1, 1);
+              const yScale = (val: number) => PAD + h - ((val - 1) / 9) * h;
+              const pts = scores.map((val, i) => `${PAD + i * xStep},${yScale(val)}`).join(" ");
+              const last = scores[scores.length - 1];
+              const prev = scores[scores.length - 2];
+              const delta = last - prev;
+
+              return (
+                <View key={area.key} style={{ flexDirection: "row", alignItems: "center", width: "47%", gap: 4 }}>
+                  <Text style={{ width: 50, fontSize: 10, color: colors.muted }} numberOfLines={1}>
+                    {area.short}
+                  </Text>
+                  <Svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+                    <Polyline
+                      points={pts}
+                      fill="none"
+                      stroke={colors.accent}
+                      strokeWidth={1.5}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      opacity={0.7}
+                    />
+                    <Circle
+                      cx={PAD + (scores.length - 1) * xStep}
+                      cy={yScale(last)}
+                      r={2.5}
+                      fill={colors.accent}
+                    />
+                  </Svg>
+                  <View style={{ flexDirection: "row", alignItems: "baseline", gap: 1 }}>
+                    <Text style={{ fontSize: 11, fontWeight: "700", color: colors.foreground }}>{last}</Text>
+                    {delta !== 0 && (
+                      <Text style={{ fontSize: 9, fontWeight: "600", color: delta > 0 ? "#22c55e" : "#f87171" }}>
+                        {delta > 0 ? "+" : ""}{delta}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
 // ── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function ManualDashboard() {
@@ -266,6 +410,14 @@ export default function ManualDashboard() {
   const [ritualDayIdx, setRitualDayIdx] = useState(-1);
   const [ritualSelectionRaw, setRitualSelectionRaw] = useState<{ morning?: string[]; daily?: string[]; evening?: string[] } | null>(null);
 
+  // Checkin results (read-only)
+  const [checkins, setCheckins] = useState<Array<{
+    score: number | null;
+    week_start_date: string;
+    value_scores: Record<string, number> | null;
+    area_scores: Record<string, number> | null;
+  }>>([]);
+
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -281,7 +433,11 @@ export default function ManualDashboard() {
   const load = useCallback(async () => {
     try {
       setLoadError(false);
-      const data = await getDashboardData();
+      const [data, checkinData] = await Promise.all([
+        getDashboardData(),
+        getCheckins().catch(() => null),
+      ]);
+      if (checkinData) setCheckins(checkinData.checkins ?? []);
 
       // Todos (today + yesterday)
       setTodos(data.todos.today?.todos ?? []);
@@ -797,6 +953,9 @@ export default function ManualDashboard() {
               {tab === "todo" && renderTodo()}
               {tab === "priorities" && renderPriorities()}
               {tab === "rituals" && renderRituals()}
+
+              {/* Read-only checkin results */}
+              <CheckinResultsSection checkins={checkins} />
             </>
           )}
         </ScrollView>

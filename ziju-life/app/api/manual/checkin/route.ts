@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkManualAccess } from "@/lib/manual-auth";
 import { getManualUser, getWeekStart, getLastSunday } from "@/lib/manual-user";
-import { sql } from "@/lib/database";
+import { sql, ensureCoreTables } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 // Returns last 12 weeks of check-ins (with value_scores + area_scores).
 
 export async function GET(request: NextRequest) {
+  await ensureCoreTables();
   const user = await getManualUser(request);
   if (!user) return NextResponse.json({ checkins: [], thisWeekDone: false });
 

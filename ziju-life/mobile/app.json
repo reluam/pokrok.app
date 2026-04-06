@@ -33,7 +33,65 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-widgets",
+        {
+          "widgets": [
+            {
+              "name": "ZijuWidget",
+              "displayName": "Žiju Life",
+              "description": "Rituály a úkoly na dnešek",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium",
+                "systemLarge"
+              ],
+              "contentMarginsDisabled": false
+            }
+          ]
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "ZijuSmall",
+              "label": "Žiju Life",
+              "minWidth": "180dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "description": "Další rituál a úkol",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "ZijuMedium",
+              "label": "Žiju Life - přehled",
+              "minWidth": "358dp",
+              "minHeight": "120dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "description": "Rituály a úkoly",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "ZijuLarge",
+              "label": "Žiju Life - vše",
+              "minWidth": "358dp",
+              "minHeight": "320dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 4,
+              "resizeMode": "vertical",
+              "description": "Všechny rituály a úkoly",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ]
     ],
     "extra": {
       "router": {},

@@ -5,11 +5,9 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Polygon, Line, Circle, Text as SvgText, G, Polyline } from "react-native-svg";
-import { useRouter } from "expo-router";
 import { getCheckins, submitCheckin, getUserContext } from "@/api/manual";
 import { colors } from "@/constants/theme";
 
@@ -225,7 +223,7 @@ function InteractiveSpider({
             <Text style={s.areaLabel}>{a.short}</Text>
             <View style={s.pmRow}>
               <TouchableOpacity style={s.pmBtn} onPress={() => handlePress(a.key, "down")}>
-                <Text style={s.pmText}>−</Text>
+                <Text style={s.pmText}>-</Text>
               </TouchableOpacity>
               <Text style={s.pmVal}>{vals[a.key] ?? 5}</Text>
               <TouchableOpacity style={s.pmBtn} onPress={() => handlePress(a.key, "up")}>
@@ -242,7 +240,6 @@ function InteractiveSpider({
 // ── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function CheckinScreen() {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState<Step>("values");
   const [saving, setSaving] = useState(false);
@@ -263,7 +260,6 @@ export default function CheckinScreen() {
       setCheckins(checkinData.checkins ?? []);
       setReflectionDone(checkinData.reflectionDone ?? false);
 
-      // Extract user values from context
       const ctx = ctxData.context || {};
       const valuesCtx = ctx.values as Array<{ name: string; alignment?: number }> | undefined;
       if (valuesCtx && Array.isArray(valuesCtx)) {
@@ -280,7 +276,6 @@ export default function CheckinScreen() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Skip values step if no values
   useEffect(() => {
     if (!loading && values.length === 0 && step === "values") {
       setStep("areas");
@@ -293,6 +288,9 @@ export default function CheckinScreen() {
       await submitCheckin(areaScores, values.length > 0 ? valueScores : undefined);
       setReflectionDone(true);
       setStep("done");
+      // Reload to get fresh data
+      const fresh = await getCheckins();
+      setCheckins(fresh.checkins ?? []);
     } catch (err) {
       console.error("Submit error:", err);
     }
@@ -309,6 +307,7 @@ export default function CheckinScreen() {
     );
   }
 
+  // Already done this week — show results
   if (reflectionDone && step !== "done") {
     return (
       <SafeAreaView style={s.safe} edges={["top"]}>
@@ -326,6 +325,7 @@ export default function CheckinScreen() {
     );
   }
 
+  // Just saved
   if (step === "done") {
     return (
       <SafeAreaView style={s.safe} edges={["top"]}>
@@ -338,12 +338,6 @@ export default function CheckinScreen() {
             Další reflexe se zobrazí v neděli.
           </Text>
           <AreaSparklines checkins={checkins} />
-          <TouchableOpacity
-            style={[s.primaryBtn, { marginTop: 16 }]}
-            onPress={() => router.back()}
-          >
-            <Text style={s.primaryBtnText}>← Zpět na přehled</Text>
-          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     );
@@ -417,13 +411,11 @@ const s = StyleSheet.create({
   title: { fontSize: 18, fontWeight: "700", color: colors.foreground, marginBottom: 4 },
   subtitle: { fontSize: 13, color: colors.muted, marginBottom: 20 },
 
-  // Values
   valueItem: { marginBottom: 16 },
   valueHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 },
   valueName: { fontSize: 14, fontWeight: "600", color: "rgba(0,0,0,0.65)" },
   valueScore: { fontSize: 13, fontWeight: "700", color: colors.accent },
 
-  // Score bar
   scoreRow: { flexDirection: "row", gap: 3 },
   scoreBtn: {
     flex: 1, height: 32, borderRadius: 6,
@@ -434,7 +426,6 @@ const s = StyleSheet.create({
   scoreBtnText: { fontSize: 11, fontWeight: "700", color: "rgba(0,0,0,0.3)" },
   scoreBtnTextFill: { color: "#fff" },
 
-  // Area +/- controls
   areaButtons: { marginTop: 12, gap: 6 },
   areaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 4 },
   areaLabel: { fontSize: 13, fontWeight: "600", color: "rgba(0,0,0,0.6)", width: 80 },
@@ -447,7 +438,6 @@ const s = StyleSheet.create({
   pmText: { fontSize: 18, fontWeight: "700", color: colors.foreground },
   pmVal: { fontSize: 15, fontWeight: "700", color: colors.accent, width: 20, textAlign: "center" },
 
-  // Buttons
   btnRow: { flexDirection: "row", gap: 10, marginTop: 24 },
   primaryBtn: {
     backgroundColor: colors.accent,

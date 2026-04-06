@@ -1,8 +1,12 @@
 import { Tabs } from "expo-router";
-import { CalendarDays, MessageCircle, FlaskConical, User } from "lucide-react-native";
+import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CalendarDays, MessageCircle, BookOpen, User, BarChart3 } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
 export default function AppLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       initialRouteName="(manual)"
@@ -15,7 +19,8 @@ export default function AppLayout() {
           borderTopColor: colors.borderLight,
           borderTopWidth: 1,
           paddingTop: 4,
-          height: 88,
+          paddingBottom: Platform.OS === "android" ? Math.max(insets.bottom, 8) : insets.bottom,
+          height: 56 + Math.max(insets.bottom, Platform.OS === "android" ? 8 : 0),
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -24,11 +29,24 @@ export default function AppLayout() {
       }}
     >
       <Tabs.Screen
+        name="index"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
         name="(manual)"
         options={{
           title: "Dnes",
           tabBarIcon: ({ color, size }) => (
             <CalendarDays size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(reflexe)"
+        options={{
+          title: "Check-in",
+          tabBarIcon: ({ color, size }) => (
+            <BarChart3 size={size} color={color} />
           ),
         }}
       />
@@ -46,7 +64,7 @@ export default function AppLayout() {
         options={{
           title: "Manuál",
           tabBarIcon: ({ color, size }) => (
-            <FlaskConical size={size} color={color} />
+            <BookOpen size={size} color={color} />
           ),
         }}
       />
