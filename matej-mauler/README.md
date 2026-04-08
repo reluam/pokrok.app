@@ -1,25 +1,36 @@
-# Matěj Mauler — prezentační stránka
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Jednostránková prezentace služeb s AI: tvorba webů a automatizace.
+## Getting Started
 
-## Spuštění
+First, run the development server:
 
 ```bash
-npm install
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-Stránka poběží na http://localhost:3000 (nebo na portu z proměnné `PORT`). Jiný port např.: `PORT=3005 npm run dev`.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Úpravy
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- **Kontaktní formulář:** Aby se zprávy opravdu odesílaly, zkopírujte `.env.example` do `.env.local` a vyplňte `CONTACT_EMAIL` (kam chcete dostávat zprávy) a `RESEND_API_KEY` z [Resend](https://resend.com). Volitelně `RESEND_FROM_EMAIL` (odkaz musí být ověřený v Resend).
-- **Barvy a fonty:** Upravte CSS proměnné v `app/globals.css` (`:root`).
-- **Obrázky projektů:** Náhledy webů vložte do složky **`public/projekty/`** — viz `public/projekty/README.md` pro názvy souborů.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Build
+## Learn More
 
-```bash
-npm run build
-npm start
-```
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
