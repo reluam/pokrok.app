@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Matej Mauler — Pruzkumnik zivotem",
+  title: "Matěj Mauler — Human Performance Laboratory",
   description:
-    "Vedome ziti neni duchovni koncept. Je to prakticka dovednost, ktera meni zpusob, jakym premyslis, rozhodujes se a zijes.",
+    "Průzkumník životem. Kouč pro ty, kteří chtějí překonat své biologické i mentální limity.",
 };
 
 export default function RootLayout({
