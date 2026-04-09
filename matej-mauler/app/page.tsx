@@ -58,52 +58,52 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-const icons: Record<string, React.ReactNode> = {
-  arrow_forward: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-  ),
-  arrow_upward: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
-  ),
-  menu: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
-  ),
-  close: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
-  ),
-  psychology: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-1.06 0-2.05.29-2.91.78C9.22 4.26 8.5 5.04 8.02 6H7c-1.1 0-2 .9-2 2v2c-1.1 0-2 .9-2 2s.9 2 2 2v2c0 1.1.9 2 2 2h1.02c.48.96 1.2 1.74 2.07 2.22.86.49 1.85.78 2.91.78V18c-1.66 0-3-1.34-3-3v-1h1v-4h-1V9c0-1.66 1.34-3 3-3zm2 0v2c1.66 0 3 1.34 3 3v1h-1v4h1v1c0 1.66-1.34 3-3 3v2c1.06 0 2.05-.29 2.91-.78.87-.48 1.59-1.26 2.07-2.22H17c1.1 0 2-.9 2-2v-2c1.1 0 2-.9 2-2s-.9-2-2-2V8c0-1.1-.9-2-2-2h-1.02c-.48-.96-1.2-1.74-2.07-2.22A5.9 5.9 0 0 0 15 3z" /></svg>
-  ),
-  hub: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-2.83 4H6.5A2.5 2.5 0 0 0 4 8.5v.67A3 3 0 0 0 2 12a3 3 0 0 0 2 2.83v.67A2.5 2.5 0 0 0 6.5 18h2.67A3 3 0 0 0 12 20a3 3 0 0 0 2.83-2H17.5a2.5 2.5 0 0 0 2.5-2.5v-.67A3 3 0 0 0 22 12a3 3 0 0 0-2-2.83V8.5A2.5 2.5 0 0 0 17.5 6h-2.67A3 3 0 0 0 12 4V2zm0 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm-6 4.5A.5.5 0 0 1 6.5 10h3V8h5v2h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3v2h-5v-2h-3a.5.5 0 0 1-.5-.5z" /></svg>
-  ),
-  local_fire_department: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12.9a2.13 2.13 0 0 0-2.13 2.13c0 .83.48 1.55 1.18 1.89.2.1.42.17.66.2l.29.01c1.18 0 2.13-.96 2.13-2.1 0-.7-.34-1.32-.87-1.71L12 12.9zM16 6l-.44.55C14.38 8.02 12 7.19 12 5.3V2S4 7 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8c0-2.96-1.61-5.62-4-7z" /></svg>
-  ),
-  neurology: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-.55 0-1.08.07-1.58.2a5.96 5.96 0 0 0-2.41 1.3A3.99 3.99 0 0 0 7 8v2a3 3 0 0 0 0 4v2a4 4 0 0 0 2.01 3.46A5.96 5.96 0 0 0 13 21v-2a4 4 0 0 1-4-4v-1h1v-4h-1V9a4 4 0 0 1 4-4zm2 0v2a4 4 0 0 1 4 4v1h-1v4h1v1a4 4 0 0 1-4 4v2a5.96 5.96 0 0 0 3.99-1.54A3.99 3.99 0 0 0 21 16v-2a3 3 0 0 0 0-4V8a3.99 3.99 0 0 0-2.01-3.46A5.96 5.96 0 0 0 15 3z" /></svg>
-  ),
-  article: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" /></svg>
-  ),
-  spa: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.55 12a6.97 6.97 0 0 1 3.46-6.04 6.97 6.97 0 0 1 3.46 6.04 6.97 6.97 0 0 1-3.46 6.04A6.97 6.97 0 0 1 8.55 12zM12 2C9.27 4.72 7.56 8.15 7.56 12s1.71 7.28 4.44 10c2.73-2.72 4.44-6.15 4.44-10S14.73 4.72 12 2zM2.06 12c0 3.07 1.14 5.88 3 8.01C6.87 18.3 8 15.32 8 12s-1.13-6.3-2.94-8.01a12.83 12.83 0 0 0-3 8.01zm13.94 0c0 3.32 1.13 6.3 2.94 8.01A12.83 12.83 0 0 0 21.94 12c0-3.07-1.14-5.88-3-8.01C17.13 5.7 16 8.68 16 12z" /></svg>
-  ),
-  check_circle: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-  ),
-  verified: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="m23 12-2.44-2.79.34-3.69-3.61-.82L15.4 1.5 12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5 12 21.04l3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.8 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.34z" /></svg>
-  ),
-  event_available: (
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.53 11.06 15.47 10l-4.88 4.88-2.12-2.12-1.06 1.06L10.59 17l5.94-5.94zM19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z" /></svg>
-  ),
-};
-
 function Icon({ name, className = "" }: { name: string; className?: string }) {
+  const svgs: Record<string, React.ReactNode> = {
+    arrow_forward: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+    ),
+    arrow_upward: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+    ),
+    menu: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+    ),
+    close: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+    ),
+    psychology: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-1.06 0-2.05.29-2.91.78C9.22 4.26 8.5 5.04 8.02 6H7c-1.1 0-2 .9-2 2v2c-1.1 0-2 .9-2 2s.9 2 2 2v2c0 1.1.9 2 2 2h1.02c.48.96 1.2 1.74 2.07 2.22.86.49 1.85.78 2.91.78V18c-1.66 0-3-1.34-3-3v-1h1v-4h-1V9c0-1.66 1.34-3 3-3zm2 0v2c1.66 0 3 1.34 3 3v1h-1v4h1v1c0 1.66-1.34 3-3 3v2c1.06 0 2.05-.29 2.91-.78.87-.48 1.59-1.26 2.07-2.22H17c1.1 0 2-.9 2-2v-2c1.1 0 2-.9 2-2s-.9-2-2-2V8c0-1.1-.9-2-2-2h-1.02c-.48-.96-1.2-1.74-2.07-2.22A5.9 5.9 0 0 0 15 3z" /></svg>
+    ),
+    hub: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-2.83 4H6.5A2.5 2.5 0 0 0 4 8.5v.67A3 3 0 0 0 2 12a3 3 0 0 0 2 2.83v.67A2.5 2.5 0 0 0 6.5 18h2.67A3 3 0 0 0 12 20a3 3 0 0 0 2.83-2H17.5a2.5 2.5 0 0 0 2.5-2.5v-.67A3 3 0 0 0 22 12a3 3 0 0 0-2-2.83V8.5A2.5 2.5 0 0 0 17.5 6h-2.67A3 3 0 0 0 12 4V2zm0 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm-6 4.5A.5.5 0 0 1 6.5 10h3V8h5v2h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3v2h-5v-2h-3a.5.5 0 0 1-.5-.5z" /></svg>
+    ),
+    local_fire_department: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12.9a2.13 2.13 0 0 0-2.13 2.13c0 .83.48 1.55 1.18 1.89.2.1.42.17.66.2l.29.01c1.18 0 2.13-.96 2.13-2.1 0-.7-.34-1.32-.87-1.71L12 12.9zM16 6l-.44.55C14.38 8.02 12 7.19 12 5.3V2S4 7 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8c0-2.96-1.61-5.62-4-7z" /></svg>
+    ),
+    neurology: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-.55 0-1.08.07-1.58.2a5.96 5.96 0 0 0-2.41 1.3A3.99 3.99 0 0 0 7 8v2a3 3 0 0 0 0 4v2a4 4 0 0 0 2.01 3.46A5.96 5.96 0 0 0 13 21v-2a4 4 0 0 1-4-4v-1h1v-4h-1V9a4 4 0 0 1 4-4zm2 0v2a4 4 0 0 1 4 4v1h-1v4h1v1a4 4 0 0 1-4 4v2a5.96 5.96 0 0 0 3.99-1.54A3.99 3.99 0 0 0 21 16v-2a3 3 0 0 0 0-4V8a3.99 3.99 0 0 0-2.01-3.46A5.96 5.96 0 0 0 15 3z" /></svg>
+    ),
+    article: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" /></svg>
+    ),
+    spa: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8.55 12a6.97 6.97 0 0 1 3.46-6.04 6.97 6.97 0 0 1 3.46 6.04 6.97 6.97 0 0 1-3.46 6.04A6.97 6.97 0 0 1 8.55 12zM12 2C9.27 4.72 7.56 8.15 7.56 12s1.71 7.28 4.44 10c2.73-2.72 4.44-6.15 4.44-10S14.73 4.72 12 2zM2.06 12c0 3.07 1.14 5.88 3 8.01C6.87 18.3 8 15.32 8 12s-1.13-6.3-2.94-8.01a12.83 12.83 0 0 0-3 8.01zm13.94 0c0 3.32 1.13 6.3 2.94 8.01A12.83 12.83 0 0 0 21.94 12c0-3.07-1.14-5.88-3-8.01C17.13 5.7 16 8.68 16 12z" /></svg>
+    ),
+    check_circle: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
+    ),
+    verified: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="m23 12-2.44-2.79.34-3.69-3.61-.82L15.4 1.5 12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5 12 21.04l3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.8 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.34z" /></svg>
+    ),
+    event_available: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M16.53 11.06 15.47 10l-4.88 4.88-2.12-2.12-1.06 1.06L10.59 17l5.94-5.94zM19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z" /></svg>
+    ),
+  };
+
   return (
-    <span className={`inline-flex items-center justify-center shrink-0 ${className}`} style={{ width: "1em", height: "1em" }}>
-      {icons[name]}
+    <span className={`inline-flex items-center justify-center shrink-0 [&>svg]:w-full [&>svg]:h-full ${className}`} style={{ width: "1em", height: "1em" }}>
+      {svgs[name]}
     </span>
   );
 }
