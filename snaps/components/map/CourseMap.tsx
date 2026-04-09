@@ -1,7 +1,7 @@
 import React, { useRef, useCallback, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, LayoutChangeEvent } from 'react-native';
 import { router } from 'expo-router';
-import * as Haptics from 'expo-haptics';
+import { impactAsync } from '@/lib/haptics';
 import { MapNode } from './MapNode';
 import { PathConnector } from './PathConnector';
 import { CourseSection } from './CourseSection';
@@ -45,7 +45,7 @@ export function CourseMap() {
   const handleNodePress = useCallback(
     (modelId: string, status: NodeStatus) => {
       if (status === 'locked') return;
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      impactAsync('Medium');
       const lesson = getNextLessonForModel(modelId);
       if (lesson) {
         router.push(`/lesson/${lesson.id}`);

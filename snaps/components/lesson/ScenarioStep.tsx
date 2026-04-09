@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { CheckCircle, XCircle } from 'lucide-react-native';
-import * as Haptics from 'expo-haptics';
+import { notificationSuccess, notificationError } from '@/lib/haptics';
 import { colors, fontSize, spacing, borderRadius } from '@/lib/constants';
 import type { ScenarioOption } from '@/types';
 
@@ -31,10 +31,10 @@ export function ScenarioStep({
     const option = options[index];
     if (option.correct) {
       setHasAnswered(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      notificationSuccess();
       onAnswer(true, attempts === 0);
     } else {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      notificationError();
       // Allow re-tries — only mark first attempt
       setTimeout(() => setSelectedIndex(null), 1200);
     }
