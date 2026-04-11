@@ -197,7 +197,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
         {/* ─── Hero ─── */}
         <section
-          className="text-center mb-20 md:mb-24 animate-fade-up relative"
+          className="mb-20 md:mb-24 animate-fade-up relative"
           style={{ animationDelay: "0ms" }}
         >
           {/* Floating decorative emoji */}
@@ -211,45 +211,52 @@ export default function Home() {
             🌿
           </div>
 
-          {/* Avatar — nahraj svou fotku jako /public/matej.jpg */}
-          <div className="w-32 h-32 md:w-36 md:h-36 mx-auto mb-8 rounded-full overflow-hidden bg-gradient-to-br from-[#ffe4cc] to-[#c6f1ec] shadow-lg ring-4 ring-white flex items-center justify-center">
-            {hasAvatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src="/matej.jpg"
-                alt="Matěj Mauler"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="font-display text-4xl font-extrabold text-[#ff6b1a]">
-                MM
-              </span>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-10 items-center">
+            {/* Avatar — square paper-card style — nahraj svou fotku jako /public/matej.jpg */}
+            <div className="paper-card overflow-hidden w-56 h-56 md:w-64 md:h-64 shrink-0 mx-auto md:mx-0">
+              {hasAvatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src="/matej.jpg"
+                  alt="Matěj Mauler"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#ffe4cc] to-[#c6f1ec] flex items-center justify-center">
+                  <span className="font-display text-5xl font-extrabold text-[#ff6b1a]">
+                    MM
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Text */}
+            <div className="text-center md:text-left">
+              <h1 className="font-display text-5xl md:text-6xl font-extrabold leading-[1] mb-5 tracking-tight">
+                Ahoj, jsem{" "}
+                <span className="underline-playful">Matěj</span>
+                <span className="text-primary">.</span>
+              </h1>
+
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-3">
+                Tvořím{" "}
+                <a
+                  href="https://ziju.life"
+                  className="font-semibold text-primary hover:text-primary-dark transition-colors"
+                >
+                  Žiju.life
+                </a>
+                , píšu na Substack a dělám pár dalších věcí. Pořád zkouším
+                přijít na to, jak žít vědoměji.
+              </p>
+
+              <p className="text-base text-muted">
+                Tahle stránka je{" "}
+                <span className="underline-teal font-semibold">rozcestník</span>{" "}
+                — najdeš tady všechno, co dělám.
+              </p>
+            </div>
           </div>
-
-          <h1 className="font-display text-5xl md:text-6xl font-extrabold leading-[1] mb-6 tracking-tight">
-            Ahoj, jsem{" "}
-            <span className="underline-playful">Matěj</span>
-            <span className="text-primary">.</span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-lg mx-auto mb-4">
-            Tvořím{" "}
-            <a
-              href="https://ziju.life"
-              className="font-semibold text-primary hover:text-primary-dark transition-colors"
-            >
-              Žiju.life
-            </a>
-            , píšu na Substack a dělám pár dalších věcí. Pořád zkouším přijít na
-            to, jak žít vědoměji.
-          </p>
-
-          <p className="text-base text-muted">
-            Tahle stránka je{" "}
-            <span className="underline-teal font-semibold">rozcestník</span> —
-            najdeš tady všechno, co dělám.
-          </p>
         </section>
 
         {/* ─── Co teď dělám ─── */}
