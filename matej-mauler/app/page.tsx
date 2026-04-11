@@ -211,7 +211,7 @@ export default function Home() {
             🌿
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-10 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-10 items-start">
             {/* Avatar — square paper-card style — nahraj svou fotku jako /public/matej.jpg */}
             <div className="paper-card overflow-hidden w-56 h-56 md:w-64 md:h-64 shrink-0 mx-auto md:mx-0">
               {hasAvatar ? (
