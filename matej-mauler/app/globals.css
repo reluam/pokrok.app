@@ -1,52 +1,99 @@
-@import url("https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap");
 @import "tailwindcss";
 
 @theme inline {
-  /* Surface palette */
-  --color-surface: #fef9f1;
-  --color-surface-low: #f8f3eb;
-  --color-surface-mid: #f0ebe3;
-  --color-surface-high: #e8e3db;
-  --color-surface-highest: #dfd9d0;
+  /* Žiju.life inspired palette */
+  --color-background: #fdfdf7;
+  --color-surface: #ffffff;
+  --color-surface-low: #faf8f0;
+  --color-surface-mid: #f5f1e4;
 
-  /* Brand */
-  --color-primary: #a13a00;
-  --color-primary-light: #c45a20;
-  --color-on-surface: #1d1c17;
-  --color-on-surface-muted: #6b6560;
-  --color-outline-variant: #dfc0b5;
+  --color-foreground: #171717;
+  --color-muted: #6b6560;
 
-  /* Fonts */
-  --font-display: "Epilogue", sans-serif;
-  --font-body: "Manrope", sans-serif;
-  --font-label: "Space Grotesk", sans-serif;
+  --color-primary: #ff8c42;
+  --color-primary-dark: #ff6b1a;
+  --color-teal: #4ecdc4;
+  --color-lavender: #b0a7f5;
+  --color-yellow: #ffd966;
+
+  --color-outline: #e8e0d0;
+
+  --font-display: "Nunito", sans-serif;
+  --font-body: "Baloo 2", sans-serif;
 }
 
 body {
-  background: var(--color-surface);
-  color: var(--color-on-surface);
+  background: var(--color-background);
+  color: var(--color-foreground);
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 1.125rem;
-  line-height: 1.7;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Lab grid texture for hero */
-.lab-grid {
-  background-image: radial-gradient(circle, var(--color-outline-variant) 1px, transparent 1px);
-  background-size: 24px 24px;
+/* ─── Playful underline highlight ─── */
+.underline-playful {
+  background: linear-gradient(180deg, transparent 60%, rgba(255, 140, 66, 0.35) 60%);
+  padding: 0 0.15em;
+  border-radius: 0.2em 0.4em 0.15em 0.45em;
 }
 
-/* Signature editorial shadow */
-.editorial-shadow {
-  box-shadow: 0 32px 64px -12px rgba(29, 28, 23, 0.1);
+.underline-teal {
+  background: linear-gradient(180deg, transparent 60%, rgba(78, 205, 196, 0.35) 60%);
+  padding: 0 0.15em;
+  border-radius: 0.2em 0.4em 0.15em 0.45em;
 }
 
-/* Fade-up animation */
+/* ─── Paper card with hand-drawn frame ─── */
+.paper-card {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 3px rgba(23, 23, 23, 0.04),
+    0 8px 24px -8px rgba(23, 23, 23, 0.08);
+  transition: all 0.25s ease;
+}
+
+.paper-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 4px 8px rgba(23, 23, 23, 0.06),
+    0 16px 32px -8px rgba(23, 23, 23, 0.12);
+}
+
+/* ─── Playful button ─── */
+.btn-playful {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.875rem 1.75rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.25);
+}
+
+.btn-playful:hover {
+  background: var(--color-primary-dark);
+  transform: scale(1.04) rotate(-1deg);
+  box-shadow: 0 6px 18px rgba(255, 107, 26, 0.35);
+}
+
+.btn-playful:active {
+  transform: scale(0.98);
+}
+
+/* ─── Animations ─── */
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(32px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -55,13 +102,41 @@ body {
 }
 
 .animate-fade-up {
-  animation: fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Glass nav */
-.glass-nav {
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  background: rgba(254, 249, 241, 0.8);
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
+.animate-float {
+  animation: float-slow 5s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+}
+
+.hover-wiggle:hover {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+/* ─── Coming soon badge ─── */
+.badge-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--color-yellow);
+  color: #5c4a1a;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  transform: rotate(-2deg);
+}
