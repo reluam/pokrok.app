@@ -37,36 +37,20 @@ const projects: Project[] = [
       {
         name: "Instagram",
         handle: "@zijulife",
-        href: "https://instagram.com/zijulife",
+        href: "https://www.instagram.com/zijulife/",
         icon: "instagram",
       },
       {
         name: "YouTube",
         handle: "@zijulife",
-        href: "https://youtube.com/@zijulife",
+        href: "https://www.youtube.com/@zijulife",
         icon: "youtube",
       },
       {
         name: "Facebook",
         handle: "Žiju.life",
-        href: "https://facebook.com/zijulife",
+        href: "https://www.facebook.com/zijulife",
         icon: "facebook",
-      },
-    ],
-  },
-  {
-    name: "Matějův zápisník",
-    tagline: "Substack",
-    description:
-      "Píšu o věcech, které mě právě teď zajímají — vědomí, žití, drobné objevy. Občas dlouho, občas krátce. Nikdy ne nuceně.",
-    color: "teal",
-    emoji: "✍️",
-    links: [
-      {
-        name: "Substack",
-        handle: "Matějův zápisník",
-        href: "#",
-        icon: "article",
       },
     ],
   },
@@ -79,6 +63,22 @@ const projects: Project[] = [
     emoji: "📸",
     comingSoon: true,
     links: [],
+  },
+  {
+    name: "Matějův zápisník",
+    tagline: "Substack",
+    description:
+      "Píšu o věcech, které mě právě teď zajímají — vědomí, žití, drobné objevy. Občas dlouho, občas krátce. Nikdy ne nuceně.",
+    color: "teal",
+    emoji: "✍️",
+    links: [
+      {
+        name: "Substack",
+        handle: "reluam.substack.com",
+        href: "https://reluam.substack.com/",
+        icon: "article",
+      },
+    ],
   },
 ];
 
