@@ -7,14 +7,16 @@ const hasAvatar = fs.existsSync(
 
 /* ─── Data ─── */
 
+type Link = { name: string; handle: string; href: string; icon: string };
+
 type Project = {
   name: string;
   tagline: string;
   description: string;
-  href: string | null;
   color: "primary" | "teal" | "lavender";
   emoji: string;
   comingSoon?: boolean;
+  links: Link[];
 };
 
 const projects: Project[] = [
@@ -23,45 +25,15 @@ const projects: Project[] = [
     tagline: "Můj hlavní projekt",
     description:
       "Aplikace, web a nástroje pro vědomější každodennost. Buduju to s týmem už nějaký ten rok.",
-    href: "https://ziju.life",
     color: "primary",
     emoji: "🌱",
-  },
-  {
-    name: "Matějův zápisník",
-    tagline: "Substack",
-    description:
-      "Píšu o věcech, které mě právě teď zajímají — vědomí, žití, drobné objevy. Občas dlouho, občas krátce. Nikdy ne nuceně.",
-    href: "#",
-    color: "teal",
-    emoji: "✍️",
-  },
-  {
-    name: "Snaps",
-    tagline: "Něco nového",
-    description:
-      "Pracuju na něčem novém. Brzy se dozvíš víc. Zatím jen tolik — bude to dobré.",
-    href: null,
-    color: "lavender",
-    emoji: "📸",
-    comingSoon: true,
-  },
-];
-
-type ProjectChannels = {
-  project: string;
-  emoji: string;
-  color: "primary" | "teal" | "lavender";
-  links: { name: string; handle: string; href: string; icon: string }[];
-  comingSoon?: boolean;
-};
-
-const channels: ProjectChannels[] = [
-  {
-    project: "Žiju.life",
-    emoji: "🌱",
-    color: "primary",
     links: [
+      {
+        name: "Web",
+        handle: "ziju.life",
+        href: "https://ziju.life",
+        icon: "globe",
+      },
       {
         name: "Instagram",
         handle: "@zijulife",
@@ -80,18 +52,15 @@ const channels: ProjectChannels[] = [
         href: "https://facebook.com/zijulife",
         icon: "facebook",
       },
-      {
-        name: "Web",
-        handle: "ziju.life",
-        href: "https://ziju.life",
-        icon: "globe",
-      },
     ],
   },
   {
-    project: "Matějův zápisník",
-    emoji: "✍️",
+    name: "Matějův zápisník",
+    tagline: "Substack",
+    description:
+      "Píšu o věcech, které mě právě teď zajímají — vědomí, žití, drobné objevy. Občas dlouho, občas krátce. Nikdy ne nuceně.",
     color: "teal",
+    emoji: "✍️",
     links: [
       {
         name: "Substack",
@@ -102,9 +71,12 @@ const channels: ProjectChannels[] = [
     ],
   },
   {
-    project: "Snaps",
-    emoji: "📸",
+    name: "Snaps",
+    tagline: "Něco nového",
+    description:
+      "Pracuju na něčem novém. Brzy se dozvíš víc. Zatím jen tolik — bude to dobré.",
     color: "lavender",
+    emoji: "📸",
     comingSoon: true,
     links: [],
   },
@@ -298,8 +270,11 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {projects.map((p) => {
               const c = colorMap[p.color];
-              const cardInner = (
-                <div className="paper-card p-6 h-full flex flex-col relative">
+              return (
+                <div
+                  key={p.name}
+                  className="paper-card p-6 h-full flex flex-col relative"
+                >
                   {p.comingSoon && (
                     <span className="badge-soon absolute -top-2 -right-2">
                       <Icon name="sparkles" size={12} />
@@ -321,84 +296,17 @@ export default function Home() {
                   <h3 className="font-display text-2xl font-extrabold mb-3">
                     {p.name}
                   </h3>
-                  <p className="text-foreground/70 leading-relaxed text-[0.95rem] mb-4 flex-1">
+                  <p className="text-foreground/70 leading-relaxed text-[0.95rem] mb-5 flex-1">
                     {p.description}
                   </p>
 
-                  {p.href && (
-                    <span
-                      className={`inline-flex items-center gap-1.5 font-display font-bold text-sm ${c.text}`}
-                    >
-                      Mrkni se
-                      <Icon name="arrow_forward" size={16} />
-                    </span>
-                  )}
-                </div>
-              );
-
-              return p.href ? (
-                <a
-                  key={p.name}
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block hover-wiggle"
-                >
-                  {cardInner}
-                </a>
-              ) : (
-                <div key={p.name}>{cardInner}</div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ─── Kde najdeš na čem dělám ─── */}
-        <section
-          className="mb-16 animate-fade-up"
-          style={{ animationDelay: "200ms" }}
-        >
-          <div className="text-center mb-10">
-            <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
-              💚 Sleduj mě
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold">
-              Kde najdeš na čem{" "}
-              <span className="underline-teal">dělám</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {channels.map((ch) => {
-              const c = colorMap[ch.color];
-              return (
-                <div
-                  key={ch.project}
-                  className="paper-card p-6 flex flex-col relative"
-                >
-                  {ch.comingSoon && (
-                    <span className="badge-soon absolute -top-2 -right-2">
-                      <Icon name="sparkles" size={12} />
-                      Coming soon
-                    </span>
-                  )}
-
-                  <div
-                    className={`w-12 h-12 rounded-2xl ${c.iconBg} flex items-center justify-center text-2xl mb-4`}
-                  >
-                    {ch.emoji}
-                  </div>
-                  <h3 className="font-display text-xl font-extrabold mb-4">
-                    {ch.project}
-                  </h3>
-
-                  {ch.links.length === 0 ? (
-                    <p className="text-muted text-sm italic flex-1">
+                  {p.links.length === 0 ? (
+                    <p className="text-muted text-sm italic">
                       Až bude něco veřejně, najdeš to tady jako první.
                     </p>
                   ) : (
-                    <div className="flex flex-col gap-2 flex-1">
-                      {ch.links.map((l) => (
+                    <div className="flex flex-col gap-2">
+                      {p.links.map((l) => (
                         <a
                           key={l.name}
                           href={l.href}
