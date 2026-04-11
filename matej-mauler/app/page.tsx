@@ -1,3 +1,10 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const hasAvatar = fs.existsSync(
+  path.join(process.cwd(), "public", "matej.jpg")
+);
+
 /* ─── Data ─── */
 
 type Project = {
@@ -215,7 +222,7 @@ const colorMap = {
 export default function Home() {
   return (
     <main className="flex-1 bg-background overflow-x-hidden">
-      <div className="max-w-2xl mx-auto px-6 py-16 md:py-20">
+      <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
         {/* ─── Hero ─── */}
         <section
           className="text-center mb-20 md:mb-24 animate-fade-up relative"
@@ -232,11 +239,20 @@ export default function Home() {
             🌿
           </div>
 
-          {/* Avatar */}
-          <div className="w-28 h-28 mx-auto mb-8 rounded-full bg-gradient-to-br from-[#ffe4cc] to-[#c6f1ec] flex items-center justify-center shadow-lg">
-            <span className="font-display text-3xl font-extrabold text-[#ff6b1a]">
-              MM
-            </span>
+          {/* Avatar — nahraj svou fotku jako /public/matej.jpg */}
+          <div className="w-32 h-32 md:w-36 md:h-36 mx-auto mb-8 rounded-full overflow-hidden bg-gradient-to-br from-[#ffe4cc] to-[#c6f1ec] shadow-lg ring-4 ring-white flex items-center justify-center">
+            {hasAvatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src="/matej.jpg"
+                alt="Matěj Mauler"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="font-display text-4xl font-extrabold text-[#ff6b1a]">
+                MM
+              </span>
+            )}
           </div>
 
           <h1 className="font-display text-5xl md:text-6xl font-extrabold leading-[1] mb-6 tracking-tight">
@@ -279,11 +295,11 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {projects.map((p, i) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {projects.map((p) => {
               const c = colorMap[p.color];
               const cardInner = (
-                <div className={`paper-card p-6 h-full flex flex-col relative ${i === 2 ? "sm:col-span-2" : ""}`}>
+                <div className="paper-card p-6 h-full flex flex-col relative">
                   {p.comingSoon && (
                     <span className="badge-soon absolute -top-2 -right-2">
                       <Icon name="sparkles" size={12} />
@@ -352,54 +368,54 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {channels.map((ch) => {
               const c = colorMap[ch.color];
               return (
-                <div key={ch.project} className="paper-card p-6">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div
-                      className={`w-11 h-11 rounded-2xl ${c.iconBg} flex items-center justify-center text-xl`}
-                    >
-                      {ch.emoji}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-display text-xl font-extrabold leading-none">
-                        {ch.project}
-                      </h3>
-                    </div>
-                    {ch.comingSoon && (
-                      <span className="badge-soon">
-                        <Icon name="sparkles" size={12} />
-                        Coming soon
-                      </span>
-                    )}
+                <div
+                  key={ch.project}
+                  className="paper-card p-6 flex flex-col relative"
+                >
+                  {ch.comingSoon && (
+                    <span className="badge-soon absolute -top-2 -right-2">
+                      <Icon name="sparkles" size={12} />
+                      Coming soon
+                    </span>
+                  )}
+
+                  <div
+                    className={`w-12 h-12 rounded-2xl ${c.iconBg} flex items-center justify-center text-2xl mb-4`}
+                  >
+                    {ch.emoji}
                   </div>
+                  <h3 className="font-display text-xl font-extrabold mb-4">
+                    {ch.project}
+                  </h3>
 
                   {ch.links.length === 0 ? (
-                    <p className="text-muted text-sm italic pl-1">
+                    <p className="text-muted text-sm italic flex-1">
                       Až bude něco veřejně, najdeš to tady jako první.
                     </p>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-2 flex-1">
                       {ch.links.map((l) => (
                         <a
                           key={l.name}
                           href={l.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`flex items-center gap-3 px-4 py-3 rounded-xl ${c.bg} hover:scale-[1.02] transition-transform group`}
+                          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${c.bg} hover:scale-[1.02] transition-transform`}
                         >
                           <span className={c.text}>
                             <Icon name={l.icon} size={18} />
                           </span>
                           <div className="flex-1 min-w-0">
                             <p
-                              className={`font-display font-bold text-sm leading-none ${c.text}`}
+                              className={`font-display font-bold text-sm leading-tight ${c.text}`}
                             >
                               {l.name}
                             </p>
-                            <p className="text-xs text-foreground/50 truncate mt-0.5">
+                            <p className="text-xs text-foreground/50 truncate">
                               {l.handle}
                             </p>
                           </div>
