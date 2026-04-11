@@ -8,26 +8,25 @@ export default function Medailonek() {
       <DecorativeShapes position="left" />
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center">
-          {/* Foto vlevo – siluetový tvar */}
+          {/* Foto vlevo – čtvercové, lehce natočené doleva */}
           <div className="order-2 md:order-1 flex justify-center md:justify-start">
-            <div className="relative w-64 h-80 md:w-80 md:h-[24rem]">
-              {/* Tmavý obrys – kopíruje hlavu a ramena */}
+            <div
+              className="relative w-64 h-64 md:w-80 md:h-80"
+              style={{ transform: "rotate(-4deg)" }}
+            >
+              {/* Tmavý rámeček */}
               <div
-                className="absolute inset-0"
-                style={{
-                  background: "#2d3039",
-                  borderRadius: "60% 40% 55% 45% / 45% 65% 35% 55%",
-                }}
+                className="absolute inset-0 rounded-2xl"
+                style={{ background: "#2d3039" }}
               />
               {/* Fotka uvnitř */}
-              <div className="absolute inset-[6px] overflow-hidden" style={{
-                borderRadius: "59% 39% 54% 44% / 44% 64% 34% 54%",
-              }}>
+              <div className="absolute inset-[6px] overflow-hidden rounded-xl">
                 <Image
                   src="/matej-photo.jpg"
                   alt="Matěj"
                   fill
-                  className="object-cover scale-105" style={{ objectPosition: "center 10%" }}
+                  className="object-cover scale-105"
+                  style={{ objectPosition: "center 10%" }}
                   priority
                   fetchPriority="high"
                   sizes="(max-width: 768px) 256px, 320px"
