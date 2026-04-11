@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Matěj Mauler — Human Performance Laboratory",
+  title: "Matěj Mauler",
   description:
-    "Průzkumník životem. Kouč pro ty, kteří chtějí překonat své biologické i mentální limity.",
+    "Ahoj, jsem Matěj. Tvořím Žiju.life, píšu na Substack a snažím se přijít na to, jak žít vědoměji. Tady najdeš všechno, co dělám.",
 };
 
 export default function RootLayout({
