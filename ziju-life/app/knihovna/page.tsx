@@ -192,6 +192,29 @@ function FeedContent() {
           </button>
         </div>
       )}
+
+      {/* Substack CTA */}
+      <section className="mt-16 animate-fade-up" style={{ animationDelay: '200ms' }}>
+        <div className="paper-card p-8 md:p-12 text-center space-y-5">
+          <svg className="w-10 h-10 text-primary mx-auto" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24l9.56-5.26L20.539 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
+          </svg>
+          <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight">
+            Čti více na <span className="underline-playful">Substacku</span>
+          </h2>
+          <p className="text-lg text-muted leading-relaxed max-w-2xl mx-auto">
+            Pravidelné úvahy, postřehy a věci, které mě napadnou cestou. Bez spamu, bez prodeje — jen upřímné psaní o tom, jak se snažím žít podle sebe.
+          </p>
+          <a
+            href="https://zijulife.substack.com/?r=86mho4&utm_campaign=pub-share-checklist"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-playful"
+          >
+            Přihlásit se k odběru &rarr;
+          </a>
+        </div>
+      </section>
     </div>
   )
 }

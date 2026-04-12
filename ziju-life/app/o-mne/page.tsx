@@ -192,7 +192,7 @@ export default function OMnePage() {
               <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24l9.56-5.26L20.539 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
             </svg>
             <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight">
-              Odebírej na <span className="underline-playful">Substacku</span>
+              Čti více na <span className="underline-playful">Substacku</span>
             </h2>
             <p className="text-lg text-foreground/65 leading-relaxed max-w-2xl mx-auto">
               Pravidelné úvahy, postřehy a věci, které mě napadnou cestou. Bez spamu, bez prodeje — jen upřímné psaní o tom, jak se snažím žít podle sebe.
