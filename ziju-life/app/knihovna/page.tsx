@@ -20,7 +20,7 @@ interface AnswerState {
 
 export default function FeedPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="animate-spin text-foreground/30" size={28} /></div>}>
+    <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="animate-spin text-muted" size={28} /></div>}>
       <FeedContent />
     </Suspense>
   )
@@ -122,13 +122,26 @@ function FeedContent() {
     )
   }
 
+  const tabs = [
+    { value: '', label: 'Vše' },
+    { value: 'kniha', label: 'Knihy' },
+    { value: 'video', label: 'Videa' },
+    { value: 'článek', label: 'Články' },
+    { value: 'ostatní', label: 'Ostatní' },
+  ]
+
   // Browse mode
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div className="max-w-5xl mx-auto px-6 pt-28 md:pt-32 pb-16 md:pb-20">
       {/* Header */}
-      <div className="text-center mb-10 space-y-5">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-foreground">Knihovna</h1>
-        <p className="text-lg text-foreground/60 max-w-xl mx-auto">
+      <div className="text-center mb-12 space-y-5 animate-fade-up">
+        <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold">
+          Články & myšlenky
+        </p>
+        <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight">
+          <span className="underline-playful">Knihovna</span>
+        </h1>
+        <p className="text-lg text-muted max-w-xl mx-auto">
           Knihy, videa, výzkumy a tipy o tom, jak žít vědoměji.
         </p>
 
@@ -138,20 +151,14 @@ function FeedContent() {
 
         {/* Filter tabs */}
         <div className="flex items-center justify-center gap-2 flex-wrap">
-          {[
-            { value: '', label: 'Vše' },
-            { value: 'kniha', label: 'Knihy' },
-            { value: 'video', label: 'Videa' },
-            { value: 'článek', label: 'Články' },
-            { value: 'ostatní', label: 'Ostatní' },
-          ].map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => router.push(tab.value ? `/knihovna?tag=${tab.value}` : '/knihovna')}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+              className={`px-5 py-2 rounded-full text-sm font-display font-bold transition-all ${
                 tagFilter === tab.value
-                  ? 'bg-accent text-white'
-                  : 'bg-black/5 text-foreground/60 hover:bg-black/10'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-surface-low text-muted hover:bg-surface-mid hover:text-foreground'
               }`}
             >
               {tab.label}
@@ -160,13 +167,13 @@ function FeedContent() {
         </div>
       </div>
 
-      {/* Masonry grid */}
+      {/* Grid */}
       {loading && posts.length === 0 ? (
-        <div className="flex justify-center py-16"><Loader2 className="animate-spin text-foreground/30" size={28} /></div>
+        <div className="flex justify-center py-16"><Loader2 className="animate-spin text-muted" size={28} /></div>
       ) : posts.length === 0 ? (
-        <p className="text-center py-16 text-foreground/40">Zatím žádné příspěvky.</p>
+        <p className="text-center py-16 text-muted">Zatím žádné příspěvky.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 animate-fade-up" style={{ animationDelay: '100ms' }}>
           {posts.map((post) => (
             <FeedCard key={post.id} post={post} />
           ))}
@@ -179,7 +186,7 @@ function FeedContent() {
           <button
             onClick={() => setPage(p => p + 1)}
             disabled={loading}
-            className="px-8 py-3 rounded-full text-sm font-semibold bg-accent text-white hover:bg-accent-hover transition-colors disabled:opacity-40"
+            className="btn-playful disabled:opacity-40"
           >
             {loading ? 'Načítám...' : 'Načíst další'}
           </button>
