@@ -274,12 +274,12 @@ export default async function Home() {
             <p className="text-muted text-sm mb-5">
               Napiš mi cokoliv — otázku, nápad, nebo jen ahoj.
             </p>
-            <a href="mailto:matej@matejmauler.com" className="btn-playful">
+            <a href="mailto:matej@ziju.life" className="btn-playful">
               <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2" />
                 <path d="m22 7-10 5L2 7" />
               </svg>
-              matej@matejmauler.com
+              matej@ziju.life
             </a>
           </div>
         </section>
