@@ -151,7 +151,21 @@ export default async function Home() {
                 Appka, na které právě pracuju. Duolingo pro mentální modely — každý den 5 minut, abys lépe myslel a rozhodoval se. Víc brzy.
               </p>
 
-              <p className="text-muted text-sm italic">Brzy k vyzkoušení...</p>
+              <div className="flex flex-col gap-2">
+                <Link
+                  href="/calibrate"
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${colorMap.primary.bg} hover:scale-[1.02] transition-transform`}
+                >
+                  <span className={colorMap.primary.text}>
+                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                  <p className={`font-display font-bold text-sm leading-tight ${colorMap.primary.text}`}>
+                    Zjistit víc &rarr;
+                  </p>
+                </Link>
+              </div>
             </div>
 
             {/* ─── Koučing & workshopy ─── */}

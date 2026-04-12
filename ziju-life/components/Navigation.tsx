@@ -69,7 +69,7 @@ export default function Navigation() {
   }, [pathname]);
 
   const navItems: Array<{ href: string; label: string }> = [
-    { href: "/#calibrate", label: "Calibrate" },
+    { href: "/calibrate", label: "Calibrate" },
     { href: "/koucing", label: "Koučing" },
     { href: "/knihovna", label: "Knihovna" },
     { href: "/o-mne", label: "O mně" },

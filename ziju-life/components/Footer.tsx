@@ -24,7 +24,7 @@ export default function Footer() {
 
           <div className="flex flex-col md:flex-row items-center gap-6">
             <Link
-              href="/#calibrate"
+              href="/calibrate"
               className="text-sm font-display font-bold text-foreground/70 hover:text-primary transition-colors"
             >
               Calibrate
