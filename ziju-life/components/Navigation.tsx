@@ -3,9 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useCallback } from "react";
-import type React from "react";
-import { User } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -65,33 +63,17 @@ export default function Navigation() {
     return () => document.removeEventListener('click', handleSmoothScroll, true);
   }, []);
 
-  // Zavři mobile menu při změně route
+  // Close mobile menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
-  useEffect(() => {
-    fetch('/api/auth/me')
-      .then((r) => r.json())
-      .then((d) => setIsUserLoggedIn(!!d.loggedIn))
-      .catch(() => {});
-  }, [pathname]);
-
   const navItems: Array<{ href: string; label: string }> = [
-    { href: "/manual", label: "Manuál" },
+    { href: "/#calibrate", label: "Calibrate" },
     { href: "/koucing", label: "Koučing" },
     { href: "/knihovna", label: "Knihovna" },
     { href: "/o-mne", label: "O mně" },
   ];
-
-  const handleChciZmenuClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (pathname === "/koucing") {
-      e.preventDefault();
-      const el = document.getElementById("rezervace");
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
 
   const showSolid = !hasTransparentNav || isScrolled;
 
@@ -99,9 +81,9 @@ export default function Navigation() {
     <nav className="fixed top-0 left-0 right-0 z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
         <div
-          className={`max-w-7xl mx-auto flex items-center justify-between h-14 md:h-16 rounded-[32px] px-4 md:px-6 transition-all duration-500 ease-out relative ${
+          className={`max-w-5xl mx-auto flex items-center justify-between h-14 md:h-16 rounded-full px-5 md:px-6 transition-all duration-500 ease-out relative ${
             showSolid
-              ? "border border-foreground bg-[#FDFDF7] shadow-lg shadow-black/15"
+              ? "bg-white/95 backdrop-blur-md shadow-lg shadow-black/[0.06] border border-outline/60"
               : "bg-transparent"
           }`}
         >
@@ -120,13 +102,15 @@ export default function Navigation() {
           {/* Desktop Navigation — centered links */}
           <div className="hidden md:flex items-center gap-6 lg:gap-8 absolute left-1/2 -translate-x-1/2">
             {navItems.map((item) => {
-              const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+              const isActive = item.href.startsWith("/#")
+                ? false
+                : pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-base transition-colors ${
-                    isActive ? "text-accent font-medium" : "text-foreground hover:text-foreground/80"
+                  className={`text-sm font-display font-bold transition-colors ${
+                    isActive ? "text-primary" : "text-foreground/70 hover:text-foreground"
                   }`}
                 >
                   {item.label}
@@ -135,43 +119,18 @@ export default function Navigation() {
             })}
           </div>
 
-          {/* Desktop right side — CTA + profile */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/koucing#rezervace"
-              onClick={handleChciZmenuClick}
-              className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
+          {/* Desktop right side — CTA */}
+          <div className="hidden md:flex items-center">
+            <a
+              href="mailto:matej@matejmauler.com"
+              className="btn-playful !px-5 !py-2 text-sm"
             >
-              Chci změnu
-            </Link>
-
-            <Link
-              href="/ucet"
-              aria-label="Můj účet"
-              className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-colors ${
-                pathname === "/ucet"
-                  ? "border-accent text-accent"
-                  : "border-foreground/20 text-foreground/40 hover:border-foreground/40 hover:text-foreground/60"
-              }`}
-            >
-              <User className="w-4 h-4" />
-            </Link>
+              Napiš mi &rarr;
+            </a>
           </div>
 
-          {/* Mobile: account + hamburger */}
-          <div className="md:hidden flex items-center gap-1">
-            <Link
-              href="/ucet"
-              aria-label="Můj účet"
-              onClick={() => setIsMenuOpen(false)}
-              className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
-                pathname === "/ucet"
-                  ? "border-accent text-accent"
-                  : "border-foreground/20 text-foreground/40 hover:border-foreground/40"
-              }`}
-            >
-              <User className="w-4 h-4" />
-            </Link>
+          {/* Mobile: hamburger */}
+          <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 text-foreground"
@@ -186,18 +145,20 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className={`md:hidden mt-3 py-4 px-4 space-y-1 text-center rounded-3xl border border-white/60 shadow-lg backdrop-blur-xl glass-grain ${
-            showSolid ? "bg-white/90" : "bg-white/80"
+          <div className={`md:hidden mt-3 py-4 px-4 space-y-1 text-center rounded-3xl shadow-lg backdrop-blur-xl glass-grain ${
+            showSolid ? "bg-white/95 border border-outline/60" : "bg-white/90 border border-white/60"
           }`}>
             {navItems.map((item) => {
-              const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+              const isActive = item.href.startsWith("/#")
+                ? false
+                : pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block py-2.5 text-base transition-colors ${
-                    isActive ? "text-accent font-medium" : "text-foreground hover:text-foreground/80"
+                  className={`block py-2.5 text-base font-display font-bold transition-colors ${
+                    isActive ? "text-primary" : "text-foreground/70 hover:text-foreground"
                   }`}
                 >
                   {item.label}
@@ -206,13 +167,13 @@ export default function Navigation() {
             })}
 
             <div className="pt-2">
-              <Link
-                href="/koucing#rezervace"
-                onClick={(e) => { handleChciZmenuClick(e); setIsMenuOpen(false); }}
-                className="block px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors text-center"
+              <a
+                href="mailto:matej@matejmauler.com"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-4 py-2.5 bg-primary text-white rounded-full text-base font-display font-bold hover:bg-primary-dark transition-colors text-center"
               >
-                Chci změnu
-              </Link>
+                Napiš mi &rarr;
+              </a>
             </div>
           </div>
         )}

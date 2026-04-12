@@ -17,6 +17,18 @@
   --color-foreground: var(--foreground);
   --color-accent: var(--accent-primary);
   --color-accent-hover: var(--accent-primary-hover);
+  --color-muted: #6b6560;
+  --color-primary: #ff8c42;
+  --color-primary-dark: #ff6b1a;
+  --color-teal: #4ecdc4;
+  --color-lavender: #b0a7f5;
+  --color-yellow: #ffd966;
+  --color-outline: #e8e0d0;
+  --color-surface: #ffffff;
+  --color-surface-low: #faf8f0;
+  --color-surface-mid: #f5f1e4;
+  --font-display: var(--font-nunito), "Nunito", sans-serif;
+  --font-body: var(--font-baloo), "Baloo 2", sans-serif;
 }
 
 @layer base {
@@ -139,13 +151,85 @@
   animation: shape-float-slow 7s ease-in-out infinite;
 }
 
+/* ─── Playful underline highlight ─── */
+.underline-playful {
+  background: linear-gradient(180deg, transparent 60%, rgba(255, 140, 66, 0.35) 60%);
+  padding: 0 0.15em;
+  border-radius: 0.2em 0.4em 0.15em 0.45em;
+}
+
+.underline-teal {
+  background: linear-gradient(180deg, transparent 60%, rgba(78, 205, 196, 0.35) 60%);
+  padding: 0 0.15em;
+  border-radius: 0.2em 0.4em 0.15em 0.45em;
+}
+
+/* ─── Playful button (matej-mauler style) ─── */
 .btn-playful {
+  background: var(--accent-primary);
+  color: #fff;
+  padding: 0.875rem 1.75rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-family: var(--font-nunito), sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.25);
 }
 
 .btn-playful:hover {
-  animation: wiggle 0.5s ease;
-  transform: scale(1.05);
+  background: var(--accent-primary-hover);
+  transform: scale(1.04) rotate(-1deg);
+  box-shadow: 0 6px 18px rgba(255, 107, 26, 0.35);
+}
+
+.btn-playful:active {
+  transform: scale(0.98);
+}
+
+/* ─── Coming soon badge ─── */
+.badge-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent-yellow);
+  color: #5c4a1a;
+  font-family: var(--font-nunito), sans-serif;
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  transform: rotate(-2deg);
+}
+
+/* ─── Fade-up entrance animation ─── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ─── Float animation ─── */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: float-slow 5s ease-in-out infinite;
 }
 
 /* Decorative shapes */
@@ -543,13 +627,19 @@
 
 /* Paper manual design */
 .paper-card {
-  background-color: #FFFFFF;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05), 0 1px 6px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 0.25s ease;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 3px rgba(23, 23, 23, 0.04),
+    0 8px 24px -8px rgba(23, 23, 23, 0.08);
+  transition: all 0.25s ease;
 }
 
 .paper-card:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-3px);
+  box-shadow:
+    0 4px 8px rgba(23, 23, 23, 0.06),
+    0 16px 32px -8px rgba(23, 23, 23, 0.12);
 }
 
 .paper-hover {
