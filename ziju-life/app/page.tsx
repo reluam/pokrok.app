@@ -128,8 +128,8 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-            {/* ─── Calibrate ─── */}
-            <div id="calibrate" className="paper-card p-6 h-full flex flex-col relative">
+            {/* ─── Thinkable ─── */}
+            <div id="thinkable" className="paper-card p-6 h-full flex flex-col relative">
               <span className="badge-soon absolute -top-2 -right-2">
                 <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />
@@ -145,13 +145,29 @@ export default async function Home() {
                 Právě tvořím
               </p>
               <h3 className="font-display text-2xl font-extrabold mb-3">
-                Calibrate
+                Thinkable
               </h3>
               <p className="text-foreground/70 leading-relaxed text-[0.95rem] mb-5 flex-1">
                 Appka, na které právě pracuju. Duolingo pro mentální modely — každý den 5 minut, abys lépe myslel a rozhodoval se. Víc brzy.
               </p>
 
-              <p className="text-muted text-sm italic">Brzy k vyzkoušení&hellip;</p>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="https://thinkable.website"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${colorMap.primary.bg} hover:scale-[1.02] transition-transform`}
+                >
+                  <span className={colorMap.primary.text}>
+                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                  <p className={`font-display font-bold text-sm leading-tight ${colorMap.primary.text}`}>
+                    Zjistit víc &rarr;
+                  </p>
+                </a>
+              </div>
             </div>
 
             {/* ─── Koučing & workshopy ─── */}
