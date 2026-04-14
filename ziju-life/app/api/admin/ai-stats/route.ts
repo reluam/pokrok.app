@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/database";
-import { calculateCostCzk } from "@/lib/ai-credits";
 
 export const dynamic = "force-dynamic";
+
+// Claude Sonnet pricing (USD per 1M tokens) → CZK via ~23 CZK/USD
+const INPUT_COST_CZK_PER_TOKEN = (3 / 1_000_000) * 23;
+const OUTPUT_COST_CZK_PER_TOKEN = (15 / 1_000_000) * 23;
+
+function calculateCostCzk(inputTokens: number, outputTokens: number): number {
+  const total = inputTokens * INPUT_COST_CZK_PER_TOKEN + outputTokens * OUTPUT_COST_CZK_PER_TOKEN;
+  return Math.round(total * 100) / 100;
+}
 
 export async function GET() {
   try {
@@ -21,26 +29,13 @@ export async function GET() {
       Number(totals.total_output_tokens)
     );
 
-    // Revenue: subscription AI budgets (50 CZK per active subscriber)
-    let subscriberCount = 0;
-    try {
-      const [{ count }] = (await sql`
-        SELECT COUNT(DISTINCT email)::int AS count FROM laborator_grants
-        WHERE expires_at IS NULL OR expires_at > NOW()
-      `) as { count: number }[];
-      subscriberCount = count;
-    } catch {}
-    // Note: Stripe subscribers counted separately would require API calls
-    // For now, count grant holders + estimate from ai_credit_packs
-
     // Revenue from top-up packs
     const [{ topup_revenue }] = (await sql`
       SELECT COALESCE(SUM(credits), 0)::numeric AS topup_revenue
       FROM ai_credit_packs
     `) as { topup_revenue: number }[];
 
-    const subscriptionRevenue = subscriberCount * 50;
-    const totalRevenueCzk = subscriptionRevenue + Number(topup_revenue);
+    const totalRevenueCzk = Number(topup_revenue);
 
     // Per-user breakdown
     const perUser = (await sql`
@@ -115,7 +110,6 @@ export async function GET() {
         avgCostPerInteraction: totals.total_interactions > 0 ? Math.round((totalCostCzk / totals.total_interactions) * 100) / 100 : 0,
       },
       revenue: {
-        subscriptionCzk: subscriptionRevenue,
         topupCzk: Number(topup_revenue),
         totalCzk: totalRevenueCzk,
         profitCzk: Math.round((totalRevenueCzk - totalCostCzk) * 100) / 100,

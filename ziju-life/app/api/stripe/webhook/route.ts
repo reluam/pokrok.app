@@ -39,36 +39,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // ── Subscription lifecycle → laborator_access cache ──────────────────────
-  if (
-    event.type === "customer.subscription.created" ||
-    event.type === "customer.subscription.updated" ||
-    event.type === "customer.subscription.deleted"
-  ) {
-    const sub = event.data.object as Stripe.Subscription;
-    try {
-      const customer = await stripe.customers.retrieve(sub.customer as string);
-      if (!customer.deleted && customer.email) {
-        const email = customer.email.toLowerCase();
-        const hasAccess = sub.status === "active" || sub.status === "trialing";
-        await sql`
-          INSERT INTO laborator_access (email, has_access, stripe_customer_id, stripe_subscription_id, subscription_status, source, updated_at)
-          VALUES (${email}, ${hasAccess}, ${customer.id}, ${sub.id}, ${sub.status}, 'stripe', NOW())
-          ON CONFLICT (email) DO UPDATE SET
-            has_access = ${hasAccess},
-            stripe_customer_id = ${customer.id},
-            stripe_subscription_id = ${sub.id},
-            subscription_status = ${sub.status},
-            updated_at = NOW()
-        `;
-        console.log(`[stripe webhook] laborator_access updated: ${email} → ${hasAccess} (${sub.status})`);
-      }
-    } catch (err) {
-      console.error("[stripe webhook] laborator_access sync error:", err);
-    }
-    return NextResponse.json({ received: true });
-  }
-
   if (event.type === "checkout.session.completed" || event.type === "payment_intent.succeeded") {
     const obj = event.data.object as Stripe.Checkout.Session | Stripe.PaymentIntent;
     const m = obj.metadata || {};

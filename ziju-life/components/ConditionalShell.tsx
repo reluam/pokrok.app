@@ -1,12 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import dynamic from "next/dynamic";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { BookingPopupProvider } from "@/components/BookingPopup";
-
-const FloatingAIHelper = dynamic(() => import("@/components/FloatingAIHelper"), { ssr: false });
 
 export default function ConditionalShell({
   children,
@@ -25,7 +22,6 @@ export default function ConditionalShell({
       {showShell && <div className="h-20" />}
       {children}
       {showShell && <Footer />}
-      {showShell && <FloatingAIHelper />}
     </BookingPopupProvider>
   );
 }

@@ -49,7 +49,6 @@ const socials = [
 ];
 
 const navItems = [
-  { label: "Manuál", href: "/manual", icon: "📖" },
   { label: "Koučing", href: "/koucing", icon: "🎯" },
   { label: "Knihovna", href: "/knihovna", icon: "✨" },
   { label: "O mně", href: "/o-mne", icon: "👋" },
@@ -140,57 +139,7 @@ export default async function LinksPage() {
 
         {/* === BENTO GRID === */}
         <div className="w-full mt-6 flex flex-col gap-3">
-          {/* 1. Manuál — full width hero card */}
-          <Link href="/manual" className="group block">
-            <div
-              className="relative bg-gradient-to-br from-[#FF8C42]/10 to-[#FDFDF7] rounded-3xl p-5 sm:p-6 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-[#FF8C42]/12"
-              style={{ borderBottom: "3px solid #FF8C42" }}
-            >
-              {/* Background SVG illustration — manual/guide */}
-              <svg viewBox="0 0 200 200" fill="none" className="absolute top-0 right-0 w-28 h-28 sm:w-36 sm:h-36 text-[#FF8C42] opacity-[0.12]" aria-hidden="true">
-                {/* Otevřená kniha */}
-                <path d="M60 40c20-6 35-1 45 4v65c-10-5-25-10-45-4z" stroke="currentColor" strokeWidth="2" fill="none" />
-                <path d="M150 40c-20-6-35-1-45 4v65c10-5 25-10 45-4z" stroke="currentColor" strokeWidth="2" fill="none" />
-                <path d="M105 44v65" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
-                {/* Záložka */}
-                <path d="M140 35v20l-6-5-6 5V35z" fill="currentColor" opacity="0.15" />
-                {/* Checklist */}
-                <path d="M70 125l4 4 8-8M70 142l4 4 8-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
-                <path d="M88 128h20M88 145h16" stroke="currentColor" strokeWidth="1.5" opacity="0.2" strokeLinecap="round" />
-              </svg>
-              <div className="flex items-center gap-4 relative z-10">
-                {/* Manual/book icon */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FF8C42]/12 flex items-center justify-center shrink-0">
-                  <svg className="w-7 h-7 sm:w-8 sm:h-8 text-[#FF8C42]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
-                    <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
-                  </svg>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#FF8C42] mb-0.5">
-                    Interaktivní nástroje
-                  </div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-foreground/80 transition-colors">
-                    Manuál <span className="text-sm font-normal text-foreground/45">(Dříve laboratoř)</span>
-                  </div>
-                  <div className="text-sm text-foreground/45 mt-0.5">
-                    Poskládej si život podle sebe.
-                  </div>
-                </div>
-                <svg
-                  className="w-5 h-5 text-foreground/20 group-hover:text-foreground/40 shrink-0 transition-all duration-300 group-hover:translate-x-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </div>
-            </div>
-          </Link>
-
-          {/* 2. Koučing + Knihovna — two squares */}
+          {/* Koučing + Knihovna — two squares */}
           <div className="grid grid-cols-2 gap-3">
             <Link href="/koucing" className="group block">
               <div

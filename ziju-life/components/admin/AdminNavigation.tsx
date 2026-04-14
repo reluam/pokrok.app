@@ -8,7 +8,6 @@ import {
   Users,
   Calendar,
   ShieldCheck,
-  FlaskConical,
   BarChart3,
   Rss,
 } from "lucide-react";
@@ -19,7 +18,6 @@ type AdminSection =
   | "crm"
   | "rezervace"
   | "audit-access"
-  | "manual-grants"
   | "ai-stats"
   | "settings";
 
@@ -59,11 +57,6 @@ export default function AdminNavigation() {
       id: "audit-access",
       label: "Audit — přístupy",
       icon: ShieldCheck,
-    },
-    {
-      id: "manual-grants",
-      label: "Manuál — přístupy",
-      icon: FlaskConical,
     },
     {
       id: "ai-stats",
