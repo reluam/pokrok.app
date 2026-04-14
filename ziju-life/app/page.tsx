@@ -96,26 +96,27 @@ export default async function Home() {
                 <span className="text-primary">.</span>
               </h1>
 
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-4">
-                Bývalý muzikant, projektový manažer a věčný hledač &mdash; snažím se přijít na to, jak se ten život vlastně žije.
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-5">
+                Bývalý muzikant, projektový manažer a věčný hledač. Zkoumám život a sleduju, co z něj vzejde.
               </p>
 
-              <p className="text-base md:text-lg text-foreground/70 leading-relaxed mb-3">
-                Snažím se žít life, přemýšlím nad životními otázkami a tvořím nástroje pro praktickou aplikaci těch zjištění.
-              </p>
-
-              <p className="text-base text-muted">
-                Tady dole je{" "}
-                <span className="underline-teal font-semibold">rozcestník</span>{" "}
-                toho, na čem zrovna dělám.
-              </p>
+              <a
+                href="#rozcestnik"
+                className="inline-flex items-center gap-2 text-base text-muted hover:text-foreground transition-colors group"
+              >
+                Koukni, na čem teď dělám
+                <span className="inline-block transition-transform group-hover:translate-y-0.5 animate-bounce-gentle">
+                  &darr;
+                </span>
+              </a>
             </div>
           </div>
         </section>
 
         {/* ─── Projekty (3 karty) ─── */}
         <section
-          className="mb-20 md:mb-24 animate-fade-up"
+          id="rozcestnik"
+          className="mb-20 md:mb-24 animate-fade-up scroll-mt-24"
           style={{ animationDelay: "100ms" }}
         >
           <div className="text-center mb-10">

@@ -132,6 +132,10 @@
   50% { transform: translateY(-3px); }
 }
 
+.animate-bounce-gentle {
+  animation: bounce-gentle 1.8s ease-in-out infinite;
+}
+
 /* Decorative shapes gentle motion */
 @keyframes shape-float {
   0%, 100% { transform: translateY(0); }
