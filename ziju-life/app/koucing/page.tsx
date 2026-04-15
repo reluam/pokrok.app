@@ -129,7 +129,7 @@ export default function KoucingPage() {
             </h2>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-5">
+          <div className="paper-card p-8 md:p-10 space-y-5">
             <p className="text-lg text-foreground/80 leading-relaxed">
               Většinu života jsem strávil v hlavě. Plánoval, analyzoval, zvažoval &mdash; a ztrácel se v tom, místo abych žil. Poznám ten pocit: víš, jak chceš, aby tvůj život vypadal, ale místo žití ho přemýšlíš. A ta mezera mezi hlavou a životem tě vyčerpává.
             </p>
@@ -247,8 +247,7 @@ export default function KoucingPage() {
               &ldquo;
             </span>
             <blockquote className="relative">
-              <p className="font-display text-2xl md:text-3xl font-extrabold leading-snug mb-5">
-                Většina klientů po pár týdnech říká totéž:{" "}
+              <p className="font-display text-2xl md:text-4xl font-extrabold leading-snug mb-5">
                 <span className="underline-playful">
                   &bdquo;To bylo celou dobu takhle jednoduché?&ldquo;
                 </span>
