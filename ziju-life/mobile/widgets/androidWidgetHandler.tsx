@@ -2,11 +2,13 @@ import React from "react";
 import * as SecureStore from "expo-secure-store";
 import type { WidgetTaskHandlerProps } from "react-native-android-widget";
 import {
-  ZijuSmallWidget,
+  ZijuSmallRitualWidget,
+  ZijuSmallTodoWidget,
   ZijuMediumWidget,
   ZijuLargeWidget,
   type WidgetProps,
 } from "./AndroidWidget";
+import { categories } from "../data/adhdRituals";
 
 const API_BASE = "https://ziju.life";
 const TOKEN_KEY = "auth_token";
@@ -17,6 +19,14 @@ const EMPTY_PROPS: WidgetProps = {
   rituals: { morning: [], daily: [], evening: [] },
   nextRitual: null,
 };
+
+// Build ritual ID → Czech name lookup
+const ritualNameMap = new Map<string, string>();
+for (const cat of categories) {
+  for (const r of cat.rituals) {
+    ritualNameMap.set(r.id, r.name);
+  }
+}
 
 async function widgetFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const token = await SecureStore.getItemAsync(TOKEN_KEY);
@@ -35,14 +45,22 @@ async function widgetFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+function parseName(id: string) {
+  if (id.startsWith("custom::")) return id.split("::")[1] ?? id;
+  return ritualNameMap.get(id) ?? id.replace(/-/g, " ").replace(/^\w/, (c: string) => c.toUpperCase());
+}
+
 function renderByName(
   widgetName: string,
   renderWidget: (w: React.JSX.Element) => void,
   props: WidgetProps
 ) {
   switch (widgetName) {
-    case "ZijuSmall":
-      renderWidget(<ZijuSmallWidget {...props} />);
+    case "ZijuSmallRitual":
+      renderWidget(<ZijuSmallRitualWidget {...props} />);
+      break;
+    case "ZijuSmallTodo":
+      renderWidget(<ZijuSmallTodoWidget {...props} />);
       break;
     case "ZijuMedium":
       renderWidget(<ZijuMediumWidget {...props} />);
@@ -51,11 +69,6 @@ function renderByName(
       renderWidget(<ZijuLargeWidget {...props} />);
       break;
   }
-}
-
-function parseName(id: string) {
-  if (id.startsWith("custom::")) return id.split("::")[1] ?? id;
-  return id.replace(/-/g, " ").replace(/^\w/, (c: string) => c.toUpperCase());
 }
 
 async function fetchWidgetData(): Promise<WidgetProps> {
@@ -117,37 +130,66 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
     case "WIDGET_CLICK":
       if (clickAction === "TOGGLE_TODO" || clickAction === "TOGGLE_RITUAL") {
         try {
+          // Fetch current data and render optimistically
+          const currentData = await fetchWidgetData();
+
           if (clickAction === "TOGGLE_TODO") {
-            const data: any = await widgetFetch("/api/manual/daily-todos");
             const index = (clickActionData?.index as number) ?? -1;
+            const allTodos = [...currentData.todos, ...currentData.niceTodos];
+            if (index >= 0 && index < allTodos.length) {
+              allTodos[index].done = !allTodos[index].done;
+              currentData.todos = allTodos.slice(0, currentData.todos.length);
+              currentData.niceTodos = allTodos.slice(currentData.todos.length);
+            }
+          } else {
+            const ritualId = clickActionData?.ritualId as string;
+            const slot = clickActionData?.slot as "morning" | "daily" | "evening";
+            if (ritualId && slot && currentData.rituals[slot]) {
+              currentData.rituals[slot] = currentData.rituals[slot].map((r) =>
+                r.id === ritualId ? { ...r, done: !r.done } : r
+              );
+            }
+            currentData.nextRitual = null;
+            for (const s of ["morning", "daily", "evening"] as const) {
+              const next = currentData.rituals[s].find((r) => !r.done);
+              if (next) {
+                currentData.nextRitual = { name: next.name, slot: s };
+                break;
+              }
+            }
+          }
+
+          // Render immediately
+          renderByName(widgetInfo.widgetName, renderWidget, currentData);
+
+          // Persist in background
+          if (clickAction === "TOGGLE_TODO") {
+            const index = (clickActionData?.index as number) ?? -1;
+            const data: any = await widgetFetch("/api/manual/daily-todos");
             const todos = [...(data.today?.todos ?? [])];
             const niceTodos = [...(data.today?.niceTodos ?? [])];
             const allTodos = [...todos, ...niceTodos];
-
             if (index >= 0 && index < allTodos.length) {
               allTodos[index].done = !allTodos[index].done;
-              const updatedTodos = allTodos.slice(0, todos.length);
-              const updatedNice = allTodos.slice(todos.length);
-              await widgetFetch("/api/manual/daily-todos", {
+              widgetFetch("/api/manual/daily-todos", {
                 method: "POST",
-                body: JSON.stringify({ todos: updatedTodos, niceTodos: updatedNice }),
-              });
+                body: JSON.stringify({
+                  todos: allTodos.slice(0, todos.length),
+                  niceTodos: allTodos.slice(todos.length),
+                }),
+              }).catch(() => {});
             }
-          } else if (clickAction === "TOGGLE_RITUAL") {
+          } else {
             const ritualId = clickActionData?.ritualId as string;
             if (ritualId) {
               const completions: any = await widgetFetch("/api/manual/ritual-completions");
               const isCurrentlyDone = (completions.today ?? []).includes(ritualId);
-              await widgetFetch("/api/manual/ritual-completions", {
+              widgetFetch("/api/manual/ritual-completions", {
                 method: "POST",
                 body: JSON.stringify({ ritualId, completed: !isCurrentlyDone }),
-              });
+              }).catch(() => {});
             }
           }
-
-          // Re-render with fresh data
-          const freshData = await fetchWidgetData();
-          renderByName(widgetInfo.widgetName, renderWidget, freshData);
         } catch {
           renderByName(widgetInfo.widgetName, renderWidget, EMPTY_PROPS);
         }

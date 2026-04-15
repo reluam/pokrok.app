@@ -1,6 +1,11 @@
 import React from "react";
 import { Platform } from "react-native";
 
+// Static import on iOS so createWidget registers the layout with the native module
+const ZijuWidget = Platform.OS === "ios"
+  ? require("@/widgets/ZijuWidget").default
+  : null;
+
 interface TodoItem {
   text: string;
   done: boolean;
@@ -28,18 +33,6 @@ function getNextRitual(
   return null;
 }
 
-function syncIOS(
-  todos: TodoItem[],
-  niceTodos: TodoItem[],
-  rituals: RitualGroups,
-  nextRitual: { name: string; slot: string } | null
-) {
-  try {
-    const ZijuWidget = require("@/widgets/ZijuWidget").default;
-    ZijuWidget.updateSnapshot({ todos, niceTodos, rituals, nextRitual });
-  } catch {}
-}
-
 function syncAndroid(
   todos: TodoItem[],
   niceTodos: TodoItem[],
@@ -49,7 +42,8 @@ function syncAndroid(
   try {
     const { requestWidgetUpdate } = require("react-native-android-widget");
     const {
-      ZijuSmallWidget,
+      ZijuSmallRitualWidget,
+      ZijuSmallTodoWidget,
       ZijuMediumWidget,
       ZijuLargeWidget,
     } = require("@/widgets/AndroidWidget");
@@ -57,8 +51,12 @@ function syncAndroid(
     const props = { todos, niceTodos, rituals, nextRitual };
 
     requestWidgetUpdate({
-      widgetName: "ZijuSmall",
-      renderWidget: () => React.createElement(ZijuSmallWidget, props),
+      widgetName: "ZijuSmallRitual",
+      renderWidget: () => React.createElement(ZijuSmallRitualWidget, props),
+    }).catch(() => {});
+    requestWidgetUpdate({
+      widgetName: "ZijuSmallTodo",
+      renderWidget: () => React.createElement(ZijuSmallTodoWidget, props),
     }).catch(() => {});
     requestWidgetUpdate({
       widgetName: "ZijuMedium",
@@ -78,8 +76,10 @@ export function syncWidgetData(
 ) {
   const nextRitual = getNextRitual(rituals);
 
-  if (Platform.OS === "ios") {
-    syncIOS(todos, niceTodos, rituals, nextRitual);
+  if (Platform.OS === "ios" && ZijuWidget) {
+    try {
+      ZijuWidget.updateSnapshot({ todos, niceTodos, rituals, nextRitual });
+    } catch {}
   } else if (Platform.OS === "android") {
     syncAndroid(todos, niceTodos, rituals, nextRitual);
   }

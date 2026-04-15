@@ -5,10 +5,6 @@ import {
   foregroundColor,
   padding,
   frame,
-  opacity,
-  cornerRadius,
-  background,
-  strikethrough,
 } from "@expo/ui/swift-ui/modifiers";
 
 interface TodoItem {
@@ -29,218 +25,232 @@ interface ZijuWidgetProps {
   nextRitual: { name: string; slot: string } | null;
 }
 
-const ACCENT = "#FF8C42";
-const BG = "#FDFDF7";
-const FG = "#171717";
-const MUTED = "#666666";
-const DONE_COLOR = "#1D9E75";
-
-const SLOT_LABEL: Record<string, string> = {
-  morning: "Rano",
-  daily: "Pres den",
-  evening: "Vecer",
-};
-
-function CheckIcon({ done }: { done: boolean }) {
+function ZijuWidgetLayout(props: ZijuWidgetProps, env: WidgetEnvironment) {
   "widget";
-  return (
-    <Text modifiers={[font({ size: 12 }), foregroundColor(done ? DONE_COLOR : MUTED)]}>
-      {done ? "\u2713" : "\u25CB"}
-    </Text>
-  );
-}
 
-function TodoRow({ item }: { item: TodoItem }) {
-  "widget";
-  return (
-    <HStack spacing={6} alignment="firstTextBaseline">
-      <CheckIcon done={item.done} />
-      <Text
-        modifiers={[
-          font({ size: 13 }),
-          foregroundColor(item.done ? MUTED : FG),
-          ...(item.done ? [strikethrough({ isActive: true, pattern: "solid" })] : []),
-        ]}
-      >
-        {item.text}
-      </Text>
-      <Spacer />
-    </HStack>
-  );
-}
+  var ACCENT = "#FF8C42";
+  var FG = "#1a1a1a";
+  var MUTED = "#999999";
+  var DONE_CLR = "#1D9E75";
 
-function RitualRow({ item }: { item: RitualItem }) {
-  "widget";
-  return (
-    <HStack spacing={6} alignment="firstTextBaseline">
-      <CheckIcon done={item.done} />
-      <Text
-        modifiers={[
-          font({ size: 13 }),
-          foregroundColor(item.done ? MUTED : FG),
-          ...(item.done ? [strikethrough({ isActive: true, pattern: "solid" })] : []),
-        ]}
-      >
-        {item.name}
-      </Text>
-      <Spacer />
-    </HStack>
-  );
-}
+  var todos = props.todos || [];
+  var niceTodos = props.niceTodos || [];
+  var rituals = props.rituals || { morning: [], daily: [], evening: [] };
 
-function SectionTitle({ title }: { title: string }) {
-  "widget";
-  return (
-    <Text modifiers={[font({ size: 11, weight: "semibold" }), foregroundColor(MUTED)]}>
-      {title}
-    </Text>
-  );
-}
+  var morningPending: RitualItem[] = [];
+  var dailyPending: RitualItem[] = [];
+  var eveningPending: RitualItem[] = [];
 
-// ── Small Widget ──────────────────────────────────────────────────────────────
+  for (var i = 0; i < (rituals.morning || []).length; i++) {
+    if (!rituals.morning[i].done) morningPending.push(rituals.morning[i]);
+  }
+  for (var j = 0; j < (rituals.daily || []).length; j++) {
+    if (!rituals.daily[j].done) dailyPending.push(rituals.daily[j]);
+  }
+  for (var k = 0; k < (rituals.evening || []).length; k++) {
+    if (!rituals.evening[k].done) eveningPending.push(rituals.evening[k]);
+  }
 
-function SmallWidget({ todos, nextRitual }: ZijuWidgetProps) {
-  "widget";
-  const firstTodo = todos.find((t) => !t.done);
-  return (
-    <VStack alignment="leading" spacing={8} modifiers={[padding({ all: 14 })]}>
-      <Text modifiers={[font({ size: 13, weight: "bold" }), foregroundColor(ACCENT)]}>
-        Ziju Life
-      </Text>
-      <Spacer />
-      {nextRitual ? (
-        <VStack alignment="leading" spacing={4}>
-          <SectionTitle title={`Ritual - ${SLOT_LABEL[nextRitual.slot] ?? nextRitual.slot}`} />
-          <Text modifiers={[font({ size: 14, weight: "medium" }), foregroundColor(FG)]}>
-            {nextRitual.name}
+  var allPending = morningPending.concat(dailyPending).concat(eveningPending);
+  var nextRitual = allPending.length > 0 ? allPending[0] : null;
+
+  var pendingTodos: TodoItem[] = [];
+  for (var ti = 0; ti < todos.length; ti++) {
+    if (!todos[ti].done) pendingTodos.push(todos[ti]);
+  }
+  var pendingNice: TodoItem[] = [];
+  for (var ni = 0; ni < niceTodos.length; ni++) {
+    if (!niceTodos[ni].done) pendingNice.push(niceTodos[ni]);
+  }
+  var firstTodo = pendingTodos.length > 0 ? pendingTodos[0] : (pendingNice.length > 0 ? pendingNice[0] : null);
+
+  // ── Small (2x2) ──
+  if (env.widgetFamily === "systemSmall") {
+    return (
+      <VStack alignment="leading" spacing={6} modifiers={[padding({ all: 16 })]}>
+        <HStack spacing={0}>
+          <Text modifiers={[font({ size: 12, weight: "bold" }), foregroundColor(ACCENT)]}>
+            Rituály
           </Text>
-        </VStack>
-      ) : (
-        <Text modifiers={[font({ size: 12 }), foregroundColor(DONE_COLOR)]}>
-          Vsechny ritualy hotove!
-        </Text>
-      )}
-      {firstTodo ? (
-        <VStack alignment="leading" spacing={4}>
-          <SectionTitle title="To-Do" />
-          <TodoRow item={firstTodo} />
-        </VStack>
-      ) : null}
-      <Spacer />
-    </VStack>
-  );
-}
-
-// ── Medium Widget ─────────────────────────────────────────────────────────────
-
-function MediumWidget({ todos, nextRitual }: ZijuWidgetProps) {
-  "widget";
-  const pendingTodos = todos.filter((t) => !t.done).slice(0, 3);
-  return (
-    <HStack spacing={12} modifiers={[padding({ all: 14 })]}>
-      <VStack alignment="leading" spacing={6} modifiers={[frame({ maxWidth: 99999 })]}>
-        <Text modifiers={[font({ size: 13, weight: "bold" }), foregroundColor(ACCENT)]}>
-          Ziju Life
-        </Text>
+          <Spacer />
+          <Text modifiers={[font({ size: 12, weight: "bold" }), foregroundColor(ACCENT)]}>
+            To-Do
+          </Text>
+        </HStack>
+        <Spacer />
         {nextRitual ? (
-          <VStack alignment="leading" spacing={3}>
-            <SectionTitle title={`Ritual - ${SLOT_LABEL[nextRitual.slot] ?? nextRitual.slot}`} />
-            <Text modifiers={[font({ size: 14, weight: "medium" }), foregroundColor(FG)]}>
+          <VStack alignment="leading" spacing={2}>
+            <Text modifiers={[font({ size: 11, weight: "bold" }), foregroundColor(MUTED)]}>
+              DALŠÍ RITUÁL
+            </Text>
+            <Text modifiers={[font({ size: 17, weight: "bold" }), foregroundColor(FG)]}>
               {nextRitual.name}
             </Text>
           </VStack>
+        ) : firstTodo ? (
+          <VStack alignment="leading" spacing={2}>
+            <Text modifiers={[font({ size: 11, weight: "bold" }), foregroundColor(MUTED)]}>
+              DALŠÍ ÚKOL
+            </Text>
+            <Text modifiers={[font({ size: 17, weight: "bold" }), foregroundColor(FG)]}>
+              {firstTodo.text}
+            </Text>
+          </VStack>
         ) : (
-          <Text modifiers={[font({ size: 12 }), foregroundColor(DONE_COLOR)]}>
-            Vsechny ritualy hotove!
+          <Text modifiers={[font({ size: 16, weight: "bold" }), foregroundColor(DONE_CLR)]}>
+            Vše hotovo!
           </Text>
         )}
         <Spacer />
       </VStack>
-      <VStack alignment="leading" spacing={4} modifiers={[frame({ maxWidth: 99999 })]}>
-        <SectionTitle title="To-Do" />
-        {pendingTodos.length > 0
-          ? pendingTodos.map((t, i) => <TodoRow key={i} item={t} />)
-          : (
-            <Text modifiers={[font({ size: 12 }), foregroundColor(DONE_COLOR)]}>
-              Vse splneno!
+    );
+  }
+
+  // ── Medium (4x2) ──
+  if (env.widgetFamily === "systemMedium") {
+    return (
+      <HStack spacing={12} modifiers={[padding({ all: 16 })]}>
+        <VStack alignment="leading" spacing={4} modifiers={[frame({ maxWidth: 99999 })]}>
+          <Text modifiers={[font({ size: 13, weight: "bold" }), foregroundColor(ACCENT)]}>
+            Rituály
+          </Text>
+          {nextRitual ? (
+            <VStack alignment="leading" spacing={2}>
+              <Text modifiers={[font({ size: 17, weight: "bold" }), foregroundColor(FG)]}>
+                {nextRitual.name}
+              </Text>
+              {allPending.length > 1 ? (
+                <Text modifiers={[font({ size: 12 }), foregroundColor(MUTED)]}>
+                  {"+" + (allPending.length - 1) + " dalších"}
+                </Text>
+              ) : null}
+            </VStack>
+          ) : (
+            <Text modifiers={[font({ size: 14, weight: "bold" }), foregroundColor(DONE_CLR)]}>
+              Hotovo
             </Text>
           )}
+          <Spacer />
+        </VStack>
+        <VStack alignment="leading" spacing={4} modifiers={[frame({ maxWidth: 99999 })]}>
+          <Text modifiers={[font({ size: 13, weight: "bold" }), foregroundColor(ACCENT)]}>
+            To-Do
+          </Text>
+          {firstTodo ? (
+            <VStack alignment="leading" spacing={2}>
+              <Text modifiers={[font({ size: 17, weight: "bold" }), foregroundColor(FG)]}>
+                {firstTodo.text}
+              </Text>
+              {pendingTodos.length + pendingNice.length > 1 ? (
+                <Text modifiers={[font({ size: 12 }), foregroundColor(MUTED)]}>
+                  {"+" + (pendingTodos.length + pendingNice.length - 1) + " dalších"}
+                </Text>
+              ) : null}
+            </VStack>
+          ) : (
+            <Text modifiers={[font({ size: 14, weight: "bold" }), foregroundColor(DONE_CLR)]}>
+              Splněno
+            </Text>
+          )}
+          <Spacer />
+        </VStack>
+      </HStack>
+    );
+  }
+
+  // ── Large (4x4) ──
+  return (
+    <HStack spacing={12} modifiers={[padding({ all: 16 })]}>
+      <VStack alignment="leading" spacing={6} modifiers={[frame({ maxWidth: 99999 })]}>
+        <Text modifiers={[font({ size: 14, weight: "bold" }), foregroundColor(ACCENT)]}>
+          Rituály
+        </Text>
+        {allPending.length > 0 ? (
+          <VStack alignment="leading" spacing={4}>
+            {morningPending.length > 0 ? (
+              <VStack alignment="leading" spacing={3}>
+                <Text modifiers={[font({ size: 11, weight: "bold" }), foregroundColor(MUTED)]}>
+                  RÁNO
+                </Text>
+                {morningPending.map((r, idx) => (
+                  <HStack key={"m" + idx} spacing={8} alignment="firstTextBaseline">
+                    <Text modifiers={[font({ size: 14 }), foregroundColor(MUTED)]}>○</Text>
+                    <Text modifiers={[font({ size: 15 }), foregroundColor(FG)]}>{r.name}</Text>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : null}
+            {dailyPending.length > 0 ? (
+              <VStack alignment="leading" spacing={3}>
+                <Text modifiers={[font({ size: 11, weight: "bold" }), foregroundColor(MUTED)]}>
+                  PŘES DEN
+                </Text>
+                {dailyPending.map((r, idx) => (
+                  <HStack key={"d" + idx} spacing={8} alignment="firstTextBaseline">
+                    <Text modifiers={[font({ size: 14 }), foregroundColor(MUTED)]}>○</Text>
+                    <Text modifiers={[font({ size: 15 }), foregroundColor(FG)]}>{r.name}</Text>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : null}
+            {eveningPending.length > 0 ? (
+              <VStack alignment="leading" spacing={3}>
+                <Text modifiers={[font({ size: 11, weight: "bold" }), foregroundColor(MUTED)]}>
+                  VEČER
+                </Text>
+                {eveningPending.map((r, idx) => (
+                  <HStack key={"e" + idx} spacing={8} alignment="firstTextBaseline">
+                    <Text modifiers={[font({ size: 14 }), foregroundColor(MUTED)]}>○</Text>
+                    <Text modifiers={[font({ size: 15 }), foregroundColor(FG)]}>{r.name}</Text>
+                  </HStack>
+                ))}
+              </VStack>
+            ) : null}
+          </VStack>
+        ) : (
+          <Text modifiers={[font({ size: 14, weight: "bold" }), foregroundColor(DONE_CLR)]}>
+            Vše hotovo!
+          </Text>
+        )}
+        <Spacer />
+      </VStack>
+
+      <VStack alignment="leading" spacing={6} modifiers={[frame({ maxWidth: 99999 })]}>
+        <Text modifiers={[font({ size: 14, weight: "bold" }), foregroundColor(ACCENT)]}>
+          To-Do
+        </Text>
+        {pendingTodos.length > 0 ? (
+          <VStack alignment="leading" spacing={3}>
+            {pendingTodos.map((t, idx) => (
+              <HStack key={"t" + idx} spacing={8} alignment="firstTextBaseline">
+                <Text modifiers={[font({ size: 14 }), foregroundColor(MUTED)]}>○</Text>
+                <Text modifiers={[font({ size: 15 }), foregroundColor(FG)]}>{t.text}</Text>
+              </HStack>
+            ))}
+          </VStack>
+        ) : null}
+        {pendingNice.length > 0 ? (
+          <VStack alignment="leading" spacing={3}>
+            <Text modifiers={[font({ size: 11, weight: "bold" }), foregroundColor(MUTED)]}>
+              NICE TO-DO
+            </Text>
+            {pendingNice.map((t, idx) => (
+              <HStack key={"n" + idx} spacing={8} alignment="firstTextBaseline">
+                <Text modifiers={[font({ size: 14 }), foregroundColor(MUTED)]}>○</Text>
+                <Text modifiers={[font({ size: 15 }), foregroundColor(FG)]}>{t.text}</Text>
+              </HStack>
+            ))}
+          </VStack>
+        ) : null}
+        {pendingTodos.length === 0 && pendingNice.length === 0 ? (
+          <Text modifiers={[font({ size: 14, weight: "bold" }), foregroundColor(DONE_CLR)]}>
+            Vše splněno!
+          </Text>
+        ) : null}
         <Spacer />
       </VStack>
     </HStack>
   );
-}
-
-// ── Large Widget ──────────────────────────────────────────────────────────────
-
-function LargeWidget({ todos, niceTodos, rituals }: ZijuWidgetProps) {
-  "widget";
-  const allSlots = (["morning", "daily", "evening"] as const).filter(
-    (s) => rituals[s].length > 0
-  );
-  return (
-    <VStack alignment="leading" spacing={8} modifiers={[padding({ all: 14 })]}>
-      <Text modifiers={[font({ size: 14, weight: "bold" }), foregroundColor(ACCENT)]}>
-        Ziju Life
-      </Text>
-
-      {/* To-Do */}
-      {todos.length > 0 && (
-        <VStack alignment="leading" spacing={3}>
-          <SectionTitle title="TO-DO" />
-          {todos.map((t, i) => (
-            <TodoRow key={`t${i}`} item={t} />
-          ))}
-        </VStack>
-      )}
-
-      {/* Nice To-Do */}
-      {niceTodos.length > 0 && (
-        <VStack alignment="leading" spacing={3}>
-          <SectionTitle title="NICE TO-DO" />
-          {niceTodos.map((t, i) => (
-            <TodoRow key={`n${i}`} item={t} />
-          ))}
-        </VStack>
-      )}
-
-      {/* Rituals by slot */}
-      {allSlots.map((slot) => (
-        <VStack key={slot} alignment="leading" spacing={3}>
-          <SectionTitle title={`RITUALY - ${(SLOT_LABEL[slot] ?? slot).toUpperCase()}`} />
-          {rituals[slot].map((r, i) => (
-            <RitualRow key={`r${slot}${i}`} item={r} />
-          ))}
-        </VStack>
-      ))}
-
-      <Spacer />
-    </VStack>
-  );
-}
-
-// ── Main Widget ───────────────────────────────────────────────────────────────
-
-function ZijuWidgetLayout(props: ZijuWidgetProps, env: WidgetEnvironment) {
-  "widget";
-
-  const safeProps: ZijuWidgetProps = {
-    todos: props.todos ?? [],
-    niceTodos: props.niceTodos ?? [],
-    rituals: props.rituals ?? { morning: [], daily: [], evening: [] },
-    nextRitual: props.nextRitual ?? null,
-  };
-
-  switch (env.widgetFamily) {
-    case "systemSmall":
-      return <SmallWidget {...safeProps} />;
-    case "systemMedium":
-      return <MediumWidget {...safeProps} />;
-    case "systemLarge":
-      return <LargeWidget {...safeProps} />;
-    default:
-      return <MediumWidget {...safeProps} />;
-  }
 }
 
 export default createWidget<ZijuWidgetProps>("ZijuWidget", ZijuWidgetLayout);

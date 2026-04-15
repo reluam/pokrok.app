@@ -57,32 +57,40 @@
         {
           "widgets": [
             {
-              "name": "ZijuSmall",
-              "label": "Žiju Life",
-              "minWidth": "180dp",
-              "minHeight": "180dp",
+              "name": "ZijuSmallRitual",
+              "label": "Žiju - Rituály",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
               "targetCellWidth": 2,
               "targetCellHeight": 2,
-              "resizeMode": "horizontal|vertical",
-              "description": "Další rituál a úkol",
+              "description": "Další rituál",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "ZijuSmallTodo",
+              "label": "Žiju - To-Do",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "description": "Další úkol",
               "updatePeriodMillis": 1800000
             },
             {
               "name": "ZijuMedium",
-              "label": "Žiju Life - přehled",
-              "minWidth": "358dp",
-              "minHeight": "120dp",
+              "label": "Žiju Life",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
               "targetCellWidth": 4,
               "targetCellHeight": 2,
-              "resizeMode": "horizontal|vertical",
-              "description": "Rituály a úkoly",
+              "description": "Rituál a úkol",
               "updatePeriodMillis": 1800000
             },
             {
               "name": "ZijuLarge",
               "label": "Žiju Life - vše",
-              "minWidth": "358dp",
-              "minHeight": "320dp",
+              "minWidth": "250dp",
+              "minHeight": "250dp",
               "targetCellWidth": 4,
               "targetCellHeight": 4,
               "resizeMode": "vertical",

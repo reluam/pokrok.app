@@ -245,27 +245,38 @@ export default function CheckinScreen() {
   const [saving, setSaving] = useState(false);
 
   const [checkins, setCheckins] = useState<CheckinEntry[]>([]);
-  const [reflectionDone, setReflectionDone] = useState(false);
   const [values, setValues] = useState<string[]>([]);
   const [valueScores, setValueScores] = useState<Record<string, number>>({});
   const [areaScores, setAreaScores] = useState<Record<string, number>>(
     () => Object.fromEntries(WHEEL_AREAS.map((a) => [a.key, 5]))
   );
 
-  const prevCheckin = checkins.length >= 2 ? checkins[checkins.length - 2] : null;
+  const prevCheckin = checkins.length > 0 ? checkins[checkins.length - 1] : null;
 
   const load = useCallback(async () => {
     try {
       const [checkinData, ctxData] = await Promise.all([getCheckins(), getUserContext()]);
-      setCheckins(checkinData.checkins ?? []);
-      setReflectionDone(checkinData.reflectionDone ?? false);
+      const loadedCheckins = checkinData.checkins ?? [];
+      setCheckins(loadedCheckins);
+
+      // Pre-fill with last checkin scores if available
+      const lastCheckin = loadedCheckins.length > 0 ? loadedCheckins[loadedCheckins.length - 1] : null;
+      if (lastCheckin?.area_scores && Object.keys(lastCheckin.area_scores).length > 0) {
+        setAreaScores(prev => ({ ...prev, ...lastCheckin.area_scores }));
+      }
 
       const ctx = ctxData.context || {};
       const valuesCtx = ctx.values as Array<{ name: string; alignment?: number }> | undefined;
       if (valuesCtx && Array.isArray(valuesCtx)) {
         const names = valuesCtx.map((v) => v.name);
         setValues(names);
-        setValueScores(Object.fromEntries(names.map((n) => [n, 5])));
+        const defaultScores = Object.fromEntries(names.map((n) => [n, 5]));
+        if (lastCheckin?.value_scores) {
+          for (const n of names) {
+            if (lastCheckin.value_scores[n] != null) defaultScores[n] = lastCheckin.value_scores[n];
+          }
+        }
+        setValueScores(defaultScores);
       }
     } catch (err) {
       console.error("Checkin load error:", err);
@@ -286,7 +297,6 @@ export default function CheckinScreen() {
     setSaving(true);
     try {
       await submitCheckin(areaScores, values.length > 0 ? valueScores : undefined);
-      setReflectionDone(true);
       setStep("done");
       // Reload to get fresh data
       const fresh = await getCheckins();
@@ -307,25 +317,7 @@ export default function CheckinScreen() {
     );
   }
 
-  // Already done this week — show results
-  if (reflectionDone && step !== "done") {
-    return (
-      <SafeAreaView style={s.safe} edges={["top"]}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 32 }}>
-          <Text style={{ fontSize: 48, marginBottom: 16 }}>✅</Text>
-          <Text style={{ fontSize: 20, fontWeight: "700", color: colors.foreground, marginBottom: 8 }}>
-            Tento týden vyplněno
-          </Text>
-          <Text style={{ fontSize: 14, color: colors.muted, textAlign: "center" }}>
-            Další reflexe se zobrazí v neděli.
-          </Text>
-          <AreaSparklines checkins={checkins} />
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-
-  // Just saved
+  // Just saved — show results + option to do another
   if (step === "done") {
     return (
       <SafeAreaView style={s.safe} edges={["top"]}>
@@ -334,10 +326,13 @@ export default function CheckinScreen() {
           <Text style={{ fontSize: 20, fontWeight: "700", color: colors.foreground, marginBottom: 8 }}>
             Reflexe uložena!
           </Text>
-          <Text style={{ fontSize: 14, color: colors.muted, textAlign: "center", marginBottom: 24 }}>
-            Další reflexe se zobrazí v neděli.
-          </Text>
           <AreaSparklines checkins={checkins} />
+          <TouchableOpacity
+            style={[s.primaryBtn, { marginTop: 24 }]}
+            onPress={() => setStep(values.length > 0 ? "values" : "areas")}
+          >
+            <Text style={s.primaryBtnText}>Nový check-in</Text>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     );
@@ -348,8 +343,9 @@ export default function CheckinScreen() {
       <ScrollView contentContainerStyle={s.scrollContent} keyboardShouldPersistTaps="handled">
         {step === "values" && values.length > 0 && (
           <View>
-            <Text style={s.title}>Hodnoty — jak jsi je žil/a tento týden?</Text>
+            <Text style={s.title}>Hodnoty — jak jsi je žil/a?</Text>
             <Text style={s.subtitle}>Ohodnoť každou hodnotu 1–10.</Text>
+            <Text style={s.hint}>Doporučujeme dělat check-in pravidelně — ideálně týdně nebo měsíčně.</Text>
 
             {values.map((v) => (
               <View key={v} style={s.valueItem}>
@@ -372,8 +368,11 @@ export default function CheckinScreen() {
 
         {step === "areas" && (
           <View>
-            <Text style={s.title}>Oblasti — jak se ti dařilo tento týden?</Text>
+            <Text style={s.title}>Oblasti — jak se ti daří?</Text>
             <Text style={s.subtitle}>Nastav skóre 1–10 pro každou oblast.</Text>
+            {values.length === 0 && (
+              <Text style={s.hint}>Doporučujeme dělat check-in pravidelně — ideálně týdně nebo měsíčně.</Text>
+            )}
 
             <InteractiveSpider
               vals={areaScores}
@@ -409,7 +408,8 @@ const s = StyleSheet.create({
   scrollContent: { padding: 20, paddingBottom: 40 },
 
   title: { fontSize: 18, fontWeight: "700", color: colors.foreground, marginBottom: 4 },
-  subtitle: { fontSize: 13, color: colors.muted, marginBottom: 20 },
+  subtitle: { fontSize: 13, color: colors.muted, marginBottom: 4 },
+  hint: { fontSize: 12, color: colors.muted, fontStyle: "italic" as const, marginBottom: 16, opacity: 0.7 },
 
   valueItem: { marginBottom: 16 },
   valueHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 },
