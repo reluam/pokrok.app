@@ -147,7 +147,7 @@ A colleague insists: "Full moon makes people act strange. There are always more 
 
 **Otázka:** Proč tak mnoho profesionálů věří něčemu, co data nepodporují?
 
-- **✅ Iluzorní korelace posílená kulturním narativem — sdílený mýtus úplněk = chaos generuje percepční nastavení, které aktivně zaostřuje pozornost sester na rušné noční směny o úplňku a tutéž intenzitu o jiných nocích přehlíží**
+- **✅ Iluzorní korelace posílená kulturním narativem — mýtus úplněk = chaos zaostřuje pozornost sester na rušné směny o úplňku a tutéž intenzitu o jiných nocích přehlíží**
   Přesně! Kulturní příběh (úplněk = šílenství) vytváří očekávání. Očekávání zaměřuje pozornost. Pozornost posiluje iluzorní korelaci. Uzavřený kruh.
 - ❌ Studie zachytily pouze primární příčinné faktory, ale přehlédly mediační proměnnou — chronobiologický vliv lunárního cyklu na cirkadiánní rytmus zdravotnického personálu
   Studie s miliony záznamů zachytí i minimální efekty. Žádný nebyl nalezen. Víra sester je produktem iluzorní korelace, ne nezjištěného efektu.
@@ -160,7 +160,7 @@ A colleague insists: "Full moon makes people act strange. There are always more 
 
 **Question:** Why do so many professionals believe something the data doesn't support?
 
-- **✅ Illusory correlation reinforced by a cultural narrative — the shared myth "full moon = chaos" generates a perceptual set that actively sharpens nurses' attention on busy shifts during full moons while overlooking the same intensity on other nights**
+- **✅ Illusory correlation reinforced by a cultural narrative — the myth "full moon = chaos" sharpens nurses' attention on busy full-moon shifts while overlooking the same intensity on other nights**
   Exactly! A cultural story (full moon = madness) creates an expectation. The expectation focuses attention. Attention reinforces the illusory correlation. A closed loop.
 - ❌ Studies only captured primary causal factors but missed a mediating variable — the chronobiological influence of the lunar cycle on the circadian rhythm of medical staff
   Studies with millions of records pick up even tiny effects. None were found. The nurses' belief is a product of illusory correlation, not an undetected effect.

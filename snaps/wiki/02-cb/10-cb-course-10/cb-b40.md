@@ -239,7 +239,7 @@ Emily Pronin's research at Stanford produced a shocking finding: people who cons
 
 **Otázka:** Proč je Blind Spot Bias považován za „nejnebezpečnější" bias?
 
-- **✅ Protože funguje jako meta-kognitivní blokáda — aktivně znemožňuje rozpoznat u sebe všechny ostatní biasy, čímž eliminuje první a nejdůležitější krok k jejich nápravě**
+- **✅ Protože funguje jako meta-kognitivní blokáda — znemožňuje rozpoznat vlastní biasy a eliminuje první krok k jejich nápravě**
   Přesně! Blind Spot Bias je „meta-bias" — ochranný štít, který blokuje první krok nápravy (uvědomění) u VŠECH ostatních biasů.
 - ❌ Protože vykazuje nejvyšší prevalenci — zasahuje statisticky větší podíl populace než jiná kognitivní zkreslení
   Postihuje všechny — ale to platí i o Confirmation Biasu. Nebezpečnost Blind Spot Biasu je v tom, že ZABRAŇUJE práci s ostatními biasy.
@@ -250,7 +250,7 @@ Emily Pronin's research at Stanford produced a shocking finding: people who cons
 
 **Question:** Why is the bias blind spot considered the "most dangerous" bias?
 
-- **✅ Because it acts as a meta-cognitive blockade — it actively prevents you from recognizing all your other biases in yourself, eliminating the first and most critical step toward correcting them**
+- **✅ Because it acts as a meta-cognitive blockade — it prevents you from recognizing your own biases and eliminates the first step toward correcting them**
   Exactly! The bias blind spot is a "meta-bias" — a protective shield that blocks the first step of fixing (awareness) ALL other biases.
 - ❌ Because it has the highest prevalence — statistically it affects a larger share of the population than other cognitive biases
   It affects everyone — but so does confirmation bias. The danger of the bias blind spot is that it PREVENTS you from working on your other biases.
@@ -263,7 +263,7 @@ Emily Pronin's research at Stanford produced a shocking finding: people who cons
 
 **Otázka:** Jaký systém bys měl/a vytvořit?
 
-- **✅ Důvěryhodný „bias buddy" s explicitním mandátem upozorňovat na zkreslení + pravidelná strukturovaná sebereflexe + rozhodovací checklist snižující prostor pro intuitivní chyby**
+- **✅ Důvěryhodný „bias buddy" s mandátem upozorňovat na zkreslení + strukturovaná sebereflexe + rozhodovací checklist**
   Skvělé! Tři pilíře: 1) Externí kontrola (bias buddy), protože sám/sama u sebe biasy nevidíš. 2) Pravidelná reflexe, ne jen při problémech. 3) Strukturované procesy, které snižují prostor pro biasy.
 - ❌ Intenzivní studium kognitivní psychologie — hlubší teoretická znalost mechanismů zkreslení buduje imunizační kapacitu vůči nim
   Paradox: víc vědomostí o biasech může ZESÍLIT Blind Spot Bias! „Znám všechny biasy, takže JÁ jim nepodléhám." Vzdělání je nutné, ale nestačí.
@@ -276,7 +276,7 @@ Emily Pronin's research at Stanford produced a shocking finding: people who cons
 
 **Question:** What system should you build?
 
-- **✅ A trusted "bias buddy" with an explicit mandate to call out biases + regular structured self-reflection + a decision checklist that reduces room for intuitive errors**
+- **✅ A trusted "bias buddy" with a mandate to call out biases + regular structured self-reflection + a decision checklist**
   Great! Three pillars: 1) External check (bias buddy), because you can't see your own biases. 2) Regular reflection, not only when problems arise. 3) Structured processes that leave less room for biases.
 - ❌ Intensive study of cognitive psychology — deeper theoretical knowledge of bias mechanisms builds an immunization capacity against them
   Paradoxically, more knowledge about biases can AMPLIFY the bias blind spot! "I know all the biases, so I'M not subject to them." Education is necessary but not sufficient.
@@ -295,7 +295,7 @@ Debiasing: 1) Accept as a FACT that you have biases — everyone does. 2) Bias b
 
 **Otázka:** Co je nejsprávnější postoj k vlastním kognitivním zkreslením?
 
-- **✅ „Biasy mám jako každý jiný člověk — nemohu je eliminovat, ale mohu nastavit systémy vnější kontroly, které jejich dopad na moje rozhodnutí průběžně minimalizují."**
+- **✅ „Biasy mám jako každý — nemohu je eliminovat, ale mohu nastavit systémy vnější kontroly, které jejich dopad minimalizují."**
   Perfektní! Pokora + akce. Přiznání biasů není slabost — je to síla. A systémy jsou efektivnější než vůle.
 - ❌ „Systematická znalost kognitivních zkreslení aktivuje preventivní monitorovací okruh — a ten mě před nimi průběžně chrání."
   Tohle je Blind Spot Bias v přestrojení za vzdělání! Znalost biasů ≠ imunita. Je to jako říct „znám gravitaci, takže padám pomaleji."
