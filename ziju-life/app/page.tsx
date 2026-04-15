@@ -29,10 +29,10 @@ async function getLatestPosts(): Promise<LatestPost[]> {
 }
 
 const painPoints = [
-  "Víš, jak chceš, aby tvůj život vypadal, ale nedokážeš ho začít žít?",
-  "Máš tisíc plánů v hlavě, ale ráno nevíš, kde začít?",
-  "Žiješ víc v budoucnosti než v přítomnosti — a ta mezera tě paralyzuje?",
-  "Zkoušel/a jsi plánovače, knížky, appky — a nic ti nevydrželo víc než týden?",
+  { emoji: "🌀", text: "Víš, kam chceš — ale nedokážeš se hnout." },
+  { emoji: "💭", text: "Máš tisíc plánů, ráno nevíš, kde začít." },
+  { emoji: "⏳", text: "Žiješ v budoucnu. Ta mezera tě paralyzuje." },
+  { emoji: "📚", text: "Další knížka, další app. A pak zas nic." },
 ];
 
 export default async function Home() {
@@ -44,54 +44,63 @@ export default async function Home() {
 
         {/* ─── Hero ─── */}
         <section
-          className="mb-20 md:mb-24 animate-fade-up relative"
+          className="mb-24 md:mb-32 animate-fade-up relative"
           style={{ animationDelay: "0ms" }}
         >
-          <div className="absolute -top-4 -left-2 text-3xl animate-float opacity-60 hidden md:block">
-            ✨
-          </div>
-          <div
-            className="absolute top-10 -right-4 text-2xl animate-float opacity-50 hidden md:block"
-            style={{ animationDelay: "1.5s" }}
-          >
-            🌿
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-10 items-center">
-            <div className="paper-card overflow-hidden w-56 h-56 md:w-64 md:h-64 shrink-0 mx-auto md:mx-0">
-              <Image
-                src="/matej-photo.jpg"
-                alt="Matěj Mauler"
-                width={256}
-                height={256}
-                className="w-full h-full object-cover"
-                priority
-              />
+          <div className="bg-[#fdf0e6]/60 rounded-[36px] px-6 sm:px-10 md:px-14 py-10 md:py-14 relative overflow-hidden">
+            {/* Floating decorative emoji */}
+            <div className="absolute top-6 left-6 text-3xl animate-float opacity-60 hidden md:block">
+              ✨
+            </div>
+            <div
+              className="absolute top-10 right-10 text-2xl animate-float opacity-50 hidden md:block"
+              style={{ animationDelay: "1.5s" }}
+            >
+              🌿
+            </div>
+            <div
+              className="absolute bottom-8 right-12 text-xl animate-float opacity-40 hidden md:block"
+              style={{ animationDelay: "2.5s" }}
+            >
+              💭
             </div>
 
-            <div className="text-center md:text-left">
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
-                Přemýšlíš hodně.{" "}
-                <span className="underline-playful">Děláš málo.</span>
-              </h1>
+            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-12 items-center relative">
+              <div className="paper-card overflow-hidden w-56 h-56 md:w-64 md:h-64 shrink-0 mx-auto md:mx-0">
+                <Image
+                  src="/matej-photo.jpg"
+                  alt="Matěj Mauler"
+                  width={256}
+                  height={256}
+                  className="w-full h-full object-cover"
+                  priority
+                />
+              </div>
 
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-6">
-                Jsem Matěj. Pomáhám lidem, co se zasekli v hlavě, začít reálně žít. Skrz koučink a upřímný rozhovor.
-              </p>
+              <div className="text-center md:text-left">
+                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
+                  Přemýšlíš hodně.{" "}
+                  <span className="underline-playful">Děláš málo.</span>
+                </h1>
 
-              <div className="flex flex-col sm:flex-row items-center md:items-start gap-3">
-                <Link href="/koucing#rezervace" className="btn-playful">
-                  Rezervovat konzultaci zdarma &rarr;
-                </Link>
-                <Link
-                  href="/knihovna"
-                  className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group px-3 py-2"
-                >
-                  Nebo si nejdřív přečti, o čem přemýšlím
-                  <span className="inline-block transition-transform group-hover:translate-x-0.5">
-                    &rarr;
-                  </span>
-                </Link>
+                <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-7">
+                  Jsem Matěj. Pomáhám lidem, co se zasekli v hlavě, začít reálně žít. Skrz koučink a upřímný rozhovor.
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-center md:items-start gap-3">
+                  <Link href="/koucing#rezervace" className="btn-playful">
+                    Rezervovat konzultaci zdarma &rarr;
+                  </Link>
+                  <Link
+                    href="/knihovna"
+                    className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group px-3 py-2"
+                  >
+                    Nebo si nejdřív přečti, o čem přemýšlím
+                    <span className="inline-block transition-transform group-hover:translate-x-0.5">
+                      &rarr;
+                    </span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -99,33 +108,42 @@ export default async function Home() {
 
         {/* ─── Poznáváš se? (pain points) ─── */}
         <section
-          className="mb-20 md:mb-24 animate-fade-up"
+          className="mb-24 md:mb-32 animate-fade-up relative"
           style={{ animationDelay: "100ms" }}
         >
-          <div className="text-center mb-8">
-            <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
+          <div className="absolute -top-2 right-4 text-4xl opacity-30 hidden md:block animate-float">
+            🤔
+          </div>
+
+          <div className="text-center mb-12">
+            <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-3">
               Poznáváš se?
             </p>
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight">
-              A co když jsi už hodně přečetl &mdash; a{" "}
-              <span className="underline-teal">pořád hledáš</span>?
+            <h2 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight leading-tight max-w-3xl mx-auto">
+              Přečetl jsi hromadu knížek &mdash;{" "}
+              <span className="underline-teal">a pořád hledáš</span>?
             </h2>
           </div>
 
-          <div className="paper-card p-8 md:p-10 space-y-6">
-            <div className="space-y-3">
-              {painPoints.map((point) => (
-                <div key={point} className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#e8faf8] flex items-center justify-center mt-0.5">
-                    <span className="text-[#2ba89e] font-bold text-xs">&rarr;</span>
-                  </span>
-                  <span className="text-base md:text-lg text-foreground/80">{point}</span>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 md:gap-x-16 md:gap-y-8 max-w-3xl mx-auto mb-12">
+            {painPoints.map((point, i) => (
+              <div
+                key={point.text}
+                className="flex items-start gap-4 animate-fade-up"
+                style={{ animationDelay: `${200 + i * 80}ms` }}
+              >
+                <span className="text-3xl md:text-4xl shrink-0 leading-none">{point.emoji}</span>
+                <p className="text-base md:text-lg text-foreground/80 leading-snug pt-1">
+                  {point.text}
+                </p>
+              </div>
+            ))}
+          </div>
 
-            <p className="text-lg text-foreground/80 leading-relaxed">
-              Koučink ti nepřidá další informace. Jde pod povrch &mdash; zjistí, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracujeme na akci, ne jen na pochopení.
+          <div className="text-center max-w-2xl mx-auto space-y-6">
+            <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
+              Další informace nepotřebuješ. Potřebuješ{" "}
+              <span className="underline-playful font-semibold">někoho, kdo ti pomůže začít konat</span>.
             </p>
 
             <Link href="/koucing#rezervace" className="btn-playful">
@@ -137,37 +155,39 @@ export default async function Home() {
         {/* ─── Knihovna mini ─── */}
         {posts.length > 0 && (
           <section
-            className="mb-20 md:mb-24 animate-fade-up"
+            className="mb-24 md:mb-32 animate-fade-up"
             style={{ animationDelay: "200ms" }}
           >
             <div className="text-center mb-10">
               <p className="font-display text-xs uppercase tracking-[0.18em] text-[#7766d8] font-bold mb-2">
                 Z knihovny
               </p>
-              <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight">
+              <h2 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight">
                 O čem <span className="underline-playful">přemýšlím</span>
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
               {posts.map((post) => (
                 <Link
                   key={post.id}
                   href={`/knihovna/${post.slug}`}
-                  className="paper-card p-6 h-full flex flex-col group"
+                  className="group flex flex-col py-2"
                 >
-                  <h3 className="font-display text-lg font-extrabold mb-2 group-hover:text-primary transition-colors">
-                    {post.title}
-                  </h3>
-                  {post.subtitle && (
-                    <p className="text-sm text-foreground/60 leading-relaxed flex-1 line-clamp-4">
-                      {post.subtitle}
+                  <div className="border-l-2 border-[#cdc4f5] pl-5 group-hover:border-primary transition-colors flex-1 flex flex-col">
+                    <h3 className="font-display text-lg font-extrabold mb-2 group-hover:text-primary transition-colors leading-snug">
+                      {post.title}
+                    </h3>
+                    {post.subtitle && (
+                      <p className="text-sm text-foreground/60 leading-relaxed flex-1 line-clamp-3 mb-4">
+                        {post.subtitle}
+                      </p>
+                    )}
+                    <p className="font-display font-bold text-sm text-[#7766d8] inline-flex items-center gap-1.5 mt-auto">
+                      Číst dál
+                      <span className="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
                     </p>
-                  )}
-                  <p className="font-display font-bold text-sm text-[#7766d8] mt-4 inline-flex items-center gap-1.5">
-                    Číst dál
-                    <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
-                  </p>
+                  </div>
                 </Link>
               ))}
             </div>
