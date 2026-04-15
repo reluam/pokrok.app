@@ -120,12 +120,12 @@ export default function Navigation() {
 
           {/* Desktop right side — CTA */}
           <div className="hidden md:flex items-center">
-            <a
-              href="mailto:matej@ziju.life"
+            <Link
+              href="/koucing#rezervace"
               className="btn-playful !px-5 !py-2 text-sm"
             >
-              Napiš mi &rarr;
-            </a>
+              Chci změnu &rarr;
+            </Link>
           </div>
 
           {/* Mobile: hamburger */}
@@ -166,13 +166,13 @@ export default function Navigation() {
             })}
 
             <div className="pt-2">
-              <a
-                href="mailto:matej@ziju.life"
+              <Link
+                href="/koucing#rezervace"
                 onClick={() => setIsMenuOpen(false)}
                 className="block px-4 py-2.5 bg-primary text-white rounded-full text-base font-display font-bold hover:bg-primary-dark transition-colors text-center"
               >
-                Napiš mi &rarr;
-              </a>
+                Chci změnu &rarr;
+              </Link>
             </div>
           </div>
         )}

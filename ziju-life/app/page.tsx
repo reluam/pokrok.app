@@ -1,59 +1,42 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import Parser from "rss-parser";
+import { listCuratedPosts } from "@/lib/curated-posts-db";
 
 export const dynamic = "force-static";
-export const revalidate = 3600; // revalidate every hour
+export const revalidate = 3600;
 
-/* ─── Color helpers (from matej-mauler) ─── */
-
-const colorMap = {
-  primary: {
-    bg: "bg-[#fff4eb]",
-    text: "text-[#ff8c42]",
-    border: "border-[#ffb380]",
-    iconBg: "bg-[#ffe4cc]",
-  },
-  teal: {
-    bg: "bg-[#e8faf8]",
-    text: "text-[#2ba89e]",
-    border: "border-[#8be0d8]",
-    iconBg: "bg-[#c6f1ec]",
-  },
-  lavender: {
-    bg: "bg-[#f1eefc]",
-    text: "text-[#7766d8]",
-    border: "border-[#cdc4f5]",
-    iconBg: "bg-[#dfd8fa]",
-  },
+export const metadata: Metadata = {
+  title: "Koučink pro lidi, co moc přemýšlí | Žiju life — Matěj Mauler",
+  description:
+    "Víš, jak chceš žít, ale nedokážeš začít? Pomůžu ti přestat se točit v kruzích a začít konat. Konzultace zdarma.",
 };
 
-/* ─── RSS fetch ─── */
-
-interface SubstackArticle {
+interface LatestPost {
+  id: string;
+  slug: string;
   title: string;
-  link: string;
-  pubDate: string;
+  subtitle: string | null;
 }
 
-async function getSubstackArticles(): Promise<SubstackArticle[]> {
+async function getLatestPosts(): Promise<LatestPost[]> {
   try {
-    const parser = new Parser();
-    const feed = await parser.parseURL("https://reluam.substack.com/feed");
-    return (feed.items || []).slice(0, 5).map((item) => ({
-      title: item.title || "",
-      link: item.link || "",
-      pubDate: item.pubDate || "",
-    }));
+    const { posts } = await listCuratedPosts({ status: "published", page: 1, limit: 3 });
+    return posts as LatestPost[];
   } catch {
     return [];
   }
 }
 
-/* ─── Page ─── */
+const painPoints = [
+  "Víš, jak chceš, aby tvůj život vypadal, ale nedokážeš ho začít žít?",
+  "Máš tisíc plánů v hlavě, ale ráno nevíš, kde začít?",
+  "Žiješ víc v budoucnosti než v přítomnosti — a ta mezera tě paralyzuje?",
+  "Zkoušel/a jsi plánovače, knížky, appky — a nic ti nevydrželo víc než týden?",
+];
 
 export default async function Home() {
-  const articles = await getSubstackArticles();
+  const posts = await getLatestPosts();
 
   return (
     <main className="flex-1 bg-background overflow-x-hidden relative min-h-screen">
@@ -64,7 +47,6 @@ export default async function Home() {
           className="mb-20 md:mb-24 animate-fade-up relative"
           style={{ animationDelay: "0ms" }}
         >
-          {/* Floating decorative emoji */}
           <div className="absolute -top-4 -left-2 text-3xl animate-float opacity-60 hidden md:block">
             ✨
           </div>
@@ -75,8 +57,7 @@ export default async function Home() {
             🌿
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-10 items-start">
-            {/* Avatar */}
+          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-10 items-center">
             <div className="paper-card overflow-hidden w-56 h-56 md:w-64 md:h-64 shrink-0 mx-auto md:mx-0">
               <Image
                 src="/matej-photo.jpg"
@@ -88,204 +69,154 @@ export default async function Home() {
               />
             </div>
 
-            {/* Text */}
             <div className="text-center md:text-left">
-              <h1 className="font-display text-5xl md:text-6xl font-extrabold leading-[1] mb-5 tracking-tight">
-                Ahoj, jsem{" "}
-                <span className="underline-playful">Matěj</span>
-                <span className="text-primary">.</span>
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
+                Přemýšlíš hodně.{" "}
+                <span className="underline-playful">Děláš málo.</span>
               </h1>
 
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-5">
-                Bývalý muzikant, projektový manažer a věčný hledač. Zkoumám život a pořád něco tvořím.
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-6">
+                Jsem Matěj. Pomáhám lidem, co se zasekli v hlavě, začít reálně žít. Skrz koučink a upřímný rozhovor.
               </p>
 
-              <a
-                href="#rozcestnik"
-                className="inline-flex items-center gap-2 text-base text-muted hover:text-foreground transition-colors group"
-              >
-                Koukni, co mám teď rozjetého
-                <span className="inline-block transition-transform group-hover:translate-y-0.5 animate-bounce-gentle">
-                  &darr;
-                </span>
-              </a>
+              <div className="flex flex-col sm:flex-row items-center md:items-start gap-3">
+                <Link href="/koucing#rezervace" className="btn-playful">
+                  Rezervovat konzultaci zdarma &rarr;
+                </Link>
+                <Link
+                  href="/knihovna"
+                  className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group px-3 py-2"
+                >
+                  Nebo si nejdřív přečti, o čem přemýšlím
+                  <span className="inline-block transition-transform group-hover:translate-x-0.5">
+                    &rarr;
+                  </span>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ─── Projekty (3 karty) ─── */}
+        {/* ─── Poznáváš se? (pain points) ─── */}
         <section
-          id="rozcestnik"
-          className="mb-20 md:mb-24 animate-fade-up scroll-mt-24"
+          className="mb-20 md:mb-24 animate-fade-up"
           style={{ animationDelay: "100ms" }}
         >
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
-              Na čem dělám
+              Poznáváš se?
             </p>
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold">
-              Moje{" "}
-              <span className="underline-playful">projekty</span>
+            <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight">
+              A co když jsi už hodně přečetl &mdash; a{" "}
+              <span className="underline-teal">pořád hledáš</span>?
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-            {/* ─── Thinkable ─── */}
-            <div id="thinkable" className="paper-card p-6 h-full flex flex-col relative">
-              <span className="badge-soon absolute -top-2 -right-2">
-                <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />
-                </svg>
-                Právě tvořím
-              </span>
-
-              <div className={`w-12 h-12 rounded-2xl ${colorMap.primary.iconBg} flex items-center justify-center mb-4 text-2xl`}>
-                ⚙️
-              </div>
-
-              <p className={`font-display text-[0.7rem] uppercase tracking-[0.15em] font-bold mb-1 ${colorMap.primary.text}`}>
-                Právě tvořím
-              </p>
-              <h3 className="font-display text-2xl font-extrabold mb-3">
-                Thinkable
-              </h3>
-              <p className="text-foreground/70 leading-relaxed text-[0.95rem] mb-5 flex-1">
-                Appka, na které právě pracuju. Duolingo pro mentální modely — každý den 5 minut, abys lépe myslel a rozhodoval se. Víc brzy.
-              </p>
-
-              <div className="flex flex-col gap-2">
-                <a
-                  href="https://thinkable.website"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${colorMap.primary.bg} hover:scale-[1.02] transition-transform`}
-                >
-                  <span className={colorMap.primary.text}>
-                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
+          <div className="paper-card p-8 md:p-10 space-y-6">
+            <div className="space-y-3">
+              {painPoints.map((point) => (
+                <div key={point} className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#e8faf8] flex items-center justify-center mt-0.5">
+                    <span className="text-[#2ba89e] font-bold text-xs">&rarr;</span>
                   </span>
-                  <p className={`font-display font-bold text-sm leading-tight ${colorMap.primary.text}`}>
-                    Zjistit víc &rarr;
-                  </p>
-                </a>
-              </div>
-            </div>
-
-            {/* ─── Koučing & workshopy ─── */}
-            <div className="paper-card p-6 h-full flex flex-col relative">
-              <div className={`w-12 h-12 rounded-2xl ${colorMap.teal.iconBg} flex items-center justify-center mb-4 text-2xl`}>
-                🧭
-              </div>
-
-              <p className={`font-display text-[0.7rem] uppercase tracking-[0.15em] font-bold mb-1 ${colorMap.teal.text}`}>
-                Pro lidi
-              </p>
-              <h3 className="font-display text-2xl font-extrabold mb-3">
-                Koučing &amp; workshopy
-              </h3>
-              <p className="text-foreground/70 leading-relaxed text-[0.95rem] mb-5 flex-1">
-                Pomáhám lidem, co jsou ztraceni, najít svůj směr. Jeden na jednoho, bez bullshitu.
-              </p>
-
-              <div className="flex flex-col gap-2">
-                <Link
-                  href="/koucing"
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${colorMap.teal.bg} hover:scale-[1.02] transition-transform`}
-                >
-                  <span className={colorMap.teal.text}>
-                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                  <p className={`font-display font-bold text-sm leading-tight ${colorMap.teal.text}`}>
-                    Zjistit víc &rarr;
-                  </p>
-                </Link>
-              </div>
-            </div>
-
-            {/* ─── Knihovna ─── */}
-            <div className="paper-card p-6 h-full flex flex-col relative sm:col-span-2 lg:col-span-1">
-              <div className={`w-12 h-12 rounded-2xl ${colorMap.lavender.iconBg} flex items-center justify-center mb-4 text-2xl`}>
-                📚
-              </div>
-
-              <p className={`font-display text-[0.7rem] uppercase tracking-[0.15em] font-bold mb-1 ${colorMap.lavender.text}`}>
-                Články &amp; myšlenky
-              </p>
-              <h3 className="font-display text-2xl font-extrabold mb-3">
-                Knihovna
-              </h3>
-              <p className="text-foreground/70 leading-relaxed text-[0.95rem] mb-4 flex-1">
-                Píšu o tom, co čtu, zjišťuju a zažívám. Mentální modely, knížky, frameworky.
-              </p>
-
-              {/* Substack articles */}
-              {articles.length > 0 && (
-                <div className="flex flex-col gap-2 mb-4">
-                  {articles.map((article) => (
-                    <a
-                      key={article.link}
-                      href={article.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex items-center justify-between gap-2 px-3 py-2 rounded-xl ${colorMap.lavender.bg} hover:scale-[1.02] transition-transform`}
-                    >
-                      <p className="font-display font-bold text-xs leading-tight text-foreground/80 truncate">
-                        {article.title}
-                      </p>
-                      <span className="text-[0.65rem] text-muted whitespace-nowrap">
-                        {new Date(article.pubDate).toLocaleDateString("cs-CZ", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </span>
-                    </a>
-                  ))}
+                  <span className="text-base md:text-lg text-foreground/80">{point}</span>
                 </div>
-              )}
-
-              <div className="flex flex-col gap-2">
-                <Link
-                  href="/knihovna"
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${colorMap.lavender.bg} hover:scale-[1.02] transition-transform`}
-                >
-                  <span className={colorMap.lavender.text}>
-                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                  <p className={`font-display font-bold text-sm leading-tight ${colorMap.lavender.text}`}>
-                    Celá knihovna &rarr;
-                  </p>
-                </Link>
-              </div>
+              ))}
             </div>
+
+            <p className="text-lg text-foreground/80 leading-relaxed">
+              Koučink ti nepřidá další informace. Jde pod povrch &mdash; zjistí, co tě drží tam, kde jsi, a co konkrétně potřebuješ změnit. Pak pracujeme na akci, ne jen na pochopení.
+            </p>
+
+            <Link href="/koucing#rezervace" className="btn-playful">
+              Sednout si na konzultaci &rarr;
+            </Link>
           </div>
         </section>
 
-        {/* ─── Kontakt ─── */}
+        {/* ─── Knihovna mini ─── */}
+        {posts.length > 0 && (
+          <section
+            className="mb-20 md:mb-24 animate-fade-up"
+            style={{ animationDelay: "200ms" }}
+          >
+            <div className="text-center mb-10">
+              <p className="font-display text-xs uppercase tracking-[0.18em] text-[#7766d8] font-bold mb-2">
+                Z knihovny
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight">
+                O čem <span className="underline-playful">přemýšlím</span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+              {posts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/knihovna/${post.slug}`}
+                  className="paper-card p-6 h-full flex flex-col group"
+                >
+                  <h3 className="font-display text-lg font-extrabold mb-2 group-hover:text-primary transition-colors">
+                    {post.title}
+                  </h3>
+                  {post.subtitle && (
+                    <p className="text-sm text-foreground/60 leading-relaxed flex-1 line-clamp-4">
+                      {post.subtitle}
+                    </p>
+                  )}
+                  <p className="font-display font-bold text-sm text-[#7766d8] mt-4 inline-flex items-center gap-1.5">
+                    Číst dál
+                    <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                  </p>
+                </Link>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <Link
+                href="/knihovna"
+                className="inline-flex items-center gap-2 font-display font-bold text-foreground/70 hover:text-foreground transition-colors"
+              >
+                Celá knihovna &rarr;
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* ─── O mně mini ─── */}
         <section
-          className="text-center mb-12 animate-fade-up"
+          className="mb-12 animate-fade-up"
           style={{ animationDelay: "300ms" }}
         >
-          <div className="paper-card p-8">
-            <p className="text-2xl mb-3">👋</p>
-            <h3 className="font-display text-xl font-extrabold mb-2">
-              Chceš se ozvat?
-            </h3>
-            <p className="text-muted text-sm mb-5">
-              Napiš mi cokoliv — otázku, nápad, nebo jen ahoj.
-            </p>
-            <a href="mailto:matej@ziju.life" className="btn-playful">
-              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="m22 7-10 5L2 7" />
-              </svg>
-              matej@ziju.life
-            </a>
+          <div className="paper-card p-8 md:p-10">
+            <div className="flex flex-col md:flex-row gap-8 items-center">
+              <div className="paper-card overflow-hidden w-36 h-36 md:w-40 md:h-40 shrink-0">
+                <Image
+                  src="/matej-photo.jpg"
+                  alt="Matěj Mauler"
+                  width={160}
+                  height={160}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
+                  O mně
+                </p>
+                <h2 className="font-display text-2xl md:text-3xl font-extrabold mb-4 tracking-tight">
+                  Bývalý muzikant, <span className="underline-teal">věčný hledač</span>
+                </h2>
+                <p className="text-base md:text-lg text-foreground/70 leading-relaxed mb-5">
+                  Jsem Matěj. Většinu života jsem strávil snahou přijít na to, jak se tenhle život vlastně &bdquo;hraje&ldquo;. Nakonec jsem zjistil, že odpovědi se neschovávají v kapitolách, ale v tom, co dělám každý den.
+                </p>
+                <Link
+                  href="/o-mne"
+                  className="inline-flex items-center gap-2 font-display font-bold text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Celý příběh &rarr;
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
       </div>

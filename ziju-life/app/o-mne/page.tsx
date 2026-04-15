@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
 export const dynamic = "force-static";
+
+export const metadata: Metadata = {
+  title: "O mně — Matěj Mauler | Žiju life",
+  description:
+    "Bývalý muzikant a projektový manažer. Zjistil jsem, že odpovědi se neschovávají v knihách, ale v tom, co dělám každý den.",
+};
 
 const pillars = [
   {
@@ -182,6 +189,35 @@ export default function OMnePage() {
           </div>
         </section>
 
+        {/* ─── Thinkable (vedlejší projekt) ─── */}
+        <section
+          className="mb-12 animate-fade-up"
+          style={{ animationDelay: "350ms" }}
+        >
+          <div className="paper-card p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:items-center">
+            <div className="w-12 h-12 rounded-2xl bg-[#ffe4cc] flex items-center justify-center text-2xl shrink-0 mx-auto sm:mx-0">
+              ⚙️
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <p className="font-display text-[0.7rem] uppercase tracking-[0.15em] font-bold text-primary mb-1">
+                Vedlejší projekt
+              </p>
+              <h3 className="font-display text-lg font-extrabold mb-1">Na čem ještě pracuju</h3>
+              <p className="text-sm text-foreground/70 leading-relaxed">
+                Mimo koučink pracuju na <strong>Thinkable</strong> &mdash; mobilní appce pro trénink mentálních modelů. Duolingo pro myšlení &mdash; každý den 5 minut, abys lépe přemýšlel a rozhodoval se.
+              </p>
+            </div>
+            <a
+              href="https://thinkable.website"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-display font-bold text-sm text-primary hover:opacity-80 transition-opacity shrink-0 mx-auto sm:mx-0"
+            >
+              Zjistit víc &rarr;
+            </a>
+          </div>
+        </section>
+
         {/* ─── Substack ─── */}
         <section
           className="mb-16 md:mb-20 animate-fade-up"
@@ -216,20 +252,21 @@ export default function OMnePage() {
           <div className="paper-card p-8 md:p-10 text-center space-y-5">
             <p className="text-2xl mb-1">👋</p>
             <h3 className="font-display text-2xl md:text-3xl font-extrabold leading-snug">
-              Chceš zjistit, kde teď jsi?
+              Pojďme se potkat
             </h3>
             <p className="text-muted max-w-lg mx-auto">
-              Vyber si cestu, která ti dává smysl.
+              30 minut, zdarma. Zjistíme, jestli ti můžu pomoct.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-              <Link href="/koucing" className="btn-playful">
-                Koučing &rarr;
+            <div className="flex flex-col items-center gap-3 pt-2">
+              <Link href="/koucing#rezervace" className="btn-playful">
+                Rezervovat konzultaci zdarma &rarr;
               </Link>
               <Link
                 href="/knihovna"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-display font-bold text-base text-foreground/70 border-2 border-outline hover:border-foreground/30 hover:text-foreground transition-colors"
+                className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group"
               >
-                Knihovna &rarr;
+                Nebo čti dál v Knihovně
+                <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
               </Link>
             </div>
           </div>

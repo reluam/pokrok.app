@@ -27,6 +27,12 @@ type LeadFormProps = {
   submitLabel?: string;
   /** Text souhlasu se zpracováním (výchozí: pro domluvení konzultace). */
   consentText?: string;
+  /** Zobrazit message pole i v compact módu. */
+  showMessage?: boolean;
+  /** Label pro message pole. */
+  messageLabel?: string;
+  /** Placeholder pro message pole. */
+  messagePlaceholder?: string;
 };
 
 export default function LeadForm({
@@ -44,6 +50,9 @@ export default function LeadForm({
   successMessage = "Hotovo! Brzy ti pošleme vše na email.",
   submitLabel,
   consentText,
+  showMessage,
+  messageLabel = "S čím vám můžu pomoct? (nepovinné)",
+  messagePlaceholder = "Stručně popište, o čem chcete mluvit...",
 }: LeadFormProps) {
   const { openBookingPopup } = useBookingPopup() ?? {};
   const [name, setName] = useState("");
@@ -68,7 +77,7 @@ export default function LeadForm({
         body: JSON.stringify({
           email,
           name: name.trim() || undefined,
-          message: compact ? undefined : (message?.trim() || undefined),
+          message: (!compact || showMessage) ? (message?.trim() || undefined) : undefined,
           source,
           utm_source: utmSource,
           utm_medium: utmMedium,
@@ -151,10 +160,10 @@ export default function LeadForm({
             disabled={loading}
           />
         </div>
-        {!compact && (
+        {(!compact || showMessage) && (
           <div>
             <label htmlFor="lead-message" className="block text-sm font-medium text-foreground mb-1">
-              S čím vám můžu pomoct? (nepovinné)
+              {messageLabel}
             </label>
             <textarea
               id="lead-message"
@@ -162,7 +171,7 @@ export default function LeadForm({
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
               className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white resize-none"
-              placeholder="Stručně popište, o čem chcete mluvit..."
+              placeholder={messagePlaceholder}
               disabled={loading}
             />
           </div>
