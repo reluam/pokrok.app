@@ -189,10 +189,38 @@ export default function OMnePage() {
           </div>
         </section>
 
-        {/* ─── Thinkable (vedlejší projekt) ─── */}
+        {/* ─── CTA ─── */}
         <section
           className="mb-12 animate-fade-up"
-          style={{ animationDelay: "350ms" }}
+          style={{ animationDelay: "400ms" }}
+        >
+          <div className="paper-card p-8 md:p-10 text-center space-y-5">
+            <p className="text-2xl mb-1">👋</p>
+            <h3 className="font-display text-2xl md:text-3xl font-extrabold leading-snug">
+              Pojďme se potkat
+            </h3>
+            <p className="text-muted max-w-lg mx-auto">
+              30 minut, zdarma. Zjistíme, jestli ti můžu pomoct.
+            </p>
+            <div className="flex flex-col items-center gap-3 pt-2">
+              <Link href="/koucing#rezervace" className="btn-playful">
+                Rezervovat konzultaci zdarma &rarr;
+              </Link>
+              <Link
+                href="/knihovna"
+                className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group"
+              >
+                Nebo čti dál v Knihovně
+                <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Thinkable (vedlejší projekt) ─── */}
+        <section
+          className="animate-fade-up"
+          style={{ animationDelay: "500ms" }}
         >
           <div className="paper-card p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:items-center">
             <div className="w-12 h-12 rounded-2xl bg-[#ffe4cc] flex items-center justify-center text-2xl shrink-0 mx-auto sm:mx-0">
@@ -215,60 +243,6 @@ export default function OMnePage() {
             >
               Zjistit víc &rarr;
             </a>
-          </div>
-        </section>
-
-        {/* ─── Substack ─── */}
-        <section
-          className="mb-16 md:mb-20 animate-fade-up"
-          style={{ animationDelay: "400ms" }}
-        >
-          <div className="paper-card p-8 md:p-12 text-center space-y-5">
-            <svg className="w-10 h-10 text-primary mx-auto" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24l9.56-5.26L20.539 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
-            </svg>
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight">
-              Čti více na <span className="underline-playful">Substacku</span>
-            </h2>
-            <p className="text-lg text-foreground/65 leading-relaxed max-w-2xl mx-auto">
-              Pravidelné úvahy, postřehy a věci, které mě napadnou cestou. Bez spamu, bez prodeje — jen upřímné psaní o tom, jak se snažím žít podle sebe.
-            </p>
-            <a
-              href="https://zijulife.substack.com/?r=86mho4&utm_campaign=pub-share-checklist"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-playful"
-            >
-              Přihlásit se k odběru &rarr;
-            </a>
-          </div>
-        </section>
-
-        {/* ─── CTA ─── */}
-        <section
-          className="animate-fade-up"
-          style={{ animationDelay: "500ms" }}
-        >
-          <div className="paper-card p-8 md:p-10 text-center space-y-5">
-            <p className="text-2xl mb-1">👋</p>
-            <h3 className="font-display text-2xl md:text-3xl font-extrabold leading-snug">
-              Pojďme se potkat
-            </h3>
-            <p className="text-muted max-w-lg mx-auto">
-              30 minut, zdarma. Zjistíme, jestli ti můžu pomoct.
-            </p>
-            <div className="flex flex-col items-center gap-3 pt-2">
-              <Link href="/koucing#rezervace" className="btn-playful">
-                Rezervovat konzultaci zdarma &rarr;
-              </Link>
-              <Link
-                href="/knihovna"
-                className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group"
-              >
-                Nebo čti dál v Knihovně
-                <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
-              </Link>
-            </div>
           </div>
         </section>
       </div>

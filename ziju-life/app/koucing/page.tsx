@@ -13,25 +13,25 @@ const phases = [
     n: "1",
     emoji: "🔍",
     title: "Audit — Kde opravdu jsi",
-    text: "Na konzultaci zdarma zmapujeme tvoji aktuální situaci. Ne jenom to, co tě trápí, ale celý kontext — kariéra, vztahy, zdraví, energie, smysl. Protože věci spolu souvisí víc, než si myslíš. Identifikujeme tvůj cíl a hlavně konkrétní blokery — co přesně tě drží na místě. Většinou to nejsou vnější okolnosti, ale vzorce v hlavě.",
+    text: "Zmapujeme tvoji aktuální situaci. Ne jenom to, co tě trápí, ale celý kontext — kariéra, vztahy, zdraví, energie, smysl. Protože věci spolu souvisí víc, než si myslíš. Identifikujeme tvůj cíl a hlavně konkrétní blokery — co přesně tě drží na místě. Většinou to nejsou vnější okolnosti, ale vzorce v hlavě.",
   },
   {
     n: "2",
     emoji: "🧭",
     title: "Základy — Hodnoty a mindsety",
-    text: "Zmapujeme tvoje hodnoty — čím se řídíš, i když si to neuvědomuješ. A mindsety, které máš teď. Pak definujeme, které mindsety potřebuješ, aby tě dovedly k cíli. Tady se většinou otevřou oči — zjistíš, že celou dobu pracuješ se softwarem, který ti nenainstaloval nikdo jiný než ty sám.",
+    text: "Zmapujeme tvoje hodnoty a mindsety — čím se řídíš, i když si to neuvědomuješ. Pak definujeme, které mindsety potřebuješ, aby tě dovedly k cíli.",
   },
   {
     n: "3",
     emoji: "🚀",
     title: "Akce — Cvičení a návyky",
-    text: "Lekci po lekci stavíme konkrétní návyky a cvičení, které rozbíjí staré vzorce. Začínáme jednoduše a postupně přidáváme. Nejde o revoluci přes noc — jde o malé věci, které se sčítají.",
+    text: "Lekci po lekci stavíme konkrétní návyky a cvičení, které rozbíjí staré vzorce. Začínáme jednoduše a postupně přidáváme. Nejde o revoluci přes noc — jde o malé kroky, které se sčítají.",
   },
   {
     n: "4",
     emoji: "✨",
     title: "Momentum — Nová trajektorie",
-    text: "Po 10–15 sezeních začínáš vidět výsledky. Ne proto, že jsi našel zázračnou formuli, ale proto, že jsi 10–15 týdnů po sobě dělal vědomé kroky. V tuhle chvíli se rozhodneš: chceš pokračovat, nebo už jdeš sám. Obojí je v pořádku.",
+    text: "Po 10–15 sezeních začínáš vidět výsledky. Ne proto, že jsi našel zázračnou formuli, ale proto, že jsi 10–15 týdnů dělal vědomé kroky. V tuhle chvíli se rozhodneš: chceš pokračovat, nebo už jdeš sám. Obojí je v pořádku.",
   },
 ];
 
@@ -39,7 +39,7 @@ const mindsetShifts = [
   {
     old: "Vše je moc vážné",
     next: "Život je vlastně hra",
-    text: "Když přestaneš brát každé rozhodnutí jako definitivní, začneš se hýbat. Ve hře se dá zkoušet znovu.",
+    text: "Když přestaneš brát každé rozhodnutí jako definitivní, začneš se hýbat. Ve hře si můžeš hrát.",
   },
   {
     old: "Musí to být dokonalé",
@@ -49,12 +49,12 @@ const mindsetShifts = [
   {
     old: "Co když to dopadne špatně?",
     next: "Připravím se na nejhorší, zbytek nechám být",
-    text: "Spočítej si worst case. Pokud ho přežiješ — a skoro vždy přežiješ — pusť se do toho.",
+    text: "Představ si worst case. Smiř se, že to takto může dopadnout. A pak udělej vše proto, aby to dopadlo lépe.",
   },
   {
-    old: "Uspokojení z plánování",
-    next: "Uspokojení z konání",
-    text: "Mozek ti dává odměnu už za to, že sis něco naplánoval. Ale plán bez akce je jen příjemnější forma prokrastinace.",
+    old: "Dopaminový hit z plánování",
+    next: "Dobrý pocit z konání",
+    text: "Dobrý pocit z odvedené práce je vždy násobně lepší, než dopaminový hit z pouhého plánování.",
   },
   {
     old: "Musím to mít promyšlené dopředu",
@@ -84,16 +84,6 @@ const exercises = [
     title: "Experimentální den",
     text: "Jeden den nebo odpoledne, kdy děláš výhradně věci, které normálně neděláš. Nová hudba, nový žánr filmu, místo kde jsi nikdy nebyl, jídlo které normálně nejíš. Rozbíjíš autopilota.",
   },
-  {
-    emoji: "🧊",
-    title: "Otužování",
-    text: "Začni ve sprše. 30 sekund studené vody na konci. Není to o zdraví (i když pomáhá). Je to trénink: udělám věc, kterou nechci, protože jsem se tak rozhodl.",
-  },
-  {
-    emoji: "📓",
-    title: "Journaling",
-    text: "Nemusíš psát román. Stačí 5 minut večer: Co jsem dnes udělal? Co jsem se naučil? Co udělám zítra?",
-  },
 ];
 
 export default function KoucingPage() {
@@ -117,8 +107,10 @@ export default function KoucingPage() {
                 Koučing není pro každého.
               </p>
               <p className="text-lg md:text-xl text-muted leading-relaxed max-w-2xl mx-auto">
-                Je to intenzivní práce &mdash; pro lidi, kteří se buď vůbec nehýbají směrem, kam chtějí, nebo se hýbají, ale příliš pomalu. Pokud hledáš spíš vlastní tempo a prostor na prozkoumávání, víc ti dá{" "}
-                <Link href="/knihovna" className="text-primary font-semibold hover:opacity-80 transition-opacity">Knihovna</Link>.
+                Je to intenzivní práce &mdash; pro lidi, kteří se buď vůbec nehýbají směrem, kam chtějí, nebo se hýbají, ale příliš pomalu. Pokud hledáš spíš vlastní tempo a prostor na prozkoumávání, zkus kouknout do{" "}
+                <Link href="/knihovna" className="text-primary font-semibold hover:opacity-80 transition-opacity">knihovny</Link>
+                {", "}nebo můžeš vyzkoušet mou apku{" "}
+                <a href="https://thinkable.website" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:opacity-80 transition-opacity">Thinkable</a>. Pokud jsi už různě věci zkoušel a jsi stále zaseklý/á, tak si zarezervuj schůzku zdarma a kouknem na to, jak ti můžu pomoct.
               </p>
               <Link href="#rezervace" className="btn-playful text-lg">
                 Rezervovat konzultaci zdarma &rarr;
@@ -143,10 +135,13 @@ export default function KoucingPage() {
 
           <div className="paper-card p-8 md:p-10 space-y-5">
             <p className="text-lg text-foreground/80 leading-relaxed">
-              Nejsem klasický kouč, který se jen ptá &bdquo;a co ty na to?&ldquo; Kombinuju koučink s mentoringem &mdash; když je potřeba nasměrovat, nasměruju. Když je potřeba naslouchat, naslouchám. Cíl je jeden: přestat se točit v hlavě a začít dělat.
+              Většinu života jsem strávil v hlavě. Plánoval, analyzoval, zvažoval &mdash; a ztrácel se v tom, místo abych žil. Poznám ten pocit: víš, jak chceš, aby tvůj život vypadal, ale místo žití ho přemýšlíš. A ta mezera mezi hlavou a životem tě vyčerpává.
             </p>
             <p className="text-lg text-foreground/80 leading-relaxed">
-              Níže najdeš celý můj přístup &mdash; krok za krokem, zdarma. Většina lidí si to přečte, pochopí logiku, a stejně zjistí, že to sami neudělají. Ne proto, že by byli hloupí. Ale proto, že právě ten vzorec &bdquo;přemýšlet místo dělat&ldquo; je to, co je drží. Koučink je pojistka, že tentokrát to dopadne jinak.
+              Cíl je jednoduchý &mdash; přejít co nejvíc <span className="underline-playful font-semibold">z hlavy do života</span>. Ne ho dokonale promyslet, ale reálně ho žít. Koučink je nástroj, kterým ten přechod zrychluju &mdash; sobě i lidem, co se zasekli ve stejném místě.
+            </p>
+            <p className="text-lg text-foreground/80 leading-relaxed">
+              Nejsem klasický kouč, který se jen ptá &bdquo;a co ty na to?&ldquo; Kombinuju koučink s mentoringem &mdash; když je potřeba nasměrovat, nasměruju. Když je potřeba naslouchat, naslouchám. Níže najdeš celý můj přístup krok za krokem, zdarma. Koučink je pak pojistka, že to tentokrát opravdu uděláš.
             </p>
           </div>
         </section>

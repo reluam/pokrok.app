@@ -48,23 +48,6 @@ export default async function Home() {
           style={{ animationDelay: "0ms" }}
         >
           <div className="bg-[#fdf0e6]/60 rounded-[36px] px-6 sm:px-10 md:px-14 py-10 md:py-14 relative overflow-hidden">
-            {/* Floating decorative emoji */}
-            <div className="absolute top-6 left-6 text-3xl animate-float opacity-60 hidden md:block">
-              ✨
-            </div>
-            <div
-              className="absolute top-10 right-10 text-2xl animate-float opacity-50 hidden md:block"
-              style={{ animationDelay: "1.5s" }}
-            >
-              🌿
-            </div>
-            <div
-              className="absolute bottom-8 right-12 text-xl animate-float opacity-40 hidden md:block"
-              style={{ animationDelay: "2.5s" }}
-            >
-              💭
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-12 items-center relative">
               <div className="paper-card overflow-hidden w-56 h-56 md:w-64 md:h-64 shrink-0 mx-auto md:mx-0">
                 <Image
@@ -84,12 +67,12 @@ export default async function Home() {
                 </h1>
 
                 <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-7">
-                  Jsem Matěj. Pomáhám lidem, co se zasekli v hlavě, začít reálně žít. Skrz koučink a upřímný rozhovor.
+                  Pomáhám lidem, co se zasekli v hlavě, začít reálně žít.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center md:items-start gap-3">
                   <Link href="/koucing#rezervace" className="btn-playful">
-                    Rezervovat konzultaci zdarma &rarr;
+                    Konzultace zdarma &rarr;
                   </Link>
                   <Link
                     href="/knihovna"
@@ -111,10 +94,6 @@ export default async function Home() {
           className="mb-24 md:mb-32 animate-fade-up relative"
           style={{ animationDelay: "100ms" }}
         >
-          <div className="absolute -top-2 right-4 text-4xl opacity-30 hidden md:block animate-float">
-            🤔
-          </div>
-
           <div className="text-center mb-12">
             <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-3">
               Poznáváš se?
@@ -167,27 +146,25 @@ export default async function Home() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
               {posts.map((post) => (
                 <Link
                   key={post.id}
                   href={`/knihovna/${post.slug}`}
-                  className="group flex flex-col py-2"
+                  className="paper-card p-6 h-full flex flex-col group"
                 >
-                  <div className="border-l-2 border-[#cdc4f5] pl-5 group-hover:border-primary transition-colors flex-1 flex flex-col">
-                    <h3 className="font-display text-lg font-extrabold mb-2 group-hover:text-primary transition-colors leading-snug">
-                      {post.title}
-                    </h3>
-                    {post.subtitle && (
-                      <p className="text-sm text-foreground/60 leading-relaxed flex-1 line-clamp-3 mb-4">
-                        {post.subtitle}
-                      </p>
-                    )}
-                    <p className="font-display font-bold text-sm text-[#7766d8] inline-flex items-center gap-1.5 mt-auto">
-                      Číst dál
-                      <span className="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
+                  <h3 className="font-display text-lg font-extrabold mb-2 group-hover:text-primary transition-colors leading-snug">
+                    {post.title}
+                  </h3>
+                  {post.subtitle && (
+                    <p className="text-sm text-foreground/60 leading-relaxed flex-1 line-clamp-3 mb-4">
+                      {post.subtitle}
                     </p>
-                  </div>
+                  )}
+                  <p className="font-display font-bold text-sm text-[#7766d8] inline-flex items-center gap-1.5 mt-auto">
+                    Číst dál
+                    <span className="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
+                  </p>
                 </Link>
               ))}
             </div>
@@ -208,34 +185,32 @@ export default async function Home() {
           className="mb-12 animate-fade-up"
           style={{ animationDelay: "300ms" }}
         >
-          <div className="paper-card p-8 md:p-10">
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="paper-card overflow-hidden w-36 h-36 md:w-40 md:h-40 shrink-0">
-                <Image
-                  src="/matej-photo.jpg"
-                  alt="Matěj Mauler"
-                  width={160}
-                  height={160}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
-                  O mně
-                </p>
-                <h2 className="font-display text-2xl md:text-3xl font-extrabold mb-4 tracking-tight">
-                  Bývalý muzikant, <span className="underline-teal">věčný hledač</span>
-                </h2>
-                <p className="text-base md:text-lg text-foreground/70 leading-relaxed mb-5">
-                  Jsem Matěj. Většinu života jsem strávil snahou přijít na to, jak se tenhle život vlastně &bdquo;hraje&ldquo;. Nakonec jsem zjistil, že odpovědi se neschovávají v kapitolách, ale v tom, co dělám každý den.
-                </p>
-                <Link
-                  href="/o-mne"
-                  className="inline-flex items-center gap-2 font-display font-bold text-foreground/70 hover:text-foreground transition-colors"
-                >
-                  Celý příběh &rarr;
-                </Link>
-              </div>
+          <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+            <div className="paper-card overflow-hidden w-40 h-40 md:w-48 md:h-48 shrink-0">
+              <Image
+                src="/o-mne-hloubani.jpg"
+                alt="Matěj Mauler"
+                width={192}
+                height={192}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
+                O mně
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl font-extrabold mb-4 tracking-tight">
+                Bývalý muzikant, <span className="underline-teal">věčný hledač</span>
+              </h2>
+              <p className="text-base md:text-lg text-foreground/70 leading-relaxed mb-5">
+                Většinu života jsem strávil snahou přijít na to, jak se tenhle život vlastně &bdquo;hraje&ldquo;. Nakonec jsem zjistil, že odpovědi se neschovávají v kapitolách, ale v tom, co dělám každý den.
+              </p>
+              <Link
+                href="/o-mne"
+                className="inline-flex items-center gap-2 font-display font-bold text-foreground/70 hover:text-foreground transition-colors"
+              >
+                Celý příběh &rarr;
+              </Link>
             </div>
           </div>
         </section>
