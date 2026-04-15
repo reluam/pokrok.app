@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-background text-ink-primary font-sans;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  * {
+    @apply border-border-subtle;
+  }
+
+  /* Gentle cream background with subtle warm tint — matches mobile */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 140, 66, 0.08), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 100% 50%, rgba(58, 181, 173, 0.04), transparent 60%);
+  }
+}
+
+@layer components {
+  .container-lg {
+    @apply mx-auto w-full max-w-[1200px] px-md md:px-lg;
+  }
+}
