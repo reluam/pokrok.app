@@ -22,13 +22,17 @@ export default function KoucingPage() {
           <div className="paper-card p-8 md:p-12 text-center">
             <div className="max-w-3xl mx-auto space-y-6">
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
-                Upřímně: možná koučing vůbec{" "}
+                Možná koučing vůbec{" "}
                 <span className="underline-playful">nepotřebuješ.</span>
               </h1>
+              <p className="font-display text-xl md:text-2xl font-extrabold text-foreground">
+                Koučing není pro každého.
+              </p>
               <p className="text-lg md:text-xl text-muted leading-relaxed max-w-2xl mx-auto">
-                Na Žiju.life najdeš{" "}
-                <Link href="/knihovna" className="text-primary font-semibold hover:opacity-80 transition-opacity">Knihovnu</Link>{" "}
-                plnou knih, videí a tipů zdarma. Koučing je pro chvíle, kdy chceš jít hlouběji — s někým po boku.
+                Je to intenzivní práce &mdash; pro lidi, kteří se buď vůbec nehýbají směrem, kam chtějí, nebo se hýbají, ale příliš pomalu. Pokud hledáš spíš vlastní tempo a prostor na prozkoumávání, víc ti dá{" "}
+                <Link href="/knihovna" className="text-primary font-semibold hover:opacity-80 transition-opacity">Knihovna</Link>{" "}
+                nebo aplikace{" "}
+                <a href="https://thinkable.website" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:opacity-80 transition-opacity">Thinkable</a>.
               </p>
               <button
                 onClick={() => scrollTo("rezervace")}
