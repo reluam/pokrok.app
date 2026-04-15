@@ -6,7 +6,6 @@ import NewsletterContent from "@/components/admin/NewsletterContent";
 import NewsletterCampaigns from "@/components/admin/NewsletterCampaigns";
 import SettingsContent from "@/components/admin/SettingsContent";
 import CrmContent from "@/components/admin/CrmContent";
-import AuditAccessContent from "@/components/admin/AuditAccessContent";
 import BookingSlotsContent from "@/components/admin/BookingSlotsContent";
 import AIStatsContent from "@/components/admin/AIStatsContent";
 
@@ -27,7 +26,6 @@ function AdminContent() {
       {section === "newsletter-campaigns" && <NewsletterCampaigns />}
       {section === "crm" && <CrmContent />}
       {section === "rezervace" && <BookingSlotsContent />}
-      {section === "audit-access" && <AuditAccessContent />}
       {section === "ai-stats" && <AIStatsContent />}
       {section === "settings" && <SettingsContent />}
     </div>

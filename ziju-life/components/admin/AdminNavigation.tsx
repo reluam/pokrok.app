@@ -7,7 +7,6 @@ import {
   Settings,
   Users,
   Calendar,
-  ShieldCheck,
   BarChart3,
   Rss,
 } from "lucide-react";
@@ -17,7 +16,6 @@ type AdminSection =
   | "newsletter-campaigns"
   | "crm"
   | "rezervace"
-  | "audit-access"
   | "ai-stats"
   | "settings";
 
@@ -52,11 +50,6 @@ export default function AdminNavigation() {
       id: "rezervace",
       label: "Rezervace",
       icon: Calendar,
-    },
-    {
-      id: "audit-access",
-      label: "Audit — přístupy",
-      icon: ShieldCheck,
     },
     {
       id: "ai-stats",

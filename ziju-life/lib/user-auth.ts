@@ -11,15 +11,6 @@ export type User = {
   created_at: Date
 }
 
-export type Purchase = {
-  id: string
-  user_id: string
-  product_slug: string
-  stripe_payment_id: string | null
-  created_at: Date
-  completed_at: Date | null
-}
-
 export async function getUserByEmail(email: string): Promise<User | null> {
   const rows = (await sql`
     SELECT id, email, created_at FROM users WHERE email = ${email} LIMIT 1
@@ -123,25 +114,6 @@ export async function destroyUserSession(): Promise<void> {
   cookieStore.delete(USER_SESSION_COOKIE)
 }
 
-export async function getUserPurchases(userId: string): Promise<Purchase[]> {
-  const rows = await sql`
-    SELECT id, user_id, product_slug, stripe_payment_id, created_at, completed_at
-    FROM purchases
-    WHERE user_id = ${userId}
-    ORDER BY created_at DESC
-  `
-  return rows as unknown as Purchase[]
-}
-
-export async function createFreePurchase(userId: string): Promise<string> {
-  const id = `purchase_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-  await sql`
-    INSERT INTO purchases (id, user_id, product_slug, stripe_payment_id, created_at)
-    VALUES (${id}, ${userId}, 'audit-zivota', NULL, NOW())
-  `
-  return id
-}
-
 /**
  * Extract email from Bearer JWT token if present.
  * Returns undefined if no Bearer token or invalid.
@@ -171,17 +143,4 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<User |
 
   // 2. Fall back to cookie session (web)
   return verifyUserSession()
-}
-
-export async function getJourneyData(userId: string): Promise<{ purchaseId: string; data: Record<string, unknown> | null } | null> {
-  const rows = await sql`
-    SELECT id, journey_data
-    FROM purchases
-    WHERE user_id = ${userId} AND product_slug = 'audit-zivota' AND completed_at IS NULL
-    ORDER BY created_at DESC
-    LIMIT 1
-  `
-  const row = rows[0] as { id: string; journey_data: Record<string, unknown> | null } | undefined
-  if (!row) return null
-  return { purchaseId: row.id, data: row.journey_data ?? null }
 }
