@@ -105,11 +105,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoLogin = () => {
-    login('demo-user', 'demo@calibrate.app', 'Demo');
-    router.push('/dashboard');
-  };
-
   if (step === 'code') {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-background p-lg">
@@ -229,19 +224,6 @@ export default function LoginPage() {
             )}
           </button>
 
-          <div className="flex items-center gap-md">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-sm text-ink-secondary">nebo</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            className="w-full rounded-full border-2 border-border-light bg-card py-md text-md font-bold text-ink-primary transition-colors hover:border-primary"
-          >
-            Vyzkoušet bez registrace
-          </button>
         </div>
       </div>
     </div>

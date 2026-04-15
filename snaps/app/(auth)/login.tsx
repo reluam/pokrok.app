@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { getLocales } from 'expo-localization';
 import { router } from 'expo-router';
-import { Mail, ArrowLeft } from 'lucide-react-native';
+import { Mail } from 'lucide-react-native';
 import { Calibrate } from '@/components/mascot/Calibrate';
 import { Button } from '@/components/ui/Button';
 import { requestOtp, verifyOtp } from '@/lib/auth-api';
@@ -105,11 +105,6 @@ export default function LoginScreen() {
     if (!result.success) {
       setError(result.error ?? t('Nepodařilo se odeslat kód', 'Failed to send the code'));
     }
-  };
-
-  const handleDemoLogin = () => {
-    login('demo-user', 'demo@calibrate.app', 'Demo');
-    router.replace('/(tabs)/home');
   };
 
   if (step === 'code') {
@@ -227,19 +222,6 @@ export default function LoginScreen() {
             loading={loading}
             size="lg"
           />
-
-          <View style={styles.divider}>
-            <View style={styles.line} />
-            <Text style={styles.dividerText}>{t('nebo', 'or')}</Text>
-            <View style={styles.line} />
-          </View>
-
-          <Button
-            title={t('Vyzkoušet bez registrace', 'Try without signing up')}
-            onPress={handleDemoLogin}
-            variant="secondary"
-            size="lg"
-          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -320,20 +302,5 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontSize: fontSize.sm,
     textAlign: 'center',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginVertical: spacing.sm,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  dividerText: {
-    color: colors.textSecondary,
-    fontSize: fontSize.sm,
   },
 });
