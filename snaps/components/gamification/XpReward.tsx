@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Zap, Flame, Target } from 'lucide-react-native';
 import { colors, fontSize, spacing, borderRadius } from '@/lib/constants';
+import { useUserStore } from '@/stores/user-store';
 
 interface XpRewardProps {
   breakdown: {
@@ -13,22 +14,24 @@ interface XpRewardProps {
 }
 
 export function XpReward({ breakdown, total }: XpRewardProps) {
+  const language = useUserStore((s) => s.language);
+  const t = (cs: string, en: string) => (language === 'en' ? en : cs);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Získáno XP</Text>
+      <Text style={styles.title}>{t('Získáno XP', 'XP earned')}</Text>
       <Text style={styles.totalXp}>+{total} XP</Text>
 
       <View style={styles.breakdown}>
         <View style={styles.row}>
           <Target size={16} color={colors.primary} />
-          <Text style={styles.label}>Dokončení lekce</Text>
+          <Text style={styles.label}>{t('Dokončení lekce', 'Lesson complete')}</Text>
           <Text style={styles.value}>+{breakdown.base}</Text>
         </View>
 
         {breakdown.bonus > 0 && (
           <View style={styles.row}>
             <Zap size={16} color={colors.xpGold} />
-            <Text style={styles.label}>Správně na první pokus</Text>
+            <Text style={styles.label}>{t('Správně na první pokus', 'Correct on first try')}</Text>
             <Text style={[styles.value, { color: colors.xpGold }]}>
               +{breakdown.bonus}
             </Text>
@@ -38,7 +41,7 @@ export function XpReward({ breakdown, total }: XpRewardProps) {
         {breakdown.streak > 0 && (
           <View style={styles.row}>
             <Flame size={16} color={colors.streak} />
-            <Text style={styles.label}>Streak bonus</Text>
+            <Text style={styles.label}>{t('Streak bonus', 'Streak bonus')}</Text>
             <Text style={[styles.value, { color: colors.streak }]}>
               +{breakdown.streak}
             </Text>

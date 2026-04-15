@@ -1,53 +1,74 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Lightbulb } from 'lucide-react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { Sparkles } from 'lucide-react-native';
 import { colors, fontSize, spacing, borderRadius } from '@/lib/constants';
+import { useUserStore } from '@/stores/user-store';
+import { MarkdownText } from './MarkdownText';
 
 interface KeyInsightStepProps {
   content: string;
 }
 
+/**
+ * Highlighted "takeaway" step. Wrapped in a soft yellow callout so it stands
+ * apart from the surrounding theory and quiz steps. Renders markdown (bold).
+ */
 export function KeyInsightStep({ content }: KeyInsightStepProps) {
+  const language = useUserStore((s) => s.language);
+  const label = language === 'en' ? 'Key takeaway' : 'Klíčový poznatek';
+
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <View style={styles.iconRow}>
-          <Lightbulb size={24} color={colors.xpGold} />
-          <Text style={styles.label}>Klíčový poznatek</Text>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.callout}>
+        <View style={styles.labelRow}>
+          <Sparkles size={18} color={colors.xpGold} />
+          <Text style={styles.label}>{label}</Text>
         </View>
-        <Text style={styles.text}>{content}</Text>
+        <MarkdownText content={content} style={styles.text} />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scroll: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
   },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: borderRadius.lg,
+  container: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  callout: {
+    backgroundColor: colors.xpGoldLight,
+    borderRadius: borderRadius.xl,
     padding: spacing.lg,
     borderLeftWidth: 4,
     borderLeftColor: colors.xpGold,
   },
-  iconRow: {
+  labelRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.md,
   },
   label: {
-    color: colors.xpGold,
-    fontWeight: '700',
-    fontSize: fontSize.md,
+    color: '#B45309',
+    fontWeight: '800',
+    fontSize: fontSize.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
   },
   text: {
     color: colors.textPrimary,
     fontSize: fontSize.lg,
-    lineHeight: 28,
+    lineHeight: 30,
+    fontWeight: '600',
   },
 });

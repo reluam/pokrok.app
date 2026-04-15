@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Flame } from 'lucide-react-native';
 import { colors, fontSize, spacing, borderRadius } from '@/lib/constants';
+import { useUserStore } from '@/stores/user-store';
 
 interface StreakBadgeProps {
   streak: number;
@@ -9,10 +10,21 @@ interface StreakBadgeProps {
 }
 
 export function StreakBadge({ streak, compact = false }: StreakBadgeProps) {
+  const language = useUserStore((s) => s.language);
+  const dayLabel =
+    language === 'en'
+      ? streak === 1
+        ? 'day'
+        : 'days'
+      : streak === 1
+      ? 'den'
+      : streak >= 2 && streak <= 4
+      ? 'dny'
+      : 'dní';
   if (compact) {
     return (
       <View style={styles.compactRow}>
-        <Flame size={16} color={streak > 0 ? colors.streak : colors.textSecondary} fill={streak > 0 ? colors.streak : 'transparent'} />
+        <Flame size={16} color={streak > 0 ? colors.streak : colors.textMuted} fill={streak > 0 ? colors.streak : 'transparent'} />
         <Text style={[styles.compactText, streak > 0 && styles.activeText]}>
           {streak}
         </Text>
@@ -24,15 +36,13 @@ export function StreakBadge({ streak, compact = false }: StreakBadgeProps) {
     <View style={[styles.container, streak > 0 && styles.activeContainer]}>
       <Flame
         size={28}
-        color={streak > 0 ? colors.streak : colors.textSecondary}
+        color={streak > 0 ? colors.streak : colors.textMuted}
         fill={streak > 0 ? colors.streak : 'transparent'}
       />
       <Text style={[styles.number, streak > 0 && styles.activeText]}>
         {streak}
       </Text>
-      <Text style={styles.label}>
-        {streak === 1 ? 'den' : streak >= 2 && streak <= 4 ? 'dny' : 'dní'}
-      </Text>
+      <Text style={styles.label}>{dayLabel}</Text>
     </View>
   );
 }
@@ -41,23 +51,26 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     backgroundColor: colors.card,
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.xl,
     padding: spacing.md,
     minWidth: 80,
+    borderWidth: 2,
+    borderColor: colors.border,
   },
   activeContainer: {
     borderWidth: 1,
     borderColor: colors.streak,
+    backgroundColor: colors.streakLight,
   },
   number: {
     fontSize: fontSize.xl,
     fontWeight: '800',
-    color: colors.textSecondary,
+    color: colors.textMuted,
     marginTop: spacing.xs,
   },
   label: {
     fontSize: fontSize.xs,
-    color: colors.textSecondary,
+    color: colors.textMuted,
     marginTop: 2,
   },
   activeText: {
@@ -71,6 +84,6 @@ const styles = StyleSheet.create({
   compactText: {
     fontSize: fontSize.md,
     fontWeight: '700',
-    color: colors.textSecondary,
+    color: colors.textMuted,
   },
 });

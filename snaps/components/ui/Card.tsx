@@ -6,19 +6,20 @@ interface CardProps {
   children: React.ReactNode;
   onPress?: () => void;
   style?: ViewStyle;
-  variant?: 'default' | 'elevated';
+  variant?: 'default' | 'elevated' | 'outlined';
 }
 
 export function Card({ children, onPress, style, variant = 'default' }: CardProps) {
   const cardStyle: ViewStyle[] = [
     styles.base,
     variant === 'elevated' && styles.elevated,
+    variant === 'outlined' && styles.outlined,
     style,
   ].filter(Boolean) as ViewStyle[];
 
   if (onPress) {
     return (
-      <TouchableOpacity style={cardStyle} onPress={onPress} activeOpacity={0.7}>
+      <TouchableOpacity style={cardStyle} onPress={onPress} activeOpacity={0.85}>
         {children}
       </TouchableOpacity>
     );
@@ -30,14 +31,21 @@ export function Card({ children, onPress, style, variant = 'default' }: CardProp
 const styles = StyleSheet.create({
   base: {
     backgroundColor: colors.card,
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.xl,
     padding: spacing.md,
+    borderWidth: 2,
+    borderColor: colors.border,
   },
   elevated: {
-    shadowColor: '#000',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  outlined: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: colors.border,
   },
 });

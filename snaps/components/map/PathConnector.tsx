@@ -14,7 +14,7 @@ interface PathConnectorProps {
 export function PathConnector({
   fromX,
   toX,
-  height = 60,
+  height = 56,
   completed,
   courseColor,
 }: PathConnectorProps) {
@@ -24,7 +24,9 @@ export function PathConnector({
   const midY = height / 2;
 
   const pathData = `M ${startX} 0 C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${height}`;
-  const color = completed ? colors.success : courseColor + '30';
+  // Project-coloured connector — completed segments use success, the rest
+  // are a faded primary so the path reads as one warm, coherent track.
+  const color = completed ? colors.success : colors.primary + '40';
 
   return (
     <View style={[styles.container, { height }]}>
@@ -32,9 +34,10 @@ export function PathConnector({
         <Path
           d={pathData}
           stroke={color}
-          strokeWidth={3}
+          strokeWidth={completed ? 3 : 2}
           fill="none"
-          strokeDasharray={completed ? undefined : '8,6'}
+          strokeDasharray={completed ? undefined : '6,6'}
+          strokeLinecap="round"
         />
       </Svg>
     </View>

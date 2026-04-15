@@ -15,6 +15,8 @@ export default function PracticeScreen() {
   const recordReview = useLessonStore((s) => s.recordReview);
   const getLessonsForModel = useLessonStore((s) => s.getLessonsForModel);
   const addXp = useUserStore((s) => s.addXp);
+  const language = useUserStore((s) => s.language);
+  const t = (cs: string, en: string) => (language === 'en' ? en : cs);
 
   const [reviews] = useState(() => getDueReviews());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -46,13 +48,16 @@ export default function PracticeScreen() {
           <CheckCircle size={64} color={colors.success} />
           <Text style={styles.emptyTitle}>
             {reviews.length === 0
-              ? 'Zatím nemáš co opakovat'
-              : 'Vše opakováno!'}
+              ? t('Zatím nemáš co opakovat', 'Nothing to review yet')
+              : t('Vše opakováno!', 'All reviewed!')}
           </Text>
           <Text style={styles.emptySubtitle}>
             {reviews.length === 0
-              ? 'Dokonči pár lekcí a modely se ti začnou vracet k opakování.'
-              : 'Skvěle! Další opakování zítra.'}
+              ? t(
+                  'Dokonči pár lekcí a modely se ti začnou vracet k opakování.',
+                  'Finish a few lessons and models will start coming back for review.',
+                )
+              : t('Skvěle! Další opakování zítra.', 'Great work! Next review tomorrow.')}
           </Text>
         </View>
       </SafeAreaView>
@@ -66,11 +71,38 @@ export default function PracticeScreen() {
   const scenarioStep = scenarioLesson?.content.steps.find(
     (s) => s.type === 'scenario' || s.type === 'quiz'
   );
+  // Localize step content based on language
+  const stepSituation =
+    scenarioStep && 'situation' in scenarioStep
+      ? language === 'en' && scenarioStep.situation_en
+        ? scenarioStep.situation_en
+        : (scenarioStep.situation ?? '')
+      : '';
+  const stepQuestion = scenarioStep
+    ? language === 'en' && scenarioStep.question_en
+      ? scenarioStep.question_en
+      : scenarioStep.question
+    : '';
+  const stepOptions = scenarioStep
+    ? language === 'en'
+      ? scenarioStep.options.map((o) => ({
+          ...o,
+          text: o.text_en || o.text,
+          explanation: o.explanation_en || o.explanation,
+        }))
+      : scenarioStep.options
+    : [];
+  const fallbackText =
+    language === 'en' && review.model.short_description_en
+      ? review.model.short_description_en
+      : review.model.short_description;
+  const modelPrimary = language === 'en' ? review.model.name : review.model.name_cz;
+  const modelSecondary = language === 'en' ? review.model.name_cz : review.model.name;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Opakování</Text>
+        <Text style={styles.title}>{t('Opakování', 'Practice')}</Text>
         <Text style={styles.counter}>
           {currentIndex + 1} / {reviews.length}
         </Text>
@@ -79,25 +111,23 @@ export default function PracticeScreen() {
       <Card style={styles.modelHeader}>
         <Brain size={24} color={colors.primary} />
         <View style={{ flex: 1 }}>
-          <Text style={styles.modelName}>{review.model.name}</Text>
-          <Text style={styles.modelNameCz}>{review.model.name_cz}</Text>
+          <Text style={styles.modelName}>{modelPrimary}</Text>
+          <Text style={styles.modelNameCz}>{modelSecondary}</Text>
         </View>
       </Card>
 
       {scenarioStep && (scenarioStep.type === 'scenario' || scenarioStep.type === 'quiz') ? (
         <ScenarioStep
-          situation={'situation' in scenarioStep ? scenarioStep.situation : ''}
-          question={scenarioStep.question}
-          options={scenarioStep.options}
+          situation={stepSituation}
+          question={stepQuestion}
+          options={stepOptions}
           onAnswer={handleAnswer}
         />
       ) : (
         <View style={styles.fallbackReview}>
-          <Text style={styles.fallbackText}>
-            {review.model.short_description}
-          </Text>
+          <Text style={styles.fallbackText}>{fallbackText}</Text>
           <Button
-            title="Pamatuji si"
+            title={t('Pamatuji si', 'I remember')}
             onPress={() => {
               recordReview(review.model.id, 4);
               addXp(5);
@@ -106,7 +136,7 @@ export default function PracticeScreen() {
             size="lg"
           />
           <Button
-            title="Potřebuji zopakovat"
+            title={t('Potřebuji zopakovat', 'Need to review')}
             onPress={() => {
               recordReview(review.model.id, 1);
               handleNext();
@@ -119,7 +149,7 @@ export default function PracticeScreen() {
 
       {answered && (
         <View style={styles.nextContainer}>
-          <Button title="Další" onPress={handleNext} size="lg" />
+          <Button title={t('Další', 'Next')} onPress={handleNext} size="lg" />
         </View>
       )}
     </SafeAreaView>

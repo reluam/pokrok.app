@@ -1,26 +1,50 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { CheckCircle, XCircle } from 'lucide-react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { CheckCircle2, XCircle } from 'lucide-react-native';
 import { notificationSuccess, notificationError } from '@/lib/haptics';
 import { colors, fontSize, spacing, borderRadius } from '@/lib/constants';
 import type { ScenarioOption } from '@/types';
+import { renderInlineMarkdown } from './MarkdownText';
 
 interface ScenarioStepProps {
   situation: string;
   question: string;
   options: ScenarioOption[];
+  /** Optional small label above the question (e.g. "Zamysli se", "Kvíz") */
+  label?: string;
   onAnswer: (correct: boolean, firstTry: boolean) => void;
 }
 
+/**
+ * Question step. Used for engagement (during theory), legacy scenario, and
+ * scored quiz. Plain visual — no card behind the situation, no decorative
+ * speech-bubble icons. The engine decides whether the answer affects score.
+ */
 export function ScenarioStep({
   situation,
   question,
   options,
+  label,
   onAnswer,
 }: ScenarioStepProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hasAnswered, setHasAnswered] = useState(false);
   const [attempts, setAttempts] = useState(0);
+
+  // Shuffle options once per question so the correct answer is at a random
+  // position. We derive the dependency from option *content* (not the array
+  // reference) so that parent re-renders that create a new — but identical —
+  // options array don't trigger a re-shuffle mid-question.
+  const optionsKey = options.map((o) => o.text).join('|');
+  const shuffledOptions = useMemo(() => {
+    const arr = [...options];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [optionsKey]);
 
   const handleSelect = (index: number) => {
     if (hasAnswered) return;
@@ -28,15 +52,14 @@ export function ScenarioStep({
     setSelectedIndex(index);
     setAttempts((a) => a + 1);
 
-    const option = options[index];
+    const option = shuffledOptions[index];
     if (option.correct) {
       setHasAnswered(true);
       notificationSuccess();
       onAnswer(true, attempts === 0);
     } else {
       notificationError();
-      // Allow re-tries — only mark first attempt
-      setTimeout(() => setSelectedIndex(null), 1200);
+      setTimeout(() => setSelectedIndex(null), 1400);
     }
   };
 
@@ -46,54 +69,71 @@ export function ScenarioStep({
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.situationCard}>
-        <Text style={styles.situation}>{situation}</Text>
-      </View>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
 
-      <Text style={styles.question}>{question}</Text>
+      {situation ? (
+        <Text style={styles.situation}>{renderInlineMarkdown(situation)}</Text>
+      ) : null}
+
+      <Text style={styles.question}>{renderInlineMarkdown(question)}</Text>
 
       <View style={styles.options}>
-        {options.map((option, index) => {
+        {shuffledOptions.map((option, index) => {
           const isSelected = selectedIndex === index;
           const isCorrect = option.correct;
           const showResult = isSelected;
 
-          let borderColor: string = colors.surface;
-          if (showResult && isCorrect) borderColor = colors.success;
-          if (showResult && !isCorrect) borderColor = colors.error;
-
           return (
-            <TouchableOpacity
+            <Pressable
               key={index}
-              style={[
+              style={({ pressed }) => [
                 styles.option,
-                { borderColor },
+                pressed && !hasAnswered && styles.optionPressed,
                 showResult && isCorrect && styles.correctOption,
                 showResult && !isCorrect && styles.wrongOption,
               ]}
               onPress={() => handleSelect(index)}
               disabled={hasAnswered}
-              activeOpacity={0.7}
             >
-              <Text style={styles.optionText}>{option.text}</Text>
-              {showResult && (
-                <View style={styles.feedback}>
-                  {isCorrect ? (
-                    <CheckCircle size={20} color={colors.success} />
+              <View style={styles.optionRow}>
+                <View
+                  style={[
+                    styles.optionMarker,
+                    showResult && isCorrect && styles.correctMarker,
+                    showResult && !isCorrect && styles.wrongMarker,
+                  ]}
+                >
+                  {showResult && isCorrect ? (
+                    <CheckCircle2 size={18} color="#fff" strokeWidth={3} />
+                  ) : showResult && !isCorrect ? (
+                    <XCircle size={18} color="#fff" strokeWidth={3} />
                   ) : (
-                    <XCircle size={20} color={colors.error} />
+                    <Text style={styles.optionLetter}>
+                      {String.fromCharCode(65 + index)}
+                    </Text>
                   )}
-                  <Text
-                    style={[
-                      styles.explanation,
-                      { color: isCorrect ? colors.success : colors.error },
-                    ]}
-                  >
-                    {option.explanation}
-                  </Text>
                 </View>
+                <Text
+                  style={[
+                    styles.optionText,
+                    showResult && isCorrect && styles.correctText,
+                    showResult && !isCorrect && styles.wrongText,
+                  ]}
+                >
+                  {renderInlineMarkdown(option.text)}
+                </Text>
+              </View>
+              {showResult && (
+                <Text
+                  style={[
+                    styles.explanation,
+                    { color: isCorrect ? '#166534' : '#991B1B' },
+                  ]}
+                >
+                  {renderInlineMarkdown(option.explanation)}
+                </Text>
               )}
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </View>
@@ -106,58 +146,99 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    padding: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
   },
-  situationCard: {
-    backgroundColor: colors.card,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
+  label: {
+    color: colors.primary,
+    fontWeight: '800',
+    fontSize: fontSize.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: spacing.sm,
   },
   situation: {
     color: colors.textPrimary,
     fontSize: fontSize.md,
     lineHeight: 24,
+    fontWeight: '500',
+    marginBottom: spacing.lg,
   },
   question: {
     color: colors.textPrimary,
     fontSize: fontSize.lg,
-    fontWeight: '700',
+    fontWeight: '800',
+    lineHeight: 26,
     marginBottom: spacing.lg,
   },
   options: {
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   option: {
     backgroundColor: colors.card,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
+    borderRadius: borderRadius.xl,
+    padding: spacing.md + 2,
     borderWidth: 2,
+    borderColor: colors.border,
+  },
+  optionPressed: {
+    transform: [{ scale: 0.98 }],
+    backgroundColor: colors.primaryLight,
   },
   correctOption: {
-    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    backgroundColor: colors.successLight,
+    borderColor: colors.success,
   },
   wrongOption: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: colors.errorLight,
+    borderColor: colors.error,
+  },
+  optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  optionMarker: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.card,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  correctMarker: {
+    backgroundColor: colors.success,
+    borderColor: colors.success,
+  },
+  wrongMarker: {
+    backgroundColor: colors.error,
+    borderColor: colors.error,
+  },
+  optionLetter: {
+    color: colors.textSecondary,
+    fontWeight: '800',
+    fontSize: fontSize.sm,
   },
   optionText: {
+    flex: 1,
     color: colors.textPrimary,
     fontSize: fontSize.md,
     lineHeight: 22,
+    fontWeight: '600',
   },
-  feedback: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.surface,
+  correctText: {
+    color: '#166534',
+  },
+  wrongText: {
+    color: '#991B1B',
   },
   explanation: {
-    flex: 1,
+    marginTop: spacing.md,
     fontSize: fontSize.sm,
     lineHeight: 20,
+    fontWeight: '500',
   },
 });

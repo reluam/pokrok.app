@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { CalibrateSplash } from '@/components/CalibrateSplash';
 import { colors } from '@/lib/constants';
 
 export default function RootLayout() {
+  const [splashDone, setSplashDone] = useState(false);
+
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -23,6 +28,8 @@ export default function RootLayout() {
           }}
         />
       </Stack>
-    </>
+
+      {!splashDone && <CalibrateSplash onFinished={() => setSplashDone(true)} />}
+    </GestureHandlerRootView>
   );
 }

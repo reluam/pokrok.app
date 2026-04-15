@@ -1,53 +1,61 @@
 import { Tabs } from 'expo-router';
 import { Home, Map, Brain, User } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/lib/constants';
+import { useUserStore } from '@/stores/user-store';
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 12);
+  const language = useUserStore((s) => s.language);
+  const t = (cs: string, en: string) => (language === 'en' ? en : cs);
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colors.card,
-          borderTopColor: colors.surface,
-          borderTopWidth: 1,
-          height: 85,
-          paddingBottom: 20,
-          paddingTop: 8,
+          borderTopColor: colors.borderSubtle,
+          borderTopWidth: 2,
+          height: 65 + bottomInset,
+          paddingBottom: bottomInset,
+          paddingTop: 10,
         },
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
+          letterSpacing: 0.2,
         },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Domů',
+          title: t('Domů', 'Home'),
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="library"
         options={{
-          title: 'Cesta',
+          title: t('Cesta', 'Path'),
           tabBarIcon: ({ color, size }) => <Map size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="practice"
         options={{
-          title: 'Opakování',
+          title: t('Opakování', 'Practice'),
           tabBarIcon: ({ color, size }) => <Brain size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profil',
+          title: t('Profil', 'Profile'),
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
         }}
       />

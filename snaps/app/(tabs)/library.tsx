@@ -1,11 +1,12 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { CourseMap } from '@/components/map/CourseMap';
 import { colors } from '@/lib/constants';
 
-export default function MapScreen() {
+export default function LibraryScreen() {
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <CourseMap />
     </SafeAreaView>
   );
