@@ -93,10 +93,6 @@ export default function KoucingPage() {
 
         {/* ─── Hero ─── */}
         <section className="mb-16 md:mb-20 animate-fade-up relative">
-          <div className="absolute -top-4 -left-2 text-3xl animate-float opacity-60 hidden md:block">
-            🧭
-          </div>
-
           <div className="paper-card p-8 md:p-12 text-center">
             <div className="max-w-3xl mx-auto space-y-6">
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
@@ -133,7 +129,7 @@ export default function KoucingPage() {
             </h2>
           </div>
 
-          <div className="paper-card p-8 md:p-10 space-y-5">
+          <div className="max-w-3xl mx-auto space-y-5">
             <p className="text-lg text-foreground/80 leading-relaxed">
               Většinu života jsem strávil v hlavě. Plánoval, analyzoval, zvažoval &mdash; a ztrácel se v tom, místo abych žil. Poznám ten pocit: víš, jak chceš, aby tvůj život vypadal, ale místo žití ho přemýšlíš. A ta mezera mezi hlavou a životem tě vyčerpává.
             </p>
@@ -243,17 +239,30 @@ export default function KoucingPage() {
           className="mb-16 md:mb-20 animate-fade-up"
           style={{ animationDelay: "500ms" }}
         >
-          <div className="paper-card p-8 md:p-12 text-center bg-gradient-to-br from-[#fff4eb] to-[#f1eefc]">
-            <p className="text-5xl mb-4">💡</p>
-            <p className="font-display text-xl md:text-2xl font-extrabold leading-snug max-w-3xl mx-auto">
-              Většina klientů po pár týdnech říká totéž:{" "}
-              <span className="underline-playful">
-                &bdquo;To bylo celou dobu takhle jednoduché?&ldquo;
-              </span>
-            </p>
-            <p className="text-lg text-foreground/70 mt-4 max-w-xl mx-auto">
-              Ano. Není to složité. Je to těžké. A to je zásadní rozdíl.
-            </p>
+          <div className="relative max-w-3xl mx-auto text-center px-6 md:px-12">
+            <span
+              aria-hidden="true"
+              className="absolute -top-6 -left-2 md:-top-10 md:-left-6 font-display text-[8rem] md:text-[12rem] leading-none text-primary/15 select-none"
+            >
+              &ldquo;
+            </span>
+            <blockquote className="relative">
+              <p className="font-display text-2xl md:text-3xl font-extrabold leading-snug mb-5">
+                Většina klientů po pár týdnech říká totéž:{" "}
+                <span className="underline-playful">
+                  &bdquo;To bylo celou dobu takhle jednoduché?&ldquo;
+                </span>
+              </p>
+              <p className="text-lg text-foreground/70">
+                Ano. Není to složité. Je to těžké. A to je zásadní rozdíl.
+              </p>
+            </blockquote>
+            <span
+              aria-hidden="true"
+              className="absolute -bottom-16 -right-2 md:-bottom-20 md:-right-6 font-display text-[8rem] md:text-[12rem] leading-none text-primary/15 select-none rotate-180"
+            >
+              &ldquo;
+            </span>
           </div>
         </section>
 
@@ -329,9 +338,9 @@ export default function KoucingPage() {
           </div>
 
           {/* Balíčky */}
-          <div className="paper-card p-8 space-y-5">
-            <h3 className="font-display text-xl font-extrabold">Jak to vypadá prakticky</h3>
-            <p className="text-muted leading-relaxed">
+          <div className="space-y-5 pt-2">
+            <h3 className="font-display text-xl font-extrabold text-center md:text-left">Jak to vypadá prakticky</h3>
+            <p className="text-muted leading-relaxed max-w-3xl text-center md:text-left">
               Pokud se po konzultaci rozhodneme pokračovat, díváme se na tvůj život jako na celek &mdash; a pracujeme na tom, co je právě teď nejdůležitější. Každé sezení má jasný výstup a konkrétní kroky k akci.
             </p>
 
@@ -341,14 +350,14 @@ export default function KoucingPage() {
                 { label: "Hloubková práce", desc: "10 sezení na proměnu toho, jak žiješ — od porozumění po reálnou změnu." },
                 { label: "Celý rok", desc: "Průběžná práce na tom, co přichází — týden za týdnem." },
               ].map((opt) => (
-                <div key={opt.label} className="rounded-xl bg-[#fff4eb] border border-[#ffb380]/30 p-4 space-y-1">
+                <div key={opt.label} className="rounded-xl bg-[#fff4eb] border border-[#ffb380]/30 p-5 space-y-1">
                   <p className="font-display font-extrabold text-sm text-foreground">{opt.label}</p>
                   <p className="text-xs text-muted leading-relaxed">{opt.desc}</p>
                 </div>
               ))}
             </div>
 
-            <div className="rounded-xl bg-[#e8faf8] border border-[#8be0d8]/30 p-4 mt-1 space-y-1.5">
+            <div className="rounded-xl bg-[#e8faf8] border border-[#8be0d8]/30 p-5 space-y-1.5">
               <p className="text-sm font-display font-extrabold text-[#2ba89e]">Pro prvních 10 klientů — zvýhodněná cena výměnou za hodnocení</p>
               <p className="text-sm text-muted">
                 Jedno sezení za <span className="font-semibold text-foreground/70">1 800 Kč</span> <span className="line-through text-foreground/35">3 000 Kč</span> — při deseti a více sezeních pak <span className="font-semibold text-foreground/70">1 500 Kč</span> <span className="line-through text-foreground/35">2 500 Kč</span> za sezení. Rozsah domluvíme na konzultaci.
