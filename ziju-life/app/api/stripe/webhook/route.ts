@@ -42,41 +42,6 @@ export async function POST(req: NextRequest) {
     const obj = event.data.object as Stripe.Checkout.Session | Stripe.PaymentIntent;
     const m = obj.metadata || {};
 
-    // ── AI kreditový balíček ─────────────────────────────────────────────────
-    if (m.productType === "ai-credit-pack") {
-      const userEmail = (m.userEmail as string | undefined)?.trim().toLowerCase() ?? "";
-      const creditCount = parseInt((m.credits as string | undefined) ?? "50", 10);
-      const stripePaymentId =
-        event.type === "checkout.session.completed"
-          ? ((obj as Stripe.Checkout.Session).payment_intent as string | null) ?? null
-          : (obj as Stripe.PaymentIntent).id ?? null;
-
-      if (userEmail) {
-        try {
-          const userId = `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-          const userRows = (await sql`
-            INSERT INTO users (id, email, created_at)
-            VALUES (${userId}, ${userEmail}, NOW())
-            ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
-            RETURNING id
-          `) as { id: string }[];
-          const resolvedUserId = userRows[0]?.id ?? userId;
-
-          const packId = `aicp_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-          await sql`
-            INSERT INTO ai_credit_packs (id, user_id, credits, stripe_payment_id, created_at)
-            VALUES (${packId}, ${resolvedUserId}, ${creditCount}, ${stripePaymentId}, NOW())
-          `;
-          console.log("[stripe webhook] AI credit pack created:", packId, "credits:", creditCount);
-        } catch (err) {
-          console.error("[stripe webhook] AI credit pack error:", err);
-        }
-      } else {
-        console.error("[stripe webhook] AI credit pack: missing userEmail in metadata", m);
-      }
-      return NextResponse.json({ received: true });
-    }
-
     // ── Rezervace koučinku ───────────────────────────────────────────────────
 
     const slotId = (m.slotId as string | undefined) ?? "";

@@ -11,8 +11,6 @@ export default function SettingsContent() {
   const [bookingMeetingTypes, setBookingMeetingTypes] = useState<
     { id: string; label: string; description?: string; isPaid?: boolean }[]
   >([]);
-  const [auditZivotaPriceId, setAuditZivotaPriceId] = useState("");
-  const [auditZivotaDiscountPriceId, setAuditZivotaDiscountPriceId] = useState("");
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -26,8 +24,6 @@ export default function SettingsContent() {
         if (data.googleCalendarConnected != null) setGoogleCalendarConnected(Boolean(data.googleCalendarConnected));
         if (data.showPrinciples != null) setShowPrinciples(Boolean(data.showPrinciples));
         if (Array.isArray(data.bookingMeetingTypes)) setBookingMeetingTypes(data.bookingMeetingTypes);
-        if (data.auditZivotaPriceId != null) setAuditZivotaPriceId(data.auditZivotaPriceId);
-        if (data.auditZivotaDiscountPriceId != null) setAuditZivotaDiscountPriceId(data.auditZivotaDiscountPriceId);
       })
       .catch(() => {});
   }, []);
@@ -55,8 +51,6 @@ export default function SettingsContent() {
           googleCalendarId: googleCalendarId.trim() || "primary",
           showPrinciples,
           bookingMeetingTypes,
-          auditZivotaPriceId: auditZivotaPriceId.trim() || null,
-          auditZivotaDiscountPriceId: auditZivotaDiscountPriceId.trim() || null,
         }),
       });
 
@@ -263,46 +257,6 @@ export default function SettingsContent() {
         </div>
       </section>
 
-
-      {/* Tvoje mapa – Stripe ceny */}
-      <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
-        <h3 className="text-xl font-bold text-foreground mb-2">Tvoje mapa – Stripe ceny</h3>
-        <p className="text-sm text-foreground/60 mb-5">
-          Nastav Stripe Price ID pro produkt Tvoje mapa. Standardní cena (250 Kč) se použije pro nové zákazníky, zvýhodněná (100 Kč) pro ty, kteří už Audit jednou zakoupili. Price ID vytvoříš v Stripe Dashboardu (Products → Add product).
-        </p>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Stripe Price ID – standardní cena (250 Kč)
-            </label>
-            <input
-              type="text"
-              value={auditZivotaPriceId}
-              onChange={(e) => setAuditZivotaPriceId(e.target.value)}
-              placeholder="price_xxxxx"
-              className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white font-mono text-sm"
-            />
-            <p className="text-xs text-foreground/50 mt-1">
-              Stripe Dashboard → Products → vyber produkt → zkopíruj Price ID (začíná <code className="bg-black/5 px-1 rounded">price_</code>)
-            </p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Stripe Price ID – zvýhodněná cena (100 Kč) pro vracející se zákazníky
-            </label>
-            <input
-              type="text"
-              value={auditZivotaDiscountPriceId}
-              onChange={(e) => setAuditZivotaDiscountPriceId(e.target.value)}
-              placeholder="price_xxxxx"
-              className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white font-mono text-sm"
-            />
-            <p className="text-xs text-foreground/50 mt-1">
-              Zobrazí se zákazníkům, kteří Audit již jednou zakoupili.
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* Externí CRM služby */}
       <section className="bg-white rounded-2xl p-6 border-2 border-black/10">

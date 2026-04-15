@@ -7,7 +7,6 @@ import {
   Settings,
   Users,
   Calendar,
-  BarChart3,
   Rss,
 } from "lucide-react";
 
@@ -16,7 +15,6 @@ type AdminSection =
   | "newsletter-campaigns"
   | "crm"
   | "rezervace"
-  | "ai-stats"
   | "settings";
 
 interface NavItem {
@@ -50,11 +48,6 @@ export default function AdminNavigation() {
       id: "rezervace",
       label: "Rezervace",
       icon: Calendar,
-    },
-    {
-      id: "ai-stats",
-      label: "AI Statistiky",
-      icon: BarChart3,
     },
     {
       id: "settings",

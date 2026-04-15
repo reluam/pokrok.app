@@ -4,58 +4,6 @@ import { neon } from '@neondatabase/serverless'
 const connectionString = process.env.DATABASE_URL || 'postgresql://placeholder@localhost/dummy'
 const sql = neon(connectionString)
 
-/**
- * Lightweight table check — ensures daily_todos and ritual_completions exist.
- * Memoized per serverless invocation (runs once, then no-ops).
- */
-let _tablesEnsured = false;
-export async function ensureCoreTables() {
-  if (_tablesEnsured) return;
-  try {
-    await Promise.all([
-      sql`CREATE TABLE IF NOT EXISTS daily_todos (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL,
-        date DATE NOT NULL,
-        todos JSONB NOT NULL DEFAULT '[]'::jsonb,
-        nice_todos JSONB NOT NULL DEFAULT '[]'::jsonb,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        UNIQUE(user_id, date)
-      )`,
-      sql`CREATE TABLE IF NOT EXISTS ritual_completions (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL,
-        ritual_id VARCHAR(255) NOT NULL,
-        date DATE NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        UNIQUE(user_id, ritual_id, date)
-      )`,
-      sql`CREATE TABLE IF NOT EXISTS weekly_checkins (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL,
-        score SMALLINT,
-        week_start_date DATE NOT NULL,
-        value_scores JSONB DEFAULT '{}'::jsonb,
-        area_scores JSONB DEFAULT '{}'::jsonb,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        UNIQUE(user_id, week_start_date)
-      )`,
-      sql`CREATE TABLE IF NOT EXISTS laborator_access (
-        email VARCHAR(255) PRIMARY KEY,
-        has_access BOOLEAN NOT NULL DEFAULT false,
-        stripe_customer_id VARCHAR(255),
-        stripe_subscription_id VARCHAR(255),
-        subscription_status VARCHAR(50),
-        source VARCHAR(50),
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )`,
-    ]);
-    _tablesEnsured = true;
-  } catch (e) {
-    console.warn("[ensureCoreTables]", e);
-  }
-}
-
 export async function initializeDatabase() {
   try {
     // Create inspirations table
@@ -86,29 +34,29 @@ export async function initializeDatabase() {
 
     // Add image_url for book covers (optional)
     await sql`
-      ALTER TABLE inspirations 
+      ALTER TABLE inspirations
       ADD COLUMN IF NOT EXISTS image_url TEXT
     `
 
     // Add book_cover_fit for books: 'cover' | 'contain' (how cover image fits in the box)
     await sql`
-      ALTER TABLE inspirations 
+      ALTER TABLE inspirations
       ADD COLUMN IF NOT EXISTS book_cover_fit VARCHAR(20)
     `
 
     // Add book_cover_position for books: which part of image is visible when fit=cover
     await sql`
-      ALTER TABLE inspirations 
+      ALTER TABLE inspirations
       ADD COLUMN IF NOT EXISTS book_cover_position VARCHAR(20)
     `
 
     // Custom crop position 0-100 for book covers (from graphical modal)
     await sql`
-      ALTER TABLE inspirations 
+      ALTER TABLE inspirations
       ADD COLUMN IF NOT EXISTS book_cover_position_x INTEGER
     `
     await sql`
-      ALTER TABLE inspirations 
+      ALTER TABLE inspirations
       ADD COLUMN IF NOT EXISTS book_cover_position_y INTEGER
     `
 
@@ -213,34 +161,34 @@ export async function initializeDatabase() {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
-    
+
     // Migrate old content column if it exists with NOT NULL constraint
     try {
       await sql`
-        ALTER TABLE newsletter_campaigns 
+        ALTER TABLE newsletter_campaigns
         ALTER COLUMN content DROP NOT NULL
       `
     } catch (e) {
       // Constraint might not exist, ignore
     }
-    
+
     try {
       await sql`
-        ALTER TABLE newsletter_campaigns 
+        ALTER TABLE newsletter_campaigns
         ALTER COLUMN content SET DEFAULT ''
       `
     } catch (e) {
       // Column might not exist, ignore
     }
-    
+
     // Add new columns if they don't exist
     await sql`
-      ALTER TABLE newsletter_campaigns 
+      ALTER TABLE newsletter_campaigns
       ADD COLUMN IF NOT EXISTS description TEXT DEFAULT ''
     `
-    
+
     await sql`
-      ALTER TABLE newsletter_campaigns 
+      ALTER TABLE newsletter_campaigns
       ADD COLUMN IF NOT EXISTS sections JSONB DEFAULT '[]'::jsonb
     `
 
@@ -292,28 +240,6 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_magic_link_expires ON magic_link_tokens(expires_at)
     `
 
-    await sql`
-      CREATE TABLE IF NOT EXISTS purchases (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        product_slug VARCHAR(255) NOT NULL,
-        stripe_payment_id TEXT,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_purchases_user_id ON purchases(user_id)
-    `
-
-    // Audit života product price IDs
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_price_id TEXT`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS audit_zivota_discount_price_id TEXT`; } catch { /* already exists */ }
-
-    // Audit života journey persistence
-    try { await sql`ALTER TABLE purchases ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP WITH TIME ZONE`; } catch { /* already exists */ }
-    try { await sql`ALTER TABLE purchases ADD COLUMN IF NOT EXISTS journey_data JSONB`; } catch { /* already exists */ }
-
     // Update type check constraint to include 'reel' (drop old, add new)
     try {
       await sql`ALTER TABLE inspirations DROP CONSTRAINT IF EXISTS inspirations_type_check`
@@ -340,60 +266,6 @@ export async function initializeDatabase() {
     await sql`
       ALTER TABLE inspirations
       ADD COLUMN IF NOT EXISTS category_id VARCHAR(255) REFERENCES inspiration_categories(id) ON DELETE SET NULL
-    `
-
-    // Manuál free-access grants (admin-granted, no Stripe subscription required)
-    await sql`
-      CREATE TABLE IF NOT EXISTS laborator_grants (
-        id VARCHAR(255) PRIMARY KEY,
-        email TEXT NOT NULL UNIQUE,
-        expires_at TIMESTAMP WITH TIME ZONE,
-        note TEXT,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_laborator_grants_email ON laborator_grants(email)
-    `
-
-    // ── Manuál: týdenní check-in ────────────────────────────────────────────
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS weekly_checkins (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        score SMALLINT NOT NULL CHECK (score BETWEEN 1 AND 10),
-        week_start_date DATE NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        UNIQUE (user_id, week_start_date)
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_weekly_checkins_user ON weekly_checkins(user_id, week_start_date DESC)
-    `
-
-    // Extend weekly_checkins with per-value and per-area JSONB scores
-    try { await sql`ALTER TABLE weekly_checkins DROP CONSTRAINT IF EXISTS weekly_checkins_score_check` } catch {}
-    try { await sql`ALTER TABLE weekly_checkins ALTER COLUMN score DROP NOT NULL` } catch {}
-    await sql`ALTER TABLE weekly_checkins ADD COLUMN IF NOT EXISTS value_scores JSONB DEFAULT '{}'::jsonb`
-    await sql`ALTER TABLE weekly_checkins ADD COLUMN IF NOT EXISTS area_scores  JSONB DEFAULT '{}'::jsonb`
-
-    // ── Manuál: focus area history ──────────────────────────────────────────
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS user_focus_areas (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        area_key VARCHAR(50) NOT NULL,
-        started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        completed_at TIMESTAMP WITH TIME ZONE
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_user_focus_areas_user ON user_focus_areas(user_id, started_at DESC)
     `
 
     // ── Nástrojárna (Toolbox) ──────────────────────────────────────────────────
@@ -446,39 +318,6 @@ export async function initializeDatabase() {
 
     await sql`
       CREATE INDEX IF NOT EXISTS idx_toolbox_tags ON toolbox_tools USING GIN(tags)
-    `
-
-    // ── AI interakce + kreditové balíčky ─────────────────────────────────────
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS ai_interactions (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        user_message TEXT NOT NULL,
-        ai_response TEXT NOT NULL,
-        recommended_slugs TEXT[] DEFAULT ARRAY[]::TEXT[],
-        input_tokens INTEGER,
-        output_tokens INTEGER,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_ai_interactions_user ON ai_interactions(user_id, created_at DESC)
-    `
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS ai_credit_packs (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        credits INTEGER NOT NULL DEFAULT 50,
-        stripe_payment_id TEXT,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_ai_credit_packs_user ON ai_credit_packs(user_id)
     `
 
     // ── Knowledge Pipeline ──────────────────────────────────────────────────
@@ -615,58 +454,6 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_status ON curated_posts(status)`
     await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_type ON curated_posts(type)`
     await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_published ON curated_posts(published_at DESC)`
-
-    // ── Uživatelský kontext Manuálu (sync kompas/hodnoty/rituály) ────────
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS user_lab_context (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        context_type VARCHAR(50) NOT NULL,
-        data JSONB NOT NULL,
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        UNIQUE(user_id, context_type)
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_user_lab_context_user ON user_lab_context(user_id)
-    `
-
-    // ── Daily Todos ─────────────────────────────────────────────────────────
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS daily_todos (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        date DATE NOT NULL,
-        todos JSONB NOT NULL DEFAULT '[]'::jsonb,
-        nice_todos JSONB NOT NULL DEFAULT '[]'::jsonb,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        UNIQUE(user_id, date)
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_daily_todos_user_date ON daily_todos(user_id, date DESC)
-    `
-
-    // ── Ritual Completions ──────────────────────────────────────────────────
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS ritual_completions (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        ritual_id VARCHAR(255) NOT NULL,
-        date DATE NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        UNIQUE(user_id, ritual_id, date)
-      )
-    `
-
-    await sql`
-      CREATE INDEX IF NOT EXISTS idx_ritual_completions_user_date ON ritual_completions(user_id, date DESC)
-    `
 
     console.log('Database initialized successfully')
   } catch (error) {
