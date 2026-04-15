@@ -97,14 +97,14 @@ export default async function Home() {
               </h1>
 
               <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-5">
-                Bývalý muzikant, projektový manažer a věčný hledač. Zkoumám život a sleduju, co z něj vzejde.
+                Bývalý muzikant, projektový manažer a věčný hledač. Zkoumám život a pořád něco tvořím.
               </p>
 
               <a
                 href="#rozcestnik"
                 className="inline-flex items-center gap-2 text-base text-muted hover:text-foreground transition-colors group"
               >
-                Koukni, na čem teď dělám
+                Koukni, co mám teď rozjetého
                 <span className="inline-block transition-transform group-hover:translate-y-0.5 animate-bounce-gentle">
                   &darr;
                 </span>
