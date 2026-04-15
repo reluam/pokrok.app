@@ -1,9 +1,8 @@
 {
-  "buildCommand": "npx expo export --platform web",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "buildCommand": "cd web && npm install && npm run build",
+  "outputDirectory": "web/out",
+  "installCommand": "echo 'skipped — web/ installs its own deps'",
   "framework": null,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "cleanUrls": true,
+  "trailingSlash": false
 }

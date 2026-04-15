@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Snaps",
-    "slug": "snaps",
+    "name": "Calibrate",
+    "slug": "calibrate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
-    "scheme": "snaps",
+    "scheme": "calibrate",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.smysluplneziti.snaps"
+      "bundleIdentifier": "com.smysluplneziti.calibrate"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,14 +23,15 @@
         "backgroundColor": "#0F172A"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.smysluplneziti.snaps"
+      "package": "com.smysluplneziti.calibrate"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-localization"
     ]
   }
 }

@@ -1,2 +1,5 @@
 Záloha/
 .vercel
+.DS_Store
+/.claude/
+mental-models/
