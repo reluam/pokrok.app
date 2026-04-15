@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { getLocales } from 'expo-localization';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ShieldCheck } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
-import { supabase } from '@/lib/supabase';
+import { requestOtp, verifyOtp } from '@/lib/auth-api';
 import { useUserStore } from '@/stores/user-store';
 import { colors, fontSize, spacing, borderRadius } from '@/lib/constants';
 
@@ -23,60 +24,55 @@ export default function VerifyScreen() {
   const [error, setError] = useState('');
   const inputRef = useRef<TextInput>(null);
   const login = useUserStore((s) => s.login);
+  const isEn = useMemo(() => {
+    const locale = getLocales()[0]?.languageCode ?? 'cs';
+    return locale.startsWith('en');
+  }, []);
+  const t = (cs: string, en: string) => (isEn ? en : cs);
 
   const handleVerify = async () => {
     const trimmedCode = code.trim();
     if (trimmedCode.length !== CODE_LENGTH) {
-      setError(`Zadej ${CODE_LENGTH}místný kód`);
+      setError(t(`Zadej ${CODE_LENGTH}místný kód`, `Enter the ${CODE_LENGTH}-digit code`));
       return;
     }
 
     if (!email) {
-      setError('Chybí e-mail, vrať se zpět');
+      setError(t('Chybí e-mail, vrať se zpět', 'Email missing — go back'));
       return;
     }
 
     setLoading(true);
     setError('');
 
-    const { data, error: verifyError } = await supabase.auth.verifyOtp({
-      email,
-      token: trimmedCode,
-      type: 'email',
-    });
+    const result = await verifyOtp(email, trimmedCode);
 
-    if (verifyError) {
-      setError('Neplatný kód. Zkus to znovu.');
+    if (!result.success) {
+      setError(result.error ?? t('Neplatný kód', 'Invalid code'));
       setLoading(false);
       return;
     }
 
-    if (data.user) {
-      login(
-        data.user.id,
-        email,
-        data.user.user_metadata?.display_name ?? email.split('@')[0]
-      );
-      router.replace('/(tabs)/home');
-    }
-
-    setLoading(false);
+    login(
+      result.user_id!,
+      email,
+      email.split('@')[0]
+    );
+    router.replace('/(tabs)/home');
   };
 
   const handleResend = async () => {
     if (!email) return;
 
     setError('');
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true },
-    });
+    const locale = getLocales()[0]?.languageCode ?? 'cs';
+    const result = await requestOtp(email, locale);
 
-    if (otpError) {
-      setError(otpError.message);
+    if (!result.success) {
+      setError(result.error ?? t('Nepodařilo se odeslat kód', 'Failed to send the code'));
     } else {
-      setError('');
       setCode('');
+      setError('');
     }
   };
 
@@ -88,9 +84,13 @@ export default function VerifyScreen() {
       <View style={styles.content}>
         <View style={styles.header}>
           <ShieldCheck size={56} color={colors.primary} />
-          <Text style={styles.title}>Zadej kód</Text>
+          <Text style={styles.title}>{t('Zadej kód', 'Enter the code')}</Text>
           <Text style={styles.subtitle}>
-            Poslali jsme {CODE_LENGTH}místný kód na{'\n'}
+            {t(
+              `Poslali jsme ${CODE_LENGTH}místný kód na`,
+              `We sent a ${CODE_LENGTH}-digit code to`,
+            )}
+            {'\n'}
             <Text style={styles.emailHighlight}>{email}</Text>
           </Text>
         </View>
@@ -112,7 +112,7 @@ export default function VerifyScreen() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <Button
-            title="Ověřit"
+            title={t('Ověřit', 'Verify')}
             onPress={handleVerify}
             loading={loading}
             disabled={code.length !== CODE_LENGTH}
@@ -120,13 +120,13 @@ export default function VerifyScreen() {
           />
 
           <Button
-            title="Poslat kód znovu"
+            title={t('Poslat kód znovu', 'Send the code again')}
             onPress={handleResend}
             variant="ghost"
           />
 
           <Button
-            title="Zpět"
+            title={t('Zpět', 'Back')}
             onPress={() => router.back()}
             variant="ghost"
           />

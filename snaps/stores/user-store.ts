@@ -4,6 +4,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { calculateLevel, getLevelTitle } from '@/lib/xp-engine';
 import type { LevelTitle, UserStats } from '@/types';
 
+export type Language = 'cs' | 'en';
+
 interface UserState {
   isAuthenticated: boolean;
   userId: string | null;
@@ -11,12 +13,15 @@ interface UserState {
   email: string | null;
   stats: UserStats;
   levelTitle: LevelTitle;
+  language: Language;
 
   login: (userId: string, email: string, displayName: string) => void;
   logout: () => void;
   addXp: (amount: number) => void;
   updateStreak: () => void;
   incrementModelsMastered: () => void;
+  setLanguage: (lang: Language) => void;
+  setStats: (stats: Record<string, any>) => void;
 }
 
 const defaultStats: UserStats = {
@@ -38,6 +43,7 @@ export const useUserStore = create<UserState>()(
       email: null,
       stats: defaultStats,
       levelTitle: 'Začátečník',
+      language: 'cs',
 
       login: (userId, email, displayName) =>
         set({
@@ -99,9 +105,19 @@ export const useUserStore = create<UserState>()(
           stats: { ...stats, models_mastered: stats.models_mastered + 1 },
         });
       },
+
+      setLanguage: (lang) => set({ language: lang }),
+
+      setStats: (incoming) => {
+        const merged = { ...get().stats, ...incoming } as UserStats;
+        set({
+          stats: merged,
+          levelTitle: getLevelTitle(calculateLevel(merged.total_xp)),
+        });
+      },
     }),
     {
-      name: 'snaps-user',
+      name: 'calibrate-user',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )

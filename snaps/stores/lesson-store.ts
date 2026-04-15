@@ -1,14 +1,28 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { mentalModels, lessons } from '@/data/models';
+import { allModels } from '@/data/models/index';
+import { allLessons } from '@/data/lessons/index';
 import { courses } from '@/data/courses';
+import { tracks } from '@/data/tracks';
 import { sm2, getNextReviewDate, isDueForReview } from '@/lib/spaced-repetition';
-import type { Course, Lesson, MentalModel, NodeStatus, SpacedRepetitionCard, UserProgress } from '@/types';
+import { pullFromServer, pushToServer } from '@/lib/sync';
+import type { Course, Lesson, MentalModel, NodeStatus, SpacedRepetitionCard, Track, UserProgress } from '@/types';
+
+// Use allModels and allLessons as the canonical data sources
+const mentalModels = allModels;
+const lessons = allLessons;
+
+interface LessonCheckpoint {
+  currentStep: number;
+  answeredSteps: number[];
+  firstTrySteps: number[];
+}
 
 interface LessonState {
   progress: Record<string, UserProgress>;
   spacedRepetition: Record<string, SpacedRepetitionCard>;
+  checkpoints: Record<string, LessonCheckpoint>;
 
   getModel: (id: string) => MentalModel | undefined;
   getModels: () => MentalModel[];
@@ -18,17 +32,24 @@ interface LessonState {
   getModelProgress: (modelId: string) => number;
   isLessonCompleted: (lessonId: string) => boolean;
   getDueReviews: () => { model: MentalModel; card: SpacedRepetitionCard }[];
-  getRecommendedModel: () => MentalModel | undefined;
+  getRecommendedModel: (trackId?: string) => MentalModel | undefined;
+
+  // Track selectors
+  getTracks: () => Track[];
 
   // Course map selectors
-  getCourses: () => Course[];
+  getCourses: (trackId?: string) => Course[];
   getNodeStatus: (modelId: string) => NodeStatus;
   getCourseProgress: (courseId: string) => number;
   isCourseUnlocked: (courseId: string) => boolean;
   getNextLessonForModel: (modelId: string) => Lesson | undefined;
 
+  saveCheckpoint: (lessonId: string, cp: LessonCheckpoint) => void;
+  getCheckpoint: (lessonId: string) => LessonCheckpoint | undefined;
   completeLesson: (lessonId: string, modelId: string, score: number) => void;
   recordReview: (modelId: string, quality: number) => void;
+  pull: (userId: string) => Promise<Record<string, any> | null>;
+  push: (userId: string, stats: Record<string, any>) => Promise<boolean>;
 }
 
 export const useLessonStore = create<LessonState>()(
@@ -36,6 +57,7 @@ export const useLessonStore = create<LessonState>()(
     (set, get) => ({
       progress: {},
       spacedRepetition: {},
+      checkpoints: {},
 
       getModel: (id) => mentalModels.find((m) => m.id === id),
 
@@ -74,9 +96,12 @@ export const useLessonStore = create<LessonState>()(
           .filter((item) => item.model != null);
       },
 
-      getRecommendedModel: () => {
-        // Follow course path order
-        for (const course of courses) {
+      getRecommendedModel: (trackId) => {
+        const trackCourses = trackId
+          ? courses.filter((c) => c.trackId === trackId)
+          : courses;
+
+        for (const course of trackCourses) {
           if (!get().isCourseUnlocked(course.id)) continue;
           for (const node of course.nodes) {
             const status = get().getNodeStatus(node.modelId);
@@ -88,15 +113,21 @@ export const useLessonStore = create<LessonState>()(
         return mentalModels[0];
       },
 
+      // Track selectors
+      getTracks: () => tracks,
+
       // Course map selectors
-      getCourses: () => courses,
+      getCourses: (trackId) => {
+        if (!trackId) return courses;
+        return courses.filter((c) => c.trackId === trackId);
+      },
 
       getNodeStatus: (modelId) => {
         const progress = get().getModelProgress(modelId);
         if (progress >= 1) return 'completed';
         if (progress > 0) return 'in_progress';
 
-        // Check if this node is available (first in course 1, or previous completed)
+        // Check if this node is available (first in course, or previous completed)
         for (const course of courses) {
           const nodeIndex = course.nodes.findIndex((n) => n.modelId === modelId);
           if (nodeIndex === -1) continue;
@@ -128,9 +159,17 @@ export const useLessonStore = create<LessonState>()(
       isCourseUnlocked: (courseId) => {
         const course = courses.find((c) => c.id === courseId);
         if (!course) return false;
-        if (course.order === 0) return true;
-        const prevCourse = courses.find((c) => c.order === course.order - 1);
-        if (!prevCourse) return true;
+
+        // First course in its track is always unlocked
+        const trackCourses = courses
+          .filter((c) => c.trackId === course.trackId)
+          .sort((a, b) => a.order - b.order);
+        if (trackCourses[0]?.id === courseId) return true;
+
+        // Previous course in the same track must be completed
+        const courseIndex = trackCourses.findIndex((c) => c.id === courseId);
+        if (courseIndex <= 0) return true;
+        const prevCourse = trackCourses[courseIndex - 1];
         return get().getCourseProgress(prevCourse.id) >= 1;
       },
 
@@ -141,9 +180,19 @@ export const useLessonStore = create<LessonState>()(
         return modelLessons.find((l) => !get().isLessonCompleted(l.id)) ?? modelLessons[0];
       },
 
+      saveCheckpoint: (lessonId, cp) => {
+        set((state) => ({
+          checkpoints: { ...state.checkpoints, [lessonId]: cp },
+        }));
+      },
+
+      getCheckpoint: (lessonId) => get().checkpoints[lessonId],
+
       completeLesson: (lessonId, modelId, score) => {
         const now = new Date().toISOString();
         set((state) => {
+          const { [lessonId]: _, ...remainingCheckpoints } = state.checkpoints;
+
           const newProgress = {
             ...state.progress,
             [lessonId]: {
@@ -178,7 +227,7 @@ export const useLessonStore = create<LessonState>()(
             };
           }
 
-          return { progress: newProgress, spacedRepetition: newSR };
+          return { progress: newProgress, spacedRepetition: newSR, checkpoints: remainingCheckpoints };
         });
       },
 
@@ -203,9 +252,30 @@ export const useLessonStore = create<LessonState>()(
           };
         });
       },
+
+      pull: async (userId) => {
+        const data = await pullFromServer(userId);
+        if (!data) return null;
+        set({
+          progress: data.progress as Record<string, UserProgress>,
+          spacedRepetition: data.spaced_repetition as Record<string, SpacedRepetitionCard>,
+          checkpoints: data.checkpoints ?? {},
+        });
+        return data.stats;
+      },
+
+      push: async (userId, stats) => {
+        const { progress, spacedRepetition, checkpoints } = get();
+        return pushToServer(userId, {
+          progress,
+          stats,
+          spaced_repetition: spacedRepetition,
+          checkpoints,
+        });
+      },
     }),
     {
-      name: 'snaps-lessons',
+      name: 'calibrate-lessons',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )
