@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
-import FeedAskBox from '@/components/FeedAskBox'
 import FeedAnswerView from '@/components/FeedAnswerView'
 import { FeedCard, type CuratedPost } from '@/components/FeedCards'
 
@@ -96,10 +95,6 @@ function FeedContent() {
     } finally { setAskLoading(false) }
   }
 
-  const handleAsk = (question: string) => {
-    router.push(`/knihovna?ask=${encodeURIComponent(question)}`)
-  }
-
   const handleFollowUp = (question: string) => {
     setLastProcessedAsk(question)
     router.push(`/knihovna?ask=${encodeURIComponent(question)}`, { scroll: false })
@@ -144,10 +139,6 @@ function FeedContent() {
         <p className="text-lg text-muted max-w-xl mx-auto">
           Knihy, videa, výzkumy a tipy o tom, jak žít vědoměji.
         </p>
-
-        <div className="max-w-xl mx-auto">
-          <FeedAskBox onAsk={handleAsk} loading={askLoading} />
-        </div>
 
         {/* Filter tabs */}
         <div className="flex items-center justify-center gap-2 flex-wrap">
