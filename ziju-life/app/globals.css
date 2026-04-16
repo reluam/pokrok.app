@@ -2,7 +2,7 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #FDFDF7;
+  --background: #F8F4EA;
   --foreground: #171717;
   --accent-primary: #FF8C42;
   --accent-primary-hover: #FF6B1A;

@@ -38,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="cs" className={`${baloo2.variable} ${nunito.variable}`}>
-      <body className="antialiased bg-[#FDFDF7] text-foreground">
+      <body className="antialiased bg-[#F8F4EA] text-foreground">
         <LenisProvider>
           <FixCzechTypography />
           <ConditionalShell>{children}</ConditionalShell>

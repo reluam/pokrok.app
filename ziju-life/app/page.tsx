@@ -57,8 +57,8 @@ export default async function Home() {
   return (
     <main className="flex-1 bg-background overflow-x-hidden relative min-h-screen">
 
-      {/* ─── Hero — full bleed warm terracotta background ─── */}
-      <section className="relative bg-[#ecd2b4] pt-28 md:pt-32 pb-32 md:pb-40 -mt-20 animate-fade-up">
+      {/* ─── Hero — full bleed warm beige background, extends behind nav ─── */}
+      <section className="relative bg-[#F3E7D0] pt-36 md:pt-44 pb-32 md:pb-40 -mt-20 animate-fade-up">
         <div className="max-w-5xl mx-auto px-6 relative">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-6 md:gap-10 items-center">
             <div className="text-center md:text-left order-2 md:order-1">
@@ -111,13 +111,13 @@ export default async function Home() {
         >
           <path
             d="M0,70 C120,120 240,20 360,60 C480,100 600,20 720,60 C840,100 960,20 1080,60 C1200,100 1320,20 1440,60 L1440,120 L0,120 Z"
-            fill="#FDFDF7"
+            fill="#F8F4EA"
           />
         </svg>
       </section>
 
-      {/* ─── Poznáváš se? (pain points) — full bleed peachy bg ─── */}
-      <section className="relative bg-[#fdf0e6] pt-16 md:pt-20 pb-32 md:pb-40 animate-fade-up" style={{ animationDelay: "100ms" }}>
+      {/* ─── Poznáváš se? (pain points) — on page background ─── */}
+      <section className="relative pt-16 md:pt-20 pb-16 md:pb-24 animate-fade-up" style={{ animationDelay: "100ms" }}>
         <div className="max-w-5xl mx-auto px-6 relative">
           <div className="text-center mb-12">
             <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-3">
@@ -158,24 +158,12 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Wavy bottom edge */}
-        <svg
-          aria-hidden="true"
-          className="absolute bottom-0 left-0 w-full h-20 md:h-28"
-          viewBox="0 0 1440 120"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,70 C120,120 240,20 360,60 C480,100 600,20 720,60 C840,100 960,20 1080,60 C1200,100 1320,20 1440,60 L1440,120 L0,120 Z"
-            fill="#e8c9a0"
-          />
-        </svg>
       </section>
 
-      {/* ─── Knihovna mini — full bleed warm brown bg ─── */}
+      {/* ─── Knihovna mini — on page background ─── */}
       {posts.length > 0 && (
         <section
-          className="relative bg-[#e8c9a0] pt-16 md:pt-20 pb-32 md:pb-40 animate-fade-up"
+          className="relative pt-8 md:pt-12 pb-16 md:pb-20 animate-fade-up"
           style={{ animationDelay: "200ms" }}
         >
           <div className="max-w-5xl mx-auto px-6 relative">
@@ -225,18 +213,6 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Wavy bottom edge */}
-          <svg
-            aria-hidden="true"
-            className="absolute bottom-0 left-0 w-full h-20 md:h-28"
-            viewBox="0 0 1440 120"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,70 C120,120 240,20 360,60 C480,100 600,20 720,60 C840,100 960,20 1080,60 C1200,100 1320,20 1440,60 L1440,120 L0,120 Z"
-              fill="#FDFDF7"
-            />
-          </svg>
         </section>
       )}
 
