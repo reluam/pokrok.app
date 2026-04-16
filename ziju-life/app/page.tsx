@@ -88,7 +88,12 @@ export default async function Home() {
             </div>
 
             <div className="relative order-1 md:order-2 flex justify-center md:justify-end">
-              <div className="relative w-64 h-64 md:w-[420px] md:h-[420px] rounded-full overflow-hidden">
+              {/* Orange crescent shape behind photo */}
+              <div
+                aria-hidden="true"
+                className="absolute top-1/2 -translate-y-1/2 right-[-60px] md:right-[-120px] w-72 h-72 md:w-[500px] md:h-[500px] rounded-full bg-primary opacity-80 -z-0"
+              />
+              <div className="relative w-64 h-64 md:w-[420px] md:h-[420px] rounded-full overflow-hidden z-10">
                 <Image
                   src="/matej-photo.jpg"
                   alt="Matěj Mauler"
