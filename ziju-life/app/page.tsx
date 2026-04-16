@@ -29,10 +29,26 @@ async function getLatestPosts(): Promise<LatestPost[]> {
 }
 
 const painPoints = [
-  { emoji: "🌀", text: "Víš, kam chceš — ale nedokážeš se hnout." },
-  { emoji: "💭", text: "Máš tisíc plánů, ráno nevíš, kde začít." },
-  { emoji: "⏳", text: "Žiješ v budoucnu. Ta mezera tě paralyzuje." },
-  { emoji: "📚", text: "Další knížka, další app. A pak zas nic." },
+  {
+    emoji: "🌀",
+    text: "Víš, kam chceš — ale nedokážeš se hnout.",
+    bg: "bg-[#dfd8fa]",
+  },
+  {
+    emoji: "💭",
+    text: "Máš tisíc plánů, ráno nevíš, kde začít.",
+    bg: "bg-[#c6f1ec]",
+  },
+  {
+    emoji: "⏳",
+    text: "Žiješ v budoucnu. Ta mezera tě paralyzuje.",
+    bg: "bg-[#fff0c2]",
+  },
+  {
+    emoji: "📚",
+    text: "Další knížka, další app. A pak zas nic.",
+    bg: "bg-[#ffe4cc]",
+  },
 ];
 
 export default async function Home() {
@@ -104,15 +120,17 @@ export default async function Home() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 md:gap-x-16 md:gap-y-8 max-w-3xl mx-auto mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-12">
             {painPoints.map((point, i) => (
               <div
                 key={point.text}
-                className="flex items-start gap-4 animate-fade-up"
+                className="paper-card p-5 flex flex-col items-center text-center gap-3 animate-fade-up"
                 style={{ animationDelay: `${200 + i * 80}ms` }}
               >
-                <span className="text-3xl md:text-4xl shrink-0 leading-none">{point.emoji}</span>
-                <p className="text-base md:text-lg text-foreground/80 leading-snug pt-1">
+                <div className={`w-14 h-14 rounded-full ${point.bg} flex items-center justify-center text-2xl shrink-0`}>
+                  {point.emoji}
+                </div>
+                <p className="text-sm md:text-base text-foreground/80 leading-snug">
                   {point.text}
                 </p>
               </div>
