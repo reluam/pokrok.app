@@ -116,13 +116,9 @@ export default async function Home() {
         </svg>
       </section>
 
-      <div className="max-w-5xl mx-auto px-6 pt-12 md:pt-16 pb-16 md:pb-20">
-
-        {/* ─── Poznáváš se? (pain points) ─── */}
-        <section
-          className="mb-24 md:mb-32 animate-fade-up relative"
-          style={{ animationDelay: "100ms" }}
-        >
+      {/* ─── Poznáváš se? (pain points) — full bleed peachy bg ─── */}
+      <section className="relative bg-[#fdf0e6] pt-16 md:pt-20 pb-32 md:pb-40 animate-fade-up" style={{ animationDelay: "100ms" }}>
+        <div className="max-w-5xl mx-auto px-6 relative">
           <div className="text-center mb-12">
             <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-3">
               Poznáváš se?
@@ -133,11 +129,11 @@ export default async function Home() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5 max-w-3xl mx-auto mb-12">
             {painPoints.map((point, i) => (
               <div
                 key={point.text}
-                className="paper-card p-5 flex flex-col items-center text-center gap-3 animate-fade-up"
+                className="paper-card p-5 flex items-center gap-4 animate-fade-up"
                 style={{ animationDelay: `${200 + i * 80}ms` }}
               >
                 <div className={`w-14 h-14 rounded-full ${point.bg} flex items-center justify-center text-2xl shrink-0`}>
@@ -160,14 +156,29 @@ export default async function Home() {
               Sednout si na konzultaci &rarr;
             </Link>
           </div>
-        </section>
+        </div>
 
-        {/* ─── Knihovna mini ─── */}
-        {posts.length > 0 && (
-          <section
-            className="mb-24 md:mb-32 animate-fade-up"
-            style={{ animationDelay: "200ms" }}
-          >
+        {/* Wavy bottom edge */}
+        <svg
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 w-full h-20 md:h-28"
+          viewBox="0 0 1440 120"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,70 C120,120 240,20 360,60 C480,100 600,20 720,60 C840,100 960,20 1080,60 C1200,100 1320,20 1440,60 L1440,120 L0,120 Z"
+            fill="#e8c9a0"
+          />
+        </svg>
+      </section>
+
+      {/* ─── Knihovna mini — full bleed warm brown bg ─── */}
+      {posts.length > 0 && (
+        <section
+          className="relative bg-[#e8c9a0] pt-16 md:pt-20 pb-32 md:pb-40 animate-fade-up"
+          style={{ animationDelay: "200ms" }}
+        >
+          <div className="max-w-5xl mx-auto px-6 relative">
             <div className="text-center mb-10">
               <p className="font-display text-xs uppercase tracking-[0.18em] text-[#7766d8] font-bold mb-2">
                 Z knihovny
@@ -212,44 +223,57 @@ export default async function Home() {
                 Celá knihovna &rarr;
               </Link>
             </div>
-          </section>
-        )}
-
-        {/* ─── O mně mini ─── */}
-        <section
-          className="mb-12 animate-fade-up"
-          style={{ animationDelay: "300ms" }}
-        >
-          <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
-            <div className="paper-card overflow-hidden w-40 h-40 md:w-48 md:h-48 shrink-0">
-              <Image
-                src="/o-mne-hloubani.jpg"
-                alt="Matěj Mauler"
-                width={192}
-                height={192}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
-                O mně
-              </p>
-              <h2 className="font-display text-2xl md:text-3xl font-extrabold mb-4 tracking-tight">
-                Bývalý muzikant, <span className="underline-teal">věčný hledač</span>
-              </h2>
-              <p className="text-base md:text-lg text-foreground/70 leading-relaxed mb-5">
-                Většinu života jsem strávil snahou přijít na to, jak se tenhle život vlastně &bdquo;hraje&ldquo;. Nakonec jsem zjistil, že odpovědi se neschovávají v kapitolách, ale v tom, co dělám každý den.
-              </p>
-              <Link
-                href="/o-mne"
-                className="inline-flex items-center gap-2 font-display font-bold text-foreground/70 hover:text-foreground transition-colors"
-              >
-                Celý příběh &rarr;
-              </Link>
-            </div>
           </div>
+
+          {/* Wavy bottom edge */}
+          <svg
+            aria-hidden="true"
+            className="absolute bottom-0 left-0 w-full h-20 md:h-28"
+            viewBox="0 0 1440 120"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0,70 C120,120 240,20 360,60 C480,100 600,20 720,60 C840,100 960,20 1080,60 C1200,100 1320,20 1440,60 L1440,120 L0,120 Z"
+              fill="#FDFDF7"
+            />
+          </svg>
         </section>
-      </div>
+      )}
+
+      {/* ─── O mně mini ─── */}
+      <section
+        className="max-w-5xl mx-auto px-6 pt-12 md:pt-16 pb-16 md:pb-20 animate-fade-up"
+        style={{ animationDelay: "300ms" }}
+      >
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+          <div className="paper-card overflow-hidden w-40 h-40 md:w-48 md:h-48 shrink-0">
+            <Image
+              src="/o-mne-hloubani.jpg"
+              alt="Matěj Mauler"
+              width={192}
+              height={192}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
+              O mně
+            </p>
+            <h2 className="font-display text-2xl md:text-3xl font-extrabold mb-4 tracking-tight">
+              Bývalý muzikant, <span className="underline-teal">věčný hledač</span>
+            </h2>
+            <p className="text-base md:text-lg text-foreground/70 leading-relaxed mb-5">
+              Většinu života jsem strávil snahou přijít na to, jak se tenhle život vlastně &bdquo;hraje&ldquo;. Nakonec jsem zjistil, že odpovědi se neschovávají v kapitolách, ale v tom, co dělám každý den.
+            </p>
+            <Link
+              href="/o-mne"
+              className="inline-flex items-center gap-2 font-display font-bold text-foreground/70 hover:text-foreground transition-colors"
+            >
+              Celý příběh &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
