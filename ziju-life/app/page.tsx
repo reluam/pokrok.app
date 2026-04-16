@@ -88,27 +88,34 @@ export default async function Home() {
             </div>
 
             <div className="relative order-1 md:order-2 h-72 md:h-[460px]">
+              {/* Decorative circle behind photo */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 flex items-center justify-center md:justify-end"
+              >
+                <div className="w-60 h-60 md:w-[380px] md:h-[380px] rounded-full bg-[#ff8c42]/25" />
+              </div>
               <Image
                 src="/matej-photo.jpg"
                 alt="Matěj Mauler"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-contain object-center md:object-right"
+                className="object-contain object-center md:object-right relative z-10"
                 priority
               />
             </div>
           </div>
         </div>
 
-        {/* Wavy bottom edge */}
+        {/* Wavy bottom edge — multiple peaks */}
         <svg
           aria-hidden="true"
-          className="absolute bottom-0 left-0 w-full h-16 md:h-24"
-          viewBox="0 0 1440 100"
+          className="absolute bottom-0 left-0 w-full h-20 md:h-28"
+          viewBox="0 0 1440 120"
           preserveAspectRatio="none"
         >
           <path
-            d="M0,60 C240,100 480,0 720,40 C960,80 1200,20 1440,50 L1440,100 L0,100 Z"
+            d="M0,70 C120,120 240,20 360,60 C480,100 600,20 720,60 C840,100 960,20 1080,60 C1200,100 1320,20 1440,60 L1440,120 L0,120 Z"
             fill="#FDFDF7"
           />
         </svg>
