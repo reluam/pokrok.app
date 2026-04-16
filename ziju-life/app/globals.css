@@ -155,6 +155,15 @@
   animation: shape-float-slow 7s ease-in-out infinite;
 }
 
+/* ─── Sketch-style hand-drawn underline ─── */
+.underline-sketch {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12'%3E%3Cpath d='M2,8 C30,2 50,10 80,6 C110,2 140,10 170,5 C185,3 195,7 198,6' stroke='%23ff8c42' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  background-size: 100% 12px;
+  padding-bottom: 8px;
+}
+
 /* ─── Playful underline highlight ─── */
 .underline-playful {
   background: linear-gradient(180deg, transparent 60%, rgba(255, 140, 66, 0.35) 60%);
