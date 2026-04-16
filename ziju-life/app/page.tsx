@@ -67,7 +67,7 @@ export default async function Home() {
                 </h1>
 
                 <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-7">
-                  Pomáhám lidem, co se zasekli v hlavě, začít reálně žít.
+                  Taky jsem to tak měl. Teď pomáhám lidem, co se zasekli v hlavě, začít reálně žít.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center md:items-start gap-3">
