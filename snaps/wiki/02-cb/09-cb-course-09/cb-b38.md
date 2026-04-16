@@ -148,7 +148,7 @@ The bystander effect doesn't just happen on the street. At work: "Someone should
 
 **Otázka:** Proč zpráva pro 30 lidí funguje hůř než zpráva pro jednoho?
 
-- **✅ Bystander Effect v digitálním prostředí — každý z třiceti příjemců si nevědomě říká „někdo jiný jistě odpoví" a aktivně nepřijme osobní zodpovědnost**
+- **✅ Digitální Bystander Effect — každý z třiceti příjemců si nevědomě říká „někdo jiný odpoví" a nepřijme osobní zodpovědnost**
   Přesně! Digitální Bystander Effect funguje stejně jako fyzický. Čím víc lidí vidí žádost, tím méně se každý cítí zodpovědný. „Odpoví někdo jiný."
 - ❌ Příjemci zprávy jsou časově vytížení a kanál skupinového chatu nesignalizuje dostatečnou urgenci pro okamžitou odpověď
   Kdyby ten samý kolega napsal JEDNOMU z nich přímo, pravděpodobně by odpověděl navzdory časové vytíženosti. „Nemám čas" je zpravidla jen racionalizace pro „necítím osobní zodpovědnost."
@@ -161,7 +161,7 @@ The bystander effect doesn't just happen on the street. At work: "Someone should
 
 **Question:** Why does a message to 30 people work worse than a message to one?
 
-- **✅ The bystander effect in a digital environment — each of the thirty recipients unconsciously tells themselves "someone else will surely answer" and doesn't take personal responsibility**
+- **✅ Digital bystander effect — each of the thirty recipients silently assumes "someone else will answer" and ducks responsibility**
   Exactly! The digital bystander effect works just like the physical one. The more people see a request, the less each one feels responsible. "Someone else will answer."
 - ❌ Recipients are busy and the group chat channel doesn't signal sufficient urgency for an immediate reply
   If that same colleague had written to ONE of them directly, they'd probably have replied despite being busy. "I don't have time" is typically just a rationalization for "I don't feel personally responsible."
@@ -182,7 +182,7 @@ How to break the bystander effect: 1) Be SPECIFIC — instead of "can anyone" sa
 
 **Otázka:** Co uděláš?
 
-- **✅ Okamžitě se zastavím, navážu kontakt s dítětem a zároveň oslovím konkrétního kolemjdoucího personalizovaným požadavkem: „Vy v modrém kabátě, zavolejte prosím městskou policii."**
+- **✅ Okamžitě se zastavím, navážu kontakt s dítětem a oslovím konkrétního kolemjdoucího: „Vy v modrém kabátě, zavolejte prosím policii."**
   Perfektní! Jsi první, kdo jedná, a přiřazuješ konkrétní zodpovědnost konkrétní osobě. Tohle je nejefektivnější způsob, jak prolomit Bystander Effect — osobní oslovení eliminuje difuzi zodpovědnosti.
 - ❌ Vyčkám v blízkosti dítěte a zároveň aktivně sleduji okolí — rodiče nebo zákonný zástupce se s vysokou pravděpodobností nacházejí v bezprostřední blízkosti
   To je přesně Bystander Effect v akci — hledáš racionální důvod, proč aktivně nezasáhnout. „Asi to není tak vážné. Asi to řeší někdo jiný." Vyčkávání přenáší odpovědnost na imaginárního dalšího dospělého.
@@ -195,7 +195,7 @@ How to break the bystander effect: 1) Be SPECIFIC — instead of "can anyone" sa
 
 **Question:** What do you do?
 
-- **✅ I stop immediately, make contact with the child, and simultaneously address a specific passerby with a personalized request: "You in the blue jacket, please call the city police."**
+- **✅ I stop immediately, make contact with the child, and address a specific passerby: "You in the blue jacket, please call the city police."**
   Perfect! You're the first to act, and you assign specific responsibility to a specific person. This is the most effective way to break the bystander effect — direct address eliminates diffusion of responsibility.
 - ❌ I wait near the child while actively watching the surroundings — the parents or guardian are in all likelihood in the immediate vicinity
   That's exactly the bystander effect in action — you're looking for a rational reason not to actively intervene. "It's probably not that serious. Someone else is probably handling it." Waiting transfers responsibility to an imaginary next adult.

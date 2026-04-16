@@ -295,7 +295,7 @@ Debiasing confirmation bias: 1) "Steel man" — find the STRONGEST version of th
 
 **Otázka:** Co je „steel man argument"?
 
-- **✅ Záměrně zkonstruuješ nejsilnější myslitelnou verzi PROTIARGUMENTU a pak se ji snažíš poctivě vyvrátit — opak straw man**
+- **✅ Zkonstruuješ si nejsilnější verzi PROTIARGUMENTU a pak ji poctivě testuješ — je to opak straw man**
   Přesně! Straw man = zeslabíš protiargument, aby se snadno vyvrátil. Steel man = zesílíš ho, aby se dal pořádně testovat. Steel man je nejefektivnější obrana proti Confirmation Biasu.
 - ❌ Vybudoval/a co nejpřesvědčivější a nejdůkladněji podloženou verzi vlastního argumentu, aby obstál vůči kritice
   To byste dělali automaticky — Confirmation Bias už tvůj vlastní argument posiluje bez vědomého úsilí. Steel man je o PROTIARGUMENTU, ne o vlastním stanovisku. Záměrně hledáš nejsilnější verzi opačného pohledu.
@@ -306,7 +306,7 @@ Debiasing confirmation bias: 1) "Steel man" — find the STRONGEST version of th
 
 **Question:** What is a "steel man argument"?
 
-- **✅ You deliberately construct the strongest conceivable version of the COUNTER-ARGUMENT and then try to honestly refute it — the opposite of a straw man**
+- **✅ You construct the strongest version of the COUNTER-ARGUMENT and honestly test it — the opposite of a straw man**
   Exactly! Straw man = you weaken the counter-argument so it's easy to knock down. Steel man = you strengthen it so it can be properly tested. Steel man is the most effective defense against confirmation bias.
 - ❌ You build the most persuasive and thoroughly supported version of your own argument so it holds up against criticism
   You'd do that automatically — confirmation bias already strengthens your own argument without conscious effort. Steel man is about the COUNTER-ARGUMENT, not your own position. You deliberately find the strongest version of the opposing view.
@@ -376,7 +376,7 @@ How confirmation bias wrecks organizational decisions: 1) Leadership wants to ex
 
 **Otázka:** Co je falsifikovatelnost a proč je důležitá proti Confirmation Biasu?
 
-- **✅ Schopnost předem specifikovat, jaký konkrétní důkaz by tvé přesvědčení VYVRÁTIL — pokud to neumíš říct, pracuješ s vírou, ne s testovatelnou hypotézou**
+- **✅ Schopnost předem říct, jaký důkaz by tvé přesvědčení VYVRÁTIL — jinak je to víra, ne hypotéza**
   Přesně! Karl Popper řekl: „Teorie, která nemůže být vyvrácena, není vědecká." Ptej se: „Co by muselo být pravda, abych změnil/a názor?" Pokud říkáš „nic" — máš Confirmation Bias na maximum.
 - ❌ Systematické prověřování dat na přítomnost falzifikátů a záměrně vložených chybných informací, které zkreslují výsledek
   Falsifikovatelnost není o odhalování falzifikátů v datech — je to odlišná a nesouvisející činnost. Jde o to, zda DOKÁŽEŠ dopředu specifikovat podmínku, za které bys svůj názor změnil/a.
@@ -400,7 +400,7 @@ How confirmation bias wrecks organizational decisions: 1) Leadership wants to ex
 
 **Otázka:** Jaký proces by měl Jakub použít?
 
-- **✅ Definovat PŘEDEM konkrétní metriky úspěchu i selhání — „pokud za 3 měsíce nemám 500 uživatelů, projekt ukončím" — a tato kritéria si písemně zakotvit**
+- **✅ Definovat si PŘEDEM písemně konkrétní metriky úspěchu i selhání — „pokud za 3 měsíce nemám 500 uživatelů, končím"**
   Výborně! Pre-definované kritéria selhání jsou nejsilnější obrana. Když si PŘEDEM napíšeš, kdy projekt ukončíš, Confirmation Bias nemůže posouvat goalposts.
 - ❌ Rozšířit vzorek respondentů a systematicky sbírat zpětnou vazbu od většího počtu potenciálních uživatelů napříč různými demografickými skupinami
   Jakub se ptal 5 lidí a slyšel jen to, co chtěl. Problém není KOLIK lidí se ptáš — ale JAK zpracováváš odpovědi. Bez předem definovaných kritérií více respondentů jen zvětší datový soubor pro cherry-picking.
@@ -413,7 +413,7 @@ How confirmation bias wrecks organizational decisions: 1) Leadership wants to ex
 
 **Question:** What process should Jakub use?
 
-- **✅ Define concrete success AND failure metrics BEFOREHAND — "if I don't have 500 users in 3 months, I'll shut the project down" — and anchor those criteria in writing**
+- **✅ Define success AND failure metrics in writing BEFOREHAND — "if I don't have 500 users in 3 months, I'll shut it down"**
   Excellent! Pre-defined failure criteria are the strongest defense. When you write down UP FRONT when you'll pull the plug, confirmation bias can't keep moving the goalposts.
 - ❌ Expand the respondent pool and systematically gather feedback from a larger number of potential users across different demographic segments
   Jakub asked 5 people and only heard what he wanted. The problem isn't HOW MANY people you ask — it's HOW you process the answers. Without pre-defined criteria, more respondents just create a larger dataset for cherry-picking.

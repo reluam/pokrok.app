@@ -147,7 +147,7 @@ Imagine you're a manager and you write in your annual review: "The team hit reco
 
 **Otázka:** Jak Self-Serving Bias škodí tobě profesionálně?
 
-- **✅ Blokuje atribuční smyčku zpětné vazby — pokud je neúspěch vždy mapován na externí příčiny, mozek nikdy nevytvoří kauzální spojení mezi vlastním chováním a výsledkem, které by umožnilo korekci strategie**
+- **✅ Blokuje smyčku zpětné vazby — když je neúspěch vždy mapován externě, mozek nespojí vlastní chování s výsledkem a neopraví strategii**
   Správně! Self-Serving Bias je nepřítel růstu. Pokud nikdy nepřijmeš odpovědnost za selhání, nikdy se z něj nepoučíš.
 - ❌ Profesní sebedůvěra je funkčně adaptivní — asymetrická atribuce pomáhá udržet psychologický kapitál potřebný pro dlouhodobý výkon v náročném prostředí
   Sebedůvěra je důležitá, ale sebezáchovné zkreslení není sebedůvěra — je to slepota k vlastním chybám. Skutečná profesionální resilience stojí na schopnosti přiznat selhání a zlepšit se, ne ho skrývat.
@@ -160,7 +160,7 @@ Imagine you're a manager and you write in your annual review: "The team hit reco
 
 **Question:** How does self-serving bias hurt you professionally?
 
-- **✅ It blocks the attributional feedback loop — if failure is always mapped to external causes, your brain never forms a causal link between your own behavior and the outcome, which is necessary for strategy correction**
+- **✅ It blocks the feedback loop — if failure always maps externally, the brain never links your behavior to the outcome and can't correct strategy**
   Right! Self-serving bias is the enemy of growth. If you never take responsibility for failure, you'll never learn from it.
 - ❌ Professional self-confidence is functionally adaptive — asymmetric attribution helps maintain the psychological capital needed for long-term performance in demanding environments
   Confidence matters, but self-serving bias isn't confidence — it's blindness to your own mistakes. Real professional resilience is built on the ability to acknowledge failure and improve, not hide it.

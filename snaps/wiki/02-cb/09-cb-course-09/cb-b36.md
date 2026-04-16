@@ -263,7 +263,7 @@ Amazon has a rule: Jeff Bezos required that someone at important meetings delibe
 
 **Otázka:** Jak postupuješ?
 
-- **✅ Požádám každého, aby písemně formuloval svůj návrh PŘED poradou, diskuzi zahájím u ostatních a svůj vlastní názor sdělím jako poslední**
+- **✅ Každý napíše svůj návrh PŘED poradou, diskuzi zahájím u ostatních a vlastní názor sdělím jako poslední**
   Perfektní! Písemné návrhy předem zabrání vzájemnému ovlivnění. Mluvit jako poslední zabrání anchoring efektu tvého názoru. Tohle je zlatý standard.
 - ❌ Prezentuju svůj strategický návrh s podpůrnými daty a otevřu prostor pro kritické připomínky a iteraci od ostatních členů
   Sdílení vlastního návrhu jako první vytváří kognitivní kotvu — ostatní budou reagovat na TVŮJ rámec místo přinášení vlastních alternativ. Authority Bias + Anchoring + Groupthink kombinovaně = recept na nekvalitní rozhodnutí.
@@ -276,7 +276,7 @@ Amazon has a rule: Jeff Bezos required that someone at important meetings delibe
 
 **Question:** How do you handle it?
 
-- **✅ I ask everyone to write down their proposal in writing BEFORE the meeting, open the discussion with the others, and share my own view last**
+- **✅ Everyone writes their proposal BEFORE the meeting, I open discussion with the others, and share my view last**
   Perfect! Written proposals in advance prevent mutual influence. Speaking last prevents your opinion from anchoring. This is the gold standard.
 - ❌ I present my strategic proposal with supporting data and open the floor for critical comments and iteration from the other members
   Sharing your own proposal first creates a cognitive anchor — others will react to YOUR frame instead of bringing their own alternatives. Authority bias + anchoring + groupthink combined = a recipe for low-quality decisions.
@@ -295,7 +295,7 @@ Anti-groupthink checklist: 1) Boss speaks LAST. 2) Devil's advocate at every imp
 
 **Otázka:** Co je „pre-mortem"?
 
-- **✅ Tým si kolektivně představí, že projekt již prokazatelně selhal, a retrospektivně analyzuje, jaké příčiny k selhání vedly — čímž odhalí slabá místa předem**
+- **✅ Tým si představí, že projekt selhal, a retrospektivně analyzuje příčiny — čímž odhalí slabá místa předem**
   Přesně! Pre-mortem je technika, kde si TÝM představí budoucí selhání a hledá příčiny. Je to mnohem efektivnější než optimistické „co by se mohlo pokazit?" — protože selhání je „dané" a lidé hledají důvody.
 - ❌ Strukturovaná analýza dokončeného nebo ukončeného projektu zaměřená na identifikaci příčin selhání a poučení pro budoucí iterace
   To je „post-mortem" — retrospektiva po skončení. Pre-mortem probíhá PŘED startem projektu: tým si představí budoucí selhání a preventivně hledá příčiny dříve, než k nim dojde.
@@ -306,7 +306,7 @@ Anti-groupthink checklist: 1) Boss speaks LAST. 2) Devil's advocate at every imp
 
 **Question:** What is a "pre-mortem"?
 
-- **✅ The team collectively imagines that the project has already demonstrably failed, and retrospectively analyzes what causes led to that failure — surfacing weak points in advance**
+- **✅ The team imagines the project has failed, then retrospectively analyzes the causes — surfacing weak points in advance**
   Exactly! A pre-mortem is a technique where the team imagines a future failure and looks for causes. It's much more effective than the optimistic "what could go wrong?" — because the failure is "a given" and people look for reasons.
 - ❌ A structured analysis of a completed or discontinued project aimed at identifying causes of failure and lessons for future iterations
   That's a "post-mortem" — a retrospective after the end. A pre-mortem happens BEFORE the project starts: the team imagines a future failure and preventively searches for causes before they occur.

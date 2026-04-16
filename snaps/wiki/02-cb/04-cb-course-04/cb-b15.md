@@ -81,7 +81,7 @@ Imagine you're riding the tram to work in the morning. You notice a big coffee s
 
 **Otázka:** Proč si kamarád/ka nevšiml/a skvrny?
 
-- **✅ Protože každý jedinec je kognitivně zaměstnaný vlastním sebesledováním — pozornostní kapacita ostatních je plně obsazena jejich vlastním prožíváním, takže na tebe zbyde jen zlomek**
+- **✅ Protože každý je zaměstnaný sám sebou — jejich pozornostní kapacita je plně obsazena, takže na tebe zbyde jen zlomek**
   Přesně! Tohle je Spotlight Effect — pocit, že na tebe svítí reflektor a všichni pozorují každý tvůj detail. Ve skutečnosti jsou ostatní příliš zaměstření na SEBE, aby si všímali tvé skvrny.
 - ❌ Kamarád/ka má podprůměrnou perceptuální citlivost na vizuální odchylky v sociálním prostředí — jiní lidé by si skvrny pravděpodobně všimli
   Není to o něm/ní — je to o VŠECH lidech. Výzkumy ukazují, že ostatní si všímají našich „trapasů" mnohem méně, než si myslíme. Přeceňujeme, jak moc jsme středem pozornosti.
@@ -94,7 +94,7 @@ Imagine you're riding the tram to work in the morning. You notice a big coffee s
 
 **Question:** Why didn't your friend notice the stain?
 
-- **✅ Because every person is cognitively occupied with their own self-monitoring — others' attention capacity is fully taken up by their own experience, leaving only a fraction for you**
+- **✅ Because every person is occupied with themselves — their attention capacity is fully taken up, leaving only a fraction for you**
   Exactly! This is the spotlight effect — the feeling that a spotlight is on you and everyone is watching every detail. In reality, other people are too busy with THEMSELVES to notice your stain.
 - ❌ Your friend has below-average perceptual sensitivity to visual deviations in social environments — other people would likely have noticed the stain
   It's not about them — it's about EVERYONE. Research shows other people notice our "embarrassing moments" much less than we think. We overestimate how much we're the center of attention.

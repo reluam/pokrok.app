@@ -234,7 +234,7 @@ The peak-end rule has deep implications for how you judge your own life. Kahnema
 
 **Otázka:** Jak využiješ Peak-End Rule ve svůj prospěch?
 
-- **✅ Strategicky investuji do jednoho výjimečného dne (vrchol) a vědomě naplánuji silný závěrečný den (konec) — zbývající dny mohou mít klidnější průběh**
+- **✅ Strategicky investuji do jednoho výjimečného dne (vrchol) a naplánuji silný závěr (konec) — zbytek může být klidnější**
   Strategické plánování! Investuj do jednoho nezapomenutelného zážitku a do posledního dne. Tyhle dva dny budou definovat tvou vzpomínku na celou dovolenou.
 - ❌ Rovnoměrně rozložím rozpočet na každý den, aby se minimalizovaly výkyvy a maximalizovala průměrná denní kvalita zážitku
   Rovnoměrné rozložení maximalizuje komfort, ale ne vzpomínku. Paměť nefunguje na průměry — funguje na vrcholy a konce.
@@ -247,7 +247,7 @@ The peak-end rule has deep implications for how you judge your own life. Kahnema
 
 **Question:** How do you use the peak-end rule to your advantage?
 
-- **✅ I'll strategically invest in one exceptional day (the peak) and deliberately design a strong final day (the end) — the remaining days can follow a calmer rhythm**
+- **✅ I'll invest in one exceptional day (the peak) and design a strong final day (the end) — the rest can be calmer**
   Strategic planning! Invest in one unforgettable experience and in the final day. Those two days will define your memory of the whole vacation.
 - ❌ I'll spread the budget evenly across every day to minimize variance and maximize average daily experience quality
   An even spread maximizes comfort, but not memory. Memory doesn't run on averages — it runs on peaks and endings.

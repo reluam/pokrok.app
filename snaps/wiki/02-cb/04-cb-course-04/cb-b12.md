@@ -161,7 +161,7 @@ Imagine a consultant from a big consulting firm comes to your company. Expensive
 
 **Question:** Why are you doubting your own judgment?
 
-- **✅ The institutional brand, dress code, and confident rhetoric triggered a status heuristic — your brain overrode your expert judgment through authority bias**
+- **✅ The brand, dress code, and confident rhetoric triggered a status heuristic — authority bias overrode your expert judgment**
   Exactly! External signs of authority (brand, clothes, delivery) replaced real expertise. You know the department better — but external signals overrode your 8 years of experience.
 - ❌ A consultant from a top firm brings structured analytical frameworks that internal employees simply don't have access to
   A consultant can bring valuable outside perspective, but they don't know the internal reality. A two-day audit can't replace 8 years of direct experience. Ideally, they'd work together.

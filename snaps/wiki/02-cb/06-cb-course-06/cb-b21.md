@@ -146,7 +146,7 @@ In 1913 at the Monte Carlo casino, black came up 26 times in a row on roulette. 
 
 **Otázka:** Prodáš pět akcií za sebou se ztrátou a řekneš si: „Šestý obchod musí být ziskový." Jaká je správná reakce?
 
-- **✅ Kriticky přezkoumat strategii — série ztrát může signalizovat systémovou chybu v přístupu, ne „dluh štěstí"**
+- **✅ Kriticky přezkoumat strategii — série ztrát může znamenat chybu v přístupu, ne „dluh štěstí"**
   Na rozdíl od rulety nejsou investice čistě náhodné. Série ztrát může znamenat chybu v přístupu — to je důležité rozlišení.
 - ❌ Po pěti ztrátách tržní pravděpodobnostní gradient automaticky favorizuje ziskový obchod
   Trhy nejsou ruleta, ale princip je stejný — minulé ztráty automaticky nezvyšují šanci na budoucí zisk.
@@ -157,7 +157,7 @@ In 1913 at the Monte Carlo casino, black came up 26 times in a row on roulette. 
 
 **Question:** You sell five stocks in a row at a loss and tell yourself: "The sixth trade has to be profitable." What's the right reaction?
 
-- **✅ Critically review your strategy — a losing streak may signal a systemic flaw in your approach, not a "debt of luck"**
+- **✅ Critically review your strategy — a losing streak may mean a flawed approach, not a "debt of luck"**
   Unlike roulette, investments aren't purely random. A losing streak can mean a flaw in your approach — that's an important distinction.
 - ❌ After five losses, the market's probability gradient automatically favours the next trade being profitable
   Markets aren't roulette, but the principle is the same — past losses don't automatically raise the odds of a future profit.
@@ -201,7 +201,7 @@ In 1913 at the Monte Carlo casino, black came up 26 times in a row on roulette. 
 
 **Question:** How do you defend against the Gambler's Fallacy in everyday life?
 
-- **✅ Ask yourself "Does this system have a memory?" — coins and roulette don't, so past results are completely irrelevant to the next outcome**
+- **✅ Ask "Does this system have a memory?" — coins and roulette don't, so past results don't predict the next**
   Exactly. The key is to distinguish purely random events (roulette, coins) from events with causal factors (investing, sports). With pure randomness the past NEVER affects the future.
 - ❌ Systematically log previous results and identify sequential patterns to predict the next outcome
   In random processes, looking for patterns is futile. The patterns you see are an illusion — random streaks that the brain misinterprets.

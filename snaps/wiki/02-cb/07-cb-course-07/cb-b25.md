@@ -295,7 +295,7 @@ Strategies against the framing effect:
 
 **Otázka:** Lékař řekne: „Tento lék má 95% účinnost." Co by měl informovaný pacient chtít vědět?
 
-- **✅ „Co se stane s těmi 5 %? Jaké jsou vedlejší účinky a vůči jaké základní linii je účinnost měřena — co by se stalo BEZ léku?"**
+- **✅ „Co se stane s těmi 5 %? Jaké jsou vedlejší účinky a vůči jaké základní linii je účinnost měřena?"**
   Správně! „95% účinnost" je rámec. Co znamená „účinnost"? Co se stane s 5 %? A hlavně: jaká je „základna" — co by se stalo BEZ léku? Pokud bez léku vyzdraví 90 %, tak lék přidává jen 5 procentních bodů.
 - ❌ „Číslo 95 % je statisticky robustní indikátor klinické efektivity — přijímám doporučení jako dostatečně informované rozhodnutí."
   Bez dalšího kontextu je „95% účinnost" téměř bezvýznamná. 95 % z čeho? Oproti čemu? S jakými vedlejšími účinky? Rámování „95 %" zní impozantně — ale číslo samo o sobě neříká dost.
@@ -306,7 +306,7 @@ Strategies against the framing effect:
 
 **Question:** A doctor says: "This drug has 95% efficacy." What should an informed patient want to know?
 
-- **✅ "What happens to the other 5%? What are the side effects — and against what baseline is efficacy measured, i.e. what would happen WITHOUT the drug?"**
+- **✅ "What happens to the other 5%? What are the side effects, and against what baseline is efficacy measured?"**
   Correct! "95% efficacy" is a frame. What does "efficacy" mean? What happens to the 5%? And above all: what's the "baseline" — what would happen WITHOUT the drug? If 90% recover without it, the drug only adds 5 percentage points.
 - ❌ "The 95% figure is a statistically robust indicator of clinical effectiveness — I accept the recommendation as a sufficiently informed decision."
   Without more context, "95% efficacy" is almost meaningless. 95% of what? Compared to what? With what side effects? The "95%" framing sounds impressive — but the number alone doesn't say enough.

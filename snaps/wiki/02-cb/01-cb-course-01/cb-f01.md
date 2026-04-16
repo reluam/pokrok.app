@@ -194,7 +194,7 @@ Most people instantly say "10 cents." But the answer is **5 cents** (bat 1.05 + 
 
 **Otázka:** Jaký je nejjednodušší způsob, jak aktivovat Systém 2 u důležitého rozhodnutí?
 
-- **✅ Záměrně přerušit automatický proud a zeptat se: „Je tohle Systém 1?" — tento dotaz sám stačí k přepnutí do analytického režimu**
+- **✅ Přerušit automatický proud a zeptat se: „Je tohle Systém 1?" — ta otázka sama stačí k přepnutí**
   Přesně! Čím důležitější rozhodnutí, tím víc zapoj Systém 2. Stačí krátká pauza a jedna otázka.
 - ❌ Systematicky prodlužovat deliberační latenci u každého rozhodnutí, aby se zvýšila přesnost výstupů
   Pomalé rozhodování u každé maličkosti je zbytečné a kognitivně vyčerpávající. Klíč je rozpoznat DŮLEŽITÉ situace — ne uniformně zpomalit vše.
@@ -205,7 +205,7 @@ Most people instantly say "10 cents." But the answer is **5 cents** (bat 1.05 + 
 
 **Question:** What is the simplest way to activate System 2 on an important decision?
 
-- **✅ Deliberately interrupt the automatic flow and ask: "Is this System 1?" — that one question is enough to switch into analytical mode**
+- **✅ Interrupt the automatic flow and ask: "Is this System 1?" — that question alone is enough to switch**
   Exactly! The more important the decision, the more you should engage System 2. A short pause and one question is enough.
 - ❌ Systematically extend deliberation latency on every decision to increase the accuracy of outputs
   Slow decisions on every little thing is pointless and cognitively exhausting. The key is recognizing IMPORTANT situations — not uniformly slowing everything down.

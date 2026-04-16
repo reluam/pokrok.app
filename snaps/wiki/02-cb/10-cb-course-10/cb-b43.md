@@ -80,7 +80,7 @@ After work you go to the gym. You work out hard for an hour — burning about 40
 
 **Otázka:** Proč cvičení sabotuje tvoji dietu?
 
-- **✅ Morální licence — mozek automaticky „zaúčtuje" hodinu cvičení jako morální kredit, který vědomě i podvědomě odemyká prostor pro kompenzační chování snižující celkový přínos**
+- **✅ Morální licence — mozek „zaúčtuje" hodinu cvičení jako morální kredit, který odemyká prostor pro kompenzační chování snižující celkový přínos**
   Přesně! Moral Licensing funguje jako morální bankovní účet: dobré skutky „vkládají", špatné „vybírají". Po cvičení máš „kredit" — a utratíš ho za fast food.
 - ❌ Aktivoval/a ses postexercise metabolický kompenzační reflex — zvýšená energetická poptávka po intenzivní zátěži biologicky navádí mozek k výběru kaloricky hustých potravin
   Hlad po cvičení je reálný, ale 900 kalorií fast foodu není metabolická potřeba — je to „odměna". Mohl/a bys sníst zdravé jídlo a doplnit energii.
@@ -93,7 +93,7 @@ After work you go to the gym. You work out hard for an hour — burning about 40
 
 **Question:** Why does working out sabotage your diet?
 
-- **✅ Moral licensing — the brain automatically "books" the hour of exercise as moral credit, which consciously and subconsciously unlocks room for compensatory behavior that erodes the total benefit**
+- **✅ Moral licensing — the brain "books" the hour of exercise as moral credit, which unlocks room for compensatory behavior that erodes the total benefit**
   Exactly! Moral licensing works like a moral bank account: good deeds "deposit," bad ones "withdraw." After exercising, you have "credit" — and you spend it on fast food.
 - ❌ You activated a post-exercise metabolic compensation reflex — elevated energy demand after intense effort biologically steers the brain toward calorie-dense food choices
   Post-workout hunger is real, but 900 calories of fast food isn't a metabolic need — it's a "reward." You could eat healthy food and refuel.
@@ -147,7 +147,7 @@ A company introduced a "green day" — one day a month without cars. Employees w
 
 **Otázka:** Proč jednorázový „dobrý skutek" může být kontraproduktivní?
 
-- **✅ Morální licence — symbolicky velký dobrý skutek generuje zásobu „morálního kreditu", který zaměstnanci postupně utrácejí v ostatních dnech formou malých kompenzačních selhání, která součtem první gesto vynulují**
+- **✅ Morální licence — velký dobrý skutek generuje „morální kredit", který zaměstnanci utrácejí v ostatních dnech formou malých selhání, jež první gesto vynulují**
   Správně! Velké gesto vytváří velký „morální kredit", který pak lidé „utratí" na menší špatnosti. Čistý efekt může být nulový nebo negativní.
 - ❌ Projevuje se selektivní morální angažovanost — zaměstnanci participují aktivně jen v situacích veřejně viditelného proenvironmentálního závazku, ale chybí jim internalizace hodnot
   Moral Licensing není pokrytectví — je to nevědomé zkreslení. Zaměstnanci si upřímně myslí, že „dělají dost" a nemají důvod měnit chování.
@@ -160,7 +160,7 @@ A company introduced a "green day" — one day a month without cars. Employees w
 
 **Question:** Why can a one-off "good deed" be counterproductive?
 
-- **✅ Moral licensing — a symbolically large good deed generates a store of "moral credit" that employees gradually spend on small compensatory failures on other days, which cumulatively cancel out the original gesture**
+- **✅ Moral licensing — a large good deed generates "moral credit" that employees spend on small failures on other days, which cancel out the original gesture**
   Correct! A grand gesture creates a big "moral credit," which people then "spend" on smaller bad behaviors. The net effect can be zero or negative.
 - ❌ It's selective moral engagement — employees participate actively only in publicly visible pro-environmental commitments but lack internalized values
   Moral licensing isn't hypocrisy — it's an unconscious bias. Employees honestly think they're "doing enough" and see no reason to change behavior.

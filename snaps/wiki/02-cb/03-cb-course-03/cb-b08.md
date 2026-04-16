@@ -94,7 +94,7 @@ Imagine you're scrolling Instagram. An influencer with a million followers expla
 
 **Question:** Why do you only see the success stories?
 
-- **✅ Survivorship bias — across the full spectrum of outcomes, you only see the "survivors" (the successful) because the unsuccessful have no platform and stay systematically invisible**
+- **✅ Survivorship bias — you only see the "survivors" (the successful) because the unsuccessful have no platform and stay invisible**
   Exactly! Survivorship bias is when you draw conclusions only from the "survivors" — people, companies, or projects that succeeded — and ignore the much larger group that failed.
 - ❌ Successful people have natural aspirational value and higher social visibility — the brain is evolutionarily wired to pay attention to them as valuable role models
   That's true, and that's exactly the problem. The evolutionarily driven tendency to watch the successful means that the visibility of the successful and the invisibility of failures DISTORTS your estimate of the odds.
@@ -276,7 +276,7 @@ Survivorship bias in investing: "Warren Buffett bought stocks and got rich — b
 
 **Question:** What should her research process look like?
 
-- **✅ Actively seek out trainers who TRIED and FAILED — find out why they failed, what they underestimated, and what they'd do differently**
+- **✅ Actively seek out trainers who TRIED and FAILED — find out why they failed and what they'd do differently**
   Great! Looking for the failures is the strongest defense against survivorship bias. The successful will tell you what they DID. The failures will tell you what DOESN'T WORK — and that's more valuable.
 - ❌ Reach out to 10–20 successful trainers, map their strategy, and identify shared patterns that can be replicated
   That's survivorship bias in direct action — you're studying only the survivors. Without data on the failures, you don't know whether their "recipes" cause success or just correlate with it without causal value.

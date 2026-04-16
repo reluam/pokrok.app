@@ -80,7 +80,7 @@ Imagine you're sharing an interesting fact with friends over lunch. A friend ask
 
 **Otázka:** Proč na tom záleží, odkud informace pochází?
 
-- **✅ Zdroj je epistemický kontext informace — vědecká studie vs. poznámka u piva jsou zcela odlišné kategorie spolehlivosti, ale mozek je sloučí do jediné paměťové stopy bez rozlišení**
+- **✅ Zdroj je epistemický kontext — studie vs. poznámka u piva jsou odlišné kategorie spolehlivosti, ale mozek je sloučí do jediné paměťové stopy**
   Přesně! Záměna zdrojů (Source Confusion) znamená, že si pamatujeme informaci, ale zapomeneme její zdroj. A bez zdroje nemůžeme posoudit spolehlivost.
 - ❌ Zdroj nehraje roli — informace je pravdivá nebo nepravdivá nezávisle na tom, kdo ji vyslovil, a epistemická hodnota tvrzení je na původci nezávislá
   Pravda nezávisí na zdroji, ale naše JISTOTA by měla. „Četl jsem v Nature" vs. „říkal mi opilý kamarád" by mělo vést k různé míře důvěry.
@@ -93,7 +93,7 @@ Imagine you're sharing an interesting fact with friends over lunch. A friend ask
 
 **Question:** Why does the source of information matter?
 
-- **✅ The source is the epistemic context of the information — a scientific study and a remark over beers are completely different reliability categories, but the brain merges them into a single memory trace without distinction**
+- **✅ The source is the epistemic context — a study and a remark over beers are different reliability categories, but the brain merges them into one memory trace**
   Exactly! Source confusion means you remember the information but forget its source. And without the source you can't judge reliability.
 - ❌ The source is irrelevant — information is true or false independently of who said it, and the epistemic value of a claim is independent of its author
   Truth doesn't depend on the source, but your CONFIDENCE should. "I read it in Nature" vs. "a drunk friend told me" should lead to different levels of trust.

@@ -80,7 +80,7 @@ Imagine two students: one crams for 8 hours the day before the exam, the other s
 
 **Otázka:** Proč Tereza ví víc, přestože se učila jen o trochu déle?
 
-- **✅ Efekt rozloženého učení — každé opakování s časovým odstupem spouští rekonsolidaci paměťové stopy a postupně posiluje synaptické spojení, zatímco jednorázové biflování tuto konsolidaci neumožní**
+- **✅ Efekt rozloženého učení — každé opakování s odstupem spouští rekonsolidaci a posiluje synaptické spojení, zatímco jednorázové biflování konsolidaci neumožní**
   Přesně! Spacing Effect je jeden z nejsilnějších principů učení. Každé opakování s odstupem „posiluje" paměťovou stopu. Jednorázové biflování vytváří křehké spojení, které rychle mizí.
 - ❌ Tereza dosahuje lepších výsledků díky vyšší kognitivní kapacitě a efektivnějšímu zpracování informací — IQ jako prediktor výkonu je silnější než metoda učení
   Inteligence nehraje hlavní roli — Spacing Effect funguje u všech. Rozložené učení je efektivnější než biflování nezávisle na IQ.
@@ -93,7 +93,7 @@ Imagine two students: one crams for 8 hours the day before the exam, the other s
 
 **Question:** Why does Tereza know more, even though she only studied a little longer?
 
-- **✅ The spacing effect — each repetition with a time gap triggers reconsolidation of the memory trace and gradually strengthens synaptic connections, whereas one-shot cramming doesn't allow this consolidation**
+- **✅ The spacing effect — each spaced repetition triggers reconsolidation and strengthens synaptic connections, whereas one-shot cramming doesn't allow this consolidation**
   Exactly! The spacing effect is one of the strongest principles of learning. Every spaced repetition "strengthens" the memory trace. One-shot cramming creates a fragile connection that fades fast.
 - ❌ Tereza achieves better results due to higher cognitive capacity and more efficient information processing — IQ as a predictor of performance is stronger than learning method
   Intelligence isn't the main factor — the spacing effect works for everyone. Spaced learning beats cramming regardless of IQ.
@@ -167,7 +167,7 @@ Optimal spacing follows the "forgetting curve" — review just before you forget
 
 **Otázka:** Která varianta tě naučí víc?
 
-- **✅ Varianta B — delší časové okno s kratšími sezeními poskytne mozku výrazně více konsolidačních cyklů, včetně opakování přes spánek, který je klíčový pro přesun informací do dlouhodobé paměti**
+- **✅ Varianta B — delší časové okno s kratšími sezeními poskytne mozku víc konsolidačních cyklů, včetně opakování přes spánek klíčový pro dlouhodobou paměť**
   Správně! Varianta B má víc „cyklů spánku" mezi lekcemi (spánek je klíčový pro konsolidaci paměti) a rozloženější opakování.
 - ❌ Varianta A — vyšší intenzita denního studia vytváří efekt plného ponoření (immersion), který je v jazykovém vzdělávání prokazatelně efektivnější než nízkofrekvencní kontakt
   Intenzivní učení vytváří iluzi rychlého pokroku, ale bez rozloženého opakování se většina informací rychle ztratí.
@@ -180,7 +180,7 @@ Optimal spacing follows the "forgetting curve" — review just before you forget
 
 **Question:** Which option will teach you more?
 
-- **✅ Option B — a longer time window with shorter sessions provides the brain significantly more consolidation cycles, including sleep-based repetition, which is crucial for moving information into long-term memory**
+- **✅ Option B — a longer window with shorter sessions gives the brain more consolidation cycles, including sleep-based repetition crucial for long-term memory**
   Correct! Option B has more "sleep cycles" between lessons (sleep is crucial for memory consolidation) and more spread-out repetition.
 - ❌ Option A — higher daily study intensity creates a total immersion effect that is demonstrably more effective for language acquisition than low-frequency contact
   Intensive learning creates the illusion of fast progress, but without spaced repetition most of the information is quickly lost.

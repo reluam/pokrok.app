@@ -235,7 +235,7 @@ Marketing exploits the endowment effect cleverly: "30-day free trial" makes you 
 
 **Otázka:** Které biasy tě ovlivňují?
 
-- **✅ Kombinace tří překrývajících se biasů: efekt vlastnictví (přeceňuješ „své" akcie), klam utopených nákladů (50 000 je nevratně pryč) a averze ke ztrátě (prodej = bolestivá realizace ztráty)**
+- **✅ Tři biasy se vrství: efekt vlastnictví (přeceňuješ „své" akcie), klam utopených nákladů (50 000 je pryč) a averze ke ztrátě (prodej bolí)**
   Perfektní analýza! Tři biasy se vrství: (1) Efekt vlastnictví — „moje" akcie se zdají hodnotnější. (2) Utopené náklady — „koupil jsem za 50 000" ovlivňuje rozhodnutí. (3) Averze ke ztrátě — prodej ztrátu „zmaterializuje" a to bolí.
 - ❌ Primárně jde o klam utopených nákladů — emocionální vázanost na původní investici blokuje racionální přehodnocení pozice
   Utopené náklady hrají roli, ale nejsi tu sám. Přeceňuješ akcie, protože jsou TVOJE (efekt vlastnictví), a nechceš přijmout ztrátu (averze ke ztrátě). Biasy se vrství.
@@ -248,7 +248,7 @@ Marketing exploits the endowment effect cleverly: "30-day free trial" makes you 
 
 **Question:** Which biases are affecting you?
 
-- **✅ Three overlapping biases: endowment effect (you overvalue "your" stocks), sunk cost fallacy (50,000 is irreversibly gone), and loss aversion (selling = painful realization of the loss)**
+- **✅ Three stacked biases: endowment (you overvalue "your" stocks), sunk cost (50,000 is gone), and loss aversion (selling hurts)**
   Perfect analysis! Three biases stack up: (1) Endowment effect — "my" stocks seem more valuable. (2) Sunk cost — "I paid 50,000" drives the decision. (3) Loss aversion — selling "realizes" the loss and that hurts.
 - ❌ Primarily the sunk cost fallacy — emotional attachment to the original investment blocks rational reassessment of the position
   Sunk cost matters, but it's not alone. You're overvaluing the stocks because they're YOURS (endowment), and you don't want to accept the loss (loss aversion). The biases stack.

@@ -195,7 +195,7 @@ The fundamental attribution error kills relationships. At work: "coworker isn't 
 
 **Question:** How do you apply your knowledge of the attribution error?
 
-- **✅ Activate situational thinking: "Maybe he's dealing with a stress context I don't know about. I'll approach him constructively after the meeting before forming a dispositional judgment."**
+- **✅ Activate situational thinking: "Maybe he's dealing with stress I don't know about. I'll approach him constructively after the meeting."**
   Great! You're giving circumstances a chance instead of instantly forming a view of his character. That doesn't mean his behavior is OK — but you don't have to immediately conclude something about his personality.
 - ❌ Run an interpersonal classification: "He's a difficult type — his recurring behavioral pattern confirms a stable dispositional characteristic."
   There's the error in full force. "Always been like that" = character. But maybe it's not true — maybe you only remember similar situations and forget the hundreds of times he acted normally.
@@ -263,7 +263,7 @@ Fun fact: The fundamental attribution error is stronger in individualist culture
 
 **Otázka:** Jak by vypadala analýza bez atribuční chyby?
 
-- **✅ „Jaká konstelace situačních faktorů ho přivedla do této situace? Zdravotní krize? Ztráta zaměstnání? Rodinný rozpad? Závislost spuštěná lékařsky indikovanou léčbou bolesti?"**
+- **✅ „Jaké situační faktory ho přivedly do této situace? Zdravotní krize? Ztráta zaměstnání? Rodinný rozpad? Závislost spuštěná léčbou bolesti?"**
   Skvělé! Místo „je líný" se ptáš „co se stalo?" To je přesně ten přepínač z atribuce povahou na atribuci situací. Samozřejmě, osobní odpovědnost existuje — ale zřídka je to JEDINÝ faktor.
 - ❌ „Bezdomovectví je výhradně výsledkem strukturálních socioekonomických selhání — osobní rozhodnutí hrají zanedbatelnou roli oproti systémovým determinantům."
   Druhý extrém — vše přisoudit okolnostem. Realita je uprostřed: kombinace osobních rozhodnutí A okolností. Cílem je vyhnout se automatickému odsouzení.
@@ -276,7 +276,7 @@ Fun fact: The fundamental attribution error is stronger in individualist culture
 
 **Question:** What would analysis without the attribution error look like?
 
-- **✅ "What constellation of situational factors led him here? A health crisis? Job loss? Family breakdown? An addiction triggered by medically indicated pain treatment?"**
+- **✅ "What situational factors led him here? A health crisis? Job loss? Family breakdown? An addiction triggered by pain treatment?"**
   Great! Instead of "he's lazy," you ask "what happened?" That's exactly the switch from character attribution to situational attribution. Of course, personal responsibility exists — but it's rarely the ONLY factor.
 - ❌ "Homelessness is exclusively the result of structural socioeconomic failures — personal decisions play a negligible role compared to systemic determinants."
   The other extreme — chalking everything up to circumstances. Reality is in the middle: a mix of personal choices AND circumstances. The goal is to avoid automatic condemnation.

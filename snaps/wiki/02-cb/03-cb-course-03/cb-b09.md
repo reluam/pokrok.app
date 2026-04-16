@@ -161,7 +161,7 @@ After 6 months of intense programming study, you go through an interesting trans
 
 **Question:** What happened to your confidence?
 
-- **✅ You've gone through the "valley of disillusionment" — a natural learning phase where growing knowledge reveals your own gaps and confidence temporarily drops below its starting level**
+- **✅ You've gone through the "valley of disillusionment" — a natural phase where growing knowledge reveals your gaps and confidence temporarily drops**
   Exactly! The Dunning-Kruger curve: like a sideways N. Start → peak of confidence (ignorance) → drop (awareness) → slow climb (real competence). You're in the "valley" — and that's a GOOD thing.
 - ❌ Your aptitude profile for systematic abstract thinking is insufficient — programming requires a specific cognitive style that not everyone develops
   It's not about aptitude or talent — it's a natural phase of learning. Anyone who learns something complex goes through the valley of disillusionment. The ones who push through become real experts.
@@ -239,7 +239,7 @@ Important clarification: The Dunning-Kruger effect does NOT mean "dumb people th
 
 **Otázka:** Jak poznáš Dunning-Kruger efekt u sebe?
 
-- **✅ Když říkáš „to je přece jednoduché" nebo „nechápu, proč to ostatním trvá tak dlouho" — pravděpodobně nevidíš složitost, protože ti chybí znalosti potřebné k jejímu rozpoznání**
+- **✅ Když říkáš „to je jednoduché" nebo „nechápu, proč to ostatním trvá tak dlouho" — nevidíš složitost, protože ti chybí znalosti k jejímu rozpoznání**
   Přesně! Pokud ti něco složitého připadá jednoduché, buď jsi opravdu expert — nebo jsi v první fázi Dunning-Krugera. Ptej se: „Kolik toho o tomto tématu ještě NEZNÁM?"
 - ❌ Dunning-Kruger efekt je ze své podstaty metakognitivně nepřístupný — selhání sebehodnocení, které ho způsobuje, zároveň znemožňuje jeho introspektivní detekci
   Dá se rozpoznat — prostřednictvím behaviorálních signálů: „Je to jednoduché", „nechápu, proč ostatní nevidí to, co já", „stačí prostě..." Tyto fráze jsou spolehlivými varovnými signály.
@@ -250,7 +250,7 @@ Important clarification: The Dunning-Kruger effect does NOT mean "dumb people th
 
 **Question:** How do you spot the Dunning-Kruger effect in yourself?
 
-- **✅ When you say "it's simple, though" or "I don't get why it's taking other people so long" — you probably don't see the complexity, because you lack the knowledge needed to recognize it**
+- **✅ When you say "it's simple" or "I don't get why others take so long" — you don't see the complexity, because you lack the knowledge to recognize it**
   Exactly! If something complicated feels simple to you, either you really are an expert — or you're in the first phase of Dunning-Kruger. Ask: "How much about this topic do I still NOT know?"
 - ❌ The Dunning-Kruger effect is inherently inaccessible to metacognition — the self-assessment failure that causes it also prevents its introspective detection
   You can recognize it — through behavioral signals: "It's simple," "I don't get why others don't see what I see," "you just need to..." These phrases are reliable warning signs.
@@ -276,7 +276,7 @@ Important clarification: The Dunning-Kruger effect does NOT mean "dumb people th
 
 **Question:** What do you see?
 
-- **✅ Dunning-Kruger in direct action — the phrase "you just need to" is a Dunning-Kruger red flag. The economists hesitate and add nuance because they GENUINELY UNDERSTAND the cascading complexity of the problem.**
+- **✅ Dunning-Kruger in action — "you just need to" is a Dunning-Kruger red flag. The economists hesitate because they GENUINELY UNDERSTAND the cascading complexity.**
   Exactly! "You just need to..." is almost always a sign the speaker doesn't see the problem's complexity. Economists know "printing money" has cascading, hard-to-predict consequences — that's why they're careful.
 - ❌ Economists suffer from an expert terminological barrier — they overestimate the technical complexity of their field and can't communicate it in a way accessible to the general public
   Simple communication matters — but OVERSIMPLIFYING the actual problem is dangerous. "Just print money" isn't a comprehensible explanation — it's a reduction of reality into a functionally broken recipe.

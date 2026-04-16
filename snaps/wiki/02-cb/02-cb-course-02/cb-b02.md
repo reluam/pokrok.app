@@ -356,7 +356,7 @@ The sunk cost fallacy is closely linked to other biases. Loss aversion (cb-b03) 
 
 **Otázka:** Kolik kognitivních zkreslení Tomáše ovlivňuje?
 
-- **✅ Minimálně tři: utopené náklady („5M"), eskalace závazku („ještě jedna funkce"), status quo bias („nechci měnit směr") — a vzájemně se zesilují**
+- **✅ Minimálně tři: utopené náklady, eskalace závazku („ještě jedna funkce") a status quo bias — vzájemně se zesilují**
   Přesně! Biasy se často vrství. Utopené náklady drží Tomáše u produktu A. Eskalace závazku ho tlačí investovat VÍC. A status quo bias mu brání v přesunu na B. Rozmotat tyhle vrstvy je klíčové.
 - ❌ Jeden — klam utopených nákladů, přičemž zbývající projevy jsou jen jeho různé manifestace v konkrétních kontextech
   Utopené náklady jsou základ, ale Tomáš vykazuje i další zkreslení. „Ještě jedna funkce to zachrání" je eskalace závazku. A odpor ke změně směru je status quo bias. Biasy se vrství.
@@ -369,7 +369,7 @@ The sunk cost fallacy is closely linked to other biases. Loss aversion (cb-b03) 
 
 **Question:** How many cognitive biases are affecting Tomáš?
 
-- **✅ At least three: sunk cost ("I invested 5M"), escalation of commitment ("just one more feature"), status quo bias ("I don't want to change direction") — and each one amplifies the others**
+- **✅ At least three: sunk cost, escalation of commitment ("one more feature") and status quo bias — each one amplifies the others**
   Exactly! Biases often stack. Sunk costs keep Tomáš on product A. Escalation of commitment pushes him to invest MORE. And status quo bias prevents him from pivoting to B. Untangling these layers is key.
 - ❌ One — the sunk cost fallacy, with the remaining behaviors being different situational manifestations of the same underlying mechanism
   Sunk costs are the foundation, but Tomáš is showing other biases too. "One more feature will save it" is escalation of commitment. And the resistance to changing direction is status quo bias. Biases stack.
@@ -399,7 +399,7 @@ Research by Hal Arkes and Catherine Blumer (1985) showed something fascinating: 
 
 **Question:** What's the difference between sunk costs and escalation of commitment?
 
-- **✅ Sunk costs = you don't want to walk away from a past investment and you stay. Escalation = you pour in EVEN MORE resources to "save" what you've already invested.**
+- **✅ Sunk costs = you stay because of past investment. Escalation = you pour in EVEN MORE resources to "save" what you've invested.**
   Exactly! Sunk costs hold you in place. Escalation of commitment goes further — you actively pour more resources into a losing project. Escalation is more dangerous because the losses grow.
 - ❌ They're two names for the same thing — both describe the same psychological mechanism of refusing to acknowledge a bad investment
   They're related but not identical. Sunk costs stop you from leaving. Escalation of commitment pushes you to invest MORE. You can fall for sunk costs (you stay) without escalation (you don't invest more).

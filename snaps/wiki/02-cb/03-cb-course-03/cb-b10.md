@@ -182,7 +182,7 @@ The frequency illusion has real consequences: In medicine — you read about a r
 
 **Otázka:** Jak rozlišit Frequency Illusion od skutečného trendu?
 
-- **✅ Systematická data a statistiky — ne osobní pozorování. Klima se mění (vědecká data to jednoznačně potvrzují), ale KAŽDOU konkrétní bouřku připisovat klimatické změně je Frequency Illusion.**
+- **✅ Systematická data a statistiky — ne osobní pozorování. Klima se mění (vědecká data to potvrzují), ale KAŽDOU konkrétní bouřku připisovat klimatické změně je Frequency Illusion.**
   Přesně! Klimatická změna je reálná (data to dokazují) — ale to neznamená, že KAŽDÁ bouřka je jejím důkazem. Frequency Illusion může ve výsledku podporovat i správné závěry, ale prostřednictvím chybných důkazů.
 - ❌ Opakované osobní pozorování vzorců vytváří spolehlivý empirický základ — kumulativní vlastní zkušenost je v environmentálním kontextu validní metodou detekce trendů
   Mozek aktivně HLEDÁ vzorce i tam, kde ve skutečnosti nejsou — to je Apophenia. Pocit vzorce vyvolaný Frequency Illusion není totéž co statisticky potvrzený reálný vzorec.
@@ -195,7 +195,7 @@ The frequency illusion has real consequences: In medicine — you read about a r
 
 **Question:** How do you tell the frequency illusion apart from a real trend?
 
-- **✅ Systematic data and statistics — not personal observation. Climate is changing (scientific data confirms it clearly), but attributing EVERY specific storm to climate change is the frequency illusion.**
+- **✅ Systematic data and statistics — not personal observation. Climate is changing (scientific data confirms it), but attributing EVERY specific storm to climate change is the frequency illusion.**
   Exactly! Climate change is real (the data proves it) — but that doesn't mean EVERY storm is its evidence. The frequency illusion can ultimately support correct conclusions, but through flawed evidence.
 - ❌ Repeated personal observation of patterns creates a reliable empirical foundation — cumulative first-hand experience is a valid trend detection method in an environmental context
   Your brain actively LOOKS for patterns even where there are none — that's apophenia. A pattern feeling triggered by the frequency illusion is not the same as a statistically confirmed real pattern.
@@ -239,7 +239,7 @@ The frequency illusion in marketing: Companies exploit it DELIBERATELY. Retarget
 
 **Otázka:** Jak se Frequency Illusion liší od Confirmation Biasu?
 
-- **✅ Frequency Illusion je o VNÍMÁNÍ frekvence výskytu (zdá se mi, že to vidím všude), zatímco Confirmation Bias je o selektivním HODNOCENÍ informací (přijímám jen to, co potvrzuje můj stávající názor)**
+- **✅ Frequency Illusion je o VNÍMÁNÍ frekvence (zdá se, že to vidím všude), zatímco Confirmation Bias je o selektivním HODNOCENÍ informací (přijímám jen to, co potvrzuje můj názor)**
   Přesně! Frequency Illusion: „červených aut je najednou víc." Confirmation Bias: „červená auta jsou LEPŠÍ." Oba zkreslují realitu, ale prostřednictvím odlišných kognitivních mechanismů.
 - ❌ Jde o funkčně ekvivalentní mechanismy — oba operují přes selektivní pozornostní filtr a produkují systémové zkreslení vnímání reality ve prospěch aktuálně aktivované reprezentace
   Jsou příbuzné, ale mechanismicky odlišné. Frequency Illusion mění vnímání FREKVENCE výskytu jevu. Confirmation Bias mění způsob HODNOCENÍ informací. Často spolupracují, ale nejsou totéž.
@@ -250,7 +250,7 @@ The frequency illusion in marketing: Companies exploit it DELIBERATELY. Retarget
 
 **Question:** How does the frequency illusion differ from confirmation bias?
 
-- **✅ Frequency illusion is about PERCEIVING frequency of occurrence (things seem to appear everywhere), while confirmation bias is about selectively EVALUATING information (accepting only what confirms your existing view)**
+- **✅ Frequency illusion is about PERCEIVING frequency (things seem to appear everywhere), while confirmation bias is about selectively EVALUATING information (accepting only what confirms your view)**
   Exactly! Frequency illusion: "there are suddenly more red cars." Confirmation bias: "red cars are BETTER." Both distort reality, but through different cognitive mechanisms.
 - ❌ They are functionally equivalent mechanisms — both operate through a selective attention filter and produce systematic distortion of perceived reality in favor of the currently activated representation
   They're related, but mechanistically different. Frequency illusion changes your perception of FREQUENCY of occurrence. Confirmation bias changes how you EVALUATE information. They often work together, but they're not the same.
@@ -263,7 +263,7 @@ The frequency illusion in marketing: Companies exploit it DELIBERATELY. Retarget
 
 **Otázka:** Jak jí pomůžeš?
 
-- **✅ „Od té doby, co jsi četla o vyhoření, mozek ti ho začal zvýrazňovat všude — to je Frequency Illusion. Markéta může být prostě unavená z práce, Petr podrážděný z dopravy a ty trpět z dehydratace."**
+- **✅ „Od té doby, co jsi četla o vyhoření, ti ho mozek zvýrazňuje všude — to je Frequency Illusion. Markéta je unavená z práce, Petr z dopravy a ty z dehydratace."**
   Skvělé! Pojmenováváš mechanismus a nabízíš konkrétní alternativní vysvětlení. Pomáháš jí vidět, že „vidím to všude" ≠ „je to všude."
 - ❌ „Máš pravdu — syndrom vyhoření je dnes masivně rozšířený fenomén, jehož prevalence v moderních pracovních prostředích systematicky přesahuje diagnostické statistiky"
   Vyhoření JE reálný problém — ale ne KAŽDÁ únava nebo podrážděnost je syndrom vyhoření. Potvrzením její Frequency Illusion jí nepomůžeš lépe rozumět realitě ani jednotlivým situacím.
@@ -276,7 +276,7 @@ The frequency illusion in marketing: Companies exploit it DELIBERATELY. Retarget
 
 **Question:** How do you help her?
 
-- **✅ "Ever since you read about burnout, your brain has started highlighting it everywhere — that's the frequency illusion. Markéta might just be tired from work, Petr irritated by traffic, and you suffering from dehydration."**
+- **✅ "Since reading about burnout, your brain highlights it everywhere — that's the frequency illusion. Markéta is tired from work, Petr from traffic, and you from dehydration."**
   Great! You're naming the mechanism and offering specific alternative explanations. You're helping her see that "I see it everywhere" ≠ "it's everywhere."
 - ❌ "You're right — burnout is a massively widespread phenomenon today, whose prevalence in modern work environments systematically exceeds diagnostic statistics"
   Burnout IS a real problem — but not EVERY case of tiredness or irritability is burnout syndrome. Confirming her frequency illusion won't help her understand reality or individual situations better.
@@ -295,7 +295,7 @@ Debiasing: 1) "Was it there BEFORE?" — ask whether the frequency actually chan
 
 **Otázka:** Koupíš si nové tenisky značky X. Druhý den jdeš do města a „všude" vidíš lidi s teniskami značky X. Co je nejpravděpodobnější vysvětlení?
 
-- **✅ Frequency Illusion — nákup aktivoval retikulární aktivační systém, který „zvýraznil" značku X jako nově relevantní. Lidé je nosili vždy — ty jsi je předtím automaticky filtroval/a jako bezvýznamné.**
+- **✅ Frequency Illusion — nákup aktivoval retikulární systém, který „zvýraznil" značku X jako nově relevantní. Lidé je nosili vždy — dřív sis jich nevšímal/a.**
   Přesně! Nákup aktivoval selektivní pozornost. Značka X je teď „zvýrazněná" v tvém mozku. Dříve jsi ji přehlížel/a jako irelevantní signál — teď ji vidíš všude.
 - ❌ Značka X skutečně zaznamenala výrazný nárůst popularity — sociální šíření módních trendů probíhá v krátkých časových cyklech a může způsobit rychlý nárůst viditelnosti
   Možná mírný nárůst existuje — ale tvoje subjektivní pozorování to nedokazuje. Bez objektivních dat o prodejích a distribuci nevíš, jestli popularita skutečně vzrostla, nebo vzrostlo jen tvoje vnímání.
@@ -306,7 +306,7 @@ Debiasing: 1) "Was it there BEFORE?" — ask whether the frequency actually chan
 
 **Question:** You buy new sneakers from brand X. The next day you go into town and "everywhere" you see people wearing brand X sneakers. What's the most likely explanation?
 
-- **✅ Frequency illusion — the purchase activated the reticular activating system, which "highlighted" brand X as newly relevant. People always wore them — you just automatically filtered them out as an insignificant signal before.**
+- **✅ Frequency illusion — the purchase activated the reticular system, which "highlighted" brand X as relevant. People always wore them — you just didn't notice before.**
   Exactly! The purchase triggered selective attention. Brand X is now "highlighted" in your brain. You used to overlook it as an irrelevant signal — now you see it everywhere.
 - ❌ Brand X has actually seen significant growth in popularity — social spreading of fashion trends occurs in short cycles and can cause a rapid jump in visibility
   Maybe a slight increase exists — but your subjective observation doesn't prove it. Without objective data on sales and distribution, you don't know if popularity genuinely rose, or just your perception.

@@ -182,7 +182,7 @@ Why does normalcy bias exist? The brain is optimized for stability. Constantly p
 
 **Otázka:** Jak rozpoznáš Normalcy Bias u sebe?
 
-- **✅ Klíčovým indikátorem jsou signální fráze jako „přece nemůže", „to se nestane" nebo „vždycky to bylo OK" — jejich výskyt v úsudku signalizuje, že mozek odmítá zpracovat varovné informace**
+- **✅ Klíčovým indikátorem jsou signální fráze jako „přece nemůže" nebo „to se nestane" — jejich výskyt signalizuje, že mozek odmítá zpracovat varovné informace**
   Výborně! „Přece nemůže" a „to se nestane" jsou charakteristické signální fráze Normalcy Biasu. Když je zachytíš v vlastním myšlení, zastav se a polož si otázku: „Co když se TO opravdu stane? Jaký mám plán?"
 - ❌ Normalcy Bias je z definice presubjektivní — odehrává se v implicitním kognitivním systému, a proto neprodukuje introspektivně přístupné signály umožňující jeho rozpoznání
   Tento popis zní technicky, ale je fakticky chybný. Normalcy Bias DÁ se rozpoznat — právě skrze signální fráze a vzorce úsudku. Vědomí biasu je první a klíčový krok k jeho zmírnění.
@@ -195,7 +195,7 @@ Why does normalcy bias exist? The brain is optimized for stability. Constantly p
 
 **Question:** How do you spot normalcy bias in yourself?
 
-- **✅ The key indicator is signal phrases like "it can't," "it won't happen," or "it's always been OK" — their presence in your reasoning signals that your brain is refusing to process warning information**
+- **✅ The key indicator is signal phrases like "it can't" or "it won't happen" — their presence signals that your brain is refusing to process warning information**
   Exactly! "It can't" and "it won't happen" are characteristic signal phrases of normalcy bias. When you catch them in your own thinking, stop and ask yourself: "What if it DOES happen? What's my plan?"
 - ❌ Normalcy bias is by definition pre-subjective — it operates in the implicit cognitive system and therefore produces no introspectively accessible signals that would allow recognition
   This description sounds technical but is factually wrong. Normalcy bias CAN be recognized — precisely through signal phrases and judgment patterns. Awareness of the bias is the first and most critical step toward mitigating it.
@@ -239,7 +239,7 @@ Examples of normalcy bias in history: before the 2004 tsunami, people stood on t
 
 **Otázka:** Co nejlépe popisuje Normalcy Bias?
 
-- **✅ Systematická tendence minimalizovat varovné signály a udržovat přesvědčení, že situace zůstane „normální", i když aktuální evidence jednoznačně ukazuje opak**
+- **✅ Systematická tendence minimalizovat varovné signály a věřit, že situace zůstane „normální", i když evidence ukazuje opak**
   Přesně! Normalcy Bias = „všechno bude OK, protože vždycky bylo OK." Aktivně ignoruje nové informace, které narušují dosavadní status quo.
 - ❌ Anticipační úzkost z neznámého — mozek pod tlakem nejistoty generuje inhibiční reakci, která paralyzuje rozhodování a brání adekvátnímu jednání
   Normalcy Bias je přesným opakem úzkosti — jde o ABSENCI adekvátního strachu tam, kde by byl na místě. Lidé se nebojí a jednají (nebo spíše nejednají) s klidným přesvědčením, že vše bude v pořádku.
@@ -250,7 +250,7 @@ Examples of normalcy bias in history: before the 2004 tsunami, people stood on t
 
 **Question:** Which best describes normalcy bias?
 
-- **✅ A systematic tendency to minimize warning signals and maintain the belief that the situation will remain "normal," even when current evidence clearly points to the contrary**
+- **✅ A systematic tendency to minimize warning signals and believe the situation will stay "normal," even when evidence points to the contrary**
   Exactly! Normalcy bias = "everything will be OK because it's always been OK." It actively ignores new information that disrupts the existing status quo.
 - ❌ Anticipatory anxiety about the unknown — the brain under uncertainty generates an inhibitory response that paralyzes decision-making and prevents adequate action
   Normalcy bias is the precise opposite of anxiety — it's the ABSENCE of adequate fear where fear would be warranted. People aren't afraid and act (or rather don't act) with calm conviction that everything will be fine.
@@ -263,7 +263,7 @@ Examples of normalcy bias in history: before the 2004 tsunami, people stood on t
 
 **Otázka:** Jak jednat?
 
-- **✅ Iniciovat přímý rozhovor s vývojářem okamžitě, proaktivně nabídnout konkrétní řešení (kompenzace, role, podmínky) a současně spustit plán B pro případ odchodu**
+- **✅ Iniciovat přímý rozhovor s vývojářem, nabídnout konkrétní řešení (kompenzace, role, podmínky) a současně spustit plán B**
   Skvělé! Jednáš na základě varovných signálů místo jejich odmítání. Kombinace přímé komunikace a paralelního plánu B je nejefektivnější obrana proti Normalcy Biasu v personálním řízení.
 - ❌ Vyčkat na vývoj situace v horizontu 2–3 týdnů a neprovokovat zbytečnou diskusí, která by mohla destabilizovat pracovní vztah
   Klasický Normalcy Bias: „nechci vyvolat paniku" = „odmítám jednat na základě jasných signálů." Diskrétní rozhovor není destabilizace — je to prevence zbytečné ztráty klíčového člena týmu.
@@ -276,7 +276,7 @@ Examples of normalcy bias in history: before the 2004 tsunami, people stood on t
 
 **Question:** How do you act?
 
-- **✅ Initiate a direct conversation with the developer immediately, proactively offer concrete solutions (compensation, role, conditions), and simultaneously launch a plan B in case they leave**
+- **✅ Initiate a direct conversation with the developer, offer concrete solutions (compensation, role, conditions), and launch a plan B in parallel**
   Great! You're acting on the warning signals instead of dismissing them. The combination of direct communication and a parallel plan B is the most effective defense against normalcy bias in personnel management.
 - ❌ Wait and monitor the situation over a 2–3 week horizon, and avoid provoking an unnecessary discussion that could destabilize the working relationship
   Classic normalcy bias: "I don't want to cause panic" = "I refuse to act on clear signals." A discreet conversation isn't destabilization — it's prevention of the unnecessary loss of a key team member.
@@ -295,7 +295,7 @@ Debiasing: 1) Pre-mortem — regularly imagine the worst-case scenarios and prep
 
 **Otázka:** Kdy je Normalcy Bias nejnebezpečnější?
 
-- **✅ U pomalu se vyvíjejících krizí — každý jednotlivý varovný signál je příliš slabý na to, aby překonal práh aktivace, a proto se snadno přehlíží nebo racionalizuje jako normální výkyv**
+- **✅ U pomalu se vyvíjejících krizí — každý varovný signál je příliš slabý, snadno se přehlíží nebo racionalizuje jako normální výkyv**
   Přesně! Pomalé krize (finanční problémy firmy, zdravotní potíže, klimatická změna) jsou nejzákeřnější — každý signál je malý a mozek ho snadno odmítne. „Žába ve vroucí vodě."
 - ❌ Při náhlých katastrofách s rychlým nástupem — intenzita a neočekávanost události překoná kognitivní kapacitu pro adekvátní zpracování a plánování odpovědi
   Náhlé katastrofy jsou nebezpečné z jiného důvodu — krátký reakční čas. Normalcy Bias je nejhorší právě u pomalých krizí, kde reakční čas MÁŠ, ale přesto nereaguješ, protože signály nevypadají dostatečně alarmující.
@@ -306,7 +306,7 @@ Debiasing: 1) Pre-mortem — regularly imagine the worst-case scenarios and prep
 
 **Question:** When is normalcy bias most dangerous?
 
-- **✅ During slow-moving crises — each individual warning signal is too weak to cross the activation threshold and is therefore easily dismissed or rationalized as a normal fluctuation**
+- **✅ During slow-moving crises — each warning signal is too weak to cross the activation threshold, so it's easily dismissed as a normal fluctuation**
   Exactly! Slow crises (a company's financial trouble, health problems, climate change) are the most insidious — each signal is small and the brain easily dismisses it. "The frog in boiling water."
 - ❌ During sudden, rapid-onset disasters — the intensity and unexpectedness of the event overwhelms cognitive capacity for adequate processing and response planning
   Sudden disasters are dangerous for a different reason — short reaction time. Normalcy bias is worst in slow crises where you DO have reaction time, but still don't act because the signals don't look alarming enough.

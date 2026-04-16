@@ -81,7 +81,7 @@ Imagine you're sitting in a pub with friends. Everyone is talking about Bitcoin.
 
 **Otázka:** Proč najednou chceš investovat?
 
-- **✅ Protože spouští se tzv. sociální validační smyčka — mozek vyhodnotí, že co dělá hodně lidí, je bezpečné a správné**
+- **✅ Protože spouští se sociální validační smyčka — mozek čte „co dělá dav" jako bezpečné a správné**
   Přesně! Tohle je Bandwagon Effect — efekt stádového chování. Když vidíš, že „všichni" něco dělají, mozek ti říká: „Tolik lidí se nemůže mýlit." Ale můžou.
 - ❌ Protože kamarádi v hospodě fungují jako spolehlivý distribuovaný filtr investičních signálů
   Kamarádi v hospodě nejsou investiční poradci. Nerozhoduješ se na základě analýzy — rozhoduješ se na základě toho, co dělají ostatní.
@@ -94,7 +94,7 @@ Imagine you're sitting in a pub with friends. Everyone is talking about Bitcoin.
 
 **Question:** Why do you suddenly want to invest?
 
-- **✅ Because a social validation loop kicks in — your brain treats mass behavior as a reliable signal that something is safe and right**
+- **✅ Because a social validation loop kicks in — your brain reads mass behavior as a signal it's safe**
   Exactly! This is the bandwagon effect — herd behavior. When you see "everyone" doing something, your brain tells you: "That many people can't be wrong." But they can.
 - ❌ Because friends at the pub function as a reliable distributed filter for investment signals
   Friends at the pub aren't financial advisors. You're not deciding based on analysis — you're deciding based on what other people are doing.
@@ -263,7 +263,7 @@ Case study: In 2021, GameStop's stock shot up 1,700%. Not because the company wa
 
 **Otázka:** Jakou radu mu dáš?
 
-- **✅ „Zjisti, co ta kryptoměna řeší a kdo za ní stojí — sociální traction bez fundamentů je klasický předobraz bubliny."**
+- **✅ „Zjisti, co ta kryptoměna řeší a kdo za ní stojí — traction bez fundamentů je klasická bublina."**
   Skvělé! Pomáháš mu přepnout z Bandwagon režimu do analytického myšlení. Popularita ≠ kvalita, zejména u investic.
 - ❌ „Kup ji rychle — 300% growth rate za týden signalizuje, že trh oceňuje silné fundamenty."
   Tohle je klasická Bandwagon past. Rychlý růst je často signálem bubliny, ne kvality. Kdo koupí na vrcholu bubliny, tratí.
@@ -276,7 +276,7 @@ Case study: In 2021, GameStop's stock shot up 1,700%. Not because the company wa
 
 **Question:** What advice do you give him?
 
-- **✅ "Find out what problem it actually solves and who's behind it — social traction without fundamentals is the classic bubble signature."**
+- **✅ "Find out what it solves and who's behind it — social traction without fundamentals is the classic bubble signature."**
   Great! You're helping him switch from bandwagon mode to analytical thinking. Popularity ≠ quality, especially in investing.
 - ❌ "Buy it fast — a 300% weekly growth rate signals that the market is pricing in strong fundamentals."
   That's a classic bandwagon trap. Rapid growth is often a sign of a bubble, not quality. Whoever buys at the top of the bubble loses.

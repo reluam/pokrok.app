@@ -109,7 +109,7 @@ In-group bias is the tendency to favor members of "your" group and to disfavor "
 
 **Otázka:** Na konferenci potkáš dva lidi. Jeden je z tvého města, druhý z jiného. Oba jsou příjemní a zajímaví. Koho budeš pravděpodobně hodnotit pozitivněji?
 
-- **✅ Toho z mého města — sdílená identita automaticky aktivuje preferenční efekt, i když je geografická shoda bezvýznamná**
+- **✅ Toho z mého města — sdílená identita automaticky aktivuje preferenční efekt, i když je shoda bezvýznamná**
   Přesně! Sdílená identita (město, škola, firma) vytváří okamžitý pocit důvěry a sympatie. Je to iracionální — ale tak silné, že to ovlivňuje i profesní rozhodnutí.
 - ❌ Záleží výhradně na osobnostním profilu a síle prvního dojmu, geografický původ hodnocení neovlivňuje
   Ideálně by to tak mělo být — ale výzkumy konzistentně ukazují, že sdílená příslušnost systematicky ovlivňuje hodnocení, a to i tehdy, když si to hodnotitel neuvědomuje ani nepřipouští.
@@ -120,7 +120,7 @@ In-group bias is the tendency to favor members of "your" group and to disfavor "
 
 **Question:** At a conference you meet two people. One is from your city, the other from a different one. Both are pleasant and interesting. Who will you probably rate more positively?
 
-- **✅ The one from my city — shared identity automatically triggers a preference effect, even when the geographic match is meaningless**
+- **✅ The one from my city — shared identity automatically triggers preference, even when the match is meaningless**
   Exactly! Shared identity (city, school, company) creates an instant sense of trust and liking. It's irrational — but so strong it even affects professional decisions.
 - ❌ It depends entirely on personality profile and the strength of the first impression — geographic origin has no effect on evaluation
   Ideally that's how it should work — but research consistently shows that shared belonging systematically skews evaluations, even when the person doing the rating is unaware of it and wouldn't admit it.

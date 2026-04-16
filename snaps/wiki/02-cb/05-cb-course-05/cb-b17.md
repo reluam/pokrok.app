@@ -181,7 +181,7 @@ The Dunning-Kruger effect is a special form of overconfidence: people with the l
 
 **Otázka:** Kdo má pravděpodobně pravdu?
 
-- **✅ Sebedůvěra neumožňuje odhadnout přesnost — korelace mezi subjektivní jistotou a faktickou správností je slabá a v mnoha oblastech statisticky nevýznamná**
+- **✅ Sebedůvěra nepředpovídá přesnost — korelace mezi subjektivní jistotou a faktickou správností je slabá, často statisticky nevýznamná**
   Správně! Sebedůvěra a přesnost jsou různé věci. Často je ten váhavější blíž pravdě, protože jeho váhání odráží porozumění složitosti problému.
 - ❌ Novák — explicitní verbální sebejistota signalizuje vyšší míru zpracování informací před odpovědí, což koreluje s faktickou správností
   To je přesně ta past! Sebejistota je sociální signál, ne indikátor zpracování informací. Studie opakovaně ukazují, že nejsebejistější odpovědi jsou často nejméně přesné.
@@ -194,7 +194,7 @@ The Dunning-Kruger effect is a special form of overconfidence: people with the l
 
 **Question:** Who's probably right?
 
-- **✅ Confidence can't be used to estimate accuracy — the correlation between subjective certainty and factual correctness is weak and in many domains statistically insignificant**
+- **✅ Confidence can't estimate accuracy — the correlation between subjective certainty and factual correctness is weak, often statistically insignificant**
   Right! Confidence and accuracy are different things. Often the more hesitant one is closer to the truth because their hesitation reflects understanding of the problem's complexity.
 - ❌ Novák — explicit verbal confidence signals a higher degree of information processing before answering, which correlates with factual correctness
   That's the trap! Confidence is a social signal, not an indicator of information processing. Studies repeatedly show the most confident answers are often the least accurate.
@@ -238,7 +238,7 @@ Overconfidence has cost humanity billions: the 2008 financial crisis (bankers we
 
 **Otázka:** Jak se dá kalibrovat vlastní sebedůvěra?
 
-- **✅ Systematicky zaznamenávej předpovědi i subjektivní míru jistoty a porovnávej je s realitou — pouze empirická zpětnovazební smyčka umožňuje skutečnou kalibraci sebedůvěry**
+- **✅ Systematicky zaznamenávej své předpovědi i míru jistoty a porovnávej je s realitou — jen empirická zpětná vazba umožňuje skutečnou kalibraci**
   Kalibrace vyžaduje zpětnou vazbu! Zapisuj si své odhady a jejich jistotu, pak je porovnej s realitou. Většina lidí zjistí, že jsou špatně kalibrovaní — a postupně se zlepší.
 - ❌ Aplikovat tzv. defenzivní hodnotový posun — záměrně snižovat vyjadřovanou jistotu o 20-30 procentních bodů, čímž se statisticky přiblížíš skutečné přesnosti
   Plošné snižování bez zpětné vazby není kalibrace — je to jen náhodná korekce. Cílem je, aby tvoje „90 % jistota" OPRAVDU znamenala 90 %, ne aby číslo bylo prostě nižší.
@@ -249,7 +249,7 @@ Overconfidence has cost humanity billions: the 2008 financial crisis (bankers we
 
 **Question:** How do you calibrate your own confidence?
 
-- **✅ Systematically record your predictions and subjective confidence levels, then compare them to reality — only an empirical feedback loop enables genuine calibration of self-confidence**
+- **✅ Systematically record your predictions and confidence levels, then compare to reality — only an empirical feedback loop enables true calibration**
   Calibration needs feedback! Write down your estimates and their confidence, then compare them to reality. Most people find they're badly calibrated — and improve over time.
 - ❌ Apply a so-called defensive value shift — deliberately reduce your expressed certainty by 20-30 percentage points to statistically approach actual accuracy
   Blanket reduction without feedback isn't calibration — it's just a random correction. The goal is for your "90% sure" to ACTUALLY mean 90%, not for the number to simply be lower.
@@ -262,7 +262,7 @@ Overconfidence has cost humanity billions: the 2008 financial crisis (bankers we
 
 **Otázka:** Který přístup nejlépe zohlední Overconfidence?
 
-- **✅ Aplikuj empiricky odvozenou korekci 30–50 % navíc — statistická distribuce projektových nákladů konzistentně ukazuje, že první odhad leží pod skutečnou hodnotou přibližně v 80 % případů**
+- **✅ Aplikuj empirickou korekci 30–50 % navíc — statistika projektových nákladů ukazuje, že první odhad leží pod skutečnou hodnotou v asi 80 % případů**
   Výzkumy ukazují, že projekty typicky stojí 50-100 % víc, než je původní odhad. Přidání 30-50 % rezervy je racionální korekce Overconfidence.
 - ❌ Zachovej původní odhad jako kotvu a přidej 10% rizikovou přirážku — konzervativní korekce je vhodnější než výrazná revize, která snižuje důvěryhodnost odhadu
   Tvůj „nejlepší tip" je systematicky nízký kvůli Overconfidence. 10% přirážka toto zkreslení nepokrývá — data konzistentně ukazují, že většina projektů překračuje rozpočet o desítky procent.
@@ -275,7 +275,7 @@ Overconfidence has cost humanity billions: the 2008 financial crisis (bankers we
 
 **Question:** Which approach best accounts for overconfidence?
 
-- **✅ Apply an empirically derived correction of 30–50% on top — the statistical distribution of project costs consistently shows that the first estimate falls below actual value in roughly 80% of cases**
+- **✅ Apply an empirical 30–50% correction on top — project cost data consistently shows the first estimate falls below actual value in about 80% of cases**
   Research shows projects typically cost 50–100% more than the original estimate. Adding a 30–50% buffer is a rational correction for overconfidence.
 - ❌ Keep the original estimate as an anchor and add a 10% risk premium — a conservative correction is more appropriate than a large revision that undermines the estimate's credibility
   Your "best guess" is systematically low because of overconfidence. A 10% premium doesn't cover this bias — data consistently shows most projects overshoot the budget by tens of percent.

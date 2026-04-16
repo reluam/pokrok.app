@@ -276,7 +276,7 @@ The false consensus effect has a huge impact in business. Startup founders often
 
 **Question:** How do you help him notice the false consensus effect?
 
-- **✅ "That's YOUR subjective feeling — how about we replace assumption with data and run an anonymous survey that shows the actual distribution of opinions?"**
+- **✅ "That's YOUR feeling — let's replace assumption with data and run an anonymous survey of opinions."**
   Great! Data instead of assumptions. An anonymous survey is the best defense against the false consensus effect — you replace "everyone thinks this" with real numbers.
 - ❌ "I like team-buildings, and most colleagues I've spoken to rate them positively — so your premise isn't accurate."
   That just pits your own false consensus effect against his. "I like it and so do my colleagues" is the same projection — just from the opposite direction. The problem won't be solved by an argument, only by data.

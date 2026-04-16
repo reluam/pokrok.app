@@ -147,7 +147,7 @@ The Sydney Opera House was supposed to cost 7 million dollars and be done in 196
 
 **Otázka:** Co ignoruješ?
 
-- **✅ Celou kategorii „normálních" překážek — nemoc, motivační propad, iterativní zpětnou vazbu vedoucího, technické problémy — jejichž individuální pravděpodobnost je sice nízká, ale agregovaná pravděpodobnost výskytu alespoň jedné z nich je téměř jistá**
+- **✅ Kategorii „normálních" překážek — nemoc, propad motivace, zpětnou vazbu vedoucího, technické problémy — jejichž souhrnný výskyt alespoň jedné je téměř jistý**
   Plánuješ „ideální scénář" — žádné nemoci, stálá motivace, perfektní technika. Realita: minimálně 2-3 týdny ztratíš na nepředvídaných překážkách.
 - ❌ Nedostatečnou disciplínu a prokrastinaci — při dostatečné motivaci a strukturovaném self-managementu je tříměsíční plán bez rezervy realisticky splnitelný
   I ten nejdisciplinovanější student narazí na nepředvídané překážky mimo svoji kontrolu. Plánovat bez rezervy = plánovat selhání — bez ohledu na úroveň disciplíny.
@@ -160,7 +160,7 @@ The Sydney Opera House was supposed to cost 7 million dollars and be done in 196
 
 **Question:** What are you ignoring?
 
-- **✅ The entire category of "normal" obstacles — illness, motivation dip, iterative advisor feedback, technical problems — whose individual probability is low, but whose aggregate probability of at least one occurring is nearly certain**
+- **✅ The category of "normal" obstacles — illness, motivation dip, advisor feedback, technical problems — whose aggregate probability of at least one occurring is nearly certain**
   You're planning the "ideal scenario" — no illness, constant motivation, perfect tech. Reality: you'll lose at least 2–3 weeks to unforeseen obstacles.
 - ❌ Insufficient discipline and procrastination — with adequate motivation and structured self-management, a three-month plan without a buffer is realistically achievable
   Even the most disciplined student runs into unforeseen obstacles outside their control. Planning without a buffer = planning to fail — regardless of discipline level.
@@ -181,7 +181,7 @@ Why does the planning fallacy exist? (1) We plan "from the inside" — we imagin
 
 **Otázka:** Jak bys měl/a interpretovat jeho odhad?
 
-- **✅ Na základě individuální referenční třídy kolegy — jeho historická data ukazují systematickou 50% podestimaci — reviduj odhad na střed příštího týdne jako statisticky nejpravděpodobnější termín dokončení**
+- **✅ Na základě jeho referenční třídy — historická data ukazují 50% podestimaci — reviduj odhad na střed příštího týdne jako pravděpodobný termín**
   To je „reference class forecasting" — místo důvěry v aktuální odhad se podívej na historii podobných odhadů od této osoby. Data z minulosti jsou lepší prediktor než aktuální plán.
 - ❌ Akceptovat jeho odhad jako výchozí bod — individuální variabilita výkonu naznačuje, že každý projekt je dostatečně unikátní, aby mohl prolomit historický vzorec
   To je přesně Planning Fallacy! „Tentokrát to bude jinak" je nejčastější forma sebeobelhávání. Pokud byl pozdě 10× z 10, bude pozdě i 11 — bez systémové změny procesu.
@@ -194,7 +194,7 @@ Why does the planning fallacy exist? (1) We plan "from the inside" — we imagin
 
 **Question:** How should you interpret his estimate?
 
-- **✅ Based on your coworker's individual reference class — his historical data shows a systematic 50% underestimation — revise the estimate to mid-next week as the statistically most probable completion date**
+- **✅ Based on his reference class — historical data shows a 50% underestimation — revise the estimate to mid-next week as the likely completion date**
   That's "reference class forecasting" — instead of trusting the current estimate, look at the history of similar estimates from this person. Past data is a better predictor than the current plan.
 - ❌ Accept his estimate as a starting point — individual variability in performance suggests each project is sufficiently unique that it can break the historical pattern
   That's exactly the planning fallacy! "This time will be different" is the most common form of self-deception. If he was late 10 out of 10 times, he'll be late the 11th — without a systemic change to the process.
@@ -321,7 +321,7 @@ The planning fallacy has one more insidious property: you can know about it, but
 
 **Otázka:** Proč „lepší plány" nezabráníí překročení rozpočtu?
 
-- **✅ Protože Planning Fallacy je strukturálně zabudovaná do samotného plánovacího procesu — kvalitativně lepší plán „zevnitř" dává iluzi větší přesnosti, ale stále podceňuje systematické externality, které odhalí jedině referenční třída**
+- **✅ Protože Planning Fallacy je zabudovaná v samotném procesu — lepší plán „zevnitř" dává iluzi přesnosti, ale podceňuje externality, které odhalí jen referenční třída**
   Správně! Detailnější plán dává ILUZI přesnosti, ale stále ignoruje nepředvídané problémy. Jedinou obranou jsou historická data z podobných staveb.
 - ❌ Veřejné projekty podléhají tzv. politické inflaci odhadů — ministerský optimismus je strategickým nástrojem pro získání politické podpory, nikoliv kognitivním selháním, takže soukromé projekty jsou na tom lépe
   Planning Fallacy postihuje soukromé firmy stejně tvrdě. Není to o politické kultuře ani efektivitě — je to o univerzálním způsobu, jakým lidský mozek vytváří odhady budoucnosti.
@@ -334,7 +334,7 @@ The planning fallacy has one more insidious property: you can know about it, but
 
 **Question:** Why won't "better plans" prevent the budget overrun?
 
-- **✅ Because the planning fallacy is structurally embedded in the planning process itself — a qualitatively better "inside" plan creates the illusion of greater accuracy, but still underestimates the systematic externalities that only a reference class can reveal**
+- **✅ Because the planning fallacy is embedded in the planning process itself — a better "inside" plan creates the illusion of accuracy, but still underestimates externalities that only a reference class can reveal**
   Right! A more detailed plan creates the ILLUSION of accuracy, but still ignores unforeseen problems. The only defense is historical data from similar projects.
 - ❌ Public projects are subject to so-called political estimate inflation — ministerial optimism is a strategic tool for gaining political support, not a cognitive failure, so private projects fare better
   The planning fallacy hits private companies just as hard. It's not about political culture or efficiency — it's about the universal way the human brain constructs estimates of the future.
