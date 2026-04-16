@@ -187,20 +187,24 @@ export default async function Home() {
                 <Link
                   key={post.id}
                   href={`/knihovna/${post.slug}`}
-                  className="paper-card p-6 h-full flex flex-col group"
+                  className="paper-card p-6 h-full flex flex-col group relative border-l-[6px] border-l-[#ffe4cc] pl-5"
                 >
-                  <h3 className="font-display text-lg font-extrabold mb-2 group-hover:text-primary transition-colors leading-snug">
+                  <h3 className="font-display text-lg font-extrabold mb-2 group-hover:text-primary transition-colors leading-snug pr-8">
                     {post.title}
                   </h3>
                   {post.subtitle && (
-                    <p className="text-sm text-foreground/60 leading-relaxed flex-1 line-clamp-3 mb-4">
+                    <p className="text-sm text-foreground/60 leading-relaxed flex-1 line-clamp-3 mb-5">
                       {post.subtitle}
                     </p>
                   )}
-                  <p className="font-display font-bold text-sm text-[#7766d8] inline-flex items-center gap-1.5 mt-auto">
-                    Číst dál
-                    <span className="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-                  </p>
+                  <div className="flex items-center gap-2 mt-auto">
+                    <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm shrink-0 group-hover:bg-primary-dark transition-colors">
+                      &rarr;
+                    </span>
+                    <span className="font-display font-bold text-sm text-foreground/70 group-hover:text-foreground transition-colors">
+                      Číst dál
+                    </span>
+                  </div>
                 </Link>
               ))}
             </div>
