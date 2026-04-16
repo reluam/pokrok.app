@@ -57,10 +57,10 @@ export default async function Home() {
   return (
     <main className="flex-1 bg-background overflow-x-hidden relative min-h-screen">
 
-      {/* ─── Hero — full bleed peachy background ─── */}
-      <section className="relative bg-[#fdf0e6] pt-28 md:pt-32 pb-32 md:pb-40 -mt-20 animate-fade-up">
+      {/* ─── Hero — full bleed warm terracotta background ─── */}
+      <section className="relative bg-[#ecd2b4] pt-28 md:pt-32 pb-32 md:pb-40 -mt-20 animate-fade-up">
         <div className="max-w-5xl mx-auto px-6 relative">
-          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-6 md:gap-8 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-6 md:gap-10 items-center">
             <div className="text-center md:text-left order-2 md:order-1">
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
                 Přemýšlíš hodně.{" "}
@@ -87,22 +87,17 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="relative order-1 md:order-2 h-72 md:h-[460px]">
-              {/* Decorative circle behind photo */}
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 flex items-center justify-center md:justify-end"
-              >
-                <div className="w-60 h-60 md:w-[380px] md:h-[380px] rounded-full bg-[#ff8c42]/25" />
+            <div className="relative order-1 md:order-2 flex justify-center md:justify-end">
+              <div className="relative w-64 h-64 md:w-[420px] md:h-[420px] rounded-full overflow-hidden">
+                <Image
+                  src="/matej-photo.jpg"
+                  alt="Matěj Mauler"
+                  fill
+                  sizes="(max-width: 768px) 256px, 420px"
+                  className="object-cover object-center grayscale"
+                  priority
+                />
               </div>
-              <Image
-                src="/matej-photo.jpg"
-                alt="Matěj Mauler"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-contain object-center md:object-right relative z-10"
-                priority
-              />
             </div>
           </div>
         </div>
