@@ -58,10 +58,23 @@ export default async function Home() {
     <main className="flex-1 bg-background overflow-x-hidden relative min-h-screen">
 
       {/* ─── Hero — full bleed warm beige background, extends behind nav ─── */}
-      <section className="relative bg-[#F3E7D0] pt-36 md:pt-44 pb-32 md:pb-40 -mt-20 animate-fade-up">
+      <section className="relative bg-[#F3E7D0] pt-36 md:pt-44 pb-32 md:pb-40 -mt-20 animate-fade-up overflow-hidden">
+        {/* Decorative cream blob top-left */}
+        <svg
+          aria-hidden="true"
+          className="absolute -top-10 -left-20 w-72 h-72 md:w-96 md:h-96 opacity-60 pointer-events-none"
+          viewBox="0 0 200 200"
+        >
+          <path
+            fill="#EAD7B3"
+            d="M48.3,-58.3C61.3,-47.6,69.3,-30.7,70.8,-13.5C72.4,3.8,67.5,21.4,57.8,35.1C48.1,48.8,33.6,58.7,17.2,65.2C0.8,71.7,-17.5,74.9,-32.5,69C-47.5,63.1,-59.3,48.1,-66.7,31.3C-74.1,14.5,-77.2,-4.2,-71.8,-20.1C-66.3,-36,-52.4,-49.2,-37.1,-59.2C-21.8,-69.3,-5.2,-76.1,8.9,-72.6C22.9,-69.2,35.3,-69,48.3,-58.3Z"
+            transform="translate(100 100)"
+          />
+        </svg>
+
         <div className="max-w-5xl mx-auto px-6 relative">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-6 md:gap-10 items-center">
-            <div className="text-center md:text-left order-2 md:order-1">
+            <div className="text-center md:text-left order-2 md:order-1 relative z-10">
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
                 Přemýšlíš hodně.{" "}
                 <span className="underline-playful">Děláš málo.</span>
@@ -88,11 +101,19 @@ export default async function Home() {
             </div>
 
             <div className="relative order-1 md:order-2 flex justify-center md:justify-end">
-              {/* Orange crescent shape behind photo */}
-              <div
+              {/* Organic cream blob behind photo */}
+              <svg
                 aria-hidden="true"
-                className="absolute top-1/2 -translate-y-1/2 right-[-60px] md:right-[-120px] w-72 h-72 md:w-[500px] md:h-[500px] rounded-full bg-primary opacity-80 -z-0"
-              />
+                className="absolute -top-6 right-[-40px] md:right-[-80px] w-[22rem] h-[22rem] md:w-[560px] md:h-[560px] pointer-events-none"
+                viewBox="0 0 200 200"
+              >
+                <path
+                  fill="#EAD7B3"
+                  d="M42.7,-57.3C56.8,-49.4,70.7,-38.5,75.6,-24.1C80.5,-9.6,76.4,8.3,68.3,23.3C60.2,38.3,48.2,50.3,34.2,58.1C20.2,65.8,4.3,69.3,-11.5,68.3C-27.3,67.2,-43,61.6,-55.8,51.2C-68.5,40.9,-78.3,26,-79.4,10.4C-80.5,-5.3,-72.9,-21.7,-62.4,-34.7C-51.9,-47.7,-38.5,-57.2,-24.4,-64.5C-10.3,-71.8,4.5,-76.8,18.1,-73.4C31.7,-70,28.7,-65.2,42.7,-57.3Z"
+                  transform="translate(100 100)"
+                />
+              </svg>
+
               <div className="relative w-64 h-64 md:w-[420px] md:h-[420px] rounded-full overflow-hidden z-10">
                 <Image
                   src="/matej-photo.jpg"
