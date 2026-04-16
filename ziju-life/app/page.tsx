@@ -56,54 +56,65 @@ export default async function Home() {
 
   return (
     <main className="flex-1 bg-background overflow-x-hidden relative min-h-screen">
-      <div className="max-w-5xl mx-auto px-6 py-16 md:py-20 pt-28 md:pt-32">
 
-        {/* ─── Hero ─── */}
-        <section
-          className="mb-24 md:mb-32 animate-fade-up relative"
-          style={{ animationDelay: "0ms" }}
-        >
-          <div className="bg-[#fdf0e6]/60 rounded-[36px] relative overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] items-center relative">
-              <div className="text-center md:text-left px-6 sm:px-10 md:pl-14 md:pr-6 pt-10 md:pt-14 pb-6 md:pb-14 order-2 md:order-1">
-                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
-                  Přemýšlíš hodně.{" "}
-                  <span className="underline-playful">Děláš málo.</span>
-                </h1>
+      {/* ─── Hero — full bleed peachy background ─── */}
+      <section className="relative bg-[#fdf0e6] pt-28 md:pt-32 pb-32 md:pb-40 -mt-20 animate-fade-up">
+        <div className="max-w-5xl mx-auto px-6 relative">
+          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-6 md:gap-8 items-center">
+            <div className="text-center md:text-left order-2 md:order-1">
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
+                Přemýšlíš hodně.{" "}
+                <span className="underline-playful">Děláš málo.</span>
+              </h1>
 
-                <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-7">
-                  Taky jsem to tak měl. Teď pomáhám lidem, co se zasekli v hlavě, začít reálně žít.
-                </p>
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-7">
+                Taky jsem to tak měl. Teď pomáhám lidem, co se zasekli v hlavě, začít reálně žít.
+              </p>
 
-                <div className="flex flex-col sm:flex-row items-center md:items-start gap-3">
-                  <Link href="/koucing#rezervace" className="btn-playful">
-                    Konzultace zdarma &rarr;
-                  </Link>
-                  <Link
-                    href="/knihovna"
-                    className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group px-3 py-2"
-                  >
-                    Nebo si nejdřív přečti, o čem přemýšlím
-                    <span className="inline-block transition-transform group-hover:translate-x-0.5">
-                      &rarr;
-                    </span>
-                  </Link>
-                </div>
-              </div>
-
-              <div className="relative order-1 md:order-2 h-60 md:h-[420px] overflow-hidden">
-                <Image
-                  src="/matej-photo.jpg"
-                  alt="Matěj Mauler"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover object-center md:rounded-tl-[80px] md:rounded-bl-[80px] md:rounded-tr-[36px] md:rounded-br-[36px]"
-                  priority
-                />
+              <div className="flex flex-col sm:flex-row items-center md:items-start gap-3">
+                <Link href="/koucing#rezervace" className="btn-playful">
+                  Konzultace zdarma &rarr;
+                </Link>
+                <Link
+                  href="/knihovna"
+                  className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group px-3 py-2"
+                >
+                  Nebo si nejdřív přečti, o čem přemýšlím
+                  <span className="inline-block transition-transform group-hover:translate-x-0.5">
+                    &rarr;
+                  </span>
+                </Link>
               </div>
             </div>
+
+            <div className="relative order-1 md:order-2 h-72 md:h-[460px]">
+              <Image
+                src="/matej-photo.jpg"
+                alt="Matěj Mauler"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-contain object-center md:object-right"
+                priority
+              />
+            </div>
           </div>
-        </section>
+        </div>
+
+        {/* Wavy bottom edge */}
+        <svg
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 w-full h-16 md:h-24"
+          viewBox="0 0 1440 100"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,60 C240,100 480,0 720,40 C960,80 1200,20 1440,50 L1440,100 L0,100 Z"
+            fill="#FDFDF7"
+          />
+        </svg>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-6 pt-12 md:pt-16 pb-16 md:pb-20">
 
         {/* ─── Poznáváš se? (pain points) ─── */}
         <section
