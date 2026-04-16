@@ -47,20 +47,9 @@ export default async function Home() {
           className="mb-24 md:mb-32 animate-fade-up relative"
           style={{ animationDelay: "0ms" }}
         >
-          <div className="bg-[#fdf0e6]/60 rounded-[36px] px-6 sm:px-10 md:px-14 py-10 md:py-14 relative overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-12 items-center relative">
-              <div className="paper-card overflow-hidden w-56 h-56 md:w-64 md:h-64 shrink-0 mx-auto md:mx-0">
-                <Image
-                  src="/matej-photo.jpg"
-                  alt="Matěj Mauler"
-                  width={256}
-                  height={256}
-                  className="w-full h-full object-cover"
-                  priority
-                />
-              </div>
-
-              <div className="text-center md:text-left">
+          <div className="bg-[#fdf0e6]/60 rounded-[36px] relative overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] items-center relative">
+              <div className="text-center md:text-left px-6 sm:px-10 md:pl-14 md:pr-6 pt-10 md:pt-14 pb-6 md:pb-14 order-2 md:order-1">
                 <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
                   Přemýšlíš hodně.{" "}
                   <span className="underline-playful">Děláš málo.</span>
@@ -84,6 +73,17 @@ export default async function Home() {
                     </span>
                   </Link>
                 </div>
+              </div>
+
+              <div className="relative order-1 md:order-2 h-60 md:h-[420px] overflow-hidden">
+                <Image
+                  src="/matej-photo.jpg"
+                  alt="Matěj Mauler"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover object-center md:rounded-tl-[80px] md:rounded-bl-[80px] md:rounded-tr-[36px] md:rounded-br-[36px]"
+                  priority
+                />
               </div>
             </div>
           </div>
