@@ -157,11 +157,11 @@
 
 /* ─── Sketch-style hand-drawn underline ─── */
 .underline-sketch {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12'%3E%3Cpath d='M2,8 C30,2 50,10 80,6 C110,2 140,10 170,5 C185,3 195,7 198,6' stroke='%23ff8c42' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'%3E%3Cpath d='M3,10 C30,4 55,13 90,7 C120,2 150,12 175,6 C190,3 196,8 198,7' stroke='%23ff8c42' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: bottom center;
-  background-size: 100% 12px;
-  padding-bottom: 8px;
+  background-size: 100% 16px;
+  padding-bottom: 12px;
 }
 
 /* ─── Playful underline highlight ─── */

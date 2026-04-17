@@ -62,9 +62,9 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto px-6 relative">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-6 md:gap-10 items-center">
             <div className="text-center md:text-left order-2 md:order-1 relative z-10">
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-5 tracking-tight">
-                Přemýšlíš hodně.{" "}
-                <span className="underline-sketch">Děláš málo.</span>
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-6 tracking-tight">
+                <span className="block">Přemýšlíš hodně.</span>
+                <span className="underline-sketch inline-block pb-3">Děláš málo.</span>
               </h1>
 
               <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-7">
@@ -87,13 +87,13 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="relative order-1 md:order-2 flex justify-center md:justify-end">
-              {/* Pick/trsátko shape behind photo — slightly darker, rotated */}
+            <div className="relative order-1 md:order-2 flex justify-center md:justify-end min-h-[360px] md:min-h-[520px]">
+              {/* Pick/trsátko shape behind silhouette — slightly darker, rotated */}
               <svg
                 aria-hidden="true"
-                className="absolute top-[15%] left-1/2 -translate-x-[40%] md:-translate-x-[35%] w-[20rem] h-[24rem] md:w-[400px] md:h-[480px] pointer-events-none z-0"
+                className="absolute top-0 right-0 w-[22rem] h-[24rem] md:w-[440px] md:h-[520px] pointer-events-none z-0"
                 viewBox="0 0 200 240"
-                style={{ transform: "translateX(-40%) rotate(-8deg)" }}
+                style={{ transform: "rotate(-8deg)" }}
               >
                 <path
                   fill="#E5CBA3"
@@ -101,13 +101,13 @@ export default async function Home() {
                 />
               </svg>
 
-              <div className="relative w-64 h-64 md:w-[380px] md:h-[380px] rounded-full overflow-hidden z-10">
+              <div className="relative w-72 h-80 md:w-[420px] md:h-[520px] z-10">
                 <Image
-                  src="/matej-photo.jpg"
+                  src="/matej-silueta.png"
                   alt="Matěj Mauler"
                   fill
-                  sizes="(max-width: 768px) 256px, 380px"
-                  className="object-cover object-center grayscale"
+                  sizes="(max-width: 768px) 288px, 420px"
+                  className="object-contain object-bottom"
                   priority
                 />
               </div>

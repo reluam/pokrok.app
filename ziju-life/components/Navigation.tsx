@@ -80,9 +80,9 @@ export default function Navigation() {
     <nav className="fixed top-0 left-0 right-0 z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
         <div
-          className={`max-w-5xl mx-auto flex items-center justify-between h-14 md:h-16 rounded-full px-5 md:px-6 transition-all duration-500 ease-out relative ${
+          className={`max-w-5xl mx-auto flex items-center justify-between h-14 md:h-16 px-5 md:px-6 transition-all duration-500 ease-out relative ${
             showSolid
-              ? "bg-white/95 backdrop-blur-md shadow-lg shadow-black/[0.06] border border-outline/60"
+              ? "bg-white rounded-tl-[32px] rounded-tr-[24px] rounded-bl-[20px] rounded-br-[36px] border-2 border-foreground shadow-[4px_4px_0_rgba(23,23,23,0.9)]"
               : "bg-transparent"
           }`}
         >
@@ -144,9 +144,7 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className={`md:hidden mt-3 py-4 px-4 space-y-1 text-center rounded-3xl shadow-lg backdrop-blur-xl glass-grain ${
-            showSolid ? "bg-white/95 border border-outline/60" : "bg-white/90 border border-white/60"
-          }`}>
+          <div className="md:hidden mt-3 py-4 px-4 space-y-1 text-center bg-white border-2 border-foreground rounded-tl-[24px] rounded-tr-[32px] rounded-bl-[28px] rounded-br-[20px] shadow-[4px_4px_0_rgba(23,23,23,0.9)]">
             {navItems.map((item) => {
               const isActive = item.href.startsWith("/#")
                 ? false
