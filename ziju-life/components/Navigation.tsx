@@ -80,13 +80,53 @@ export default function Navigation() {
     <nav className="fixed top-0 left-0 right-0 z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
         <div
-          className={`max-w-5xl mx-auto flex items-center justify-between h-14 md:h-16 px-5 md:px-6 transition-all duration-500 ease-out relative ${
-            showSolid
-              ? "bg-white rounded-tl-[32px] rounded-tr-[24px] rounded-bl-[20px] rounded-br-[36px] border-2 border-foreground shadow-[4px_4px_0_rgba(23,23,23,0.9)]"
-              : "bg-transparent"
+          className={`max-w-5xl mx-auto flex items-center justify-between h-16 md:h-[76px] px-5 md:px-6 transition-all duration-500 ease-out relative ${
+            showSolid ? "" : "bg-transparent"
           }`}
         >
-          <Link href="/" className="flex items-center h-10 md:h-12">
+          {/* Hand-drawn SVG navigation shell (only when scrolled) */}
+          {showSolid && (
+            <>
+              <svg
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full pointer-events-none translate-x-1 translate-y-1"
+                viewBox="0 0 1200 80"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M 30 10 Q 320 4 600 12 Q 880 8 1170 10 Q 1188 40 1170 72 Q 880 76 600 70 Q 320 74 30 72 Q 12 40 30 10 Z"
+                  fill="rgba(23,23,23,0.9)"
+                />
+              </svg>
+              <svg
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                viewBox="0 0 1200 80"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M 30 10 Q 320 4 600 12 Q 880 8 1170 10 Q 1188 40 1170 72 Q 880 76 600 70 Q 320 74 30 72 Q 12 40 30 10 Z"
+                  fill="#ffffff"
+                />
+              </svg>
+              <svg
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                viewBox="0 0 1200 80"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M 30 10 Q 320 4 600 12 Q 880 8 1170 10 Q 1188 40 1170 72 Q 880 76 600 70 Q 320 74 30 72 Q 12 40 30 10 Z"
+                  fill="none"
+                  stroke="#171717"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </>
+          )}
+          <Link href="/" className="relative z-10 flex items-center h-10 md:h-12">
             <Image
               src="/ziju-life-logo.png"
               alt="Žiju life"
@@ -99,7 +139,7 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop Navigation — centered links */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-8 absolute left-1/2 -translate-x-1/2">
+          <div className="hidden md:flex items-center gap-6 lg:gap-8 absolute left-1/2 -translate-x-1/2 z-10">
             {navItems.map((item) => {
               const isActive = item.href.startsWith("/#")
                 ? false
@@ -119,17 +159,18 @@ export default function Navigation() {
           </div>
 
           {/* Desktop right side — CTA */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center relative z-10">
             <Link
               href="/koucing#rezervace"
               className="btn-playful !px-5 !py-2 text-sm"
+              data-shape="4"
             >
               Chci změnu &rarr;
             </Link>
           </div>
 
           {/* Mobile: hamburger */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center relative z-10">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 text-foreground"
@@ -144,7 +185,31 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-3 py-4 px-4 space-y-1 text-center bg-white border-2 border-foreground rounded-tl-[24px] rounded-tr-[32px] rounded-bl-[28px] rounded-br-[20px] shadow-[4px_4px_0_rgba(23,23,23,0.9)]">
+          <div className="md:hidden mt-3 relative">
+            {/* Hand-drawn SVG shell — shadow */}
+            <svg
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full pointer-events-none translate-x-1 translate-y-1"
+              viewBox="0 0 300 200"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M 14 10 Q 80 6 150 8 T 288 14 Q 296 80 294 140 T 286 192 Q 220 196 150 194 T 10 188 Q 6 120 8 70 T 14 10 Z"
+                fill="rgba(23,23,23,0.9)"
+              />
+            </svg>
+            <svg
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              viewBox="0 0 300 200"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M 14 10 Q 80 6 150 8 T 288 14 Q 296 80 294 140 T 286 192 Q 220 196 150 194 T 10 188 Q 6 120 8 70 T 14 10 Z"
+                fill="#ffffff"
+              />
+            </svg>
+            <div className="relative z-10 py-4 px-4 space-y-1 text-center">
             {navItems.map((item) => {
               const isActive = item.href.startsWith("/#")
                 ? false
@@ -172,6 +237,22 @@ export default function Navigation() {
                 Chci změnu &rarr;
               </Link>
             </div>
+            </div>
+            <svg
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              viewBox="0 0 300 200"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M 14 10 Q 80 6 150 8 T 288 14 Q 296 80 294 140 T 286 192 Q 220 196 150 194 T 10 188 Q 6 120 8 70 T 14 10 Z"
+                fill="none"
+                stroke="#171717"
+                strokeWidth="2"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
           </div>
         )}
       </div>

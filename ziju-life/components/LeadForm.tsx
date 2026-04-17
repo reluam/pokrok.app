@@ -116,19 +116,24 @@ export default function LeadForm({
 
   if (submitted) {
     return (
-      <div className="text-center py-6 space-y-2">
-        <div className="text-3xl">✅</div>
-        <p className="text-lg font-semibold text-foreground">{successMessage}</p>
+      <div className="text-center py-8 space-y-3">
+        <div className="text-4xl">✨</div>
+        <p className="font-display text-lg font-extrabold text-foreground">{successMessage}</p>
       </div>
     );
   }
+
+  const inputClass =
+    "w-full px-4 py-3 bg-white border-2 border-foreground/20 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/15 transition-colors placeholder:text-muted/60";
+  const labelClass =
+    "block text-sm font-display font-bold text-foreground mb-1.5";
 
   return (
     <form onSubmit={handleSubmit} className={className}>
       <div className={compact ? "space-y-3" : "space-y-4"}>
         <div>
-          <label htmlFor="lead-name" className="block text-sm font-medium text-foreground mb-1">
-            Jméno *
+          <label htmlFor="lead-name" className={labelClass}>
+            Jméno <span className="text-primary">*</span>
           </label>
           <input
             id="lead-name"
@@ -138,14 +143,14 @@ export default function LeadForm({
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+            className={inputClass}
             placeholder="Vaše jméno"
             disabled={loading}
           />
         </div>
         <div>
-          <label htmlFor="lead-email" className="block text-sm font-medium text-foreground mb-1">
-            E-mail *
+          <label htmlFor="lead-email" className={labelClass}>
+            E-mail <span className="text-primary">*</span>
           </label>
           <input
             id="lead-email"
@@ -155,14 +160,14 @@ export default function LeadForm({
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+            className={inputClass}
             placeholder="tvuj@mail.cz"
             disabled={loading}
           />
         </div>
         {(!compact || showMessage) && (
           <div>
-            <label htmlFor="lead-message" className="block text-sm font-medium text-foreground mb-1">
+            <label htmlFor="lead-message" className={labelClass}>
               {messageLabel}
             </label>
             <textarea
@@ -170,20 +175,20 @@ export default function LeadForm({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white resize-none"
+              className={`${inputClass} resize-none`}
               placeholder={messagePlaceholder}
               disabled={loading}
             />
           </div>
         )}
         {error && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-red-600 font-semibold" role="alert">
             {error}
           </p>
         )}
-        <p className="text-xs text-foreground/60">
+        <p className="text-xs text-muted leading-relaxed">
           {consentText ?? "Odesláním souhlasíte se zpracováním údajů pro domluvení konzultace."}{" "}
-          <a href="/gdpr" className="text-accent hover:underline">
+          <a href="/gdpr" className="text-primary font-semibold hover:opacity-80 transition-opacity">
             Zásady ochrany osobních údajů
           </a>
           .
@@ -191,9 +196,11 @@ export default function LeadForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full px-6 py-4 bg-accent text-white rounded-xl font-semibold hover:bg-accent-hover transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          className="btn-playful w-full justify-center text-base disabled:opacity-60 disabled:cursor-not-allowed"
+          data-shape="3"
         >
           {loading ? "Odesílám…" : (submitLabel ?? "Pokračovat k výběru termínu")}
+          {!loading && <span aria-hidden>&rarr;</span>}
         </button>
       </div>
     </form>

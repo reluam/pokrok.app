@@ -178,6 +178,7 @@ function FeedContent() {
             onClick={() => setPage(p => p + 1)}
             disabled={loading}
             className="btn-playful disabled:opacity-40"
+            data-shape="5"
           >
             {loading ? 'Načítám...' : 'Načíst další'}
           </button>
@@ -201,6 +202,7 @@ function FeedContent() {
             target="_blank"
             rel="noopener noreferrer"
             className="btn-playful"
+            data-shape="6"
           >
             Přihlásit se k odběru &rarr;
           </a>

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import HandDrawnCard from "@/components/HandDrawnCard";
+import HandDrawnIcon from "@/components/HandDrawnIcon";
+import HandDrawnFrame from "@/components/HandDrawnFrame";
 
 export const dynamic = "force-static";
 
@@ -15,26 +18,31 @@ const pillars = [
     emoji: "🎭",
     title: "Hravost",
     description: "Skoro nic není tak vážné, aby se to nedalo brát s nadhledem. A je třeba si to občas připomenout.",
+    bg: "#ffe4cc",
   },
   {
     emoji: "🔍",
     title: "Zvídavost",
     description: "Moje obrana proti autopilotovi. Neustálá potřeba koukat pod kapotu věcem, které \"prostě tak jsou\".",
+    bg: "#c6f1ec",
   },
   {
     emoji: "💬",
     title: "Upřímnost",
     description: "Lhaní si do kapsy je hrozná dřina, která nikam nevede. I malé lži mívají velké náklady.",
+    bg: "#dfd8fa",
   },
   {
     emoji: "🌊",
     title: "Otevřenost",
     description: "Ochota přiznat, že věci mohou být jinak, než si zrovna myslím. Bez otevřené hlavy se ta hra na život nedá moc dobře hrát.",
+    bg: "#fff0c2",
   },
   {
     emoji: "✨",
     title: "Radost",
     description: "Když se někomu něco podaří, tak chci mít upřímnou radost. Je skvělé, co jsme jako lidi dokázali.",
+    bg: "#ffe4cc",
   },
 ];
 
@@ -49,7 +57,13 @@ export default function OMnePage() {
             🌿
           </div>
 
-          <div className="paper-card p-8 md:p-12">
+          <HandDrawnCard
+            variant={0}
+            shadow={false}
+            stroke="rgba(23,23,23,0.45)"
+            strokeWidth={1.5}
+            innerClassName="px-10 md:px-16 py-16 md:py-20"
+          >
             <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
               <div className="flex-1">
                 <h1 className="font-display text-4xl md:text-5xl font-extrabold leading-tight mb-6 tracking-tight">
@@ -61,11 +75,12 @@ export default function OMnePage() {
                 <a
                   href="#moje-cesta"
                   className="btn-playful !px-6 !py-3 text-base"
+                  data-shape="7"
                 >
                   Moje cesta &darr;
                 </a>
               </div>
-              <div className="paper-card overflow-hidden w-full md:w-72 aspect-square shrink-0">
+              <HandDrawnFrame variant={0} className="w-full md:w-72 aspect-square shrink-0">
                 <Image
                   src="/o-mne-moment.jpg"
                   alt="Ten moment"
@@ -73,9 +88,9 @@ export default function OMnePage() {
                   className="object-cover !relative"
                   sizes="(max-width: 768px) 100vw, 288px"
                 />
-              </div>
+              </HandDrawnFrame>
             </div>
-          </div>
+          </HandDrawnCard>
         </section>
 
         {/* ─── Od hloubání k Žiju life ─── */}
@@ -83,9 +98,15 @@ export default function OMnePage() {
           className="mb-16 md:mb-20 animate-fade-up"
           style={{ animationDelay: "100ms" }}
         >
-          <div className="paper-card p-8 md:p-12">
+          <HandDrawnCard
+            variant={1}
+            shadow={false}
+            stroke="rgba(23,23,23,0.45)"
+            strokeWidth={1.5}
+            innerClassName="px-10 md:px-16 py-16 md:py-20"
+          >
             <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
-              <div className="paper-card overflow-hidden w-full md:w-72 aspect-square shrink-0 order-2 md:order-1">
+              <HandDrawnFrame variant={1} className="w-full md:w-72 aspect-square shrink-0 order-2 md:order-1">
                 <Image
                   src="/o-mne-hloubani.jpg"
                   alt="Od hloubání k Žiju life"
@@ -93,7 +114,7 @@ export default function OMnePage() {
                   className="object-cover !relative"
                   sizes="(max-width: 768px) 100vw, 288px"
                 />
-              </div>
+              </HandDrawnFrame>
               <div className="flex-1 order-1 md:order-2">
                 <h2 className="font-display text-3xl md:text-4xl font-extrabold leading-tight mb-6 tracking-tight">
                   Od hloubání k <span className="underline-teal">Žiju life</span>
@@ -103,7 +124,7 @@ export default function OMnePage() {
                 </p>
               </div>
             </div>
-          </div>
+          </HandDrawnCard>
         </section>
 
         {/* ─── 5 věcí, o které se opírám ─── */}
@@ -121,20 +142,27 @@ export default function OMnePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {pillars.map((pillar) => (
-              <div
-                key={pillar.title}
-                className="paper-card p-6"
-              >
-                <span className="text-2xl block mb-3">{pillar.emoji}</span>
-                <h3 className="font-display text-lg font-extrabold text-primary mb-2">
-                  {pillar.title}
-                </h3>
-                <p className="text-sm text-foreground/60 leading-relaxed">
-                  {pillar.description}
-                </p>
-              </div>
-            ))}
+            {pillars.map((pillar, i) => {
+              const rotations = ["rotate-[-0.7deg]", "rotate-[0.5deg]", "rotate-[-0.3deg]", "rotate-[0.6deg]", "rotate-[-0.5deg]"];
+              return (
+                <HandDrawnCard
+                  key={pillar.title}
+                  variant={i}
+                  className={`group ${rotations[i % 5]} hover:rotate-0 hover:-translate-y-0.5 transition-all duration-200`}
+                  innerClassName="p-6"
+                >
+                  <HandDrawnIcon bg={pillar.bg} variant={i} size={56} className="mb-3">
+                    <span className="text-2xl">{pillar.emoji}</span>
+                  </HandDrawnIcon>
+                  <h3 className="font-display text-lg font-extrabold text-primary mb-2">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-sm text-foreground/60 leading-relaxed">
+                    {pillar.description}
+                  </p>
+                </HandDrawnCard>
+              );
+            })}
           </div>
         </section>
 
@@ -144,7 +172,13 @@ export default function OMnePage() {
           className="mb-16 md:mb-20 scroll-mt-24 animate-fade-up"
           style={{ animationDelay: "300ms" }}
         >
-          <div className="paper-card p-8 md:p-12 space-y-6">
+          <HandDrawnCard
+            variant={2}
+            shadow={false}
+            stroke="rgba(23,23,23,0.45)"
+            strokeWidth={1.5}
+            innerClassName="px-8 md:px-12 py-12 md:py-16 space-y-6"
+          >
             <h2 className="font-display text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
               Moje cesta: Od úniku k <span className="underline-playful">přítomnosti</span>
             </h2>
@@ -186,7 +220,7 @@ export default function OMnePage() {
                 Tohle byl můj největší zlom. Pořád jsem na cestě, ale jedno vím jistě: Chci zkoumat, jak žít skutečně prožitý život. A předávat dál, co jsem zjistil.
               </p>
             </div>
-          </div>
+          </HandDrawnCard>
         </section>
 
         {/* ─── CTA ─── */}
@@ -203,7 +237,7 @@ export default function OMnePage() {
               30 minut, zdarma. Zjistíme, jestli ti můžu pomoct.
             </p>
             <div className="flex flex-col items-center gap-3 pt-2">
-              <Link href="/koucing#rezervace" className="btn-playful">
+              <Link href="/koucing#rezervace" className="btn-playful" data-shape="2">
                 Rezervovat konzultaci zdarma &rarr;
               </Link>
               <Link
@@ -222,10 +256,10 @@ export default function OMnePage() {
           className="animate-fade-up"
           style={{ animationDelay: "500ms" }}
         >
-          <div className="paper-card p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:items-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#ffe4cc] flex items-center justify-center text-2xl shrink-0 mx-auto sm:mx-0">
-              ⚙️
-            </div>
+          <HandDrawnCard variant={1} innerClassName="p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:items-center">
+            <HandDrawnIcon bg="#ffe4cc" variant={0} size={56} className="mx-auto sm:mx-0">
+              <span className="text-2xl">⚙️</span>
+            </HandDrawnIcon>
             <div className="flex-1 text-center sm:text-left">
               <p className="font-display text-[0.7rem] uppercase tracking-[0.15em] font-bold text-primary mb-1">
                 Vedlejší projekt
@@ -243,7 +277,7 @@ export default function OMnePage() {
             >
               Zjistit víc &rarr;
             </a>
-          </div>
+          </HandDrawnCard>
         </section>
       </div>
     </main>

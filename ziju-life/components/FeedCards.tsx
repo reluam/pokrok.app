@@ -250,11 +250,40 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
   const isBook = itemType === "kniha";
   const dateStr = new Date(post.published_at).toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" });
 
+  // Deterministic variant based on post slug (stable across renders)
+  const variantIdx = (post.slug?.charCodeAt(0) ?? 0) % 3;
+  const rotationClass = ["rotate-[-0.6deg]", "rotate-[0.4deg]", "rotate-[-0.3deg]"][variantIdx];
+  const borderPaths = [
+    "M 14 10 Q 150 8 288 12 Q 294 100 290 190 Q 150 194 12 190 Q 8 100 14 10 Z",
+    "M 10 12 Q 160 10 294 10 Q 292 102 296 188 Q 150 192 14 192 Q 10 102 10 12 Z",
+    "M 12 9 Q 170 12 290 10 Q 294 106 292 190 Q 148 192 10 191 Q 12 104 12 9 Z",
+  ];
+  const path = borderPaths[variantIdx];
+
   return (
-    <Link href={href} className="block group h-full">
-      <article className="bg-white rounded-2xl border border-black/8 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full flex flex-col">
+    <Link href={href} className={`block group h-full relative ${rotationClass} hover:rotate-0 hover:-translate-y-0.5 transition-all duration-200`}>
+      {/* Hand-drawn shadow */}
+      <svg
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full pointer-events-none translate-x-1 translate-y-1 group-hover:translate-x-1.5 group-hover:translate-y-1.5 transition-transform"
+        viewBox="0 0 300 200"
+        preserveAspectRatio="none"
+      >
+        <path d={path} fill="rgba(23,23,23,0.9)" />
+      </svg>
+      {/* Hand-drawn fill */}
+      <svg
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox="0 0 300 200"
+        preserveAspectRatio="none"
+      >
+        <path d={path} fill="#FDFBF7" />
+      </svg>
+
+      <article className="relative h-full flex flex-col pt-5 px-5 pb-8">
         {/* Image area */}
-        <div className={`relative w-full aspect-[4/3] overflow-hidden rounded-t-2xl flex items-center justify-center ${isBook ? "bg-white" : "bg-gray-50"}`}>
+        <div className={`relative w-full aspect-[4/3] overflow-hidden rounded-xl flex items-center justify-center ${isBook ? "bg-white" : "bg-gray-50"}`}>
           {(thumbnail || (videoEmbed && imageUrl)) ? (
             <img
               src={thumbnail || imageUrl || ""}
@@ -282,7 +311,7 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
         </div>
 
         {/* Info */}
-        <div className="px-5 pt-3 pb-4 flex-1 flex flex-col gap-1.5">
+        <div className="pt-3 flex-1 flex flex-col gap-1.5">
           {itemType && <TypeBadge itemType={itemType} />}
 
           <h3 className="text-base font-bold text-foreground leading-snug group-hover:text-accent transition-colors line-clamp-2">
@@ -309,6 +338,23 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
           </div>
         </div>
       </article>
+
+      {/* Hand-drawn border on top */}
+      <svg
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox="0 0 300 200"
+        preserveAspectRatio="none"
+      >
+        <path
+          d={path}
+          fill="none"
+          stroke="#171717"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+      </svg>
     </Link>
   );
 }
