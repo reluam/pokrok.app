@@ -268,6 +268,27 @@ export async function initializeDatabase() {
       ADD COLUMN IF NOT EXISTS category_id VARCHAR(255) REFERENCES inspiration_categories(id) ON DELETE SET NULL
     `
 
+    // ── Cvičení (Exercises for koučing page) ───────────────────────────────────
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS exercises (
+        id VARCHAR(255) PRIMARY KEY,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        emoji VARCHAR(16),
+        body_markdown TEXT NOT NULL DEFAULT '',
+        order_index INTEGER NOT NULL DEFAULT 0,
+        resource_url TEXT,
+        related_post_slug VARCHAR(255),
+        is_active BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_exercises_order ON exercises(order_index, created_at DESC)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_exercises_slug ON exercises(slug)`
+
     // ── Nástrojárna (Toolbox) ──────────────────────────────────────────────────
 
     await sql`

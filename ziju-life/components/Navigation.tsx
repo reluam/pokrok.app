@@ -76,6 +76,47 @@ export default function Navigation() {
 
   const showSolid = !hasTransparentNav || isScrolled;
 
+  // Hand-drawn pill paths — three slight variants for visual variety
+  const PILL_PATHS = [
+    "M 14 8 Q 60 4 100 6 Q 146 8 186 10 Q 196 30 184 50 Q 140 54 100 52 Q 60 54 14 52 Q 4 30 14 8 Z",
+    "M 12 10 Q 60 6 100 8 Q 144 10 188 8 Q 198 30 186 52 Q 140 56 100 54 Q 56 52 12 54 Q 4 30 12 10 Z",
+    "M 16 6 Q 60 10 100 8 Q 140 6 184 12 Q 196 30 186 48 Q 140 54 100 52 Q 56 56 14 50 Q 6 30 16 6 Z",
+  ];
+
+  const NavPill = ({
+    label,
+    isActive,
+    variant,
+  }: { label: string; isActive: boolean; variant: number }) => {
+    const path = PILL_PATHS[variant % 3];
+    return (
+      <span className="relative inline-flex items-center justify-center px-4 py-1.5">
+        <svg
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 200 60"
+          preserveAspectRatio="none"
+        >
+          <path
+            d={path}
+            fill={isActive ? "#FFE4CC" : "transparent"}
+            stroke={isActive ? "#171717" : "rgba(23,23,23,0.35)"}
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+        </svg>
+        <span
+          className={`relative text-sm font-display font-bold ${
+            isActive ? "text-foreground" : "text-foreground/75 group-hover:text-foreground"
+          }`}
+        >
+          {label}
+        </span>
+      </span>
+    );
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
@@ -139,8 +180,8 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop Navigation — centered links */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-8 absolute left-1/2 -translate-x-1/2 z-10">
-            {navItems.map((item) => {
+          <div className="hidden md:flex items-center gap-2 lg:gap-3 absolute left-1/2 -translate-x-1/2 z-10">
+            {navItems.map((item, i) => {
               const isActive = item.href.startsWith("/#")
                 ? false
                 : pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
@@ -148,11 +189,9 @@ export default function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-sm font-display font-bold transition-colors ${
-                    isActive ? "text-primary" : "text-foreground/70 hover:text-foreground"
-                  }`}
+                  className="group transition-transform hover:-translate-y-0.5"
                 >
-                  {item.label}
+                  <NavPill label={item.label} isActive={isActive} variant={i} />
                 </Link>
               );
             })}
@@ -209,8 +248,8 @@ export default function Navigation() {
                 fill="#ffffff"
               />
             </svg>
-            <div className="relative z-10 py-4 px-4 space-y-1 text-center">
-            {navItems.map((item) => {
+            <div className="relative z-10 py-4 px-4 space-y-2 flex flex-col items-center">
+            {navItems.map((item, i) => {
               const isActive = item.href.startsWith("/#")
                 ? false
                 : pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
@@ -219,11 +258,9 @@ export default function Navigation() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block py-2.5 text-base font-display font-bold transition-colors ${
-                    isActive ? "text-primary" : "text-foreground/70 hover:text-foreground"
-                  }`}
+                  className="group inline-block"
                 >
-                  {item.label}
+                  <NavPill label={item.label} isActive={isActive} variant={i} />
                 </Link>
               );
             })}

@@ -8,6 +8,7 @@ import {
   Users,
   Calendar,
   Rss,
+  Dumbbell,
 } from "lucide-react";
 
 type AdminSection =
@@ -15,6 +16,7 @@ type AdminSection =
   | "newsletter-campaigns"
   | "crm"
   | "rezervace"
+  | "exercises"
   | "settings";
 
 interface NavItem {
@@ -48,6 +50,11 @@ export default function AdminNavigation() {
       id: "rezervace",
       label: "Rezervace",
       icon: Calendar,
+    },
+    {
+      id: "exercises",
+      label: "Cvičení",
+      icon: Dumbbell,
     },
     {
       id: "settings",

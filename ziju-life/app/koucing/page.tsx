@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import LeadForm from "@/components/LeadForm";
 import HandDrawnCard from "@/components/HandDrawnCard";
 import HandDrawnIcon from "@/components/HandDrawnIcon";
+import { FeedCard, type CuratedPost } from "@/components/FeedCards";
+import { getAllExercises, type Exercise } from "@/lib/exercises";
+import { getCuratedPost } from "@/lib/curated-posts-db";
 
 export const metadata: Metadata = {
   title: "Koučink: Z hlavy do života | Žiju life",
@@ -70,25 +74,118 @@ const mindsetShifts = [
   },
 ];
 
-const exercises = [
+type ExerciseWithPost = Exercise & { relatedPost: CuratedPost | null };
+
+const FALLBACK_EXERCISES: Exercise[] = [
   {
+    id: "fallback-1",
+    slug: "cilena-nuda",
     emoji: "🧘",
     title: "Cílená nuda",
-    text: "15 minut denně: žádný telefon, žádná stimulace. Jen sedíš a necháš mozek dělat, co potřebuje. Zní to jednoduše. Zkus to.",
+    bodyMarkdown:
+      "15 minut denně: žádný telefon, žádná stimulace. Jen sedíš a necháš mozek dělat, co potřebuje. Zní to jednoduše. Zkus to.",
+    orderIndex: 1,
+    resourceUrl: null,
+    relatedPostSlug: null,
+    isActive: true,
+    createdAt: "",
+    updatedAt: "",
   },
   {
+    id: "fallback-2",
+    slug: "to-do-3",
     emoji: "📋",
     title: "To-do se třemi věcmi",
-    text: "Maximálně 3 úkoly na den. Pouze ty nejdůležitější. Když je splníš, můžeš přidat 3 „nice to have\". Ale ty první tři jsou povinné.",
+    bodyMarkdown:
+      "Maximálně 3 úkoly na den. Pouze ty nejdůležitější. Když je splníš, můžeš přidat 3 „nice to have\". Ale ty první tři jsou povinné.",
+    orderIndex: 2,
+    resourceUrl: null,
+    relatedPostSlug: null,
+    isActive: true,
+    createdAt: "",
+    updatedAt: "",
   },
   {
+    id: "fallback-3",
+    slug: "experimentalni-den",
     emoji: "🎲",
     title: "Experimentální den",
-    text: "Jeden den nebo odpoledne, kdy děláš výhradně věci, které normálně neděláš. Nová hudba, nový žánr filmu, místo kde jsi nikdy nebyl, jídlo které normálně nejíš. Rozbíjíš autopilota.",
+    bodyMarkdown:
+      "Jeden den nebo odpoledne, kdy děláš výhradně věci, které normálně neděláš. Nová hudba, nový žánr filmu, místo kde jsi nikdy nebyl, jídlo které normálně nejíš. Rozbíjíš autopilota.",
+    orderIndex: 3,
+    resourceUrl: null,
+    relatedPostSlug: null,
+    isActive: true,
+    createdAt: "",
+    updatedAt: "",
   },
 ];
 
-export default function KoucingPage() {
+type CuratedRow = {
+  id: string;
+  slug: string;
+  type: string;
+  title: string;
+  subtitle: string | null;
+  body_markdown: string;
+  curator_note: string | null;
+  categories: string[] | null;
+  tags: string[] | null;
+  published_at: Date | string | null;
+  cover_image_url: string | null;
+};
+
+function normalizePost(row: CuratedRow): CuratedPost {
+  const publishedAt =
+    row.published_at instanceof Date
+      ? row.published_at.toISOString()
+      : typeof row.published_at === "string"
+      ? row.published_at
+      : "";
+  return {
+    id: row.id,
+    slug: row.slug,
+    type: row.type === "digest" ? "digest" : "tip",
+    title: row.title,
+    subtitle: row.subtitle,
+    body_markdown: row.body_markdown,
+    curator_note: row.curator_note,
+    categories: row.categories ?? [],
+    tags: row.tags ?? [],
+    published_at: publishedAt,
+    cover_image_url: row.cover_image_url,
+  };
+}
+
+async function loadExercises(): Promise<ExerciseWithPost[]> {
+  let list: Exercise[] = [];
+  try {
+    list = await getAllExercises();
+  } catch (error) {
+    console.error("loadExercises failed:", error);
+  }
+  if (list.length === 0) list = FALLBACK_EXERCISES;
+
+  const withPosts = await Promise.all(
+    list.map(async (ex) => {
+      if (!ex.relatedPostSlug) return { ...ex, relatedPost: null };
+      try {
+        const row = (await getCuratedPost(ex.relatedPostSlug)) as CuratedRow | null;
+        return {
+          ...ex,
+          relatedPost: row ? normalizePost(row) : null,
+        };
+      } catch {
+        return { ...ex, relatedPost: null };
+      }
+    })
+  );
+
+  return withPosts;
+}
+
+export default async function KoucingPage() {
+  const exercises = await loadExercises();
   return (
     <main className="flex-1 bg-background overflow-x-hidden relative min-h-screen">
 
@@ -104,9 +201,8 @@ export default function KoucingPage() {
               Koučing není pro každého.
             </p>
             <p className="text-lg md:text-xl text-muted leading-relaxed max-w-2xl mx-auto">
-              Je to intenzivní práce pro lidi, co se nehýbou směrem, kam chtějí &mdash; nebo to jde moc pomalu. Hledáš vlastní tempo? Zkus{" "}
-              <Link href="/knihovna" className="text-primary font-semibold hover:opacity-80 transition-opacity">knihovnu</Link>{" "}nebo apku{" "}
-              <a href="https://thinkable.website" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:opacity-80 transition-opacity">Thinkable</a>. Jsi zaseklý a zkoušel jsi už všechno? Pojď si na mě udělat čas.
+              Je to intenzivní práce pro lidi, co se nehýbou směrem, kam chtějí &mdash; nebo to jde moc pomalu. Hledáš vlastní tempo? V{" "}
+              <Link href="/knihovna" className="text-primary font-semibold hover:opacity-80 transition-opacity">knihovně</Link>{" "}se inspiruj knihami, články a cvičeními, které ti pomůžou více žít. Zkoušel jsi vše a jsi stále zaseklý? Pojďme se potkat.
             </p>
             <div className="pt-2">
               <Link href="#rezervace" className="btn-playful text-lg" data-shape="3">
@@ -266,53 +362,100 @@ export default function KoucingPage() {
             {exercises.map((ex, i) => {
               const rotations = ["rotate-[-0.7deg]", "rotate-[0.5deg]", "rotate-[-0.4deg]"];
               return (
-                <HandDrawnCard
-                  key={ex.title}
-                  variant={i}
-                  className={`group ${rotations[i % 3]} hover:rotate-0 hover:-translate-y-0.5 transition-all duration-200`}
-                  innerClassName="p-6"
-                >
-                  <HandDrawnIcon bg="#c6f1ec" variant={i} size={48} shape="square" className="mb-4">
-                    <span className="text-2xl">{ex.emoji}</span>
-                  </HandDrawnIcon>
-                  <h3 className="font-display text-lg font-extrabold mb-2">{ex.title}</h3>
-                  <p className="text-foreground/70 leading-relaxed text-[0.95rem]">{ex.text}</p>
-                </HandDrawnCard>
+                <div key={ex.id} className="flex flex-col gap-4">
+                  <HandDrawnCard
+                    variant={i}
+                    className={`group ${rotations[i % 3]} hover:rotate-0 hover:-translate-y-0.5 transition-all duration-200 flex-1`}
+                    innerClassName="p-6 h-full flex flex-col"
+                  >
+                    {ex.emoji && (
+                      <HandDrawnIcon bg="#c6f1ec" variant={i} size={48} shape="square" className="mb-4">
+                        <span className="text-2xl">{ex.emoji}</span>
+                      </HandDrawnIcon>
+                    )}
+                    <h3 className="font-display text-lg font-extrabold mb-2">{ex.title}</h3>
+                    <p className="text-foreground/70 leading-relaxed text-[0.95rem] whitespace-pre-line flex-1">
+                      {ex.bodyMarkdown}
+                    </p>
+                    {ex.resourceUrl && (
+                      <a
+                        href={ex.resourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-4 inline-flex items-center gap-1.5 text-primary font-semibold text-sm hover:opacity-80 transition-opacity"
+                      >
+                        Další zdroj
+                        <ExternalLink size={14} />
+                      </a>
+                    )}
+                  </HandDrawnCard>
+                  {ex.relatedPost && <FeedCard post={ex.relatedPost} />}
+                </div>
               );
             })}
           </div>
         </section>
 
-        {/* ─── Aha moment ─── */}
-        <section
-          className="mb-16 md:mb-20 animate-fade-up"
-          style={{ animationDelay: "500ms" }}
+      </div>
+
+      {/* ─── Aha moment — full-bleed cream band with waves ─── */}
+      <section
+        className="relative bg-[#F8EEDB] py-20 md:py-28 overflow-hidden animate-fade-up"
+        style={{ animationDelay: "500ms" }}
+      >
+        {/* Top wave — page bg eating into cream from above */}
+        <svg
+          aria-hidden="true"
+          className="absolute top-0 left-0 w-full h-16 md:h-20 rotate-180"
+          viewBox="0 0 1440 180"
+          preserveAspectRatio="none"
         >
-          <div className="relative max-w-3xl mx-auto text-center px-6 md:px-12">
-            <span
-              aria-hidden="true"
-              className="absolute -top-6 -left-2 md:-top-10 md:-left-6 font-display text-[8rem] md:text-[12rem] leading-none text-primary/15 select-none"
-            >
-              &ldquo;
-            </span>
-            <blockquote className="relative">
-              <p className="font-display text-2xl md:text-4xl font-extrabold leading-snug mb-5">
-                <span className="underline-playful">
-                  &bdquo;To bylo celou dobu takhle jednoduché?&ldquo;
-                </span>
-              </p>
-              <p className="text-lg text-foreground/70">
-                Ano. Není to složité. Je to těžké. A to je zásadní rozdíl.
-              </p>
-            </blockquote>
-            <span
-              aria-hidden="true"
-              className="absolute -bottom-16 -right-2 md:-bottom-20 md:-right-6 font-display text-[8rem] md:text-[12rem] leading-none text-primary/15 select-none rotate-180"
-            >
-              &ldquo;
-            </span>
-          </div>
-        </section>
+          <path
+            d="M0,20 C120,20 200,120 360,140 C460,152 520,80 640,40 C700,15 760,10 820,25 C900,48 940,90 1020,85 C1100,80 1180,40 1280,20 C1360,6 1420,10 1440,15 L1440,180 L0,180 Z"
+            fill="#FBF8F0"
+          />
+        </svg>
+
+        <div className="relative max-w-3xl mx-auto text-center px-6 md:px-12">
+          <span
+            aria-hidden="true"
+            className="absolute -top-6 -left-2 md:-top-10 md:-left-6 font-display text-[8rem] md:text-[12rem] leading-none text-primary/15 select-none"
+          >
+            &ldquo;
+          </span>
+          <blockquote className="relative">
+            <p className="font-display text-2xl md:text-4xl font-extrabold leading-snug mb-5">
+              <span className="underline-playful">
+                &bdquo;To bylo celou dobu takhle jednoduché?&ldquo;
+              </span>
+            </p>
+            <p className="text-lg text-foreground/70">
+              Ano. Není to složité. Je to těžké. A to je zásadní rozdíl.
+            </p>
+          </blockquote>
+          <span
+            aria-hidden="true"
+            className="absolute -bottom-16 -right-2 md:-bottom-20 md:-right-6 font-display text-[8rem] md:text-[12rem] leading-none text-primary/15 select-none rotate-180"
+          >
+            &ldquo;
+          </span>
+        </div>
+
+        {/* Bottom wave — page bg eating into cream from below */}
+        <svg
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 w-full h-16 md:h-20"
+          viewBox="0 0 1440 180"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,20 C120,20 200,120 360,140 C460,152 520,80 640,40 C700,15 760,10 820,25 C900,48 940,90 1020,85 C1100,80 1180,40 1280,20 C1360,6 1420,10 1440,15 L1440,180 L0,180 Z"
+            fill="#FBF8F0"
+          />
+        </svg>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-6 pb-16 md:pb-20 pt-16 md:pt-20">
 
         {/* ─── Rezervace + Balíčky ─── */}
         <section
