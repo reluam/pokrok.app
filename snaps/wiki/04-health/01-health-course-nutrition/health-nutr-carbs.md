@@ -86,8 +86,8 @@ Your brain uses ~120 g of glucose a day — carbs are definitely not "unnecessar
 
 **Otázka:** Představ si, že snídáš bílý rohlík s marmeládou a sladké kakao. V 10:30 přichází „crash" — únava, nepozornost, chuť na sladké. Proč?
 
-- **✅ Bílý rohlík s marmeládou má vysoký glykemický index — rychle zvýší krevní cukr a pak nastane strmý pokles. Vláknina v ovesných vločkách by vstřebávání zpomalila.**
-  Přesně. Rafinované sacharidy = rychlé vyplavení inzulinu = následný pokles glukózy. Záměna za vločky s ořechy by crash eliminovala.
+- **✅ Rohlík má vysoký glykemický index**
+  Přesně. Rychlé sacharidy zvýší krevní cukr a pak přijde strmý pokles — vláknina v ovesných vločkách by vstřebávání zpomalila. Rafinované sacharidy = rychlé vyplavení inzulinu = následný pokles glukózy. Záměna za vločky s ořechy by crash eliminovala.
 - ❌ Vločky mají víc kalorií
   Ne — kalorie mohou být podobné. Rozdíl je v rychlosti zpracování a následné stabilitě glukózy.
 - ❌ Kakao je problém, vločky neobsahují cukr
@@ -97,8 +97,8 @@ Your brain uses ~120 g of glucose a day — carbs are definitely not "unnecessar
 
 **Question:** Imagine you have a white bread roll with jam and sweet cocoa for breakfast. At 10:30 the "crash" hits — fatigue, poor focus, sugar cravings. Why?
 
-- **✅ A white bread roll with jam has a high glycemic index — it spikes blood sugar fast and then crashes. Fiber in oats would slow absorption.**
-  Exactly. Refined carbs = rapid insulin release = subsequent glucose drop. Switching to oats with nuts would eliminate the crash.
+- **✅ The bread roll has a high GI**
+  Exactly. Fast carbs spike blood sugar and then crash — fiber in oats would slow absorption. Refined carbs = rapid insulin release = subsequent glucose drop. Switching to oats with nuts would eliminate the crash.
 - ❌ Oats have more calories
   No — calorie counts can be similar. The difference is in processing speed and glucose stability afterward.
 - ❌ Cocoa is the problem, oats contain no sugar
@@ -120,8 +120,8 @@ Carbs are essential for endurance athletes — muscle glycogen lasts about 90 mi
 
 **Otázka:** Představ si, že nasadíš přísnou keto dietu — 3 týdny jen maso, vejce, máslo a zelenina. V posilovně jsi výrazně slabší, jsi unavený a v práci hůř přemýšlíš. Ale na váze jsi shodil 3 kg. Co se děje?
 
-- **✅ Bez sacharidů jsou glykogenové zásoby nízké — pro silový trénink je to klíčové palivo. 3 kg jsou z velké části voda (1 g glykogenu váže 3 g vody).**
-  Přesně. Prvotní rychlé „hubnutí" na keto je hlavně voda a glykogen, ne tuk. A síla padá, protože svaly nemají své primární palivo.
+- **✅ Nízký glykogen a ztráta vody**
+  Přesně. Bez sacharidů klesnou glykogenové zásoby — pro silový trénink je to klíčové palivo. 3 kg jsou z velké části voda (1 g glykogenu váže 3 g vody). Prvotní rychlé „hubnutí" na keto je hlavně voda a glykogen, ne tuk. A síla padá, protože svaly nemají své primární palivo.
 - ❌ Keto prostě funguje a měl bys být spokojený
   „3 kg" nejsou známkou úspěchu, pokud je to voda a svaly. Pro silového sportovce keto obvykle zhoršuje výkon.
 - ❌ Musíš jíst víc bílkovin
@@ -131,8 +131,8 @@ Carbs are essential for endurance athletes — muscle glycogen lasts about 90 mi
 
 **Question:** Imagine you go on a strict keto diet — 3 weeks of only meat, eggs, butter, and vegetables. In the gym you're noticeably weaker, you're tired, and you think less clearly at work. But the scale is down 3 kg. What's going on?
 
-- **✅ Without carbs, glycogen stores are low — and that's a key fuel for strength training. The 3 kg is largely water (1 g of glycogen binds 3 g of water).**
-  Exactly. The fast initial "weight loss" on keto is mostly water and glycogen, not fat. And strength drops because muscles lack their primary fuel.
+- **✅ Low glycogen and water loss from it**
+  Exactly. Without carbs, glycogen stores drop — and that's a key fuel for strength training. The 3 kg is largely water (1 g of glycogen binds 3 g of water). The fast initial "weight loss" on keto is mostly water and glycogen, not fat. And strength drops because muscles lack their primary fuel.
 - ❌ Keto just works and you should be happy
   The "3 kg" loss isn't a win if it's water and muscle. For a strength athlete, keto usually hurts performance.
 - ❌ You need to eat more protein
@@ -150,8 +150,8 @@ Carbs are essential for endurance athletes — muscle glycogen lasts about 90 mi
 
 **Otázka:** Který zdroj sacharidů je nejlepší pro běžný den?
 
-- **✅ Ovesné vločky, brambory, rýže, luštěniny, ovoce, celozrnné pečivo**
-  Přesně. Komplexní, s vlákninou, mikronutrienty. Dávají stabilní energii a sytí.
+- **✅ Vločky, brambory, rýže, ovoce**
+  Přesně. Komplexní zdroje s vlákninou a mikronutrienty — také luštěniny a celozrnné pečivo. Dávají stabilní energii a sytí.
 - ❌ Bílý cukr, limonády, bílé pečivo
   Rafinované sacharidy bez vlákniny — způsobují výkyvy glukózy a nezasytí.
 - ❌ Žádné sacharidy, jen maso
@@ -161,8 +161,8 @@ Carbs are essential for endurance athletes — muscle glycogen lasts about 90 mi
 
 **Question:** Which carb source is best for a normal day?
 
-- **✅ Oats, potatoes, rice, legumes, fruit, whole-grain bread**
-  Exactly. Complex, with fiber and micronutrients. They deliver steady energy and keep you full.
+- **✅ Oats, potatoes, rice, fruit**
+  Exactly. Also legumes and whole-grain bread — complex sources with fiber and micronutrients. They deliver steady energy and keep you full.
 - ❌ White sugar, soda, white bread
   Refined carbs without fiber — they cause glucose swings and don't fill you up.
 - ❌ No carbs, just meat
@@ -172,8 +172,8 @@ Carbs are essential for endurance athletes — muscle glycogen lasts about 90 mi
 
 **Otázka:** Kolik sacharidů pro silového sportovce 80 kg?
 
-- **✅ ~300–400 g (3–5 g/kg) v aktivních dnech**
-  Přesně. Pro silový trénink s energií a regenerací je to optimum. Na dny odpočinku lze snížit.
+- **✅ ~300–400 g**
+  Přesně. To odpovídá 3–5 g/kg v aktivních dnech — pro silový trénink s energií a regenerací je to optimum. Na dny odpočinku lze snížit.
 - ❌ 50 g denně
   Pro aktivního člověka je to málo — glykogen nedoplní, výkon klesne.
 - ❌ 1 000 g denně
@@ -183,8 +183,8 @@ Carbs are essential for endurance athletes — muscle glycogen lasts about 90 mi
 
 **Question:** How many carbs for an 80 kg strength athlete?
 
-- **✅ ~300–400 g (3–5 g/kg) on active days**
-  Exactly. For strength training with energy and recovery, that's the sweet spot. On rest days you can dial it back.
+- **✅ About 300–400 g**
+  Exactly. That's 3–5 g/kg on active days — for strength training with energy and recovery, that's the sweet spot. On rest days you can dial it back.
 - ❌ 50 g per day
   Too low for an active person — glycogen won't refill and performance will drop.
 - ❌ 1,000 g per day
@@ -194,8 +194,8 @@ Carbs are essential for endurance athletes — muscle glycogen lasts about 90 mi
 
 **Otázka:** Studie porovnávající izokalorické diety opakovaně ukazují: při stejných kaloriích a bílkovinách je ztráta tuku podobná napříč sacharidovými úrovněmi. Co z toho plyne?
 
-- **✅ Sacharidy samy o sobě „nezpůsobují" tloušťku — rozhoduje celková kalorická bilance a dostatek bílkovin**
-  Přesně. Rozdíl mezi dietami je v pocitu sytosti, výkonu a dlouhodobé udržitelnosti, ne v magickém efektu jedné makroživiny.
+- **✅ Rozhoduje kalorická bilance, ne sacharidy**
+  Přesně. Sacharidy samy o sobě „nezpůsobují" tloušťku — klíčová je celková energie a dostatek bílkovin. Rozdíl mezi dietami je v pocitu sytosti, výkonu a dlouhodobé udržitelnosti, ne v magickém efektu jedné makroživiny.
 - ❌ Všechny diety jsou stejně dobré
   Ne — liší se v udržitelnosti a výkonu. Ale kalorický deficit je vždy klíčový faktor pro hubnutí.
 - ❌ Sacharidy jsou zbytečné, když chceš zhubnout
@@ -205,8 +205,8 @@ Carbs are essential for endurance athletes — muscle glycogen lasts about 90 mi
 
 **Question:** Studies comparing isocaloric diets repeatedly show: at equal calories and protein, fat loss is similar across carb levels. What does this mean?
 
-- **✅ Carbs by themselves don't "cause" fat gain — what decides is the overall calorie balance and enough protein**
-  Exactly. The difference between diets is in fullness, performance, and long-term sustainability, not in the magic effect of one macronutrient.
+- **✅ Calorie balance decides, not carbs**
+  Exactly. What matters is total energy and enough protein. The difference between diets is in fullness, performance, and long-term sustainability, not in the magic effect of one macronutrient.
 - ❌ All diets are equally good
   No — they differ in sustainability and performance. But a calorie deficit is always the key factor for fat loss.
 - ❌ Carbs are unnecessary when you want to lose weight

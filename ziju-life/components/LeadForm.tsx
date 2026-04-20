@@ -124,9 +124,17 @@ export default function LeadForm({
   }
 
   const inputClass =
-    "w-full px-4 py-3 bg-white border-2 border-foreground/20 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/15 transition-colors placeholder:text-muted/60";
+    "input-sketch w-full px-1 pt-2 bg-transparent border-0 rounded-none focus:outline-none placeholder:text-muted/45";
   const labelClass =
-    "block text-sm font-display font-bold text-foreground mb-1.5";
+    "block text-sm font-display font-bold text-foreground mb-1";
+
+  const textareaLineHeight = 28;
+  const textareaStyle = {
+    lineHeight: `${textareaLineHeight}px`,
+    backgroundImage: `repeating-linear-gradient(to bottom, transparent 0, transparent ${textareaLineHeight - 1}px, rgba(23,23,23,0.25) ${textareaLineHeight - 1}px, rgba(23,23,23,0.25) ${textareaLineHeight}px)`,
+    backgroundSize: `100% ${textareaLineHeight}px`,
+    backgroundPosition: "0 3px",
+  };
 
   return (
     <form onSubmit={handleSubmit} className={className}>
@@ -144,7 +152,7 @@ export default function LeadForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
             className={inputClass}
-            placeholder="Vaše jméno"
+            placeholder="Tvoje jméno"
             disabled={loading}
           />
         </div>
@@ -175,7 +183,8 @@ export default function LeadForm({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              className={`${inputClass} resize-none`}
+              className="w-full px-1 py-0 bg-transparent border-0 focus:outline-none resize-none placeholder:text-muted/45"
+              style={textareaStyle}
               placeholder={messagePlaceholder}
               disabled={loading}
             />

@@ -130,8 +130,8 @@ A practical rule for setting your macros: first set protein (1.6–2.2 g/kg when
 
 **Otázka:** Proč 1 gram tuku obsahuje víc než dvakrát víc kalorií než 1 gram bílkovin nebo sacharidů?
 
-- **✅ Tuky mají hustší chemickou strukturu, ze které tělo dokáže vytěžit víc energie — 9 kcal na gram oproti 4 kcal**
-  Přesně. Tuk je nejefektivnější způsob, jak tělo ukládá energii — proto je tuková tkáň tak hustá. 1 kg tuku obsahuje asi 7 700 kcal.
+- **✅ Tuky mají hustší chemickou strukturu s víc energií**
+  Přesně. 9 kcal/g oproti 4 kcal u bílkovin a sacharidů — tuk je nejefektivnější způsob, jak tělo ukládá energii, proto je tuková tkáň tak hustá. 1 kg tuku obsahuje asi 7 700 kcal.
 - ❌ Tuky obsahují víc živin, takže tělo z nich získá víc energie
   „Víc živin" není přesné. Tuky jsou samy o sobě živina. Vyšší kalorická hustota je dána chemickou strukturou — víc vazeb uhlík-vodík.
 - ❌ Je to jen marketing — kalorie jsou všude stejné
@@ -141,8 +141,8 @@ A practical rule for setting your macros: first set protein (1.6–2.2 g/kg when
 
 **Question:** Why does 1 gram of fat contain more than twice the calories of 1 gram of protein or carbs?
 
-- **✅ Fats have a denser chemical structure from which the body can extract more energy — 9 kcal per gram versus 4 kcal**
-  Exactly. Fat is the most efficient way the body stores energy — which is why fat tissue is so dense. 1 kg of fat contains about 7,700 kcal.
+- **✅ Fats have a denser chemical structure with more energy**
+  Exactly. 9 kcal/g versus 4 kcal for protein and carbs — fat is the most efficient way the body stores energy, which is why fat tissue is so dense. 1 kg of fat contains about 7,700 kcal.
 - ❌ Fats contain more nutrients, so the body gets more energy from them
   "More nutrients" isn't accurate. Fats are themselves a nutrient. The higher calorie density comes from chemical structure — more carbon-hydrogen bonds.
 - ❌ It's just marketing — calories are the same everywhere
@@ -160,8 +160,8 @@ A practical rule for setting your macros: first set protein (1.6–2.2 g/kg when
 
 **Otázka:** Představ si, že chceš zhubnout a vyřadíš ze stravy úplně všechny tuky. Po měsíci máš suchou kůži, padající vlasy a horší soustředění. Proč?
 
-- **✅ Tuky jsou nezbytné pro tvorbu hormonů, vstřebávání vitamínů a stavbu buněčných membrán — bez nich tělo nedokáže normálně fungovat**
-  Přesně. Kůže potřebuje tuky pro zachování bariéry, mozek (60 % tuku!) je potřebuje pro neurony, hormonální systém pro tvorbu testosteronu a estrogenu.
+- **✅ Tuky jsou nezbytné — bez nich tělo nefunguje**
+  Přesně. Jsou nutné pro tvorbu hormonů, vstřebávání vitamínů a stavbu buněčných membrán. Kůže potřebuje tuky pro zachování bariéry, mozek (60 % tuku!) je potřebuje pro neurony, hormonální systém pro tvorbu testosteronu a estrogenu.
 - ❌ Asi máš málo spánku nebo stresu
   Možná, ale primární příčina je vyřazení tuků. I s perfektním spánkem bys měl/a podobné problémy.
 - ❌ Měl/a bys jíst víc bílkovin, ty by tuky nahradily
@@ -171,8 +171,8 @@ A practical rule for setting your macros: first set protein (1.6–2.2 g/kg when
 
 **Question:** Imagine you want to lose weight and cut out all fats from your diet. After a month you have dry skin, hair loss, and worse focus. Why?
 
-- **✅ Fats are essential for making hormones, absorbing vitamins, and building cell membranes — without them the body can't function normally**
-  Exactly. Skin needs fats to maintain its barrier, the brain (60 % fat!) needs them for neurons, the hormonal system needs them to make testosterone and estrogen.
+- **✅ Fats are essential — body can't function without them**
+  Exactly. They're needed for making hormones, absorbing vitamins, and building cell membranes. Skin needs fats to maintain its barrier, the brain (60 % fat!) needs them for neurons, the hormonal system needs them to make testosterone and estrogen.
 - ❌ You probably slept badly or were stressed
   Maybe, but the primary cause is cutting fats. Even with perfect sleep you'd have similar problems.
 - ❌ You should eat more protein, that would replace fats
@@ -182,8 +182,8 @@ A practical rule for setting your macros: first set protein (1.6–2.2 g/kg when
 
 **Otázka:** Která z následujících strategií je nejvíce podporována vědeckým konsenzem o zdravé stravě?
 
-- **✅ Vyvážený příjem všech tří makroživin s důrazem na nezpracované potraviny a dostatek bílkovin**
-  Přesně. Žádný „extrém" (žádné tuky, žádné sacharidy, jen jeden typ jídla) není dlouhodobě vědecky podpořený.
+- **✅ Vyvážený příjem všech tří makroživin**
+  Přesně. S důrazem na nezpracované potraviny a dostatek bílkovin. Žádný „extrém" (žádné tuky, žádné sacharidy, jen jeden typ jídla) není dlouhodobě vědecky podpořený.
 - ❌ Vyřadit jednu makroživinu úplně a „přestavět" metabolismus
   Některé extrémní diety mohou krátkodobě fungovat, ale dlouhodobě často způsobují deficity a hormonální nerovnováhy.
 - ❌ Jíst jen jeden druh jídla, aby tělo vědělo, co dostává
@@ -193,8 +193,8 @@ A practical rule for setting your macros: first set protein (1.6–2.2 g/kg when
 
 **Question:** Which of the following strategies is most supported by scientific consensus on healthy eating?
 
-- **✅ Balanced intake of all three macronutrients, with an emphasis on unprocessed foods and enough protein**
-  Exactly. No "extreme" (no fats, no carbs, just one type of food) is supported long-term by science.
+- **✅ Balanced intake of all three macronutrients**
+  Exactly. With an emphasis on unprocessed foods and enough protein. No "extreme" (no fats, no carbs, just one type of food) is supported long-term by science.
 - ❌ Cut one macronutrient entirely to "reprogram" metabolism
   Some extreme diets can work short-term, but long-term they often cause deficiencies and hormonal imbalances.
 - ❌ Eat only one type of food so the body knows what it's getting

@@ -79,8 +79,8 @@ Training creates micro-damage in muscle fibers. Recovery is the process where yo
 
 **Otázka:** Trénuješ každý den, spíš 5 hodin, jíš málo. Po dvou měsících začínají padat osobní rekordy. Co se děje?
 
-- **✅ Tělo nemá šanci dokončit regeneraci — svaly se opravují pomaleji, než je ničíš**
-  Přesně. Trénink je jen podnět. Pokud nedodáš spánek, jídlo a volno, tělo nestíhá opravovat. Výsledek je pokles, ne růst.
+- **✅ Tělo nestíhá opravovat škody**
+  Přesně. Trénink je jen podnět — svaly se opravují pomaleji, než je ničíš. Pokud nedodáš spánek, jídlo a volno, tělo nestíhá. Výsledkem je přetrénování a pokles, ne růst.
 - ❌ Tréninky jsou příliš lehké
   Intenzita není problém — problém je, že tělo nestihne opravit škody z každého tréninku dřív, než přijde další.
 - ❌ Je to normální fáze, stačí vydržet
@@ -90,8 +90,8 @@ Training creates micro-damage in muscle fibers. Recovery is the process where yo
 
 **Question:** You train every day, sleep 5 hours, eat too little. After two months your personal records start dropping. What's happening?
 
-- **✅ Your body can't finish recovery — muscles are being repaired slower than you're breaking them down**
-  Exactly. Training is just the stimulus. Without sleep, food, and rest, your body can't keep up with repairs. The result is decline, not growth.
+- **✅ Your body can't keep up with repairs**
+  Exactly. Training is just the stimulus — muscles break down faster than they repair. Without sleep, food, and rest, the body can't keep up. This is overtraining — decline, not growth.
 - ❌ Your workouts are too easy
   Intensity isn't the problem — the problem is that your body can't repair the damage from each workout before the next one arrives.
 - ❌ It's a normal phase, just push through
@@ -142,8 +142,8 @@ After a hard workout, muscle protein synthesis (MPS) rises and stays elevated fo
 
 **Otázka:** Po těžkém tréninku nohou sníš kuřecí prsa s rýží, jdeš spát v 22:00 a vstáváš v 6:30. Druhý den lehký pohyb, třetí den dřep — nový osobní rekord. Proč to fungovalo?
 
-- **✅ Všechny pilíře regenerace byly pokryté: bílkoviny pro MPS, spánek pro hormony, 48 hodin pauza pro dokončení adaptace**
-  Přesně. Tělo dostalo vše, co potřebovalo. MPS proběhla naplno a výsledkem je silnější sval připravený na vyšší zátěž.
+- **✅ Všechny tři pilíře byly pokryté**
+  Přesně. Bílkoviny pro MPS, spánek pro hormony, 48 hodin pauza pro adaptaci. Tělo dostalo vše potřebné. MPS proběhla naplno a výsledkem je silnější sval připravený na vyšší zátěž.
 - ❌ Měl/a jsi dobrý den — náhoda
   Není to náhoda. Jde o opakovatelný výsledek správných návyků. Kdykoli pokryješ všechny tři pilíře, tělo se adaptuje.
 - ❌ Lehký pohyb druhý den zbrzdit regeneraci
@@ -153,8 +153,8 @@ After a hard workout, muscle protein synthesis (MPS) rises and stays elevated fo
 
 **Question:** After a heavy leg session you eat chicken breast with rice, go to bed at 10 p.m. and wake at 6:30. The next day light movement, the third day squats — a new personal record. Why did this work?
 
-- **✅ All recovery pillars were covered: protein for MPS, sleep for hormones, 48 hours of rest for full adaptation**
-  Exactly. The body got everything it needed. MPS ran at full capacity and the result is a stronger muscle ready for a higher load.
+- **✅ All three recovery pillars were covered**
+  Exactly. Protein for MPS, sleep for hormones, 48 hours of rest for adaptation. The body got everything it needed. MPS ran at full capacity and the result is a stronger muscle ready for a higher load.
 - ❌ You just had a good day — coincidence
   It's not a coincidence. This is a repeatable outcome of correct habits. Whenever you cover all three pillars, the body adapts.
 - ❌ Light movement the next day slows recovery
@@ -172,8 +172,8 @@ The "anabolic window" myth: people used to believe you had to eat protein within
 
 **Otázka:** Proč je spánek nejsilnějším regeneračním faktorem pro silový trénink?
 
-- **✅ Při hlubokém spánku se uvolňuje 75 % denního růstového hormonu, který řídí svalovou proteosyntézu a opravu tkání**
-  Přesně. Bez kvalitního spánku nemáš dostatek GH a testosteronu — MPS se zpomalí bez ohledu na to, jak perfektně jíš nebo trénuješ.
+- **✅ Ve spánku se uvolňuje růstový hormon**
+  Přesně. Při hlubokém spánku jde o 75 % denního GH, který řídí MPS a opravu tkání. Bez kvalitního spánku nemáš dost GH a testosteronu — MPS se zpomalí bez ohledu na jídlo a trénink.
 - ❌ Svaly odpočívají, takže nebolí
   Odpočinek a regenerace nejsou totéž. Svaly se aktivně opravují — jde o energeticky náročný biologický proces, ne jen „pauzu".
 - ❌ Méně stresu = víc soustředění na trénink
@@ -183,8 +183,8 @@ The "anabolic window" myth: people used to believe you had to eat protein within
 
 **Question:** Why is sleep the most powerful recovery factor for strength training?
 
-- **✅ During deep sleep, 75 % of daily growth hormone is released, which drives muscle protein synthesis and tissue repair**
-  Exactly. Without quality sleep you don't have enough GH and testosterone — MPS slows regardless of how perfectly you eat or train.
+- **✅ Sleep releases growth hormone (GH)**
+  Exactly. Deep sleep delivers 75 % of daily GH, which drives MPS and tissue repair. Without quality sleep you don't have enough GH and testosterone — MPS slows regardless of how perfectly you eat or train.
 - ❌ Muscles rest, so they stop hurting
   Rest and recovery aren't the same thing. Muscles are actively repairing — it's an energetically demanding biological process, not just a "pause."
 - ❌ Less stress = more focus at the gym
@@ -227,8 +227,8 @@ Recovery has 3 pillars: protein, sleep, rest days. If one is missing, muscles wo
 
 **Otázka:** Trénuješ 6× týdně a jsi neustále bolestivý. Kamarád trénuje 4× týdně bez neustálé bolesti a za rok vyrostl víc než ty. Co to říká o DOMS?
 
-- **✅ DOMS není indikátor růstu — ukazuje pouze, že svaly nejsou zvyklé na podnět. Adaptovaný sval roste bez bolesti.**
-  Přesně. Pokročilí sportovci mívají DOMS jen po nových cvicích nebo po deloadu. Trvalá bolestivost spíš signalizuje nedostatečnou regeneraci.
+- **✅ DOMS není indikátor růstu — jen neadaptovanosti**
+  Přesně. Adaptovaný sval roste bez bolesti. Pokročilí sportovci mívají DOMS jen po nových cvicích nebo po deloadu. Trvalá bolestivost spíš signalizuje nedostatečnou regeneraci.
 - ❌ Kamarád trénuje špatně, ztratil čas
   Opak je pravdou. Méně tréninků s dostatkem regenerace je pro většinu lidí efektivnější než každodenní přetěžování.
 - ❌ Bolestivost potvrzuje, že trénuješ dostatečně intenzivně
@@ -238,8 +238,8 @@ Recovery has 3 pillars: protein, sleep, rest days. If one is missing, muscles wo
 
 **Question:** You train 6× a week and are constantly sore. A friend trains 4× a week without constant soreness and has grown more than you in a year. What does this say about DOMS?
 
-- **✅ DOMS is not an indicator of growth — it only shows that muscles aren't used to a stimulus. An adapted muscle grows without soreness.**
-  Exactly. Advanced athletes typically get DOMS only after new exercises or after a deload. Persistent soreness signals insufficient recovery rather than productive training.
+- **✅ DOMS shows unadapted muscles, not real growth**
+  Exactly. An adapted muscle grows without soreness. Advanced athletes typically get DOMS only after new exercises or a deload. Persistent soreness signals insufficient recovery rather than productive training.
 - ❌ Your friend trains wrong and wasted time
   The opposite is true. Fewer sessions with enough recovery is more effective for most people than daily overloading.
 - ❌ Soreness confirms you're training with enough intensity
@@ -257,8 +257,8 @@ Overtraining signs: **stagnant or declining performance**, chronic fatigue, poor
 
 **Otázka:** Jak poznáš, že bolestivost po tréninku je normální DOMS, a ne přetrénování?
 
-- **✅ DOMS trvá 1–3 dny a po ní výkon roste; přetrénování trvá týdny a výkon klesá nebo stagnuje**
-  Přesně. Časový rámec a trend výkonu jsou hlavní rozlišovací kritéria. Zdravá únava je dočasná a výsledkem je adaptace.
+- **✅ DOMS trvá 1–3 dny, pak výkon roste**
+  Přesně. Přetrénování trvá týdny a výkon klesá nebo stagnuje. Časový rámec a trend výkonu jsou hlavní rozlišovací kritéria. Zdravá únava je dočasná a výsledkem je adaptace.
 - ❌ DOMS bolí víc, takže musí být přetrénování
   Intenzita bolesti sama o sobě nerozlišuje DOMS od přetrénování. Klíčový je průběh a dopad na výkon.
 - ❌ Pokud nebolíš, jsi přetrénovaný
@@ -268,8 +268,8 @@ Overtraining signs: **stagnant or declining performance**, chronic fatigue, poor
 
 **Question:** How do you tell whether post-training soreness is normal DOMS or overtraining?
 
-- **✅ DOMS lasts 1–3 days and performance improves after; overtraining lasts weeks and performance drops or stagnates**
-  Exactly. Time frame and performance trend are the main distinguishing criteria. Healthy fatigue is temporary and the result is adaptation.
+- **✅ DOMS lasts 1–3 days, then performance improves**
+  Exactly. Overtraining lasts weeks and performance drops or stagnates. Time frame and performance trend are the main distinguishing criteria. Healthy fatigue is temporary and the result is adaptation.
 - ❌ DOMS hurts more, so it must be overtraining
   Pain intensity alone doesn't distinguish DOMS from overtraining. What matters is the progression and impact on performance.
 - ❌ If you're not sore, you're overtrained
@@ -312,8 +312,8 @@ Studies on Olympic athletes: those sleeping under 6 hours have a **1.7× higher 
 
 **Otázka:** Co je deload a kdy ho zařadit?
 
-- **✅ Plánovaný lehčí týden (50–70 % normálního objemu) každých 4–8 týdnů pro obnovu CNS a prevenci přetrénování**
-  Přesně. Deload není slabost — je to součást periodizace. Centralní nervová soustava (CNS) se unaví stejně jako svaly, ale hůře se „cítí". Deload ji obnoví.
+- **✅ Lehčí týden (50–70 % objemu) jednou za měsíc**
+  Přesně. Slouží k obnově CNS a prevenci přetrénování. Deload není slabost, ale součást periodizace. Centralní nervová soustava se unaví stejně jako svaly, ale hůře se „cítí". Deload ji obnoví.
 - ❌ Úplně přestat trénovat na 3–4 týdny
   Takto dlouhá pauza vede k detréningu — začínáš ztrácet sílu a svalový objem. Deload je lehčí verze tréninku, ne pauza.
 - ❌ Deload znamená jíst méně, aby tělo spalovalo
@@ -323,8 +323,8 @@ Studies on Olympic athletes: those sleeping under 6 hours have a **1.7× higher 
 
 **Question:** What is a deload and when should you add one?
 
-- **✅ A planned lighter week (50–70 % of normal volume) every 4–8 weeks to reset the CNS and prevent overtraining**
-  Exactly. A deload isn't weakness — it's part of periodization. The central nervous system (CNS) fatigues just like muscles but is harder to "feel." A deload restores it.
+- **✅ A lighter week (50–70 % volume) every 4–8 weeks**
+  Exactly. It resets the CNS and prevents overtraining. A deload isn't weakness — it's part of periodization. The central nervous system fatigues just like muscles but is harder to "feel." A deload restores it.
 - ❌ Stopping training completely for 3–4 weeks
   A break this long leads to detraining — you start losing strength and muscle mass. A deload is a lighter version of training, not a full stop.
 - ❌ Deload means eating less so the body burns fat
@@ -334,8 +334,8 @@ Studies on Olympic athletes: those sleeping under 6 hours have a **1.7× higher 
 
 **Otázka:** Představ si, že každý den trénuješ intenzivně, ale stagnuješ. Co by pomohlo nejvíc?
 
-- **✅ Přidat 1–2 dny volna týdně, zvýšit spánek na 8 hodin a zkontrolovat denní příjem bílkovin**
-  Přesně. Tato kombinace adresuje všechny tři pilíře regenerace najednou. Je to nejrychlejší cesta z plató při přetrénování.
+- **✅ Přidat dny volna, spánek a bílkoviny**
+  Přesně. Konkrétně: 1–2 dny volna týdně, spánek na 8 hodin a zkontrolovat denní příjem bílkovin. Tato kombinace adresuje všechny tři pilíře regenerace najednou. Je to nejrychlejší cesta z plató při přetrénování.
 - ❌ Zvýšit intenzitu — těžší váhy, kratší pauzy
   Přidávat intenzitu do přetrénovaného těla je jako přilít benzin do přehřátého motoru. Výsledkem je zranění nebo hlubší přetrénování.
 - ❌ Přejít na čistě kalorický deficit
@@ -345,8 +345,8 @@ Studies on Olympic athletes: those sleeping under 6 hours have a **1.7× higher 
 
 **Question:** Imagine you train intensively every day but you've stopped progressing. What would help most?
 
-- **✅ Add 1–2 rest days per week, increase sleep to 8 hours, and check your daily protein intake**
-  Exactly. This combination addresses all three recovery pillars at once. It's the fastest way out of an overtraining plateau.
+- **✅ Add rest days, more sleep, and protein**
+  Exactly. Specifically: 1–2 rest days per week, sleep up to 8 hours, and check daily protein intake. This combination addresses all three recovery pillars at once. It's the fastest way out of an overtraining plateau.
 - ❌ Increase intensity — heavier weights, shorter rests
   Adding intensity to an overtrained body is like pouring gasoline on an overheated engine. The result is injury or deeper overtraining.
 - ❌ Switch to a strict caloric deficit
@@ -356,7 +356,7 @@ Studies on Olympic athletes: those sleeping under 6 hours have a **1.7× higher 
 
 **Otázka:** Proč je alkohol po silovém tréninku problematický?
 
-- **✅ Alkohol zhoršuje svalovou proteosyntézu (MPS) a blokuje uvolňování růstového hormonu při spánku**
+- **✅ Zhoršuje MPS a blokuje růstový hormon ve spánku**
   Přesně. I střídmé pití (2–3 drinky) v noci po tréninku může snížit MPS o 24 % a výrazně snížit noční hladinu GH.
 - ❌ Alkohol doplní kalorie, které jsi spálil/a
   Kaloricky sice ano, ale „prázdné kalorie" z alkoholu netvoří glykogen ani nezajišťují aminokyseliny. Kalorická bilance je jedno, regenerace druhé.
@@ -367,7 +367,7 @@ Studies on Olympic athletes: those sleeping under 6 hours have a **1.7× higher 
 
 **Question:** Why is alcohol after strength training problematic?
 
-- **✅ Alcohol impairs muscle protein synthesis (MPS) and blocks growth hormone release during sleep**
+- **✅ It impairs MPS and blocks GH release during sleep**
   Exactly. Even moderate drinking (2–3 drinks) the night after training can reduce MPS by 24 % and significantly lower overnight GH levels.
 - ❌ Alcohol replenishes calories you burned
   Calorically yes, but "empty calories" from alcohol don't form glycogen or supply amino acids. Caloric balance is one thing, recovery is another.

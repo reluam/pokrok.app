@@ -86,8 +86,8 @@ Example: you can touch your toes when someone pushes you down (flexibility). But
 
 **Otázka:** Co je rozdíl mezi flexibilitou a mobilitou?
 
-- **✅ Flexibilita je pasivní rozsah (někdo tě ohne), mobilita je aktivní rozsah s kontrolou (ty se ohneš sám se silou)**
-  Přesně. Mobilita je užitečnější — umožňuje skutečný pohyb. Flexibilita bez síly v krajních polohách nepomůže.
+- **✅ Pasivní vs. aktivní rozsah**
+  Přesně. Někdo tě ohne (flexibilita) vs. ty se ohneš sám se silou (mobilita). Mobilita je užitečnější — umožňuje skutečný pohyb. Flexibilita bez síly v krajních polohách nepomůže.
 - ❌ Jsou to synonyma
   V praxi je to velký rozdíl. Někdo ohebný bez síly v krajní poloze je nestabilní.
 - ❌ Flexibilita je pro ženy, mobilita pro muže
@@ -97,8 +97,8 @@ Example: you can touch your toes when someone pushes you down (flexibility). But
 
 **Question:** What's the difference between flexibility and mobility?
 
-- **✅ Flexibility is passive range (someone bends you), mobility is active range with control (you move yourself under your own power)**
-  Exactly. Mobility is more useful — it enables real movement. Flexibility without strength in end-range positions doesn't help.
+- **✅ Passive vs. active range**
+  Exactly. Someone bends you (flexibility) vs. you move yourself under your own power (mobility). Mobility is more useful — it enables real movement. Flexibility without strength in end-range positions doesn't help.
 - ❌ They're synonyms
   In practice there's a big difference. Someone flexible without end-range strength is unstable.
 - ❌ Flexibility is for women, mobility is for men
@@ -124,8 +124,8 @@ Static stretching before training reduces strength and performance by 5–10 % (
 
 **Otázka:** Statický strečink před silovým tréninkem je dobrý nápad. Pravda, nebo mýtus?
 
-- **✅ Mýtus — meta-analýza ukazuje snížení síly o 5–10 % po statickém strečinku před tréninkem**
-  Přesně. Dynamický warm-up je lepší volba. Statický strečink má smysl po tréninku nebo samostatně.
+- **✅ Mýtus — snižuje sílu o 5–10 %**
+  Přesně. Meta-analýza to potvrzuje u statického strečinku před tréninkem. Dynamický warm-up je lepší volba. Statický strečink má smysl po tréninku nebo samostatně.
 - ❌ Pravda — čím víc se protáhneš, tím lépe
   Opak je pravda pro výkon. Statický strečink dočasně snižuje svalovou sílu a výkon.
 - ❌ Pravda, ale jen pro běžce
@@ -135,8 +135,8 @@ Static stretching before training reduces strength and performance by 5–10 % (
 
 **Question:** Static stretching before strength training is a good idea. True or myth?
 
-- **✅ Myth — meta-analysis shows a 5–10 % reduction in strength after static stretching before training**
-  Exactly. A dynamic warm-up is the better choice. Static stretching makes sense after training or on its own.
+- **✅ Myth — it reduces strength by 5–10 %**
+  Exactly. Meta-analysis confirms it for static stretching before training. A dynamic warm-up is the better choice. Static stretching makes sense after training or on its own.
 - ❌ True — the more you stretch, the better
   The opposite is true for performance. Static stretching temporarily reduces muscle strength and output.
 - ❌ True, but only for runners
@@ -146,8 +146,8 @@ Static stretching before training reduces strength and performance by 5–10 % (
 
 **Otázka:** Proč aktivní mobility drill funguje lépe než pasivní strečink?
 
-- **✅ Aktivní pohyb s odporem signalizuje nervovému systému, že nový rozsah je bezpečný — zvyšuje aktivní ROM**
-  Přesně. Nervový systém musí „dovolit" nový rozsah. Pasivní strečink ne vždy komunikuje s nervovým systémem, aktivní ano.
+- **✅ Dá CNS signál bezpečí**
+  Přesně. Aktivní pohyb s odporem zvyšuje aktivní ROM. Nervový systém musí „dovolit" nový rozsah. Pasivní strečink ne vždy komunikuje s nervovým systémem, aktivní ano.
 - ❌ Protože je to rychlejší
   Rychlost není hlavní benefit. Hlavní je kvalita adaptace — aktivní ROM je víc užitečný.
 - ❌ Protože staví svaly
@@ -157,8 +157,8 @@ Static stretching before training reduces strength and performance by 5–10 % (
 
 **Question:** Why do active mobility drills work better than passive stretching?
 
-- **✅ Active movement with resistance signals to the nervous system that the new range is safe — it increases active ROM**
-  Exactly. The nervous system has to "allow" a new range. Passive stretching doesn't always communicate with the nervous system; active work does.
+- **✅ Tells CNS it's safe**
+  Exactly. Active movement with resistance increases active ROM. The nervous system has to "allow" a new range. Passive stretching doesn't always communicate with the nervous system; active work does.
 - ❌ Because it's faster
   Speed isn't the main benefit. The key is the quality of adaptation — active ROM is more useful.
 - ❌ Because it builds muscle
@@ -168,8 +168,8 @@ Static stretching before training reduces strength and performance by 5–10 % (
 
 **Otázka:** Kde má statický strečink smysl?
 
-- **✅ Po tréninku jako cool-down, nebo v samostatném čase (večer, ráno)**
-  Přesně. Statický strečink má místo — jen ne před silovým výkonem. Po tréninku nebo samostatně pomáhá udržet rozsah pohybu.
+- **✅ Po tréninku nebo samostatně**
+  Přesně. Večer nebo ráno funguje dobře. Statický strečink má místo — jen ne před silovým výkonem. Po tréninku nebo samostatně pomáhá udržet rozsah pohybu.
 - ❌ Vždy před tréninkem pro prevenci zranění
   Studie nepotvrzují preventivní efekt. Před tréninkem je lepší dynamický warm-up.
 - ❌ Nikdy — je úplně zbytečný
@@ -179,8 +179,8 @@ Static stretching before training reduces strength and performance by 5–10 % (
 
 **Question:** When does static stretching make sense?
 
-- **✅ After training as a cool-down, or at a separate time (evening, morning)**
-  Exactly. Static stretching has its place — just not before strength performance. After training or on its own, it helps maintain range of motion.
+- **✅ After training, or separately**
+  Exactly. Evening or morning works well. Static stretching has its place — just not before strength performance. After training or on its own, it helps maintain range of motion.
 - ❌ Always before training for injury prevention
   Studies don't confirm a preventive effect. A dynamic warm-up is better before training.
 - ❌ Never — it's completely useless
@@ -229,8 +229,8 @@ Mobility involves joint motion, strength in every position, and nervous control.
 
 **Otázka:** Představ si, že nemůžeš udělat dřep do paralelu — paty se zvedají. Statický strečink kotníku nepomohl. Proč by mobility drill fungoval lépe?
 
-- **✅ Aktivní pohyb s odporem signalizuje mozku, že v tomto rozsahu je bezpečno — zvyšuje aktivní rozsah, ne jen pasivní**
-  Přesně. Nervový systém musí „dovolit" nový rozsah. Pasivní strečink ne vždy komunikuje s nervovým systémem, aktivní ano.
+- **✅ Aktivně otvírá ROM**
+  Přesně. Zvyšuje aktivní rozsah, nejen pasivní. Nervový systém musí „dovolit" nový rozsah. Pasivní strečink ne vždy komunikuje s nervovým systémem, aktivní ano.
 - ❌ Protože je to rychlejší
   Rychlost není hlavní benefit. Hlavní je kvalita adaptace.
 - ❌ Protože staví svaly
@@ -240,8 +240,8 @@ Mobility involves joint motion, strength in every position, and nervous control.
 
 **Question:** Imagine you can't squat to parallel — your heels lift off. Static ankle stretching hasn't helped. Why would a mobility drill work better?
 
-- **✅ Active movement with resistance signals to the brain that this range is safe — it increases active range, not just passive**
-  Exactly. The nervous system has to "allow" a new range. Passive stretching doesn't always communicate with the nervous system; active work does.
+- **✅ Opens active ROM**
+  Exactly. It increases active range, not just passive. The nervous system has to "allow" a new range. Passive stretching doesn't always communicate with the nervous system; active work does.
 - ❌ Because it's faster
   Speed isn't the main benefit. The key is the quality of adaptation.
 - ❌ Because it builds muscle
@@ -285,8 +285,8 @@ Mobility is **communication with your nervous system**. Active movement opens up
 
 **Otázka:** Kolik minut denní mobility práce stačí pro viditelné výsledky?
 
-- **✅ 10 minut denně — výsledky za 2–4 týdny**
-  Přesně. Pravidelnost je důležitější než délka. 10 minut denně poráží 60 minut jednou týdně.
+- **✅ 10 minut denně**
+  Přesně — výsledky za 2–4 týdny. Pravidelnost je důležitější než délka. 10 minut denně poráží 60 minut jednou týdně.
 - ❌ Minimálně 60 minut denně
   To je zbytečně moc. 10 minut cílené práce stačí pro většinu lidí.
 - ❌ 5 minut jednou týdně
@@ -296,8 +296,8 @@ Mobility is **communication with your nervous system**. Active movement opens up
 
 **Question:** How many minutes of daily mobility work are enough for visible results?
 
-- **✅ 10 minutes a day — results in 2–4 weeks**
-  Exactly. Consistency matters more than length. 10 minutes daily beats 60 minutes once a week.
+- **✅ 10 minutes a day**
+  Exactly — results in 2–4 weeks. Consistency matters more than length. 10 minutes daily beats 60 minutes once a week.
 - ❌ At least 60 minutes a day
   That's unnecessarily much. 10 minutes of targeted work is enough for most people.
 - ❌ 5 minutes once a week
@@ -307,8 +307,8 @@ Mobility is **communication with your nervous system**. Active movement opens up
 
 **Otázka:** Které 4 oblasti jsou nejproblematičtější u sedavého člověka?
 
-- **✅ Kyčle, hrudní páteř, kotníky, ramena**
-  Přesně. Sezení zkracuje hip flexory, zavírá ramena, tuží kotníky a „hroutí" hrudní páteř. Mobilita cílená na tyto oblasti má největší dopad.
+- **✅ Kyčle, páteř, kotníky, ramena**
+  Přesně. Hrudní páteř, hip flexory, ramena a kotníky. Sezení zkracuje hip flexory, zavírá ramena, tuží kotníky a „hroutí" hrudní páteř. Mobilita cílená na tyto oblasti má největší dopad.
 - ❌ Kolena, lokty, zápěstí, krk
   Tyto oblasti mohou bolet, ale příčina je často jinde — v kyčlích, hrudní páteři a ramenou. Řeš kořen problému.
 - ❌ Pouze záda
@@ -318,8 +318,8 @@ Mobility is **communication with your nervous system**. Active movement opens up
 
 **Question:** Which 4 areas are most problematic for a sedentary person?
 
-- **✅ Hips, thoracic spine, ankles, shoulders**
-  Exactly. Sitting shortens hip flexors, closes the shoulders, stiffens the ankles, and collapses the thoracic spine. Mobility targeting these areas has the biggest impact.
+- **✅ Hips, spine, ankles, shoulders**
+  Exactly. Thoracic spine, hip flexors, shoulders and ankles. Sitting shortens hip flexors, closes the shoulders, stiffens the ankles, and collapses the thoracic spine. Mobility targeting these areas has the biggest impact.
 - ❌ Knees, elbows, wrists, neck
   These areas can hurt, but the cause is often elsewhere — in the hips, thoracic spine, and shoulders. Address the root.
 - ❌ Only the back
@@ -329,8 +329,8 @@ Mobility is **communication with your nervous system**. Active movement opens up
 
 **Otázka:** Chodíš na jógu jednou týdně, ale bolesti zad ze sezení se vrací. Co je lepší strategie?
 
-- **✅ Mikropohyby a mobility drills každou hodinu v práci + 10 min denně doma**
-  Přesně. Časté krátké sessions poráží jedno dlouhé. Přerušují celodenní sezení a budují návyky.
+- **✅ Pauzy + 10 min doma**
+  Přesně. Mobility drills v práci a denní flow večer. Časté krátké sessions poráží jedno dlouhé. Přerušují celodenní sezení a budují návyky.
 - ❌ Jóga 7× týdně
   Jóga je skvělá, ale bez přerušení celodenního sezení problém zůstává. Frekvence přerušení je klíč.
 - ❌ Silný strečink jednou měsíčně
@@ -340,8 +340,8 @@ Mobility is **communication with your nervous system**. Active movement opens up
 
 **Question:** You go to yoga once a week, but your sitting-induced back pain keeps returning. What's a better strategy?
 
-- **✅ Micro-movements and mobility drills every hour at work + 10 min daily at home**
-  Exactly. Frequent short sessions beat one long one. They break up all-day sitting and build habits.
+- **✅ Breaks + 10 min at home**
+  Exactly. Mobility drills at work plus a daily flow in the evening. Frequent short sessions beat one long one. They break up all-day sitting and build habits.
 - ❌ Yoga 7× a week
   Yoga is great, but without interrupting all-day sitting the problem stays. The frequency of interruptions is key.
 - ❌ A hard stretching session once a month
@@ -388,8 +388,8 @@ A meta-analysis by Behm & Chaouachi (2011) showed that static stretching before 
 
 **Otázka:** Co dělat před tréninkem?
 
-- **✅ Dynamický warm-up: 5–10 min lehké kardio + mobility drills + pár lehkých sérií cílového cviku**
-  Přesně. Dynamický warm-up aktivuje svaly, zvyšuje teplotu a připravuje nervový systém, aniž by snížil sílu.
+- **✅ Dynamický warm-up: kardio, mobility, lehké série**
+  Přesně. 5–10 min lehké kardio + mobility drills + pár lehkých sérií cílového cviku. Dynamický warm-up aktivuje svaly, zvyšuje teplotu a připravuje nervový systém, aniž by snížil sílu.
 - ❌ Statický strečink všech svalových skupin 20 minut
   Statický strečink před tréninkem snižuje výkon a nezlepšuje prevenci zranění.
 - ❌ Nic — rovnou do prvního cviku s maximální vahou
@@ -399,8 +399,8 @@ A meta-analysis by Behm & Chaouachi (2011) showed that static stretching before 
 
 **Question:** What should you do before training?
 
-- **✅ Dynamic warm-up: 5–10 min light cardio + mobility drills + a few light sets of the target lift**
-  Exactly. A dynamic warm-up activates muscles, raises temperature, and primes the nervous system without reducing strength.
+- **✅ Dynamic warm-up: cardio, mobility, light sets**
+  Exactly. 5–10 min light cardio + mobility drills + a few light sets of the target lift. A dynamic warm-up activates muscles, raises temperature, and primes the nervous system without reducing strength.
 - ❌ 20 minutes of static stretching for every muscle group
   Static stretching before training lowers performance and doesn't improve injury prevention.
 - ❌ Nothing — go straight to the first exercise at max weight
@@ -438,8 +438,8 @@ A practical plan for an office worker:
 
 **Otázka:** Pravda, nebo mýtus: „Strečink předchází zranění"?
 
-- **✅ Mýtus — studie nepotvrzují, že statický strečink před sportem redukuje zranění**
-  Přesně. Meta-analýzy nenašly jasný efekt. Co POMÁHÁ: dynamický warm-up, správná technika, postupné zvyšování zátěže.
+- **✅ Mýtus — studie to nepotvrzují**
+  Přesně. Statický strečink před sportem zranění neredukuje. Meta-analýzy nenašly jasný efekt. Co POMÁHÁ: dynamický warm-up, správná technika, postupné zvyšování zátěže.
 - ❌ Pravda — čím víc strečinku, tím méně zranění
   Tento populární názor vědecky nepotvrzen. Jiné faktory mají větší vliv.
 - ❌ Pravda, ale jen pro běžce
@@ -449,8 +449,8 @@ A practical plan for an office worker:
 
 **Question:** True or myth: "Stretching prevents injury"?
 
-- **✅ Myth — studies don't confirm that static stretching before sport reduces injuries**
-  Exactly. Meta-analyses haven't found a clear effect. What DOES help: a dynamic warm-up, proper technique, gradual load increases.
+- **✅ Myth — studies don't confirm it**
+  Exactly. Static stretching before sport doesn't reduce injuries. Meta-analyses haven't found a clear effect. What DOES help: a dynamic warm-up, proper technique, gradual load increases.
 - ❌ True — more stretching means fewer injuries
   This popular belief isn't scientifically supported. Other factors have a bigger impact.
 - ❌ True, but only for runners
@@ -460,8 +460,8 @@ A practical plan for an office worker:
 
 **Otázka:** Jaký je nejlepší „mobility recept" pro běžného člověka se sedavým zaměstnáním?
 
-- **✅ 10 min denně cílených mobility drills (kyčle, hrudní páteř, kotníky, ramena) + přerušení sezení každou hodinu**
-  Přesně. Jednoduché, udržitelné a prokazatelně účinné. Nemusíš chodit na jógu, stačí 10 minut doma.
+- **✅ 10 min denně + hodinové pauzy**
+  Přesně. Cíl: kyčle, hrudní páteř, kotníky, ramena. Jednoduché, udržitelné a prokazatelně účinné. Nemusíš chodit na jógu, stačí 10 minut doma.
 - ❌ 2 hodiny jógy o víkendu
   Lepší než nic, ale nepřeruší celodenní sezení a frekvence je nízká. Denní mikrodávky jsou efektivnější.
 - ❌ Žádná mobilita — stačí jen silový trénink
@@ -471,8 +471,8 @@ A practical plan for an office worker:
 
 **Question:** What's the best "mobility recipe" for someone with a sedentary job?
 
-- **✅ 10 min daily of targeted mobility drills (hips, thoracic spine, ankles, shoulders) + breaking up sitting every hour**
-  Exactly. Simple, sustainable, and proven effective. You don't need yoga class; 10 minutes at home is enough.
+- **✅ 10 min daily + hourly breaks**
+  Exactly. Target: hips, thoracic spine, ankles, shoulders. Simple, sustainable, and proven effective. You don't need yoga class; 10 minutes at home is enough.
 - ❌ 2 hours of yoga on the weekend
   Better than nothing, but it doesn't break up all-day sitting and the frequency is low. Daily micro-doses are more effective.
 - ❌ No mobility — strength training alone is enough

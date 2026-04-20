@@ -82,8 +82,8 @@ Vitamin D isn't really a vitamin — it's a hormone. It regulates about 200 gene
 
 **Otázka:** Jaký suplement má v ČR smysl brát téměř všem bez krevního testu?
 
-- **✅ Vitamín D3 v zimě (listopad–březen), ~1 000–2 000 IU denně**
-  Přesně. Studie ukazují, že 60–80 % Čechů má v zimě deficit. Suplementace D3 je bezpečná, levná a efektivní.
+- **✅ Vitamín D3 v zimě**
+  Přesně. V období listopad–březen bere většina Čechů ~1 000–2 000 IU denně. Studie ukazují, že 60–80 % Čechů má v zimě deficit. Suplementace D3 je bezpečná, levná a efektivní.
 - ❌ Multivitamín „pro jistotu"
   Multivitamíny obsahují malé dávky všeho — pokud nemáš konkrétní deficit, pravděpodobně neřeší nic. Lepší je cílená suplementace.
 - ❌ Vitamín C ve vysokých dávkách
@@ -93,8 +93,8 @@ Vitamin D isn't really a vitamin — it's a hormone. It regulates about 200 gene
 
 **Question:** Which supplement makes sense to take without a blood test for almost everyone in the Czech Republic?
 
-- **✅ Vitamin D3 in winter (November–March), ~1,000–2,000 IU per day**
-  Exactly. Studies show 60–80 % of Czechs are deficient in winter. D3 supplementation is safe, cheap, and effective.
+- **✅ Vitamin D3 in winter**
+  Exactly. From November to March most Czechs take ~1,000–2,000 IU per day. Studies show 60–80 % of Czechs are deficient in winter. D3 supplementation is safe, cheap, and effective.
 - ❌ A multivitamin "just in case"
   Multivitamins contain small doses of everything — if you don't have a specific deficiency, they probably solve nothing. Targeted supplementation is better.
 - ❌ High-dose vitamin C
@@ -116,8 +116,8 @@ Practical food sources: Iron — red meat, liver, dark green vegetables. Magnesi
 
 **Otázka:** Představ si, že jsi vegetarián/ka 5 let. Poslední rok cítíš únavu, mravenčení v rukou a obtížně se soustředíš. Krevní test ukáže B12 na hranici deficitu. Co je příčinou?
 
-- **✅ Vitamín B12 je prakticky jen v živočišných produktech. Vejce a mléčné výrobky dávají málo — potřebuješ suplement.**
-  Přesně. B12 se vytváří bakteriemi v živočišných tkáních. Rostlinné zdroje ho mají minimum. Vegetariáni a hlavně vegani potřebují suplement.
+- **✅ B12 — suplementovat**
+  Přesně. B12 je prakticky jen v živočišných produktech; vejce a mléčné výrobky dávají málo. Vytváří se bakteriemi v živočišných tkáních, rostlinné zdroje ho mají minimum. Vegetariáni a hlavně vegani potřebují suplement.
 - ❌ Chybí ti vitamín C
   Vitamín C je dobrý na vstřebávání železa, ale symptomy (mravenčení, kognitivní potíže) ukazují přímo na B12.
 - ❌ Je to jen únava z práce
@@ -127,8 +127,8 @@ Practical food sources: Iron — red meat, liver, dark green vegetables. Magnesi
 
 **Question:** Imagine you've been a vegetarian for 5 years. For the past year you feel tired, have tingling in your hands, and have trouble focusing. A blood test shows B12 near deficient. What's the cause?
 
-- **✅ Vitamin B12 is practically only in animal products. Eggs and dairy provide little — you need a supplement.**
-  Exactly. B12 is made by bacteria found in animal tissue. Plant sources contain almost none. Vegetarians, and especially vegans, need a supplement.
+- **✅ B12 — take a supplement**
+  Exactly. B12 is practically only in animal products; eggs and dairy provide little. It's made by bacteria found in animal tissue, and plant sources contain almost none. Vegetarians, and especially vegans, need a supplement.
 - ❌ You're missing vitamin C
   Vitamin C helps iron absorption, but the specific symptoms (tingling, cognitive issues) point directly to B12.
 - ❌ It's just work fatigue
@@ -146,8 +146,8 @@ Practical food sources: Iron — red meat, liver, dark green vegetables. Magnesi
 
 **Otázka:** Která suplementace je v ČR problematická/nadbytečná u většiny lidí?
 
-- **✅ Drahé multivitamíny „pro celkovou imunitu" bez testu**
-  Přesně. Bez znalosti deficitu je to plýtvání. Lepší je investovat do krevního testu a pak cíleně.
+- **✅ Multivitamíny bez testu**
+  Přesně. Drahé multivitamíny „pro celkovou imunitu" bez znalosti deficitu jsou plýtvání. Lepší je investovat do krevního testu a pak cíleně.
 - ❌ Cílená suplementace po krevním testu
   Cílená suplementace je efektivní a podložená vědou.
 - ❌ Pestrá strava
@@ -157,8 +157,8 @@ Practical food sources: Iron — red meat, liver, dark green vegetables. Magnesi
 
 **Question:** Which supplementation is problematic or unnecessary for most people in the Czech Republic?
 
-- **✅ Expensive multivitamins "for overall immunity" with no test**
-  Exactly. Without knowing what's deficient, it's a waste. Better to invest in a blood test and then target.
+- **✅ Multivitamins with no test**
+  Exactly. Expensive multivitamins "for overall immunity" without knowing your deficiencies are a waste. Better to invest in a blood test and then target.
 - ❌ Targeted supplementation after a blood test
   Targeted supplementation is effective and backed by science.
 - ❌ A varied diet
@@ -190,8 +190,8 @@ Practical food sources: Iron — red meat, liver, dark green vegetables. Magnesi
 
 **Otázka:** Představ si, že na jaře ti naměří vitamín D na 45 nmol/L. Chodíš 4x týdně do fitka a chceš optimální výkon. Co uděláš?
 
-- **✅ Suplementovat 1 000–2 000 IU D3 denně po dobu zimy a jara, na podzim kontrola**
-  Přesně. Pro optimální výkon a imunitu chceš 75+ nmol/L. Jen strava nestačí — potřebuješ cílenou suplementaci.
+- **✅ D3 a na podzim kontrola**
+  Přesně. Dávka 1 000–2 000 IU denně po celou zimu a jaro. Pro optimální výkon a imunitu chceš 75+ nmol/L. Jen strava nestačí — potřebuješ cílenou suplementaci.
 - ❌ Opálit se na soláriu
   Solárium je rizikové (rakovina kůže) a UVB dávka nespolehlivá. Suplementace je bezpečnější.
 - ❌ Jíst 5x týdně losos
@@ -201,8 +201,8 @@ Practical food sources: Iron — red meat, liver, dark green vegetables. Magnesi
 
 **Question:** Imagine your spring blood test shows vitamin D at 45 nmol/L. You train 4 times a week and want optimal performance. What do you do?
 
-- **✅ Supplement 1,000–2,000 IU of D3 daily through winter and spring, with a check in the fall**
-  Exactly. For optimal performance and immunity you want 75+ nmol/L. Diet alone won't cut it — you need targeted supplementation.
+- **✅ Take D3, recheck in fall**
+  Exactly. Take 1,000–2,000 IU daily through winter and spring. For optimal performance and immunity you want 75+ nmol/L. Diet alone won't cut it — you need targeted supplementation.
 - ❌ Hit the tanning bed
   Tanning beds are risky (skin cancer) and the UVB dose is unreliable. Supplementation is safer.
 - ❌ Eat salmon 5 times a week

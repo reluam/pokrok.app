@@ -78,8 +78,8 @@ Training volume = the total of hard working sets per muscle group per week. Stud
 
 **Otázka:** Proč je frekvence 2× týdně lepší než 1× se stejným celkovým objemem?
 
-- **✅ Svalová proteosyntéza trvá jen ~48 hodin — 2× frekvence ji spustí dvakrát, ne jednou**
-  Přesně. Pokud trénuješ svalovou skupinu jen jednou týdně, 5 dnů z 7 nedostává žádný stimul. 2× frekvence je efektivnější na stejný objem.
+- **✅ Proteosyntéza trvá jen ~48 hodin**
+  Přesně. 2× frekvence ji spustí dvakrát, ne jednou. Pokud trénuješ svalovou skupinu jen jednou týdně, 5 dnů z 7 nedostává žádný stimul. 2× frekvence je efektivnější na stejný objem.
 - ❌ Protože je to méně náročné
   Náročnost se nezmění — celkový objem je stejný. Jen ho lépe distribuuješ.
 - ❌ Protože tělo si zvykne na 1× frekvenci
@@ -89,8 +89,8 @@ Training volume = the total of hard working sets per muscle group per week. Stud
 
 **Question:** Why is 2× a week frequency better than 1× with the same total volume?
 
-- **✅ Muscle protein synthesis lasts only ~48 hours — 2× frequency triggers it twice, not once**
-  Exactly. If you train a muscle group only once a week, 5 out of 7 days it gets no stimulus. 2× frequency is more effective at the same volume.
+- **✅ Protein synthesis only lasts ~48 hours**
+  Exactly. 2× frequency triggers it twice, not once. If you train a muscle group only once a week, 5 out of 7 days it gets no stimulus. 2× frequency is more effective at the same volume.
 - ❌ Because it's less demanding
   The demand doesn't change — total volume is the same. You just distribute it better.
 - ❌ Because the body gets used to 1× frequency
@@ -138,8 +138,8 @@ Volume is a dose. Too little = nothing happens. Enough = growth. Too much = dama
 
 **Otázka:** Kolik sérií týdně na jednu svalovou skupinu pro růst?
 
-- **✅ 10–20 tvrdých sérií, rozložených ideálně do 2 tréninků**
-  Přesně. „Sweet spot" podle meta-analýz (Schoenfeld et al., 2019). Frekvence 2× týdně je lepší než 1× pro stejný objem.
+- **✅ 10–20 sérií**
+  Přesně. Ideálně rozložených do 2 tréninků — „sweet spot" podle meta-analýz (Schoenfeld et al., 2019). Frekvence 2× týdně je lepší než 1× pro stejný objem.
 - ❌ 30–40 sérií
   Nad 20 sérií přichází diminishing returns a riziko přetrénování. 30+ je obvykle kontraproduktivní.
 - ❌ 1–2 série týdně
@@ -149,8 +149,8 @@ Volume is a dose. Too little = nothing happens. Enough = growth. Too much = dama
 
 **Question:** How many sets a week per muscle group for growth?
 
-- **✅ 10–20 hard sets, spread ideally across 2 workouts**
-  Exactly. The "sweet spot" per meta-analyses (Schoenfeld et al., 2019). 2× a week frequency beats 1× for the same volume.
+- **✅ 10–20 sets**
+  Exactly. Ideally spread across 2 workouts — the "sweet spot" per meta-analyses (Schoenfeld et al., 2019). 2× a week frequency beats 1× for the same volume.
 - ❌ 30–40 sets
   Above 20 sets you get diminishing returns and overtraining risk. 30+ is usually counterproductive.
 - ❌ 1–2 sets a week
@@ -185,8 +185,8 @@ MRV (maximum recoverable volume) is your individual limit of how much volume you
 
 **Otázka:** Co je MRV?
 
-- **✅ Maximální objem, který dokážeš regenerovat — nad ním tělo stagnuje nebo regreduje**
-  Přesně. Každý má jiné MRV. Překročit ho neznamená „trénovat víc" — znamená to přetrénovat.
+- **✅ Max objem, který ustojíš**
+  Přesně. Nad ním tělo stagnuje nebo regreduje. Každý má jiné MRV. Překročit ho neznamená „trénovat víc" — znamená to přetrénovat.
 - ❌ Minimální objem potřebný pro růst
   Ne — MRV je maximum, ne minimum. Minimum se nazývá MEV (minimum effective volume).
 - ❌ Počet opakování v sérii
@@ -196,8 +196,8 @@ MRV (maximum recoverable volume) is your individual limit of how much volume you
 
 **Question:** What is MRV?
 
-- **✅ The maximum volume you can recover from — above it your body stagnates or regresses**
-  Exactly. Everyone has a different MRV. Exceeding it doesn't mean "training more" — it means overtraining.
+- **✅ The max volume you can recover from**
+  Exactly. Above it the body stagnates or regresses. Everyone has a different MRV. Exceeding it doesn't mean "training more" — it means overtraining.
 - ❌ The minimum volume needed for growth
   No — MRV is a maximum, not a minimum. The minimum is called MEV (minimum effective volume).
 - ❌ The number of reps per set
@@ -223,8 +223,8 @@ More volume doesn't mean more growth. There's a ceiling beyond which the stimulu
 
 **Otázka:** Představ si, že trénuješ prsa 30 sériemi týdně — a po 3 týdnech bolí ramena, jsi vyčerpaný, a prsa nerostou. Co pravděpodobně nastalo?
 
-- **✅ Překročil jsi své MRV — tělo se nemůže regenerovat, podnět je kontraproduktivní**
-  Přesně. MRV je individuální. Problém není v programu — je v dávce, která je příliš velká pro tebe.
+- **✅ Překročil jsi své osobní MRV**
+  Přesně. Tělo se nemůže regenerovat a podnět je kontraproduktivní. MRV je individuální. Problém není v programu — je v dávce, která je příliš velká pro tebe.
 - ❌ 30 sérií je málo, musíš přidat víc
   Opak pravdy. Nadměrný objem způsobuje přetrénování — přidávat by situaci zhoršilo.
 - ❌ Musíš změnit cviky
@@ -234,8 +234,8 @@ More volume doesn't mean more growth. There's a ceiling beyond which the stimulu
 
 **Question:** Imagine you're training chest with 30 sets a week — and after 3 weeks your shoulders hurt, you're exhausted, and your chest isn't growing. What most likely happened?
 
-- **✅ You exceeded your MRV — your body can't recover, the stimulus is counterproductive**
-  Exactly. MRV is individual. The problem isn't the program — it's a dose that's too large for you.
+- **✅ You exceeded your personal MRV**
+  Exactly. The body can't recover and the stimulus is counterproductive. MRV is individual. The problem isn't the program — it's a dose that's too large for you.
 - ❌ 30 sets is too few, you need to add more
   The opposite is true. Excessive volume causes overtraining — adding more would make it worse.
 - ❌ You need to change exercises
@@ -245,8 +245,8 @@ More volume doesn't mean more growth. There's a ceiling beyond which the stimulu
 
 **Otázka:** Je lepší dělat 20 sérií na prsa v 1 dni, nebo 2× 10 sérií ve dvou dnech?
 
-- **✅ 2× 10 sérií — vyšší frekvence dává lepší výsledky při stejném objemu**
-  Přesně. Studie ukazují, že 2× týdně frekvence je efektivnější. Svalová proteosyntéza trvá jen ~48 hodin.
+- **✅ 2× 10 sérií — vyšší frekvence**
+  Přesně. Při stejném objemu dává vyšší frekvence lepší výsledky. Studie ukazují, že 2× týdně frekvence je efektivnější. Svalová proteosyntéza trvá jen ~48 hodin.
 - ❌ 20 sérií v 1 dni — koncentrovaný podnět
   Příliš velký objem v jednom tréninku — poslední série jsou tak unavené, že ztrácejí kvalitu.
 - ❌ Obě jsou stejné
@@ -256,8 +256,8 @@ More volume doesn't mean more growth. There's a ceiling beyond which the stimulu
 
 **Question:** Is it better to do 20 chest sets in 1 day, or 2× 10 sets across two days?
 
-- **✅ 2× 10 sets — higher frequency gives better results at the same volume**
-  Exactly. Studies show 2× a week frequency is more effective. Muscle protein synthesis only lasts ~48 hours.
+- **✅ 2× 10 sets — frequency wins**
+  Exactly. At equal volume, higher frequency gives better results. Studies show 2× a week frequency is more effective. Muscle protein synthesis only lasts ~48 hours.
 - ❌ 20 sets in 1 day — concentrated stimulus
   Too much volume in one session — the last sets are so fatigued they lose quality.
 - ❌ They're the same
@@ -267,8 +267,8 @@ More volume doesn't mean more growth. There's a ceiling beyond which the stimulu
 
 **Otázka:** Jak vypadá ukázkové rozvržení 16 sérií týdně na prsa?
 
-- **✅ Pondělí 8 sérií (bench 4 + incline 4), čtvrtek 8 sérií (dumbell press 4 + pec deck 4)**
-  Přesně. 2× frekvence, různé úhly, dostatečný objem, regenerace mezi tréninky. Fungující recept.
+- **✅ 2× týdně 8 sérií — pondělí a čtvrtek**
+  Přesně. Např. po 4 sériích benche a incline v pondělí, dumbbell press a pec deck ve čtvrtek. Různé úhly, dostatečný objem, regenerace mezi tréninky. Fungující recept.
 - ❌ 16 sérií v pondělí, zbytek týdne volno
   Příliš mnoho v jednom dni, pak příliš dlouhá pauza. Svalová proteosyntéza skončí dlouho před dalším tréninkem.
 - ❌ 2 série každý den po dobu 8 dnů
@@ -278,8 +278,8 @@ More volume doesn't mean more growth. There's a ceiling beyond which the stimulu
 
 **Question:** What does a sample layout of 16 chest sets per week look like?
 
-- **✅ Monday 8 sets (bench 4 + incline 4), Thursday 8 sets (dumbbell press 4 + pec deck 4)**
-  Exactly. 2× frequency, different angles, enough volume, recovery between workouts. A recipe that works.
+- **✅ 2× a week 8 sets — Monday and Thursday**
+  Exactly. E.g. 4 bench + 4 incline on Monday, dumbbell press + pec deck on Thursday. Different angles, enough volume, recovery between workouts. A recipe that works.
 - ❌ 16 sets on Monday, rest of the week off
   Too much in one day, then too long a gap. Muscle protein synthesis ends long before the next workout.
 - ❌ 2 sets every day for 8 days

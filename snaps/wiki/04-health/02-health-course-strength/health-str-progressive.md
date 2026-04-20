@@ -79,8 +79,8 @@ Progressive overload is the core principle of strength training: your body only 
 
 **Otázka:** Proč svaly přestanou růst, když trénuješ stále se stejnou zátěží?
 
-- **✅ Tělo se už přizpůsobilo — bez nového, většího podnětu nemá důvod stavět silnější svaly**
-  Přesně. Svaly rostou jako reakce na NOVÝ, větší podnět. Stejná zátěž = žádný signál pro růst. Proto je progrese tak důležitá.
+- **✅ Tělo se už přizpůsobilo, chybí nový podnět**
+  Přesně. Svaly rostou jako reakce na NOVÝ, větší podnět. Stejná zátěž = žádný signál pro růst. Bez většího podnětu nemá tělo důvod stavět silnější svaly — proto je progrese tak důležitá.
 - ❌ Protože svaly potřebují měnit cviky každý týden
   „Muscle confusion" je mýtus. Naopak — držet se stejných cviků a postupně přidávat zátěž je efektivnější než neustálé změny.
 - ❌ Protože tělo potřebuje víc proteinů, ne víc váhy
@@ -90,8 +90,8 @@ Progressive overload is the core principle of strength training: your body only 
 
 **Question:** Why do muscles stop growing when you train with the same load all the time?
 
-- **✅ Your body has already adapted — without a new, bigger stimulus it has no reason to build stronger muscles**
-  Exactly. Muscles grow in response to a NEW, bigger stimulus. Same load = no signal to grow. That's why progression is so important.
+- **✅ Your body already adapted, needs a new stimulus**
+  Exactly. Muscles grow in response to a NEW, bigger stimulus. Same load = no signal to grow. Without a bigger stimulus the body has no reason to build stronger muscles — that's why progression matters.
 - ❌ Because muscles need you to change exercises every week
   "Muscle confusion" is a myth. On the contrary — sticking with the same lifts and gradually adding load is more effective than constant changes.
 - ❌ Because the body needs more protein, not more weight
@@ -117,8 +117,8 @@ The simplest form of progression for a beginner is "double progression": work in
 
 **Otázka:** Co je „double progression"?
 
-- **✅ Pracuješ v rozsahu opakování (např. 8–12) a když zvládneš horní hranici, přidáš váhu a začneš od spodní**
-  Přesně. Malá, měřitelná progrese. Nejdřív přidáváš opakování, pak váhu. Funguje skvěle pro začátečníky i mírně pokročilé.
+- **✅ Přidáváš opakování, pak váhu**
+  Přesně. Pracuješ v rozsahu opakování (např. 8–12) a když zvládneš horní hranici, přidáš váhu a začneš od spodní. Malá, měřitelná progrese. Funguje skvěle pro začátečníky i mírně pokročilé.
 - ❌ Zdvojnásobení váhy každý měsíc
   To je nerealistické a riskantní. Progrese musí být postupná — 2,5 kg na horní cvik je rozumný krok.
 - ❌ Dělat dva tréninky denně
@@ -128,8 +128,8 @@ The simplest form of progression for a beginner is "double progression": work in
 
 **Question:** What is "double progression"?
 
-- **✅ You work in a rep range (e.g. 8–12) and when you hit the top, you add weight and start from the bottom**
-  Exactly. Small, measurable progression. First you add reps, then weight. Works great for beginners and intermediate lifters.
+- **✅ You add reps first, then weight**
+  Exactly. You work in a rep range (e.g. 8–12) and when you hit the top, you add weight and start from the bottom. Small, measurable progression. Works great for beginners and intermediate lifters.
 - ❌ Doubling the weight every month
   That's unrealistic and risky. Progression has to be gradual — 2.5 kg on an upper-body lift is a reasonable step.
 - ❌ Doing two workouts a day
@@ -139,8 +139,8 @@ The simplest form of progression for a beginner is "double progression": work in
 
 **Otázka:** Jaké formy progrese existují?
 
-- **✅ Váha, opakování, série, pauza, tempo, rozsah pohybu — všechny jsou validní**
-  Přesně. Progrese není jen „přidávat kila" — je mnoho cest, jak zvýšit podnět na svaly.
+- **✅ Všech šest způsobů**
+  Přesně. Váha, opakování, série, pauza, tempo i rozsah pohybu jsou validní formy progrese. Není to jen „přidávat kila" — je mnoho cest, jak zvýšit podnět na svaly.
 - ❌ Jen přidávání kilogramů
   Kila jsou nejviditelnější, ale existuje mnoho dalších způsobů, jak progrese dosáhnout.
 - ❌ Jen změna cviků
@@ -150,8 +150,8 @@ The simplest form of progression for a beginner is "double progression": work in
 
 **Question:** What forms of progression are there?
 
-- **✅ Weight, reps, sets, rest, tempo, range of motion — all are valid**
-  Exactly. Progression isn't just "add weight" — there are many ways to increase the stimulus on your muscles.
+- **✅ Any of six methods**
+  Exactly. Weight, reps, sets, rest, tempo, and range of motion are all valid forms of progression. It isn't just "add weight" — there are many ways to increase the stimulus.
 - ❌ Just adding weight
   Weight is the most visible, but there are many other ways to achieve progression.
 - ❌ Just changing exercises
@@ -161,8 +161,8 @@ The simplest form of progression for a beginner is "double progression": work in
 
 **Otázka:** Představ si, že na benchi zvládneš 3×10 s 60 kg snadno — jako bys mohl udělat 12. Co uděláš příště?
 
-- **✅ Zkusíš 3×11 nebo 3×12, a když se to podaří, přidáš 2,5 kg**
-  Přesně. Malá, měřitelná progrese. Přidej opakování, a jakmile zvládneš horní hranici rozsahu, přidej váhu.
+- **✅ Zkusíš 3×11 nebo 3×12 příště**
+  Přesně. Malá, měřitelná progrese. Přidej opakování, a jakmile zvládneš horní hranici rozsahu, přidej 2,5 kg.
 - ❌ Skočíš na 80 kg
   Skok o 20 kg je přehnaný a riskuje zranění. Progrese musí být realistická — 2,5–5 kg na horní cvik je maximum.
 - ❌ Zůstaneš u 60 kg a přidáš víc sérií
@@ -172,8 +172,8 @@ The simplest form of progression for a beginner is "double progression": work in
 
 **Question:** Imagine you can easily do 3×10 bench with 60 kg — like you could do 12. What do you do next time?
 
-- **✅ Try 3×11 or 3×12, and once you nail it, add 2.5 kg**
-  Exactly. Small, measurable progression. Add reps, and once you hit the top of your range, add weight.
+- **✅ Try 3×11, then 3×12**
+  Exactly. Small, measurable progression. Add reps, and once you hit the top of your range, add 2.5 kg.
 - ❌ Jump to 80 kg
   A 20 kg jump is excessive and risks injury. Progression has to be realistic — 2.5–5 kg on an upper-body lift is the max.
 - ❌ Stay at 60 kg and do more sets
@@ -208,8 +208,8 @@ When you lift heavier, your muscle fibers experience micro-damage. During recove
 
 **Otázka:** Co je hypertrofie?
 
-- **✅ Proces, kdy tělo opravuje mikropoškozená svalová vlákna a přidává další, aby příště zvládlo stejný podnět**
-  Přesně. Trénink vytváří poškození, regenerace vytváří růst. Bez jednoho z nich se nic neděje.
+- **✅ Oprava vláken a stavba nových svalů**
+  Přesně. Tělo opravuje mikropoškozená svalová vlákna a přidává další, aby příště zvládlo stejný podnět. Trénink vytváří poškození, regenerace vytváří růst. Bez jednoho z nich se nic neděje.
 - ❌ Zvětšení svalů díky vodě a otoku po tréninku
   To je dočasný „pump", ne skutečný růst. Hypertrofie je stavba nových bílkovinných struktur.
 - ❌ Geneticky daná velikost svalů
@@ -219,8 +219,8 @@ When you lift heavier, your muscle fibers experience micro-damage. During recove
 
 **Question:** What is hypertrophy?
 
-- **✅ The process where your body repairs micro-damaged muscle fibers and adds more so it can handle the same stimulus next time**
-  Exactly. Training creates damage, recovery creates growth. Without one of them, nothing happens.
+- **✅ Fiber repair and building new protein structures**
+  Exactly. The body repairs micro-damaged muscle fibers and adds more so it can handle the same stimulus next time. Training creates damage, recovery creates growth. Without one of them, nothing happens.
 - ❌ Muscles getting bigger from water and post-workout swelling
   That's a temporary "pump," not real growth. Hypertrophy is building new protein structures.
 - ❌ Genetically determined muscle size
@@ -246,8 +246,8 @@ For advanced lifters, progression is slower and requires more elaborate strategi
 
 **Otázka:** Představ si, že tvůj dřep stagnuje na 120 kg už 4 měsíce. Spíš 5–6 hodin, jíš asi 100 g bílkovin denně (vážíš 85 kg) a neděláš žádné deloady. Co je nejpravděpodobnější problém?
 
-- **✅ Nedostatek regenerace — málo spánku, málo bílkovin, žádný deload. Tvé tělo nemá šanci se adaptovat.**
-  Přesně. Progresivní přetížení funguje jen tehdy, když je dost regenerace. Bez spánku a bílkovin se neadaptuje ani nejlepší plán.
+- **✅ Málo spánku a bílkovin**
+  Přesně. Chybí regenerace i deload, takže tělo se nemá šanci adaptovat. Progresivní přetížení funguje jen tehdy, když je dost regenerace. Bez spánku a bílkovin se neadaptuje ani nejlepší plán.
 - ❌ Musíš přidat kreatin
   Kreatin může dát pár procent, ale základní problém je regenerace. Nejdřív oprav základ, potom přemýšlej o doplňcích.
 - ❌ Musíš trénovat dřep častěji
@@ -257,8 +257,8 @@ For advanced lifters, progression is slower and requires more elaborate strategi
 
 **Question:** Imagine your squat has been stuck at 120 kg for 4 months. You sleep 5–6 hours, eat about 100 g of protein a day (you weigh 85 kg), and never do deloads. What's the most likely problem?
 
-- **✅ Lack of recovery — too little sleep, too little protein, no deload. Your body has no chance to adapt.**
-  Exactly. Progressive overload only works when recovery is adequate. Without sleep and protein, even the best plan won't produce adaptation.
+- **✅ Too little sleep and protein**
+  Exactly. Recovery and deload are missing, so the body never adapts. Progressive overload only works when recovery is adequate. Without sleep and protein, even the best plan won't produce adaptation.
 - ❌ You need to add creatine
   Creatine can give a few extra percent, but the root problem is recovery. Fix the basics first, then think about supplements.
 - ❌ You need to squat more often
@@ -268,8 +268,8 @@ For advanced lifters, progression is slower and requires more elaborate strategi
 
 **Otázka:** Proč je tréninkový deník tak důležitý pro progresi?
 
-- **✅ Bez záznamu si nepamatuješ, kolik jsi minule zvedl — a nemůžeš progredovat, pokud nevíš, odkud vycházíš**
-  Přesně. Tréninkový deník (papírový nebo appka jako Strong/Hevy) je základní nástroj každého, kdo chce růst. Bez měření není progrese.
+- **✅ Bez záznamu nevíš, odkud vycházíš**
+  Přesně. Nepamatuješ si, kolik jsi minule zvedl, a bez toho nemůžeš progredovat. Tréninkový deník (papírový nebo appka jako Strong/Hevy) je základní nástroj každého, kdo chce růst. Bez měření není progrese.
 - ❌ Protože to vypadá profesionálně
   Nejde o vzhled, ale o funkci. Deník je zpětná vazba, ne estetika.
 - ❌ Protože ho trenéři vyžadují
@@ -279,8 +279,8 @@ For advanced lifters, progression is slower and requires more elaborate strategi
 
 **Question:** Why is a training log so important for progression?
 
-- **✅ Without a record you don't remember what you lifted last time — and you can't progress if you don't know where you started**
-  Exactly. A training log (paper or an app like Strong/Hevy) is the basic tool for anyone who wants to grow. Without tracking, there's no progression.
+- **✅ Without a record, no baseline**
+  Exactly. You won't remember what you lifted last time, and you can't progress without that baseline. A training log (paper or an app like Strong/Hevy) is the basic tool for anyone who wants to grow. Without tracking, there's no progression.
 - ❌ Because it looks professional
   It's not about looks, it's about function. A log is feedback, not aesthetics.
 - ❌ Because trainers require it
@@ -290,8 +290,8 @@ For advanced lifters, progression is slower and requires more elaborate strategi
 
 **Otázka:** Co je deload a proč ho zařazovat každých 4–6 týdnů?
 
-- **✅ Plánovaný lehčí týden (50–70 % normálního objemu), který umožní regeneraci CNS a předejde stagnaci**
-  Přesně. Deload dává tělu šanci dohnat adaptaci. Bez něj se únava kumuluje a progrese se zastaví.
+- **✅ Lehčí týden na odpočinek**
+  Přesně. Objem 50–70 % normálu, umožní regeneraci CNS a předejde stagnaci. Deload dává tělu šanci dohnat adaptaci. Bez něj se únava kumuluje a progrese se zastaví.
 - ❌ Úplné přestání tréninku na měsíc
   To je moc dlouho. Deload je lehčí verze normálního tréninku, ne jeho zrušení.
 - ❌ Jíst méně bílkovin
@@ -301,8 +301,8 @@ For advanced lifters, progression is slower and requires more elaborate strategi
 
 **Question:** What is a deload and why schedule one every 4–6 weeks?
 
-- **✅ A planned lighter week (50–70 % of normal volume) that allows CNS recovery and prevents stagnation**
-  Exactly. A deload gives your body a chance to catch up on adaptation. Without it, fatigue accumulates and progression stalls.
+- **✅ A planned lighter training week**
+  Exactly. Volume 50–70 % of normal — it allows CNS recovery and prevents stagnation. A deload gives your body a chance to catch up on adaptation. Without it, fatigue accumulates and progression stalls.
 - ❌ Stopping training entirely for a month
   That's too long. A deload is a lighter version of normal training, not a cancellation.
 - ❌ Eating less protein

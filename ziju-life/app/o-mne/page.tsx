@@ -173,7 +173,7 @@ export default function OMnePage() {
             shadow={false}
             stroke="#171717"
             strokeWidth={1.5}
-            innerClassName="px-8 md:px-12 py-12 md:py-16 space-y-6"
+            innerClassName="px-10 md:px-16 py-14 md:py-20 space-y-6"
           >
             <h2 className="font-display text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
               Moje cesta: Od úniku k <span className="underline-playful">přítomnosti</span>

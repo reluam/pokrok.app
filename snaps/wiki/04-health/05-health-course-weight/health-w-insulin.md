@@ -88,8 +88,8 @@ The good news: IR is **reversible** — through strength training, Z2 cardio, sl
 
 **Otázka:** Co je inzulínová rezistence?
 
-- **✅ Buňky špatně reagují na inzulín, takže tělo produkuje víc a víc inzulínu — vede k prediabetu a metabolickým problémům**
-  Přesně. IR je chronický stav, který předchází diabetes 2. typu. Naštěstí je reverzibilní životním stylem.
+- **✅ Buňky špatně reagují**
+  Přesně. Buňky reagují slabě na inzulín, takže tělo produkuje víc a víc — vede k prediabetu a metabolickým problémům. IR je chronický stav, který předchází diabetes 2. typu. Naštěstí je reverzibilní životním stylem.
 - ❌ Alergie na cukr
   Ne — je to metabolický problém, ne imunologický. Buňky nereagují správně na hormonální signál.
 - ❌ Nedostatek inzulínu
@@ -99,8 +99,8 @@ The good news: IR is **reversible** — through strength training, Z2 cardio, sl
 
 **Question:** What is insulin resistance?
 
-- **✅ Cells respond poorly to insulin, so the body produces more and more insulin — leading to prediabetes and metabolic problems**
-  Exactly. IR is a chronic state that precedes type 2 diabetes. The good news: it's reversible through lifestyle.
+- **✅ Cells respond poorly**
+  Exactly. Cells respond poorly to insulin, so the body produces more and more — leading to prediabetes and metabolic problems. IR is a chronic state that precedes type 2 diabetes. The good news: it's reversible through lifestyle.
 - ❌ An allergy to sugar
   No — it's a metabolic problem, not an immunological one. Cells aren't responding properly to a hormonal signal.
 - ❌ A lack of insulin
@@ -130,8 +130,8 @@ What worsens IR: **poor sleep** (one bad night drops sensitivity by 25 %), chron
 
 **Otázka:** Inzulínová rezistence postihuje jen obézní lidi. Pravda, nebo mýtus?
 
-- **✅ Mýtus — v ČR značný podíl lidí s IR jsou štíhlí („skinny fat" — málo svalů, hodně viscerálního tuku)**
-  Přesně. Viscerální tuk, nedostatek svalů a špatný životní styl mohou způsobit IR i u štíhlých.
+- **✅ Mýtus — IR mají i štíhlí**
+  Přesně. V ČR značný podíl lidí s IR jsou štíhlí („skinny fat" — málo svalů, hodně viscerálního tuku). Viscerální tuk, nedostatek svalů a špatný životní styl mohou způsobit IR i u štíhlých.
 - ❌ Pravda — pouze obézní mají IR
   Studie ukazují, že IR je rozšířená i u lidí s normální váhou. BMI není spolehlivý ukazatel metabolického zdraví.
 - ❌ IR se nedá měřit
@@ -141,8 +141,8 @@ What worsens IR: **poor sleep** (one bad night drops sensitivity by 25 %), chron
 
 **Question:** Insulin resistance only affects obese people. True or myth?
 
-- **✅ Myth — in the Czech Republic, a significant share of people with IR are lean ("skinny fat" — low muscle, high visceral fat)**
-  Exactly. Visceral fat, lack of muscle, and poor lifestyle can cause IR even in lean people.
+- **✅ Myth — lean people get IR too**
+  Exactly. In the Czech Republic, a significant share of people with IR are lean ("skinny fat" — low muscle, high visceral fat). Visceral fat, lack of muscle, and poor lifestyle can cause IR even in lean people.
 - ❌ True — only obese people have IR
   Studies show IR is widespread even in people with normal weight. BMI isn't a reliable indicator of metabolic health.
 - ❌ IR can't be measured
@@ -152,8 +152,8 @@ What worsens IR: **poor sleep** (one bad night drops sensitivity by 25 %), chron
 
 **Otázka:** Jedna noc špatného spánku sníží inzulínovou senzitivitu. O kolik?
 
-- **✅ O 25 % — jedna jediná noc má prokazatelný efekt**
-  Přesně. Spánek je kritický pro inzulínové zdraví. Chronický nedostatek má ještě horší efekty.
+- **✅ O 25 % — už po jedné noci**
+  Přesně. Jedna jediná noc má prokazatelný efekt. Spánek je kritický pro inzulínové zdraví. Chronický nedostatek má ještě horší efekty.
 - ❌ O 1 % — zanedbatelné
   Daleko víc. 25 % snížení senzitivity po jedné noci je obrovský efekt.
 - ❌ Spánek nemá na inzulín žádný vliv
@@ -163,8 +163,8 @@ What worsens IR: **poor sleep** (one bad night drops sensitivity by 25 %), chron
 
 **Question:** One night of poor sleep reduces insulin sensitivity. By how much?
 
-- **✅ By 25 % — a single night has a measurable effect**
-  Exactly. Sleep is critical for insulin health. Chronic deprivation has even worse effects.
+- **✅ By 25 % — after one night**
+  Exactly. A single night has a measurable effect. Sleep is critical for insulin health. Chronic deprivation has even worse effects.
 - ❌ By 1 % — negligible
   Far more. A 25 % sensitivity drop after one night is a huge effect.
 - ❌ Sleep has no effect on insulin
@@ -174,8 +174,8 @@ What worsens IR: **poor sleep** (one bad night drops sensitivity by 25 %), chron
 
 **Otázka:** Svaly jsou hlavní „skladiště" glukózy. Co to znamená pro inzulínovou rezistenci?
 
-- **✅ Víc svalů = lepší inzulínová citlivost. Proto je silový trénink klíč metabolického zdraví.**
-  Přesně. Svaly absorbují většinu glukózy z krve. Čím víc svalů máš, tím efektivněji tělo zpracovává glukózu.
+- **✅ Víc svalů = lepší citlivost na inzulín**
+  Přesně. Proto je silový trénink klíč metabolického zdraví. Svaly absorbují většinu glukózy z krve. Čím víc svalů máš, tím efektivněji tělo zpracovává glukózu.
 - ❌ Svaly nemají na inzulín vliv
   Opak je pravda. Svaly jsou největší rezervoár pro glukózu a klíčový faktor inzulínové citlivosti.
 - ❌ Jen kardio zlepšuje IR, silový trénink ne
@@ -185,8 +185,8 @@ What worsens IR: **poor sleep** (one bad night drops sensitivity by 25 %), chron
 
 **Question:** Muscles are the main "storage" for glucose. What does that mean for insulin resistance?
 
-- **✅ More muscle = better insulin sensitivity. That's why strength training is the key to metabolic health.**
-  Exactly. Muscles absorb most of the glucose from the blood. The more muscle you have, the more efficiently the body processes glucose.
+- **✅ More muscle = better insulin sensitivity**
+  Exactly. That's why strength training is the key to metabolic health. Muscles absorb most of the glucose from the blood. The more muscle you have, the more efficiently the body processes glucose.
 - ❌ Muscles have no effect on insulin
   The opposite is true. Muscles are the biggest reservoir for glucose and a key factor in insulin sensitivity.
 - ❌ Only cardio improves IR, not strength training
@@ -229,8 +229,8 @@ The key is multi-pillar: **muscle** (strength training), **mitochondria** (Z2 ca
 
 **Otázka:** Co bylo klíčové pro zvrácení inzulínové rezistence — kombinace, nebo jednotlivá intervence?
 
-- **✅ Kombinace silového tréninku, Z2 kardia, spánku a kvalitní stravy — žádná jednotlivá intervence není magická**
-  Přesně. Silový trénink buduje svaly (reservoir glukózy), Z2 zlepšuje metabolickou flexibilitu, spánek reguluje hormony, strava kontroluje vstupy.
+- **✅ Kombinace více pilířů**
+  Přesně. Silový trénink + Z2 kardio + spánek + kvalitní strava — žádná jednotlivá intervence není magická. Silový trénink buduje svaly (reservoir glukózy), Z2 zlepšuje metabolickou flexibilitu, spánek reguluje hormony, strava kontroluje vstupy.
 - ❌ Stačí jen low-carb dieta
   Low-carb sama může pomoci, ale bez tréninku a spánku je efekt omezený.
 - ❌ Stačí jen kardio
@@ -240,8 +240,8 @@ The key is multi-pillar: **muscle** (strength training), **mitochondria** (Z2 ca
 
 **Question:** What was key to reversing insulin resistance — a combination, or a single intervention?
 
-- **✅ The combination of strength training, Z2 cardio, sleep, and quality food — no single intervention is magical**
-  Exactly. Strength training builds muscle (glucose reservoir), Z2 improves metabolic flexibility, sleep regulates hormones, diet controls inputs.
+- **✅ Combining multiple pillars**
+  Exactly. Strength training + Z2 cardio + sleep + quality food — no single intervention is magical. Strength training builds muscle (glucose reservoir), Z2 improves metabolic flexibility, sleep regulates hormones, diet controls inputs.
 - ❌ Just a low-carb diet is enough
   Low-carb alone can help, but without training and sleep the effect is limited.
 - ❌ Just cardio is enough
@@ -283,8 +283,8 @@ Practical action plan:
 
 **Otázka:** Proč chůze po jídle pomáhá s inzulínovou rezistencí?
 
-- **✅ Aktivní svaly absorbují glukózu z krve i bez inzulínu — přes GLUT4 transportéry**
-  Přesně. Svalová kontrakce otvírá jinou cestu pro glukózu, která obchází IR. 10 min chůze po jídle má prokazatelný efekt.
+- **✅ Svaly odsají glukózu**
+  Přesně. Aktivní svaly absorbují glukózu z krve i bez inzulínu — přes GLUT4 transportéry. Svalová kontrakce otvírá jinou cestu pro glukózu, která obchází IR. 10 min chůze po jídle má prokazatelný efekt.
 - ❌ Je to psychologická pomoc
   Efekt je fyziologický — svaly absorbují glukózu aktivně.
 - ❌ Pomáhá trávení
@@ -294,8 +294,8 @@ Practical action plan:
 
 **Question:** Why does walking after a meal help with insulin resistance?
 
-- **✅ Active muscles absorb glucose from the blood even without insulin — via GLUT4 transporters**
-  Exactly. Muscle contraction opens a different pathway for glucose that bypasses IR. 10 minutes of walking after a meal has a measurable effect.
+- **✅ Muscles take glucose**
+  Exactly. Active muscles absorb glucose from the blood even without insulin — via GLUT4 transporters. Muscle contraction opens a different pathway for glucose that bypasses IR. 10 minutes of walking after a meal has a measurable effect.
 - ❌ It's psychological
   The effect is physiological — muscles actively absorb glucose.
 - ❌ It helps digestion
@@ -305,8 +305,8 @@ Practical action plan:
 
 **Otázka:** Jaké markery sledovat pro inzulínové zdraví?
 
-- **✅ Lačná glukóza, lačný inzulín, HOMA-IR, HbA1c, triglyceridy, HDL**
-  Přesně. Tyto ukazatele dávají dobrý obraz metabolického zdraví. HbA1c ukazuje průměrnou glukózu za 3 měsíce.
+- **✅ HOMA-IR, HbA1c**
+  Přesně. Sleduj: lačná glukóza, lačný inzulín, HOMA-IR, HbA1c, triglyceridy a HDL. Tyto ukazatele dávají dobrý obraz metabolického zdraví. HbA1c ukazuje průměrnou glukózu za 3 měsíce.
 - ❌ Jen cholesterol
   Cholesterol je částí skládačky, ale neukazuje inzulínové zdraví přímo.
 - ❌ Krevní tlak
@@ -316,8 +316,8 @@ Practical action plan:
 
 **Question:** Which markers should you track for insulin health?
 
-- **✅ Fasting glucose, fasting insulin, HOMA-IR, HbA1c, triglycerides, HDL**
-  Exactly. These markers give a good picture of metabolic health. HbA1c shows average glucose over the past 3 months.
+- **✅ HOMA-IR, HbA1c**
+  Exactly. Track: fasting glucose, fasting insulin, HOMA-IR, HbA1c, triglycerides, and HDL. These markers give a good picture of metabolic health. HbA1c shows average glucose over the past 3 months.
 - ❌ Just cholesterol
   Cholesterol is part of the puzzle, but it doesn't directly show insulin health.
 - ❌ Blood pressure
@@ -327,8 +327,8 @@ Practical action plan:
 
 **Otázka:** Program DPP ukázal, že 7 % hubnutí + 150 min cvičení týdně snížil progres prediabetes -> diabetes. O kolik procent?
 
-- **✅ O 58 % — to bylo lepší než metformin (lék)**
-  Přesně. Životní styl je mocnější než léky v rané fázi inzulínové rezistence.
+- **✅ O 58 % — lépe než metformin**
+  Přesně. To bylo lepší než metformin (lék). Životní styl je mocnější než léky v rané fázi inzulínové rezistence.
 - ❌ O 5 % — zanedbatelný rozdíl
   Daleko víc. 58 % snížení je obrovský efekt, který překonal i farmakologickou intervenci.
 - ❌ Studie žádný efekt neukázala
@@ -338,8 +338,8 @@ Practical action plan:
 
 **Question:** The DPP showed that 7 % weight loss + 150 min of exercise per week reduced prediabetes to diabetes progression. By how much?
 
-- **✅ By 58 % — that was better than metformin (a medication)**
-  Exactly. Lifestyle is more powerful than drugs in the early stage of insulin resistance.
+- **✅ By 58 % — better than metformin**
+  Exactly. That was better than metformin (a medication). Lifestyle is more powerful than drugs in the early stage of insulin resistance.
 - ❌ By 5 % — a negligible difference
   Far more. A 58 % reduction is a huge effect that outperformed even pharmacological intervention.
 - ❌ The study showed no effect

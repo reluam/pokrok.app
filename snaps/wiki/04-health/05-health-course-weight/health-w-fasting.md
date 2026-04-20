@@ -93,8 +93,8 @@ Lowe et al. (2020) compared 16:8 to a standard diet: **no difference in weight l
 
 **Otázka:** Představ si, že zkusíš 16:8 IF — jíš jen mezi 12:00 a 20:00. Za 3 měsíce zhubneš 5 kg bez počítání kalorií. Proč to fungovalo?
 
-- **✅ Zkrátil jsi okno jedení a přirozeně ušetřil 300–500 kcal denně. Deficit vznikl bez pocitu „diety".**
-  Přesně. IF funguje tím, že usnadní kalorický deficit — ne magicky, ale strukturálně.
+- **✅ Kratší okno = méně kalorií**
+  Přesně. Zkrátil jsi okno jedení a přirozeně ušetřil 300–500 kcal denně. Deficit vznikl bez pocitu „diety". IF funguje tím, že usnadní kalorický deficit — ne magicky, ale strukturálně.
 - ❌ Půst „aktivuje spalovací hormony"
   Populární marketingový narativ, ale studie ukazují, že při stejných kaloriích IF není lepší než běžná dieta.
 - ❌ Autofagie vyléčila tuk
@@ -104,8 +104,8 @@ Lowe et al. (2020) compared 16:8 to a standard diet: **no difference in weight l
 
 **Question:** Imagine trying 16:8 IF — eating only between 12:00 and 20:00. After 3 months you've lost 5 kg without counting calories. Why did it work?
 
-- **✅ You shortened the eating window and naturally cut 300–500 kcal a day. The deficit happened without feeling like a "diet."**
-  Exactly. IF works by making a calorie deficit easier — not magically, but structurally.
+- **✅ Shorter window = fewer calories**
+  Exactly. You shortened the eating window and naturally cut 300–500 kcal a day. The deficit happened without feeling like a "diet." IF works by making a calorie deficit easier — not magically, but structurally.
 - ❌ Fasting "activates fat-burning hormones"
   A popular marketing narrative, but studies show that at equal calories IF isn't better than a regular diet.
 - ❌ Autophagy burned the fat
@@ -145,8 +145,8 @@ The "IF speeds up metabolism" myth: studies have found no significant effect on 
 
 **Otázka:** Představ si, že držíš 16:8 IF, ale během okna 12–20:00 sníš 2 500 kcal. Tvé TDEE je 2 000. Po měsíci jsi přibral. Proč?
 
-- **✅ IF sám o sobě neznamená deficit — jíš víc, než spálíš, i v menším časovém okně. Tělo stále přijímá přebytek.**
-  Přesně. IF neobchází termodynamiku. Pokud jíš víc, než spálíš, přibíráš — i v 8hodinovém okně.
+- **✅ Přebytek kalorií i v okně**
+  Přesně. IF sám o sobě neznamená deficit — jíš víc, než spálíš, i v menším časovém okně. IF neobchází termodynamiku. Pokud jíš víc, než spálíš, přibíráš — i v 8hodinovém okně.
 - ❌ Okno bylo příliš krátké
   Délka okna sama o sobě není problém. Problém je celkový kalorický příjem.
 - ❌ Hormony byly proti tobě
@@ -156,8 +156,8 @@ The "IF speeds up metabolism" myth: studies have found no significant effect on 
 
 **Question:** Imagine you're on 16:8 IF, but during the 12–20:00 window you eat 2,500 kcal. Your TDEE is 2,000. After a month you've gained weight. Why?
 
-- **✅ IF on its own isn't a deficit — you're eating more than you burn, even in a smaller window. Your body is still in surplus.**
-  Exactly. IF doesn't bypass thermodynamics. If you eat more than you burn, you gain — even in an 8-hour window.
+- **✅ Still a calorie surplus**
+  Exactly. IF on its own isn't a deficit — you're eating more than you burn, even in a smaller window. IF doesn't bypass thermodynamics. If you eat more than you burn, you gain — even in an 8-hour window.
 - ❌ The window was too short
   Window length itself isn't the problem. The problem is the total calorie intake.
 - ❌ Hormones were against you
@@ -167,8 +167,8 @@ The "IF speeds up metabolism" myth: studies have found no significant effect on 
 
 **Otázka:** Studie Lowe et al. (2020) srovnala 16:8 IF s klasickou dietou. Jaký byl rozdíl v hubnutí při stejných kaloriích?
 
-- **✅ Žádný — IF není nadřazený klasické dietě při stejných kaloriích**
-  Přesně. IF je jedna z mnoha účinných strategií. Hlavní benefit je strukturální — usnadňuje deficit, ne že by měnil metabolismus.
+- **✅ Žádný — stejné výsledky**
+  Přesně. IF není nadřazený klasické dietě při stejných kaloriích. IF je jedna z mnoha účinných strategií. Hlavní benefit je strukturální — usnadňuje deficit, ne že by měnil metabolismus.
 - ❌ IF byl 50 % lepší
   Studie žádnou nadřazenost neukázala. IF a klasická dieta dávají podobné výsledky.
 - ❌ Klasická dieta byla lepší
@@ -178,8 +178,8 @@ The "IF speeds up metabolism" myth: studies have found no significant effect on 
 
 **Question:** Lowe et al. (2020) compared 16:8 IF to a standard diet. What was the difference in weight loss at equal calories?
 
-- **✅ None — IF isn't superior to a standard diet at equal calories**
-  Exactly. IF is one of many effective strategies. The main benefit is structural — it makes a deficit easier, it doesn't change metabolism.
+- **✅ None — same results**
+  Exactly. IF isn't superior to a standard diet at equal calories. IF is one of many effective strategies. The main benefit is structural — it makes a deficit easier, it doesn't change metabolism.
 - ❌ IF was 50 % better
   The study showed no superiority. IF and standard diets produce similar results.
 - ❌ Standard diet was better
@@ -189,8 +189,8 @@ The "IF speeds up metabolism" myth: studies have found no significant effect on 
 
 **Otázka:** IF nemění termodynamiku. Co tím myslíme?
 
-- **✅ Kalorie stále rozhodují — IF jen mění KDY jíš, ne KOLIK spálíš. Bez deficitu nezhubneš.**
-  Přesně. IF je strategie pro timing jídla, ne magický metabolický přepínač.
+- **✅ Kalorie rozhodují — IF mění timing**
+  Přesně. IF jen mění KDY jíš, ne KOLIK spálíš. Bez deficitu nezhubneš. IF je strategie pro timing jídla, ne magický metabolický přepínač.
 - ❌ IF zrychluje metabolismus, takže spálíš víc
   Studie to nepotvrzují. BMR se v krátkém půstu nemění, v delším dokonce klesá.
 - ❌ Při IF nezáleží na kaloriích
@@ -200,8 +200,8 @@ The "IF speeds up metabolism" myth: studies have found no significant effect on 
 
 **Question:** IF doesn't change thermodynamics. What do we mean by that?
 
-- **✅ Calories still decide — IF only changes WHEN you eat, not HOW MUCH you burn. Without a deficit, you won't lose weight.**
-  Exactly. IF is a meal timing strategy, not a magical metabolic switch.
+- **✅ Calories decide — IF only changes timing**
+  Exactly. IF changes WHEN you eat, not HOW MUCH you burn. Without a deficit, you won't lose weight. IF is a meal timing strategy, not a magical metabolic switch.
 - ❌ IF speeds up metabolism, so you burn more
   Studies don't confirm this. BMR doesn't change in short fasts, and in longer fasts it actually drops.
 - ❌ With IF, calories don't matter
@@ -248,8 +248,8 @@ A meta-analysis by Patikorn et al. (2021) of 11 RCTs: **IF produced similar weig
 
 **Otázka:** Proč mohou ženy mít s IF větší problémy?
 
-- **✅ Ženská reprodukční osa je citlivá na energetickou dostupnost — dlouhodobý deficit nebo stres může narušit menstruační cyklus a hormony**
-  Přesně. Evolučně to dává smysl — tělo „nechce" otěhotnět, když vnímá nedostatek jídla. Pro ženy je opatrnější přístup vhodný.
+- **✅ Citlivější hormonální osa žen**
+  Přesně. Ženská reprodukční osa je citlivá na energetickou dostupnost — dlouhodobý deficit nebo stres může narušit menstruační cyklus a hormony. Evolučně to dává smysl — tělo „nechce" otěhotnět, když vnímá nedostatek jídla. Pro ženy je opatrnější přístup vhodný.
 - ❌ Ženy mají pomalejší metabolismus
   Pomalejší BMR souvisí s menší svalovou hmotou, ne s citlivostí na půst.
 - ❌ Ženy nemůžou hubnout
@@ -259,8 +259,8 @@ A meta-analysis by Patikorn et al. (2021) of 11 RCTs: **IF produced similar weig
 
 **Question:** Why can women have more trouble with IF?
 
-- **✅ The female reproductive axis is sensitive to energy availability — long-term deficit or stress can disrupt the menstrual cycle and hormones**
-  Exactly. Evolutionarily this makes sense — the body doesn't "want" to get pregnant when it senses a food shortage. Women benefit from a more cautious approach.
+- **✅ More sensitive hormonal axis**
+  Exactly. The female reproductive axis is sensitive to energy availability — long-term deficit or stress can disrupt the menstrual cycle and hormones. Evolutionarily this makes sense — the body doesn't "want" to get pregnant when it senses a food shortage. Women benefit from a more cautious approach.
 - ❌ Women have a slower metabolism
   A lower BMR is linked to less muscle mass, not to fasting sensitivity.
 - ❌ Women can't lose weight
@@ -302,8 +302,8 @@ Practical tips if you want to try IF:
 
 **Otázka:** Pro koho je IF vhodný?
 
-- **✅ Pro toho, komu struktura „okna jedení" pomáhá kontrolovat kalorie a cítí se s ní dobře**
-  Přesně. IF je nástroj pro adherence. Pokud ti sedí, funguje. Pokud ne, je zbytečný.
+- **✅ Pro toho, komu vyhovuje struktura okna jedení**
+  Přesně. Struktura „okna jedení" pomáhá kontrolovat kalorie, pokud se s ní člověk cítí dobře. IF je nástroj pro adherence. Pokud ti sedí, funguje. Pokud ne, je zbytečný.
 - ❌ Pro každého — je to vědecky lepší než ostatní diety
   Studie nepotvrzují nadřazenost. IF je jen jedna z funkčních strategií.
 - ❌ Pro nikoho — je to nebezpečné
@@ -313,8 +313,8 @@ Practical tips if you want to try IF:
 
 **Question:** Who is IF suited for?
 
-- **✅ Anyone for whom the structure of an "eating window" helps control calories and feels good**
-  Exactly. IF is an adherence tool. If it suits you, it works. If not, it's pointless.
+- **✅ Anyone who fits the eating window**
+  Exactly. The structure of an "eating window" helps control calories if it feels good. IF is an adherence tool. If it suits you, it works. If not, it's pointless.
 - ❌ Everyone — it's scientifically better than other diets
   Studies don't confirm superiority. IF is just one of several effective strategies.
 - ❌ No one — it's dangerous
@@ -324,8 +324,8 @@ Practical tips if you want to try IF:
 
 **Otázka:** Co NE dělat při IF?
 
-- **✅ Přejídat se během okna jedení jako „kompenzace" — sabotuje deficit**
-  Přesně. Přejídání je nejčastější chyba. IF neruší termodynamiku — stále musíš být v deficitu.
+- **✅ Přejídat se během okna**
+  Přesně. Přejídání jako „kompenzace" sabotuje deficit. Je to nejčastější chyba. IF neruší termodynamiku — stále musíš být v deficitu.
 - ❌ Pít vodu během půstu
   Voda je v pořádku a doporučená. Nekalorické tekutiny neruší půst.
 - ❌ Trénovat během půstu
@@ -335,8 +335,8 @@ Practical tips if you want to try IF:
 
 **Question:** What should you NOT do with IF?
 
-- **✅ Overeating during the window as "compensation" — it sabotages the deficit**
-  Exactly. Overeating is the most common mistake. IF doesn't break thermodynamics — you still have to be in a deficit.
+- **✅ Overeating during the window**
+  Exactly. Overeating as "compensation" sabotages the deficit. It's the most common mistake. IF doesn't break thermodynamics — you still have to be in a deficit.
 - ❌ Drinking water during the fast
   Water is fine and recommended. Zero-calorie liquids don't break the fast.
 - ❌ Training during the fast
@@ -346,8 +346,8 @@ Practical tips if you want to try IF:
 
 **Otázka:** Ženy by měly s IF začínat mírněji. Jaký formát je pro ně obvykle nejbezpečnější na začátek?
 
-- **✅ 12:12 nebo 14:10 — kratší půst s monitorováním menstruačního cyklu, spánku a nálady**
-  Přesně. Postupné prodlužování je bezpečnější než rovnou 16:8 nebo 18:6. Sleduj, jak tvé tělo reaguje.
+- **✅ 12:12 nebo 14:10 s monitorováním signálů**
+  Přesně. Kratší půst s monitorováním menstruačního cyklu, spánku a nálady. Postupné prodlužování je bezpečnější než rovnou 16:8 nebo 18:6. Sleduj, jak tvé tělo reaguje.
 - ❌ Rovnou 20:4 — čím agresivnější, tím lepší
   Agresivní IF může narušit hormonální osu u žen. Opatrnější přístup je vhodnější.
 - ❌ IF pro ženy není nikdy bezpečný
@@ -357,8 +357,8 @@ Practical tips if you want to try IF:
 
 **Question:** Women should start IF more gently. Which format is usually safest to start with?
 
-- **✅ 12:12 or 14:10 — shorter fast with monitoring of menstrual cycle, sleep, and mood**
-  Exactly. Gradual extension is safer than jumping straight to 16:8 or 18:6. Watch how your body responds.
+- **✅ 12:12 or 14:10 with monitoring of signals**
+  Exactly. A shorter fast with monitoring of menstrual cycle, sleep, and mood. Gradual extension is safer than jumping straight to 16:8 or 18:6. Watch how your body responds.
 - ❌ Jump straight to 20:4 — the more aggressive, the better
   Aggressive IF can disrupt the hormonal axis in women. A more cautious approach is better.
 - ❌ IF is never safe for women

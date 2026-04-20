@@ -79,8 +79,8 @@ Compound (multi-joint) exercises recruit several muscle groups at once. A squat 
 
 **Otázka:** Proč jsou komplexní cviky efektivnější než izolované?
 
-- **✅ Zapojují více svalů najednou — dávají celotělový podnět za méně času**
-  Přesně. Komplexní cviky jsou „základní chod" — nejvíc svalů za nejméně času. Izolované cviky jsou doplňkem, ne základem.
+- **✅ Zapojí více svalů najednou**
+  Přesně. Dají celotělový podnět za méně času. Komplexní cviky jsou „základní chod" — nejvíc svalů za nejméně času. Izolované cviky jsou doplňkem, ne základem.
 - ❌ Protože jsou těžší psychicky
   Psychická náročnost nemá vliv na hypertrofii. Rozhoduje, kolik svalových vláken zapojíš.
 - ❌ Protože je dělají profíci
@@ -90,8 +90,8 @@ Compound (multi-joint) exercises recruit several muscle groups at once. A squat 
 
 **Question:** Why are compound lifts more effective than isolation exercises?
 
-- **✅ They recruit more muscles at once — they give a full-body stimulus in less time**
-  Exactly. Compounds are the "main course" — the most muscle for the least time. Isolation work is an accessory, not the base.
+- **✅ They recruit more muscles at once**
+  Exactly. That gives a full-body stimulus in less time. Compounds are the "main course" — the most muscle for the least time. Isolation work is an accessory, not the base.
 - ❌ Because they're mentally harder
   Mental difficulty doesn't affect hypertrophy. What matters is how many muscle fibers you recruit.
 - ❌ Because professionals do them
@@ -117,8 +117,8 @@ Compounds deliver the most muscle for the least time. Start with them, and add i
 
 **Otázka:** Představ si, že porovnáváš dvě varianty: A) 2 hodiny bicepsových zdvihů a tricepsů. B) 45 minut dřepy, mrtvý tah, shyby, tlak. Která dá větší celkový podnět pro růst?
 
-- **✅ B — 45 minut komplexních cviků zapojí výrazně víc svalových vláken a dá větší adaptační podnět**
-  Přesně. Celkový objem zapojených svalů v B je násobně větší — a trvá to kratší dobu.
+- **✅ B — komplexní cviky dají víc**
+  Přesně. 45 minut komplexních cviků zapojí výrazně víc svalových vláken a dá větší adaptační podnět. Celkový objem zapojených svalů v B je násobně větší — a trvá to kratší dobu.
 - ❌ A — víc času = víc výsledků
   Čas sám o sobě nic neznamená. 2 hodiny izolovaného cvičení nikdy nedožene 45 minut kvalitních komplexních cviků.
 - ❌ Obě varianty jsou stejné
@@ -128,8 +128,8 @@ Compounds deliver the most muscle for the least time. Start with them, and add i
 
 **Question:** Imagine comparing two options: A) 2 hours of curls and triceps. B) 45 minutes of squats, deadlifts, pull-ups, presses. Which gives a bigger total stimulus for growth?
 
-- **✅ B — 45 minutes of compounds recruits far more muscle fibers and gives a bigger adaptation signal**
-  Exactly. The total volume of muscles worked in B is orders of magnitude greater — and it takes less time.
+- **✅ B — compounds give more**
+  Exactly. 45 minutes of compounds recruits far more fibers and gives a bigger adaptation signal. The total volume of muscles worked in B is orders of magnitude greater — and it takes less time.
 - ❌ A — more time = more results
   Time alone means nothing. 2 hours of isolation will never match 45 minutes of quality compound lifts.
 - ❌ They're the same
@@ -139,8 +139,8 @@ Compounds deliver the most muscle for the least time. Start with them, and add i
 
 **Otázka:** Proč komplexní cviky bezpečné, pokud se jim správně naučíš?
 
-- **✅ Správná technika chrání klouby a buduje sílu v přirozených pohybech — dřep je pohyb, který děláš každý den**
-  Přesně. Strach z dřepů a mrtvých tahů je obvykle nepodložený. Studie ukazují, že správně provedené jsou bezpečné pro zdravé klouby.
+- **✅ Správná technika klouby chrání, ne ničí**
+  Přesně. Buduje sílu v přirozených pohybech — dřep je pohyb, který děláš každý den. Strach z dřepů a mrtvých tahů je obvykle nepodložený. Studie ukazují, že správně provedené jsou bezpečné pro zdravé klouby.
 - ❌ Jsou nebezpečné a je lepší strojové ekvivalenty
   Stroje neumožňují zapojení stabilizátorů — přirozené pohyby jsou bezpečnější a funkčnější.
 - ❌ Jsou bezpečné jen pro mladé lidi
@@ -150,8 +150,8 @@ Compounds deliver the most muscle for the least time. Start with them, and add i
 
 **Question:** Why are compound lifts safe when you learn proper technique?
 
-- **✅ Proper technique protects joints and builds strength in natural movements — a squat is a movement you do every day**
-  Exactly. Fear of squats and deadlifts is usually unfounded. Studies show properly performed they're safe for healthy joints.
+- **✅ Proper technique protects joints**
+  Exactly. It builds strength in natural movements — a squat is a movement you do every day. Fear of squats and deadlifts is usually unfounded. Studies show properly performed they're safe for healthy joints.
 - ❌ They're dangerous, machines are better
   Machines don't allow stabilizer recruitment — natural movements are safer and more functional.
 - ❌ They're only safe for young people
@@ -224,8 +224,8 @@ One squat does more for your whole body than ten isolation lifts. Compounds are 
 
 **Otázka:** Proč dělat mrtvý tah jen 1×5, zatímco dřep 3×5?
 
-- **✅ Mrtvý tah je extrémně náročný na CNS a regeneraci — 1 tvrdá série stačí pro stimul**
-  Přesně. Mrtvý tah zapojuje obrovské množství svalů a unavuje CNS víc než dřep. Méně sérií, větší respekt.
+- **✅ Je extrémně náročný na CNS**
+  Přesně. 1 tvrdá série stačí pro stimul. Mrtvý tah zapojuje obrovské množství svalů a unavuje CNS víc než dřep. Méně sérií, větší respekt.
 - ❌ Protože mrtvý tah je snadný
   Naopak — mrtvý tah je nejtěžší cvik. Právě proto 1 tvrdá série stačí.
 - ❌ Protože mrtvý tah je méně důležitý
@@ -235,8 +235,8 @@ One squat does more for your whole body than ten isolation lifts. Compounds are 
 
 **Question:** Why do a deadlift at only 1×5 while squatting 3×5?
 
-- **✅ The deadlift is extremely taxing on the CNS and recovery — 1 hard set is enough stimulus**
-  Exactly. The deadlift recruits a huge amount of muscle and fatigues the CNS more than the squat. Fewer sets, more respect.
+- **✅ It's extremely taxing on the CNS**
+  Exactly. 1 hard set is enough stimulus. The deadlift recruits a huge amount of muscle and fatigues the CNS more than the squat. Fewer sets, more respect.
 - ❌ Because the deadlift is easy
   The opposite — the deadlift is the hardest lift. That's exactly why 1 hard set is enough.
 - ❌ Because the deadlift is less important
@@ -246,8 +246,8 @@ One squat does more for your whole body than ten isolation lifts. Compounds are 
 
 **Otázka:** Jaké je dobré rozložení tréninku pro začátečníka?
 
-- **✅ 3× týdně full-body: dřep, bench/OHP, veslování/shyby, doplňkově izolované (2–3 série bicepsu/tricepsu)**
-  Přesně. Začátečník potřebuje častou frekvenci a hlavně komplexní cviky. Izolované jsou jen doplněk.
+- **✅ 3× týdně full-body s komplexními cviky**
+  Přesně. Např. dřep, bench/OHP, veslování/shyby a doplňkově 2–3 série bicepsu a tricepsu. Začátečník potřebuje častou frekvenci a hlavně komplexní cviky. Izolované jsou jen doplněk.
 - ❌ Split pondělí ruce, úterý nohy s jen izolovanými cviky
   Split s jen izolovanými cviky je neefektivní pro začátečníka — nízká frekvence na každou skupinu, slabý podnět.
 - ❌ 1× týdně hodina kardia
@@ -257,8 +257,8 @@ One squat does more for your whole body than ten isolation lifts. Compounds are 
 
 **Question:** What's a good split for a beginner?
 
-- **✅ 3× a week full-body: squat, bench/OHP, row/pull-ups, plus accessories (2–3 sets of biceps/triceps)**
-  Exactly. A beginner needs frequency and, above all, compound lifts. Isolation work is just a supplement.
+- **✅ 3× a week full-body with compound lifts**
+  Exactly. E.g. squat, bench/OHP, row/pull-ups plus 2–3 accessory sets of biceps/triceps. A beginner needs frequency and, above all, compound lifts. Isolation work is just a supplement.
 - ❌ A split with arms Monday, legs Tuesday using only isolation lifts
   A split with only isolation lifts is inefficient for a beginner — low frequency per muscle, weak stimulus.
 - ❌ One hour of cardio per week
@@ -268,8 +268,8 @@ One squat does more for your whole body than ten isolation lifts. Compounds are 
 
 **Otázka:** Jsou komplexní cviky „funkční"? Co to znamená?
 
-- **✅ Přenášejí sílu do skutečného života — dřep ti pomůže vstát z křesla, mrtvý tah zvednout těžký kufr**
-  Přesně. Funkční síla se projevuje v reálném světě. Izolované cviky budují „show muscles", komplexní cviky budují použitelnou sílu.
+- **✅ Přenášejí sílu do skutečného života**
+  Přesně. Dřep ti pomůže vstát z křesla, mrtvý tah zvednout těžký kufr. Funkční síla se projevuje v reálném světě. Izolované cviky budují „show muscles", komplexní cviky budují použitelnou sílu.
 - ❌ „Funkční" znamená, že jsou jen pro fyzioterapii
   Ne — funkční trénink je o přenositelnosti do pohybů každodenního života, ne jen rehabilitaci.
 - ❌ Jsou funkční jen pro sportovce
@@ -279,8 +279,8 @@ One squat does more for your whole body than ten isolation lifts. Compounds are 
 
 **Question:** Are compound lifts "functional"? What does that mean?
 
-- **✅ They transfer strength to real life — a squat helps you stand up from a chair, a deadlift helps you lift a heavy suitcase**
-  Exactly. Functional strength shows up in the real world. Isolation exercises build "show muscles," compound lifts build usable strength.
+- **✅ They transfer strength into real life**
+  Exactly. A squat helps you stand up from a chair, a deadlift helps you lift a heavy suitcase. Functional strength shows up in the real world. Isolation exercises build "show muscles," compound lifts build usable strength.
 - ❌ "Functional" means they're only for physiotherapy
   No — functional training is about transferring to everyday movements, not just rehabilitation.
 - ❌ They're only functional for athletes

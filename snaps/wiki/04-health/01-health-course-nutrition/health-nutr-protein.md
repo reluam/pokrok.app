@@ -83,8 +83,8 @@ Without enough intake, your body has no material for repair or growth. The optim
 
 **Otázka:** Proč bílkoviny nestačí jen k večeři v jedné velké dávce?
 
-- **✅ Svalová proteosyntéza se aktivuje na 3–5 hodin po každé dávce bílkovin — rovnoměrné rozložení do 3–5 porcí po 20–40 g ji maximalizuje**
-  Přesně. Tělo svaly buduje v pulzech. Jedna megadávka 150 g najednou není efektivnější — přebytek se oxiduje na energii.
+- **✅ Každá dávka spustí proteosyntézu na 3–5 hodin**
+  Přesně. Tělo svaly buduje v pulzech, proto se vyplatí rozložit 3–5 porcí po 20–40 g přes den. Jedna megadávka 150 g najednou není efektivnější — přebytek se oxiduje na energii.
 - ❌ Tělo dokáže vstřebat jen 30 g najednou a zbytek se vyloučí
   To je zjednodušený mýtus. Tělo vstřebá i víc, ale pro svalovou syntézu je rovnoměrné rozložení efektivnější.
 - ❌ Na timingu vůbec nezáleží, jen na celkovém příjmu
@@ -94,8 +94,8 @@ Without enough intake, your body has no material for repair or growth. The optim
 
 **Question:** Why isn't it enough to eat all your protein at dinner in one big dose?
 
-- **✅ Muscle protein synthesis is activated for 3–5 hours after each protein dose — spreading 3–5 servings of 20–40 g throughout the day maximizes it**
-  Exactly. Your body builds muscle in pulses. One mega-dose of 150 g at once isn't more effective — the excess is oxidized for energy.
+- **✅ Each dose triggers protein synthesis for 3–5 hours**
+  Exactly. Your body builds muscle in pulses, so it's worth splitting 3–5 servings of 20–40 g across the day. One mega-dose of 150 g at once isn't more effective — the excess is oxidized for energy.
 - ❌ The body can only absorb 30 g at a time and excretes the rest
   That's an oversimplified myth. The body absorbs more, but for muscle synthesis, even distribution is more effective.
 - ❌ Timing doesn't matter at all, only total intake
@@ -143,7 +143,7 @@ Protein quality depends on the amino acid profile. **Animal sources** (meat, egg
 
 **Otázka:** Je pravda, že „vysoké bílkoviny ničí ledviny"?
 
-- **✅ Ne — u zdravých lidí studie žádné poškození neprokázaly**
+- **✅ Ne — u zdravých lidí nikoli**
   Správně. Meta-analýzy ukázaly, že vysokoproteinová strava nepoškozuje ledviny u zdravých lidí. Pozor jen u již nemocných ledvin.
 - ❌ Ano, nad 100 g denně je nebezpečné
   To je mýtus, který se drží i přes opakované vědecké vyvrácení. U zdravých lidí riziko neexistuje.
@@ -154,7 +154,7 @@ Protein quality depends on the amino acid profile. **Animal sources** (meat, egg
 
 **Question:** Is it true that "high protein destroys your kidneys"?
 
-- **✅ No — studies show no damage in healthy people**
+- **✅ No — not in healthy people**
   Correct. Meta-analyses showed that a high-protein diet does not harm the kidneys of healthy people. Caution only applies to people with existing kidney disease.
 - ❌ Yes, over 100 g a day is dangerous
   That's a myth that persists despite repeated scientific debunking. In healthy people, the risk doesn't exist.
@@ -165,8 +165,8 @@ Protein quality depends on the amino acid profile. **Animal sources** (meat, egg
 
 **Otázka:** Představ si, že jsi vegetarián/ka a vážíš 60 kg. Potřebuješ ~100 g bílkovin denně. Která strategie je nejrozumnější?
 
-- **✅ Kombinovat zdroje přes den: tvaroh + vejce ke snídani, tofu + čočka k obědu, jogurt + sýr k večeři**
-  Přesně. Rovnoměrné rozložení z různých zdrojů pokrývá leucin, vlákninu i mikronutrienty. Rostlinné zdroje potřebují o ~10–15 % vyšší celkový příjem než živočišné pro stejný efekt.
+- **✅ Kombinovat různé zdroje rovnoměrně přes den**
+  Přesně. Např. tvaroh + vejce ke snídani, tofu + čočka k obědu, jogurt + sýr k večeři. Takové rozložení pokrývá leucin, vlákninu i mikronutrienty. Rostlinné zdroje potřebují o ~10–15 % vyšší celkový příjem než živočišné pro stejný efekt.
 - ❌ 5 odměrek proteinového prášku denně a nic dalšího
   Celé jídlo je vždy lepší — obsahuje i další živiny. Protein prášek je jen doplněk.
 - ❌ Jen salát a ovoce, ty přece obsahují bílkoviny
@@ -176,8 +176,8 @@ Protein quality depends on the amino acid profile. **Animal sources** (meat, egg
 
 **Question:** Imagine you're a vegetarian weighing 60 kg. You need ~100 g of protein per day. Which strategy is most sensible?
 
-- **✅ Combine sources throughout the day: quark + eggs for breakfast, tofu + lentils for lunch, yogurt + cheese for dinner**
-  Exactly. Even distribution from different sources covers leucine, fiber, and micronutrients. Plant sources need about 10–15 % more total intake than animal sources for the same effect.
+- **✅ Combine different sources evenly across the day**
+  Exactly. E.g. quark + eggs for breakfast, tofu + lentils for lunch, yogurt + cheese for dinner. Such distribution covers leucine, fiber, and micronutrients. Plant sources need about 10–15 % more total intake than animal sources for the same effect.
 - ❌ 5 scoops of protein powder a day and nothing else
   Whole food is always better — it contains other nutrients too. Protein powder is just a supplement.
 - ❌ Just salad and fruit, they contain protein too
@@ -187,7 +187,7 @@ Protein quality depends on the amino acid profile. **Animal sources** (meat, egg
 
 **Otázka:** Studie Mortona et al. (2018) analyzovala 49 studií. Jaký je optimální příjem bílkovin pro nárůst svalů?
 
-- **✅ ~1,6 g/kg — nad 2,2 g/kg už efekt neroste**
+- **✅ ~1,6 g/kg — nad 2,2 g/kg už bez efektu**
   Přesně. Přesto je v ČR běžné doporučení „0,8 g/kg" — to je minimum pro přežití sedavého člověka, ne pro sportovce.
 - ❌ 0,8 g/kg — standardní doporučení stačí
   0,8 g/kg je minimum pro bazální funkce. Pro růst svalů je to zcela nedostačující.
@@ -198,7 +198,7 @@ Protein quality depends on the amino acid profile. **Animal sources** (meat, egg
 
 **Question:** Morton et al. (2018) analyzed 49 studies. What's the optimal protein intake for muscle growth?
 
-- **✅ ~1.6 g/kg — above 2.2 g/kg the effect plateaus**
+- **✅ ~1.6 g/kg — above 2.2 g/kg it plateaus**
   Exactly. Yet the common recommendation in the Czech Republic is "0.8 g/kg" — that's the survival minimum for a sedentary person, not for an athlete.
 - ❌ 0.8 g/kg — the standard recommendation is enough
   0.8 g/kg is the minimum for basic functions. For muscle growth it's completely insufficient.

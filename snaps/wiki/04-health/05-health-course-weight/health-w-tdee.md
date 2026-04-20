@@ -91,8 +91,8 @@ NEAT is the **most variable component** — two people of the same weight can di
 
 **Otázka:** Co je NEAT a proč je důležitý?
 
-- **✅ Non-Exercise Activity Thermogenesis — běžný pohyb mimo plánované cvičení. Může být 10–30 % TDEE a obrovsky se liší mezi lidmi.**
-  Přesně. NEAT je nejvariabilnější složka výdeje. Dva lidé se stejnou váhou mohou mít NEAT rozdíl 500+ kcal denně.
+- **✅ Běžný pohyb mimo cvičení.**
+  Přesně. NEAT (chůze, stání, fidgeting) je 10–30 % TDEE a nejvariabilnější složka výdeje. Dva lidé se stejnou váhou mohou mít NEAT rozdíl 500+ kcal denně.
 - ❌ Je to termický efekt jídla
   TEF je něco jiného — energie na trávení, ~10 % TDEE, málo variabilní.
 - ❌ Bazální metabolismus
@@ -102,8 +102,8 @@ NEAT is the **most variable component** — two people of the same weight can di
 
 **Question:** What is NEAT and why does it matter?
 
-- **✅ Non-Exercise Activity Thermogenesis — everyday movement outside planned exercise. It can be 10–30 % of TDEE and varies enormously between people.**
-  Exactly. NEAT is the most variable component of energy expenditure. Two people of the same weight can differ by 500+ kcal a day in NEAT alone.
+- **✅ Movement outside exercise.**
+  Exactly. NEAT (walking, standing, fidgeting) is 10–30 % of TDEE and the most variable component. Two people of the same weight can differ by 500+ kcal a day in NEAT alone.
 - ❌ It's the thermic effect of food
   TEF is something else — energy for digestion, ~10 % of TDEE, and barely variable.
 - ❌ Basal metabolism
@@ -133,8 +133,8 @@ How to calculate TDEE: **Mifflin-St Jeor formula** for BMR x activity multiplier
 
 **Otázka:** Představ si, že spočítáš podle kalkulačky TDEE 2 800 kcal, jíš přesně tolik 3 týdny a přibereš 1 kg. Co to znamená?
 
-- **✅ Tvé skutečné TDEE je nižší než odhadnuté — pravděpodobně 2 500–2 600 kcal. Kalkulačky jsou jen odhad.**
-  Přesně. Tvé tělo dává pravdu, ne kalkulačka. Měř reálnou odpověď.
+- **✅ Tvé TDEE je nižší než odhad.**
+  Přesně. Reálně máš asi 2 500–2 600 kcal, ne 2 800. Tvé tělo dává pravdu, ne kalkulačka. Měř reálnou odpověď.
 - ❌ Kalkulačka byla správně, přibral jsi svaly
   1 kg svalů za 3 týdny bez specifického tréninku není možné. Přibírání naznačuje nadbytek.
 - ❌ Je to jen voda
@@ -144,8 +144,8 @@ How to calculate TDEE: **Mifflin-St Jeor formula** for BMR x activity multiplier
 
 **Question:** Imagine a TDEE calculator gives you 2,800 kcal, you eat exactly that for 3 weeks, and you gain 1 kg. What does that mean?
 
-- **✅ Your actual TDEE is lower than estimated — probably 2,500–2,600 kcal. Calculators are just estimates.**
-  Exactly. Your body gives the truth, not the calculator. Measure the real response.
+- **✅ TDEE is lower than estimated.**
+  Exactly. It's probably 2,500–2,600 kcal, not 2,800. Your body gives the truth, not the calculator. Measure the real response.
 - ❌ The calculator was right, you gained muscle
   1 kg of muscle in 3 weeks without specific training is impossible. The gain points to a surplus.
 - ❌ It's just water
@@ -155,8 +155,8 @@ How to calculate TDEE: **Mifflin-St Jeor formula** for BMR x activity multiplier
 
 **Otázka:** Jaká je nejsnazší cesta zvýšit TDEE?
 
-- **✅ Přidat 5 000 kroků denně (víc chůze, schody, stání) — ~300 kcal navíc**
-  Přesně. NEAT je nejvariabilnější a nejsnazší pro úpravu.
+- **✅ Přidat 5 000 kroků denně**
+  Přesně. Víc chůze, schody, stání — ~300 kcal navíc. NEAT je nejvariabilnější a nejsnazší pro úpravu.
 - ❌ Přidat 2 hodiny HIIT denně
   Neudržitelné a paradoxně může snížit NEAT (tělo kompenzuje).
 - ❌ Jíst víc bílkovin
@@ -166,8 +166,8 @@ How to calculate TDEE: **Mifflin-St Jeor formula** for BMR x activity multiplier
 
 **Question:** The easiest way to raise TDEE?
 
-- **✅ Add 5,000 steps a day (more walking, stairs, standing) — ~300 kcal extra**
-  Exactly. NEAT is the most variable and easiest to change.
+- **✅ Add 5,000 steps a day**
+  Exactly. More walking, stairs, standing — ~300 kcal extra. NEAT is the most variable and easiest to change.
 - ❌ Add 2 hours of HIIT daily
   Unsustainable and paradoxically can lower NEAT (your body compensates).
 - ❌ Eat more protein
@@ -177,8 +177,8 @@ How to calculate TDEE: **Mifflin-St Jeor formula** for BMR x activity multiplier
 
 **Otázka:** Kalkulačka dá odhad, tvé tělo dá pravdu. Jak změříš své skutečné TDEE?
 
-- **✅ Jez konstantní kalorie 2 týdny, sleduj průměrnou váhu — pokud je stabilní, to je tvé TDEE**
-  Přesně. Reálná data z tvého těla jsou přesnější než jakákoli formule.
+- **✅ Jez konstantně a sleduj váhu**
+  Přesně. 2 týdny — pokud je průměrná váha stabilní, to je tvé TDEE. Reálná data z tvého těla jsou přesnější než jakákoli formule.
 - ❌ Stačí zadat údaje do online kalkulačky
   Kalkulačky mají chybu ±300 kcal. Jsou dobrý startovní bod, ne konečná odpověď.
 - ❌ TDEE se nedá změřit
@@ -188,8 +188,8 @@ How to calculate TDEE: **Mifflin-St Jeor formula** for BMR x activity multiplier
 
 **Question:** A calculator gives an estimate, your body gives the truth. How do you measure your actual TDEE?
 
-- **✅ Eat constant calories for 2 weeks, track average weight — if stable, that's your TDEE**
-  Exactly. Real data from your body is more accurate than any formula.
+- **✅ Eat constant calories and track weight**
+  Exactly. Over 2 weeks — if the average weight is stable, that's your TDEE. Real data from your body is more accurate than any formula.
 - ❌ Just enter your stats into an online calculator
   Calculators have an error of ±300 kcal. They're a good starting point, not the final answer.
 - ❌ TDEE can't be measured
@@ -238,8 +238,8 @@ Solutions: 1) Raise NEAT (add steps). 2) If that doesn't work in 2 weeks, cut 10
 
 **Otázka:** Hubneš 2 měsíce, zhubneš 4 kg, a pak se hubnutí zastaví na 3 týdny. Stejné kalorie, stejný trénink. Jaký je nejchytřejší krok?
 
-- **✅ Zvýšit NEAT (kroky, víc chůze), a pokud se hubnutí neobnoví za 2 týdny, ubrat 100–150 kcal**
-  Přesně. Zvýšení NEAT je první volba — méně psychicky náročné než jíst méně. Kalorie jsou záloha.
+- **✅ Zvýšit NEAT, pak ubrat kalorie**
+  Přesně. Přidat kroky a víc chůze je první volba — méně psychicky náročné než jíst méně. Pokud se hubnutí neobnoví za 2 týdny, ubrat 100–150 kcal.
 - ❌ Hned ubrat 500 kcal ze stravy
   Přehnaná reakce. Malé úpravy jsou lepší pro metabolismus i psychiku.
 - ❌ Přidat 2 hodiny HIIT denně
@@ -249,8 +249,8 @@ Solutions: 1) Raise NEAT (add steps). 2) If that doesn't work in 2 weeks, cut 10
 
 **Question:** You've lost weight for 2 months, dropped 4 kg, and then weight loss stalls for 3 weeks. Same calories, same training. What's the smartest move?
 
-- **✅ Raise NEAT (steps, more walking), and if weight loss doesn't restart in 2 weeks, cut 100–150 kcal**
-  Exactly. Raising NEAT is the first choice — psychologically easier than eating less. Cutting calories is the backup.
+- **✅ Raise NEAT, calories as backup**
+  Exactly. Adding steps and more walking is the first choice — psychologically easier than eating less. If weight loss doesn't restart in 2 weeks, cut 100–150 kcal.
 - ❌ Immediately cut 500 kcal from food
   An overreaction. Small adjustments are better for both metabolism and your mind.
 - ❌ Add 2 hours of HIIT daily
@@ -294,8 +294,8 @@ None of this is "exercise," but together it shifts your TDEE significantly. Weig
 
 **Otázka:** Proč je NEAT lepší než víc kardia pro hubnutí?
 
-- **✅ Nízký dopad, nevyvolá kompenzační hlad, snadno udržitelné, přirozené**
-  Přesně. Intenzivní kardio často vyvolá kompenzační hlad nebo snížení NEAT. Chůze to nezpůsobuje.
+- **✅ Udržitelné, bez hladu**
+  Přesně. Nízký dopad, snadno udržitelné, přirozené. Intenzivní kardio často vyvolá kompenzační hlad nebo snížení NEAT. Chůze to nezpůsobuje.
 - ❌ Spálí víc kalorií než kardio
   Hodina kardia spálí víc než 30 min chůze. Ale za celý den chůze vyhraje — a je udržitelnější.
 - ❌ Je to rychlejší
@@ -305,8 +305,8 @@ None of this is "exercise," but together it shifts your TDEE significantly. Weig
 
 **Question:** Why is NEAT better than more cardio for weight loss?
 
-- **✅ Low impact, doesn't trigger compensatory hunger, easy to sustain, natural**
-  Exactly. Intense cardio often triggers compensatory hunger or lowered NEAT. Walking doesn't do that.
+- **✅ Sustainable, no hunger**
+  Exactly. Low impact, easy to sustain, natural. Intense cardio often triggers compensatory hunger or lowered NEAT. Walking doesn't do that.
 - ❌ It burns more calories than cardio
   An hour of cardio burns more than 30 min of walking. But across a whole day walking wins — and it's more sustainable.
 - ❌ It's faster
@@ -316,8 +316,8 @@ None of this is "exercise," but together it shifts your TDEE significantly. Weig
 
 **Otázka:** Co je „adaptivní termogeneze"?
 
-- **✅ Tělo nevědomky snižuje NEAT při dietě — méně fidgeting, pomalejší chůze, celkově nižší výdej**
-  Přesně. Je to obranný mechanismus těla proti hubnutí. Proto je důležité vědomě udržovat NEAT na úrovni.
+- **✅ Tělo nevědomky snižuje NEAT při dietě**
+  Přesně. Méně fidgeting, pomalejší chůze, celkově nižší výdej. Je to obranný mechanismus těla proti hubnutí. Proto je důležité vědomě udržovat NEAT na úrovni.
 - ❌ Metabolismus se „rozbije" a přestane fungovat
   Metabolismus se nerozbije, jen se adaptuje. Vrací se na normál po ukončení deficitu.
 - ❌ Tělo začne spalovat svaly místo tuku
@@ -327,8 +327,8 @@ None of this is "exercise," but together it shifts your TDEE significantly. Weig
 
 **Question:** What is "adaptive thermogenesis"?
 
-- **✅ The body unconsciously lowers NEAT during dieting — less fidgeting, slower walking, overall lower expenditure**
-  Exactly. It's the body's defense mechanism against weight loss. That's why it's important to consciously maintain NEAT levels.
+- **✅ The body lowers NEAT during dieting**
+  Exactly. Less fidgeting, slower walking, overall lower expenditure. It's the body's defense mechanism against weight loss. That's why it's important to consciously maintain NEAT levels.
 - ❌ Metabolism "breaks" and stops working
   Metabolism doesn't break, it just adapts. It returns to normal after the deficit ends.
 - ❌ The body starts burning muscle instead of fat
@@ -338,8 +338,8 @@ None of this is "exercise," but together it shifts your TDEE significantly. Weig
 
 **Otázka:** Nachoď 10 000 kroků denně. Kolik přibližně kalorií to přidá k tvému výdeji?
 
-- **✅ 300–500 kcal — nejjednodušší intervence s největším efektem**
-  Přesně. 10 000 kroků je „sweet spot" pro NEAT. Víc je bonus, méně je suboptimální.
+- **✅ 300–500 kcal — velký efekt**
+  Přesně. Nejjednodušší intervence. 10 000 kroků je „sweet spot" pro NEAT. Víc je bonus, méně je suboptimální.
 - ❌ 50 kcal — zanedbatelné
   Daleko víc. 300–500 kcal denně navíc je za měsíc 9 000–15 000 kcal — to je 1–2 kg tuku.
 - ❌ 2 000 kcal — jako maraton
@@ -349,8 +349,8 @@ None of this is "exercise," but together it shifts your TDEE significantly. Weig
 
 **Question:** Walk 10,000 steps a day. Roughly how many calories does that add to your expenditure?
 
-- **✅ 300–500 kcal — the simplest intervention with the biggest effect**
-  Exactly. 10,000 steps is the "sweet spot" for NEAT. More is a bonus, less is suboptimal.
+- **✅ 300–500 kcal — big effect**
+  Exactly. The simplest intervention. 10,000 steps is the "sweet spot" for NEAT. More is a bonus, less is suboptimal.
 - ❌ 50 kcal — negligible
   Far more. 300–500 kcal extra per day is 9,000–15,000 kcal per month — that's 1–2 kg of fat.
 - ❌ 2,000 kcal — like a marathon

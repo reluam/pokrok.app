@@ -487,17 +487,17 @@ export default async function KoucingPage() {
                 Zdarma &bull; bez závazku
               </span>
 
-              <div className="space-y-2 mb-8 text-center md:text-left">
-                <h3 className="font-display text-2xl md:text-3xl font-extrabold">
-                  Nezávazná <span className="underline-teal">konzultace</span>
-                </h3>
-                <p className="text-foreground/75 leading-relaxed">
-                  30 minut, během kterých projdeme tvoji situaci a zjistíme, jestli a jak ti mohu pomoct. Pokud to smysl nedává, řekneme si to rovnou.
-                </p>
-              </div>
-
               <div className="flex flex-col md:flex-row md:gap-10 gap-8">
-                <div className="flex-1 space-y-5">
+                <div className="flex-1 md:pr-4 space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="font-display text-2xl md:text-3xl font-extrabold">
+                      Nezávazná <span className="underline-teal">konzultace</span>
+                    </h3>
+                    <p className="text-foreground/75 leading-relaxed">
+                      30 minut, během kterých projdeme tvoji situaci a zjistíme, jestli a jak ti mohu pomoct. Pokud to smysl nedává, řekneme si to rovnou.
+                    </p>
+                  </div>
+
                   <div className="flex items-baseline gap-3">
                     <span className="font-display text-5xl font-extrabold text-primary">Zdarma</span>
                     <span className="text-sm text-muted">pro všechny</span>
@@ -520,13 +520,28 @@ export default async function KoucingPage() {
                   </div>
                 </div>
 
-                <div className="flex-1 flex flex-col justify-center space-y-2">
+                {/* Notebook spine — hidden on mobile */}
+                <div className="hidden md:flex items-stretch" aria-hidden="true">
+                  <svg
+                    className="h-full w-3"
+                    viewBox="0 0 12 400"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M 6 4 Q 5 100 7 200 Q 5 300 6 396"
+                      fill="none"
+                      stroke="rgba(23,23,23,0.25)"
+                      strokeWidth="1.25"
+                      strokeLinecap="round"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </svg>
+                </div>
+
+                <div className="flex-1 md:pl-4 flex flex-col justify-center space-y-2">
                   <LeadForm
                     source="koucing_konzultace"
                     compact
-                    showMessage
-                    messageLabel="Co tě sem přivedlo? (nepovinné)"
-                    messagePlaceholder="Jen pár vět — ať už dopředu vím, kde jsi..."
                     preferredKind="free"
                     preferredMeetingTypeId="intro_free"
                     lockMeetingType

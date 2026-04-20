@@ -86,8 +86,8 @@ Sauna: **15–20 min at 80–100 °C**, 2–4 times a week minimum, 4–7 times 
 
 **Otázka:** Co říká věda o sauně?
 
-- **✅ Finská studie (Laukkanen) 20 let sledovala 2 315 mužů. 4–7x týdně sauna snížila úmrtnost z KVO o 40 % vs. 1x týdně.**
-  Přesně. Sauna má silnou vědeckou podporu. Pravidelné teplé lázně působí podobně jako lehké aerobní cvičení na cévy.
+- **✅ –40 % KVO úmrtí.**
+  Přesně. Finská studie (Laukkanen) 20 let sledovala 2 315 mužů. Pravidelné teplé lázně působí podobně jako lehké aerobní cvičení na cévy.
 - ❌ Je to jen placebo
   Finská data jsou příliš silná na placebo. Reálné fyziologické adaptace jsou dokumentované.
 - ❌ Sauna škodí srdci
@@ -97,8 +97,8 @@ Sauna: **15–20 min at 80–100 °C**, 2–4 times a week minimum, 4–7 times 
 
 **Question:** What does the science say about the sauna?
 
-- **✅ A Finnish study (Laukkanen) followed 2,315 men for 20 years. 4–7x a week sauna cut cardiovascular mortality by 40 % vs. 1x a week.**
-  Exactly. Saunas have strong scientific support. Regular heat exposure acts on blood vessels similarly to light aerobic exercise.
+- **✅ Cut heart deaths by 40 %.**
+  Exactly. A Finnish study (Laukkanen) followed 2,315 men for 20 years. Regular heat exposure acts on blood vessels similarly to light aerobic exercise.
 - ❌ It's just placebo
   The Finnish data is too strong to be placebo. Real physiological adaptations are documented.
 - ❌ The sauna damages the heart
@@ -150,8 +150,8 @@ But note: a cold shower doesn't speed up metabolism for weight loss (the effect 
 
 **Otázka:** Studená voda (~10–15 °C na 2–5 min) zvyšuje noradrenalin. Kolikrát?
 
-- **✅ 2–3x — což zlepšuje náladu, pozornost a pravděpodobně imunitu**
-  Přesně. Buijze et al. (2016) ukázali tento efekt. Proto se po studeném ponoru cítíš tak energický.
+- **✅ 2–3× — zlepšuje náladu a pozornost**
+  Přesně. Buijze et al. (2016) ukázali tento efekt a pravděpodobné posílení imunity. Proto se po studeném ponoru cítíš tak energický.
 - ❌ 10x — proto je otužování zázrak
   Efekt je 2–3x, což je stále významné. 10x by bylo přehnané tvrzení.
 - ❌ Nemá žádný efekt na hormony
@@ -161,8 +161,8 @@ But note: a cold shower doesn't speed up metabolism for weight loss (the effect 
 
 **Question:** Cold water (~10–15 °C for 2–5 min) raises noradrenaline. By how much?
 
-- **✅ 2–3x — which improves mood, focus, and possibly immunity**
-  Exactly. Buijze et al. (2016) showed this effect. That's why you feel so energized after a cold plunge.
+- **✅ 2–3× — boosts mood and focus**
+  Exactly. Buijze et al. (2016) showed this effect plus likely immune benefits. That's why you feel so energized after a cold plunge.
 - ❌ 10x — that's why cold exposure is a miracle
   The effect is 2–3x, which is still significant. 10x would be an exaggerated claim.
 - ❌ It has no effect on hormones
@@ -172,8 +172,8 @@ But note: a cold shower doesn't speed up metabolism for weight loss (the effect 
 
 **Otázka:** Finská studie ukázala, že muži saunující 4–7x týdně měli nižší riziko demence. O kolik procent?
 
-- **✅ O 66 % — navíc 40 % nižší celková úmrtnost a 50 % nižší KVO úmrtnost**
-  Přesně. Efekty jsou dose-dependent — víc sauny = více benefitů (do určité míry).
+- **✅ O 66 %**
+  Přesně. Navíc 40 % nižší celková úmrtnost a 50 % nižší KVO úmrtnost. Efekty jsou dose-dependent — víc sauny = více benefitů (do určité míry).
 - ❌ O 5 % — zanedbatelný rozdíl
   Daleko víc. 66 % snížení rizika demence je obrovský efekt.
 - ❌ Studie žádný efekt na demenci neukázala
@@ -183,8 +183,8 @@ But note: a cold shower doesn't speed up metabolism for weight loss (the effect 
 
 **Question:** The Finnish study showed that men who sauna'd 4–7 times a week had lower dementia risk. By how much?
 
-- **✅ By 66 % — plus 40 % lower all-cause mortality and 50 % lower cardiovascular mortality**
-  Exactly. The effects are dose-dependent — more sauna = more benefit (up to a point).
+- **✅ By 66 %**
+  Exactly. Plus 40 % lower all-cause mortality and 50 % lower cardiovascular mortality. The effects are dose-dependent — more sauna = more benefit (up to a point).
 - ❌ By 5 % — a negligible difference
   Far more than that. A 66 % reduction in dementia risk is a huge effect.
 - ❌ The study showed no effect on dementia
@@ -233,8 +233,8 @@ Cold exposure timing:
 
 **Otázka:** Představ si, že děláš silový trénink a hned potom skočíš do studené vany. Po 2 měsících ti svaly rostou pomaleji. Co je problém?
 
-- **✅ Chlad bezprostředně po silovém tréninku tlumí hypertrofii — blokuje zánětlivou signalizaci potřebnou pro růst svalů**
-  Přesně. Roberts et al. (2015) ukázali, že studená voda po silovém tréninku tlumí svalovou proteosyntézu. Otužuj se jiný den nebo alespoň 6 hodin po tréninku.
+- **✅ Chlad tlumí hypertrofii**
+  Přesně. Blokuje zánětlivou signalizaci potřebnou pro růst svalů. Roberts et al. (2015) ukázali, že studená voda po silovém tréninku tlumí svalovou proteosyntézu. Otužuj se jiný den nebo alespoň 6 hodin po tréninku.
 - ❌ Studená voda tě dehydratuje
   Dehydratace není hlavní problém. Hlavní je interference s hypertrofní signalizací.
 - ❌ Otužování vždycky škodí
@@ -244,8 +244,8 @@ Cold exposure timing:
 
 **Question:** Imagine doing strength training and then immediately jumping into a cold bath. After 2 months your muscles are growing slower. What's the problem?
 
-- **✅ Cold right after strength training blunts hypertrophy — it blocks the inflammatory signaling needed for muscle growth**
-  Exactly. Roberts et al. (2015) showed cold water after strength training blunts muscle protein synthesis. Do cold exposure on a different day or at least 6 hours after training.
+- **✅ Cold blunts hypertrophy**
+  Exactly. It blocks the inflammatory signaling needed for muscle growth. Roberts et al. (2015) showed cold water after strength training blunts muscle protein synthesis. Do cold exposure on a different day or at least 6 hours after training.
 - ❌ Cold water dehydrates you
   Dehydration isn't the main issue. The main issue is interference with the hypertrophy signal.
 - ❌ Cold exposure always hurts
@@ -283,8 +283,8 @@ Rules for safe sauna: well hydrated, not after a big meal, max 15–20 min per r
 
 **Otázka:** Proč neotužovat po silovém tréninku?
 
-- **✅ Chlad tlumí zánětlivou signalizaci potřebnou pro hypertrofii — zhoršuje svalový růst**
-  Přesně. Studie jasně ukázaly interferenci. Pro sílu a svaly: počkej aspoň 6 hodin mezi tréninkem a chladem.
+- **✅ Tlumí hypertrofii**
+  Přesně. Zhoršuje tím svalový růst. Studie jasně ukázaly interferenci. Pro sílu a svaly: počkej aspoň 6 hodin mezi tréninkem a chladem.
 - ❌ Způsobí nachlazení
   Chlad sám nezpůsobí nachlazení (to způsobují viry). Problém je interference s hypertrofní signalizací.
 - ❌ Nic to neškodí
@@ -294,8 +294,8 @@ Rules for safe sauna: well hydrated, not after a big meal, max 15–20 min per r
 
 **Question:** Why not do cold exposure after strength training?
 
-- **✅ Cold blunts the inflammatory signaling needed for hypertrophy — it worsens muscle growth**
-  Exactly. Studies clearly showed the interference. For strength and muscle: wait at least 6 hours between training and cold.
+- **✅ Blunts hypertrophy**
+  Exactly. That worsens muscle growth. Studies clearly showed the interference. For strength and muscle: wait at least 6 hours between training and cold.
 - ❌ It'll give you a cold
   Cold itself doesn't cause colds (viruses do). The problem is interference with hypertrophy signaling.
 - ❌ It does no harm
@@ -305,8 +305,8 @@ Rules for safe sauna: well hydrated, not after a big meal, max 15–20 min per r
 
 **Otázka:** Kdy je sauna problematická?
 
-- **✅ Při akutní nemoci s horečkou, kardiovaskulárních problémech bez lékaře, dehydrataci, pod vlivem alkoholu**
-  Přesně. Sauna je stres pro tělo — při nemoci nebo oslabení je to riziko, ne léčba.
+- **✅ Při nemoci, KVO, alkoholu**
+  Přesně. Konkrétně akutní nemoc s horečkou, kardiovaskulární problémy bez lékaře, dehydratace a pod vlivem alkoholu. Sauna je stres pro tělo — při nemoci nebo oslabení je to riziko, ne léčba.
 - ❌ Nikdy, sauna je vždy bezpečná
   Existují kontraindikace. Zdravý dospělý má benefity, ale nemocný člověk musí být opatrný.
 - ❌ Vždy ráno na lačno
@@ -316,8 +316,8 @@ Rules for safe sauna: well hydrated, not after a big meal, max 15–20 min per r
 
 **Question:** When is the sauna problematic?
 
-- **✅ During acute illness with fever, cardiovascular conditions without a doctor, dehydration, under the influence of alcohol**
-  Exactly. The sauna is a stress on the body — during illness or weakness it's a risk, not a treatment.
+- **✅ Illness, heart issues, or alcohol**
+  Exactly. Specifically: acute illness with fever, cardiovascular conditions without a doctor, dehydration, and under the influence of alcohol. The sauna is a stress on the body — during illness or weakness it's a risk, not a treatment.
 - ❌ Never — the sauna is always safe
   There are contraindications. A healthy adult benefits, but a sick person needs to be careful.
 - ❌ Always in the morning on an empty stomach
@@ -327,8 +327,8 @@ Rules for safe sauna: well hydrated, not after a big meal, max 15–20 min per r
 
 **Otázka:** Jaký je nejlepší čas na otužování, pokud trénuješ silově?
 
-- **✅ Ráno na lačno, v den volna, nebo minimálně 6 hodin po silovém tréninku**
-  Přesně. V těchto časech otužování přináší benefity bez interference s hypertrofní signalizací.
+- **✅ Ráno, v den volna, nebo 6+ hodin po tréninku**
+  Přesně. Nejlépe na lačno. V těchto časech otužování přináší benefity bez interference s hypertrofní signalizací.
 - ❌ Hned po silovém tréninku — pomůže regeneraci
   Naopak. Chlad hned po silovém tréninku tlumí svalovou proteosyntézu. Roberts et al. (2015) to prokázali.
 - ❌ Nikdy — otužování a silový trénink se vylučují
@@ -338,8 +338,8 @@ Rules for safe sauna: well hydrated, not after a big meal, max 15–20 min per r
 
 **Question:** What's the best time for cold exposure if you do strength training?
 
-- **✅ Morning fasted, on a rest day, or at least 6 hours after strength training**
-  Exactly. At these times cold exposure delivers benefits without interfering with hypertrophy signaling.
+- **✅ Morning, on a rest day, or 6+ hours after training**
+  Exactly, ideally fasted. At these times cold exposure delivers benefits without interfering with hypertrophy signaling.
 - ❌ Right after strength training — it helps recovery
   The opposite. Cold right after strength training blunts muscle protein synthesis. Roberts et al. (2015) proved this.
 - ❌ Never — cold exposure and strength training are incompatible
@@ -388,8 +388,8 @@ Effects are dose-dependent: **frequency is more important than duration**. 15 mi
 
 **Otázka:** Jaká je nejlepší praktická strategie pro kombinaci sauny, otužování a silového tréninku?
 
-- **✅ Sauna 2–4x týdně v den volna/po vytrvalostním tréninku, otužování ráno, NE oboje hned po silovém tréninku**
-  Přesně. Tato strategie maximalizuje benefity obou metod bez interference se silovými adaptacemi.
+- **✅ Sauna v den volna, otužování ráno, nikdy po silovém**
+  Přesně. Sauna 2–4× týdně (ideálně v den volna či po vytrvalosti), otužování ráno. Tato strategie maximalizuje benefity obou metod bez interference se silovými adaptacemi.
 - ❌ Sauna a studená vana hned po každém silovém tréninku
   Oboje tlumí hypertrofní signalizaci. Právě tohle je nejčastější chyba.
 - ❌ Ani sauna, ani otužování — je to zbytečné
@@ -399,8 +399,8 @@ Effects are dose-dependent: **frequency is more important than duration**. 15 mi
 
 **Question:** What's the best practical strategy for combining sauna, cold exposure, and strength training?
 
-- **✅ Sauna 2–4 times a week on rest days/after endurance training, cold exposure in the morning, NEITHER right after strength training**
-  Exactly. This strategy maximizes the benefits of both methods without interfering with strength adaptations.
+- **✅ Sauna on rest days, cold in morning, never after strength**
+  Exactly. Sauna 2–4× a week (ideally on rest days or after endurance work), cold exposure in the morning. This strategy maximizes the benefits of both methods without interfering with strength adaptations.
 - ❌ Sauna and cold bath right after every strength session
   Both blunt hypertrophy signaling. This is the most common mistake.
 - ❌ Neither sauna nor cold exposure — it's all pointless
@@ -438,8 +438,8 @@ Summary of benefits:
 
 **Otázka:** Co je „hormeze" v kontextu sauny a otužování?
 
-- **✅ Malá, kontrolovaná dávka stresu, na kterou se tělo adaptuje a stane se silnějším**
-  Přesně. Sauna i chlad jsou „pozitivní stresory" — krátkodobý stres s dlouhodobým přínosem. Stejný princip jako u cvičení.
+- **✅ Stres, na který se tělo adaptuje**
+  Přesně. Kontrolovaná hormeze udělá tělo silnějším. Sauna i chlad jsou „pozitivní stresory" — krátkodobý stres s dlouhodobým přínosem. Stejný princip jako u cvičení.
 - ❌ Nebezpečný stres, kterému je lepší se vyhnout
   Hormeze je prospěšná. Klíč je „kontrolovaná dávka" — ne příliš mnoho, ne příliš dlouho.
 - ❌ Placebo efekt
@@ -449,8 +449,8 @@ Summary of benefits:
 
 **Question:** What is "hormesis" in the context of sauna and cold exposure?
 
-- **✅ A small, controlled dose of stress that the body adapts to and becomes stronger from**
-  Exactly. Both sauna and cold are "positive stressors" — short-term stress with long-term benefit. The same principle as exercise.
+- **✅ Stress the body adapts to**
+  Exactly. Controlled hormesis makes the body stronger. Both sauna and cold are "positive stressors" — short-term stress with long-term benefit. The same principle as exercise.
 - ❌ Dangerous stress that's better avoided
   Hormesis is beneficial. The key is "controlled dose" — not too much, not too long.
 - ❌ A placebo effect
@@ -460,8 +460,8 @@ Summary of benefits:
 
 **Otázka:** Představ si, že chodíš do sauny, když jsi nemocný, abys „vypotil nachlazení". Je to dobrý nápad?
 
-- **✅ Ne — sauna při akutní nemoci přetěžuje oběh. Sauna pro prevenci ano, jako léčba nachlazení ne.**
-  Přesně. Sauna je stres pro tělo — při nemoci je to riziko, ne léčba.
+- **✅ Ne — sauna při nemoci přetěžuje oběh.**
+  Přesně. Pro prevenci ano, jako léčba nachlazení ne. Sauna je stres pro tělo — při nemoci je to riziko, ne léčba.
 - ❌ Ano — potíš se a viry odcházejí
   Mýtus. Viry „nepotíš ven". Sauna při nemoci zatěžuje oběh a může zhoršit stav.
 - ❌ Ano, ale jen při lehkém nachlazení
@@ -471,8 +471,8 @@ Summary of benefits:
 
 **Question:** Imagine going to the sauna when you're sick to "sweat out a cold." Is that a good idea?
 
-- **✅ No — sauna during acute illness overloads circulation. Sauna for prevention yes, as a cold cure no.**
-  Exactly. The sauna is a stress on the body — during illness it's a risk, not a treatment.
+- **✅ No — sauna overloads a sick body.**
+  Exactly. For prevention yes, as a cold cure no. The sauna is a stress on the body — during illness it's a risk, not a treatment.
 - ❌ Yes — you sweat and the viruses leave
   A myth. You don't "sweat out" viruses. Sauna during illness stresses circulation and can worsen your condition.
 - ❌ Yes, but only for a mild cold
@@ -482,8 +482,8 @@ Summary of benefits:
 
 **Otázka:** Proč je frekvence sauny důležitější než délka jedné session?
 
-- **✅ Vaskulární adaptace vyžaduje opakované podněty — 15 min 4x týdně dává víc než 2 hodiny jednou**
-  Přesně. Stejně jako u cvičení — pravidelnost poráží jednorázové extrémy. Tělo se adaptuje na opakovaný stres.
+- **✅ Adaptace vyžaduje opakované podněty**
+  Přesně. 15 min 4× týdně dá víc než 2 hodiny jednou. Stejně jako u cvičení — pravidelnost poráží jednorázové extrémy. Tělo se adaptuje na opakovaný stres.
 - ❌ Delší sauna je nebezpečná
   15–20 min je bezpečné. Ale 2 hodiny jednou nedají stejný efekt jako krátké, časté sessiony.
 - ❌ Frekvence nerozhoduje — záleží jen na celkovém čase
@@ -493,8 +493,8 @@ Summary of benefits:
 
 **Question:** Why is sauna frequency more important than the length of a single session?
 
-- **✅ Vascular adaptation requires repeated stimuli — 15 min 4 times a week gives more than 2 hours once**
-  Exactly. Just like exercise — regularity beats one-off extremes. The body adapts to repeated stress.
+- **✅ Adaptation needs repeated stimuli**
+  Exactly. 15 min 4× a week gives more than 2 hours once. Just like exercise — regularity beats one-off extremes. The body adapts to repeated stress.
 - ❌ Longer sauna is dangerous
   15–20 min is safe. But 2 hours once doesn't give the same effect as short, frequent sessions.
 - ❌ Frequency doesn't matter — only total time counts

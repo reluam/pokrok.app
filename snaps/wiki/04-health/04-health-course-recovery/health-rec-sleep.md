@@ -83,8 +83,8 @@ The famous Stanford basketball study (Mah et al., 2011) showed that extending sl
 
 **Otázka:** Proč je spánek tak kritický pro sportovní výkon?
 
-- **✅ Až 75 % růstového hormonu se vyplavuje v hlubokém spánku, plus se regeneruje CNS, testosteron a kognitivní funkce**
-  Přesně. Spánek je nejdůležitější regenerační nástroj. Bez něj žádná adaptace z tréninku nefunguje naplno.
+- **✅ Tvoří růstový hormon, obnovuje CNS**
+  Přesně. Až 75 % růstového hormonu se vyplavuje v hlubokém spánku, plus se obnovuje testosteron a kognitivní funkce. Bez spánku žádná adaptace z tréninku nefunguje naplno.
 - ❌ Je to přeceněné, stačí 6 hodin
   Studie jasně ukazují, že pod 7 hodin má prokazatelné negativní efekty na výkon, regeneraci i hormony.
 - ❌ Spánek se dá „nahradit" kofeinem
@@ -94,8 +94,8 @@ The famous Stanford basketball study (Mah et al., 2011) showed that extending sl
 
 **Question:** Why is sleep so critical for athletic performance?
 
-- **✅ Up to 75 % of growth hormone is released during deep sleep, plus CNS recovery, testosterone, and cognitive function**
-  Exactly. Sleep is the single most important recovery tool. Without it, no training adaptation can fire fully.
+- **✅ Releases growth hormone, repairs CNS**
+  Exactly. Up to 75 % of growth hormone is released in deep sleep, plus testosterone and cognitive function recover. Without sleep, no training adaptation can fire fully.
 - ❌ It's overrated, 6 hours is enough
   Studies clearly show that under 7 hours produces demonstrable negative effects on performance, recovery, and hormones.
 - ❌ Sleep can be "replaced" with caffeine
@@ -125,8 +125,8 @@ Sleep isn't "boring." It's the **most powerful legal performance enhancer** — 
 
 **Otázka:** Kolik hodin spánku potřebuje sportující dospělý?
 
-- **✅ 7–9 hodin, u intenzivních sportovců často 8–10**
-  Přesně. Trénink zvyšuje potřebu regenerace. 7 je minimum, 8–9 optimum, někdy víc.
+- **✅ 7–9 hodin**
+  Přesně. U intenzivních sportovců často 8–10. Trénink zvyšuje potřebu regenerace. 7 je minimum, 8–9 optimum, někdy víc.
 - ❌ 5 hodin
   Pod 7 hodin má prokazatelné negativní efekty. 5 hodin je chronický deficit.
 - ❌ 12+ hodin
@@ -136,8 +136,8 @@ Sleep isn't "boring." It's the **most powerful legal performance enhancer** — 
 
 **Question:** How many hours of sleep does an active adult need?
 
-- **✅ 7–9 hours, and for intense athletes often 8–10**
-  Exactly. Training increases recovery needs. 7 is the minimum, 8–9 is optimal, sometimes more.
+- **✅ 7–9 hours**
+  Exactly. For intense athletes often 8–10. Training increases recovery needs. 7 is the minimum, 8–9 is optimal, sometimes more.
 - ❌ 5 hours
   Under 7 hours has demonstrable negative effects. 5 hours is chronic deficit.
 - ❌ 12+ hours
@@ -147,7 +147,7 @@ Sleep isn't "boring." It's the **most powerful legal performance enhancer** — 
 
 **Otázka:** Studie na basketbalistech Stanfordu ukázala, že prodloužení spánku z 6,5 na 9 hodin zlepšilo přesnost trojek. O kolik procent?
 
-- **✅ O 9 % — bez jakékoli změny tréninku**
+- **✅ O 9 % — beze změny tréninku**
   Přesně. Jedinou intervencí byl delší spánek. Výkon se zlepšil dramaticky, protože tělo konečně mělo dost času na regeneraci.
 - ❌ O 1 % — zanedbatelný rozdíl
   Daleko víc. 9 % zlepšení přesnosti je v profesionálním sportu obrovský rozdíl.
@@ -158,7 +158,7 @@ Sleep isn't "boring." It's the **most powerful legal performance enhancer** — 
 
 **Question:** The Stanford basketball study showed that extending sleep from 6.5 to 9 hours improved 3-point accuracy. By how much?
 
-- **✅ By 9 % — with no change in training at all**
+- **✅ By 9 % — no training change**
   Exactly. The only intervention was more sleep. Performance improved dramatically because the body finally had enough recovery time.
 - ❌ By 1 % — a negligible difference
   Far more than that. A 9 % improvement in accuracy is huge in professional sports.
@@ -169,7 +169,7 @@ Sleep isn't "boring." It's the **most powerful legal performance enhancer** — 
 
 **Otázka:** Co se stane s testosteronem po pouhém týdnu spánku 5 hodin denně?
 
-- **✅ Klesne o 10–15 % — to odpovídá zestárnutí o 10–15 let**
+- **✅ Klesne o 10–15 % — jako zestárnutí o 10–15 let**
   Přesně. Studie Leproult & Van Cauter (2011) to jasně ukázala. Spánek je klíčový pro hormonální zdraví.
 - ❌ Nic se nestane, tělo se adaptuje
   Tělo se na spánkový deficit neadaptuje. Hormony, výkon i imunita trpí.
@@ -180,7 +180,7 @@ Sleep isn't "boring." It's the **most powerful legal performance enhancer** — 
 
 **Question:** What happens to testosterone after just one week of sleeping only 5 hours a night?
 
-- **✅ It drops by 10–15 % — equivalent to aging 10–15 years**
+- **✅ Drops 10–15 % — like aging 10–15 years**
   Exactly. The Leproult & Van Cauter (2011) study showed this clearly. Sleep is essential for hormonal health.
 - ❌ Nothing happens, the body adapts
   The body doesn't adapt to sleep deficit. Hormones, performance, and immunity all suffer.
@@ -228,8 +228,8 @@ Both phases are critical. If something disrupts either one, you'll wake up tired
 
 **Otázka:** Představ si, že si dáš 2 piva před spaním. Usneš rychle, ale ráno se cítíš hůř než po 5 hodinách bez alkoholu. Co alkohol dělá se spánkem?
 
-- **✅ Blokuje REM a hluboký spánek — spíš, ale regenerace je výrazně horší**
-  Přesně. Studie ukazují, že alkohol snižuje REM o 20–30 % a narušuje druhou polovinu noci. Spánek je kvantitou, ale horší kvalitou.
+- **✅ Blokuje REM a hluboký spánek**
+  Přesně. Spíš, ale regenerace je výrazně horší. Studie ukazují, že alkohol snižuje REM o 20–30 % a narušuje druhou polovinu noci. Spánek je kvantitou, ale horší kvalitou.
 - ❌ Alkohol je nejlepší prášek na spaní
   Mýtus. Pomáhá usnout, ale ničí kvalitu. Regenerace se neděje, i když „spíš".
 - ❌ Nemá žádný efekt na spánek
@@ -239,8 +239,8 @@ Both phases are critical. If something disrupts either one, you'll wake up tired
 
 **Question:** Imagine you have 2 beers before bed. You fall asleep quickly, but wake up feeling worse than after 5 hours without alcohol. What does alcohol do to sleep?
 
-- **✅ It blocks REM and deep sleep — you sleep, but recovery is much worse**
-  Exactly. Studies show alcohol cuts REM by 20–30 % and disrupts the second half of the night. Sleep in quantity, worse in quality.
+- **✅ It blocks REM and deep sleep**
+  Exactly. You sleep, but recovery is much worse. Studies show alcohol cuts REM by 20–30 % and disrupts the second half of the night. Sleep in quantity, worse in quality.
 - ❌ Alcohol is the best sleep pill
   Myth. It helps you fall asleep but destroys the quality. Recovery doesn't happen even though you're "sleeping."
 - ❌ It has no effect on sleep
@@ -266,8 +266,8 @@ Sleep quality ≠ quantity. **8 hours with alcohol is worse than 7 clean ones.**
 
 **Otázka:** Kofein má poločas rozpadu až 8 hodin. Co to v praxi znamená?
 
-- **✅ Kafe v poledne ti ve 20:00 stále koluje v krvi z 50 % — a narušuje usínání i kvalitu spánku**
-  Přesně. Proto je rozumné nepít kofein po 12.–14. hodině. I když „usneš", kvalita spánku je horší.
+- **✅ Polední kafe večer stále 50 %**
+  Přesně. Narušuje usínání i kvalitu spánku. Proto je rozumné nepít kofein po 12.–14. hodině. I když „usneš", kvalita spánku je horší.
 - ❌ Po 2 hodinách je kofein pryč
   Poločas 8 hodin znamená, že po 2 hodinách je stále v těle většina kofeinu. Odbourávání je pomalé.
 - ❌ Kofein nemá na spánek žádný vliv
@@ -277,8 +277,8 @@ Sleep quality ≠ quantity. **8 hours with alcohol is worse than 7 clean ones.**
 
 **Question:** Caffeine has a half-life of up to 8 hours. What does that mean in practice?
 
-- **✅ Coffee at noon still has 50 % of its caffeine circulating at 8 p.m. — disrupting both falling asleep and sleep quality**
-  Exactly. That's why it makes sense to skip caffeine after noon to 2 p.m. Even if you "fall asleep fine," sleep quality is worse.
+- **✅ Noon coffee still 50 % by evening**
+  Exactly. It disrupts falling asleep and sleep quality. That's why it makes sense to skip caffeine after noon to 2 p.m. Even if you "fall asleep fine," sleep quality is worse.
 - ❌ After 2 hours the caffeine is gone
   A half-life of 8 hours means most of the caffeine is still in your body after 2 hours. Clearance is slow.
 - ❌ Caffeine has no effect on sleep
@@ -288,8 +288,8 @@ Sleep quality ≠ quantity. **8 hours with alcohol is worse than 7 clean ones.**
 
 **Otázka:** Jaký je rozdíl mezi hlubokým spánkem a REM spánkem?
 
-- **✅ Hluboký spánek je fyzická regenerace (hormony, svaly, imunita), REM je mentální regenerace (paměť, učení, emoce)**
-  Přesně. Obě fáze jsou nezbytné. Alkohol ničí hlavně REM, stres ničí hlavně hluboký spánek.
+- **✅ Hluboký = fyzická, REM = mentální regenerace**
+  Přesně. Hluboký spánek řeší hormony, svaly a imunitu, REM paměť, učení a emoce. Obě fáze jsou nezbytné. Alkohol ničí hlavně REM, stres ničí hlavně hluboký spánek.
 - ❌ Jsou to synonyma pro stejnou věc
   Jsou to odlišné fáze s odlišnou funkcí. Mozková aktivita i fyziologické procesy se liší.
 - ❌ REM spánek je zbytečný, důležitý je jen hluboký
@@ -299,8 +299,8 @@ Sleep quality ≠ quantity. **8 hours with alcohol is worse than 7 clean ones.**
 
 **Question:** What's the difference between deep sleep and REM sleep?
 
-- **✅ Deep sleep is physical recovery (hormones, muscles, immunity), REM is mental recovery (memory, learning, emotions)**
-  Exactly. Both phases are essential. Alcohol mainly destroys REM; stress mainly destroys deep sleep.
+- **✅ Deep = physical, REM = mental recovery**
+  Exactly. Deep sleep handles hormones, muscles and immunity; REM handles memory, learning and emotions. Both phases are essential. Alcohol mainly destroys REM; stress mainly destroys deep sleep.
 - ❌ They're synonyms for the same thing
   They are distinct phases with different functions. Brain activity and physiological processes differ.
 - ❌ REM sleep is useless, only deep sleep matters
@@ -310,8 +310,8 @@ Sleep quality ≠ quantity. **8 hours with alcohol is worse than 7 clean ones.**
 
 **Otázka:** Co z následujícího NEJVÍCE ničí architekturu spánku?
 
-- **✅ Alkohol — prokazatelně snižuje REM o 20–30 % a narušuje druhou polovinu noci**
-  Přesně. Alkohol je nejhorší běžný „spánkový zabiják". I malé množství před spaním má měřitelný efekt.
+- **✅ Alkohol — snižuje REM o 20–30 %**
+  Přesně. Narušuje druhou polovinu noci a je nejhorší běžný „spánkový zabiják". I malé množství před spaním má měřitelný efekt.
 - ❌ Čtení knihy před spaním
   Naopak — čtení knihy (ne na obrazovce) je jedna z nejlepších věcí pro usínání.
 - ❌ Lehká večeře 3 hodiny před spaním
@@ -321,8 +321,8 @@ Sleep quality ≠ quantity. **8 hours with alcohol is worse than 7 clean ones.**
 
 **Question:** Which of the following MOST destroys sleep architecture?
 
-- **✅ Alcohol — it demonstrably cuts REM by 20–30 % and disrupts the second half of the night**
-  Exactly. Alcohol is the worst common "sleep killer." Even a small amount before bed has a measurable effect.
+- **✅ Alcohol — it cuts REM by 20–30 %**
+  Exactly. It disrupts the second half of the night and is the worst common "sleep killer." Even a small amount before bed has a measurable effect.
 - ❌ Reading a book before bed
   The opposite — reading a book (not on a screen) is one of the best things for falling asleep.
 - ❌ A light dinner 3 hours before bed
@@ -361,8 +361,8 @@ Chronic sleep debt can't be "caught up" on the weekend. Studies show weekend cat
 
 **Otázka:** Je pravda, že „víkendový catch-up" nevrátí spánkový dluh?
 
-- **✅ Ano — studie ukazují, že víkendový catch-up jen částečně pomáhá. Pravidelnost je důležitější.**
-  Přesně. Chronický deficit má dlouhodobé efekty, které víkend nenapraví. Circadiánní rytmus potřebuje pravidelnost.
+- **✅ Ano — pomáhá jen částečně**
+  Přesně. Studie ukazují, že víkendový catch-up dluh nenapraví a pravidelnost je důležitější. Chronický deficit má dlouhodobé efekty, které víkend nenapraví. Circadiánní rytmus potřebuje pravidelnost.
 - ❌ Ne, víkend všechno napraví
   Běžný mýtus, ale výzkum ho vyvrací. Dluh se hromadí a víkend neřeší.
 - ❌ Ano, ale jen pro starší lidi
@@ -372,8 +372,8 @@ Chronic sleep debt can't be "caught up" on the weekend. Studies show weekend cat
 
 **Question:** Is it true that a "weekend catch-up" can't repay sleep debt?
 
-- **✅ Yes — studies show weekend catch-ups only partially help. Consistency matters more.**
-  Exactly. Chronic deficit has long-term effects the weekend can't fix. The circadian rhythm needs regularity.
+- **✅ Yes — it only partially helps**
+  Exactly. Studies show weekend catch-ups don't repay the debt; consistency matters more. Chronic deficit has long-term effects the weekend can't fix. The circadian rhythm needs regularity.
 - ❌ No, the weekend fixes everything
   A common myth, but research refutes it. The debt accumulates and the weekend doesn't solve it.
 - ❌ Yes, but only for older people
@@ -413,8 +413,8 @@ Sleep is the **most powerful legal "performance enhancer"** and it costs nothing
 
 **Otázka:** Co je nejúčinnější pro hluboký spánek?
 
-- **✅ Silový trénink, vyhnutí se alkoholu, chladná a tmavá ložnice, konzistentní čas**
-  Přesně. Fyzická únava z tréninku zvyšuje tlak na hluboký spánek, ale alkohol a špatná hygiena to ničí.
+- **✅ Cvičení a chlad**
+  Přesně. Přidej konzistentní čas usínání. Fyzická únava z tréninku zvyšuje tlak na hluboký spánek, ale alkohol a špatná hygiena to ničí.
 - ❌ Prášky na spaní
   Prášky obvykle narušují architekturu spánku. Přirozené návyky jsou bezpečnější a efektivnější.
 - ❌ Spát přes den
@@ -424,8 +424,8 @@ Sleep is the **most powerful legal "performance enhancer"** and it costs nothing
 
 **Question:** What's most effective for deep sleep?
 
-- **✅ Strength training, avoiding alcohol, a cool dark bedroom, a consistent schedule**
-  Exactly. Physical fatigue from training increases sleep pressure for deep sleep, but alcohol and bad hygiene destroy it.
+- **✅ Workout, cool**
+  Exactly. Add a consistent bedtime. Physical fatigue from training increases sleep pressure for deep sleep, but alcohol and bad hygiene destroy it.
 - ❌ Sleep pills
   Pills typically disrupt sleep architecture. Natural habits are safer and more effective.
 - ❌ Daytime naps
@@ -435,8 +435,8 @@ Sleep is the **most powerful legal "performance enhancer"** and it costs nothing
 
 **Otázka:** Pravidelnost spánku je důležitější než jeho délka. Proč?
 
-- **✅ Circadiánní rytmus potřebuje konzistenci — nepravidelný spánek rozhazuje kortisol, melatonin a imunitní funkce**
-  Přesně. Tělo si nastavuje vnitřní hodiny podle pravidelných signálů. Rozházený rytmus je jako permanentní jet lag.
+- **✅ Circadiánní rytmus potřebuje konzistenci**
+  Přesně. Nepravidelný spánek rozhazuje kortisol, melatonin a imunitní funkce. Tělo si nastavuje vnitřní hodiny podle pravidelných signálů. Rozházený rytmus je jako permanentní jet lag.
 - ❌ Protože tělo nepotřebuje víc než 5 hodin, pokud je pravidelný
   5 hodin je chronický deficit bez ohledu na pravidelnost. Potřebuješ 7–9 hodin A pravidelnost.
 - ❌ Protože dlouhý spánek je škodlivý
@@ -446,8 +446,8 @@ Sleep is the **most powerful legal "performance enhancer"** and it costs nothing
 
 **Question:** Sleep consistency is more important than duration. Why?
 
-- **✅ The circadian rhythm needs consistency — irregular sleep disrupts cortisol, melatonin, and immune function**
-  Exactly. Your body sets its internal clock based on regular signals. A disrupted rhythm is like permanent jet lag.
+- **✅ The circadian rhythm needs consistency**
+  Exactly. Irregular sleep disrupts cortisol, melatonin and immune function. Your body sets its internal clock based on regular signals. A disrupted rhythm is like permanent jet lag.
 - ❌ Because the body doesn't need more than 5 hours if it's regular
   5 hours is chronic deficit regardless of regularity. You need 7–9 hours AND consistency.
 - ❌ Because long sleep is harmful
@@ -457,8 +457,8 @@ Sleep is the **most powerful legal "performance enhancer"** and it costs nothing
 
 **Otázka:** Který „sleep stack" krok má největší dopad na kvalitu spánku?
 
-- **✅ Konzistentní čas usínání a vstávání — nastavuje celý circadiánní systém**
-  Přesně. Pravidelnost je základ, na kterém stojí všechno ostatní. Bez ní ani chladná ložnice nepomůže naplno.
+- **✅ Stejný čas spánku**
+  Přesně. Nastavuje celý circadiánní systém. Pravidelnost je základ, na kterém stojí všechno ostatní. Bez ní ani chladná ložnice nepomůže naplno.
 - ❌ Drahá matrace
   Kvalitní matrace pomáhá, ale bez správných návyků (konzistentní čas, bez alkoholu, bez obrazovek) nevyřeší špatný spánek.
 - ❌ Melatonin v tabletách
@@ -468,8 +468,8 @@ Sleep is the **most powerful legal "performance enhancer"** and it costs nothing
 
 **Question:** Which "sleep stack" step has the biggest impact on sleep quality?
 
-- **✅ Consistent bedtime and wake time — it sets the entire circadian system**
-  Exactly. Regularity is the foundation everything else rests on. Without it, even a cool bedroom won't fully help.
+- **✅ Consistent sleep time**
+  Exactly. It sets the entire circadian system. Regularity is the foundation everything else rests on. Without it, even a cool bedroom won't fully help.
 - ❌ An expensive mattress
   A quality mattress helps, but without good habits (consistent schedule, no alcohol, no screens) it won't fix bad sleep.
 - ❌ Melatonin supplements

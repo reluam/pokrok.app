@@ -86,8 +86,8 @@ Kevin Hall's studies (NIH) repeatedly showed that **at equal calories and protei
 
 **Otázka:** Co je pravda o energetické bilanci?
 
-- **✅ Je to základní princip termodynamiky — pokud jíš víc, než spálíš, přibíráš. Pokud míň, hubneš. Dieta je jen strategie na dosažení deficitu.**
-  Přesně. Každá dieta funguje jen díky kalorickému deficitu. Různé diety jen usnadňují deficit různým lidem.
+- **✅ Zákon termodynamiky — deficit hubne**
+  Přesně. Pokud jíš víc, než spálíš, přibíráš. Pokud míň, hubneš. Dieta je jen strategie na dosažení deficitu. Každá dieta funguje jen díky kalorickému deficitu. Různé diety jen usnadňují deficit různým lidem.
 - ❌ Kalorie nejsou důležité, jen kvalita jídla
   Kvalita je důležitá, ale neobchází bilanci. I „zdravé" jídlo v přebytku vede k přibírání.
 - ❌ Záleží jen na hormonech
@@ -97,8 +97,8 @@ Kevin Hall's studies (NIH) repeatedly showed that **at equal calories and protei
 
 **Question:** What's true about energy balance?
 
-- **✅ It's a basic principle of thermodynamics — if you eat more than you burn, you gain weight. If less, you lose. A diet is just a strategy to reach a deficit.**
-  Exactly. Every diet works only because of a calorie deficit. Different diets just make a deficit easier for different people.
+- **✅ Thermodynamics — deficit drives loss**
+  Exactly. If you eat more than you burn, you gain weight. If less, you lose. A diet is just a strategy to reach a deficit. Every diet works only because of a calorie deficit. Different diets just make a deficit easier for different people.
 - ❌ Calories don't matter, only food quality
   Quality matters, but it doesn't bypass balance. Even "healthy" food in excess leads to weight gain.
 - ❌ It's all about hormones
@@ -128,8 +128,8 @@ That's why "the diet doesn't work" when it should. Without weighing your food (a
 
 **Otázka:** Představ si, že jíš „zdravě" — avokádo, ořechy, olivový olej — ale přibíráš. Jak je to možné?
 
-- **✅ I zdravá jídla mají kalorie. Avokádo, ořechy a olej jsou kaloricky hustá. V přebytku přibíráš bez ohledu na kvalitu.**
-  Přesně. Kvalita a kvantita jsou dvě různé věci. Zdravé jídlo v přebytku stále vede k přibírání.
+- **✅ Zdravá jídla mají taky kalorie**
+  Přesně. Avokádo, ořechy a olej jsou kaloricky hustá — v přebytku přibíráš bez ohledu na kvalitu. Kvalita a kvantita jsou dvě různé věci. Zdravé jídlo v přebytku stále vede k přibírání.
 - ❌ Tvůj metabolismus je rozbitý
   Studie u metabolicky zdravých i nemocných ukazují, že bilance platí. „Rozbitý metabolismus" je extrémně vzácný.
 - ❌ Zdravé jídlo nemůže způsobit přibírání
@@ -139,8 +139,8 @@ That's why "the diet doesn't work" when it should. Without weighing your food (a
 
 **Question:** Imagine eating "healthy" — avocado, nuts, olive oil — but gaining weight. How is that possible?
 
-- **✅ Even healthy foods have calories. Avocado, nuts, and oil are calorie-dense. In excess, you gain weight regardless of quality.**
-  Exactly. Quality and quantity are two different things. Healthy food in excess still leads to weight gain.
+- **✅ Healthy foods also have calories**
+  Exactly. Avocado, nuts, and oil are calorie-dense — in excess, you gain weight regardless of quality. Quality and quantity are two different things. Healthy food in excess still leads to weight gain.
 - ❌ Your metabolism is broken
   Studies in both metabolically healthy and unhealthy people show balance still applies. A "broken metabolism" is extremely rare.
 - ❌ Healthy food can't cause weight gain
@@ -150,8 +150,8 @@ That's why "the diet doesn't work" when it should. Without weighing your food (a
 
 **Otázka:** O kolik procent lidé typicky podhodnocují svůj kalorický příjem?
 
-- **✅ O 20–40 % — studie ukázaly, že i dietologové podhodnocují o 20–30 %**
-  Přesně. Proto je vážení jídla tak důležité. Bez něj je odhad „2 000 kcal" často ve skutečnosti 2 500+.
+- **✅ O 20–40 % — včetně dietologů**
+  Přesně. Studie ukázaly, že i dietologové podhodnocují o 20–30 %. Proto je vážení jídla tak důležité. Bez něj je odhad „2 000 kcal" často ve skutečnosti 2 500+.
 - ❌ O 1–2 % — je to zanedbatelné
   Daleko víc. 20–40 % podhodnocení je 400–800 kcal denně — to je rozdíl mezi hubnutím a přibíráním.
 - ❌ Lidé své příjmy naopak nadhodnocují
@@ -161,8 +161,8 @@ That's why "the diet doesn't work" when it should. Without weighing your food (a
 
 **Question:** By how much do people typically underestimate their caloric intake?
 
-- **✅ By 20–40 % — studies showed even dietitians underestimate by 20–30 %**
-  Exactly. That's why weighing food is so important. Without it, an estimate of "2,000 kcal" is often really 2,500+.
+- **✅ By 20–40 % — even dietitians do this**
+  Exactly. Studies showed even dietitians underestimate by 20–30 %. That's why weighing food is so important. Without it, an estimate of "2,000 kcal" is often really 2,500+.
 - ❌ By 1–2 % — it's negligible
   Far more. A 20–40 % underestimate is 400–800 kcal a day — that's the difference between losing and gaining.
 - ❌ People actually overestimate their intake
@@ -172,8 +172,8 @@ That's why "the diet doesn't work" when it should. Without weighing your food (a
 
 **Otázka:** Metastudie Johnston et al. (2014) porovnala 48 studií různých diet. Co zjistila?
 
-- **✅ Všechny diety vedou k podobné ztrátě hmotnosti, pokud lidé drží kalorický deficit. Rozdíly jsou menší než 1–2 kg po roce.**
-  Přesně. Klíč je adherence — jak dlouho dokážeš dietu držet. Typ diety je druhotný.
+- **✅ Stejný deficit = stejné hubnutí**
+  Přesně. Všechny diety vedou k podobné ztrátě hmotnosti, pokud lidé drží kalorický deficit. Rozdíly jsou menší než 1–2 kg po roce. Klíč je adherence — jak dlouho dokážeš dietu držet. Typ diety je druhotný.
 - ❌ Keto je jednoznačně nejlepší dieta
   Keto není nadřazené. Při stejných kaloriích dává podobné výsledky jako ostatní diety.
 - ❌ Diety nefungují vůbec
@@ -183,8 +183,8 @@ That's why "the diet doesn't work" when it should. Without weighing your food (a
 
 **Question:** The Johnston et al. (2014) meta-study compared 48 studies of different diets. What did it find?
 
-- **✅ All diets lead to similar weight loss as long as people maintain a calorie deficit. Differences are less than 1–2 kg after a year.**
-  Exactly. The key is adherence — how long you can stick to the diet. The type of diet is secondary.
+- **✅ Same deficit = similar loss**
+  Exactly. All diets lead to similar weight loss as long as people maintain a calorie deficit. Differences are less than 1–2 kg after a year. The key is adherence — how long you can stick to the diet. The type of diet is secondary.
 - ❌ Keto is clearly the best diet
   Keto isn't superior. At equal calories it produces similar results to other diets.
 - ❌ Diets don't work at all
@@ -231,8 +231,8 @@ Smart strategy: **deficit 15–25 % below TDEE** (typically 400–700 kcal). Hig
 
 **Otázka:** Proč ne jít s kaloriemi ještě níž, když chceš rychle zhubnout?
 
-- **✅ Extrémní deficity způsobí ztrátu svalů, pomalý metabolismus, hormonální problémy a neudržitelnost. 15–25 % pod TDEE je sweet spot.**
-  Přesně. Cíl je udržitelný deficit s maximem svalů a minimem vedlejších efektů.
+- **✅ Extrémní deficity ničí svaly i hormony**
+  Přesně. Způsobí ztrátu svalů, pomalý metabolismus, hormonální problémy a neudržitelnost. 15–25 % pod TDEE je sweet spot. Cíl je udržitelný deficit s maximem svalů a minimem vedlejších efektů.
 - ❌ Čím nižší kalorie, tím rychlejší hubnutí
   Krátkodobě rychlejší, ale dlouhodobě horší — většina se ztratí jako svaly a váha se vrátí s přebytkem.
 - ❌ Musíš se víc hýbat místo méně jíst
@@ -242,8 +242,8 @@ Smart strategy: **deficit 15–25 % below TDEE** (typically 400–700 kcal). Hig
 
 **Question:** Why not go even lower with calories if you want to lose weight fast?
 
-- **✅ Extreme deficits cause muscle loss, slow metabolism, hormonal problems, and unsustainability. 15–25 % below TDEE is the sweet spot.**
-  Exactly. The goal is a sustainable deficit with maximum muscle retention and minimum side effects.
+- **✅ Extreme deficits damage muscle and hormones**
+  Exactly. They cause muscle loss, slow metabolism, hormonal problems, and unsustainability. 15–25 % below TDEE is the sweet spot. The goal is a sustainable deficit with maximum muscle retention and minimum side effects.
 - ❌ The lower the calories, the faster the loss
   Faster short term, but worse long term — most of it gets lost as muscle and the weight comes back with interest.
 - ❌ You should move more instead of eating less
@@ -285,8 +285,8 @@ Practical recipe:
 
 **Otázka:** Jaký je sweet spot kalorického deficitu pro hubnutí?
 
-- **✅ 15–25 % pod TDEE — obvykle 400–700 kcal deficit denně, vede k ~0,5–0,8 kg za týden**
-  Přesně. Tento rozsah dává dobré výsledky bez ztráty svalů nebo metabolických problémů.
+- **✅ 20 % pod TDEE**
+  Přesně. Zhruba 15–25 % pod TDEE (400–700 kcal deficit denně) vede k ~0,5–0,8 kg za týden. Tento rozsah dává dobré výsledky bez ztráty svalů nebo metabolických problémů.
 - ❌ 50 % pod TDEE
   Příliš extrémní — vede k hormonálním problémům, ztrátě svalů a neudržitelnosti.
 - ❌ 5 % pod TDEE
@@ -296,8 +296,8 @@ Practical recipe:
 
 **Question:** What's the sweet spot for a weight-loss deficit?
 
-- **✅ 15–25 % below TDEE — typically a 400–700 kcal daily deficit, leading to ~0.5–0.8 kg per week**
-  Exactly. This range produces good results without muscle loss or metabolic problems.
+- **✅ 20 % below TDEE**
+  Exactly. Roughly 15–25 % below TDEE (a 400–700 kcal daily deficit) leads to ~0.5–0.8 kg per week. This range produces good results without muscle loss or metabolic problems.
 - ❌ 50 % below TDEE
   Too extreme — leads to hormonal problems, muscle loss, and unsustainability.
 - ❌ 5 % below TDEE
@@ -307,8 +307,8 @@ Practical recipe:
 
 **Otázka:** Která dieta je „nejlepší" pro hubnutí?
 
-- **✅ Ta, kterou dokážeš dlouhodobě dodržet — vše ostatní je druhotné**
-  Přesně. Adherence je kritický faktor. Nejlepší dieta na papíře je k ničemu, pokud ji neudržíš.
+- **✅ Ta, kterou udržíš**
+  Přesně. Ta, kterou dokážeš dlouhodobě dodržet — vše ostatní je druhotné. Adherence je kritický faktor. Nejlepší dieta na papíře je k ničemu, pokud ji neudržíš.
 - ❌ Keto — nejrychlejší výsledky
   Keto je rychlá zpočátku (ztráta vody), ale dlouhodobě není lepší než jiné diety se stejnými kaloriemi.
 - ❌ Nízkotučná
@@ -318,8 +318,8 @@ Practical recipe:
 
 **Question:** Which diet is "best" for weight loss?
 
-- **✅ The one you can stick to long term — everything else is secondary**
-  Exactly. Adherence is the critical factor. The best diet on paper is useless if you can't stick to it.
+- **✅ One you stick to**
+  Exactly. The one you can stick to long term — everything else is secondary. Adherence is the critical factor. The best diet on paper is useless if you can't stick to it.
 - ❌ Keto — the fastest results
   Keto is fast at first (water loss), but long-term it's no better than other diets with the same calories.
 - ❌ Low-fat
@@ -329,8 +329,8 @@ Practical recipe:
 
 **Otázka:** Proč je důležité přidat refeed den jednou za 7–10 dní?
 
-- **✅ Pomáhá resetovat hormony (leptin, štítná žláza) a psychiku po delší době v deficitu**
-  Přesně. Refeed na 100 % TDEE jednou týdně udržuje metabolismus aktivní a předchází „dietní únavě".
+- **✅ Resetuje hormony a psychiku**
+  Přesně. Pomáhá resetovat hormony (leptin, štítná žláza) i psychiku po delší době v deficitu. Refeed na 100 % TDEE jednou týdně udržuje metabolismus aktivní a předchází „dietní únavě".
 - ❌ Je to cheat day — jez co chceš
   Refeed není cheat day. Je to kontrolovaný den na maintenance kaloriích, ne přejídání.
 - ❌ Refeed dny jsou zbytečné
@@ -340,8 +340,8 @@ Practical recipe:
 
 **Question:** Why is it important to add a refeed day once every 7–10 days?
 
-- **✅ It helps reset hormones (leptin, thyroid) and your mindset after extended time in a deficit**
-  Exactly. A refeed at 100 % of TDEE once a week keeps metabolism active and prevents "diet fatigue."
+- **✅ Resets your hormones and mindset**
+  Exactly. It helps reset hormones (leptin, thyroid) and your mindset after extended time in a deficit. A refeed at 100 % of TDEE once a week keeps metabolism active and prevents "diet fatigue."
 - ❌ It's a cheat day — eat whatever you want
   A refeed isn't a cheat day. It's a controlled day at maintenance calories, not a binge.
 - ❌ Refeed days are pointless

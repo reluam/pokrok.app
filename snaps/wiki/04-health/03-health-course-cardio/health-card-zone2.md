@@ -79,8 +79,8 @@ Zone 2 is the intensity at which blood lactate stays under 2 mmol/L — the aero
 
 **Otázka:** Jak poznáš, že jsi v Zone 2?
 
-- **✅ Zvládáš mluvit v celých větách, ale není to zcela lehce — tep je v 60–70 % maxima**
-  Přesně. Talk test je nejjednodušší a nejpraktičtější metoda. Bez vybavení, funguje pro každou aktivitu.
+- **✅ Mluvíš v celých větách, tep 60–70 % max**
+  Přesně. Není to zcela lehce, ale konverzace ještě jde. Talk test je nejjednodušší a nejpraktičtější metoda. Bez vybavení, funguje pro každou aktivitu.
 - ❌ Musíš se intenzivně potit a nemůžeš mluvit
   To je spíše Z4–Z5. Zone 2 je konverzační tempo — pokud nemůžeš mluvit, jdeš příliš rychle.
 - ❌ Tep musí být pod 100 úderů za minutu
@@ -90,8 +90,8 @@ Zone 2 is the intensity at which blood lactate stays under 2 mmol/L — the aero
 
 **Question:** How do you know you're in Zone 2?
 
-- **✅ You can speak in full sentences but it's not completely easy — heart rate is at 60–70 % of max**
-  Exactly. The talk test is the simplest and most practical method. No equipment needed, works for any activity.
+- **✅ Full sentences possible, HR 60–70 % max**
+  Exactly. Not completely easy, but conversation still flows. The talk test is the simplest and most practical method. No equipment needed, works for any activity.
 - ❌ You're sweating hard and can't talk
   That's more like Z4–Z5. Zone 2 is a conversational pace — if you can't talk, you're going too fast.
 - ❌ Heart rate must be below 100 beats per minute
@@ -117,8 +117,8 @@ Z2 is "productive slowness." A slow pace with huge benefits for long-term health
 
 **Otázka:** Co je hlavní fyziologický přínos Zone 2?
 
-- **✅ Zvyšuje počet a efektivitu mitochondrií, zlepšuje spalování tuků a metabolickou flexibilitu**
-  Přesně. Z2 specificky buduje aerobní „motor". Tyto adaptace se přenesou do lepšího výkonu při jakékoli intenzitě.
+- **✅ Víc mitochondrií a lepší spalování tuků**
+  Přesně. K tomu zlepšuje metabolickou flexibilitu. Z2 specificky buduje aerobní „motor". Tyto adaptace se přenesou do lepšího výkonu při jakékoli intenzitě.
 - ❌ Primárně spaluje kalorie pro hubnutí
   Z2 spaluje tuky, ale hlavním přínosem jsou mitochondriální adaptace — ne kalorický deficit. Ten závisí na celkové stravě.
 - ❌ Je to jen odpočinkový trénink bez výraznějšího přínosu
@@ -128,8 +128,8 @@ Z2 is "productive slowness." A slow pace with huge benefits for long-term health
 
 **Question:** What's the main physiological benefit of Zone 2?
 
-- **✅ It increases mitochondrial number and efficiency, improves fat burning, and builds metabolic flexibility**
-  Exactly. Z2 specifically builds the aerobic "engine." These adaptations carry over to better performance at any intensity.
+- **✅ More mitochondria, improved fat burning and flexibility**
+  Exactly. Z2 also boosts mitochondrial efficiency. It specifically builds the aerobic "engine." These adaptations carry over to better performance at any intensity.
 - ❌ It primarily burns calories for weight loss
   Z2 burns fat, but the main benefit is mitochondrial adaptation — not caloric deficit. That depends on overall diet.
 - ❌ It's just a recovery workout with no significant benefit
@@ -139,8 +139,8 @@ Z2 is "productive slowness." A slow pace with huge benefits for long-term health
 
 **Otázka:** Co je Z2 pro začátečníka vs. pro trénovaného sportovce?
 
-- **✅ Pro začátečníka: rychlá chůze nebo chůze do kopce. Pro trénovanějšího: lehký jogging nebo kolo. Klíč je tep a talk test, ne typ aktivity.**
-  Přesně. Z2 se určuje podle fyziologického stavu, ne podle aktivity. Kdo má nižší kondici, dosáhne Z2 při nižší intenzitě pohybu.
+- **✅ Určuje tep a talk test, ne aktivita**
+  Přesně. Pro začátečníka: rychlá chůze nebo do kopce. Pro trénovaného: lehký jogging nebo kolo. Z2 se určuje podle fyziologického stavu. Kdo má nižší kondici, dosáhne Z2 při nižší intenzitě pohybu.
 - ❌ Z2 je vždy běh — chůze nestačí
   Chůze (zejména do kopce) je pro začátečníky naprosto validní Z2 aktivita. Typ pohybu není rozhodující.
 - ❌ Z2 je pro všechny stejná rychlost
@@ -150,8 +150,8 @@ Z2 is "productive slowness." A slow pace with huge benefits for long-term health
 
 **Question:** What's Z2 for a beginner vs. a trained athlete?
 
-- **✅ For a beginner: brisk walking or uphill walking. For a trained person: easy jogging or cycling. The key is heart rate and talk test, not the type of activity.**
-  Exactly. Z2 is defined by physiological state, not activity. Someone with lower fitness reaches Z2 at a lower movement intensity.
+- **✅ What defines it is HR and the talk test**
+  Exactly. For a beginner: brisk or uphill walking. For the trained: easy jogging or cycling. Z2 is defined by physiological state, not activity. Someone with lower fitness reaches Z2 at a lower movement intensity.
 - ❌ Z2 is always running — walking isn't enough
   Walking (especially uphill) is a perfectly valid Z2 activity for beginners. The type of movement isn't what decides.
 - ❌ Z2 is the same speed for everyone
@@ -186,8 +186,8 @@ Peter Attia recommends at least 3 hours of Z2 per week for optimal health, split
 
 **Otázka:** Kolik Z2 týdně pro metabolické zdraví?
 
-- **✅ 3+ hodin týdně, ideálně rozděleno do 3–4 sessions po 45–90 minutách**
-  Přesně. To je doporučení, které vychází z dat o mitochondriální adaptaci a kardiovaskulárních benefitech.
+- **✅ 3+ hodiny týdně**
+  Přesně. Ideálně rozděleno do 3–4 sessions po 45–90 minutách. To je doporučení, které vychází z dat o mitochondriální adaptaci a kardiovaskulárních benefitech.
 - ❌ 10 minut denně
   Příliš málo pro významnou adaptaci. Mitochondrie potřebují delší kontinuální podnět pro biologickou signalizaci.
 - ❌ 10 hodin týdně
@@ -197,8 +197,8 @@ Peter Attia recommends at least 3 hours of Z2 per week for optimal health, split
 
 **Question:** How much Z2 per week for metabolic health?
 
-- **✅ 3+ hours per week, ideally split into 3–4 sessions of 45–90 minutes**
-  Exactly. That's the recommendation drawn from data on mitochondrial adaptation and cardiovascular benefits.
+- **✅ 3+ hours per week**
+  Exactly. Ideally split into 3–4 sessions of 45–90 minutes. That's the recommendation drawn from data on mitochondrial adaptation and cardiovascular benefits.
 - ❌ 10 minutes a day
   Too little for significant adaptation. Mitochondria need a longer continuous stimulus for biological signaling.
 - ❌ 10 hours per week
@@ -224,8 +224,8 @@ Z2 isn't just "easy training." It's a specific dose that builds mitochondria, ca
 
 **Otázka:** Proč Peter Attia a další lékaři propagují Zone 2 jako prioritní trénink pro dlouhověkost?
 
-- **✅ Je to nejudržitelnější trénink s největšími metabolickými benefity — snižuje kardiovaskulární riziko, zlepšuje inzulínovou senzitivitu a podporuje VO2max**
-  Přesně. Z2 kombinuje bezpečnost, udržitelnost a velké zdravotní benefity. Málokterý jiný trénink má takový profil.
+- **✅ Udržitelný a metabolicky silný**
+  Přesně. Z2 snižuje kardiovaskulární riziko, zlepšuje inzulínovou senzitivitu a podporuje VO2max. Kombinuje bezpečnost, udržitelnost a velké zdravotní benefity. Málokterý jiný trénink má takový profil.
 - ❌ Je to populární na sociálních sítích
   Popularita není důvod. Z2 má silnou vědeckou podporu pro metabolické zdraví a dlouhověkost.
 - ❌ Spaluje nejvíc kalorií
@@ -235,8 +235,8 @@ Z2 isn't just "easy training." It's a specific dose that builds mitochondria, ca
 
 **Question:** Why do Peter Attia and other doctors champion Zone 2 as a priority training for longevity?
 
-- **✅ It's the most sustainable training with the biggest metabolic benefits — lowers cardiovascular risk, improves insulin sensitivity, and supports VO2 max**
-  Exactly. Z2 combines safety, sustainability, and massive health benefits. Few other training types have this profile.
+- **✅ Sustainable, big metabolic gains**
+  Exactly. Z2 lowers cardiovascular risk, improves insulin sensitivity, and supports VO2 max. It combines safety, sustainability, and massive health benefits. Few other training types have this profile.
 - ❌ It's popular on social media
   Popularity isn't the reason. Z2 has strong scientific support for metabolic health and longevity.
 - ❌ It burns the most calories
@@ -246,8 +246,8 @@ Z2 isn't just "easy training." It's a specific dose that builds mitochondria, ca
 
 **Otázka:** Jak vypadá realistický týdenní plán se 3+ hodinami Z2?
 
-- **✅ Pondělí 45 min rychlá chůze, středa 60 min kolo, pátek 45 min jogging, neděle 60 min túra. Celkem: ~3,5 h Z2.**
-  Přesně. Příjemné, udržitelné, rozmanité. K tomu přidat 2× silový trénink a 1× HIIT — kompletní týden.
+- **✅ Rozmanitá Z2 aktivita 3–4× týdně (~3,5 h)**
+  Přesně. Např. po chůze, st kolo, pá jogging, ne túra. Příjemné, udržitelné, rozmanité. K tomu přidat 2× silový trénink a 1× HIIT — kompletní týden.
 - ❌ Jedno 3hodinové sezení v sobotu, zbytek volno
   Příliš koncentrovaný objem — mitochondriální adaptace vyžadují opakované podněty, ne jednorázovou dávku.
 - ❌ Každý den 25 minut rychlé chůze
@@ -257,8 +257,8 @@ Z2 isn't just "easy training." It's a specific dose that builds mitochondria, ca
 
 **Question:** What does a realistic weekly plan with 3+ hours of Z2 look like?
 
-- **✅ Monday 45 min brisk walk, Wednesday 60 min cycling, Friday 45 min jog, Sunday 60 min hike. Total: ~3.5 h of Z2.**
-  Exactly. Pleasant, sustainable, varied. Add 2× strength training and 1× HIIT — a complete week.
+- **✅ Varied Z2 activity 3–4× a week (~3.5 h)**
+  Exactly. E.g. Mon walk, Wed bike, Fri jog, Sun hike. Pleasant, sustainable, varied. Add 2× strength training and 1× HIIT — a complete week.
 - ❌ One 3-hour session on Saturday, rest off
   Too concentrated a volume — mitochondrial adaptation requires repeated stimuli, not a single large dose.
 - ❌ 25 minutes of brisk walking every day
@@ -268,8 +268,8 @@ Z2 isn't just "easy training." It's a specific dose that builds mitochondria, ca
 
 **Otázka:** Jaký je přínos Zone 2 pro metabolickou flexibilitu?
 
-- **✅ Systematicky zlepšuje schopnost těla přepínat mezi spalováním tuků a sacharidů — klíčový pro metabolické zdraví**
-  Přesně. Lidé s prediabetes nebo inzulínovou rezistencí mají metabolickou flexibilitu sníženou. Z2 ji zlepšuje lépe než jakýkoli jiný trénink.
+- **✅ Zlepšuje přepínání mezi spalováním tuků a sacharidů**
+  Přesně. Je to klíčové pro metabolické zdraví. Lidé s prediabetes nebo inzulínovou rezistencí mají metabolickou flexibilitu sníženou. Z2 ji zlepšuje lépe než jakýkoli jiný trénink.
 - ❌ Z2 nemá vliv na metabolismus, jen na kondici
   Metabolická flexibilita a kondice jsou propojeny. Z2 zlepšuje oboje — nelze je oddělit.
 - ❌ Metabolická flexibilita závisí jen na stravě, ne na tréninku
@@ -279,8 +279,8 @@ Z2 isn't just "easy training." It's a specific dose that builds mitochondria, ca
 
 **Question:** What's Zone 2's benefit for metabolic flexibility?
 
-- **✅ It systematically improves the body's ability to switch between burning fat and carbs — key for metabolic health**
-  Exactly. People with prediabetes or insulin resistance have reduced metabolic flexibility. Z2 improves it better than any other training.
+- **✅ Improves switching between burning fat and carbs**
+  Exactly. This is key for metabolic health. People with prediabetes or insulin resistance have reduced metabolic flexibility. Z2 improves it better than any other training.
 - ❌ Z2 has no effect on metabolism, only on fitness
   Metabolic flexibility and fitness are connected. Z2 improves both — they can't be separated.
 - ❌ Metabolic flexibility depends only on diet, not training

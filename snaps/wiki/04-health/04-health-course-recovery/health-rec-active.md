@@ -87,8 +87,8 @@ A study (Dupuy et al., 2018) compared recovery strategies: active recovery (20 m
 
 **Otázka:** Proč aktivní regenerace funguje lépe než ležení na gauči?
 
-- **✅ Zvýšený průtok krve dostává živiny do svalů a odstraňuje metabolity — ležení zpomaluje oběh a regenerace trvá déle**
-  Přesně. Svaly se regenerují skrze krev. Víc pohybu = víc krve = rychlejší oprava. Ležení je paradoxně horší.
+- **✅ Zvyšuje průtok krve**
+  Přesně. Svaly se regenerují skrze krev — víc pohybu dostává živiny do svalů a odvádí metabolity. Ležení zpomaluje oběh, takže regenerace trvá déle a je paradoxně horší.
 - ❌ Pohyb zvyšuje testosteron
   Lehká aktivita testosteron moc nezvyšuje. Hlavní benefit je v oběhu a výměně tekutin.
 - ❌ Je to jen placebo
@@ -98,8 +98,8 @@ A study (Dupuy et al., 2018) compared recovery strategies: active recovery (20 m
 
 **Question:** Why does active recovery work better than lying on the couch?
 
-- **✅ Increased blood flow delivers nutrients to muscles and clears metabolites — lying around slows circulation and recovery takes longer**
-  Exactly. Muscles recover through blood flow. More movement = more blood = faster repair. Lying still is paradoxically worse.
+- **✅ It raises blood flow**
+  Exactly. Muscles recover through blood flow — more movement delivers nutrients and clears metabolites. Lying still slows circulation, so recovery takes longer, paradoxically worse.
 - ❌ Movement raises testosterone
   Light activity doesn't raise testosterone much. The main benefit is in circulation and fluid exchange.
 - ❌ It's just placebo
@@ -129,8 +129,8 @@ Active recovery = light movement (**under 50 % of max HR**) on a rest day or aft
 
 **Otázka:** Jaká intenzita pro aktivní regeneraci?
 
-- **✅ Pod 50 % max tepu — chůze, lehké kolo, plavání, jóga**
-  Přesně. Opravdu lehké. Když se začneš potit víc než mírně, je to moc.
+- **✅ Pod 50 % max tepu — chůze, lehké kolo**
+  Přesně. Opravdu lehké — plavání a jóga patří sem taky. Když se začneš potit víc než mírně, je to moc.
 - ❌ 70–80 % max tepu (střední intenzita)
   To už je tréninková zóna, ne regenerace. Bude to víc škodit než pomáhat.
 - ❌ Max tep — čím intenzivnější, tím lepší regenerace
@@ -140,8 +140,8 @@ Active recovery = light movement (**under 50 % of max HR**) on a rest day or aft
 
 **Question:** What intensity for active recovery?
 
-- **✅ Under 50 % of max HR — walking, easy cycling, swimming, yoga**
-  Exactly. Truly light. If you're sweating more than a little, it's too much.
+- **✅ Under 50 % of max HR — walking, easy cycling**
+  Exactly. Truly light — swimming and yoga fit too. If you're sweating more than a little, it's too much.
 - ❌ 70–80 % of max HR (moderate intensity)
   That's already a training zone, not recovery. It'll hurt more than it helps.
 - ❌ Max HR — the more intense, the better the recovery
@@ -151,8 +151,8 @@ Active recovery = light movement (**under 50 % of max HR**) on a rest day or aft
 
 **Otázka:** Představ si, že po tréninku uděláš „aktivní regeneraci" — 1 hodinu jogging v zóně 3. Druhý den jsi ještě víc unavený. Co se stalo?
 
-- **✅ Intenzita byla příliš vysoká — jogging v Z3 už není regenerace, ale další středně náročný trénink**
-  Přesně. Aktivní regenerace musí být lehká — procházka, ne jogging. V Z3 už přidáváš únavu.
+- **✅ Příliš vysoká intenzita**
+  Přesně. Aktivní regenerace musí být lehká — procházka, ne jogging. Jogging v Z3 už není regenerace, ale další středně náročný trénink, takže přidáváš únavu místo odstraňování.
 - ❌ Trénoval jsi příliš dlouho
   Délka je druhotná — hlavní problém je intenzita. 30 min lehkého je lepší než 60 min středního.
 - ❌ Nespal jsi dost
@@ -162,8 +162,8 @@ Active recovery = light movement (**under 50 % of max HR**) on a rest day or aft
 
 **Question:** Imagine doing "active recovery" after training — 1 hour of jogging in zone 3. The next day you're even more tired. What happened?
 
-- **✅ The intensity was too high — jogging in Z3 is no longer recovery, it's another moderate workout**
-  Exactly. Active recovery has to be light — a walk, not a jog. In Z3 you're adding fatigue.
+- **✅ Intensity was too high**
+  Exactly. Active recovery has to be light — a walk, not a jog. Jogging in Z3 isn't recovery but another moderate workout, so you add fatigue instead of clearing it.
 - ❌ You trained too long
   Length is secondary — the main issue is intensity. 30 min of light beats 60 min of moderate.
 - ❌ You didn't sleep enough
@@ -173,8 +173,8 @@ Active recovery = light movement (**under 50 % of max HR**) on a rest day or aft
 
 **Otázka:** Je lepší ležet na gauči, nebo jít 30 min na procházku?
 
-- **✅ Procházka — zrychlí regeneraci, zlepší náladu, rozhýbe svaly**
-  Přesně. „Odpočinek" není ležení — je to lehký pohyb plus dobrá strava a spánek.
+- **✅ Procházka je lepší volba**
+  Přesně. „Odpočinek" není ležení — je to lehký pohyb plus dobrá strava a spánek. Procházka zrychlí regeneraci, zlepší náladu a rozhýbe svaly.
 - ❌ Ležení — svaly potřebují úplný klid
   Ležení regeneraci zpomaluje. Lehký pohyb je aktivně prospěšný.
 - ❌ Obojí stejné
@@ -184,8 +184,8 @@ Active recovery = light movement (**under 50 % of max HR**) on a rest day or aft
 
 **Question:** Is it better to lie on the couch or go for a 30-minute walk?
 
-- **✅ A walk — it speeds recovery, improves mood, and gets the muscles moving**
-  Exactly. "Rest" isn't lying still — it's light movement plus good food and sleep.
+- **✅ A walk — it speeds recovery**
+  Exactly. "Rest" isn't lying still — it's light movement plus good food and sleep. A walk also improves mood and gets muscles moving.
 - ❌ Lying still — muscles need total rest
   Lying still slows recovery. Light movement is actively beneficial.
 - ❌ They're the same
@@ -224,8 +224,8 @@ Walking boosts cardiovascular health, metabolism, mood, and hip mobility — all
 
 **Otázka:** Proč má chůze takový efekt na zdraví?
 
-- **✅ Chůze je nejpřirozenější pohyb — zvyšuje kardiovaskulární zdraví, metabolismus, náladu, mobilitu kyčlí, a to vše bez zátěže**
-  Přesně. Chůze je „tichý hrdina" zdravotního pohybu. Studie konzistentně ukazují velké benefity i u jednoduchých intervencí jako „nachodit víc".
+- **✅ Je to přirozený pohyb bez zátěže**
+  Přesně. Chůze je „tichý hrdina" zdraví — zvyšuje kardiovaskulární zdraví, metabolismus, náladu a mobilitu kyčlí, a to bez zátěže kloubů. Studie konzistentně ukazují velké benefity i u jednoduchých intervencí jako „nachodit víc".
 - ❌ Chůze je nedostatečná, musíš běhat
   Chůze je prokazatelně účinná pro základní zdraví. Nemusí to být běh, aby přinesla benefity.
 - ❌ Je to jen psychologický efekt
@@ -235,8 +235,8 @@ Walking boosts cardiovascular health, metabolism, mood, and hip mobility — all
 
 **Question:** Why does walking have such an effect on health?
 
-- **✅ Walking is the most natural movement — it boosts cardiovascular health, metabolism, mood, hip mobility, all without stress**
-  Exactly. Walking is the "silent hero" of health. Studies consistently show big benefits from simple interventions like "walk more."
+- **✅ It's a natural movement without stress**
+  Exactly. Walking is the "silent hero" of health — it boosts cardiovascular health, metabolism, mood, and hip mobility, all without joint stress. Studies consistently show big benefits from simple interventions like "walk more."
 - ❌ Walking isn't enough, you have to run
   Walking has proven benefits for basic health. It doesn't need to be running to help.
 - ❌ It's just a psychological effect
@@ -278,8 +278,8 @@ The goal: movement you enjoy. Not a workout, but a pleasant activity.
 
 **Otázka:** Kolik kroků denně je „sweet spot" pro zdraví?
 
-- **✅ 8 000–10 000 kroků — víc je bonus, méně je suboptimální**
-  Přesně. Meta-analýzy konzistentně ukazují tento rozsah jako optimální pro většinu lidí.
+- **✅ 8 000–10 000 kroků — sweet spot**
+  Přesně. Meta-analýzy konzistentně ukazují tento rozsah jako optimální pro většinu lidí. Víc je bonus, méně je suboptimální.
 - ❌ 2 000 kroků — stačí, pokud trénuješ
   Trénink nenahradí celodenní pohyb. 2 000 kroků je příliš málo i pro aktivního sportovce.
 - ❌ 30 000 kroků — čím víc, tím lépe
@@ -289,8 +289,8 @@ The goal: movement you enjoy. Not a workout, but a pleasant activity.
 
 **Question:** How many steps per day is the "sweet spot" for health?
 
-- **✅ 8,000–10,000 steps — more is a bonus, less is suboptimal**
-  Exactly. Meta-analyses consistently show this range as optimal for most people.
+- **✅ 8,000–10,000 steps — the sweet spot**
+  Exactly. Meta-analyses consistently show this range as optimal for most people. More is a bonus, less is suboptimal.
 - ❌ 2,000 steps — enough if you train
   Training doesn't replace all-day movement. 2,000 steps is too few even for an active athlete.
 - ❌ 30,000 steps — the more the better
@@ -300,8 +300,8 @@ The goal: movement you enjoy. Not a workout, but a pleasant activity.
 
 **Otázka:** Studie Dupuy et al. (2018) srovnávala regenerační strategie. Které dvě byly nejefektivnější?
 
-- **✅ Aktivní regenerace (lehké kolo) a masáž — obě snižovaly únavu a zánět nejvíc**
-  Přesně. Aktivní regenerace a masáž vyhrály nad studenými ponory, kompresním oblečením i úplným odpočinkem.
+- **✅ Aktivní regenerace a masáž nejvíc**
+  Přesně. Obě snižovaly únavu a zánět nejvíc — vyhrály nad studenými ponory, kompresním oblečením i úplným odpočinkem.
 - ❌ Kompresní oblečení a studené ponory
   Tyto metody pomáhaly méně než aktivní regenerace a masáž.
 - ❌ Úplný odpočinek a studené ponory
@@ -311,8 +311,8 @@ The goal: movement you enjoy. Not a workout, but a pleasant activity.
 
 **Question:** The Dupuy et al. (2018) study compared recovery strategies. Which two were most effective?
 
-- **✅ Active recovery (easy cycling) and massage — both reduced fatigue and inflammation the most**
-  Exactly. Active recovery and massage beat cold plunges, compression clothing, and full rest.
+- **✅ Active recovery and massage**
+  Exactly. Both reduced fatigue and inflammation the most — they beat cold plunges, compression clothing, and full rest.
 - ❌ Compression clothing and cold plunges
   These methods helped less than active recovery and massage.
 - ❌ Full rest and cold plunges
@@ -322,8 +322,8 @@ The goal: movement you enjoy. Not a workout, but a pleasant activity.
 
 **Otázka:** Jak poznáš, že tvá „aktivní regenerace" je na správné intenzitě?
 
-- **✅ Zvládneš mluvit v celých větách bez zadýchání, nepotíš se, necítíš únavu**
-  Přesně. Pokud se začneš potit nebo se ti zrychlí dech, je to moc. Cíl je pohyb, ne trénink.
+- **✅ Mluvíš v celých větách, nepotíš se**
+  Přesně. Necítíš únavu. Pokud se začneš potit nebo se ti zrychlí dech, je to moc. Cíl je pohyb, ne trénink.
 - ❌ Měl bys být na hranici zvracení
   To je HIIT, ne regenerace. Aktivní regenerace musí být opravdu lehká.
 - ❌ Měl bys cítit svalovou bolest
@@ -333,8 +333,8 @@ The goal: movement you enjoy. Not a workout, but a pleasant activity.
 
 **Question:** How do you know your "active recovery" is at the right intensity?
 
-- **✅ You can speak in full sentences without getting winded, you're not sweating, you don't feel tired**
-  Exactly. If you start sweating or breathing hard, it's too much. The goal is movement, not a workout.
+- **✅ You speak in full sentences, no sweat**
+  Exactly. You don't feel tired. If you start sweating or breathing hard, it's too much. The goal is movement, not a workout.
 - ❌ You should be on the verge of vomiting
   That's HIIT, not recovery. Active recovery has to be truly light.
 - ❌ You should feel muscle soreness

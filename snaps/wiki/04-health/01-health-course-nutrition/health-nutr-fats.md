@@ -98,8 +98,8 @@ Fats are categorized by structure:
 
 **Otázka:** Představ si, že 5 let držíš „low-fat" stravu — žádné žloutky, jen libové maso. Máš vypadávající vlasy, suchou pleť a nepravidelný cyklus. Co je nejpravděpodobnější příčina?
 
-- **✅ Tuky jsou nezbytné pro hormony, vitamín D (rozpustný v tucích) a celkové zdraví — dlouhodobý nízký příjem způsobil celý komplex problémů**
-  Přesně. Vitamíny A, D, E, K jsou rozpustné v tucích — bez tuku se nevstřebávají. Pohlavní hormony se stavějí z cholesterolu a tuků.
+- **✅ Dlouhodobý nedostatek tuků**
+  Přesně. Tuky jsou nezbytné pro hormony i vstřebávání vitamínu D — dlouhodobý nízký příjem způsobil celý komplex problémů. Vitamíny A, D, E, K jsou rozpustné v tucích — bez tuku se nevstřebávají. Pohlavní hormony se stavějí z cholesterolu a tuků.
 - ❌ Musíš jíst ještě méně tuků
   Naopak — tvé tělo trpí nedostatkem. Méně tuků by situaci jen zhoršilo.
 - ❌ Problém je v sacharidech
@@ -109,8 +109,8 @@ Fats are categorized by structure:
 
 **Question:** Imagine you've been on a "low-fat" diet for 5 years — no egg yolks, just lean meat. You have hair loss, dry skin, and an irregular cycle. What's the most likely cause?
 
-- **✅ Fats are essential for hormones, vitamin D (fat-soluble), and overall health — long-term low intake caused this whole cluster of problems**
-  Exactly. Vitamins A, D, E, and K are fat-soluble — without fat they don't get absorbed. Sex hormones are built from cholesterol and fats.
+- **✅ Long-term fat deficiency**
+  Exactly. Fats are essential for hormones and vitamin D absorption — low intake caused this whole cluster of problems. Vitamins A, D, E, and K are fat-soluble — without fat they don't get absorbed. Sex hormones are built from cholesterol and fats.
 - ❌ You need to eat even less fat
   The opposite — your body is starved of it. Less fat would make the situation worse.
 - ❌ The problem is carbs
@@ -128,8 +128,8 @@ The key is the omega-3 to omega-6 ratio. The ideal is about 1:4, but the modern 
 
 **Otázka:** Studie PREDIMED (2013) na ~7 500 lidech ukázala, že středomořská strava s olivovým olejem a ořechy snížila kardiovaskulární události o 30 % oproti „low-fat" skupině. Co z toho plyne?
 
-- **✅ Zdravé tuky nejsou nepřítel — jsou součástí řešení. Typ tuku rozhoduje víc než celkové množství.**
-  Přesně. Trans-tuky vyhoď, omega-3 přidej, nasycené v rozumných množstvích neškodí.
+- **✅ Zdravé tuky nejsou nepřítel — typ rozhoduje**
+  Přesně. Typ tuku rozhoduje víc než celkové množství. Trans-tuky vyhoď, omega-3 přidej, nasycené v rozumných množstvích neškodí.
 - ❌ Všechny tuky jsou zdravé, jez jich kolik chceš
   Ne — 9 kcal/g znamená, že se snadno přejíš. A trans-tuky jsou jednoznačně škodlivé.
 - ❌ Studie je nespolehlivá, tuky jsou vždy špatné
@@ -139,8 +139,8 @@ The key is the omega-3 to omega-6 ratio. The ideal is about 1:4, but the modern 
 
 **Question:** The PREDIMED study (2013) on ~7,500 people showed that a Mediterranean diet with olive oil and nuts cut cardiovascular events by 30 % compared with the "low-fat" group. What does this mean?
 
-- **✅ Healthy fats aren't the enemy — they're part of the solution. The type of fat matters more than the total amount.**
-  Exactly. Cut trans fats, add omega-3, and saturated fats in reasonable amounts do no harm.
+- **✅ Healthy fats aren't the enemy — type matters**
+  Exactly. The type of fat matters more than the total amount. Cut trans fats, add omega-3, and saturated fats in reasonable amounts do no harm.
 - ❌ All fats are healthy, eat as much as you want
   No — 9 kcal/g means it's easy to overeat. And trans fats are unambiguously harmful.
 - ❌ The study is unreliable, fats are always bad
@@ -158,8 +158,8 @@ The key is the omega-3 to omega-6 ratio. The ideal is about 1:4, but the modern 
 
 **Otázka:** Kolik tuků denně pro 70 kg ženu na 2 000 kcal?
 
-- **✅ ~55–75 g (25–33 % kalorií)**
-  Přesně. 25–33 % z 2 000 kcal je 500–650 kcal, což při 9 kcal/g dělá 55–75 g tuků.
+- **✅ 55–75 g tuků**
+  Přesně — to je 25–33 % kalorií. Z 2 000 kcal je 500–650 kcal, což při 9 kcal/g dělá 55–75 g tuků.
 - ❌ 20 g (10 %)
   To je pod minimem pro hormonální zdraví. Pod 20 % klesá produkce pohlavních hormonů.
 - ❌ 150 g (65 %)
@@ -169,8 +169,8 @@ The key is the omega-3 to omega-6 ratio. The ideal is about 1:4, but the modern 
 
 **Question:** How much fat per day for a 70 kg woman on 2,000 kcal?
 
-- **✅ ~55–75 g (25–33 % of calories)**
-  Exactly. 25–33 % of 2,000 kcal is 500–650 kcal, which at 9 kcal/g works out to 55–75 g of fat.
+- **✅ ~55–75 g fat**
+  Exactly — that's 25–33 % of calories. Of 2,000 kcal that's 500–650 kcal, which at 9 kcal/g works out to 55–75 g of fat.
 - ❌ 20 g (10 %)
   That's below the minimum for hormonal health. Below 20 %, sex hormone production drops.
 - ❌ 150 g (65 %)
@@ -180,8 +180,8 @@ The key is the omega-3 to omega-6 ratio. The ideal is about 1:4, but the modern 
 
 **Otázka:** Proč jsou omega-3 z ryb lepší než omega-3 z lněného semínka?
 
-- **✅ Ryby obsahují EPA a DHA přímo, zatímco z lnu je konverze na DHA jen ~5 %**
-  Přesně. Lněné semínko má ALA, které musí tělo konvertovat na EPA/DHA — konverze je neefektivní. Ryby dávají finální produkty přímo.
+- **✅ Ryby obsahují EPA a DHA přímo**
+  Přesně. Z lnu je konverze na DHA jen ~5 %. Lněné semínko má ALA, které musí tělo konvertovat na EPA/DHA — konverze je neefektivní. Ryby dávají finální produkty přímo.
 - ❌ Obojí je stejné
   Ne — biologicky aktivní formy jsou EPA a DHA, které jsou jen v mořských zdrojích.
 - ❌ Lněné semínko je lepší, protože je rostlinné
@@ -191,8 +191,8 @@ The key is the omega-3 to omega-6 ratio. The ideal is about 1:4, but the modern 
 
 **Question:** Why is fish omega-3 better than flaxseed omega-3?
 
-- **✅ Fish contains EPA and DHA directly, while flax conversion to DHA is only ~5 %**
-  Exactly. Flaxseed has ALA, which your body must convert to EPA/DHA — the conversion is inefficient. Fish delivers the final products directly.
+- **✅ Fish contains EPA and DHA directly**
+  Exactly. Flax conversion to DHA is only ~5 %. Flaxseed has ALA, which your body must convert to EPA/DHA — the conversion is inefficient. Fish delivers the final products directly.
 - ❌ Both are the same
   No — the biologically active forms are EPA and DHA, which are only in marine sources.
 - ❌ Flaxseed is better because it's plant-based
@@ -202,8 +202,8 @@ The key is the omega-3 to omega-6 ratio. The ideal is about 1:4, but the modern 
 
 **Otázka:** Představ si, že nakupuješ v supermarketu a chceš vybrat „zdravé" tuky. V košíku máš: máslo, olivový olej, lososa, margarín „rostlinný", vlašské ořechy a ztužený tuk na pečení. Které jsou problematické?
 
-- **✅ Margarín a ztužený tuk — obsahují trans-tuky, které zvyšují LDL a snižují HDL cholesterol**
-  Přesně. Trans-tuky jsou jediné vědecky jednoznačně škodlivé. WHO doporučuje příjem pod 1 % kalorií, ideálně nulu.
+- **✅ Margarín a ztužený tuk**
+  Přesně. Obsahují trans-tuky, které zvyšují LDL a snižují HDL cholesterol — jediné vědecky jednoznačně škodlivé tuky. WHO doporučuje příjem pod 1 % kalorií, ideálně nulu.
 - ❌ Máslo — nasycené tuky způsobují infarkty
   Nedávné meta-analýzy neukázaly jasnou souvislost mezi nasycenými tuky a kardiovaskulárním onemocněním. Máslo v rozumných porcích je v pořádku.
 - ❌ Losos — má moc tuků
@@ -213,8 +213,8 @@ The key is the omega-3 to omega-6 ratio. The ideal is about 1:4, but the modern 
 
 **Question:** Imagine you're shopping at a supermarket and want to pick "healthy" fats. In your cart: butter, olive oil, salmon, "plant-based" margarine, walnuts, and hydrogenated baking fat. Which are problematic?
 
-- **✅ Margarine and hydrogenated fat — they contain trans fats, which raise LDL and lower HDL cholesterol**
-  Exactly. Trans fats are the only fats science has flagged as unambiguously harmful. The WHO recommends keeping intake below 1 % of calories, ideally zero.
+- **✅ Margarine and hydrogenated fat**
+  Exactly. They contain trans fats, which raise LDL and lower HDL cholesterol. Trans fats are the only fats science has flagged as unambiguously harmful. The WHO recommends keeping intake below 1 % of calories, ideally zero.
 - ❌ Butter — saturated fats cause heart attacks
   Recent meta-analyses haven't shown a clear link between saturated fats and cardiovascular disease. Butter in reasonable amounts is fine.
 - ❌ Salmon — it has too much fat

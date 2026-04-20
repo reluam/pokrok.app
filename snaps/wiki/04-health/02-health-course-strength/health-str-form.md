@@ -78,8 +78,8 @@ Technique decides three things: 1) Which muscle actually works — wrong grip or
 
 **Otázka:** Proč může snížení váhy a oprava techniky vést k většímu růstu cílového svalu?
 
-- **✅ Menší váha se správnou technikou lépe cílí na požadovaný sval — práci dělají správná vlákna, ne kompenzační svaly**
-  Přesně. Váha sama o sobě neznamená nic, pokud necílí správné svaly. Méně kilogramů do správného svalu je víc než více kilogramů do špatného.
+- **✅ Správná technika cílí přímo na daný sval**
+  Přesně. Menší váha se správnou technikou nechá práci dělat správná vlákna, ne kompenzační svaly. Méně kilogramů do správného svalu je víc než více kilogramů do špatného.
 - ❌ Menší váha = menší podnět = méně růstu
   Záleží, kam podnět míří. Správně zacílená menší váha dá víc než velká váha do špatných svalů.
 - ❌ Technika je jen pro začátečníky, pokročilí ji nepotřebují
@@ -89,8 +89,8 @@ Technique decides three things: 1) Which muscle actually works — wrong grip or
 
 **Question:** Why can dropping the weight and fixing your technique lead to more target-muscle growth?
 
-- **✅ Less weight with proper technique targets the right muscle better — the correct fibers do the work, not compensating muscles**
-  Exactly. The weight alone means nothing if it doesn't target the right muscle. Less weight into the right muscle beats more weight into the wrong one.
+- **✅ Proper technique targets the correct muscle, not compensators**
+  Exactly. The right fibers do the work, not compensating muscles. Less weight into the right muscle beats more weight into the wrong one.
 - ❌ Less weight = less stimulus = less growth
   It depends where the stimulus goes. Properly targeted lighter weight beats heavy weight going to the wrong muscles.
 - ❌ Technique is only for beginners, advanced lifters don't need it
@@ -116,8 +116,8 @@ Weight without technique is just a number. Dropping the load and learning the mo
 
 **Otázka:** Proč je plný rozsah pohybu (full ROM) důležitý při dřepu?
 
-- **✅ Plný rozsah aktivuje celý sval, buduje sílu v kritických polohách a dává větší adaptační podnět**
-  Přesně. Studie ukazují, že full ROM dřepy dávají lepší hypertrofii hýždí a stabilitu kolen než half squats.
+- **✅ Zapojí celý sval a dá větší podnět**
+  Přesně. Full ROM buduje sílu i v krajních polohách. Studie ukazují, že dřepy do plného rozsahu dávají lepší hypertrofii hýždí a stabilitu kolen než half squats.
 - ❌ Plný rozsah je jen estetická volba
   Je to hlavně o efektivitě podnětu a dlouhodobé stabilitě kloubu. Half squats jsou prokazatelně méně efektivní.
 - ❌ Half squats jsou bezpečnější
@@ -127,8 +127,8 @@ Weight without technique is just a number. Dropping the load and learning the mo
 
 **Question:** Why is full range of motion (full ROM) important in a squat?
 
-- **✅ Full ROM activates the entire muscle, builds strength in critical positions, and provides a bigger adaptation signal**
-  Exactly. Studies show full ROM squats produce better glute hypertrophy and knee stability than half squats.
+- **✅ It activates the full muscle**
+  Exactly. Full ROM builds strength in critical positions and delivers a bigger adaptation signal. Studies show full ROM squats produce better glute hypertrophy and knee stability than half squats.
 - ❌ Full ROM is purely aesthetic
   It's about stimulus efficiency and long-term joint stability. Half squats are demonstrably less effective.
 - ❌ Half squats are safer
@@ -138,8 +138,8 @@ Weight without technique is just a number. Dropping the load and learning the mo
 
 **Otázka:** Co je RIR (Reps In Reserve)?
 
-- **✅ Počet opakování, která by sis ještě mohl udělat, ale série ukončíš dřív — např. 2 RIR = zastavíš se 2 opakování před selháním**
-  Přesně. Trénink na 2 RIR je bezpečnější a efektivnější než trénink do úplného selhání při každé sérii.
+- **✅ Rezerva opakování před selháním**
+  Přesně. Např. 2 RIR = zastavíš se 2 opakování před selháním. Trénink na 2 RIR je bezpečnější a efektivnější než trénink do úplného selhání při každé sérii.
 - ❌ Počet opakování po selhání (forced reps)
   Forced reps jsou nad selhání — to je opačný koncept. RIR je rezerva před selháním.
 - ❌ 2sekundová pauza mezi opakováními
@@ -149,8 +149,8 @@ Weight without technique is just a number. Dropping the load and learning the mo
 
 **Question:** What is RIR (Reps In Reserve)?
 
-- **✅ The number of reps you could still do but choose to stop before — e.g. 2 RIR = you stop 2 reps before failure**
-  Exactly. Training at 2 RIR is safer and more effective than training to complete failure every set.
+- **✅ Reps held in reserve before failure**
+  Exactly. E.g. 2 RIR = you stop 2 reps before failure. Training at 2 RIR is safer and more effective than going to failure every set.
 - ❌ Reps done after failure (forced reps)
   Forced reps go beyond failure — that's the opposite concept. RIR is the reserve before failure.
 - ❌ A 2-second pause between reps
@@ -185,8 +185,8 @@ Studies tracking injuries in strength training (Kerr et al., 2010) show an injur
 
 **Otázka:** Představ si, že po každé těžké sérii mrtvého tahu bolí záda. Co je nejpravděpodobnější příčina?
 
-- **✅ Špatná technika — zakřivená záda přesouvají zátěž na ploténky místo na hýždě a hamstringy**
-  Přesně. Správně provedený mrtvý tah by neměl bolet záda. Bolest je signál technické chyby, ne normální součást tréninku.
+- **✅ Špatná technika — zakřivená záda**
+  Přesně. Kulatá záda přesouvají zátěž na ploténky místo na hýždě a hamstringy. Správně provedený mrtvý tah by neměl bolet záda. Bolest je signál technické chyby, ne normální součást tréninku.
 - ❌ Mrtvý tah je prostě bolestivý
   Ne — správně provedený mrtvý tah by neměl bolet záda. Bolest = varování, že něco není v pořádku.
 - ❌ Záda jsou slabá, musíš cvičit víc
@@ -196,8 +196,8 @@ Studies tracking injuries in strength training (Kerr et al., 2010) show an injur
 
 **Question:** Imagine your lower back hurts after every heavy deadlift set. What's the most likely cause?
 
-- **✅ Bad technique — a rounded back shifts the load to the discs instead of the glutes and hamstrings**
-  Exactly. A properly performed deadlift shouldn't hurt your back. Pain is a signal of a technique error, not a normal part of training.
+- **✅ Bad technique — a rounded back**
+  Exactly. A rounded back shifts the load onto the discs instead of the glutes and hamstrings. A properly performed deadlift shouldn't hurt your back. Pain is a signal of a technique error, not a normal part of training.
 - ❌ Deadlifts just hurt
   No — a properly executed deadlift shouldn't hurt your back. Pain is a warning that something is wrong.
 - ❌ The back is weak, you need to train it more
@@ -223,8 +223,8 @@ Pain during compound lifts is a signal, not folklore. Film yourself, find the mi
 
 **Otázka:** Jak nejlépe zlepšit techniku?
 
-- **✅ Natáčet si série, srovnávat s kvalitními tutoriály a pravidelně vyhodnocovat**
-  Přesně. Video je objektivní zpětná vazba. I jeden dobrý tip z videa může transformovat trénink.
+- **✅ Natáčet si série a porovnávat s tutoriály**
+  Přesně. Video je objektivní zpětná vazba — i jeden dobrý tip může transformovat trénink. Pravidelné vyhodnocování je klíč.
 - ❌ Trénovat co nejvíc, dokud se to nezlepší samo
   Opakování špatné techniky jen zakládá špatné návyky. Čím déle špatně, tím těžší je to napravit.
 - ❌ Ignorovat techniku a soustředit se na váhu
@@ -234,8 +234,8 @@ Pain during compound lifts is a signal, not folklore. Film yourself, find the mi
 
 **Question:** What's the best way to improve technique?
 
-- **✅ Film your sets, compare with quality tutorials, and review regularly**
-  Exactly. Video is objective feedback. Even one good tip from a video can transform your training.
+- **✅ Film your sets and compare with tutorials**
+  Exactly. Video is objective feedback — even one good tip can transform your training. Regular review is key.
 - ❌ Train as much as possible until it fixes itself
   Repeating bad technique just cements bad habits. The longer you do it wrong, the harder it is to fix.
 - ❌ Ignore technique and focus on the weight
@@ -245,8 +245,8 @@ Pain during compound lifts is a signal, not folklore. Film yourself, find the mi
 
 **Otázka:** Je excentrická (dolní) fáze pohybu důležitá?
 
-- **✅ Ano — kontrola 2–3 sekundy dolů vyvolá více mikropoškození vláken a větší hypertrofický podnět než „padání" dolů**
-  Přesně. Excentrická fáze je pro hypertrofii důležitější než koncentrická. Čas pod napětím rozhoduje.
+- **✅ Ano — 2–3 s dolů dá větší podnět**
+  Přesně. Kontrolovaná excentrická fáze vyvolá více mikropoškození vláken než „padání" dolů. Excentrika je pro hypertrofii důležitější než koncentrika. Čas pod napětím rozhoduje.
 - ❌ Ne — důležité je jen zvedání nahoru
   Opak je pravdou. Svalová vlákna zažívají nejvíce napětí při kontrolovaném spouštění dolů.
 - ❌ Je to jedno, hlavně pohyb dokončit
@@ -256,8 +256,8 @@ Pain during compound lifts is a signal, not folklore. Film yourself, find the mi
 
 **Question:** Does the eccentric (lowering) phase matter?
 
-- **✅ Yes — controlling the descent for 2–3 seconds creates more fiber micro-damage and a bigger hypertrophic stimulus than dropping down**
-  Exactly. The eccentric phase is more important for hypertrophy than the concentric. Time under tension decides.
+- **✅ Yes — a 2–3 s descent builds more muscle**
+  Exactly. A controlled lowering creates more fiber micro-damage than dropping down. The eccentric phase is more important for hypertrophy than the concentric. Time under tension decides.
 - ❌ No — only the lifting part matters
   The opposite is true. Muscle fibers experience the most tension during a controlled lowering.
 - ❌ It doesn't matter, just complete the movement
@@ -267,8 +267,8 @@ Pain during compound lifts is a signal, not folklore. Film yourself, find the mi
 
 **Otázka:** Proč je „ego lifting" nebezpečný?
 
-- **✅ Příliš velká váha nutí k technickým kompromisům — práci přebírají kompenzační svaly a klouby místo cílových svalů**
-  Přesně. Ego lifting způsobuje zranění a paradoxně brzdí růst — velká váha do špatného svalu nepomůže.
+- **✅ Nutí to k technickým kompromisům**
+  Přesně. Práci přeberou kompenzační svaly a klouby místo cílových. Ego lifting způsobuje zranění a paradoxně brzdí růst — velká váha do špatného svalu nepomůže.
 - ❌ Protože ostatní ve fitku soudí
   Sociální aspekt je vedlejší. Hlavní problém je fyziologický — špatná technika nevede ke kýžené adaptaci.
 - ❌ Je to nebezpečné jen pro začátečníky
@@ -278,8 +278,8 @@ Pain during compound lifts is a signal, not folklore. Film yourself, find the mi
 
 **Question:** Why is "ego lifting" dangerous?
 
-- **✅ Too much weight forces technical compromises — compensating muscles and joints take over instead of the target muscles**
-  Exactly. Ego lifting causes injury and paradoxically slows growth — big weight into the wrong muscle won't help.
+- **✅ It forces technical compromises**
+  Exactly. Compensating muscles and joints take over instead of the target ones. Ego lifting causes injury and paradoxically slows growth — big weight into the wrong muscle won't help.
 - ❌ Because others in the gym will judge you
   The social aspect is secondary. The main problem is physiological — bad technique doesn't lead to the desired adaptation.
 - ❌ It's only dangerous for beginners
