@@ -189,7 +189,7 @@ export default async function Home() {
           <div className="text-center max-w-2xl mx-auto space-y-6">
             <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
               Další informace nepotřebuješ. Potřebuješ{" "}
-              <span className="underline-playful font-semibold">něco nebo někoho, kdo ti pomůže začít konat</span>.
+              <span className="underline-playful font-semibold">něco</span>, co ti pomůže začít konat.
             </p>
 
             <Link href="/koucing#rezervace" className="btn-playful" data-shape="2">
