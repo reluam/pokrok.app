@@ -113,7 +113,7 @@ Protein quality depends on the amino acid profile. **Animal sources** (meat, egg
 
 **Otázka:** Muž 80 kg, trénuje 4x týdně. Kolik bílkovin denně?
 
-- **✅ 128–176 g (1,6–2,2 g/kg)**
+- **✅ Asi 160 g (2 g/kg)**
   Přesně. Jeho potřeba je výrazně vyšší než „obecné" doporučení 0,8 g/kg (to by bylo jen 64 g).
 - ❌ 64 g (0,8 g/kg)
   To je minimum pro sedavého člověka k přežití — ne pro trénujícího, který chce růst svalů.
@@ -124,7 +124,7 @@ Protein quality depends on the amino acid profile. **Animal sources** (meat, egg
 
 **Question:** A man weighing 80 kg, training 4 times a week. How much protein per day?
 
-- **✅ 128–176 g (1.6–2.2 g/kg)**
+- **✅ ~160 g (2 g/kg)**
   Exactly. His needs are much higher than the "general" recommendation of 0.8 g/kg (which would only be 64 g).
 - ❌ 64 g (0.8 g/kg)
   That's the survival minimum for a sedentary person — not for a lifter who wants to grow muscle.

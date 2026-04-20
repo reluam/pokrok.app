@@ -204,7 +204,7 @@ A practical rule for setting your macros: first set protein (1.6–2.2 g/kg when
 
 **Otázka:** Kolik kcal má 1 g bílkoviny vs. 1 g tuku?
 
-- **✅ Bílkoviny 4 kcal/g, tuky 9 kcal/g**
+- **✅ Bílkoviny 4, tuky 9 kcal/g**
   Správně. Proto je tuk tak kaloricky hustý — 1 lžíce olivového oleje má ~120 kcal.
 - ❌ Bílkoviny 9 kcal/g, tuky 4 kcal/g
   Je to naopak. Tuky mají víc kalorií na gram než bílkoviny nebo sacharidy.
@@ -215,7 +215,7 @@ A practical rule for setting your macros: first set protein (1.6–2.2 g/kg when
 
 **Question:** How many kcal are in 1 g of protein vs. 1 g of fat?
 
-- **✅ Protein 4 kcal/g, fat 9 kcal/g**
+- **✅ Protein 4, fat 9 kcal/g**
   Correct. That's why fat is so calorie-dense — 1 tablespoon of olive oil is ~120 kcal.
 - ❌ Protein 9 kcal/g, fat 4 kcal/g
   It's the other way around. Fat has more calories per gram than protein or carbs.

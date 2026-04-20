@@ -307,7 +307,7 @@ Mobility is **communication with your nervous system**. Active movement opens up
 
 **Otázka:** Které 4 oblasti jsou nejproblematičtější u sedavého člověka?
 
-- **✅ Kyčle, páteř, kotníky, ramena**
+- **✅ Kyčle, páteř, kotníky**
   Přesně. Hrudní páteř, hip flexory, ramena a kotníky. Sezení zkracuje hip flexory, zavírá ramena, tuží kotníky a „hroutí" hrudní páteř. Mobilita cílená na tyto oblasti má největší dopad.
 - ❌ Kolena, lokty, zápěstí, krk
   Tyto oblasti mohou bolet, ale příčina je často jinde — v kyčlích, hrudní páteři a ramenou. Řeš kořen problému.
@@ -318,7 +318,7 @@ Mobility is **communication with your nervous system**. Active movement opens up
 
 **Question:** Which 4 areas are most problematic for a sedentary person?
 
-- **✅ Hips, spine, ankles, shoulders**
+- **✅ Hips, spine, ankles**
   Exactly. Thoracic spine, hip flexors, shoulders and ankles. Sitting shortens hip flexors, closes the shoulders, stiffens the ankles, and collapses the thoracic spine. Mobility targeting these areas has the biggest impact.
 - ❌ Knees, elbows, wrists, neck
   These areas can hurt, but the cause is often elsewhere — in the hips, thoracic spine, and shoulders. Address the root.
