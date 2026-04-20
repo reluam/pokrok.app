@@ -96,7 +96,7 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="relative order-1 md:order-2 flex justify-center md:justify-end min-h-[360px] md:min-h-[520px]">
+            <div className="relative order-1 md:order-2 flex justify-center md:justify-end min-h-[480px] md:min-h-[520px]">
               {/* Egg/pebble shape behind silhouette */}
               <svg
                 aria-hidden="true"

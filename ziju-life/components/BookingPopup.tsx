@@ -13,6 +13,86 @@ const stripePromise =
     ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
     : null;
 
+// ── Hand-drawn rectangle helper — sharp corners, slight wobble on edges ────
+const RECT_PATHS = [
+  "M 4 4 L 60 4 Q 150 7 240 3 L 296 4 L 296 196 L 240 196 Q 150 199 60 195 L 4 196 Z",
+  "M 4 5 L 60 3 Q 150 6 240 4 L 296 4 L 296 195 L 240 197 Q 150 194 60 197 L 4 196 Z",
+  "M 4 4 L 60 5 Q 150 2 240 5 L 296 3 L 296 196 L 240 195 Q 150 198 60 194 L 4 197 Z",
+];
+
+function HandDrawnRect({
+  variant = 0,
+  fill = "transparent",
+  stroke = "rgba(23,23,23,0.3)",
+  strokeWidth = 1.25,
+}: {
+  variant?: number;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+}) {
+  const path = RECT_PATHS[variant % 3];
+  return (
+    <>
+      {fill !== "transparent" && (
+        <svg
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 300 200"
+          preserveAspectRatio="none"
+        >
+          <path d={path} fill={fill} />
+        </svg>
+      )}
+      <svg
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox="0 0 300 200"
+        preserveAspectRatio="none"
+      >
+        <path
+          d={path}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </>
+  );
+}
+
+// ── Hand-drawn horizontal wobbly line ──────────────────────────────────────
+function HandDrawnHLine({
+  stroke = "rgba(23,23,23,0.2)",
+  strokeWidth = 1.25,
+  className = "h-[6px] w-full",
+}: {
+  stroke?: string;
+  strokeWidth?: number;
+  className?: string;
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      viewBox="0 0 400 6"
+      preserveAspectRatio="none"
+    >
+      <path
+        d="M 2 3 Q 80 1 160 4 Q 240 6 320 2 Q 380 5 398 3"
+        fill="none"
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+
 export type BookingPopupParams = {
   email?: string;
   name?: string;
@@ -475,18 +555,20 @@ function BookingModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="relative w-full max-w-2xl max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        className="relative w-full max-w-2xl max-h-[85vh] flex flex-col shadow-[0_24px_60px_-20px_rgba(23,23,23,0.45)]"
         onClick={(e) => e.stopPropagation()}
       >
+        <HandDrawnRect fill="#FDFBF7" stroke="#171717" strokeWidth={2} variant={0} />
+
         {/* Header */}
-        <div className="flex items-center justify-between shrink-0 px-4 py-3 border-b border-black/10">
-          <span className="font-semibold text-foreground">
+        <div className="relative flex items-center justify-between shrink-0 px-7 pt-6 pb-4">
+          <span className="font-display text-lg font-extrabold text-foreground">
             {paymentStep === "card-form" ? "Platba kartou" : "Vyber si termín"}
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-black/5 transition-colors"
+            className="p-2 text-foreground/60 hover:text-foreground transition-colors"
             aria-label="Zavřít"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -494,11 +576,14 @@ function BookingModal({
             </svg>
           </button>
         </div>
+        <div className="relative px-7">
+          <HandDrawnHLine />
+        </div>
 
         {/* Content */}
         <div
           ref={modalScrollRef}
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4"
+          className="relative flex-1 min-h-0 overflow-y-auto overscroll-contain px-7 py-6"
           onWheel={(e) => {
             const el = modalScrollRef.current;
             if (!el) return;
@@ -520,7 +605,8 @@ function BookingModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2.5 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover transition-colors"
+                className="btn-playful"
+                data-shape="2"
               >
                 Zavřít
               </button>
@@ -626,7 +712,7 @@ function BookingModal({
                     <p className="text-foreground/80 text-sm sm:text-base leading-relaxed">
                       Děkuji a těším se na náš hovor. Na tvůj e-mail ti přijde potvrzení s detaily termínu.
                     </p>
-                    <button type="button" onClick={onClose} className="px-6 py-2 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover">
+                    <button type="button" onClick={onClose} className="btn-playful" data-shape="5">
                       Zavřít
                     </button>
                   </div>
@@ -715,30 +801,42 @@ function BookingModal({
                 <div className="space-y-4">
                   {/* Typ schůzky */}
                   {meetingTypes.length > 0 && (
-                    <div className="rounded-xl border border-black/10 bg-black/3 px-3 py-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60 mb-1">Typ schůzky</p>
-                      {(() => {
-                        const selMt = meetingTypes.find((t) => t.id === selectedMeetingTypeId) ?? meetingTypes[0];
-                        if (!selMt) return null;
-                        if (lockMeetingType || meetingTypes.length === 1) {
+                    <div className="relative px-4 py-3">
+                      <HandDrawnRect fill="#F8EEDB" stroke="rgba(23,23,23,0.35)" variant={1} />
+                      <div className="relative">
+                        <p className="font-display text-[11px] font-bold uppercase tracking-[0.15em] text-foreground/55 mb-1">Typ schůzky</p>
+                        {(() => {
+                          const selMt = meetingTypes.find((t) => t.id === selectedMeetingTypeId) ?? meetingTypes[0];
+                          if (!selMt) return null;
+                          if (lockMeetingType || meetingTypes.length === 1) {
+                            return (
+                              <p className="text-[0.95rem] font-display font-extrabold text-foreground">
+                                {selMt.label}
+                                {selMt.isPaid && <span className="ml-2 text-xs text-foreground/60 font-normal">(placené)</span>}
+                              </p>
+                            );
+                          }
                           return (
-                            <p className="text-sm text-foreground">
-                              {selMt.label}
-                              {selMt.isPaid && <span className="ml-2 text-xs text-foreground/60">(placené)</span>}
-                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {meetingTypes.map((t, i) => {
+                                const active = selectedMeetingTypeId === t.id;
+                                return (
+                                  <button key={t.id} type="button" onClick={() => setSelectedMeetingTypeId(t.id)}
+                                    className="relative px-3 py-1.5 text-xs font-display font-bold text-foreground transition-colors">
+                                    <HandDrawnRect
+                                      fill={active ? "#FFE4CC" : "transparent"}
+                                      stroke={active ? "#171717" : "rgba(23,23,23,0.3)"}
+                                      strokeWidth={active ? 1.75 : 1.25}
+                                      variant={i}
+                                    />
+                                    <span className="relative">{t.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
                           );
-                        }
-                        return (
-                          <div className="flex flex-wrap gap-2">
-                            {meetingTypes.map((t) => (
-                              <button key={t.id} type="button" onClick={() => setSelectedMeetingTypeId(t.id)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedMeetingTypeId === t.id ? "bg-accent text-white border-accent" : "bg-white text-foreground border-black/10 hover:border-accent/50 hover:bg-accent/5"}`}>
-                                {t.label}
-                              </button>
-                            ))}
-                          </div>
-                        );
-                      })()}
+                        })()}
+                      </div>
                     </div>
                   )}
 
@@ -746,32 +844,54 @@ function BookingModal({
                     {/* Kalendář */}
                     <div className="shrink-0">
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">Datum</p>
-                        <div className="flex items-center gap-1">
+                        <p className="font-display text-[11px] font-bold uppercase tracking-[0.15em] text-foreground/55">Datum</p>
+                        <div className="flex items-center gap-1.5">
                           {offset > 0 && (
                             <>
-                              <button type="button" onClick={goToPrevWeeks} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">← Zpět</button>
-                              <button type="button" onClick={goToToday} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">Dnes</button>
+                              <button type="button" onClick={goToPrevWeeks} className="relative px-3 py-1 text-xs font-display font-bold text-foreground/70 hover:text-foreground transition-colors">
+                                <HandDrawnRect variant={0} />
+                                <span className="relative">← Zpět</span>
+                              </button>
+                              <button type="button" onClick={goToToday} className="relative px-3 py-1 text-xs font-display font-bold text-foreground/70 hover:text-foreground transition-colors">
+                                <HandDrawnRect variant={1} />
+                                <span className="relative">Dnes</span>
+                              </button>
                             </>
                           )}
-                          <button type="button" onClick={goToNextWeeks} className="rounded-lg border border-black/10 bg-white px-2 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-black/5">Další →</button>
+                          <button type="button" onClick={goToNextWeeks} className="relative px-3 py-1 text-xs font-display font-bold text-foreground/70 hover:text-foreground transition-colors">
+                            <HandDrawnRect variant={2} />
+                            <span className="relative">Další →</span>
+                          </button>
                         </div>
                       </div>
                       <div className="grid grid-cols-7 gap-1.5" style={{ gridTemplateColumns: "repeat(7, minmax(2.25rem, 1fr))" }}>
-                        {dates.map((d) => {
+                        {dates.map((d, i) => {
                           const past = isPast(d);
                           const selectable = canSelectDate(d);
                           const isSelected = selectedDate === d;
+                          const muted = past || !selectable;
                           return (
-                            <button key={d} type="button" onClick={() => selectDate(d)} disabled={!selectable}
-                              className={`flex min-w-0 flex-col items-center justify-center rounded-lg border px-1.5 py-2 text-center text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-accent ${
-                                past ? "cursor-default border-black/5 bg-black/5 text-foreground/40" :
-                                !selectable ? "cursor-not-allowed border-black/5 bg-black/5 text-foreground/40" :
-                                isSelected ? "border-accent bg-accent text-white" :
-                                "border-black/10 bg-white text-foreground hover:border-accent/50 hover:bg-accent/10"
-                              }`}>
-                              <span className="block w-full truncate text-[10px] opacity-80">{new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", { weekday: "short" })}</span>
-                              <span className="mt-0.5 block font-semibold">{new Date(d + "T12:00:00").getDate()}</span>
+                            <button
+                              key={d}
+                              type="button"
+                              onClick={() => selectDate(d)}
+                              disabled={!selectable}
+                              className={`relative flex min-w-0 flex-col items-center justify-center px-1.5 py-2 text-center transition focus:outline-none ${
+                                muted
+                                  ? "cursor-default text-foreground/30 line-through decoration-foreground/20"
+                                  : "text-foreground"
+                              } ${isSelected ? "shadow-[2px_2px_0_rgba(23,23,23,0.9)]" : ""}`}
+                            >
+                              {!muted && (
+                                <HandDrawnRect
+                                  variant={i}
+                                  fill={isSelected ? "#FFE4CC" : "transparent"}
+                                  stroke={isSelected ? "#171717" : "rgba(23,23,23,0.25)"}
+                                  strokeWidth={isSelected ? 1.75 : 1.25}
+                                />
+                              )}
+                              <span className="relative block w-full truncate text-[10px] opacity-70 font-display">{new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", { weekday: "short" })}</span>
+                              <span className="relative mt-0.5 block font-display font-extrabold">{new Date(d + "T12:00:00").getDate()}</span>
                             </button>
                           );
                         })}
@@ -780,36 +900,57 @@ function BookingModal({
 
                     {/* Časy */}
                     <div className="min-w-0 flex-1">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground/60">
+                      <p className="mb-2 font-display text-[11px] font-bold uppercase tracking-[0.15em] text-foreground/55">
                         {selectedDate ? `Čas — ${formatSlotDate(selectedDate + "T12:00:00")}` : "Čas"}
                       </p>
                       {!selectedDate ? (
-                        <p className="rounded-xl bg-black/5 px-4 py-3 text-sm text-foreground/60">Vyber datum v kalendáři.</p>
+                        <div className="relative px-4 py-3 text-sm text-foreground/55">
+                          <HandDrawnRect stroke="rgba(23,23,23,0.2)" variant={2} />
+                          <span className="relative">Vyber datum v kalendáři.</span>
+                        </div>
                       ) : slotsForDay.length === 0 ? (
-                        <p className="rounded-xl bg-black/5 px-4 py-3 text-sm text-foreground/60">Pro tento den nejsou volné termíny.</p>
+                        <div className="relative px-4 py-3 text-sm text-foreground/55">
+                          <HandDrawnRect stroke="rgba(23,23,23,0.2)" variant={2} />
+                          <span className="relative">Pro tento den nejsou volné termíny.</span>
+                        </div>
                       ) : (
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-3">
-                          {slotsForDay.map((slot) => (
-                            <button key={slot.id} type="button" onClick={() => setSelected(slot)}
-                              className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-accent ${selected?.id === slot.id ? "border-accent bg-accent text-white" : "border-black/10 bg-white text-foreground hover:border-accent/50 hover:bg-accent/10"}`}>
-                              {formatSlotTime(slot.startAt)}
-                            </button>
-                          ))}
+                          {slotsForDay.map((slot, i) => {
+                            const isSel = selected?.id === slot.id;
+                            return (
+                              <button
+                                key={slot.id}
+                                type="button"
+                                onClick={() => setSelected(slot)}
+                                className={`relative px-3 py-2.5 text-sm font-display font-extrabold text-foreground transition focus:outline-none ${isSel ? "shadow-[2px_2px_0_rgba(23,23,23,0.9)]" : ""}`}
+                              >
+                                <HandDrawnRect
+                                  variant={i}
+                                  fill={isSel ? "#FFE4CC" : "transparent"}
+                                  stroke={isSel ? "#171717" : "rgba(23,23,23,0.25)"}
+                                  strokeWidth={isSel ? 1.75 : 1.25}
+                                />
+                                <span className="relative">{formatSlotTime(slot.startAt)}</span>
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
 
                       {selected && (
-                        <div className="mt-4 pt-4 border-t border-black/10 space-y-4">
+                        <div className="mt-5 pt-4 space-y-3">
+                          <div className="-mt-4 mb-2"><HandDrawnHLine /></div>
                           <p className="text-sm text-foreground/70">
-                            Vybráno: {formatSlotDate(selected.startAt)} v {formatSlotTime(selected.startAt)}
+                            Vybráno: <span className="font-display font-extrabold text-foreground">{formatSlotDate(selected.startAt)} v {formatSlotTime(selected.startAt)}</span>
                             {selected.durationMinutes ? ` (${selected.durationMinutes} min)` : ""}
                           </p>
-                          {reserveError && <p className="text-sm text-red-600">{reserveError}</p>}
+                          {reserveError && <p className="text-sm text-red-600 font-semibold">{reserveError}</p>}
                           <button
                             type="button"
                             onClick={handleConfirm}
                             disabled={reserving}
-                            className="w-full px-6 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-accent-hover disabled:opacity-70 transition-colors"
+                            className="btn-playful w-full justify-center text-base disabled:opacity-60 disabled:cursor-not-allowed"
+                            data-shape="3"
                           >
                             {reserving ? "Zpracovávám…" : currentMeetingType?.isPaid && currentMeetingType?.priceId && stripePromise ? "Pokračovat k platbě" : "Potvrdit rezervaci"}
                           </button>
@@ -829,17 +970,22 @@ function BookingModal({
 
         {/* Footer – kroky */}
         {!success && paymentStep !== "paid" && (
-          <div className="shrink-0 border-t border-black/10 px-4 py-3 flex items-center justify-center gap-5 sm:gap-6 text-[11px] sm:text-xs text-foreground/60">
-            <div className="flex items-center gap-2 opacity-70"><span className="flex h-2.5 w-2.5 rounded-full bg-accent" /><span>Krok 1: Údaje</span></div>
+          <div className="relative shrink-0 px-7">
+            <HandDrawnHLine />
+          </div>
+        )}
+        {!success && paymentStep !== "paid" && (
+          <div className="relative shrink-0 px-7 pt-4 pb-5 flex items-center justify-center gap-5 sm:gap-6 text-[11px] sm:text-xs font-display font-bold text-foreground/55">
+            <div className="flex items-center gap-2 opacity-70"><span className="flex h-2.5 w-2.5 rounded-full bg-primary" /><span>Krok 1: Údaje</span></div>
             <div className={`flex items-center gap-2 ${paymentStep !== "idle" ? "opacity-70" : ""}`}>
-              <span className="flex h-2.5 w-2.5 rounded-full bg-accent" /><span>Krok 2: Termín</span>
+              <span className="flex h-2.5 w-2.5 rounded-full bg-primary" /><span>Krok 2: Termín</span>
             </div>
             {(() => {
               const mt = meetingTypes.find((t) => t.id === selectedMeetingTypeId) ?? meetingTypes[0];
               if (!mt?.isPaid) return null;
               return (
                 <div className={`flex items-center gap-2 ${paymentStep === "card-form" || paymentStep === "intent-loading" ? "" : "opacity-50"}`}>
-                  <span className={`flex h-2.5 w-2.5 rounded-full ${paymentStep === "card-form" || paymentStep === "intent-loading" ? "bg-accent" : "border border-accent/40"}`} />
+                  <span className={`flex h-2.5 w-2.5 rounded-full ${paymentStep === "card-form" || paymentStep === "intent-loading" ? "bg-primary" : "border border-primary/40"}`} />
                   <span>Krok 3: Platba</span>
                 </div>
               );

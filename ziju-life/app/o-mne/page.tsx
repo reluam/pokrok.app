@@ -165,20 +165,13 @@ export default function OMnePage() {
         {/* ─── Moje cesta ─── */}
         <section
           id="moje-cesta"
-          className="mb-16 md:mb-20 scroll-mt-24 animate-fade-up"
+          className="mb-16 md:mb-20 scroll-mt-24 animate-fade-up max-w-3xl mx-auto space-y-6"
           style={{ animationDelay: "300ms" }}
         >
-          <HandDrawnCard
-            variant={2}
-            shadow={false}
-            stroke="#171717"
-            strokeWidth={1.5}
-            innerClassName="px-10 md:px-16 py-14 md:py-20 space-y-6"
-          >
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
-              Moje cesta: Od úniku k <span className="underline-playful">přítomnosti</span>
-            </h2>
-            <div className="space-y-5 text-lg text-foreground/65 leading-relaxed">
+          <h2 className="font-display text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
+            Moje cesta: Od úniku k <span className="underline-playful">přítomnosti</span>
+          </h2>
+          <div className="space-y-5 text-lg text-foreground/65 leading-relaxed">
               <p>
                 Od mala jsem si přál jediné — fungovat jako normální člověk. Jenže čím víc jsem se snažil, tím míň to šlo. Ostatní jako by věděli, co se životem dělat. Já ne. Ten pocit tam byl vždycky. Tiše, v pozadí, jako něco, co jsem si nechtěl přiznat.
               </p>
@@ -212,11 +205,10 @@ export default function OMnePage() {
               <p>
                 Celý život jsem utíkal před &bdquo;normálností&ldquo;. Ironií je, že právě přijetí obyčejného, každodenního života mi dalo víc než roky hledání výjimečnosti.
               </p>
-              <p>
-                Tohle byl můj největší zlom. Pořád jsem na cestě, ale jedno vím jistě: Chci zkoumat, jak žít skutečně prožitý život. A předávat dál, co jsem zjistil.
-              </p>
-            </div>
-          </HandDrawnCard>
+            <p>
+              Tohle byl můj největší zlom. Pořád jsem na cestě, ale jedno vím jistě: Chci zkoumat, jak žít skutečně prožitý život. A předávat dál, co jsem zjistil.
+            </p>
+          </div>
         </section>
 
         {/* ─── CTA ─── */}

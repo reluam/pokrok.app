@@ -283,11 +283,12 @@ export default function Navigation() {
               );
             })}
 
-            <div className="pt-2">
+            <div className="pt-3 flex justify-center">
               <Link
                 href="/koucing#rezervace"
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-4 py-2.5 bg-primary text-white rounded-full text-base font-display font-bold hover:bg-primary-dark transition-colors text-center"
+                className="btn-playful text-base"
+                data-shape="4"
               >
                 Chci změnu &rarr;
               </Link>
