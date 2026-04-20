@@ -82,8 +82,8 @@ Meditation is attention training. It's not about having no thoughts — it's abo
 
 **Otázka:** Co je podstatou meditace?
 
-- **✅ Všímat si myšlenek bez souzení a vracet pozornost zpět ke kotvě**
-  Přesně! Meditace není boj s myšlenkami. Je to trénink všímání a návratu. Každé „ztracení se" je příležitost procvičit návrat.
+- **✅ Všímat si myšlenek a vracet pozornost ke kotvě**
+  Přesně! Bez souzení — meditace není boj s myšlenkami, je to trénink všímání a návratu. Každé „ztracení se" je příležitost procvičit návrat.
 - ❌ Úplně vyprázdnit mysl a dosáhnout stavu bez myšlenek
   Tohle je nejčastější mýtus. Mysl má myšlenky, stejně jako srdce má tepy. Meditace není o jejich odstranění, ale o změně vztahu k nim.
 - ❌ Uvolnit se a cítit se klidně
@@ -93,8 +93,8 @@ Meditation is attention training. It's not about having no thoughts — it's abo
 
 **Question:** What's the essence of meditation?
 
-- **✅ Noticing thoughts without judgment and returning your attention to the anchor**
-  Exactly! Meditation isn't a fight against thoughts. It's training in noticing and returning. Every "getting lost" is a chance to practice coming back.
+- **✅ Noticing thoughts and returning to anchor**
+  Exactly! Without judgment — meditation isn't a fight against thoughts, it's training in noticing and returning. Every "getting lost" is a chance to practice coming back.
 - ❌ Completely emptying your mind and reaching a thought-free state
   This is the most common myth. The mind produces thoughts, just like the heart produces beats. Meditation isn't about removing them — it's about changing your relationship to them.
 - ❌ Relaxing and feeling calm
@@ -112,8 +112,8 @@ Jon Kabat-Zinn, who brought meditation into medicine forty years ago with the MB
 
 **Otázka:** Co NEJVÍCE odlišuje meditaci od obyčejného „relaxování u seriálu"?
 
-- **✅ Záměrné věnování pozornosti tomu, co se právě děje**
-  Přesně. Relaxace u seriálu je pasivní útěk. Meditace je aktivní přítomnost. Proto je mnohem účinnější pro dlouhodobé zdraví.
+- **✅ Záměrná pozornost k přítomnosti**
+  Přesně — vědomě sleduješ, co se právě děje. Relaxace u seriálu je pasivní útěk, meditace je aktivní přítomnost. Proto je mnohem účinnější pro dlouhodobé zdraví.
 - ❌ Musí se dělat vsedě se zkříženýma nohama
   Poloha není podstatná. Někdo medituje vleže, vstoje, v chůzi. Záměr a pozornost jsou to, co dělá meditaci meditací.
 - ❌ Musí trvat nejméně 30 minut
@@ -123,8 +123,8 @@ Jon Kabat-Zinn, who brought meditation into medicine forty years ago with the MB
 
 **Question:** What MOST sets meditation apart from just "relaxing in front of a TV show"?
 
-- **✅ Intentionally paying attention to what's happening right now**
-  Exactly. Relaxing to a show is a passive escape. Meditation is active presence. That's why it's much more effective for long-term health.
+- **✅ Intentional attention to the present**
+  Exactly — deliberately noticing what's happening right now. Relaxing to a show is a passive escape, meditation is active presence. That's why it's much more effective for long-term health.
 - ❌ It has to be done sitting cross-legged
   Posture isn't the point. Some people meditate lying down, standing, or walking. Intention and attention are what make meditation meditation.
 - ❌ It has to last at least 30 minutes
@@ -142,7 +142,7 @@ Meditation isn't about reaching a special state. It's training in noticing and g
 
 **Otázka:** Představ si, že poprvé zkusíš meditovat. Po minutě si uvědomíš, že jsi myslel/a na nákupní seznam. Co bys měl/a udělat?
 
-- **✅ Usmát se nad tím, jak pracuje mysl, a vrátit se k dechu**
+- **✅ Usmát se nad myslí a vrátit se k dechu**
   Ano! Právě v tomto okamžiku meditace skutečně začíná. Uvědomění, že ses ztratil/a, JE meditace. Čím víc se to stane, tím lépe.
 - ❌ Snažit se intenzivněji potlačit všechny myšlenky
   Potlačování myšlenek je jako sedat na víko tlakového hrnce. Vytváří to napětí. Zkus opačný přístup — nech je přijít a odejít.
@@ -153,7 +153,7 @@ Meditation isn't about reaching a special state. It's training in noticing and g
 
 **Question:** Imagine you try meditating for the first time. After a minute you realize you were thinking about your shopping list. What should you do?
 
-- **✅ Smile at how the mind works, and return to the breath**
+- **✅ Smile at the mind and return to the breath**
   Yes! This is the moment meditation actually begins. Realizing you got lost IS meditation. The more it happens, the better.
 - ❌ Try harder to suppress all thoughts
   Suppressing thoughts is like sitting on the lid of a pressure cooker. It builds tension. Try the opposite — let them come and go.
@@ -186,8 +186,8 @@ Meditation isn't about reaching a special state. It's training in noticing and g
 
 **Otázka:** Proč jsou myšlenky během meditace vlastně užitečné?
 
-- **✅ Každá myšlenka, které si všimneš, je příležitost procvičit návrat pozornosti — to je samotný trénink**
-  Přesně. Bez myšlenek by nebyl trénink. Každé „odběhnutí a návrat" posiluje tvůj sval pozornosti. Čím víc se to stane, tím silnější se stáváš.
+- **✅ Každá myšlenka je příležitost procvičit návrat pozornosti**
+  Přesně — to je samotný trénink. Bez myšlenek by nebyl. Každé „odběhnutí a návrat" posiluje tvůj sval pozornosti. Čím víc se to stane, tím silnější se stáváš.
 - ❌ Nejsou užitečné — cílem je mít jich co nejméně
   Takhle to nefunguje. Mysl produkuje myšlenky automaticky. Snaha jich mít méně jen vytváří napětí a frustraci.
 - ❌ Obsahují důležité vzkazy z podvědomí, které bys měl/a analyzovat
@@ -197,8 +197,8 @@ Meditation isn't about reaching a special state. It's training in noticing and g
 
 **Question:** Why are thoughts during meditation actually useful?
 
-- **✅ Every thought you notice is a chance to practice returning your attention — that IS the training**
-  Exactly. Without thoughts there would be no training. Every "wander off and return" strengthens your attention muscle. The more it happens, the stronger you get.
+- **✅ Every thought you notice is a chance to practice returning attention**
+  Exactly — that IS the training. Without thoughts there would be none. Every "wander off and return" strengthens your attention muscle. The more it happens, the stronger you get.
 - ❌ They're not useful — the goal is to have as few as possible
   That's not how it works. The mind produces thoughts automatically. Trying to have fewer just creates tension and frustration.
 - ❌ They contain important messages from the subconscious that you should analyze
@@ -233,8 +233,8 @@ Why does meditation actually work? Neuroscientist Richard Davidson has been stud
 
 **Otázka:** Medituješ dva týdny po deseti minutách denně a necítíš žádný dramatický rozdíl. Co by sis měl/a uvědomit?
 
-- **✅ Změny v mozku jsou postupné a jemné — dva týdny je začátek, ne závěr**
-  Studie ukazují měřitelné změny po 8 týdnech denní praxe. A první týdny jsou často ty nejtěžší — mysl bouří.
+- **✅ Změny jsou postupné — dva týdny je začátek, ne závěr**
+  Přesně. Studie ukazují měřitelné změny po 8 týdnech denní praxe. A první týdny jsou často ty nejtěžší — mysl bouří.
 - ❌ Meditace na tebe nefunguje, měl/a bys přestat
   To je předčasný závěr. Dva týdny sotva stačí si zvyknout na proces. Drobné efekty už ale bývají přítomné.
 - ❌ Měl/a bys meditovat hodinu denně, aby to mělo smysl
@@ -244,8 +244,8 @@ Why does meditation actually work? Neuroscientist Richard Davidson has been stud
 
 **Question:** You've been meditating ten minutes a day for two weeks and don't feel any dramatic difference. What should you realize?
 
-- **✅ Changes in the brain are gradual and subtle — two weeks is the beginning, not the end**
-  Studies show measurable changes after 8 weeks of daily practice. And the first weeks are often the hardest — the mind is stormy.
+- **✅ Brain changes are gradual — two weeks is just the start**
+  Exactly. Studies show measurable changes after 8 weeks of daily practice. And the first weeks are often the hardest — the mind is stormy.
 - ❌ Meditation doesn't work for you; you should stop
   That's a premature conclusion. Two weeks is barely enough to get used to the process. Small effects are usually already there, though.
 - ❌ You should meditate an hour a day for it to be meaningful
@@ -267,8 +267,8 @@ In the 1970s, molecular biologist Jon Kabat-Zinn brought meditation into the hos
 
 **Otázka:** Ve které situaci je mindfulness meditace obzvlášť užitečná?
 
-- **✅ Při chronickém stresu, úzkosti nebo potřebě lépe se znát**
-  Právě zde má meditace nejsilnější efekt — pomáhá regulovat nervový systém a získat odstup od automatických reakcí.
+- **✅ Při chronickém stresu nebo úzkosti**
+  Nebo při potřebě lépe se znát. Právě zde má meditace nejsilnější efekt — pomáhá regulovat nervový systém a získat odstup od automatických reakcí.
 - ❌ Jen když chceš dosáhnout duchovního osvícení
   To je duchovní cíl, který může meditace mít, ale pro většinu lidí jsou přínosy mnohem praktičtější: lepší spánek, méně stresu, jasnější hlava.
 - ❌ Jen když nic jiného nefunguje
@@ -278,7 +278,7 @@ In the 1970s, molecular biologist Jon Kabat-Zinn brought meditation into the hos
 
 **Question:** In which situation is mindfulness meditation especially useful?
 
-- **✅ With chronic stress, anxiety, or a need to know yourself better**
+- **✅ With chronic stress, anxiety, or self-knowledge**
   This is where meditation has the strongest effect — it helps regulate your nervous system and get some distance from automatic reactions.
 - ❌ Only when you want to reach spiritual enlightenment
   That's a spiritual goal meditation can have, but for most people the benefits are much more practical: better sleep, less stress, a clearer head.
@@ -309,8 +309,8 @@ Meditation is a skill you learn — it's not a talent, and it's not a religion. 
 
 **Otázka:** Co je pravda o vlivu meditace na mozek?
 
-- **✅ Pravidelná praxe prokazatelně zesiluje oblasti pozornosti a emoční regulace a zmenšuje amygdalu**
-  Přesně. Neurovědec Richard Davidson to prokázal opakovanými studiemi. Mozek se přizpůsobuje tomu, co pravidelně trénuješ — platí to i pro pozornost.
+- **✅ Zesiluje oblasti pozornosti a zmenšuje amygdalu**
+  Přesně. Pravidelná praxe prokazatelně posiluje i emoční regulaci. Neurovědec Richard Davidson to prokázal opakovanými studiemi — mozek se přizpůsobuje tomu, co trénuješ.
 - ❌ Meditace působí jen na „pocitové" úrovni, v mozku se nic měřitelného nemění
   Studie zobrazovacími metodami (fMRI) jednoznačně ukazují strukturální změny po 8 týdnech pravidelné praxe. Je to měřitelná fyzická změna.
 - ❌ Meditace funguje jen díky placebo efektu
@@ -320,8 +320,8 @@ Meditation is a skill you learn — it's not a talent, and it's not a religion. 
 
 **Question:** What's true about meditation's effect on the brain?
 
-- **✅ Regular practice measurably strengthens attention and emotional regulation areas and shrinks the amygdala**
-  Exactly. Neuroscientist Richard Davidson has demonstrated this in repeated studies. The brain adapts to what you regularly train — and that applies to attention too.
+- **✅ It strengthens the attention areas and shrinks the amygdala**
+  Exactly. Regular practice also boosts emotional regulation. Neuroscientist Richard Davidson has demonstrated this in repeated studies — the brain adapts to what you train.
 - ❌ Meditation only works on a "felt" level, nothing measurable changes in the brain
   Imaging studies (fMRI) clearly show structural changes after 8 weeks of regular practice. It's a measurable physical change.
 - ❌ Meditation only works because of the placebo effect
@@ -353,8 +353,8 @@ Meditation is a skill you learn — it's not a talent, and it's not a religion. 
 
 **Otázka:** V meditaci není „dobře" a „špatně". Co z toho vyplývá pro tvou praxi?
 
-- **✅ Každý okamžik všímání — i toho, že myslíš na něco jiného — je vítězství a posiluje tvou pozornost**
-  Přesně. Meditace se neměří tím, kolik myšlenek jsi měl/a, ale tím, kolikrát ses vrátil/a. Každý návrat je jeden „rep" v posilovně pozornosti.
+- **✅ Každý okamžik všímání je vítězství a posiluje pozornost**
+  Přesně — i když si všimneš, že myslíš na něco jiného. Meditace se neměří tím, kolik myšlenek jsi měl/a, ale tím, kolikrát ses vrátil/a. Každý návrat je jeden „rep" v posilovně pozornosti.
 - ❌ Můžeš meditovat, jak chceš, záměr a technika nejsou důležité
   Záměr je klíčový — „věnovat pozornost záměrně, přítomně a nehodnotícím způsobem" je definice praxe. Bez záměru je to jen sezení se zavřenýma očima.
 - ❌ Pokud máš hodně myšlenek, meditace na tebe nefunguje
@@ -364,8 +364,8 @@ Meditation is a skill you learn — it's not a talent, and it's not a religion. 
 
 **Question:** In meditation there's no "good" or "bad." What does that mean for your practice?
 
-- **✅ Every moment of noticing — even noticing that you're thinking about something else — is a win that strengthens your attention**
-  Exactly. Meditation isn't measured by how many thoughts you had, but by how many times you returned. Every return is one "rep" in the gym of attention.
+- **✅ Every moment of noticing is a win that strengthens your attention**
+  Exactly — even noticing that you're thinking about something else. Meditation isn't measured by how many thoughts you had, but by how many times you returned. Every return is one "rep" in the gym of attention.
 - ❌ You can meditate however you want, intention and technique don't matter
   Intention is key — "paying attention on purpose, in the present moment, and non-judgmentally" is the definition of the practice. Without intention, it's just sitting with your eyes closed.
 - ❌ If you have lots of thoughts, meditation doesn't work for you

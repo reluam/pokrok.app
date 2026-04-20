@@ -82,8 +82,8 @@ That's the power of naming. Neuroscientist **Dan Siegel** calls it "name it to t
 
 **Otázka:** Proč pouhé pojmenování emoce pomáhá mozku se uklidnit?
 
-- **✅ Aktivuje prefrontální kůru a snižuje aktivitu amygdaly (emočního centra)**
-  Přesně. Pojmenování přepíná mozek z reaktivního do vědomého režimu. Dr. Dan Siegel tomu říká „name it to tame it".
+- **✅ Aktivuje prefrontál, tlumí amygdalu**
+  Přesně. Amygdala je emoční centrum. Pojmenování přepíná mozek z reaktivního do vědomého režimu. Dr. Dan Siegel tomu říká „name it to tame it".
 - ❌ Protože pak někdo jiný ví, co cítíš
   Funguje to i pro tebe samotného. Nepotřebuješ publikum. Efekt je neurobiologický.
 - ❌ Protože pak můžeš napsat deník
@@ -93,8 +93,8 @@ That's the power of naming. Neuroscientist **Dan Siegel** calls it "name it to t
 
 **Question:** Why does simply naming an emotion help the brain calm down?
 
-- **✅ It activates the prefrontal cortex and reduces activity in the amygdala (the emotional center)**
-  Exactly. Naming switches the brain from reactive to conscious mode. Dr. Dan Siegel calls it "name it to tame it."
+- **✅ Activates prefrontal cortex, calms amygdala**
+  Exactly. The amygdala is the emotional center. Naming switches the brain from reactive to conscious mode. Dr. Dan Siegel calls it "name it to tame it."
 - ❌ Because then someone else knows what you're feeling
   It works even just for yourself. You don't need an audience. The effect is neurobiological.
 - ❌ Because then you can write in a journal
@@ -116,8 +116,8 @@ Tip: ask "And what else am I feeling?" The first answer is usually superficial. 
 
 **Otázka:** Řekneš si „jsem naštvaný/á" po kritice od šéfa. Ale zastavíš se a přemýšlíš. Co pravděpodobně najdeš pod vztekem?
 
-- **✅ Pod vztekem často bývá zranění, strach nebo stud**
-  Přesně. Vztek je často „sekundární emoce" — obranná reakce na primární pocit jako stud, zranění nebo bezmoc.
+- **✅ Zranění, strach nebo stud**
+  Přesně. Pod vztekem často leží tyto pocity. Vztek je často „sekundární emoce" — obranná reakce na primární pocit jako stud, zranění nebo bezmoc.
 - ❌ Pod vztekem je ještě větší vztek
   Obvykle ne. Vztek je často ochranná vrstva, pod kterou leží zranitelnější emoce.
 - ❌ Nic — vztek je kompletní emoce
@@ -127,8 +127,8 @@ Tip: ask "And what else am I feeling?" The first answer is usually superficial. 
 
 **Question:** You tell yourself "I'm angry" after criticism from your boss. But you pause and reflect. What will you likely find under the anger?
 
-- **✅ Under anger there's often hurt, fear, or shame**
-  Exactly. Anger is often a "secondary emotion" — a defensive reaction to a primary feeling like shame, hurt, or helplessness.
+- **✅ Hurt, fear, or shame**
+  Exactly. Under anger these feelings often lie. Anger is often a "secondary emotion" — a defensive reaction to a primary feeling like shame, hurt, or helplessness.
 - ❌ Under anger there's even more anger
   Usually not. Anger is often a protective layer, beneath which lie more vulnerable emotions.
 - ❌ Nothing — anger is a complete emotion
@@ -168,8 +168,8 @@ Naming a feeling is the **first step to handling it**. A blurry, nameless feelin
 
 **Otázka:** Formulace „JSEM naštvaný" vs. „CÍTÍM vztek" — jaký je v tom rozdíl?
 
-- **✅ „JSEM naštvaný" = identifikace s emocí; „CÍTÍM vztek" = pozorování emoce. Drobná změna, obrovský rozdíl.**
-  Přesně. V prvním případě jsi emoce. V druhém ji pozoruješ. Ten prostor mezi tebou a pocitem je klíčový.
+- **✅ „JSEM" = identifikace; „CÍTÍM" = pozorování**
+  Přesně. Drobná změna, obrovský rozdíl. V prvním případě jsi emoce. V druhém ji pozoruješ. Ten prostor mezi tebou a pocitem je klíčový.
 - ❌ Žádný rozdíl — je to jen o slovech
   Není to jen o slovech. Formulace mění tvůj vztah k emoci a to, jak ji mozek zpracovává.
 - ❌ „CÍTÍM vztek" je slabší a znamená, že emoce není reálná
@@ -179,8 +179,8 @@ Naming a feeling is the **first step to handling it**. A blurry, nameless feelin
 
 **Question:** "I AM angry" vs. "I FEEL anger" — what's the difference?
 
-- **✅ "I AM angry" = identifying with the emotion; "I FEEL anger" = observing the emotion. A tiny change, a huge difference.**
-  Exactly. In the first case, you are the emotion. In the second, you're watching it. That space between you and the feeling is key.
+- **✅ "I AM" = identifying; "I FEEL" = observing**
+  Exactly. A tiny change, a huge difference. In the first case, you are the emotion. In the second, you're watching it. That space between you and the feeling is key.
 - ❌ No difference — it's just about words
   It's not just about words. The phrasing changes your relationship to the emotion and how the brain processes it.
 - ❌ "I FEEL anger" is weaker and means the emotion isn't real
@@ -190,8 +190,8 @@ Naming a feeling is the **first step to handling it**. A blurry, nameless feelin
 
 **Otázka:** V práci cítíš, že se „rozkládáš", ale musíš pokračovat ve schůzce. Jak můžeš techniku pojmenování použít nenápadně?
 
-- **✅ V duchu si rychle pojmenuj: „Cítím se zahlcená. Úzkost. Únava." Bez analýzy — trvá to 3 sekundy.**
-  Přesně. Pojmenování lze udělat mentálně, kdykoli a kdekoli. Výrazný úlevný efekt.
+- **✅ Tiše pojmenuj pocity — 3 sekundy**
+  Přesně. Třeba: „Cítím se zahlcená. Úzkost. Únava." Bez analýzy. Pojmenování lze udělat mentálně, kdykoli a kdekoli. Výrazný úlevný efekt.
 - ❌ Opustit schůzku a jít plakat
   Není potřeba — technika je použitelná i uprostřed situace, tiše, bez viditelné reakce.
 - ❌ Ignorovat pocit a „vydržet"
@@ -201,8 +201,8 @@ Naming a feeling is the **first step to handling it**. A blurry, nameless feelin
 
 **Question:** At work you feel yourself "falling apart," but you have to stay in the meeting. How can you use the naming technique discreetly?
 
-- **✅ Quickly name it silently: "I feel overwhelmed. Anxiety. Fatigue." No analysis — it takes 3 seconds.**
-  Exactly. Naming can be done mentally, anytime and anywhere. Significant relief.
+- **✅ Silently name the feelings — 3 seconds**
+  Exactly. For example: "I feel overwhelmed. Anxiety. Fatigue." No analysis. Naming can be done mentally, anytime and anywhere. Significant relief.
 - ❌ Leave the meeting and go cry
   Not needed — the technique works in the middle of the situation, silently, without visible reaction.
 - ❌ Ignore the feeling and "push through"
@@ -241,8 +241,8 @@ A simple practice: once a day, pause and ask **"What am I feeling right now?"** 
 
 **Otázka:** Cítíš „něco nepříjemného", ale nevíš, jak to pojmenovat. Co ti může pomoct?
 
-- **✅ Podívat se na kolo emocí (Plutchik, Willcox) — nabízí desítky slov pro různé odstíny emocí**
-  Přesně. Kolo emocí je skvělý nástroj pro rozšíření slovní zásoby. Vidíš slova a hledáš, co rezonuje.
+- **✅ Podívat se na kolo emocí (Plutchik, Willcox)**
+  Přesně. Nabízí desítky slov pro různé odstíny emocí. Kolo emocí je skvělý nástroj pro rozšíření slovní zásoby. Vidíš slova a hledáš, co rezonuje.
 - ❌ Prostě říct „cítím se špatně" a jít dál
   To je moc vágní. Efekt pojmenování se ztratí. Přesnost je klíčová.
 - ❌ Ignorovat pocit — když ho nepojmenuješ, zmizí
@@ -252,8 +252,8 @@ A simple practice: once a day, pause and ask **"What am I feeling right now?"** 
 
 **Question:** You feel "something unpleasant" but don't know how to name it. What can help?
 
-- **✅ Look at a wheel of emotions (Plutchik, Willcox) — it offers dozens of words for different shades of emotions**
-  Exactly. The wheel of emotions is a great tool for expanding vocabulary. You see words and look for what resonates.
+- **✅ Look at a wheel of emotions (Plutchik, Willcox)**
+  Exactly. It offers dozens of words for different shades of emotions. The wheel of emotions is a great tool for expanding vocabulary. You see words and look for what resonates.
 - ❌ Just say "I feel bad" and move on
   That's too vague. The naming effect gets lost. Precision is key.
 - ❌ Ignore the feeling — if you don't name it, it'll disappear
@@ -275,8 +275,8 @@ Naming emotions is the **simplest mindfulness practice**: free, fast, universal.
 
 **Otázka:** Co je „emoční granularita"?
 
-- **✅ Schopnost přesně rozlišovat a pojmenovávat různé odstíny emocí — lidé s bohatší emoční slovní zásobou mají lepší duševní zdraví**
-  Přesně. Emoční granularita je měřitelná dovednost. Čím víc slov pro emoce máš, tím lépe s nimi pracuješ.
+- **✅ Přesně rozlišovat odstíny emocí**
+  Přesně. Lidé s bohatší emoční slovní zásobou mají lepší duševní zdraví. Emoční granularita je měřitelná dovednost. Čím víc slov pro emoce máš, tím lépe s nimi pracuješ.
 - ❌ Schopnost necítit emoce
   To je opak. Emoční granularita znamená cítit přesněji, ne méně.
 - ❌ Genetická vlastnost, kterou nelze trénovat
@@ -286,8 +286,8 @@ Naming emotions is the **simplest mindfulness practice**: free, fast, universal.
 
 **Question:** What is "emotional granularity"?
 
-- **✅ The ability to precisely distinguish and name different shades of emotions — people with richer emotional vocabulary have better mental health**
-  Exactly. Emotional granularity is a measurable skill. The more words for emotions you have, the better you work with them.
+- **✅ Precisely distinguishing emotion shades**
+  Exactly. People with richer emotional vocabulary have better mental health. Emotional granularity is a measurable skill. The more words for emotions you have, the better you work with them.
 - ❌ The ability to not feel emotions
   That's the opposite. Emotional granularity means feeling more precisely, not less.
 - ❌ A genetic trait that can't be trained
@@ -305,8 +305,8 @@ You aren't your emotions — **you're having one**. Precise naming opens space b
 
 **Otázka:** Proč je pojmenování „cítím zklamání smíšené s hanbou" účinnější než „cítím se špatně"?
 
-- **✅ Mozek reaguje na přesnost — specifické pojmenování snižuje aktivitu amygdaly výrazněji než vágní popis**
-  Přesně. Čím přesnější slovo, tím silnější uklidňující efekt. Vágní popisy mozku nepomáhají.
+- **✅ Mozek reaguje na přesnost**
+  Přesně. Specifické pojmenování snižuje aktivitu amygdaly výrazněji než vágní popis. Čím přesnější slovo, tím silnější uklidňující efekt. Vágní popisy mozku nepomáhají.
 - ❌ Protože delší věty jsou vždy lepší
   Nejde o délku, ale o přesnost. „Zklamání" je přesnější než „špatně", i když je kratší.
 - ❌ Není to účinnější — vágní popis stačí
@@ -316,8 +316,8 @@ You aren't your emotions — **you're having one**. Precise naming opens space b
 
 **Question:** Why is naming "I feel disappointment mixed with shame" more effective than "I feel bad"?
 
-- **✅ The brain responds to precision — specific naming reduces amygdala activity more than a vague description**
-  Exactly. The more precise the word, the stronger the calming effect. Vague descriptions don't help the brain.
+- **✅ The brain responds to precision**
+  Exactly. Specific naming reduces amygdala activity more than a vague description. The more precise the word, the stronger the calming effect. Vague descriptions don't help the brain.
 - ❌ Because longer sentences are always better
   It's not about length but about precision. "Disappointment" is more precise than "bad," even though it's not longer.
 - ❌ It's not more effective — a vague description is enough
@@ -327,8 +327,8 @@ You aren't your emotions — **you're having one**. Precise naming opens space b
 
 **Otázka:** Jaká jednoduchá denní praxe ti pomůže rozšířit emoční slovní zásobu?
 
-- **✅ Jednou denně se zastavit a zeptat se „Co cítím právě teď?" — a pojmenovat to co nejpřesněji**
-  Přesně. Po čtyřech týdnech zjistíš, že tvůj emoční slovník se výrazně rozšířil. Můžeš si to i zapisovat do deníku.
+- **✅ Denně se zeptat „Co cítím právě teď?" a pojmenovat to**
+  Přesně. Pojmenuj to co nejpřesněji. Po čtyřech týdnech zjistíš, že tvůj emoční slovník se výrazně rozšířil. Můžeš si to i zapisovat do deníku.
 - ❌ Číst o emocích v učebnici psychologie
   Čtení pomáhá, ale praxe — pojmenování vlastních emocí — je mnohem účinnější.
 - ❌ Ignorovat emoce a soustředit se na racionální myšlení
@@ -338,8 +338,8 @@ You aren't your emotions — **you're having one**. Precise naming opens space b
 
 **Question:** What simple daily practice helps you expand your emotional vocabulary?
 
-- **✅ Once a day, pause and ask "What am I feeling right now?" — and name it as precisely as possible**
-  Exactly. After four weeks you'll find your emotional vocabulary has grown significantly. You can also write it in a journal.
+- **✅ Daily ask "What am I feeling right now?" and name it**
+  Exactly. Name it as precisely as possible. After four weeks you'll find your emotional vocabulary has grown significantly. You can also write it in a journal.
 - ❌ Read about emotions in a psychology textbook
   Reading helps, but practice — naming your own emotions — is much more effective.
 - ❌ Ignore emotions and focus on rational thinking
@@ -349,8 +349,8 @@ You aren't your emotions — **you're having one**. Precise naming opens space b
 
 **Otázka:** Pojmenování emocí je nejjednodušší mindfulness praxe. Co ji dělá tak univerzální?
 
-- **✅ Je zdarma, trvá 3 sekundy, a funguje kdekoli — ve schůzce, v autě, v posteli**
-  Přesně. Nepotřebuješ žádné vybavení, čas ani speciální podmínky. Stačí se zastavit a pojmenovat.
+- **✅ Zdarma, 3 sekundy, funguje kdekoli**
+  Přesně. Ve schůzce, v autě, v posteli. Nepotřebuješ žádné vybavení, čas ani speciální podmínky. Stačí se zastavit a pojmenovat.
 - ❌ Vyžaduje meditační polštář a ticho
   Vůbec ne. Pojmenování emocí nevyžaduje žádné speciální podmínky.
 - ❌ Funguje jen v kombinaci s terapií

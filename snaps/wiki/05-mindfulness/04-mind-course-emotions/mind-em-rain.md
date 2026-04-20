@@ -92,8 +92,8 @@ Tara Brach, a meditation teacher and psychologist, popularized RAIN as a structu
 
 **Otázka:** Co znamenají čtyři kroky RAIN?
 
-- **✅ Rozpoznat emoci → Dovolit jí být → Prozkoumat ji v těle → Nabídnout si soucit**
-  Přesně. Čtyři kroky vedou od pojmenování přes přijetí k sebesoucitu.
+- **✅ Rozpoznat → Dovolit → Prozkoumat → Pečovat**
+  Přesně. Pojmenuješ emoci, necháš ji být, prozkoumáš ji v těle a nabídneš si soucit. Čtyři kroky vedou od pojmenování přes přijetí k sebesoucitu.
 - ❌ Rozčílit se → Analyzovat → Ignorovat → Najít řešení
   To je přesně opačný přístup. RAIN je o laskavém přijetí, ne o řešení problémů.
 - ❌ Relaxovat → Argumentovat → Investovat → Najmout terapeuta
@@ -103,8 +103,8 @@ Tara Brach, a meditation teacher and psychologist, popularized RAIN as a structu
 
 **Question:** What do the four RAIN steps stand for?
 
-- **✅ Recognize the emotion → Allow it to be → Investigate it in the body → Offer compassion**
-  Exactly. Four steps leading from naming through acceptance to self-compassion.
+- **✅ Recognize → Allow → Investigate → Nurture**
+  Exactly. Name the emotion, let it be, investigate it in the body, offer compassion. Four steps leading from naming through acceptance to self-compassion.
 - ❌ Get upset → Analyze → Ignore → Find a solution
   That's the exact opposite approach. RAIN is about kind acceptance, not problem-solving.
 - ❌ Relax → Argue → Invest → Hire a therapist
@@ -136,8 +136,8 @@ Together these steps shift you **from reactive mode to conscious mode** — and 
 
 **Otázka:** Proč pojmenování emoce (krok Recognize) pomáhá mozku se uklidnit?
 
-- **✅ Aktivuje prefrontální kůru a snižuje aktivitu amygdaly — mozek se doslova uklidňuje**
-  Přesně. Neurovědci tomu říkají „name it to tame it". Pojmenování vytváří distanci mezi tebou a emocí.
+- **✅ Aktivuje prefrontální kůru a tlumí amygdalu**
+  Přesně. Mozek se doslova uklidňuje. Neurovědci tomu říkají „name it to tame it". Pojmenování vytváří distanci mezi tebou a emocí.
 - ❌ Protože pojmenování emoci zruší
   Emoci nezrušíš — jen jí odebereš část intenzity. Stále ji cítíš, ale méně tě ovládá.
 - ❌ Protože mozek potřebuje slova, aby cokoli zpracoval
@@ -147,8 +147,8 @@ Together these steps shift you **from reactive mode to conscious mode** — and 
 
 **Question:** Why does naming the emotion (the Recognize step) help the brain calm down?
 
-- **✅ It activates the prefrontal cortex and reduces amygdala activity — the brain literally calms down**
-  Exactly. Neuroscientists call it "name it to tame it." Naming creates distance between you and the emotion.
+- **✅ Activates prefrontal cortex, dampens amygdala**
+  Exactly. The brain literally calms down. Neuroscientists call it "name it to tame it." Naming creates distance between you and the emotion.
 - ❌ Because naming cancels the emotion
   You can't cancel an emotion — you just take away some of its intensity. You still feel it, but it controls you less.
 - ❌ Because the brain needs words to process anything
@@ -166,8 +166,8 @@ RAIN gives you a **map for the emotional storm**. When you don't know what to do
 
 **Otázka:** Kdo popularizoval techniku RAIN?
 
-- **✅ Tara Brach — meditační učitelka a psycholožka**
-  Přesně. Tara Brach vyvinula a popularizovala RAIN jako praktický nástroj pro práci s emocemi v rámci mindfulness.
+- **✅ Tara Brach**
+  Přesně. Meditační učitelka a psycholožka. Vyvinula a popularizovala RAIN jako praktický nástroj pro práci s emocemi v rámci mindfulness.
 - ❌ Jon Kabat-Zinn
   Kabat-Zinn vytvořil MBSR program, ale RAIN je dílem Tary Brach.
 - ❌ Dan Siegel
@@ -177,8 +177,8 @@ RAIN gives you a **map for the emotional storm**. When you don't know what to do
 
 **Question:** Who popularized the RAIN technique?
 
-- **✅ Tara Brach — meditation teacher and psychologist**
-  Exactly. Tara Brach developed and popularized RAIN as a practical tool for working with emotions within mindfulness.
+- **✅ Tara Brach**
+  Exactly. A meditation teacher and psychologist. She developed and popularized RAIN as a practical tool for working with emotions within mindfulness.
 - ❌ Jon Kabat-Zinn
   Kabat-Zinn created the MBSR program, but RAIN is Tara Brach's work.
 - ❌ Dan Siegel
@@ -188,8 +188,8 @@ RAIN gives you a **map for the emotional storm**. When you don't know what to do
 
 **Otázka:** Zahlcí tě hněv po hádce. Zkusíš RAIN, ale uvízneš v kroku „Allow". Cítíš: „Nechci tomu vzteku dovolit být!" Co to znamená?
 
-- **✅ „Dovolit" neznamená „líbit se mi" — je to ochota nechat pocit existovat, než ho odehnat**
-  Přesně. Dovolení je jemný akt ne-odporu. Není to souhlas s pocitem, ale přestání boje.
+- **✅ „Dovolit" = ne-odpor, ne souhlas**
+  Přesně. Je to ochota nechat pocit existovat, než ho odehnat. Dovolení je jemný akt ne-odporu. Není to souhlas s pocitem, ale přestání boje.
 - ❌ Vztek je špatný a musíš ho potlačit
   Potlačení je pravý opak RAIN. Vztek má být viděn a přijat, ne odsunut.
 - ❌ Musíš vztek „vybít" křikem
@@ -199,8 +199,8 @@ RAIN gives you a **map for the emotional storm**. When you don't know what to do
 
 **Question:** Anger floods you after an argument. You try RAIN but get stuck on "Allow." You feel: "I don't want to allow this anger!" What does that mean?
 
-- **✅ "Allow" doesn't mean "I like it" — it's a willingness to let the feeling exist instead of pushing it away**
-  Exactly. Allowing is a gentle act of non-resistance. It's not agreement with the feeling, just an end to the fight.
+- **✅ "Allow" = non-resistance, not agreement**
+  Exactly. It's a willingness to let the feeling exist instead of pushing it away. Allowing is a gentle act of non-resistance. It's not agreement with the feeling, just an end to the fight.
 - ❌ Anger is bad and you have to suppress it
   Suppression is the opposite of RAIN. Anger is meant to be seen and accepted, not pushed away.
 - ❌ You have to "vent" the anger by shouting
@@ -210,8 +210,8 @@ RAIN gives you a **map for the emotional storm**. When you don't know what to do
 
 **Otázka:** Tara Brach říká: „Co se vzpouzí, to přetrvává. Co se přijme, to se transformuje." Co tím myslí v kontextu RAIN?
 
-- **✅ Boj s emocí ji zesiluje — přijetí (krok Allow) jí naopak odebírá sílu**
-  Přesně. Odpor vytváří napětí, které emoci udržuje. Přijetí uvolňuje energii, která ji živí.
+- **✅ Boj s emocí ji zesiluje, přijetí jí bere sílu**
+  Přesně. Přijetí je krok Allow. Odpor vytváří napětí, které emoci udržuje. Přijetí uvolňuje energii, která ji živí.
 - ❌ Že stačí říct „přijímám to" a emoce zmizí
   Přijetí není magická formulka. Je to postoj ne-boje, který mění vztah k emoci — ne emoci samotnou.
 - ❌ Že všechny emoce se nakonec přemění v radost
@@ -221,8 +221,8 @@ RAIN gives you a **map for the emotional storm**. When you don't know what to do
 
 **Question:** Tara Brach says: "What you resist, persists. What you accept, transforms." What does she mean in the context of RAIN?
 
-- **✅ Fighting an emotion amplifies it — acceptance (the Allow step) takes away its power instead**
-  Exactly. Resistance creates tension that sustains the emotion. Acceptance releases the energy that feeds it.
+- **✅ Fighting amplifies the emotion, acceptance weakens it**
+  Exactly. Acceptance is the Allow step. Resistance creates tension that sustains the emotion. Acceptance releases the energy that feeds it.
 - ❌ That saying "I accept this" makes the emotion disappear
   Acceptance isn't a magic formula. It's a stance of non-fighting that changes the relationship to the emotion — not the emotion itself.
 - ❌ That all emotions eventually transform into joy
@@ -271,8 +271,8 @@ Tip for Nurture: place a hand on your heart. This physical contact releases **ox
 
 **Otázka:** Cítíš úzkost před prezentací. Zkusíš RAIN. U kroku „Investigate" najdeš sevřenost v hrudníku a studené ruce. Co uděláš dál?
 
-- **✅ Pokračuješ do kroku „Nurture" — nabídneš si slova: „To je v pořádku. Tohle je těžké. Jsem tu s tebou."**
-  Přesně. Nurture je laskavá vnitřní řeč, kterou bys poskytl/a dobrému příteli v nouzi.
+- **✅ Pokračuješ do kroku „Nurture"**
+  Přesně. Nabídneš si slova: „To je v pořádku. Tohle je těžké. Jsem tu s tebou." Nurture je laskavá vnitřní řeč, kterou bys poskytl/a dobrému příteli v nouzi.
 - ❌ Pokusíš se sevřenost odstranit silou vůle
   Boj je opak RAIN. Nech pocit být a pečuj o sebe.
 - ❌ Přestaneš cvičit, protože to bolí
@@ -282,8 +282,8 @@ Tip for Nurture: place a hand on your heart. This physical contact releases **ox
 
 **Question:** You feel anxious before a presentation. You try RAIN. At the "Investigate" step, you find tightness in your chest and cold hands. What do you do next?
 
-- **✅ Move to the "Nurture" step — offer yourself words: "It's okay. This is hard. I'm here with you."**
-  Exactly. Nurture is the kind inner voice you'd offer a good friend in distress.
+- **✅ Move on to the "Nurture" step**
+  Exactly. Offer yourself words: "It's okay. This is hard. I'm here with you." Nurture is the kind inner voice you'd offer a good friend in distress.
 - ❌ Try to remove the tightness by willpower
   Fighting is the opposite of RAIN. Let the feeling be and care for yourself.
 - ❌ Stop practicing because it hurts
@@ -301,8 +301,8 @@ RAIN isn't a one-time technique — it's a **practice**. Over time, it becomes a
 
 **Otázka:** Dostal/a jsi zprávu o smrti blízkého. Máš hluboký smutek. Hodí se RAIN pro tak silné emoce?
 
-- **✅ Ano — zvlášť u hlubokých emocí. RAIN nevyžaduje pocit vypnout, jen se s ním být.**
-  Přesně. RAIN byla vyvinuta právě pro silné emoce. Nesnaží se emoci „opravit", jen být s ní.
+- **✅ Ano — právě pro hluboké emoce byla vyvinuta**
+  Přesně. RAIN nevyžaduje pocit vypnout, jen se s ním být. Nesnaží se emoci „opravit", jen být s ní.
 - ❌ Ne — hluboké emoce potřebují jen profesionální pomoc
   Profesionální pomoc je skvělá, ale RAIN je s ní kompatibilní. Mnoho terapeutů ji učí.
 - ❌ RAIN funguje jen u slabých emocí, jako je frustrace
@@ -312,8 +312,8 @@ RAIN isn't a one-time technique — it's a **practice**. Over time, it becomes a
 
 **Question:** You got news of the death of someone close. You have deep grief. Does RAIN work for such strong emotions?
 
-- **✅ Yes — especially for deep emotions. RAIN doesn't ask you to switch the feeling off, just to be with it.**
-  Exactly. RAIN was developed precisely for strong emotions. It doesn't try to "fix" the emotion, just be with it.
+- **✅ Yes — it was developed precisely for deep emotions**
+  Exactly. RAIN doesn't ask you to switch the feeling off, just to be with it. It doesn't try to "fix" the emotion, just be with it.
 - ❌ No — deep emotions need only professional help
   Professional help is great, but RAIN is compatible with it. Many therapists teach it.
 - ❌ RAIN only works for mild emotions like frustration
@@ -331,8 +331,8 @@ The **"Allow" step is paradoxical** — by accepting the emotion, you take away 
 
 **Otázka:** Co je nejdůležitější v technice RAIN?
 
-- **✅ Sebesoucit (Nurture) — laskavost k sobě v momentech, kdy trpíš**
-  Přesně. „Nurture" je srdcem techniky. Bez soucitu zůstává RAIN mechanickým cvičením.
+- **✅ Sebesoucit (krok Nurture)**
+  Přesně. Je to laskavost k sobě v momentech, kdy trpíš. „Nurture" je srdcem techniky. Bez soucitu zůstává RAIN mechanickým cvičením.
 - ❌ Dodržení přesného pořadí kroků
   Pořadí pomáhá, ale není absolutní. Duch je důležitější než forma.
 - ❌ Rychlost — čím rychleji, tím lépe
@@ -342,8 +342,8 @@ The **"Allow" step is paradoxical** — by accepting the emotion, you take away 
 
 **Question:** What's the most important thing in the RAIN technique?
 
-- **✅ Self-compassion (Nurture) — kindness toward yourself in moments when you're suffering**
-  Exactly. "Nurture" is the heart of the technique. Without compassion, RAIN stays a mechanical exercise.
+- **✅ Self-compassion (the Nurture step)**
+  Exactly. It's kindness toward yourself in moments when you're suffering. "Nurture" is the heart of the technique. Without compassion, RAIN stays a mechanical exercise.
 - ❌ Following the exact order of the steps
   The order helps, but it's not absolute. The spirit matters more than the form.
 - ❌ Speed — the faster, the better
@@ -353,8 +353,8 @@ The **"Allow" step is paradoxical** — by accepting the emotion, you take away 
 
 **Otázka:** Proč fyzický dotek (ruka na srdci) pomáhá v kroku Nurture?
 
-- **✅ Uvolňuje oxytocin — hormon spojený s pocitem bezpečí — a tělo reaguje na kontakt, i když pochází od tebe**
-  Přesně. Sebe-dotyk aktivuje stejné uklidňující mechanismy jako dotek od druhého člověka.
+- **✅ Uvolňuje oxytocin — hormon bezpečí**
+  Přesně. Tělo reaguje na kontakt, i když pochází od tebe. Sebe-dotyk aktivuje stejné uklidňující mechanismy jako dotek od druhého člověka.
 - ❌ Je to jen symbolické gesto bez fyziologického efektu
   Není. Výzkum ukazuje měřitelný nárůst oxytocinu a pokles kortizolu při sebe-dotyku.
 - ❌ Musíš si vždy položit ruku na srdce, jinak Nurture nefunguje
@@ -364,8 +364,8 @@ The **"Allow" step is paradoxical** — by accepting the emotion, you take away 
 
 **Question:** Why does physical touch (hand on heart) help in the Nurture step?
 
-- **✅ It releases oxytocin — the hormone linked to feeling safe — and the body responds to contact, even when it comes from you**
-  Exactly. Self-touch activates the same soothing mechanisms as touch from another person.
+- **✅ It releases oxytocin — the safety hormone**
+  Exactly. The body responds to contact, even when it comes from you. Self-touch activates the same soothing mechanisms as touch from another person.
 - ❌ It's just a symbolic gesture with no physiological effect
   It's not. Research shows a measurable increase in oxytocin and decrease in cortisol with self-touch.
 - ❌ You always have to place your hand on your heart, otherwise Nurture doesn't work

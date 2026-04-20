@@ -82,8 +82,8 @@ The key difference from box breathing: **the exhale is significantly longer than
 
 **Otázka:** Proč je prodloužený výdech důležitý?
 
-- **✅ Aktivuje parasympatikus (klid) silněji než rovnoměrné dýchání**
-  Přesně. Delší výdech je biologický signál pro zklidnění. Vagus nerve reaguje právě na výdech.
+- **✅ Silněji aktivuje parasympatikus**
+  Přesně. Delší výdech je biologický signál pro zklidnění — vagus nerve reaguje právě na výdech, silněji než při rovnoměrném dýchání.
 - ❌ Protože spaluje víc kalorií
   Dýchací techniky nespalují kalorie. Jejich efekt je nervový, ne metabolický.
 - ❌ Aby ses unavil/a a usnul/a
@@ -93,8 +93,8 @@ The key difference from box breathing: **the exhale is significantly longer than
 
 **Question:** Why is an extended exhale important?
 
-- **✅ It activates the parasympathetic (calm) response more strongly than even breathing**
-  Exactly. A longer exhale is a biological signal to calm down. The vagus nerve responds specifically to the exhale.
+- **✅ Activates the parasympathetic response**
+  Exactly. A longer exhale is a biological signal to calm down — the vagus nerve responds specifically to the exhale, more strongly than to even breathing.
 - ❌ Because it burns more calories
   Breathing techniques don't burn calories. Their effect is neural, not metabolic.
 - ❌ To tire you out so you fall asleep
@@ -112,8 +112,8 @@ Dr. Andrew Weil popularized 4-7-8 as a "natural tranquilizer for the nervous sys
 
 **Otázka:** U dětí je poměr nádech:výdech přirozeně vyšší ve prospěch výdechu, když spí. Co z toho vyplývá pro techniku 4-7-8?
 
-- **✅ 4-7-8 napodobuje přirozený stav hlubokého klidu — čím víc relaxuješ, tím delší je tvůj výdech**
-  Přesně. Technika kopíruje to, co tělo dělá přirozeně ve spánku. Proto je tak efektivní pro usínání.
+- **✅ 4-7-8 napodobuje přirozený stav hlubokého klidu**
+  Přesně. Čím víc relaxuješ, tím delší je tvůj výdech. Technika kopíruje to, co tělo dělá přirozeně ve spánku — proto je tak efektivní pro usínání.
 - ❌ Děti dýchají jinak než dospělí, proto technika na dospělé nefunguje
   Princip je stejný. Delší výdech signalizuje klid v jakémkoli věku.
 - ❌ Měl/a bys dýchat jako dítě — rychle a povrchně
@@ -123,8 +123,8 @@ Dr. Andrew Weil popularized 4-7-8 as a "natural tranquilizer for the nervous sys
 
 **Question:** In children, the inhale-to-exhale ratio naturally tilts toward a longer exhale when they're sleeping. What does this mean for the 4-7-8 technique?
 
-- **✅ 4-7-8 mimics the natural state of deep calm — the more relaxed you are, the longer your exhale**
-  Exactly. The technique copies what the body does naturally in sleep. That's why it's so effective for falling asleep.
+- **✅ 4-7-8 mimics the natural state of deep calm**
+  Exactly. The more relaxed you are, the longer your exhale. The technique copies what the body does naturally in sleep — that's why it's so effective for falling asleep.
 - ❌ Children breathe differently than adults, so the technique doesn't work on adults
   The principle is the same. A longer exhale signals calm at any age.
 - ❌ You should breathe like a child — fast and shallow
@@ -167,8 +167,8 @@ The scientific mechanism: during the exhale the heart rate slows (respiratory si
 
 **Otázka:** Představ si, že zkoušíš 4-7-8 a zadržení dechu na 7 sekund je pro tebe nepříjemné. Cítíš úzkost. Co uděláš?
 
-- **✅ Upravíš na kratší verzi jako 3-5-6 nebo 2-4-6 — zachováš poměr výdechu**
-  Přesně. Důležitá je zásada „výdech delší než nádech", ne přesná čísla. Najdi si svou verzi.
+- **✅ Upravíš na kratší verzi (3-5-6 nebo 2-4-6)**
+  Přesně. Důležitý je poměr „výdech delší než nádech", ne přesná čísla. Najdi si svou verzi.
 - ❌ Musíš vydržet — je to jediná správná verze
   Není. Technika se musí přizpůsobit individuálním potřebám. Nucení vytváří opak toho, co chceš.
 - ❌ Přestaneš dýchací techniky používat
@@ -178,8 +178,8 @@ The scientific mechanism: during the exhale the heart rate slows (respiratory si
 
 **Question:** Imagine you try 4-7-8 and holding your breath for 7 seconds is uncomfortable. You feel anxious. What do you do?
 
-- **✅ Adjust to a shorter version like 3-5-6 or 2-4-6 — keep the exhale ratio**
-  Exactly. What matters is the "exhale longer than inhale" principle, not the exact numbers. Find your own version.
+- **✅ Adjust to a shorter version (3-5-6 or 2-4-6)**
+  Exactly. What matters is the "exhale longer than inhale" ratio, not the exact numbers. Find your own version.
 - ❌ You have to push through — it's the only correct version
   It's not. The technique needs to adapt to individual needs. Forcing it creates the opposite of what you want.
 - ❌ Stop using breathing techniques
@@ -197,7 +197,7 @@ Step by step (from Dr. Weil): 1) Place the tip of your tongue just behind your u
 
 **Otázka:** Chceš 4-7-8 použít při usínání. Jaká je nejlepší strategie?
 
-- **✅ Vleže v posteli, těsně před tím, než chceš usnout — 4 cykly**
+- **✅ Vleže v posteli, těsně před usnutím**
   Přesně. Technika je navržena přesně pro tento okamžik. Čtyři cykly obvykle stačí.
 - ❌ Vstaneš z postele a děláš ji vsedě v jiné místnosti
   Pro usínání je ideální vleže v posteli. Není potřeba vstávat.
@@ -208,7 +208,7 @@ Step by step (from Dr. Weil): 1) Place the tip of your tongue just behind your u
 
 **Question:** You want to use 4-7-8 for falling asleep. What's the best strategy?
 
-- **✅ Lying in bed, right before you want to fall asleep — 4 cycles**
+- **✅ Lying in bed, right before falling asleep**
   Exactly. The technique is designed for this exact moment. Four cycles is usually enough.
 - ❌ Get out of bed and do it sitting in another room
   For falling asleep, lying in bed is ideal. There's no need to get up.
@@ -252,8 +252,8 @@ Imagine you suffer from insomnia. You try medication, melatonin, teas — nothin
 
 **Otázka:** Co je klíčem k úspěchu 4-7-8?
 
-- **✅ Prodloužený výdech a pravidelná praxe, ne přesná čísla**
-  Přesně. Princip + konzistence. Čísla si můžeš přizpůsobit.
+- **✅ Prodloužený výdech a pravidelná praxe**
+  Přesně. Princip + konzistence, ne přesná čísla. Ta si můžeš přizpůsobit.
 - ❌ Přesné dodržení 4-7-8 bez jakékoli odchylky
   Čísla jsou vodítko, ne dogma. Princip (delší výdech) je důležitější.
 - ❌ Pití bylinkového čaje při praxi
@@ -263,8 +263,8 @@ Imagine you suffer from insomnia. You try medication, melatonin, teas — nothin
 
 **Question:** What's the key to success with 4-7-8?
 
-- **✅ The extended exhale and regular practice, not exact numbers**
-  Exactly. Principle + consistency. You can adapt the numbers.
+- **✅ The extended exhale and regular practice**
+  Exactly. Principle + consistency, not exact numbers. You can adapt those.
 - ❌ Sticking exactly to 4-7-8 without any deviation
   The numbers are a guide, not dogma. The principle (longer exhale) matters more.
 - ❌ Drinking herbal tea during practice
@@ -274,8 +274,8 @@ Imagine you suffer from insomnia. You try medication, melatonin, teas — nothin
 
 **Otázka:** Představ si, že máš panickou ataku uprostřed dne. Hodí se 4-7-8 i pro akutní úzkost?
 
-- **✅ Ano, ale pokud ti 7 sekund zadržení přijde moc, použij fyziologický povzdech nebo zkrácenou verzi**
-  Přesně. Během paniky může být dlouhé zadržení nepříjemné. Fyziologický povzdech nebo kratší verze jsou alternativy.
+- **✅ Ano, ale v panice raději zkrácená verze**
+  Přesně. Když 7 sekund zadržení přijde moc, použij fyziologický povzdech nebo kratší variantu. Během paniky může být dlouhé zadržení nepříjemné.
 - ❌ Ne — 4-7-8 je jen pro spánek
   Technika pomáhá i při úzkosti. Jen někdy je lepší kratší varianta.
 - ❌ Ano, musíš vydržet přesně 4-7-8 bez ohledu na pohodlí
@@ -285,8 +285,8 @@ Imagine you suffer from insomnia. You try medication, melatonin, teas — nothin
 
 **Question:** Imagine you have a panic attack in the middle of the day. Does 4-7-8 also fit acute anxiety?
 
-- **✅ Yes, but if the 7-second hold feels like too much, use a physiological sigh or shorten the version**
-  Exactly. During panic, a long hold can be uncomfortable. A physiological sigh or shorter version are alternatives.
+- **✅ Yes, but in panic use a shorter version**
+  Exactly. If 7 seconds feels too much, use a physiological sigh or a shorter variant. During panic, a long hold can be uncomfortable.
 - ❌ No — 4-7-8 is only for sleep
   The technique also helps with anxiety. A shorter variant is just sometimes better.
 - ❌ Yes, you have to stick to exactly 4-7-8 regardless of comfort
@@ -296,8 +296,8 @@ Imagine you suffer from insomnia. You try medication, melatonin, teas — nothin
 
 **Otázka:** Jak často doporučuje Dr. Weil cvičit 4-7-8, aby se technika „vžila" do těla?
 
-- **✅ Dvakrát denně minimálně osm týdnů — pak se stane automatickým nástrojem**
-  Přesně. Pravidelnost je klíč. Po osmi týdnech denní praxe se technika stane reflexem, ke kterému se můžeš v krizi okamžitě vrátit.
+- **✅ 2× denně, minimálně 8 týdnů**
+  Přesně. Pravidelnost je klíč — pak se stane automatickým nástrojem. Po osmi týdnech denní praxe se technika stane reflexem, ke kterému se můžeš v krizi okamžitě vrátit.
 - ❌ Jednou týdně po dobu měsíce
   To je příliš řídké. Tělo potřebuje denní opakování, aby si vzorec „zapamatovalo".
 - ❌ Jen když máš problém s usínáním
@@ -307,8 +307,8 @@ Imagine you suffer from insomnia. You try medication, melatonin, teas — nothin
 
 **Question:** How often does Dr. Weil recommend practicing 4-7-8 so the technique "lives" in the body?
 
-- **✅ Twice a day for at least eight weeks — then it becomes an automatic tool**
-  Exactly. Consistency is key. After eight weeks of daily practice, the technique becomes a reflex you can reach for in a crisis.
+- **✅ 2× a day, at least 8 weeks**
+  Exactly. Consistency is key — then it becomes an automatic tool. After eight weeks of daily practice, the technique becomes a reflex you can reach for in a crisis.
 - ❌ Once a week for a month
   That's too infrequent. The body needs daily repetition to "remember" the pattern.
 - ❌ Only when you have trouble falling asleep

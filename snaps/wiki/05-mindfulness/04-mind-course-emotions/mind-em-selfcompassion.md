@@ -82,8 +82,8 @@ Imagine you made a mistake at work that cost the company money. All day you beat
 
 **Otázka:** Co je sebesoucit?
 
-- **✅ Chovat se k sobě se stejnou laskavostí, jakou bys nabídl/a dobrému příteli**
-  Přesně. Definice Kristin Neff, psycholožky a průkopnice výzkumu sebesoucitu.
+- **✅ Laskavost k sobě**
+  Přesně. Definice Kristin Neff — chovat se k sobě se stejnou laskavostí, jakou bys nabídl/a dobrému příteli. Neff je psycholožka a průkopnice výzkumu sebesoucitu.
 - ❌ Omlouvání si všech chyb
   Ne — sebesoucit nezaměňuje laskavost s výmluvami. Uznává chybu a nabízí podporu.
 - ❌ Sebelítost
@@ -93,8 +93,8 @@ Imagine you made a mistake at work that cost the company money. All day you beat
 
 **Question:** What is self-compassion?
 
-- **✅ Treating yourself with the same kindness you'd offer a good friend**
-  Exactly. Kristin Neff's definition — she's a psychologist and pioneer of self-compassion research.
+- **✅ Kindness to yourself**
+  Exactly. Kristin Neff's definition — treating yourself with the same kindness you'd offer a good friend. Neff is a psychologist and pioneer of self-compassion research.
 - ❌ Excusing all your mistakes
   No — self-compassion doesn't confuse kindness with excuses. It acknowledges the mistake and offers support.
 - ❌ Self-pity
@@ -124,8 +124,8 @@ According to research, this combination is **more powerful than self-esteem** fo
 
 **Otázka:** Jaké jsou tři složky sebesoucitu podle Kristin Neff?
 
-- **✅ Laskavost k sobě, sdílená lidskost, mindfulness**
-  Přesně. Tyto tři pilíře dohromady tvoří sebesoucit — laskavost + vědomí, že nejsi sám/sama + vyvážený pohled.
+- **✅ Laskavost, lidskost, mindfulness**
+  Přesně. Sdílená lidskost — tyto tři pilíře dohromady tvoří sebesoucit — laskavost k sobě + vědomí, že nejsi sám/sama + vyvážený pohled.
 - ❌ Pozitivní myšlení, sebevědomí, asertivita
   To jsou jiné koncepty. Sebesoucit není o pozitivním myšlení — je o laskavém přijetí reality.
 - ❌ Relaxace, meditace, jóga
@@ -135,8 +135,8 @@ According to research, this combination is **more powerful than self-esteem** fo
 
 **Question:** What are the three components of self-compassion according to Kristin Neff?
 
-- **✅ Kindness to yourself, common humanity, mindfulness**
-  Exactly. These three pillars together form self-compassion — kindness + awareness that you're not alone + a balanced view.
+- **✅ Kindness, common humanity, mindfulness**
+  Exactly. These three pillars together form self-compassion — kindness to yourself + awareness that you're not alone + a balanced view.
 - ❌ Positive thinking, self-esteem, assertiveness
   Those are different concepts. Self-compassion isn't about positive thinking — it's about kind acceptance of reality.
 - ❌ Relaxation, meditation, yoga
@@ -154,8 +154,8 @@ Self-compassion means being **your own best friend**, especially when you fail. 
 
 **Otázka:** Jak se liší sebesoucit od sebelítosti?
 
-- **✅ Sebesoucit uznává sdílenou lidskost („všichni trpí"); sebelítost izoluje („jen já")**
-  Přesně. Sebesoucit propojuje, sebelítost izoluje. To je klíčový rozdíl.
+- **✅ Propojuje, sebelítost izoluje**
+  Přesně. Sebesoucit uznává sdílenou lidskost („všichni trpí"); sebelítost izoluje („jen já"). To je klíčový rozdíl.
 - ❌ Jsou to synonyma
   Nejsou. Mají zcela odlišné efekty na psychiku a chování.
 - ❌ Sebesoucit je slabší verze sebelítosti
@@ -165,8 +165,8 @@ Self-compassion means being **your own best friend**, especially when you fail. 
 
 **Question:** How is self-compassion different from self-pity?
 
-- **✅ Self-compassion recognizes common humanity ("everyone suffers"); self-pity isolates ("only me")**
-  Exactly. Self-compassion connects, self-pity isolates. That's the key difference.
+- **✅ Connects, self-pity isolates**
+  Exactly. Self-compassion recognizes common humanity ("everyone suffers"); self-pity isolates ("only me"). That's the key difference.
 - ❌ They're synonyms
   They're not. They have completely different effects on the psyche and behavior.
 - ❌ Self-compassion is a softer version of self-pity
@@ -176,8 +176,8 @@ Self-compassion means being **your own best friend**, especially when you fail. 
 
 **Otázka:** Proč je sebesoucit podle výzkumu mocnější než sebevědomí?
 
-- **✅ Sebevědomí závisí na úspěchu a kolísá — sebesoucit funguje vždy, i v selhání**
-  Přesně. Sebevědomí se zhroutí, když selžeš. Sebesoucit tě podrží právě tehdy, když to nejvíc potřebuješ.
+- **✅ Funguje i v selhání, sebevědomí ne**
+  Přesně. Sebevědomí závisí na úspěchu a zhroutí se, když selžeš. Sebesoucit tě podrží právě tehdy, když to nejvíc potřebuješ.
 - ❌ Protože sebevědomí je nezdravé
   Sebevědomí není nezdravé — jen je nestabilní. Sebesoucit je stabilnější základ.
 - ❌ Protože sebesoucit znamená nemít vysoké standardy
@@ -187,8 +187,8 @@ Self-compassion means being **your own best friend**, especially when you fail. 
 
 **Question:** Why is self-compassion more powerful than self-esteem according to research?
 
-- **✅ Self-esteem depends on success and fluctuates — self-compassion works always, even in failure**
-  Exactly. Self-esteem collapses when you fail. Self-compassion holds you up precisely when you need it most.
+- **✅ Works in failure, self-esteem doesn't**
+  Exactly. Self-esteem depends on success and collapses when you fail. Self-compassion holds you up precisely when you need it most.
 - ❌ Because self-esteem is unhealthy
   Self-esteem isn't unhealthy — it's just unstable. Self-compassion is a more stable foundation.
 - ❌ Because self-compassion means not having high standards
@@ -198,8 +198,8 @@ Self-compassion means being **your own best friend**, especially when you fail. 
 
 **Otázka:** Myslíš si: „Sebesoucit je fajn pro ostatní, ale já si nezasloužím být laskavý/á k sobě, dokud si to nezasloužím úspěchem." Co je na tomto přístupu špatně?
 
-- **✅ Sebesoucit není odměna za výkon — je to univerzální právo každého trpícího člověka**
-  Přesně. Sebesoucit není podmíněný zásluhami. Kdyby byl, lidé, kteří ho nejvíc potřebují, by ho nedostali.
+- **✅ Není odměna — je to právo každého trpícího**
+  Přesně. Sebesoucit není podmíněný zásluhami ani výkonem. Kdyby byl, lidé, kteří ho nejvíc potřebují, by ho nedostali.
 - ❌ Tento přístup je správný — laskavost si musíš zasloužit
   To je přesně ten nefunkční přístup, který vede k vyhoření a chronické sebekritice.
 - ❌ Sebesoucit je jen pro slabé lidi
@@ -209,8 +209,8 @@ Self-compassion means being **your own best friend**, especially when you fail. 
 
 **Question:** You think: "Self-compassion is fine for others, but I don't deserve to be kind to myself until I've earned it with success." What's wrong with this approach?
 
-- **✅ Self-compassion isn't a reward for performance — it's a universal right of every suffering person**
-  Exactly. Self-compassion isn't conditional on merit. If it were, the people who need it most wouldn't get it.
+- **✅ Not a reward — it's every sufferer's right**
+  Exactly. Self-compassion isn't conditional on merit or performance. If it were, the people who need it most wouldn't get it.
 - ❌ This approach is correct — you have to earn kindness
   That's exactly the broken approach that leads to burnout and chronic self-criticism.
 - ❌ Self-compassion is only for weak people
@@ -253,8 +253,8 @@ Another study showed that self-compassionate people more often **acknowledge the
 
 **Otázka:** Trénuješ na maraton a máš špatný trénink. Která reakce tě pravděpodobněji dovede k cíli?
 
-- **✅ Sebesoucitná: „Dnes to nešlo. Stává se. Zítra zkusíme znovu."**
-  Přesně. Studie ukazují, že sebesoucit výrazně zlepšuje vytrvalost a výkon. Kritika často vede k vyhoření.
+- **✅ Sebesoucitná: „Stává se. Zítra znovu."**
+  Přesně. „Dnes to nešlo. Zítra zkusíme znovu." Studie ukazují, že sebesoucit výrazně zlepšuje vytrvalost a výkon. Kritika často vede k vyhoření.
 - ❌ Samokritická: „Jsi k ničemu, vzdávej to." — přísnost motivuje
   Krátkodobě možná ano, dlouhodobě vede k vyhoření, úzkosti a vzdávání.
 - ❌ Obě jsou stejně účinné
@@ -264,8 +264,8 @@ Another study showed that self-compassionate people more often **acknowledge the
 
 **Question:** You're training for a marathon and have a bad workout. Which reaction is more likely to get you to the finish?
 
-- **✅ Self-compassionate: "Today didn't go well. It happens. We'll try again tomorrow."**
-  Exactly. Studies show self-compassion significantly improves persistence and performance. Criticism often leads to burnout.
+- **✅ Self-compassionate: "Try again tomorrow."**
+  Exactly. "Today didn't go well. It happens. We'll try again tomorrow." Studies show self-compassion significantly improves persistence and performance. Criticism often leads to burnout.
 - ❌ Self-critical: "You're useless, give up." — strictness motivates
   Short-term maybe, but long-term it leads to burnout, anxiety, and quitting.
 - ❌ Both are equally effective
@@ -295,8 +295,8 @@ Physical touch (hand on heart, hugging yourself) releases **oxytocin** — the h
 
 **Otázka:** Po selhání u zkoušky chceš zkusit Self-Compassion Break. Bojíš se, že budeš plakat. Je to v pořádku?
 
-- **✅ Ano — slzy jsou přirozenou reakcí a jsou součástí léčení**
-  Přesně. Sebesoucit neznamená „nemít pocity". Znamená být s pocity laskavě.
+- **✅ Ano — slzy jsou součástí léčení**
+  Přesně. Slzy jsou přirozená reakce. Sebesoucit neznamená „nemít pocity" — znamená být s pocity laskavě.
 - ❌ Ne — sebesoucit znamená zůstat klidný/á
   Ne. Můžeš být soucitný/á a zároveň cítit smutek. Obojí je v pořádku.
 - ❌ Jen pokud jsi sám/sama
@@ -306,8 +306,8 @@ Physical touch (hand on heart, hugging yourself) releases **oxytocin** — the h
 
 **Question:** After failing an exam, you want to try a Self-Compassion Break. You're afraid you'll cry. Is that OK?
 
-- **✅ Yes — tears are a natural response and part of healing**
-  Exactly. Self-compassion doesn't mean "having no feelings." It means being with feelings kindly.
+- **✅ Yes — tears are part of healing**
+  Exactly. Tears are a natural response. Self-compassion doesn't mean "having no feelings" — it means being with feelings kindly.
 - ❌ No — self-compassion means staying calm
   No. You can be compassionate and feel sad at the same time. Both are fine.
 - ❌ Only if you're alone
@@ -325,8 +325,8 @@ Self-compassion **doesn't make people soft**. It makes them resilient, motivated
 
 **Otázka:** Proč fyzický dotek (ruka na srdci) pomáhá při praxi sebesoucitu?
 
-- **✅ Uvolňuje oxytocin — hormon spojený s pocitem bezpečí — a tělo reaguje na kontakt, i když pochází od tebe**
-  Přesně. Sebe-dotyk aktivuje stejné uklidňující mechanismy jako dotek od druhého člověka.
+- **✅ Uvolňuje oxytocin — hormon spojený s pocitem bezpečí v těle**
+  Přesně. Tělo reaguje na kontakt, i když pochází od tebe. Sebe-dotyk aktivuje stejné uklidňující mechanismy jako dotek od druhého člověka.
 - ❌ Je to jen symbolické gesto bez fyziologického efektu
   Není. Výzkum ukazuje měřitelný nárůst oxytocinu a pokles kortizolu při sebe-dotyku.
 - ❌ Musíš si vždy položit ruku na srdce, jinak sebesoucit nefunguje
@@ -336,8 +336,8 @@ Self-compassion **doesn't make people soft**. It makes them resilient, motivated
 
 **Question:** Why does physical touch (hand on heart) help during self-compassion practice?
 
-- **✅ It releases oxytocin — the hormone linked to feeling safe — and the body responds to contact, even when it comes from you**
-  Exactly. Self-touch activates the same soothing mechanisms as touch from another person.
+- **✅ It releases oxytocin — the hormone linked to feeling safe in the body**
+  Exactly. The body responds to contact even when it comes from you. Self-touch activates the same soothing mechanisms as touch from another person.
 - ❌ It's just a symbolic gesture with no physiological effect
   It's not. Research shows a measurable increase in oxytocin and decrease in cortisol with self-touch.
 - ❌ You always have to place your hand on your heart, otherwise self-compassion doesn't work
@@ -347,8 +347,8 @@ Self-compassion **doesn't make people soft**. It makes them resilient, motivated
 
 **Otázka:** Proč sebesoucitní lidé častěji uznávají své chyby a přebírají zodpovědnost?
 
-- **✅ Protože chyba pro ně není existenciální ohrožení — mohou si dovolit ji vidět**
-  Přesně. Sebekritika dělá z chyby katastrofu, před kterou se chráníš popíráním. Sebesoucit ti dovolí chybu vidět a řešit.
+- **✅ Chyba pro ně není existenciální ohrožení**
+  Přesně — mohou si dovolit ji vidět. Sebekritika dělá z chyby katastrofu, před kterou se chráníš popíráním. Sebesoucit ti dovolí chybu vidět a řešit.
 - ❌ Protože jsou slabší a nemají odvahu se bránit
   Naopak — sebesoucit vyžaduje odvahu. Je to síla, ne slabost.
 - ❌ Protože sebesoucit je totéž co přiznávání chyb
@@ -358,8 +358,8 @@ Self-compassion **doesn't make people soft**. It makes them resilient, motivated
 
 **Question:** Why do self-compassionate people more often acknowledge their mistakes and take responsibility?
 
-- **✅ Because mistakes aren't an existential threat to them — they can afford to see them**
-  Exactly. Self-criticism turns mistakes into catastrophes you protect yourself from by denying. Self-compassion lets you see the mistake and deal with it.
+- **✅ Mistakes aren't an existential threat they must fear**
+  Exactly — they can afford to see them. Self-criticism turns mistakes into catastrophes you protect yourself from by denying. Self-compassion lets you see the mistake and deal with it.
 - ❌ Because they're weaker and don't have the courage to defend themselves
   On the contrary — self-compassion takes courage. It's strength, not weakness.
 - ❌ Because self-compassion is the same as admitting mistakes
@@ -369,8 +369,8 @@ Self-compassion **doesn't make people soft**. It makes them resilient, motivated
 
 **Otázka:** Sebesoucit není luxus, není odměna, není slabost. Co to tedy je?
 
-- **✅ Základní lidské právo — buď si přítelem, zvlášť když selžeš**
-  Přesně. Sebesoucit nepotřebuje čekat na úspěch. Je nejpotřebnější právě ve chvílích selhání.
+- **✅ Základní lidské právo každého člověka**
+  Přesně — buď si přítelem, zvlášť když selžeš. Sebesoucit nepotřebuje čekat na úspěch. Je nejpotřebnější právě ve chvílích selhání.
 - ❌ Technika pouze pro terapii
   Sebesoucit se dá trénovat i mimo terapii — Self-Compassion Break zvládneš sám/sama.
 - ❌ Něco, co potřebují jen lidé s psychickými problémy
@@ -380,8 +380,8 @@ Self-compassion **doesn't make people soft**. It makes them resilient, motivated
 
 **Question:** Self-compassion isn't a luxury, a reward, or a weakness. What is it then?
 
-- **✅ A basic human right — be your own friend, especially when you fail**
-  Exactly. Self-compassion doesn't need to wait for success. It's most needed precisely in moments of failure.
+- **✅ A basic human right of every suffering person**
+  Exactly — be your own friend, especially when you fail. Self-compassion doesn't need to wait for success. It's most needed precisely in moments of failure.
 - ❌ A technique only for therapy
   Self-compassion can be trained outside therapy too — you can do a Self-Compassion Break on your own.
 - ❌ Something only people with mental health issues need

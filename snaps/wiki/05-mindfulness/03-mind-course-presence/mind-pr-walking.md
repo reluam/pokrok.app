@@ -82,8 +82,8 @@ This practice has roots in **Zen and Theravada Buddhism** and was popularized in
 
 **Otázka:** Čím se meditace v chůzi liší od „normální chůze"?
 
-- **✅ Vědomou pozorností na pocit chodidel, pohyb a dech**
-  Přesně. Fyzicky je to stejná chůze, mentálně úplně jiný zážitek. Rozdíl je ve tvé pozornosti.
+- **✅ Pozorností na chodidla a dech**
+  Přesně. Fyzicky je to stejná chůze, mentálně úplně jiný zážitek. Rozdíl je ve vědomé pozornosti na pohyb a dech.
 - ❌ Musíš chodit se zavřenýma očima
   V žádném případě — bezpečnost je na prvním místě. Oči otevřené, měkký pohled.
 - ❌ Musíš chodit bosou nohou
@@ -93,8 +93,8 @@ This practice has roots in **Zen and Theravada Buddhism** and was popularized in
 
 **Question:** How is walking meditation different from "normal walking"?
 
-- **✅ Conscious attention to the feel of the feet, movement, and breath**
-  Exactly. Physically it's the same walking, mentally it's a completely different experience. The difference is in your attention.
+- **✅ Attention to the feet and breath**
+  Exactly. Physically it's the same walking, mentally it's a completely different experience. The difference is conscious attention to movement and breath.
 - ❌ You have to walk with your eyes closed
   Absolutely not — safety comes first. Eyes open, soft gaze.
 - ❌ You have to walk barefoot
@@ -112,8 +112,8 @@ Walking meditation is ideal for people who **don't take to sitting**. It's also 
 
 **Otázka:** Pro koho je meditace v chůzi obzvlášť vhodná?
 
-- **✅ Pro lidi, které nebaví klasická sedavá meditace — chůze je přirozenější alternativa**
-  Přesně. Mnoho lidí, kteří „nedokážou" sedět, najde v meditaci v chůzi svou cestu k mindfulness.
+- **✅ Pro lidi, které nebaví sedavá meditace**
+  Přesně. Chůze je přirozenější alternativa. Mnoho lidí, kteří „nedokážou" sedět, najde v meditaci v chůzi svou cestu k mindfulness.
 - ❌ Pouze pro pokročilé meditující
   Naopak — je skvělá i pro úplné začátečníky. Je přístupnější než sezení.
 - ❌ Pouze pro sportovce a fyzicky zdatné lidi
@@ -123,8 +123,8 @@ Walking meditation is ideal for people who **don't take to sitting**. It's also 
 
 **Question:** Who is walking meditation especially suited for?
 
-- **✅ People who don't enjoy classic sitting meditation — walking is a more natural alternative**
-  Exactly. Many people who "can't" sit find their path to mindfulness through walking meditation.
+- **✅ People who don't like sitting meditation**
+  Exactly. Walking is a more natural alternative. Many people who "can't" sit find their path to mindfulness through walking meditation.
 - ❌ Only for advanced meditators
   On the contrary — it's great for complete beginners too. It's more accessible than sitting.
 - ❌ Only for athletes and physically fit people
@@ -142,8 +142,8 @@ You can meditate in motion. **Walking is the most natural human activity** — a
 
 **Otázka:** Kdo popularizoval meditaci v chůzi na Západě?
 
-- **✅ Vietnamský mnich Thich Nhat Hanh**
-  Přesně. Thich Nhat Hanh učil, že meditace v chůzi je „jít, jako bys políbil zem každým krokem".
+- **✅ Thich Nhat Hanh**
+  Přesně. Vietnamský mnich Thich Nhat Hanh učil, že meditace v chůzi je „jít, jako bys políbil zem každým krokem".
 - ❌ Jon Kabat-Zinn
   Kabat-Zinn popularizoval MBSR (kde je klíčový body scan), ale meditaci v chůzi přinesl na Západ především Thich Nhat Hanh.
 - ❌ Dalajlama
@@ -153,8 +153,8 @@ You can meditate in motion. **Walking is the most natural human activity** — a
 
 **Question:** Who popularized walking meditation in the West?
 
-- **✅ Vietnamese monk Thich Nhat Hanh**
-  Exactly. Thich Nhat Hanh taught that walking meditation is "walking as if you were kissing the earth with every step."
+- **✅ Thich Nhat Hanh**
+  Exactly. The Vietnamese monk Thich Nhat Hanh taught that walking meditation is "walking as if you were kissing the earth with every step."
 - ❌ Jon Kabat-Zinn
   Kabat-Zinn popularized MBSR (where body scan is key), but walking meditation was brought to the West primarily by Thich Nhat Hanh.
 - ❌ The Dalai Lama
@@ -164,8 +164,8 @@ You can meditate in motion. **Walking is the most natural human activity** — a
 
 **Otázka:** Proč je chůze obzvlášť vhodná pro mindfulness praxi?
 
-- **✅ Je rytmická (nohy, pohyb, dech), aktivuje smysly a nevytváří frustraci z nehybnosti**
-  Přesně. Rytmus uklidňuje mozek, smysly jsou aktivní, a na rozdíl od sezení neřešíš „co mám dělat s tělem".
+- **✅ Je rytmická, aktivuje smysly a nevyvolává frustraci**
+  Přesně. Rytmus nohou, pohybu a dechu uklidňuje mozek, smysly jsou aktivní, a na rozdíl od sezení neřešíš „co mám dělat s tělem" ani nehybnost.
 - ❌ Protože spaluje víc kalorií než sezení
   Kalorický efekt není podstatný. Přínos meditace v chůzi je mentální, ne fyzický.
 - ❌ Protože je těžší než sedavá meditace, a tím lepší trénink
@@ -175,8 +175,8 @@ You can meditate in motion. **Walking is the most natural human activity** — a
 
 **Question:** Why is walking especially suitable for mindfulness practice?
 
-- **✅ It's rhythmic (feet, movement, breath), activates the senses, and doesn't create the frustration of immobility**
-  Exactly. Rhythm calms the brain, the senses are engaged, and unlike sitting, you don't have to figure out "what to do with your body."
+- **✅ It's rhythmic, engages senses, and avoids immobility frustration**
+  Exactly. The rhythm of feet, movement, and breath calms the brain, the senses are engaged, and unlike sitting, you don't have to figure out "what to do with your body."
 - ❌ Because it burns more calories than sitting
   The calorie effect is beside the point. The benefit of walking meditation is mental, not physical.
 - ❌ Because it's harder than sitting meditation, and therefore better training
@@ -186,8 +186,8 @@ You can meditate in motion. **Walking is the most natural human activity** — a
 
 **Otázka:** Chceš zkusit meditaci v chůzi v hlučném městě. Je to možné?
 
-- **✅ Ano — zvuky a ruch můžeš vnímat jako součást praxe, nebo najít tichou boční uličku**
-  Přesně. Město není překážka. Buď ruch přijmi jako součást mindfulness, nebo najdi tichý kout.
+- **✅ Ano — ruch může být součástí praxe**
+  Přesně. Město není překážka. Buď ruch přijmi jako součást mindfulness, nebo najdi tichou boční uličku či klidný kout.
 - ❌ Ne — meditace v chůzi vyžaduje přírodu a ticho
   Příroda je ideální, ale ne nutná. Meditovat v chůzi lze kdekoli — v parku, chodbě i městské ulici.
 - ❌ Ano, ale jen o víkendu na venkově
@@ -197,8 +197,8 @@ You can meditate in motion. **Walking is the most natural human activity** — a
 
 **Question:** You want to try walking meditation in a noisy city. Is that possible?
 
-- **✅ Yes — you can treat the sounds and bustle as part of the practice, or find a quiet side street**
-  Exactly. The city isn't an obstacle. Either accept the bustle as part of mindfulness, or find a quiet corner.
+- **✅ Yes — sounds and bustle can be part of practice**
+  Exactly. The city isn't an obstacle. Either accept the bustle as part of mindfulness, or find a quiet side street or corner.
 - ❌ No — walking meditation requires nature and silence
   Nature is ideal, but not required. You can do walking meditation anywhere — in a park, a hallway, or a city street.
 - ❌ Yes, but only on weekends in the countryside
@@ -237,7 +237,7 @@ A Stanford study showed that walking in nature reduces activity in a brain regio
 
 **Otázka:** Jdeš lesem a medituješ v chůzi. Všimneš si krásného ptáka a instinktivně chceš vytáhnout telefon a vyfotit ho. Co uděláš?
 
-- **✅ Jen si ho všimneš, vnímáš jeho zpěv a pokračuješ v chůzi**
+- **✅ Všimneš si ho, vnímáš zpěv a jdeš dál**
   Přesně. Meditace v chůzi vítá vše, co se objeví — ale bez reakcí. Vnímej ptáka jako zvuk a obraz, ne jako fotku na sociální síti.
 - ❌ Vytáhneš telefon a vyfotíš — krásu je třeba sdílet
   Sdílení je v pořádku, ale v meditaci vystupuješ z praxe. Zvol si jedno nebo druhé.
@@ -248,7 +248,7 @@ A Stanford study showed that walking in nature reduces activity in a brain regio
 
 **Question:** You're walking in the forest doing walking meditation. You notice a beautiful bird and instinctively want to pull out your phone and photograph it. What do you do?
 
-- **✅ Just notice it, listen to its song, and keep walking**
+- **✅ Notice it, listen to the song, and keep walking**
   Exactly. Walking meditation welcomes everything that shows up — but without reacting. Experience the bird as sound and image, not as a social media photo.
 - ❌ Pull out your phone and take a photo — beauty should be shared
   Sharing is fine, but in meditation you step out of the practice. Pick one or the other.
@@ -275,8 +275,8 @@ Tip: try syncing your walking with breath. For example, 4 steps inhale, 4 steps 
 
 **Otázka:** Zkusíš chůzi pomalu, ale cítíš se směšně. Musí být chůze pomalá?
 
-- **✅ Ne nutně — můžeš meditovat v normálním tempu. Pomalá chůze je jen jedna forma.**
-  Přesně. Důležitá je pozornost, ne rychlost. Normální tempo funguje, jen je těžší udržet fokus.
+- **✅ Ne — můžeš meditovat i v normálním tempu**
+  Přesně. Pomalá chůze je jen jedna forma. Důležitá je pozornost, ne rychlost. Normální tempo funguje, jen je těžší udržet fokus.
 - ❌ Ano — rychlá chůze nemůže být meditace
   Může. Thich Nhat Hanh říká, že meditace v chůzi je „jít, jako bys políbil zem každým krokem" — v jakémkoli tempu.
 - ❌ Musíš najít místo, kde tě nikdo neuvidí
@@ -286,8 +286,8 @@ Tip: try syncing your walking with breath. For example, 4 steps inhale, 4 steps 
 
 **Question:** You try walking slowly but feel silly. Does the walking have to be slow?
 
-- **✅ Not necessarily — you can meditate at a normal pace. Slow walking is just one form.**
-  Exactly. What matters is attention, not speed. A normal pace works too, it's just harder to hold focus.
+- **✅ No — you can meditate at a normal pace too**
+  Exactly. Slow walking is just one form. What matters is attention, not speed. A normal pace works too, it's just harder to hold focus.
 - ❌ Yes — fast walking can't be meditation
   It can. Thich Nhat Hanh says walking meditation is "walking as if you were kissing the earth with every step" — at any pace.
 - ❌ You need to find a place where no one can see you
@@ -305,8 +305,8 @@ Walking in nature with attention is one of the **best practices for mental healt
 
 **Otázka:** Jaký je hlavní přínos meditace v chůzi oproti klasické sedavé meditaci?
 
-- **✅ Integrace mindfulness do běžného pohybu — nemusíš sedět, je to přirozenější pro mnoho lidí**
-  Přesně. Je to přirozenější forma meditace a dá se snadno zařadit do dne jako „walking break".
+- **✅ Mindfulness v běžném pohybu**
+  Přesně. Integruje mindfulness do běžného pohybu — nemusíš sedět. Pro mnoho lidí je to přirozenější forma meditace a dá se snadno zařadit do dne jako „walking break".
 - ❌ Hubnutí a spalování kalorií
   Kalorický efekt je malý. Přínos meditace v chůzi je mentální, ne fyzický.
 - ❌ Lepší fyzická kondice
@@ -316,8 +316,8 @@ Walking in nature with attention is one of the **best practices for mental healt
 
 **Question:** What's the main benefit of walking meditation compared to classic sitting meditation?
 
-- **✅ Integrating mindfulness into ordinary movement — you don't have to sit, it's more natural for many people**
-  Exactly. It's a more natural form of meditation and fits easily into the day as a "walking break."
+- **✅ Mindfulness in movement**
+  Exactly. It integrates mindfulness into ordinary movement — you don't have to sit. For many people it's a more natural form of meditation and fits easily into the day as a "walking break."
 - ❌ Weight loss and calorie burning
   The calorie effect is small. The benefit of walking meditation is mental, not physical.
 - ❌ Better physical fitness
@@ -327,8 +327,8 @@ Walking in nature with attention is one of the **best practices for mental healt
 
 **Otázka:** Co ukázala studie ze Stanfordu o chůzi v přírodě?
 
-- **✅ Chůze v přírodě snižuje aktivitu oblasti mozku spojené s ruminací (opakujícím se negativním myšlením)**
-  Přesně. Kombinace pohybu, přírody a mindfulness přerušuje smyčku negativních myšlenek na neurobiologické úrovni.
+- **✅ Snižuje aktivitu mozkové oblasti spojené s ruminací**
+  Přesně. Oblast spojená s opakujícím se negativním myšlením je méně aktivní. Kombinace pohybu, přírody a mindfulness přerušuje smyčku negativních myšlenek na neurobiologické úrovni.
 - ❌ Chůze v přírodě zlepšuje fyzickou kondici víc než posilovna
   Studie se zaměřovala na mozek a ruminaci, ne na fyzickou kondici.
 - ❌ Chůze v přírodě nemá žádný měřitelný vliv na mozek
@@ -338,8 +338,8 @@ Walking in nature with attention is one of the **best practices for mental healt
 
 **Question:** What did the Stanford study show about walking in nature?
 
-- **✅ Walking in nature reduces activity in a brain region linked to rumination (repetitive negative thinking)**
-  Exactly. The combination of movement, nature, and mindfulness breaks the loop of negative thoughts at a neurobiological level.
+- **✅ It lowers activity in a brain region tied to rumination**
+  Exactly. The region tied to repetitive negative thinking is less active. The combination of movement, nature, and mindfulness breaks the loop of negative thoughts at a neurobiological level.
 - ❌ Walking in nature improves physical fitness more than the gym
   The study focused on the brain and rumination, not physical fitness.
 - ❌ Walking in nature has no measurable effect on the brain
@@ -349,8 +349,8 @@ Walking in nature with attention is one of the **best practices for mental healt
 
 **Otázka:** Sedíš u počítače 8 hodin denně a cítíš se vyhořelý/á. Jak ti může meditace v chůzi pomoct?
 
-- **✅ Pravidelné „walking breaks" (5 minut každé 2 hodiny) obnoví pozornost, sníží stres a mohou zmírnit bolesti zad**
-  Přesně. Krátké vědomé procházky přerušují sedavý režim a resetují mysl. Nemusíš chodit daleko — stačí chodba.
+- **✅ Krátké „walking breaks" obnoví pozornost i zmírní stres**
+  Přesně. 5 minut každé 2 hodiny přerušuje sedavý režim, může zmírnit bolesti zad a resetovat mysl. Nemusíš chodit daleko — stačí chodba.
 - ❌ Musíš chodit alespoň hodinu, aby to mělo efekt
   Stačí 5–10 minut. Pravidelnost je důležitější než délka.
 - ❌ Meditace v chůzi je pouze pro volný čas, ne pro pracovní den

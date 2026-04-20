@@ -82,8 +82,8 @@ Now imagine your typical lunch. You eat at the computer, in 10 minutes, scrollin
 
 **Otázka:** Představ si, že dnes poprvé jíš oběd s plnou pozorností — bez telefonu, pomalu. Co pravděpodobně zjistíš?
 
-- **✅ Nasytíš se rychleji a jídlo má víc chutí, než sis pamatoval/a**
-  Přesně. Pomalé vědomé jedení aktivuje signály sytosti a otevírá chuť. Často ti stačí polovina normální porce.
+- **✅ Rychlejší sytost a víc chutí**
+  Přesně. Pomalé vědomé jedení aktivuje signály sytosti a otevírá chuť — jídlo má víc chutí, než sis pamatoval/a. Často ti stačí polovina normální porce.
 - ❌ Bude ti to trvat celou hodinu
   Přidá se tak 5–10 minut, ne celá hodina. A stojí to za to.
 - ❌ Budeš pořád hladový/á
@@ -93,8 +93,8 @@ Now imagine your typical lunch. You eat at the computer, in 10 minutes, scrollin
 
 **Question:** Imagine today you eat lunch with full attention for the first time — no phone, slowly. What will you probably discover?
 
-- **✅ You get full faster and the food has more flavor than you remembered**
-  Exactly. Slow, mindful eating activates fullness signals and opens up taste. Often half the normal portion is enough.
+- **✅ You'll get full faster**
+  Exactly. Slow, mindful eating activates fullness signals and opens up taste — food has more flavor than you remembered. Often half the normal portion is enough.
 - ❌ It'll take you a whole hour
   It adds maybe 5–10 minutes, not a whole hour. And it's worth it.
 - ❌ You'll still be hungry
@@ -112,8 +112,8 @@ Mindful eating **isn't about dieting**. It's about your relationship with food. 
 
 **Otázka:** Co vědomé jedení NENÍ?
 
-- **✅ Dieta nebo seznam „zakázaných" potravin**
-  Přesně. Mindful eating není o tom, co jíst. Je o tom, jak jíst.
+- **✅ Dieta nebo „zakázaná" jídla**
+  Přesně. Mindful eating není o seznamu potravin ani o tom, co jíst. Je o tom, jak jíst.
 - ❌ Praxe, která mění vztah k jídlu
   Právě tím vědomé jedení je — to je správný popis.
 - ❌ Způsob, jak si jídlo víc užít
@@ -123,7 +123,7 @@ Mindful eating **isn't about dieting**. It's about your relationship with food. 
 
 **Question:** What mindful eating is NOT?
 
-- **✅ A diet or a list of "forbidden" foods**
+- **✅ A diet or list of "forbidden" foods**
   Exactly. Mindful eating isn't about what to eat. It's about how to eat.
 - ❌ A practice that changes your relationship with food
   That's precisely what mindful eating is — it's a correct description.
@@ -142,7 +142,7 @@ Eating slowly and mindfully is a **revolutionary act** in modern "eat and run" c
 
 **Otázka:** Proč je slavné cvičení s rozinkou v programu MBSR tak silné?
 
-- **✅ Pro mnoho lidí je to poprvé, kdy skutečně „ochutnají" jídlo — uvědomí si, kolik toho běžně minuli**
+- **✅ Poprvé skutečně „ochutnají" jídlo a uvědomí si, co minuli**
   Přesně. 10 minut s jednou rozinkou odhalí, jak automaticky a bezmyšlenkovitě normálně jíme. To je probuzení.
 - ❌ Rozinky mají speciální vlastnosti pro mindfulness
   Nemají. Cvičení funguje s jakýmkoli jídlem. Rozinka je jen tradičně používaný příklad.
@@ -153,8 +153,8 @@ Eating slowly and mindfully is a **revolutionary act** in modern "eat and run" c
 
 **Question:** Why is the famous raisin exercise in the MBSR program so powerful?
 
-- **✅ For many people it's the first time they actually "taste" food — they realize how much they normally miss**
-  Exactly. 10 minutes with one raisin reveals how automatically and mindlessly we normally eat. That's the awakening.
+- **✅ It's the first time they actually "taste" food**
+  Exactly. They realize how much they normally miss. 10 minutes with one raisin reveals how automatically and mindlessly we normally eat. That's the awakening.
 - ❌ Raisins have special properties for mindfulness
   They don't. The exercise works with any food. A raisin is just the traditionally used example.
 - ❌ It takes 10 minutes, and that's long enough for meditation
@@ -164,8 +164,8 @@ Eating slowly and mindfully is a **revolutionary act** in modern "eat and run" c
 
 **Otázka:** Často jíš z emočních důvodů — ve stresu saháš po čokoládě. Může vědomé jedení pomoct?
 
-- **✅ Ano — pomáhá ti rozeznat emoční hlad od fyzického. Když se zastavíš a všimneš si „mám opravdu hlad?", získáš volbu.**
-  Přesně. Vědomé jedení ti dává prostor mezi impulzem a reakcí — a v tom prostoru je svoboda.
+- **✅ Ano — rozliší emoční hlad od fyzického**
+  Přesně. Když se zastavíš a všimneš si „mám opravdu hlad?", získáš volbu. Vědomé jedení ti dává prostor mezi impulzem a reakcí — a v tom prostoru je svoboda.
 - ❌ Ne — čokoláda není vhodná pro mindfulness praxi
   I čokoládu můžeš jíst vědomě. Důležitý je způsob, ne obsah.
 - ❌ Jen pokud přestaneš jíst čokoládu úplně
@@ -175,8 +175,8 @@ Eating slowly and mindfully is a **revolutionary act** in modern "eat and run" c
 
 **Question:** You often eat for emotional reasons — when stressed, you reach for chocolate. Can mindful eating help?
 
-- **✅ Yes — it helps you tell emotional hunger from physical hunger. When you pause and notice "am I actually hungry?" you get a choice.**
-  Exactly. Mindful eating gives you space between impulse and reaction — and in that space lies freedom.
+- **✅ Yes — it distinguishes emotional from physical hunger**
+  Exactly. When you pause and notice "am I actually hungry?" you get a choice. Mindful eating gives you space between impulse and reaction — and in that space lies freedom.
 - ❌ No — chocolate isn't suitable for mindfulness practice
   You can eat chocolate mindfully too. It's about the how, not the what.
 - ❌ Only if you stop eating chocolate entirely
@@ -186,8 +186,8 @@ Eating slowly and mindfully is a **revolutionary act** in modern "eat and run" c
 
 **Otázka:** Jsi pořád ve spěchu a „nemáš čas" na vědomé jedení. Co s tím?
 
-- **✅ Začni tím, že budeš první 3 sousta každého jídla jíst s plnou pozorností — to trvá minutu**
-  Přesně. Nemusí to být celé jídlo. Začni malým — 3 sousta. Často to rozjede celý přístup k jídlu.
+- **✅ Jez první 3 sousta každého jídla s pozorností**
+  Přesně. Trvá to minutu a nemusí to být celé jídlo. Začni malým — 3 sousta. Často to rozjede celý přístup k jídlu.
 - ❌ Vědomé jedení pro tebe není — potřebuješ na to hodiny
   Mindfulness se dá zařadit i do spěchu. Stačí minuta — nebo dokonce jedno sousto.
 - ❌ Počkej, až budeš mít víc volného času
@@ -197,8 +197,8 @@ Eating slowly and mindfully is a **revolutionary act** in modern "eat and run" c
 
 **Question:** You're always in a rush and "don't have time" for mindful eating. What to do?
 
-- **✅ Start by eating the first 3 bites of every meal with full attention — that takes a minute**
-  Exactly. It doesn't have to be the whole meal. Start small — 3 bites. It often kickstarts a whole new approach to food.
+- **✅ Eat the first 3 bites with attention**
+  Exactly. It takes a minute and doesn't have to be the whole meal. Start small — 3 bites. It often kickstarts a whole new approach to food.
 - ❌ Mindful eating isn't for you — it takes hours
   Mindfulness fits into a hurry too. A minute is enough — or even a single bite.
 - ❌ Wait until you have more free time
@@ -237,8 +237,8 @@ When you eat fast, you eat more than you need before the signals arrive. Slow ea
 
 **Otázka:** Proč pomalé jedení přirozeně snižuje velikost porce?
 
-- **✅ Signály sytosti potřebují ~20 minut, než dorazí do mozku — pomalé jedení jim dá čas dorazit před koncem jídla**
-  Přesně. Když jíš rychle, „přejedeš" signály sytosti. Pomalé jedení synchronizuje tělo a mozek.
+- **✅ Signály sytosti potřebují ~20 minut**
+  Přesně. Pomalé jedení jim dá čas dorazit do mozku před koncem jídla. Když jíš rychle, „přejedeš" signály sytosti. Pomalé jedení synchronizuje tělo a mozek.
 - ❌ Pomalé jedení spaluje víc kalorií
   Rozdíl v kalorické spotřebě je minimální. Efekt je v tom, že sníš méně, ne že spálíš víc.
 - ❌ Pomalé žvýkání mechanicky ničí kalorie v jídle
@@ -248,8 +248,8 @@ When you eat fast, you eat more than you need before the signals arrive. Slow ea
 
 **Question:** Why does slow eating naturally reduce portion size?
 
-- **✅ Fullness signals need ~20 minutes to reach the brain — slow eating gives them time to arrive before the meal is over**
-  Exactly. When you eat fast, you "outrun" the fullness signals. Slow eating synchronizes body and brain.
+- **✅ Fullness signals need about 20 minutes**
+  Exactly. Slow eating gives them time to reach the brain before the meal is over. When you eat fast, you "outrun" the fullness signals. Slow eating synchronizes body and brain.
 - ❌ Slow eating burns more calories
   The difference in calorie expenditure is minimal. The effect is that you eat less, not that you burn more.
 - ❌ Slow chewing mechanically destroys calories in the food
@@ -271,8 +271,8 @@ How to eat mindfully: 1) Close your phone and computer. 2) Look at the food — 
 
 **Otázka:** Snažíš se jíst vědomě, ale tvá rodina u stolu mluví a baví se. Těžko udržíš fokus. Co uděláš?
 
-- **✅ Vědomé jedení může být i sociální — vnímej jídlo, lidi a rozhovor jako celek**
-  Přesně. Nemusíš jíst v tichu. Rozšířené vnímání zahrnuje i atmosféru kolem stolu.
+- **✅ Vnímej jídlo i rozhovor**
+  Přesně. Vědomé jedení může být i sociální — nemusíš jíst v tichu. Rozšířené vnímání zahrnuje celek: jídlo, lidi i atmosféru kolem stolu.
 - ❌ Musíš jíst sám/sama v tichu
   To je jeden způsob, ale ne jediný. Sociální jedení je cenné a dá se s mindfulness spojit.
 - ❌ Řekneš rodině, ať mlčí
@@ -282,8 +282,8 @@ How to eat mindfully: 1) Close your phone and computer. 2) Look at the food — 
 
 **Question:** You're trying to eat mindfully, but your family at the table is talking and laughing. It's hard to hold focus. What do you do?
 
-- **✅ Mindful eating can be social too — take in the food, the people, and the conversation as a whole**
-  Exactly. You don't have to eat in silence. A wider awareness includes the atmosphere around the table.
+- **✅ Mindful eating can be social too**
+  Exactly. You don't have to eat in silence. Take in the food, the people, and the conversation as a whole — a wider awareness includes the atmosphere around the table.
 - ❌ You have to eat alone in silence
   That's one way, but not the only one. Social eating is valuable and can be combined with mindfulness.
 - ❌ Tell your family to be quiet
@@ -301,8 +301,8 @@ Mindful eating doesn't say **"what to eat."** It says **"how to eat."** You don'
 
 **Otázka:** Proč je podle Harvardské studie vědomé jedení účinnější než klasické diety?
 
-- **✅ Protože mění vztah k jídlu místo boje s tělem — diety selžou, vědomé jedení spolupracuje**
-  Přesně. Restrikce vytváří odpor a cravings. Vědomé jedení přirozeně mění chování bez pocitu omezování.
+- **✅ Mění vztah k jídlu, místo aby válčilo s tělem**
+  Přesně. Diety selžou, protože bojují s tělem — vědomé jedení spolupracuje. Restrikce vytváří odpor a cravings. Vědomé jedení přirozeně mění chování bez pocitu omezování.
 - ❌ Protože vědomé jedení spaluje víc kalorií
   Nejde o spalování kalorií, ale o to, že přirozeně sníš méně a vychutnáš si víc.
 - ❌ Protože klasické diety jsou všechny nesmysl
@@ -312,8 +312,8 @@ Mindful eating doesn't say **"what to eat."** It says **"how to eat."** You don'
 
 **Question:** Why is mindful eating more effective than traditional diets according to the Harvard study?
 
-- **✅ Because it changes the relationship with food instead of fighting the body — diets fail, mindful eating cooperates**
-  Exactly. Restriction creates resistance and cravings. Mindful eating naturally changes behavior without a sense of deprivation.
+- **✅ It changes your relationship with food**
+  Exactly. Diets fail because they fight the body — mindful eating cooperates. Restriction creates resistance and cravings. Mindful eating naturally changes behavior without a sense of deprivation.
 - ❌ Because mindful eating burns more calories
   It's not about burning calories, but about naturally eating less and enjoying more.
 - ❌ Because all traditional diets are nonsense
@@ -323,8 +323,8 @@ Mindful eating doesn't say **"what to eat."** It says **"how to eat."** You don'
 
 **Otázka:** Který z následujících kroků je nejúčinnější jednoduchá technika vědomého jedení?
 
-- **✅ Mezi sousty polož příbor a zastav se v polovině jídla — zeptej se „mám ještě hlad?"**
-  Přesně. Pokládání příboru zpomaluje jedení a pauza v polovině ti umožní zachytit signály sytosti.
+- **✅ Mezi sousty polož příbor**
+  Přesně. A zastav se v polovině jídla — zeptej se „mám ještě hlad?". Pokládání příboru zpomaluje jedení a pauza v polovině ti umožní zachytit signály sytosti.
 - ❌ Počítat kalorie v každém soustu
   To je opak mindfulness. Počítání kalorií je analytické, ne prožitkové.
 - ❌ Jíst co nejmenší porce
@@ -334,8 +334,8 @@ Mindful eating doesn't say **"what to eat."** It says **"how to eat."** You don'
 
 **Question:** Which of the following is the most effective simple mindful eating technique?
 
-- **✅ Put your fork down between bites and stop halfway through the meal — ask "am I still hungry?"**
-  Exactly. Putting the fork down slows eating and the mid-meal pause lets you catch fullness signals.
+- **✅ Put your fork down between bites**
+  Exactly. And stop halfway through the meal — ask "am I still hungry?". Putting the fork down slows eating and the mid-meal pause lets you catch fullness signals.
 - ❌ Count the calories in every bite
   That's the opposite of mindfulness. Calorie counting is analytical, not experiential.
 - ❌ Eat the smallest possible portions
@@ -345,8 +345,8 @@ Mindful eating doesn't say **"what to eat."** It says **"how to eat."** You don'
 
 **Otázka:** Vědomé jedení je nejpřístupnější forma mindfulness. Proč?
 
-- **✅ Jíš třikrát denně — každé jídlo je příležitost pro praxi bez speciálních podmínek**
-  Přesně. Nepotřebuješ meditační polštář, ticho ani extra čas. Stačí jíst to, co jíš, s pozorností.
+- **✅ Jíš třikrát denně — každé jídlo je příležitost**
+  Přesně. Nepotřebuješ speciální podmínky, meditační polštář, ticho ani extra čas. Stačí jíst to, co jíš, s pozorností.
 - ❌ Protože jídlo je vždy příjemné
   Není vždy příjemné (spěch, stres, špatné jídlo). Ale i tak je to příležitost pro všímání.
 - ❌ Protože je to snazší než všechny ostatní formy mindfulness

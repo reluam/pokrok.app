@@ -86,8 +86,8 @@ The name "box" (square) comes from the fact that all four phases are the same le
 
 **Otázka:** Proč se technice říká „box" (čtverec)?
 
-- **✅ Všechny čtyři fáze mají stejnou délku — jako čtyři strany čtverce**
-  Přesně. Rovnováha je klíčová. Stejné délky fází jsou snadno zapamatovatelné a strukturují dech.
+- **✅ Všechny čtyři fáze mají stejnou délku**
+  Přesně. Jako čtyři strany čtverce — rovnováha je klíčová. Stejné délky jsou snadno zapamatovatelné a strukturují dech.
 - ❌ Protože se dělá v místnosti s rohy
   Ne — název je metafora, ne instrukce. Můžeš to dělat kdekoli.
 - ❌ Protože cvik má čtyři úrovně obtížnosti
@@ -97,8 +97,8 @@ The name "box" (square) comes from the fact that all four phases are the same le
 
 **Question:** Why is the technique called "box" (square)?
 
-- **✅ All four phases are the same length — like the four sides of a square**
-  Exactly. Balance is key. Equal phase lengths are easy to remember and give the breath structure.
+- **✅ All four phases have the same duration**
+  Exactly. Like the four sides of a square — balance is key. Equal lengths are easy to remember and give the breath structure.
 - ❌ Because it's done in a room with corners
   No — the name is a metaphor, not an instruction. You can do it anywhere.
 - ❌ Because the exercise has four difficulty levels
@@ -116,8 +116,8 @@ Box breathing activates the parasympathetic nervous system — the branch respon
 
 **Otázka:** Co se děje v těle při box breathing?
 
-- **✅ Aktivuje se parasympatikus, klesá srdeční tep a hladina kortizolu — tělo přechází do režimu klidu**
-  Přesně. Pomalé, rovnoměrné dýchání stimuluje vagus nerve a přepíná nervový systém z bojového režimu do regenerace.
+- **✅ Aktivuje se parasympatikus, tělo klidní**
+  Přesně. Pomalé, rovnoměrné dýchání stimuluje vagus nerve, klesá srdeční tep i hladina kortizolu — systém se přepíná z bojového režimu do regenerace.
 - ❌ Tělo se zahřívá a uvolňuje adrenalin
   Naopak — box breathing tlumí stresovou odpověď, nepodporuje ji.
 - ❌ Mozek přestává vnímat okolí a usínáš
@@ -127,8 +127,8 @@ Box breathing activates the parasympathetic nervous system — the branch respon
 
 **Question:** What happens in the body during box breathing?
 
-- **✅ The parasympathetic system activates, heart rate and cortisol drop — the body shifts into rest mode**
-  Exactly. Slow, even breathing stimulates the vagus nerve and switches the nervous system from fight mode to recovery.
+- **✅ Parasympathetic activates, body shifts into rest**
+  Exactly. Slow, even breathing stimulates the vagus nerve, heart rate and cortisol drop — the system switches from fight mode to recovery.
 - ❌ The body heats up and releases adrenaline
   On the contrary — box breathing dampens the stress response, it doesn't fuel it.
 - ❌ The brain stops perceiving surroundings and you fall asleep
@@ -171,7 +171,7 @@ Holding the breath after the inhale slightly raises CO2 levels in the blood, whi
 
 **Otázka:** Představ si, že děláš box breathing před prezentací. Po třech cyklech cítíš mravenčení v rukou. Co se děje?
 
-- **✅ Mravenčení může být normální reakce na změnu CO2 — stačí zpomalit nebo zkrátit fáze**
+- **✅ Normální reakce na změnu CO2 — zpomal nebo zkrať fáze**
   Přesně. Mravenčení je neškodné. Zkrácení fází (třeba 3-3-3-3) nebo pomalejší rytmus obvykle pomůže.
 - ❌ Máš panický záchvat — měl/a bys přestat a zavolat pomoc
   Lehké mravenčení při dýchacích technikách je běžné. Pokud nezesiluje, je neškodné.
@@ -182,7 +182,7 @@ Holding the breath after the inhale slightly raises CO2 levels in the blood, whi
 
 **Question:** Imagine you're doing box breathing before a presentation. After three cycles you feel tingling in your hands. What's happening?
 
-- **✅ Tingling can be a normal response to CO2 changes — just slow down or shorten the phases**
+- **✅ Normal response to CO2 — slow down or shorten phases**
   Exactly. Tingling is harmless. Shorter phases (like 3-3-3-3) or a slower rhythm usually helps.
 - ❌ You're having a panic attack — you should stop and call for help
   Mild tingling during breathing techniques is common. If it's not intensifying, it's harmless.
@@ -201,8 +201,8 @@ US Navy SEALs use box breathing as a standard part of training. They practice it
 
 **Otázka:** Proč je box breathing tak populární mezi vojáky a záchranáři?
 
-- **✅ Je extrémně jednoduchý na zapamatování — v krizi nezvládneš složitý postup, ale 4-4-4-4 ano**
-  Přesně. Jednoduchost je jeho největší síla. V akutním stresu selžou složité systémy, ale jednoduchý vzorec zůstane.
+- **✅ Je extrémně jednoduchý na zapamatování**
+  Přesně. V krizi nezvládneš složitý postup, ale 4-4-4-4 ano. Jednoduchost je jeho největší síla — v akutním stresu selžou složité systémy, ale jednoduchý vzorec zůstane.
 - ❌ Protože je nejúčinnější ze všech dechových technik
   Není „nejúčinnější" — ale je nejspolehlivější díky jednoduchosti. Jiné techniky (třeba fyziologický povzdech) mohou být v určitých situacích rychlejší.
 - ❌ Protože ho vynalezli vojáci
@@ -212,8 +212,8 @@ US Navy SEALs use box breathing as a standard part of training. They practice it
 
 **Question:** Why is box breathing so popular among soldiers and first responders?
 
-- **✅ It's extremely easy to remember — in a crisis you can't handle a complex procedure, but 4-4-4-4 you can**
-  Exactly. Simplicity is its greatest strength. In acute stress, complex systems fail, but a simple pattern stays.
+- **✅ It's extremely easy to remember in a crisis**
+  Exactly. You can't handle a complex procedure under stress, but 4-4-4-4 you can. Simplicity is its greatest strength — complex systems fail under acute stress, a simple pattern stays.
 - ❌ Because it's the most effective of all breathing techniques
   It isn't "the most effective" — but it's the most reliable thanks to its simplicity. Other techniques (like the physiological sigh) may be faster in certain situations.
 - ❌ Because soldiers invented it
@@ -256,8 +256,8 @@ Step by step: 1) Sit comfortably. 2) Exhale all the air. 3) Inhale through the n
 
 **Otázka:** Představ si, že cítíš, že 4 sekundy zadržení prázdných plic jsou pro tebe moc. Panika stoupá. Co uděláš?
 
-- **✅ Zkrátíš na 3-3-3-3 nebo vynecháš druhé zadržení (3-3-6-0)**
-  Přesně. Technika se má přizpůsobit tobě, ne naopak. Začni kratším vzorcem a postupně prodlužuj.
+- **✅ Zkrátíš fáze na 3-3-3-3 nebo kratší**
+  Přesně. Můžeš i vynechat druhé zadržení (3-3-6-0). Technika se má přizpůsobit tobě, ne naopak — začni kratším vzorcem a postupně prodlužuj.
 - ❌ Zatneš zuby a vydržíš
   Napětí je protikladem cíle. Box breathing má zklidnit, ne vyprovokovat stres.
 - ❌ Opustíš techniku a nikdy ji nezkoušíš znovu
@@ -267,8 +267,8 @@ Step by step: 1) Sit comfortably. 2) Exhale all the air. 3) Inhale through the n
 
 **Question:** Imagine you feel like 4 seconds of holding empty lungs is too much. Panic is rising. What do you do?
 
-- **✅ Shorten to 3-3-3-3 or skip the second hold (3-3-6-0)**
-  Exactly. The technique should adapt to you, not the other way around. Start with a shorter pattern and gradually lengthen.
+- **✅ Shorten the phases to 3-3-3-3 or less**
+  Exactly. Or skip the second hold entirely (3-3-6-0). The technique should adapt to you, not the other way around — start shorter and gradually lengthen.
 - ❌ Grit your teeth and push through
   Tension is the opposite of the goal. Box breathing is meant to calm, not provoke stress.
 - ❌ Give up on the technique and never try again
@@ -286,8 +286,8 @@ Imagine you have a presentation for leadership. In the morning you feel your pul
 
 **Otázka:** Kdy je box breathing nejužitečnější?
 
-- **✅ Před, během i po stresových situacích — jako rychlá regulace nervového systému**
-  Přesně. Funguje jako prevence, akutní pomoc i zotavení.
+- **✅ Před, během i po stresu**
+  Přesně. Funguje jako rychlá regulace nervového systému — prevence, akutní pomoc i zotavení.
 - ❌ Jen při panických atakách
   Při panických atakách pomáhá, ale je vhodný i pro běžné situace. Prevence je silná.
 - ❌ Jen ráno při meditaci
@@ -297,8 +297,8 @@ Imagine you have a presentation for leadership. In the morning you feel your pul
 
 **Question:** When is box breathing most useful?
 
-- **✅ Before, during, and after stressful situations — as fast regulation of the nervous system**
-  Exactly. It works as prevention, acute help, and recovery.
+- **✅ Before, during, and after stress**
+  Exactly. It works as fast regulation of the nervous system — prevention, acute help, and recovery.
 - ❌ Only during panic attacks
   It helps in panic attacks, but it's also great for everyday situations. Prevention is powerful.
 - ❌ Only in the morning during meditation
@@ -308,8 +308,8 @@ Imagine you have a presentation for leadership. In the morning you feel your pul
 
 **Otázka:** Chceš box breathing zařadit do svého dne, ale nevíš kdy. Jaká je nejlepší strategie?
 
-- **✅ Propojit ho s existující rutinou — třeba před každou schůzkou nebo před otevřením e-mailu**
-  Habit stacking je nejefektivnější způsob. Připoj nový návyk ke stávající činnosti.
+- **✅ Přidat ke stávající rutině**
+  Třeba před každou schůzkou nebo před otevřením e-mailu. Habit stacking je nejefektivnější způsob — připoj nový návyk ke stávající činnosti.
 - ❌ Dělat ho jen když si vzpomeneš
   Bez konzistence je efekt slabší. Lepší je pravidelná krátká praxe.
 - ❌ Dělat hodinu denně
@@ -319,8 +319,8 @@ Imagine you have a presentation for leadership. In the morning you feel your pul
 
 **Question:** You want to fit box breathing into your day but don't know when. What's the best strategy?
 
-- **✅ Tie it to an existing routine — like before every meeting or before opening email**
-  Habit stacking is the most effective way. Attach a new habit to an existing activity.
+- **✅ Tie it to existing routines**
+  Like before every meeting or before opening email. Habit stacking is the most effective way — attach a new habit to an existing activity.
 - ❌ Only do it when you remember
   Without consistency the effect is weaker. Short regular practice is better.
 - ❌ Do it for an hour a day
@@ -330,8 +330,8 @@ Imagine you have a presentation for leadership. In the morning you feel your pul
 
 **Otázka:** Představ si, že začneš s box breathing hned na 8-8-8-8, protože chceš rychlejší efekt. Po chvíli se dusíš. Co děláš špatně?
 
-- **✅ Začínáš s příliš dlouhými fázemi — start na 4-4-4-4 a postupně prodlužuj**
-  Přesně. Začít s dlouhými fázemi je nejčastější chyba. 4 sekundy jsou ideální základ a postupně můžeš prodlužovat až po měsících praxe.
+- **✅ Začínáš s příliš dlouhými fázemi hned na začátku**
+  Přesně. Start na 4-4-4-4 a postupně prodlužuj — dlouhé fáze hned zkraje jsou nejčastější chyba. 4 sekundy jsou ideální základ a prodlužovat můžeš až po měsících praxe.
 - ❌ Dýcháš příliš pomalu, měl/a bys přidat tempo
   Naopak — pomalé dýchání je cílem. Problém je délka fáze, ne tempo.
 - ❌ Box breathing ti nesedí a měl/a bys ho nahradit jinou technikou
@@ -341,8 +341,8 @@ Imagine you have a presentation for leadership. In the morning you feel your pul
 
 **Question:** Imagine you start box breathing straight at 8-8-8-8 because you want a faster effect. After a while you're gasping. What are you doing wrong?
 
-- **✅ You're starting with phases that are too long — start at 4-4-4-4 and lengthen gradually**
-  Exactly. Starting with long phases is the most common mistake. 4 seconds is the ideal foundation and you can gradually lengthen after months of practice.
+- **✅ You're starting with phases that are too long right away**
+  Exactly. Start at 4-4-4-4 and lengthen gradually — jumping to long phases is the most common mistake. 4 seconds is the ideal foundation and you can lengthen only after months of practice.
 - ❌ You're breathing too slowly, you should speed up
   On the contrary — slow breathing is the goal. The problem is phase length, not tempo.
 - ❌ Box breathing doesn't suit you and you should replace it with another technique

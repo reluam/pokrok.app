@@ -82,8 +82,8 @@ The goal isn't to "feel something specific." The goal is to **reconnect with a b
 
 **Otázka:** Jaký je hlavní cíl body scanu?
 
-- **✅ Všímat si pocitů v těle bez snahy je měnit — obnovit vztah s vlastním tělem**
-  Přesně. Body scan není relaxační technika — je to praxe všímání. Relaxace je často jen vedlejší produkt.
+- **✅ Všímat si pocitů bez reakce**
+  Přesně. Body scan obnovuje vztah s tělem. Není to relaxační technika — je to praxe všímání. Relaxace je často jen vedlejší produkt.
 - ❌ Odstranit všechnu bolest a napětí
   Ne. Cílem je tvůj vztah k pocitům, ne jejich odstranění. Paradoxně, když přestaneš bojovat, bolest se často zmírní.
 - ❌ Usnout co nejrychleji
@@ -93,8 +93,8 @@ The goal isn't to "feel something specific." The goal is to **reconnect with a b
 
 **Question:** What's the main goal of a body scan?
 
-- **✅ Noticing body sensations without trying to change them — rebuilding the relationship with your own body**
-  Exactly. Body scan isn't a relaxation technique — it's a noticing practice. Relaxation is often just a byproduct.
+- **✅ Noticing sensations without reacting**
+  Exactly. Body scan rebuilds the relationship with your own body. It isn't a relaxation technique — it's a noticing practice. Relaxation is often just a byproduct.
 - ❌ Removing all pain and tension
   No. The goal is your relationship with the sensations, not their removal. Paradoxically, when you stop fighting, pain often eases.
 - ❌ Falling asleep as fast as possible
@@ -142,8 +142,8 @@ Body scan **reconnects mind and body**. Your body carries a lot of information y
 
 **Otázka:** Při body scanu narazíš na místo, kde nic necítíš. Co to znamená?
 
-- **✅ „Nic" je taky pocit — je to normální, zvlášť na začátku. Stačí si toho všimnout a pokračovat.**
-  Přesně. Některé části těla jsou pro začátečníky doslova „prázdné". Praxí se postupně zpřístupňují.
+- **✅ „Nic" je taky pocit — běžné na začátku**
+  Přesně. Stačí si toho všimnout a pokračovat. Některé části těla jsou pro začátečníky doslova „prázdné". Praxí se postupně zpřístupňují.
 - ❌ Děláš to špatně — měl/a bys cítit vždy něco
   Ne. Necítit nic je naprosto běžné a platné. Není to chyba.
 - ❌ Máš zdravotní problém v té oblasti
@@ -153,8 +153,8 @@ Body scan **reconnects mind and body**. Your body carries a lot of information y
 
 **Question:** During a body scan, you reach a spot where you feel nothing. What does that mean?
 
-- **✅ "Nothing" is also a sensation — it's normal, especially at the start. Just notice it and move on.**
-  Exactly. For beginners, some parts of the body feel literally "empty." With practice they gradually become accessible.
+- **✅ "Nothing" is also a sensation — normal early on**
+  Exactly. Just notice it and move on. For beginners, some parts of the body feel literally "empty." With practice they gradually become accessible.
 - ❌ You're doing it wrong — you should always feel something
   No. Feeling nothing is completely normal and valid. It's not a mistake.
 - ❌ You have a health problem in that area
@@ -164,8 +164,8 @@ Body scan **reconnects mind and body**. Your body carries a lot of information y
 
 **Otázka:** Proč je body scan považovaný za jeden z pilířů MBSR programu?
 
-- **✅ Učí tě pozorovat tělesné pocity bez reakce — to je základ celé mindfulness praxe**
-  Přesně. Schopnost „být s tím, co je" bez snahy to měnit je jádrem mindfulness. Body scan tuto dovednost trénuje systematicky.
+- **✅ Učí pozorovat tělesné pocity bez reakce**
+  Přesně. To je základ celé mindfulness praxe. Schopnost „být s tím, co je" bez snahy to měnit je jádrem mindfulness. Body scan tuto dovednost trénuje systematicky.
 - ❌ Protože je to nejrychlejší způsob relaxace
   Body scan není primárně o relaxaci. Relaxace je vedlejší efekt, ne cíl.
 - ❌ Protože nahrazuje fyzioterapii
@@ -175,8 +175,8 @@ Body scan **reconnects mind and body**. Your body carries a lot of information y
 
 **Question:** Why is body scan considered one of the pillars of the MBSR program?
 
-- **✅ It teaches you to observe body sensations without reacting — that's the foundation of all mindfulness practice**
-  Exactly. The ability to "be with what is" without trying to change it is the core of mindfulness. Body scan trains this skill systematically.
+- **✅ Observing sensations without reaction**
+  Exactly. That's the foundation of all mindfulness practice. The ability to "be with what is" without trying to change it is the core of mindfulness. Body scan trains this skill systematically.
 - ❌ Because it's the fastest way to relax
   Body scan isn't primarily about relaxation. Relaxation is a side effect, not the goal.
 - ❌ Because it replaces physical therapy
@@ -186,8 +186,8 @@ Body scan **reconnects mind and body**. Your body carries a lot of information y
 
 **Otázka:** Nemáš 30 minut na plný body scan. Má smysl dělat kratší verzi?
 
-- **✅ Ano — i 5minutový scan je účinný. Klíčová je pravidelnost, ne délka.**
-  Přesně. Kratší verze zachovávají princip. Každodenních 5 minut je lepší než jednou za týden 45 minut.
+- **✅ Ano — i 5minutový scan je účinný**
+  Přesně. Klíčová je pravidelnost, ne délka. Kratší verze zachovávají princip. Každodenních 5 minut je lepší než jednou za týden 45 minut.
 - ❌ Ne — musí to být celých 45 minut, jinak to nefunguje
   Není pravda. Dlouhý scan je ideální, ale i krátká verze má prokazatelný efekt.
 - ❌ Ano, ale jen pokud to děláš alespoň 5x týdně
@@ -197,8 +197,8 @@ Body scan **reconnects mind and body**. Your body carries a lot of information y
 
 **Question:** You don't have 30 minutes for a full body scan. Is a shorter version worth doing?
 
-- **✅ Yes — even a 5-minute scan is effective. Consistency is the key, not length.**
-  Exactly. Shorter versions preserve the principle. Daily 5 minutes is better than 45 minutes once a week.
+- **✅ Yes — even a 5-minute scan is effective**
+  Exactly. Consistency is the key, not length. Shorter versions preserve the principle. Daily 5 minutes is better than 45 minutes once a week.
 - ❌ No — it has to be the full 45 minutes or it doesn't work
   Not true. A long scan is ideal, but even a short version has a proven effect.
 - ❌ Yes, but only if you do it at least 5 times a week
@@ -241,8 +241,8 @@ Studies show that regular body scan practice reduces the intensity of chronic pa
 
 **Otázka:** Při body scanu najdeš bolestivé místo v rameni. Instinkt ti říká „uvolnit to!". Co je správný přístup?
 
-- **✅ Jen pozorovat: jaký je to pocit, kde přesně, jak se mění — bez snahy cokoliv opravit**
-  Přesně. Body scan není o opravě. Je o pozorování. Paradox: bez snahy opravit se často uvolní samo.
+- **✅ Jen pozorovat, nic neopravovat**
+  Přesně. Ptáš se: jaký je to pocit, kde přesně, jak se mění. Body scan není o opravě. Je o pozorování. Paradox: bez snahy opravit se často uvolní samo.
 - ❌ Intenzivně uvolňovat svaly
   To je jiná technika (progresivní relaxace). Body scan je odlišný — jen pozoruje.
 - ❌ Vyhnout se tomu místu a pokračovat dál
@@ -252,8 +252,8 @@ Studies show that regular body scan practice reduces the intensity of chronic pa
 
 **Question:** During a body scan you find a painful spot in your shoulder. Your instinct says "release it!" What's the right approach?
 
-- **✅ Just observe: what the sensation is, where exactly, how it's changing — without trying to fix anything**
-  Exactly. Body scan isn't about fixing. It's about observing. Paradox: without trying to fix it, it often releases on its own.
+- **✅ Just observe, don't fix**
+  Exactly. You ask: what the sensation is, where exactly, how it's changing. Body scan isn't about fixing. It's about observing. Paradox: without trying to fix it, it often releases on its own.
 - ❌ Intensely relax the muscles
   That's a different technique (progressive relaxation). Body scan is distinct — it just observes.
 - ❌ Avoid that spot and move on
@@ -279,8 +279,8 @@ If you get lost in thoughts halfway through — that's normal. Kindly return to 
 
 **Otázka:** Děláš body scan a v půlce si uvědomíš, že poslední 3 minuty jsi myslel/a na oběd. Co uděláš?
 
-- **✅ Laskavě se vrátíš k poslední části těla, kterou si pamatuješ, a pokračuješ odtud**
-  Přesně. Ztracení se je součást praxe. Návrat bez souzení je vlastně to nejdůležitější cvičení.
+- **✅ Vrátíš se laskavě a pokračuješ**
+  Přesně. Vrátíš se tam, kde si pamatuješ. Ztracení se je součást praxe. Návrat bez souzení je vlastně to nejdůležitější cvičení.
 - ❌ Začneš znovu od palce u nohy
   Není potřeba. Pokračuj tam, kde jsi přestal/a.
 - ❌ Přestaneš a zkusíš to jindy
@@ -290,8 +290,8 @@ If you get lost in thoughts halfway through — that's normal. Kindly return to 
 
 **Question:** You're doing a body scan and halfway through realize you've spent the last 3 minutes thinking about lunch. What do you do?
 
-- **✅ Kindly return to the last body part you remember and continue from there**
-  Exactly. Getting lost is part of the practice. Returning without judgment is actually the most important exercise.
+- **✅ Kindly return and continue**
+  Exactly. Go back to where you remember. Getting lost is part of the practice. Returning without judgment is actually the most important exercise.
 - ❌ Start again from the toe
   No need. Continue from where you left off.
 - ❌ Stop and try another time
@@ -309,8 +309,8 @@ Body scan **doesn't teach you to not feel pain** — it teaches you to be with i
 
 **Otázka:** V čem je body scan jiný než klasická relaxace?
 
-- **✅ Nesnaží se uvolnit — jen pozoruje. Relaxace přichází jako vedlejší efekt.**
-  Přesně. Klasická relaxace se aktivně snaží uvolnit svaly. Body scan pouze pozoruje, co je. To je klíčový rozdíl.
+- **✅ Nesnaží se uvolnit — jen pozoruje**
+  Přesně. Relaxace přichází jako vedlejší efekt. Klasická relaxace se aktivně snaží uvolnit svaly. Body scan pouze pozoruje, co je. To je klíčový rozdíl.
 - ❌ Je rychlejší než relaxace
   Body scan je naopak často delší (30–45 min). Rychlost není jeho ctností.
 - ❌ Vyžaduje speciální hudbu na pozadí
@@ -320,8 +320,8 @@ Body scan **doesn't teach you to not feel pain** — it teaches you to be with i
 
 **Question:** How is body scan different from classic relaxation?
 
-- **✅ It doesn't try to relax — it just observes. Relaxation comes as a side effect.**
-  Exactly. Classic relaxation actively tries to release muscles. Body scan just observes what's there. That's the key difference.
+- **✅ Doesn't relax — just observes**
+  Exactly. Relaxation comes as a side effect. Classic relaxation actively tries to release muscles. Body scan just observes what's there. That's the key difference.
 - ❌ It's faster than relaxation
   Body scan is often longer (30–45 min). Speed isn't its virtue.
 - ❌ It requires special background music
@@ -331,8 +331,8 @@ Body scan **doesn't teach you to not feel pain** — it teaches you to be with i
 
 **Otázka:** Proč body scan snižuje intenzitu chronické bolesti u některých lidí až o 30–50 %?
 
-- **✅ Snižuje emoční „utrpení" kolem bolesti (strach, odpor, napětí), které fyzický pocit zesiluje**
-  Přesně. Bolest = fyzická složka + emoční odpor. Body scan umenšuje tu druhou část, a tím zmírňuje celkový zážitek.
+- **✅ Snižuje emoční „utrpení" kolem bolesti**
+  Přesně. Strach, odpor a napětí fyzický pocit zesilují. Bolest = fyzická složka + emoční odpor. Body scan umenšuje tu druhou část, a tím zmírňuje celkový zážitek.
 - ❌ Blokuje nervové signály z bolestivého místa
   Body scan nepracuje s nervy přímo. Mění zpracování bolesti v mozku, ne přenos signálu.
 - ❌ Odvádí pozornost od bolesti k něčemu příjemnému
@@ -342,8 +342,8 @@ Body scan **doesn't teach you to not feel pain** — it teaches you to be with i
 
 **Question:** Why does body scan reduce the intensity of chronic pain by up to 30–50% in some people?
 
-- **✅ It reduces the emotional "suffering" around the pain (fear, resistance, tension), which amplifies the physical sensation**
-  Exactly. Pain = physical component + emotional resistance. Body scan diminishes the second part, thereby easing the overall experience.
+- **✅ It reduces the emotional "suffering" around the pain**
+  Exactly. Fear, resistance and tension amplify the physical sensation. Pain = physical component + emotional resistance. Body scan diminishes the second part, thereby easing the overall experience.
 - ❌ It blocks nerve signals from the painful area
   Body scan doesn't work with nerves directly. It changes pain processing in the brain, not signal transmission.
 - ❌ It diverts attention from pain to something pleasant
@@ -353,8 +353,8 @@ Body scan **doesn't teach you to not feel pain** — it teaches you to be with i
 
 **Otázka:** Trpíš nespavostí. Jak může body scan pomoct?
 
-- **✅ Místo snahy „vypnout myšlenky" přesměruješ pozornost do těla — tělo je vždy v přítomnosti, a mysl ho začne následovat**
-  Přesně. Myšlenky o budoucnosti tě udržují vzhůru. Tělesné pocity tě ukotvují v přítomnosti — a přítomnost je klidnější místo pro usínání.
+- **✅ Přesměruje pozornost z myšlenek do těla**
+  Přesně. Tělo je vždy v přítomnosti, a mysl ho začne následovat. Myšlenky o budoucnosti tě udržují vzhůru. Tělesné pocity tě ukotvují v přítomnosti — a přítomnost je klidnější místo pro usínání.
 - ❌ Body scan na nespavost nefunguje — je určen jen pro bolest
   Výzkum ukazuje, že body scan pomáhá i s nespavostí, úzkostí a stresem.
 - ❌ Musíš dělat 45minutovou verzi, jinak na nespavost nepomůže
@@ -364,8 +364,8 @@ Body scan **doesn't teach you to not feel pain** — it teaches you to be with i
 
 **Question:** You suffer from insomnia. How can body scan help?
 
-- **✅ Instead of trying to "switch off thoughts," you redirect attention to the body — the body is always in the present, and the mind starts following it**
-  Exactly. Thoughts about the future keep you awake. Body sensations anchor you in the present — and the present is a calmer place for falling asleep.
+- **✅ It redirects attention from thoughts into the body**
+  Exactly. The body is always in the present, and the mind starts following it. Thoughts about the future keep you awake. Body sensations anchor you in the present — and the present is a calmer place for falling asleep.
 - ❌ Body scan doesn't work for insomnia — it's only for pain
   Research shows body scan also helps with insomnia, anxiety, and stress.
 - ❌ You need the 45-minute version, otherwise it won't help with insomnia

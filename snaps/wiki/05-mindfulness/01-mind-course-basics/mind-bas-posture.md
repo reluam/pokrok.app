@@ -116,8 +116,8 @@ Zen monks sit on a zafu (meditation cushion) with the pelvis raised, which natur
 
 **Otázka:** Představ si, že medituješ vleže v posteli před spaním. Už po minutě usínáš. Je to problém?
 
-- **✅ Záleží na záměru — pro uklidnění před spaním je to OK, pro trénink pozornosti ne**
-  Přesně. Pokud chceš usnout, vleže je skvělé. Pokud chceš trénovat všímání, potřebuješ udržet bdělost — sed je lepší.
+- **✅ Záleží na záměru**
+  Přesně. Pro uklidnění před spaním je to OK, pro trénink pozornosti ne. Pokud chceš usnout, vleže je skvělé. Pokud chceš trénovat všímání, potřebuješ udržet bdělost — sed je lepší.
 - ❌ Ano — vleže se nikdy nedá meditovat správně
   Body scan se často dělá vleže. A je to plnohodnotná meditace. Jde o to, jestli jsi bdělý/á, nebo spíš.
 - ❌ Ne — usnout při meditaci je vlastně její cíl
@@ -127,8 +127,8 @@ Zen monks sit on a zafu (meditation cushion) with the pelvis raised, which natur
 
 **Question:** Imagine you're meditating lying down in bed before sleep. You're already falling asleep after a minute. Is that a problem?
 
-- **✅ It depends on the intention — for calming down before sleep it's fine, for training attention it's not**
-  Exactly. If you want to fall asleep, lying down is great. If you want to train noticing, you need to stay alert — sitting is better.
+- **✅ It depends on your intention**
+  Exactly. For calming down before sleep it's fine, for training attention it's not. If you want to fall asleep, lying down is great. If you want to train noticing, you need to stay alert — sitting is better.
 - ❌ Yes — you can never meditate properly lying down
   Body scan is often done lying down. And it's a full-fledged meditation. The point is whether you're awake or asleep.
 - ❌ No — falling asleep during meditation is actually the goal
@@ -161,7 +161,7 @@ A trick for straightening: imagine an invisible thread growing from the crown of
 
 **Question:** You're sitting and you feel your back slowly slouching. What should you do?
 
-- **✅ Gently re-straighten your spine, without judgment**
+- **✅ Gently re-straighten, no judgment**
   Exactly. The body will naturally want to slump. Just gently return to the posture, the same way you return your attention to the breath.
 - ❌ Tense all your muscles and "lock" the position
   Tension is the opposite of meditation. The body should be upright but relaxed — like a mountain, not a concrete pillar.
@@ -180,8 +180,8 @@ A trick for straightening: imagine an invisible thread growing from the crown of
 
 **Otázka:** Co je nejlepší pozice pro meditaci?
 
-- **✅ Taková, ve které můžeš být bdělý/á a zároveň uvolněný/á po delší dobu**
-  Přesně. „Nejlepší" je individuální. Pro někoho židle, pro jiného polštář, pro dalšího postel.
+- **✅ Kde jsi bdělý/á i uvolněný/á**
+  Přesně. „Nejlepší" je individuální a musí jít o delší dobu. Pro někoho židle, pro jiného polštář, pro dalšího postel.
 - ❌ Lotos — je to nejduchovnější pozice
   Duchovnost s pozicí nesouvisí. A lotos je pro nepřipravené tělo zraňující.
 - ❌ Vstoje, protože neusneš
@@ -191,8 +191,8 @@ A trick for straightening: imagine an invisible thread growing from the crown of
 
 **Question:** What's the best meditation posture?
 
-- **✅ One in which you can stay alert and relaxed for a longer stretch of time**
-  Exactly. "Best" is individual. For one person it's a chair, for another a cushion, for another a bed.
+- **✅ One where you're both alert and relaxed**
+  Exactly. "Best" is individual and needs to hold for a longer stretch. For one person it's a chair, for another a cushion, for another a bed.
 - ❌ Lotus — it's the most spiritual posture
   Spirituality has nothing to do with posture. And lotus injures an unprepared body.
 - ❌ Standing, so you don't fall asleep
@@ -202,8 +202,8 @@ A trick for straightening: imagine an invisible thread growing from the crown of
 
 **Otázka:** Představ si, že medituješ v kanceláři o polední pauze. Nemáš polštář, ani klidnou místnost. Kde nejlépe meditovat?
 
-- **✅ Na vlastní židli s rovnými zády, chodidly na zemi, dlaněmi v klíně**
-  Dokonalé. Meditace na židli v kanceláři je plnohodnotná. Stačí zavřít oči a být přítomný/á.
+- **✅ Na vlastní židli s rovnými zády**
+  Dokonalé. Chodidla na zemi, dlaně v klíně — meditace na židli v kanceláři je plnohodnotná. Stačí zavřít oči a být přítomný/á.
 - ❌ Musíš počkat do večera, kancelář není vhodné místo
   Čekání vede k odkládání. Pět minut meditace u stolu je lepší než žádná.
 - ❌ Musíš najít klidnou místnost bez jakéhokoli šumu
@@ -213,8 +213,8 @@ A trick for straightening: imagine an invisible thread growing from the crown of
 
 **Question:** Imagine you're meditating in the office during your lunch break. You have no cushion and no quiet room. Where's the best place to meditate?
 
-- **✅ On your own chair, with a straight back, feet on the floor, hands in your lap**
-  Perfect. Chair meditation in an office is a full-fledged practice. Just close your eyes and be present.
+- **✅ On your own chair with a straight back**
+  Perfect. Feet on the floor, hands in your lap — chair meditation in an office is a full-fledged practice. Just close your eyes and be present.
 - ❌ You should wait until evening, the office isn't a good place
   Waiting leads to putting it off. Five minutes of meditation at your desk is better than none.
 - ❌ You have to find a quiet room with no noise at all
@@ -224,8 +224,8 @@ A trick for straightening: imagine an invisible thread growing from the crown of
 
 **Otázka:** Představ si, že trpíš bolestmi zad a meditace vsedě ti po pěti minutách způsobuje bolest. Co bys měl/a udělat?
 
-- **✅ Přejít na meditaci vleže, například body scan — a přizpůsobit pozici svému tělu**
-  Přesně. Neexistuje „ideální" meditační pozice. Existuje ta, která ti umožňuje být stabilní, bdělý/á a uvolněný/á právě teď. Začni s tím, co máš.
+- **✅ Přejít na meditaci vleže, například body scan**
+  Přesně. Přizpůsob pozici svému tělu. Neexistuje „ideální" meditační pozice — existuje ta, která ti umožňuje být stabilní, bdělý/á a uvolněný/á právě teď. Začni s tím, co máš.
 - ❌ Vydržet bolest, protože meditace je o disciplíně
   Meditace není o bolesti. Bolest odvádí pozornost a ztěžuje praxi. Přizpůsobení pozice je známka moudrosti, ne slabosti.
 - ❌ Přestat meditovat, protože tvé tělo na to není stavěné
@@ -235,8 +235,8 @@ A trick for straightening: imagine an invisible thread growing from the crown of
 
 **Question:** Imagine you have back pain and seated meditation causes pain after five minutes. What should you do?
 
-- **✅ Switch to lying-down meditation, for example body scan — and adapt the posture to your body**
-  Exactly. There's no "ideal" meditation posture. There's the one that lets you be stable, alert, and relaxed right now. Start with what you have.
+- **✅ Switch to lying-down meditation, like a body scan**
+  Exactly. Adapt the posture to your body. There's no "ideal" meditation posture — there's the one that lets you be stable, alert, and relaxed right now. Start with what you have.
 - ❌ Endure the pain, because meditation is about discipline
   Meditation isn't about pain. Pain diverts attention and makes practice harder. Adapting your posture is a sign of wisdom, not weakness.
 - ❌ Stop meditating, because your body isn't built for it

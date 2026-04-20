@@ -82,8 +82,8 @@ You don't need to analyze or judge. Just see. Feel. Hear. That's all there is to
 
 **Otázka:** Co je jádrem všímání (noticing)?
 
-- **✅ Zaznamenat, co se děje — v mysli, těle a okolí — bez okamžité reakce**
-  Přesně. Všímání je mezera mezi podnětem a reakcí. Vidíš, co je, aniž bys s tím musel/a něco dělat.
+- **✅ Zaznamenat, co se děje, bez reakce**
+  Přesně. Všímání je mezera mezi podnětem a reakcí. Vidíš, co je v mysli, těle i okolí, aniž bys s tím musel/a něco dělat.
 - ❌ Intenzivně se soustředit na jednu věc
   Koncentrace je jiná dovednost. Všímání je měkčí — je to otevřený, přijímající stav.
 - ❌ Přemýšlet o svých pocitech
@@ -93,8 +93,8 @@ You don't need to analyze or judge. Just see. Feel. Hear. That's all there is to
 
 **Question:** What's at the core of noticing?
 
-- **✅ Registering what's happening — in your mind, body, and surroundings — without reacting right away**
-  Exactly. Noticing is the gap between stimulus and response. You see what is, without having to do anything about it.
+- **✅ Registering without reacting**
+  Exactly. Noticing is the gap between stimulus and response. You see what's in your mind, body, and surroundings, without having to do anything about it.
 - ❌ Intensely focusing on one thing
   Concentration is a different skill. Noticing is softer — it's an open, receptive state.
 - ❌ Thinking about your feelings
@@ -116,8 +116,8 @@ Neuroscientists call this "switching from the default mode network to the task-p
 
 **Otázka:** Proč je všímání důležité pro každodenní rozhodování?
 
-- **✅ Vytváří mezeru mezi podnětem a reakcí — v té mezeře můžeš zvolit, jak zareaguješ**
-  Přesně. Bez všímání reaguješ reflexivně. S ním získáváš moment volby.
+- **✅ Vytváří mezeru mezi podnětem a reakcí**
+  Přesně. V té mezeře můžeš zvolit, jak zareaguješ. Bez všímání reaguješ reflexivně. S ním získáváš moment volby.
 - ❌ Pomáhá ti analyzovat každou situaci do detailu
   Všímání není analýza. Je to přímé vnímání, ne myšlení.
 - ❌ Zabraňuje ti cítit emoce
@@ -127,8 +127,8 @@ Neuroscientists call this "switching from the default mode network to the task-p
 
 **Question:** Why is noticing important for everyday decisions?
 
-- **✅ It creates a gap between stimulus and response — in that gap you can choose how to react**
-  Exactly. Without noticing, you react reflexively. With it, you gain a moment of choice.
+- **✅ It creates a gap between stimulus and response**
+  Exactly. In that gap you can choose how to react. Without noticing, you react reflexively. With it, you gain a moment of choice.
 - ❌ It helps you analyze every situation in detail
   Noticing isn't analysis. It's direct perception, not thinking.
 - ❌ It prevents you from feeling emotions
@@ -146,8 +146,8 @@ Noticing is the gate into the present. You don't need to decide or analyze — *
 
 **Otázka:** Představ si, že si ráno vaříš kafe. Normálně přitom scrolluješ telefon. Dnes telefon odložíš a prostě piješ. Co se pravděpodobně stane?
 
-- **✅ Všimneš si vůně, tepla a chuti — drobných pocitů, které ti jindy unikají**
-  Přesně. Všímání otevírá smyslový svět, který jsme zvyklí přehlížet. Jeden šálek kafe může být celý zážitek.
+- **✅ Všimneš si vůně, tepla a chuti**
+  Přesně. Jsou to drobné pocity, které ti jindy unikají. Všímání otevírá smyslový svět, který jsme zvyklí přehlížet. Jeden šálek kafe může být celý zážitek.
 - ❌ Nic zvláštního — kafe je kafe
   Zkus to. Pravděpodobně tě překvapí, kolik informací mozek přijímá, které normálně ignoruješ.
 - ❌ Budeš se nudit a sáhneš po telefonu
@@ -157,8 +157,8 @@ Noticing is the gate into the present. You don't need to decide or analyze — *
 
 **Question:** Imagine you're making coffee in the morning. Normally you scroll your phone while doing it. Today you put the phone down and just drink. What will probably happen?
 
-- **✅ You'll notice the aroma, warmth, and taste — small sensations you usually miss**
-  Exactly. Noticing opens up a sensory world we're used to overlooking. A single cup of coffee can be a whole experience.
+- **✅ You'll notice the aroma, warmth, and taste**
+  Exactly. These are small sensations you usually miss. Noticing opens up a sensory world we're used to overlooking. A single cup of coffee can be a whole experience.
 - ❌ Nothing special — coffee is coffee
   Try it. You'll probably be surprised how much information your brain takes in that you normally ignore.
 - ❌ You'll get bored and reach for the phone
@@ -168,8 +168,8 @@ Noticing is the gate into the present. You don't need to decide or analyze — *
 
 **Otázka:** Co je zásadní rozdíl mezi „všímáním" a „analyzováním"?
 
-- **✅ Všímání je přímý smyslový zážitek; analyzování je myšlení o zážitku**
-  Přesně. Všímání je „před myšlením". Analyzování už je krok od přímé zkušenosti.
+- **✅ Všímání cítí, analýza přemýšlí**
+  Přesně. Všímání je přímé, „před myšlením". Analyzování už je krok od přímé zkušenosti.
 - ❌ Jsou to synonyma
   Nejsou. Všímání je pasivní a přímé. Analyzování je aktivní a interpretační.
 - ❌ Analyzování je pokročilejší forma všímání
@@ -179,8 +179,8 @@ Noticing is the gate into the present. You don't need to decide or analyze — *
 
 **Question:** What's the key difference between "noticing" and "analyzing"?
 
-- **✅ Noticing is direct sensory experience; analyzing is thinking about the experience**
-  Exactly. Noticing is "before thinking." Analyzing is already one step removed from direct experience.
+- **✅ Noticing feels; analyzing thinks**
+  Exactly. Noticing is direct, "before thinking." Analyzing is already one step removed from direct experience.
 - ❌ They're synonyms
   They're not. Noticing is passive and direct. Analyzing is active and interpretive.
 - ❌ Analyzing is a more advanced form of noticing
@@ -190,8 +190,8 @@ Noticing is the gate into the present. You don't need to decide or analyze — *
 
 **Otázka:** Jak poznáš, jestli si právě všímáš, nebo jen přemýšlíš o všímání?
 
-- **✅ Všímání je smyslové („cítím teplo"); přemýšlení je verbální („tohle je příjemné")**
-  Přesně. Všímání žije v tělesném zážitku. Myšlení žije v jazyce. Pokud „slyšíš slova", přemýšlíš.
+- **✅ Všímání je smyslové, přemýšlení verbální**
+  Přesně. Všímání je „cítím teplo", přemýšlení „tohle je příjemné". Všímání žije v tělesném zážitku, myšlení v jazyce. Pokud „slyšíš slova", přemýšlíš.
 - ❌ Všímání musí být doprovázeno meditační hudbou
   Žádná hudba není potřeba. Ticho je často ideální prostředí.
 - ❌ Všímání je vždy příjemné
@@ -201,8 +201,8 @@ Noticing is the gate into the present. You don't need to decide or analyze — *
 
 **Question:** How do you tell whether you're actually noticing or just thinking about noticing?
 
-- **✅ Noticing is sensory ("I feel warmth"); thinking is verbal ("this is pleasant")**
-  Exactly. Noticing lives in bodily experience. Thinking lives in language. If you "hear words," you're thinking.
+- **✅ Noticing is sensory, thinking is verbal**
+  Exactly. Noticing is "I feel warmth," thinking is "this is pleasant." Noticing lives in bodily experience, thinking in language. If you "hear words," you're thinking.
 - ❌ Noticing has to be accompanied by meditation music
   No music is needed. Silence is often the ideal environment.
 - ❌ Noticing is always pleasant
@@ -241,8 +241,8 @@ Noticing interrupts this autopilot. When you deliberately look at trees, buildin
 
 **Otázka:** Proč si nepamatuješ téměř nic z cest, které jezdíš každý den?
 
-- **✅ Mozek bez vědomého všímání nevytváří dlouhodobé vzpomínky — data prochází, ale nezůstávají**
-  Přesně. Automatický režim minimalizuje kódování. Proto se rutinní cesty slévají v jedno.
+- **✅ Bez všímání vzpomínky nevznikají**
+  Přesně. Data prochází, ale nezůstávají — automatický režim minimalizuje kódování. Proto se rutinní cesty slévají v jedno.
 - ❌ Máš špatnou paměť
   Tvá paměť je pravděpodobně v pořádku. Bez všímání se prostě nic nezaznamenává.
 - ❌ Mozek si to pamatuje, jen to neumíš vyvolat
@@ -252,8 +252,8 @@ Noticing interrupts this autopilot. When you deliberately look at trees, buildin
 
 **Question:** Why can't you remember almost anything from the trips you take every day?
 
-- **✅ Without conscious noticing, the brain doesn't create long-term memories — data passes through but doesn't stick**
-  Exactly. Automatic mode minimizes encoding. That's why routine trips blur into one.
+- **✅ Without noticing, memories don't form**
+  Exactly. Data passes through but doesn't stick — automatic mode minimizes encoding. That's why routine trips blur into one.
 - ❌ You have a bad memory
   Your memory is probably fine. Without noticing, nothing gets recorded.
 - ❌ The brain remembers, you just can't recall it
@@ -275,8 +275,8 @@ The **"5-4-3-2-1"** exercise brings you instantly into the present: Notice 5 thi
 
 **Otázka:** Jak funguje cvičení 5-4-3-2-1 z hlediska mozku?
 
-- **✅ Přesměruje pozornost od vnitřních myšlenek (úzkost, budoucnost) k vnějším smyslům (přítomnost)**
-  Přesně. Úzkost žije v mysli o budoucnosti. Smysly žijí vždy jen teď. Přepnutí na smysly přerušuje smyčku úzkosti.
+- **✅ Přepne pozornost z myšlenek na smysly**
+  Přesně. Od vnitřních myšlenek (úzkost, budoucnost) k vnějším smyslům (přítomnost). Úzkost žije v mysli o budoucnosti. Smysly žijí vždy jen teď. Přepnutí na smysly přerušuje smyčku úzkosti.
 - ❌ Zastaví myšlenky úplně
   Myšlenky se nezastaví, ale pozornost se přesune. Jemný rozdíl, ale zásadní.
 - ❌ Je to jen rozptýlení bez reálného efektu
@@ -286,8 +286,8 @@ The **"5-4-3-2-1"** exercise brings you instantly into the present: Notice 5 thi
 
 **Question:** How does the 5-4-3-2-1 exercise work from a brain perspective?
 
-- **✅ It redirects attention from inner thoughts (anxiety, the future) to outer senses (the present)**
-  Exactly. Anxiety lives in the mind about the future. The senses always live in the now. Switching to senses breaks the anxiety loop.
+- **✅ Shifts from thoughts to senses**
+  Exactly. From inner thoughts (anxiety, the future) to outer senses (the present). Anxiety lives in the mind about the future. The senses always live in the now. Switching to senses breaks the anxiety loop.
 - ❌ It stops thoughts completely
   Thoughts don't stop, but attention shifts. A subtle difference, but crucial.
 - ❌ It's just distraction with no real effect
@@ -313,8 +313,8 @@ Time you live consciously feels **longer and more meaningful** than time spent o
 
 **Otázka:** Co je hlavní důvod, proč se celé měsíce rutiny mohou „smazat" z paměti?
 
-- **✅ Mozek v autopilotu minimalizuje kódování — bez vědomé pozornosti se vzpomínky nevytvářejí**
-  Přesně. Vědomé zpracování je nutné pro tvorbu trvalých vzpomínek. Bez něj čas prostě „protéká".
+- **✅ Autopilot minimalizuje kódování vzpomínek**
+  Přesně. Bez vědomé pozornosti se vzpomínky nevytvářejí. Vědomé zpracování je nutné pro tvorbu trvalých vzpomínek. Bez něj čas prostě „protéká".
 - ❌ Mozek má omezenou kapacitu a staré vzpomínky maže
   Kapacita paměti je obrovská. Problém není v kapacitě, ale v tom, že vzpomínky na rutinu nikdy nevzniknou.
 - ❌ Rutinní události nejsou důležité, takže je mozek správně ignoruje
@@ -324,8 +324,8 @@ Time you live consciously feels **longer and more meaningful** than time spent o
 
 **Question:** What's the main reason why entire months of routine can "disappear" from memory?
 
-- **✅ The brain in autopilot minimizes encoding — without conscious attention, memories aren't created**
-  Exactly. Conscious processing is necessary for creating lasting memories. Without it, time simply "flows through."
+- **✅ Autopilot minimizes memory encoding**
+  Exactly. Without conscious attention, memories aren't created. Conscious processing is necessary for creating lasting memories. Without it, time simply "flows through."
 - ❌ The brain has limited capacity and deletes old memories
   Memory capacity is enormous. The problem isn't capacity — it's that memories of routine never get created.
 - ❌ Routine events aren't important, so the brain rightly ignores them
@@ -335,8 +335,8 @@ Time you live consciously feels **longer and more meaningful** than time spent o
 
 **Otázka:** Všímání nemusí být formální meditace. Která z těchto aktivit je dobrý příklad neformálního všímání?
 
-- **✅ Při mytí rukou vědomě vnímat teplotu vody, konzistenci mýdla a pocit mezi prsty**
-  Přesně. Neformální všímání znamená dělat běžnou aktivitu s plnou pozorností. Žádné speciální podmínky nepotřebuješ.
+- **✅ Při mytí rukou vědomě vnímat teplotu vody a pěnu**
+  Přesně. Všímáš si i konzistence mýdla a pocitu mezi prsty. Neformální všímání znamená dělat běžnou aktivitu s plnou pozorností. Žádné speciální podmínky nepotřebuješ.
 - ❌ Při mytí rukou přemýšlet o tom, co budeš dělat odpoledne
   To je opak všímání — mysl je v budoucnosti, ne v přítomném okamžiku.
 - ❌ Sedět 30 minut v tichu se zavřenýma očima
@@ -346,8 +346,8 @@ Time you live consciously feels **longer and more meaningful** than time spent o
 
 **Question:** Noticing doesn't have to be formal meditation. Which of these activities is a good example of informal noticing?
 
-- **✅ While washing your hands, consciously feeling the water temperature, soap texture, and sensation between your fingers**
-  Exactly. Informal noticing means doing an ordinary activity with full attention. No special conditions needed.
+- **✅ While washing hands, consciously feeling the water and soap**
+  Exactly. You also notice the texture and sensation between your fingers. Informal noticing means doing an ordinary activity with full attention. No special conditions needed.
 - ❌ While washing your hands, thinking about what you'll do in the afternoon
   That's the opposite of noticing — the mind is in the future, not in the present moment.
 - ❌ Sitting for 30 minutes in silence with your eyes closed
@@ -357,8 +357,8 @@ Time you live consciously feels **longer and more meaningful** than time spent o
 
 **Otázka:** Jak by Seneca pravděpodobně shrnul hlavní přínos všímání?
 
-- **✅ Bez vědomého prožívání je i dlouhý život vlastně krátký — všímání je způsob, jak skutečně žít**
-  Přesně. Seneca napsal: „Není to tak, že máme málo času — je to tak, že ho hodně ztrácíme." Všímání je lék na toto plýtvání.
+- **✅ Bez vědomého prožívání je i dlouhý život krátký**
+  Přesně. Všímání je způsob, jak skutečně žít. Seneca napsal: „Není to tak, že máme málo času — je to tak, že ho hodně ztrácíme." Všímání je lék na toto plýtvání.
 - ❌ Všímání je moderní vynález, se starověkem nemá nic společného
   Naopak — stoikové, buddhisté i další starověké tradice učili pozorné vnímání přítomnosti tisíce let.
 - ❌ Všímání je užitečné jen pro nemocné nebo úzkostné lidi
@@ -368,8 +368,8 @@ Time you live consciously feels **longer and more meaningful** than time spent o
 
 **Question:** How would Seneca probably summarize the main benefit of noticing?
 
-- **✅ Without conscious experience, even a long life is essentially short — noticing is the way to truly live**
-  Exactly. Seneca wrote: "It is not that we have a short time to live, but that we waste a great deal of it." Noticing is the cure for that waste.
+- **✅ Without conscious experience, even a long life is short**
+  Exactly. Noticing is the way to truly live. Seneca wrote: "It is not that we have a short time to live, but that we waste a great deal of it." Noticing is the cure for that waste.
 - ❌ Noticing is a modern invention with nothing in common with antiquity
   On the contrary — Stoics, Buddhists, and other ancient traditions taught attentive awareness of the present for thousands of years.
 - ❌ Noticing is only useful for sick or anxious people

@@ -82,8 +82,8 @@ The Wim Hof Method is fundamentally different from calming techniques like box b
 
 **Otázka:** Co je hlavním principem Wim Hof metody?
 
-- **✅ 30–40 hlubokých nádechů, pak výdech a zadržení dechu, pak nádech a zadržení**
-  Přesně. Intenzivní hyperventilace následovaná zadržením dechu po výdechu — zásadně jiný princip než uklidňující techniky.
+- **✅ Hyperventilace a zadržení dechu**
+  Přesně. 30–40 hlubokých nádechů, pak výdech a zadržení, pak nádech a zadržení — zásadně jiný princip než uklidňující techniky.
 - ❌ Pomalu dýchat po dobu 20 minut
   Ne — WHM je intenzivní a rychlá, ne pomalá.
 - ❌ Zadržet dech co nejdéle bez přípravy
@@ -93,8 +93,8 @@ The Wim Hof Method is fundamentally different from calming techniques like box b
 
 **Question:** What's the main principle of the Wim Hof Method?
 
-- **✅ 30–40 deep inhales, then exhale and hold the breath, then inhale and hold**
-  Exactly. Intense hyperventilation followed by holding the breath after the exhale — a fundamentally different principle from calming techniques.
+- **✅ Hyperventilation and holding the breath**
+  Exactly. 30–40 deep inhales, then exhale and hold, then inhale and hold — a fundamentally different principle from calming techniques.
 - ❌ Breathe slowly for 20 minutes
   No — WHM is intense and fast, not slow.
 - ❌ Hold your breath as long as possible without any prep
@@ -116,8 +116,8 @@ Hof's method has been scientifically studied at Radboud University. The study sh
 
 **Otázka:** Proč je WHM zásadně odlišná od box breathing nebo 4-7-8?
 
-- **✅ Je aktivační, ne uklidňující — používá intenzivní hyperventilaci a zadržení dechu po výdechu**
-  Přesně. Box breathing a 4-7-8 aktivují parasympatikus (klid). WHM aktivuje sympatikus (energii) specifickým vzorcem hyperventilace a zadržení.
+- **✅ Je aktivační, ne uklidňující**
+  Přesně. Box breathing a 4-7-8 aktivují parasympatikus (klid). WHM aktivuje sympatikus (energii) specifickým vzorcem hyperventilace a zadržení dechu po výdechu.
 - ❌ Protože trvá déle
   Délka není hlavní rozdíl. Rozdíl je v mechanismu — hyperventilace vs. pomalé dýchání.
 - ❌ Protože vyžaduje ledovou sprchu
@@ -127,8 +127,8 @@ Hof's method has been scientifically studied at Radboud University. The study sh
 
 **Question:** Why is WHM fundamentally different from box breathing or 4-7-8?
 
-- **✅ It's activating, not calming — it uses intense hyperventilation and holding the breath after the exhale**
-  Exactly. Box breathing and 4-7-8 activate the parasympathetic system (calm). WHM activates the sympathetic system (energy) through a specific pattern of hyperventilation and breath holding.
+- **✅ It's activating, not calming**
+  Exactly. Box breathing and 4-7-8 activate the parasympathetic system (calm). WHM activates the sympathetic system (energy) through intense hyperventilation and breath holding after the exhale.
 - ❌ Because it takes longer
   Duration isn't the main difference. The difference is in the mechanism — hyperventilation vs. slow breathing.
 - ❌ Because it requires a cold shower
@@ -171,8 +171,8 @@ WHM physiology: Deep inhales lower CO2 levels in the blood (hypocapnia) and rais
 
 **Otázka:** Představ si, že zkoušíš WHM poprvé a po kole cítíš mravenčení po celém těle a závrať. Je to normální?
 
-- **✅ Ano — jsou to běžné efekty hyperventilace. Vždy praktikuj vsedě/vleže na bezpečném místě.**
-  Přesně. Mravenčení a závrať jsou typické. Proto je bezpečnost prvořadá — nikdy ne ve vodě nebo za volantem.
+- **✅ Ano — běžné efekty hyperventilace**
+  Přesně. Mravenčení a závrať jsou typické. Vždy praktikuj vsedě nebo vleže na bezpečném místě — nikdy ne ve vodě nebo za volantem.
 - ❌ Ne — musíš okamžitě přestat a jít k lékaři
   Mravenčení samo o sobě není nebezpečné. Jen cvič bezpečně.
 - ❌ Ano, ale měl/a bys dýchat ještě intenzivněji
@@ -182,8 +182,8 @@ WHM physiology: Deep inhales lower CO2 levels in the blood (hypocapnia) and rais
 
 **Question:** Imagine you try WHM for the first time, and after a round you feel tingling all over your body and dizziness. Is that normal?
 
-- **✅ Yes — these are common effects of hyperventilation. Always practice sitting or lying down in a safe place.**
-  Exactly. Tingling and dizziness are typical. That's why safety comes first — never in water or behind the wheel.
+- **✅ Yes — common effects of hyperventilation**
+  Exactly. Tingling and dizziness are typical. Always practice sitting or lying down in a safe place — never in water or behind the wheel.
 - ❌ No — you have to stop immediately and see a doctor
   Tingling in itself isn't dangerous. Just practice safely.
 - ❌ Yes, but you should breathe even more intensely
@@ -201,8 +201,8 @@ WHM physiology: Deep inhales lower CO2 levels in the blood (hypocapnia) and rais
 
 **Otázka:** Pro koho WHM NENÍ vhodná?
 
-- **✅ Těhotné, lidi s epilepsií, srdečními problémy, hypertenzí**
-  Přesně. WHM je silná technika s kontraindikacemi. Vždy si ověř své zdravotní podmínky.
+- **✅ Těhotné, lidi s epilepsií či srdcem**
+  Přesně. WHM je silná technika s kontraindikacemi — patří sem i hypertenze a některá duševní onemocnění. Vždy si ověř zdravotní stav.
 - ❌ Pro nikoho — je pro každého bezpečná
   Není. Stejně jako intenzivní cvičení má WHM kontraindikace.
 - ❌ Jen pro lidi, kteří nemeditují
@@ -212,8 +212,8 @@ WHM physiology: Deep inhales lower CO2 levels in the blood (hypocapnia) and rais
 
 **Question:** Who is WHM NOT suitable for?
 
-- **✅ Pregnant people, those with epilepsy, heart conditions, hypertension**
-  Exactly. WHM is a powerful technique with contraindications. Always check your health conditions.
+- **✅ Pregnant, epilepsy, heart conditions**
+  Exactly. WHM is a powerful technique with contraindications — hypertension and some mental health conditions also apply. Always check your health.
 - ❌ Nobody — it's safe for everyone
   It's not. Like intense exercise, WHM has contraindications.
 - ❌ Only for people who don't meditate
@@ -260,8 +260,8 @@ Imagine you suffer from chronic fatigue. You start doing WHM for 20 minutes ever
 
 **Otázka:** Představ si, že uděláš první kolo a zadržíš dech jen 20 sekund. Jsi zklamaný/á. Je to problém?
 
-- **✅ Ne — 20 sekund je skvělý začátek. S praxí se to přirozeně prodlužuje.**
-  Přesně. Schopnost zadržet dech po výdechu roste s praxí. Respektuj své tělo.
+- **✅ Ne — 20 sekund je skvělý začátek**
+  Přesně. S praxí se zadržení dechu přirozeně prodlužuje. Respektuj své tělo.
 - ❌ Ano — měl/a bys zadržet alespoň minutu od začátku
   Ne — nuceně zadržovat dech vytváří stres. Tělo si řekne, kdy je čas nadechnout.
 - ❌ Ano — pravděpodobně jsi dýchal/a špatně
@@ -271,8 +271,8 @@ Imagine you suffer from chronic fatigue. You start doing WHM for 20 minutes ever
 
 **Question:** Imagine you do your first round and only hold your breath for 20 seconds. You're disappointed. Is that a problem?
 
-- **✅ No — 20 seconds is a great start. It'll naturally get longer with practice.**
-  Exactly. The ability to hold your breath after the exhale grows with practice. Respect your body.
+- **✅ No — 20 seconds is a great start**
+  Exactly. The ability to hold your breath grows naturally with practice. Respect your body.
 - ❌ Yes — you should hold it for at least a minute from the start
   No — forcing a breath hold creates stress. The body will tell you when it's time to breathe.
 - ❌ Yes — you probably breathed wrong
@@ -282,8 +282,8 @@ Imagine you suffer from chronic fatigue. You start doing WHM for 20 minutes ever
 
 **Otázka:** Chceš zkombinovat WHM s ledovou sprchou. Jak na to bezpečně?
 
-- **✅ Nejprve zvlášť — WHM vsedě doma, pak samostatně ledová sprcha. Nikdy WHM ve sprše!**
-  Přesně. Wim Hof kombinuje dech a chlad, ale ne ve stejném okamžiku. Dech se dělá zvlášť na bezpečném místě.
+- **✅ Odděleně — ne ve sprše**
+  Přesně. Wim Hof kombinuje dech a chlad, ale ne ve stejném okamžiku. WHM vsedě doma, pak samostatně ledová sprcha. Dech se dělá zvlášť na bezpečném místě.
 - ❌ Dělat WHM během sprchování
   NIKDY. Zadržení dechu ve sprše může způsobit mdloby a smrt. Absolutně zakázáno.
 - ❌ Nelze kombinovat
@@ -293,8 +293,8 @@ Imagine you suffer from chronic fatigue. You start doing WHM for 20 minutes ever
 
 **Question:** You want to combine WHM with a cold shower. How to do it safely?
 
-- **✅ Separately first — WHM sitting at home, then a cold shower on its own. Never WHM in the shower!**
-  Exactly. Wim Hof combines breath and cold, but not at the same moment. The breathing is done separately in a safe place.
+- **✅ Separately, not in shower**
+  Exactly. Wim Hof combines breath and cold, but not at the same moment. WHM sitting at home, then a cold shower on its own. The breathing is done separately in a safe place.
 - ❌ Do WHM while showering
   NEVER. Holding your breath in the shower can cause fainting and death. Absolutely forbidden.
 - ❌ They can't be combined
@@ -304,8 +304,8 @@ Imagine you suffer from chronic fatigue. You start doing WHM for 20 minutes ever
 
 **Otázka:** Kdy je nejlepší čas na WHM a jak začít jako začátečník?
 
-- **✅ Ráno nalačno, začni s 30 nádechy a 2–3 koly — pomůže ti aplikace nebo video s vedeným dýcháním**
-  Přesně. Ráno nalačno je ideální čas. Zvuková navigace pomáhá udržet rytmus bez počítání. Postupně přidávej nádechy a kola.
+- **✅ Ráno nalačno, s vedeným dýcháním**
+  Přesně. Začni s 30 nádechy a 2–3 koly — aplikace nebo video pomáhá udržet rytmus bez počítání. Postupně přidávej nádechy a kola.
 - ❌ Večer před spaním jako relaxaci
   WHM je aktivační technika — může tě rozbudit. Večer jsou vhodnější uklidňující techniky jako 4-7-8.
 - ❌ Kdykoli během dne, rovnou na 40 nádechů a 4 kola
@@ -315,8 +315,8 @@ Imagine you suffer from chronic fatigue. You start doing WHM for 20 minutes ever
 
 **Question:** When is the best time for WHM and how to start as a beginner?
 
-- **✅ In the morning on an empty stomach, start with 30 inhales and 2–3 rounds — an app or guided video helps**
-  Exactly. Morning on an empty stomach is the ideal time. Audio guidance helps hold the rhythm without counting. Gradually add inhales and rounds.
+- **✅ Morning on an empty stomach, with guided breathing**
+  Exactly. Start with 30 inhales and 2–3 rounds — an app or video helps hold the rhythm without counting. Gradually add inhales and rounds.
 - ❌ In the evening before bed as relaxation
   WHM is an activating technique — it can wake you up. Calming techniques like 4-7-8 are better for the evening.
 - ❌ Anytime during the day, straight to 40 inhales and 4 rounds

@@ -82,8 +82,8 @@ For the first time, you pause. It happened. It already **IS**. And only then can
 
 **Otázka:** Co přijetí NENÍ?
 
-- **✅ Souhlas s tím, co se stalo, nebo rezignace**
-  Přesně — to je nejčastější mýtus. Přijetí neznamená „líbí se mi to" ani „vzdávám se". Je to jen uznání toho, co je.
+- **✅ Souhlas s tím, co se stalo**
+  Přesně — to je nejčastější mýtus. Přijetí neznamená souhlas, rezignaci, ani „líbí se mi to" nebo „vzdávám se". Je to jen uznání toho, co je.
 - ❌ Uznání reality, jaká je
   To je správné pochopení přijetí, ne chybné.
 - ❌ Výchozí bod pro jasné jednání
@@ -93,8 +93,8 @@ For the first time, you pause. It happened. It already **IS**. And only then can
 
 **Question:** What is acceptance NOT?
 
-- **✅ Agreement with what happened, or resignation**
-  Exactly — that's the most common myth. Acceptance doesn't mean "I like it" or "I give up." It's just acknowledging what is.
+- **✅ Agreement with what just happened**
+  Exactly — that's the most common myth. Acceptance doesn't mean agreement, resignation, or "I like it" or "I give up." It's just acknowledging what is.
 - ❌ Acknowledging reality as it is
   That's a correct understanding of acceptance, not a wrong one.
 - ❌ The starting point for clear action
@@ -116,8 +116,8 @@ Psychologist Steven Hayes created **Acceptance and Commitment Therapy (ACT)**, w
 
 **Otázka:** Cítíš úzkost a celé dopoledne se snažíš „zbavit se jí". Úzkost se ale zhoršuje. Proč?
 
-- **✅ Boj s emocí vytváří odpor, který emoci zesiluje — je to „bolest + boj s bolestí"**
-  Přesně. Rovnice je: bolest x odpor = trápení. Přijetí zmenšuje odpor, a tím i trápení.
+- **✅ Boj s emocí ji zesiluje — „bolest + boj"**
+  Přesně. Odpor k emoci emoci zesiluje. Rovnice je: bolest x odpor = trápení. Přijetí zmenšuje odpor, a tím i trápení.
 - ❌ Úzkost se vždy zhoršuje, bez ohledu na tvůj přístup
   Není pravda. Tvůj přístup zásadně mění, jak dlouho emoce trvá a jak silná je.
 - ❌ Protože piješ málo vody
@@ -127,8 +127,8 @@ Psychologist Steven Hayes created **Acceptance and Commitment Therapy (ACT)**, w
 
 **Question:** You feel anxious and all morning you try to "get rid of it." But the anxiety gets worse. Why?
 
-- **✅ Fighting the emotion creates resistance, which amplifies the emotion — it's "pain + fighting the pain"**
-  Exactly. The equation is: pain x resistance = suffering. Acceptance reduces resistance, and so reduces suffering.
+- **✅ Fighting it amplifies it — "pain + the fight"**
+  Exactly. Resistance to the emotion amplifies it. The equation is: pain x resistance = suffering. Acceptance reduces resistance, and so reduces suffering.
 - ❌ Anxiety always gets worse, no matter your approach
   Not true. Your approach fundamentally changes how long the emotion lasts and how strong it is.
 - ❌ Because you're not drinking enough water
@@ -146,8 +146,8 @@ Acceptance isn't weakness. It's a **clear view of reality**, without which you c
 
 **Otázka:** Bolest x odpor = trápení. Co tato rovnice říká o přijetí?
 
-- **✅ Když snížíš odpor přijetím, trápení klesne — i když bolest zůstává**
-  Přesně. Přijetí neodstraní bolest, ale odstraní druhou vrstvu utrpení — boj s bolestí.
+- **✅ Přijetí sníží odpor a trápení klesne také**
+  Přesně — i když bolest zůstává. Přijetí neodstraní bolest, ale odstraní druhou vrstvu utrpení — boj s bolestí.
 - ❌ Přijetí odstraní bolest úplně
   Ne. Bolest může zůstat. Ale bez odporu ji snášíš mnohem lépe.
 - ❌ Odpor je vždy nulový, pokud přijetí praktikuješ
@@ -157,8 +157,8 @@ Acceptance isn't weakness. It's a **clear view of reality**, without which you c
 
 **Question:** Pain x resistance = suffering. What does this equation say about acceptance?
 
-- **✅ When you lower resistance through acceptance, suffering drops — even if the pain remains**
-  Exactly. Acceptance doesn't remove pain, but removes the second layer of suffering — the fight with the pain.
+- **✅ Acceptance lowers resistance, suffering drops**
+  Exactly — even if pain remains. Acceptance doesn't remove pain, but removes the second layer of suffering — the fight with the pain.
 - ❌ Acceptance removes pain completely
   No. Pain may remain. But without resistance, you bear it much better.
 - ❌ Resistance is always zero if you practice acceptance
@@ -168,8 +168,8 @@ Acceptance isn't weakness. It's a **clear view of reality**, without which you c
 
 **Otázka:** Kdo vytvořil Acceptance and Commitment Therapy (ACT)?
 
-- **✅ Psycholog Steven Hayes**
-  Přesně. ACT staví přijetí do centra psychologické léčby a je jednou z nejúčinnějších moderních terapií.
+- **✅ Steven Hayes**
+  Přesně. Psycholog Steven Hayes vytvořil ACT. Staví přijetí do centra psychologické léčby a je jednou z nejúčinnějších moderních terapií.
 - ❌ Jon Kabat-Zinn
   Kabat-Zinn vytvořil MBSR. ACT je dílem Stevena Hayese.
 - ❌ Tara Brach
@@ -179,8 +179,8 @@ Acceptance isn't weakness. It's a **clear view of reality**, without which you c
 
 **Question:** Who created Acceptance and Commitment Therapy (ACT)?
 
-- **✅ Psychologist Steven Hayes**
-  Exactly. ACT puts acceptance at the center of psychological treatment and is one of the most effective modern therapies.
+- **✅ Steven Hayes**
+  Exactly. Psychologist Steven Hayes created ACT. It puts acceptance at the center of psychological treatment and is one of the most effective modern therapies.
 - ❌ Jon Kabat-Zinn
   Kabat-Zinn created MBSR. ACT is Steven Hayes's work.
 - ❌ Tara Brach
@@ -190,8 +190,8 @@ Acceptance isn't weakness. It's a **clear view of reality**, without which you c
 
 **Otázka:** Jak Jon Kabat-Zinn definuje přijetí?
 
-- **✅ „Ochota vidět věci tak, jak jsou" — ne pasivita, ale základ pro jakoukoli změnu**
-  Přesně. Přijetí je aktivní postoj — rozhodnutí přestat bojovat s realitou a uvolnit energii pro akci.
+- **✅ „Ochota vidět věci tak, jak jsou"**
+  Přesně — ne pasivita, ale základ pro jakoukoli změnu. Přijetí je aktivní postoj — rozhodnutí přestat bojovat s realitou a uvolnit energii pro akci.
 - ❌ „Souhlas se vším, co se děje"
   To je mýtus. Přijetí není souhlas — je to uznání toho, co je.
 - ❌ „Vzdání se a přijetí osudu"
@@ -201,8 +201,8 @@ Acceptance isn't weakness. It's a **clear view of reality**, without which you c
 
 **Question:** How does Jon Kabat-Zinn define acceptance?
 
-- **✅ "The willingness to see things as they are" — not passivity, but the foundation for any change**
-  Exactly. Acceptance is an active stance — a decision to stop fighting reality and free up energy for action.
+- **✅ "Willingness to see things as they are"**
+  Exactly — not passivity, but the foundation for any change. Acceptance is an active stance — a decision to stop fighting reality and free up energy for action.
 - ❌ "Agreement with everything that happens"
   That's a myth. Acceptance isn't agreement — it's acknowledging what is.
 - ❌ "Giving up and accepting fate"
@@ -253,8 +253,8 @@ Acceptance can coexist with action. You can accept that you're in a toxic relati
 
 **Otázka:** Rozešel/rozešla ses s partnerem. Denně si říkáš „Nemělo to tak dopadnout." Jak můžeš přijetí praktikovat?
 
-- **✅ Uznat: „Rozešli jsme se. Je to bolestivé. A přesto to je realita." Cítit smutek bez přidaného odporu.**
-  Přesně. Přijetí neznamená „cítit se dobře". Znamená přestat bojovat s tím, co už je.
+- **✅ Uznat bolest: „A přesto to je moje realita."**
+  Přesně — cítit smutek bez přidaného odporu. Říct si: „Rozešli jsme se. Je to realita." Přijetí neznamená „cítit se dobře". Znamená přestat bojovat s tím, co už je.
 - ❌ Pozitivně si to přeformulovat jako „je to pro moje dobro"
   To je potlačování, ne přijetí. Přijetí uznává bolest, ne ji přikrývá pozitivním myšlením.
 - ❌ Ignorovat pocity a věnovat se práci
@@ -264,8 +264,8 @@ Acceptance can coexist with action. You can accept that you're in a toxic relati
 
 **Question:** You broke up with your partner. Every day you tell yourself "It wasn't supposed to turn out this way." How can you practice acceptance?
 
-- **✅ Acknowledge: "We broke up. It hurts. And yet this is reality." Feel the sadness without added resistance.**
-  Exactly. Acceptance doesn't mean "feeling good." It means stopping the fight with what already is.
+- **✅ Acknowledge the pain: "And yet it's my reality."**
+  Exactly — feel the sadness without added resistance. Tell yourself: "We broke up. This is reality." Acceptance doesn't mean "feeling good." It means stopping the fight with what already is.
 - ❌ Reframe it positively as "it's for my own good"
   That's suppression, not acceptance. Acceptance acknowledges the pain, not covers it with positive thinking.
 - ❌ Ignore the feelings and throw yourself into work
@@ -283,8 +283,8 @@ Imagine you have chronic pain after an accident. For years you fight: "This shou
 
 **Otázka:** Co přijetí UMOŽŇUJE?
 
-- **✅ Jasně vidět situaci a vybrat si rozumnou akci**
-  Přesně. Bez přijetí jsi zaslepený/á bojem. S přijetím vidíš jasně a můžeš moudře jednat.
+- **✅ Jasně vidět a moudře jednat**
+  Přesně — vidět situaci jasně a vybrat si rozumnou akci. Bez přijetí jsi zaslepený/á bojem.
 - ❌ Pasivně přijmout všechno, co je špatné
   Ne. To by byla rezignace. Přijetí neznamená nečinnost.
 - ❌ Vyhnout se bolesti
@@ -294,8 +294,8 @@ Imagine you have chronic pain after an accident. For years you fight: "This shou
 
 **Question:** What does acceptance ENABLE?
 
-- **✅ Seeing the situation clearly and choosing a reasonable action**
-  Exactly. Without acceptance, you're blinded by the fight. With acceptance, you see clearly and can act wisely.
+- **✅ See clearly, act wisely**
+  Exactly — see the situation clearly and choose a reasonable action. Without acceptance, you're blinded by the fight.
 - ❌ Passively accept everything that's wrong
   No. That would be resignation. Acceptance doesn't mean inaction.
 - ❌ Avoid pain
@@ -313,8 +313,8 @@ Acceptance is a **soft act of acknowledgment**. It isn't agreement, resignation,
 
 **Otázka:** Jsi v toxické pracovní situaci. Měl/a bys ji „přijmout"?
 
-- **✅ Přijmout realitu: „Moje práce je toxická." A na základě této jasnosti hledat novou.**
-  Přesně. Přijetí je výchozí bod, ne konec. Jasný pohled umožňuje moudrou akci.
+- **✅ Přijmout: „Je toxická." A hledat novou.**
+  Přesně. Přijmout realitu „Moje práce je toxická" a na základě této jasnosti hledat novou. Přijetí je výchozí bod, ne konec.
 - ❌ Zůstat a smířit se — tak přece funguje přijetí
   To je záměna přijetí s rezignací. Přijetí neznamená zůstat v špatné situaci.
 - ❌ Popírat, že je situace špatná
@@ -324,8 +324,8 @@ Acceptance is a **soft act of acknowledgment**. It isn't agreement, resignation,
 
 **Question:** You're in a toxic work situation. Should you "accept" it?
 
-- **✅ Accept reality: "My job is toxic." And based on that clarity, look for a new one.**
-  Exactly. Acceptance is the starting point, not the end. A clear view enables wise action.
+- **✅ Accept: "It's toxic." Then look for a new one.**
+  Exactly. Accept reality: "My job is toxic" — and from that clarity, look for a new one. Acceptance is the starting point, not the end.
 - ❌ Stay and make peace with it — that's how acceptance works
   That's confusing acceptance with resignation. Acceptance doesn't mean staying in a bad situation.
 - ❌ Deny that the situation is bad
@@ -335,7 +335,7 @@ Acceptance is a **soft act of acknowledgment**. It isn't agreement, resignation,
 
 **Otázka:** Proč je přijetí nutným základem pro změnu?
 
-- **✅ Pokud bojuješ s tím, co už JE, nemáš energii na to, co MŮŽE BÝT**
+- **✅ Boj s tím, co JE, bere energii na to, co MŮŽE BÝT**
   Přesně. Boj s realitou spotřebovává energii, kterou potřebuješ na akci. Přijetí tuto energii uvolňuje.
 - ❌ Protože změna je nemožná bez pozitivního myšlení
   Přijetí není pozitivní myšlení. Je to uznání reality — i nepříjemné reality.
@@ -346,7 +346,7 @@ Acceptance is a **soft act of acknowledgment**. It isn't agreement, resignation,
 
 **Question:** Why is acceptance the necessary foundation for change?
 
-- **✅ If you're fighting what already IS, you don't have energy for what MIGHT BE**
+- **✅ Fighting what IS drains energy for what MIGHT BE**
   Exactly. Fighting reality consumes energy you need for action. Acceptance frees that energy.
 - ❌ Because change is impossible without positive thinking
   Acceptance isn't positive thinking. It's acknowledging reality — even unpleasant reality.
@@ -357,8 +357,8 @@ Acceptance is a **soft act of acknowledgment**. It isn't agreement, resignation,
 
 **Otázka:** Přijetí otevírá dveře. Co je za nimi?
 
-- **✅ Prostor pro jasné vidění a moudré jednání — bez přijetí zůstáváš uvězněný/á v boji**
-  Přesně. Přijetí je brána. Za ní je svoboda volby — volby, jak na situaci reagovat.
+- **✅ Jasnost a moudrá akce**
+  Přesně. Bez přijetí zůstáváš uvězněný/á v boji. Přijetí je brána. Za ní je svoboda volby — volby, jak na situaci reagovat.
 - ❌ Pocit štěstí a klidu
   Ne nutně. Za přijetím může být i smutek nebo bolest — ale bez přidaného boje.
 - ❌ Konec všech problémů
@@ -368,8 +368,8 @@ Acceptance is a **soft act of acknowledgment**. It isn't agreement, resignation,
 
 **Question:** Acceptance opens a door. What's behind it?
 
-- **✅ Room for clear seeing and wise action — without acceptance, you stay trapped in the fight**
-  Exactly. Acceptance is a gateway. Behind it is freedom of choice — the choice of how to respond to the situation.
+- **✅ Clear seeing and wise action**
+  Exactly. Without acceptance, you stay trapped in the fight. Acceptance is a gateway. Behind it is freedom of choice — the choice of how to respond to the situation.
 - ❌ A feeling of happiness and calm
   Not necessarily. Behind acceptance there might be sadness or pain too — but without the added fight.
 - ❌ The end of all problems

@@ -82,8 +82,8 @@ What did you just do? A physiological sigh — a built-in mechanism the body use
 
 **Otázka:** Co je na fyziologickém povzdechu unikátní?
 
-- **✅ Dva nádechy za sebou (druhý menší „doplnění") následované dlouhým výdechem**
-  Přesně. Druhý krátký nádech je klíčový — otevírá stlačené plicní sklípky.
+- **✅ Dva nádechy a dlouhý výdech**
+  Přesně. Druhý krátký nádech („doplnění") je klíčový — otevírá stlačené plicní sklípky. Výdech jde ústy.
 - ❌ Je to zadržení dechu na minutu
   Ne — je to rychlé a krátké. Celé cvičení trvá pár sekund.
 - ❌ Vyžaduje přesné počítání do 10
@@ -93,8 +93,8 @@ What did you just do? A physiological sigh — a built-in mechanism the body use
 
 **Question:** What's unique about the physiological sigh?
 
-- **✅ Two inhales in a row (the second a smaller "top-up") followed by a long exhale**
-  Exactly. The second short inhale is key — it opens the compressed lung sacs.
+- **✅ Two inhales and a long exhale**
+  Exactly. The second short inhale (the "top-up") is key — it opens the compressed lung sacs. Exhale through the mouth.
 - ❌ It's holding your breath for a minute
   No — it's fast and short. The whole thing takes a few seconds.
 - ❌ It requires counting precisely to 10
@@ -112,8 +112,8 @@ Huberman has shown that the physiological sigh is the fastest known way to calm 
 
 **Otázka:** Kdy je fyziologický povzdech nejúčinnější?
 
-- **✅ V akutním stresu, kdy potřebuješ okamžitou regulaci během několika sekund**
-  Přesně. Je to rychlá první pomoc pro nervový systém.
+- **✅ V akutním stresu**
+  Přesně. Je to rychlá první pomoc pro nervový systém — okamžitá regulace během několika sekund.
 - ❌ Pouze při meditaci
   Může být součástí meditace, ale jeho síla je v použití mimo ni — v reálných stresových situacích.
 - ❌ Jen když máš hodinu času
@@ -123,8 +123,8 @@ Huberman has shown that the physiological sigh is the fastest known way to calm 
 
 **Question:** When is the physiological sigh most effective?
 
-- **✅ In acute stress, when you need immediate regulation within seconds**
-  Exactly. It's fast first aid for the nervous system.
+- **✅ In acute stress**
+  Exactly. It's fast first aid for the nervous system — immediate regulation within seconds.
 - ❌ Only during meditation
   It can be part of meditation, but its real power is outside of it — in real-life stress situations.
 - ❌ Only when you have an hour
@@ -167,8 +167,8 @@ What's happening biologically: during stress, lung sacs (alveoli) partially coll
 
 **Otázka:** Představ si, že zkoušíš fyziologický povzdech, ale děláš jen jeden nádech místo dvou. Je druhý „doplňovací" nádech opravdu nutný?
 
-- **✅ Ano — bez něj otevřeš jen část alveol a efekt je slabší**
-  Přesně. Právě druhý krátký nádech dělá techniku unikátní a účinnou.
+- **✅ Ano — bez něj je efekt slabší**
+  Přesně. Právě druhý krátký nádech otevře zbývající alveoly a dělá techniku unikátní a účinnou.
 - ❌ Ne — jeden hluboký nádech funguje stejně
   Nefunguje. Jeden nádech není schopen dosáhnout maximálního naplnění plic.
 - ❌ Druhý nádech je jen estetická záležitost
@@ -178,8 +178,8 @@ What's happening biologically: during stress, lung sacs (alveoli) partially coll
 
 **Question:** Imagine you try the physiological sigh but only do one inhale instead of two. Is the second "top-up" inhale really necessary?
 
-- **✅ Yes — without it, you only open part of the alveoli and the effect is weaker**
-  Exactly. It's the second short inhale that makes this technique unique and effective.
+- **✅ Yes — without it the effect is weaker**
+  Exactly. The second short inhale opens the remaining alveoli and makes this technique unique and effective.
 - ❌ No — one deep inhale works just the same
   It doesn't. One inhale can't achieve maximum lung filling.
 - ❌ The second inhale is just cosmetic
@@ -197,8 +197,8 @@ A 2023 study in Cell Reports Medicine compared the physiological sigh to other b
 
 **Otázka:** Ocitneš se v konfliktní situaci na schůzce a cítíš stoupající hněv. Kolegové na tebe čekají s odpovědí. Jak použiješ fyziologický povzdech nenápadně?
 
-- **✅ Uděláš jeden cyklus — dva rychlé nádechy nosem a dlouhý tichý výdech ústy. Trvá 5 sekund.**
-  Přesně. Jeden cyklus je dost nenápadný a často dostačující. Nikdo si toho ani nevšimne.
+- **✅ Jeden cyklus — trvá 5 sekund**
+  Přesně. Dva rychlé nádechy nosem a dlouhý tichý výdech ústy. Jeden cyklus je dost nenápadný a často dostačující. Nikdo si toho ani nevšimne.
 - ❌ Opustíš místnost a uděláš to na toaletě
   Nemusíš — je to tak rychlé, že to zvládneš u stolu.
 - ❌ Uděláš 10 hlasitých cyklů
@@ -208,8 +208,8 @@ A 2023 study in Cell Reports Medicine compared the physiological sigh to other b
 
 **Question:** You find yourself in a tense moment during a meeting and feel anger rising. Your colleagues are waiting for a response. How do you use the physiological sigh discreetly?
 
-- **✅ Do one cycle — two quick nasal inhales and a long quiet exhale through the mouth. Takes 5 seconds.**
-  Exactly. One cycle is discreet enough and often sufficient. Nobody will even notice.
+- **✅ One cycle — takes 5 seconds**
+  Exactly. Two quick nasal inhales and a long quiet exhale through the mouth. One cycle is discreet enough and often sufficient. Nobody will even notice.
 - ❌ Leave the room and do it in the bathroom
   You don't have to — it's quick enough to do at your desk.
 - ❌ Do 10 loud cycles
@@ -256,8 +256,8 @@ Imagine this: you're teaching a class full of noisy students and you feel yourse
 
 **Otázka:** Chceš si fyziologický povzdech zautomatizovat. Jaká je nejlepší strategie?
 
-- **✅ Dělat ho pravidelně, i když není stres — třeba 2x denně při přechodu mezi činnostmi**
-  Přesně. Pravidelná praxe ho v krizi udělá automatickým.
+- **✅ Pravidelně, i když není stres**
+  Přesně. Třeba 2× denně při přechodu mezi činnostmi — pravidelná praxe ho v krizi udělá automatickým.
 - ❌ Čekat, až přijde stres, a pak na to myslet
   Ve stresu si nezapamatuješ novou techniku. Proto ji cvič v klidu.
 - ❌ Dělat ho jen jednou za týden
@@ -267,8 +267,8 @@ Imagine this: you're teaching a class full of noisy students and you feel yourse
 
 **Question:** You want to make the physiological sigh automatic. What's the best strategy?
 
-- **✅ Do it regularly, even when there's no stress — say 2x a day between tasks**
-  Exactly. Regular practice makes it automatic in a crisis.
+- **✅ Regularly, even when there's no stress**
+  Exactly. Say 2× a day between tasks — regular practice makes it automatic in a crisis.
 - ❌ Wait until stress comes and then try to remember it
   You won't remember a new technique under stress. That's why you practice it in calm.
 - ❌ Only do it once a week
@@ -278,8 +278,8 @@ Imagine this: you're teaching a class full of noisy students and you feel yourse
 
 **Otázka:** Jaký je správný postup fyziologického povzdechu?
 
-- **✅ Dva nádechy nosem (první velký, druhý menší „doplnění"), pak dlouhý výdech ústy**
-  Přesně. První nádech otevře hlavní část plic, druhý krátký nádech otevře kolabované alveoly, výdech vypustí CO2.
+- **✅ Dva nádechy nosem, pak dlouhý výdech ústy**
+  Přesně. První nádech (velký) otevře hlavní část plic, druhý krátký („doplnění") otevře kolabované alveoly, výdech vypustí CO2.
 - ❌ Jeden hluboký nádech, zadržení dechu, výdech
   To je jiná technika. Fyziologický povzdech nemá fázi zadržení — má dva nádechy.
 - ❌ Tři krátké nádechy a tři krátké výdechy
@@ -289,8 +289,8 @@ Imagine this: you're teaching a class full of noisy students and you feel yourse
 
 **Question:** What is the correct procedure for the physiological sigh?
 
-- **✅ Two inhales through the nose (first big, second smaller "top-up"), then a long exhale through the mouth**
-  Exactly. The first inhale opens the main part of the lungs, the second short inhale opens collapsed alveoli, the exhale expels CO2.
+- **✅ Two nasal inhales, one long mouth exhale**
+  Exactly. The first inhale (big) opens the main part of the lungs, the second short one (the "top-up") opens collapsed alveoli, the exhale expels CO2.
 - ❌ One deep inhale, hold the breath, exhale
   That's a different technique. The physiological sigh has no hold phase — it has two inhales.
 - ❌ Three short inhales and three short exhales
@@ -300,8 +300,8 @@ Imagine this: you're teaching a class full of noisy students and you feel yourse
 
 **Otázka:** Proč studie z roku 2023 v Cell Reports Medicine označila fyziologický povzdech za nejefektivnější dechovou techniku?
 
-- **✅ Vedl k nejrychlejšímu zlepšení nálady a snížení fyziologického stresu ve srovnání s box breathing a dalšími technikami**
-  Přesně. Studie porovnala několik technik a fyziologický povzdech vyšel jako nejrychlejší cesta ke zklidnění.
+- **✅ Nejrychleji zlepšil náladu a snížil stres**
+  Přesně. Studie porovnala několik technik (včetně box breathing) a fyziologický povzdech vyšel jako nejrychlejší cesta ke zklidnění.
 - ❌ Protože ho vynalezl Huberman a studie byla zaujatá
   Huberman techniku nepopularizoval jako její vynálezce — je to vrozený mechanismus. Studie byla nezávislá.
 - ❌ Protože ostatní techniky nefungují
@@ -311,8 +311,8 @@ Imagine this: you're teaching a class full of noisy students and you feel yourse
 
 **Question:** Why did the 2023 study in Cell Reports Medicine identify the physiological sigh as the most effective breathing technique?
 
-- **✅ It led to the fastest improvement in mood and reduction in physiological stress compared to box breathing and other techniques**
-  Exactly. The study compared several techniques and the physiological sigh came out as the fastest path to calming down.
+- **✅ It improved mood and reduced stress the fastest**
+  Exactly. The study compared several techniques (including box breathing) and the physiological sigh came out as the fastest path to calming down.
 - ❌ Because Huberman invented it and the study was biased
   Huberman didn't popularize it as its inventor — it's a built-in mechanism. The study was independent.
 - ❌ Because other techniques don't work

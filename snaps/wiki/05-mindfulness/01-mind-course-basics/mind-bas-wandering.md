@@ -82,7 +82,7 @@ Matthew Killingsworth's Harvard study showed that the human mind wanders, on ave
 
 **Otázka:** Tvoje mysl během meditace odběhla k nákupnímu seznamu. Je to meditační selhání?
 
-- **✅ Ne — uvědomění, že mysl odběhla, JE ten moment, kdy se mysl trénuje**
+- **✅ Ne — uvědomění odběhnutí JE ten trénink**
   Přesně! Uvědomění „odběhl/a jsem" JE cvičením. Bez toho by nebyla žádná meditace. Čím víc se to stane, tím lépe.
 - ❌ Ano — měl/a bys se zlobit na sebe a snažit se víc
   Zlost vytváří napětí. Meditace je o laskavosti — k sobě i k myšlenkám.
@@ -93,7 +93,7 @@ Matthew Killingsworth's Harvard study showed that the human mind wanders, on ave
 
 **Question:** Your mind wandered off to your shopping list during meditation. Is that a meditation failure?
 
-- **✅ No — realizing that your mind wandered IS the moment the mind gets trained**
+- **✅ No — noticing the wander IS the training**
   Exactly! The realization "I wandered off" IS the exercise. Without it, there's no meditation. The more it happens, the better.
 - ❌ Yes — you should get angry at yourself and try harder
   Anger creates tension. Meditation is about kindness — toward yourself and your thoughts.
@@ -116,8 +116,8 @@ Meditation isn't about suppressing the DMN — it's about knowing when it's acti
 
 **Otázka:** Je DMN (default mode network) nepřítel meditace?
 
-- **✅ Ne — DMN je důležitá pro kreativitu, sebe-reflexi a sociální porozumění, jen jí nechceš být otrokem**
-  Přesně. DMN není špatná — je esenciální. Meditace tě učí s ní pracovat, ne ji vypnout.
+- **✅ Ne — DMN je esenciální, jen jí nechceš být otrokem**
+  Přesně. DMN není špatná — je důležitá pro kreativitu, sebereflexi i sociální porozumění. Meditace tě učí s ní pracovat, ne ji vypnout.
 - ❌ Ano — v meditaci se snažíme DMN úplně utlumit
   Potlačit jakoukoli funkci mozku je nemožné a nezdravé. Meditace je o vyvážení, ne o boji.
 - ❌ DMN je evoluční chyba, kterou bude lidstvo postupně překonávat
@@ -127,8 +127,8 @@ Meditation isn't about suppressing the DMN — it's about knowing when it's acti
 
 **Question:** Is the DMN (default mode network) the enemy of meditation?
 
-- **✅ No — the DMN is important for creativity, self-reflection, and social understanding; you just don't want to be its slave**
-  Exactly. The DMN isn't bad — it's essential. Meditation teaches you to work with it, not shut it down.
+- **✅ No — the DMN is essential; you just don't want to be its slave**
+  Exactly. The DMN isn't bad — it's vital for creativity, self-reflection, and social understanding. Meditation teaches you to work with it, not shut it down.
 - ❌ Yes — in meditation we try to completely suppress the DMN
   Suppressing any brain function is impossible and unhealthy. Meditation is about balance, not a fight.
 - ❌ The DMN is an evolutionary flaw that humanity will gradually overcome
@@ -150,8 +150,8 @@ Imagine you're raising a puppy. It runs off, you call it, it comes back, it runs
 
 **Otázka:** Za deset minut meditace se ti mysl toulá asi 50x. Je to moc?
 
-- **✅ Ne — to je 50 příležitostí trénovat návrat. Skvělá meditace!**
-  Přesně! 50x návrat = 50x posílení „svalu pozornosti". To je lepší než jednou sedět bez odběhnutí.
+- **✅ Ne — to je 50 návratů. Skvělá meditace!**
+  Přesně! 50 příležitostí trénovat návrat = 50x posílení „svalu pozornosti". To je lepší než jednou sedět bez odběhnutí.
 - ❌ Ano — pokročilí meditují bez odběhnutí
   I zkušení meditující mají toulající se mysl. Rozdíl je, že si toho všímají rychleji a méně to berou osobně.
 - ❌ Pravděpodobně máš ADHD a měl/a bys přestat
@@ -161,8 +161,8 @@ Imagine you're raising a puppy. It runs off, you call it, it comes back, it runs
 
 **Question:** In ten minutes of meditation, your mind wandered about 50 times. Is that too much?
 
-- **✅ No — that's 50 chances to practice returning. Great meditation!**
-  Exactly! 50 returns = 50 reps strengthening the "attention muscle." That's better than sitting once without wandering.
+- **✅ No — that's 50 returns. Great meditation!**
+  Exactly! 50 chances to practice returning = 50 reps strengthening the "attention muscle." That's better than sitting once without wandering.
 - ❌ Yes — advanced practitioners meditate without wandering
   Even experienced meditators have wandering minds. The difference is they notice faster and take it less personally.
 - ❌ You probably have ADHD and should stop
@@ -180,8 +180,8 @@ Imagine you're raising a puppy. It runs off, you call it, it comes back, it runs
 
 **Otázka:** Co je cílem meditace, když se mysl toulá?
 
-- **✅ Všimnout si, laskavě se vrátit, a neptat se, kolikrát se to ještě stane**
-  Přesně. Počítat odběhnutí je další forma souzení. Prostě se vracej.
+- **✅ Všimnout si a laskavě se vrátit**
+  Přesně. Neptej se, kolikrát se to ještě stane — počítat odběhnutí je další forma souzení. Prostě se vracej.
 - ❌ Dosáhnout stavu, kdy se mysl přestane toulat
   Tento stav nenastává trvale ani u zkušených meditujících. Cílem je vztah, ne odstranění.
 - ❌ Snažit se víc a nekompromisně
@@ -191,8 +191,8 @@ Imagine you're raising a puppy. It runs off, you call it, it comes back, it runs
 
 **Question:** What's the goal of meditation when the mind wanders?
 
-- **✅ Notice it, gently return, and don't ask how many more times it'll happen**
-  Exactly. Counting wanderings is just another form of judgment. Just come back.
+- **✅ Notice it and gently return**
+  Exactly. Don't ask how many more times it'll happen — counting wanderings is just another form of judgment. Just come back.
 - ❌ Reach a state where the mind stops wandering
   That state doesn't last permanently, even for experienced meditators. The goal is the relationship, not removal.
 - ❌ Try harder and be uncompromising
@@ -202,8 +202,8 @@ Imagine you're raising a puppy. It runs off, you call it, it comes back, it runs
 
 **Otázka:** Kdy je toulající se mysl užitečná i mimo meditaci?
 
-- **✅ Podporuje kreativitu, sebeporozumění a plánování — meditace tě učí vědět, kdy jí naslouchat**
-  Přesně. Odtud přicházejí nejlepší nápady a vhledy. Meditace ti pomáhá vědět, kdy toulání využít a kdy ne.
+- **✅ Podporuje kreativitu a plánování**
+  Přesně. Odtud přicházejí nejlepší nápady a vhledy. Meditace ti pomáhá vědět, kdy toulání využít a kdy ne — umožňuje sebeporozumění i plánování.
 - ❌ Je vždy škodlivá — čím méně, tím lépe
   Bez toulání bys nebyl/a kreativní ani schopný/á plánovat. Je to dvousečná zbraň.
 - ❌ Jen pro spisovatele a umělce
@@ -213,8 +213,8 @@ Imagine you're raising a puppy. It runs off, you call it, it comes back, it runs
 
 **Question:** When is a wandering mind useful outside of meditation?
 
-- **✅ It supports creativity, self-understanding, and planning — meditation teaches you when to listen to it**
-  Exactly. This is where the best ideas and insights come from. Meditation helps you know when to use wandering and when not to.
+- **✅ It supports creativity and planning**
+  Exactly. This is where the best ideas and insights come from. Meditation helps you know when to use wandering and when not to — it enables self-understanding and planning.
 - ❌ It's always harmful — the less, the better
   Without wandering you wouldn't be creative or able to plan. It's a double-edged sword.
 - ❌ Only for writers and artists
@@ -224,8 +224,8 @@ Imagine you're raising a puppy. It runs off, you call it, it comes back, it runs
 
 **Otázka:** Představ si, že medituješ tři měsíce a pořád nedokážeš udržet pozornost déle než 10 sekund. Co to znamená?
 
-- **✅ 10 sekund bez odběhnutí je vlastně dobrý výkon — přestaň se srovnávat a užívej si praxi**
-  Přesně. Většina lidí se srovnává s imaginárními „dokonalými meditujícími". Ve skutečnosti je 10 sekund soustředění solidní základ, na kterém můžeš stavět.
+- **✅ 10 sekund je dobrý výkon — nesrovnávej se**
+  Přesně. Většina lidí se srovnává s imaginárními „dokonalými meditujícími". Ve skutečnosti je 10 sekund soustředění solidní základ, na kterém můžeš stavět. Užívej si praxi.
 - ❌ Meditace na tebe evidentně nefunguje
   Funguje — právě tím, že si toho 10sekundového odběhnutí všimneš a vrátíš se. To JE trénink. Výsledky přicházejí postupně.
 - ❌ Musíš meditovat mnohem déle, aby se to zlepšilo
@@ -235,8 +235,8 @@ Imagine you're raising a puppy. It runs off, you call it, it comes back, it runs
 
 **Question:** Imagine you've been meditating for three months and still can't hold attention for more than 10 seconds. What does that mean?
 
-- **✅ 10 seconds without wandering is actually a decent stretch — stop comparing and enjoy the practice**
-  Exactly. Most people compare themselves to imaginary "perfect meditators." In reality, 10 seconds of focus is a solid foundation you can build on.
+- **✅ 10 seconds is a decent stretch — stop comparing**
+  Exactly. Most people compare themselves to imaginary "perfect meditators." In reality, 10 seconds of focus is a solid foundation you can build on. Enjoy the practice.
 - ❌ Meditation clearly doesn't work for you
   It does — precisely because you notice the 10-second wander and come back. That IS the training. Results come gradually.
 - ❌ You need to meditate much longer for it to improve
