@@ -82,8 +82,8 @@ The Harvard study, which has tracked people for over 80 years, found something s
 
 **Otázka:** Představ si, že si řekneš: „Teď se dva roky naplno pustím do kariéry a na přátele bude čas potom." Proč je to biologicky rizikový plán?
 
-- **✅ Vztahy se nedají dohnat — jsou stavěné na malých, pravidelných interakcích v průběhu let, ne na jedné velké investici později**
-  Přesně. Blízkost vzniká z tisíců drobných momentů — krátkých zpráv, obědů, společných zážitků. Bez nich vztahy pomalu usychají, a když se za dva roky vrátíš, není kam. Nejde o zlou vůli druhých — jen o to, že důvěrnost potřebuje průběžnou údržbu.
+- **✅ Vztahy potřebují průběžnou údržbu — nedají se dohnat**
+  Přesně. Jsou stavěné na malých, pravidelných interakcích v průběhu let, ne na jedné velké investici později. Blízkost vzniká z tisíců drobných momentů — krátkých zpráv, obědů, společných zážitků. Bez nich vztahy pomalu usychají, a když se za dva roky vrátíš, není kam. Nejde o zlou vůli druhých — jen o to, že důvěrnost potřebuje průběžnou údržbu.
 - ❌ Kamarádi se ozvou sami, až tě budou potřebovat
   Většina vztahů bez údržby tiše usne. Lidé nemají pocit, že by tě „potřebovali", když s nimi nejsi v pravidelném kontaktu — prostě na tebe přestanou myslet.
 - ❌ Za dva roky si snadno najdeš nové přátele
@@ -93,8 +93,8 @@ The Harvard study, which has tracked people for over 80 years, found something s
 
 **Question:** Imagine you tell yourself: "I'll go all in on my career for two years, and there'll be time for friends afterward." Why is this a biologically risky plan?
 
-- **✅ Relationships can't be caught up on — they're built from small, regular interactions over years, not one big investment later**
-  Exactly. Closeness comes from thousands of small moments — short messages, lunches, shared experiences. Without them, relationships slowly wither, and when you come back two years later, there's nothing to return to. It's not ill will on the other side — it's just that intimacy needs ongoing maintenance.
+- **✅ Relationships need ongoing upkeep — can't be caught up**
+  Exactly. They're built from small, regular interactions over years, not one big investment later. Closeness comes from thousands of small moments — short messages, lunches, shared experiences. Without them, relationships slowly wither, and when you come back two years later, there's nothing to return to. It's not ill will on the other side — it's just that intimacy needs ongoing maintenance.
 - ❌ Friends will reach out on their own when they need you
   Most relationships without maintenance quietly fall asleep. People don't feel like they "need" you when they're not in regular contact with you — they simply stop thinking about you.
 - ❌ In two years you'll easily find new friends
@@ -116,8 +116,8 @@ The brain reads it as a danger signal: "I'm alone, I have no backup, I need to s
 
 **Otázka:** Představ si, že po roce v novém městě si uvědomíš, že kromě kolegů z práce nemáš nikoho, s kým bys mohl mluvit o tom, co tě tíží. Cítíš se podrážděný, špatně spíš a jsi častěji nachlazený. Co se s tebou děje?
 
-- **✅ Tvůj nervový systém reaguje na chronickou osamělost — zvyšuje kortizol, zhoršuje spánek a oslabuje imunitu**
-  Přesně. Tohle není slabost charakteru. Je to měřitelná biologická reakce. Mozek vyhodnotil situaci jako „jsem bez opory" a zapnul pohotovostní režim. Dlouhodobě ti to bere energii, spánek i zdraví.
+- **✅ Nervový systém reaguje na chronickou osamělost**
+  Přesně. Zvyšuje kortizol, zhoršuje spánek a oslabuje imunitu. Tohle není slabost charakteru. Je to měřitelná biologická reakce. Mozek vyhodnotil situaci jako „jsem bez opory" a zapnul pohotovostní režim. Dlouhodobě ti to bere energii, spánek i zdraví.
 - ❌ Je to jen špatná nálada, projde to sama
   Krátkodobá samota projde sama. Chronická osamělost se bez aktivní změny nelepší — naopak se v ní mozek zamyká.
 - ❌ Musíš být produktivnější, aby ses neměl čas cítit sám
@@ -127,8 +127,8 @@ The brain reads it as a danger signal: "I'm alone, I have no backup, I need to s
 
 **Question:** Imagine that after a year in a new city you realize that besides your coworkers you have nobody to talk to about what's weighing on you. You feel irritable, sleep poorly, and catch colds more often. What's happening to you?
 
-- **✅ Your nervous system is reacting to chronic loneliness — raising cortisol, worsening sleep, and weakening immunity**
-  Exactly. This isn't a character weakness. It's a measurable biological reaction. Your brain read the situation as "I have no backup" and switched into alert mode. Long-term, it drains your energy, sleep, and health.
+- **✅ Your nervous system is reacting to chronic loneliness**
+  Exactly. It's raising cortisol, worsening sleep, and weakening immunity. This isn't a character weakness. It's a measurable biological reaction. Your brain read the situation as "I have no backup" and switched into alert mode. Long-term, it drains your energy, sleep, and health.
 - ❌ It's just a bad mood, it will pass on its own
   Short-term solitude passes on its own. Chronic loneliness doesn't get better without active change — the brain actually locks itself into it.
 - ❌ You need to be more productive so you don't have time to feel alone
@@ -146,7 +146,7 @@ The brain reads it as a danger signal: "I'm alone, I have no backup, I need to s
 
 **Otázka:** Představ si, že máš tento týden volno a chceš „něco udělat pro své vztahy". Která varianta ti dlouhodobě pomůže nejvíc?
 
-- **✅ Napsat třem lidem, které máš rád, krátkou zprávu — a zavést si to jako zvyk jednou týdně**
+- **✅ Napsat krátkou zprávu třem lidem — jako týdenní zvyk**
   Přesně. Malé, pravidelné signály „myslím na tebe" jsou to, z čeho vztahy žijí. Jedna zpráva týdně po roce = 150 připomenutí, že ti na daném člověku záleží. Žádná jednorázová akce se tomu nevyrovná.
 - ❌ Uspořádat jednu velkou párty a pozvat všechny
   Hezké, ale jednorázové. Den po párty se zase všichni vrátí do svých životů a vztah nebude silnější než před ní. Velká gesta nenahradí drobnou pravidelnost.
@@ -157,7 +157,7 @@ The brain reads it as a danger signal: "I'm alone, I have no backup, I need to s
 
 **Question:** Imagine you have free time this week and want to "do something for your relationships." Which option helps you most in the long run?
 
-- **✅ Send three people you love a short message — and make it a weekly habit**
+- **✅ Send three people a short message — as a weekly habit**
   Exactly. Small, regular "I'm thinking of you" signals are what relationships live on. One message a week for a year = 150 reminders that you care about that person. No one-off event can match this.
 - ❌ Throw one big party and invite everyone
   Nice, but one-off. The day after the party everyone returns to their lives and the relationship won't be stronger than before. Big gestures don't replace small regularity.
@@ -168,8 +168,8 @@ The brain reads it as a danger signal: "I'm alone, I have no backup, I need to s
 
 **Otázka:** Představ si, že v práci máš velmi náročné období a cítíš, že „teď není čas na kamarády". Jaký je rozumný postup?
 
-- **✅ I v náročném období udržuj minimum kontaktu — krátká zpráva, 10minutový telefonát — aby vztahy nevyschly**
-  Přesně. V krizích vztahy nejvíc potřebuješ, ne nejméně. A zároveň je nejsnazší je ztratit. Minimalistická údržba (jedna zpráva, krátký hovor) stačí na to, aby spojení zůstalo živé, dokud nebudeš mít víc prostoru.
+- **✅ I v krizi udržuj minimum kontaktu, aby vztahy nevyschly**
+  Přesně. Krátká zpráva nebo 10minutový telefonát stačí. V krizích vztahy nejvíc potřebuješ, ne nejméně. A zároveň je nejsnazší je ztratit. Minimalistická údržba (jedna zpráva, krátký hovor) stačí na to, aby spojení zůstalo živé, dokud nebudeš mít víc prostoru.
 - ❌ Úplně se odpojit — přátelé pochopí, až přijdou lepší časy
   Občas ano, ale když to trvá měsíce, většina vztahů se mezitím opotřebuje. Mlčení se dá ospravedlnit, ale jeho důsledky to nezmění.
 - ❌ Rozloučit se se všemi, dokud nebude klid
@@ -179,8 +179,8 @@ The brain reads it as a danger signal: "I'm alone, I have no backup, I need to s
 
 **Question:** Imagine you're going through a very demanding period at work and feel that "now isn't the time for friends." What's a reasonable approach?
 
-- **✅ Even in a demanding period, keep minimum contact — a short message, a 10-minute phone call — so the relationships don't dry up**
-  Exactly. You need relationships most in crises, not least. And they're also easiest to lose then. Minimalist maintenance (one message, a short call) is enough to keep the connection alive until you have more space.
+- **✅ In a crisis, keep minimum contact so relationships don't dry up**
+  Exactly. A short message or a 10-minute call is enough. You need relationships most in crises, not least. And they're also easiest to lose then. Minimalist maintenance (one message, a short call) is enough to keep the connection alive until you have more space.
 - ❌ Disconnect completely — friends will understand when better times come
   Sometimes yes, but when it lasts months, most relationships wear down in the meantime. Silence can be justified, but that doesn't change its consequences.
 - ❌ Say goodbye to everyone until things calm down
@@ -235,8 +235,8 @@ There are four basic styles:
 
 **Otázka:** Představ si, že máš tendenci se ve vztazích bát, že tě partner opustí. Když ti hodinu neodpoví, propadáš úzkosti a začneš psát znovu a znovu. Když je vše v klidu, zase hledáš ujištění: „miluješ mě ještě?" Jaký styl to pravděpodobně popisuje?
 
-- **✅ Úzkostný attachment — strach ze ztráty blízkosti a potřeba neustálého ujištění**
-  Přesně. Úzkostný styl často vzniká z nestabilní péče v dětství — kdy pečující osoba byla někdy k dispozici a někdy ne, bez jasného pravidla. Mozek se naučil: „blízkost je cenná, ale může kdykoli zmizet, musím být ve střehu". Dá se s tím ale pracovat a měnit.
+- **✅ Úzkostný styl attachmentu**
+  Přesně. Projevuje se strachem ze ztráty blízkosti a potřebou neustálého ujištění. Často vzniká z nestabilní péče v dětství — kdy pečující osoba byla někdy k dispozici a někdy ne, bez jasného pravidla. Mozek se naučil: „blízkost je cenná, ale může kdykoli zmizet, musím být ve střehu". Dá se s tím ale pracovat a měnit.
 - ❌ Jistý attachment
   Jistý styl znamená klid v blízkosti i v samotě. Žádné panické zprávy, žádné neustálé ujišťování. Jistý člověk věří, že když druhý nebere telefon, má prostě něco jiného na práci — ne že ho opouští.
 - ❌ To nemá s attachmentem nic společného
@@ -246,8 +246,8 @@ There are four basic styles:
 
 **Question:** Imagine you tend to be afraid in relationships that your partner will leave you. When they don't reply for an hour, you spiral into anxiety and start writing again and again. When everything is calm, you still seek reassurance: "do you still love me?" Which style probably describes this?
 
-- **✅ Anxious attachment — fear of losing closeness and a need for constant reassurance**
-  Exactly. Anxious style often comes from unstable care in childhood — when the caregiver was sometimes available and sometimes not, without a clear rule. The brain learned: "closeness is valuable but can disappear at any time, I need to stay alert." But it can be worked on and changed.
+- **✅ Anxious attachment style**
+  Exactly. It shows as fear of losing closeness and a need for constant reassurance. Anxious style often comes from unstable care in childhood — when the caregiver was sometimes available and sometimes not, without a clear rule. The brain learned: "closeness is valuable but can disappear at any time, I need to stay alert." But it can be worked on and changed.
 - ❌ Secure attachment
   Secure style means calm in closeness and in solitude. No panicked messages, no constant reassurance. A secure person trusts that when the other doesn't pick up, they just have something else to do — not that they're leaving.
 - ❌ It has nothing to do with attachment
@@ -269,8 +269,8 @@ From the outside it looks like independence and strength. From the inside it's o
 
 **Otázka:** Představ si, že ti partner řekne, že tě miluje a chce se bavit o společné budoucnosti. Místo radosti cítíš, jak se ti stahuje hruď, a najednou potřebuješ „mít prostor". Následující den reaguješ chladněji než obvykle. Co se pravděpodobně stalo?
 
-- **✅ Aktivoval se vyhýbavý obranný vzorec — mozek vyhodnotil blízkost jako ohrožení a automaticky ustoupil, aby si chránil zranitelnost**
-  Přesně. Tohle není absence lásky ani „nezávislost". Je to stará obranná reakce: kdysi jsi se naučil, že když se ukáže potřeba blízkosti, něco se pokazí. Takže když přijde opravdová blízkost, mozek ji rozhodne interpretovat jako nebezpečí a zapne brzdu.
+- **✅ Aktivoval se vyhýbavý obranný vzorec**
+  Přesně. Mozek vyhodnotil blízkost jako ohrožení a automaticky ustoupil, aby si chránil zranitelnost. Tohle není absence lásky ani „nezávislost". Je to stará obranná reakce: kdysi jsi se naučil, že když se ukáže potřeba blízkosti, něco se pokazí. Takže když přijde opravdová blízkost, mozek ji rozhodne interpretovat jako nebezpečí a zapne brzdu.
 - ❌ Partner zacházel příliš rychle, je to jeho chyba
   Možná tempo bylo rychlé, ale primární signál je uvnitř tvé reakce — fyzické stažení bez jasného důvodu ukazuje na obranný vzorec, ne jen na vnější situaci.
 - ❌ Zjistil jsi, že ho vlastně nemiluješ
@@ -280,8 +280,8 @@ From the outside it looks like independence and strength. From the inside it's o
 
 **Question:** Imagine your partner tells you they love you and wants to talk about a shared future. Instead of joy, you feel your chest tighten, and suddenly you need "some space." The next day you react more coldly than usual. What probably happened?
 
-- **✅ An avoidant defensive pattern activated — the brain read closeness as a threat and automatically stepped back to protect its vulnerability**
-  Exactly. This isn't the absence of love or "independence." It's an old defensive reaction: once upon a time you learned that when a need for closeness showed, something broke. So when real closeness arrives, the brain decides to interpret it as danger and slams the brakes.
+- **✅ An avoidant defensive pattern activated**
+  Exactly. The brain read closeness as a threat and automatically stepped back to protect its vulnerability. This isn't the absence of love or "independence." It's an old defensive reaction: once upon a time you learned that when a need for closeness showed, something broke. So when real closeness arrives, the brain decides to interpret it as danger and slams the brakes.
 - ❌ Your partner moved too fast, it's their fault
   Maybe the pace was fast, but the primary signal is inside your own reaction — physical withdrawal without a clear reason points to a defensive pattern, not just the external situation.
 - ❌ You realized you don't actually love them
@@ -311,8 +311,8 @@ What leads to it? **Repeated experience** that closeness is safe. That when you 
 
 **Otázka:** Představ si, že si uvědomíš, že máš úzkostný styl — každá pauza v komunikaci tě hází do paniky. Co je **nejúčinnější** dlouhodobý postup?
 
-- **✅ Kombinace: terapie nebo vědomá práce se styly + opakovaná zkušenost s lidmi, kteří reagují konzistentně a v klidu**
-  Přesně. Samotné „vědět, že mám úzkostný styl" nestačí — mozek potřebuje nové **zkušenosti**, ne jen informace. Terapie pomůže pojmenovat vzorec, ale skutečná změna přichází z opakovaného zažívání, že „nic se nestalo, i když nebyl hodinu online".
+- **✅ Kombinace: terapie + opakovaná zkušenost s klidnými lidmi**
+  Přesně. Vědomá práce se styly spolu s lidmi, kteří reagují konzistentně, přepisuje staré vzorce. Samotné „vědět, že mám úzkostný styl" nestačí — mozek potřebuje nové **zkušenosti**, ne jen informace. Terapie pomůže pojmenovat vzorec, ale skutečná změna přichází z opakovaného zažívání, že „nic se nestalo, i když nebyl hodinu online".
 - ❌ Najít si partnera, který bude neustále k dispozici a hned odpovídá
   Krátkodobě to uleví, ale dlouhodobě tě to udržuje v závislosti na externím ujištění. Místo aby se tvůj systém uklidnil, potřebuje čím dál víc „důkazů". Lék je uvnitř, ne venku.
 - ❌ Začít být vyhýbavý, aby ses přestal bát
@@ -322,8 +322,8 @@ What leads to it? **Repeated experience** that closeness is safe. That when you 
 
 **Question:** Imagine you realize you have an anxious style — every gap in communication throws you into panic. What's the **most effective** long-term approach?
 
-- **✅ A combination: therapy or conscious work with styles + repeated experience with people who react consistently and calmly**
-  Exactly. Just "knowing I have an anxious style" isn't enough — the brain needs new **experiences**, not just information. Therapy helps name the pattern, but real change comes from repeatedly experiencing "nothing happened, even though they were offline for an hour."
+- **✅ Therapy + repeated experience with consistent, calm people**
+  Exactly. Conscious work with styles combined with people who react steadily rewrites old patterns. Just "knowing I have an anxious style" isn't enough — the brain needs new **experiences**, not just information. Therapy helps name the pattern, but real change comes from repeatedly experiencing "nothing happened, even though they were offline for an hour."
 - ❌ Find a partner who's always available and replies immediately
   Short-term it brings relief, but long-term it keeps you dependent on external reassurance. Instead of your system calming down, it needs more and more "proof." The cure is inside, not outside.
 - ❌ Start being avoidant, so you stop being afraid
@@ -366,8 +366,8 @@ It's not about never fighting. It's about the **balance** — how many small pos
 
 **Otázka:** Představ si, že máš pocit, že se vztah s blízkým člověkem „nějak ochlazuje", i když žádný velký konflikt nebyl. Která změna pravděpodobně pomůže nejvíc — podle modelu 5:1?
 
-- **✅ Vědomě zvýšit počet malých pozitivních interakcí — krátké zprávy, společné chvíle, projev zájmu — aniž bys čekal na velká gesta**
-  Přesně. Podle Gottmana vztahy nezabíjejí velké krize, ale **absence** pozitivních drobností. Když zmizí úsměvy, krátké „jak ti je?" a poslouchání, vztah tiše zamrzne. Reaktivace vztahu vypadá nudně: víc drobných pozitivních momentů, ne jedno drama.
+- **✅ Vědomě zvýšit malé pozitivní interakce — bez velkých gest**
+  Přesně. Krátké zprávy, společné chvíle, projev zájmu. Podle Gottmana vztahy nezabíjejí velké krize, ale **absence** pozitivních drobností. Když zmizí úsměvy, krátké „jak ti je?" a poslouchání, vztah tiše zamrzne. Reaktivace vztahu vypadá nudně: víc drobných pozitivních momentů, ne jedno drama.
 - ❌ Vyprovokovat velký upřímný rozhovor, aby se „všechno vyříkalo"
   Občas to pomůže, ale často to naopak eskaluje, když chybí pozitivní „bankovní konto" z drobných interakcí. Nejdřív potřebuješ obnovit základní vřelost, teprve pak řešit těžší témata.
 - ❌ Stáhnout se a počkat, zda druhý udělá první krok
@@ -377,8 +377,8 @@ It's not about never fighting. It's about the **balance** — how many small pos
 
 **Question:** Imagine you feel that a relationship with a close person is "somehow cooling down," even though there was no big conflict. Which change will probably help most — according to the 5:1 model?
 
-- **✅ Consciously increase the count of small positive interactions — short messages, shared moments, showing interest — without waiting for grand gestures**
-  Exactly. According to Gottman, what kills relationships isn't big crises but the **absence** of positive little things. When smiles, short "how are you?" and listening disappear, the relationship quietly freezes. Reactivation looks boring: more small positive moments, not one drama.
+- **✅ Increase small positive interactions — not grand gestures**
+  Exactly. Short messages, shared moments, showing interest. According to Gottman, what kills relationships isn't big crises but the **absence** of positive little things. When smiles, short "how are you?" and listening disappear, the relationship quietly freezes. Reactivation looks boring: more small positive moments, not one drama.
 - ❌ Provoke a big honest conversation to "get everything out"
   Sometimes it helps, but it often escalates when the positive "bank account" from small interactions is empty. First you need to restore basic warmth, only then tackle harder topics.
 - ❌ Withdraw and wait for the other to make the first move
@@ -412,8 +412,8 @@ And the strongest of all: **contempt** — a sense of superiority, ridicule, dis
 
 **Otázka:** Představ si, že se během hádky se svým blízkým přistihneš, jak s úšklebkem řekneš: „No jasně, ty jsi fakt génius." Který z „čtyř jezdců" jsi právě použil a proč je to důležitý varovný signál?
 
-- **✅ Opovržení — a je to signál, že v tobě bublá dlouhodobě nahromaděná frustrace, na kterou je potřeba reagovat, než poškodí vztah nevratně**
-  Přesně. Opovržení vzniká, když se drobné stížnosti neřeší a proměňují se v pocit „jsem nad tebou". Sarkasmus a znevažování jsou jeho povrchové známky. Je to nejsilnější prediktor rozpadu — a zároveň signál, že je potřeba **zpomalit**, najít základní nevyřčenou potřebu a mluvit o ní bez pohrdání.
+- **✅ Opovržení — signál nahromaděné frustrace**
+  Přesně. V tobě bublá dlouhodobě nevyřešená frustrace, na kterou je potřeba reagovat, než poškodí vztah nevratně. Opovržení vzniká, když se drobné stížnosti neřeší a proměňují se v pocit „jsem nad tebou". Sarkasmus a znevažování jsou jeho povrchové známky. Je to nejsilnější prediktor rozpadu — a zároveň signál, že je potřeba **zpomalit**, najít základní nevyřčenou potřebu a mluvit o ní bez pohrdání.
 - ❌ Je to jen běžný humor v hádce, nic vážného
   V hádce tohle „humor" není — je to pohrdání zabalené do ironie. Tělo druhého to čte bezpečně jako útok, i když slova jsou „žertem".
 - ❌ Je to obrana — říkáš to, protože se bráníš
@@ -423,8 +423,8 @@ And the strongest of all: **contempt** — a sense of superiority, ridicule, dis
 
 **Question:** Imagine that during an argument with a loved one you catch yourself saying with a sneer: "Oh sure, you're really a genius." Which of the "four horsemen" did you just use, and why is it an important warning signal?
 
-- **✅ Contempt — and it's a signal that long-accumulated frustration is bubbling inside you that needs to be addressed before it damages the relationship irreversibly**
-  Exactly. Contempt arises when small complaints go unresolved and turn into a feeling of "I'm above you." Sarcasm and belittling are its surface signs. It's the strongest predictor of breakdown — and at the same time a signal that you need to **slow down**, find the underlying unspoken need, and talk about it without scorn.
+- **✅ Contempt — a signal of long-accumulated underlying frustration**
+  Exactly. It's bubbling inside you and needs to be addressed before it damages the relationship irreversibly. Contempt arises when small complaints go unresolved and turn into a feeling of "I'm above you." Sarcasm and belittling are its surface signs. It's the strongest predictor of breakdown — and at the same time a signal that you need to **slow down**, find the underlying unspoken need, and talk about it without scorn.
 - ❌ It's just regular humor in an argument, nothing serious
   In an argument this "humor" isn't humor — it's contempt wrapped in irony. The other's body reads it cleanly as an attack, even if the words are "a joke."
 - ❌ It's defensiveness — you're saying it because you're defending yourself
@@ -466,8 +466,8 @@ What can you do about it? Gottman and other researchers described **concrete ant
 
 **Otázka:** Představ si, že sis po půl roce ticha uvědomíš, že ti chybí blízká kamarádka. Bojíš se napsat, protože „už je to moc dlouho". Co je **nejlepší** první krok?
 
-- **✅ Napsat krátkou upřímnou zprávu: „Ahoj, uvědomila jsem si, že mi chybíš. Jak se máš?" — bez omluv, bez vysvětlování a bez tlaku**
-  Přesně. Krátká, upřímná, bez sebeobviňování. Omluvy a dlouhá vysvětlení přenášejí tvou úzkost na druhého a dělají z kontaktu těžký moment. Naopak jednoduchá zpráva „myslím na tebe" dává tomu druhému svobodu reagovat v pohodě. Většina přátelství tohle přežije bez problémů — lidé jsou obvykle rádi, že se ozveš.
+- **✅ Napsat krátkou upřímnou zprávu: „Ahoj, chybíš mi. Jak se máš?"**
+  Přesně. Krátká, upřímná, bez omluv, vysvětlování a tlaku. Omluvy a dlouhá vysvětlení přenášejí tvou úzkost na druhého a dělají z kontaktu těžký moment. Naopak jednoduchá zpráva „myslím na tebe" dává tomu druhému svobodu reagovat v pohodě. Většina přátelství tohle přežije bez problémů — lidé jsou obvykle rádi, že se ozveš.
 - ❌ Nepsat nic — půl roku je příliš a nechceš vypadat sobecky
   Klasický strach, který vede k další polovině roku ticha. A tak dál, až vztah tiše skončí. Jediný způsob, jak přátelství obnovit, je udělat první krok — bez ohledu na to, jak „trapně" to cítíš.
 - ❌ Napsat dlouhou zprávu s detailním vysvětlením, proč jsi se dlouho neozvala
@@ -477,8 +477,8 @@ What can you do about it? Gottman and other researchers described **concrete ant
 
 **Question:** Imagine that after half a year of silence you realize you miss a close friend. You're afraid to text because "it's been too long." What's the **best** first step?
 
-- **✅ Send a short honest message: "Hey, I realized I miss you. How are you?" — no apologies, no explanations, no pressure**
-  Exactly. Short, honest, no self-blame. Apologies and long explanations transfer your anxiety onto the other person and make the reconnection a heavy moment. Conversely, a simple "I'm thinking of you" gives them freedom to respond easily. Most friendships survive this without a problem — people are usually glad to hear from you.
+- **✅ Send a short honest message: "Hey, I miss you. How are you?" — no apologies**
+  Exactly. Short, honest, no self-blame, no explanations, no pressure. Apologies and long explanations transfer your anxiety onto the other person and make the reconnection a heavy moment. Conversely, a simple "I'm thinking of you" gives them freedom to respond easily. Most friendships survive this without a problem — people are usually glad to hear from you.
 - ❌ Don't write anything — half a year is too long and you don't want to look selfish
   A classic fear that leads to another half year of silence. And so on, until the relationship quietly ends. The only way to revive a friendship is to take the first step — regardless of how "awkward" it feels.
 - ❌ Write a long message with a detailed explanation of why you haven't reached out

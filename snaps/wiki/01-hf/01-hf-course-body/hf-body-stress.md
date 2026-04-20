@@ -125,8 +125,8 @@ That means one uncomfortable thing: even if the threat disappears in three secon
 
 **Otázka:** Představ si, že se málem srazíš autem na křižovatce. Vyhneš se na poslední chvíli a pojedeš dál. Pětadvacet minut po incidentu cítíš, že máš pořád roztřesené ruce a buší ti srdce. Proč jsi pořád ve „stresové reakci", když nebezpečí už dávno zmizelo?
 
-- **✅ Adrenalin už odezněl, ale kortizol vrcholí právě 15–25 minut po události — tvoje tělo je pořád v „pohotovosti", i když mozek ví, že je už po všem**
-  Přesně. Kortizol je pomalejší hormon. Jeho vrchol přichází opožděně, takže fyzické pocity stresu (třes, bušení srdce, neklid) můžou trvat desítky minut po samotné události. Tělo není rádio, které by se vypnulo cvakem.
+- **✅ Kortizol vrcholí 15–25 minut po události, i když hrozba už pominula**
+  Přesně. Adrenalin už odezněl, ale kortizol je pomalejší hormon — jeho vrchol přichází opožděně, takže fyzické pocity stresu (třes, bušení srdce, neklid) můžou trvat desítky minut po samotné události. Tělo není rádio, které by se vypnulo cvakem.
 - ❌ Pořád si hrozbu představuješ, takže ji mozek pořád znovu spouští
   To by se stalo, kdybys o tom intenzivně přemýšlel. Ale i bez přemýšlení by kortizol kulminoval — jeho vyplavení proběhlo už při nehodě, teď se „dohrává".
 - ❌ Mohl jsi utrpět drobné zranění, které ti rozhodilo nervový systém
@@ -136,8 +136,8 @@ That means one uncomfortable thing: even if the threat disappears in three secon
 
 **Question:** Imagine that you almost crash your car at an intersection. You swerve at the last moment and drive on. Twenty-five minutes after the incident, you notice that your hands are still shaking and your heart is pounding. Why are you still in the "stress response" when the danger is long gone?
 
-- **✅ Adrenaline has already faded, but cortisol peaks 15–25 minutes after the event — your body is still in "alert," even though your brain knows it's all over**
-  Exactly. Cortisol is the slower hormone. Its peak comes with a delay, so the physical feelings of stress (shaking, pounding heart, restlessness) can last tens of minutes after the event itself. The body isn't a radio that turns off at the flick of a switch.
+- **✅ Cortisol peaks 15–25 minutes after the event, even when the threat is gone**
+  Exactly. Adrenaline has already faded, but cortisol is the slower hormone — its peak comes with a delay, so the physical feelings of stress (shaking, pounding heart, restlessness) can last tens of minutes after the event itself. The body isn't a radio that turns off at the flick of a switch.
 - ❌ You keep imagining the threat, so your brain keeps re-triggering it
   That would happen if you were intensely thinking about it. But even without thinking, cortisol would still peak — its release happened during the incident, now it's "playing out."
 - ❌ You may have suffered a minor injury that disrupted your nervous system
@@ -163,8 +163,8 @@ And that's exactly where the difference between healthy and harmful stress begin
 
 **Otázka:** Co je hlavní biologický rozdíl mezi krátkodobým („akutním") stresem a dlouhodobým („chronickým") stresem?
 
-- **✅ Krátkodobý stres tělo aktivuje a po hrozbě se zotaví. Chronický stres znamená, že kortizol zůstává zvýšený dlouhodobě, což začne narušovat imunitu, spánek, hormonální rovnováhu i strukturu mozku.**
-  Přesně. Klíčové není to, že stres existuje — to je normální. Klíčové je, jak dlouho trvá. Krátký vrchol + zotavení = užitečné. Dlouhý plochý kopec bez zotavení = škodlivé.
+- **✅ Krátkodobý stres se po hrozbě zotaví, u chronického zůstává kortizol dlouhodobě zvýšený a narušuje tělo**
+  Přesně. Chronický stres narušuje imunitu, spánek, hormonální rovnováhu i strukturu mozku. Klíčové není to, že stres existuje — to je normální. Klíčové je, jak dlouho trvá. Krátký vrchol + zotavení = užitečné. Dlouhý plochý kopec bez zotavení = škodlivé.
 - ❌ Krátkodobý stres je fyzický (lev v lese), chronický je psychický (deadline). Tělesně jsou to různé reakce.
   Tohle je rozšířený mýtus. Tělesně jsou to STEJNÉ reakce — stejné hormony, stejná fyziologie. Rozdíl je v délce trvání, ne v tom, jestli je hrozba fyzická nebo psychická.
 - ❌ Chronický stres způsobují jen velké životní události (rozvod, ztráta blízkého), ne každodenní starosti
@@ -174,8 +174,8 @@ And that's exactly where the difference between healthy and harmful stress begin
 
 **Question:** What's the main biological difference between short-term ("acute") stress and long-term ("chronic") stress?
 
-- **✅ Short-term stress activates the body and recovers after the threat. Chronic stress means cortisol stays elevated long-term, which starts to disrupt immunity, sleep, hormonal balance, and even brain structure.**
-  Exactly. The key isn't whether stress exists — that's normal. The key is how long it lasts. A short peak + recovery = useful. A long flat hill without recovery = harmful.
+- **✅ Short-term stress recovers after the threat, while chronic stress keeps cortisol elevated and disrupts the body**
+  Exactly. Chronic stress disrupts immunity, sleep, hormonal balance, and even brain structure. The key isn't whether stress exists — that's normal. The key is how long it lasts. A short peak + recovery = useful. A long flat hill without recovery = harmful.
 - ❌ Short-term stress is physical (lion in the forest), chronic is psychological (deadline). They're different reactions in the body.
   This is a widespread myth. Physically they're the SAME reactions — same hormones, same physiology. The difference is duration, not whether the threat is physical or psychological.
 - ❌ Chronic stress is caused only by major life events (divorce, loss), not everyday worries
@@ -193,8 +193,8 @@ The stress response is a **biologically clear process** — adrenaline for quick
 
 **Otázka:** Představ si, že si říkáš: „Jsem v pohodě, necítím stres — žádné bušení srdce, žádný třes. Takže mě nic netrápí." Proč tohle nemusí být úplně pravda?
 
-- **✅ Chronický stres se často neprojevuje dramatickými příznaky jako akutní stres. Kortizol může být dlouhodobě mírně zvýšený bez zjevného bušení srdce — a přesto pomalu narušuje spánek, imunitu a náladu.**
-  Přesně. Akutní stres cítíš (třes, bušení). Chronický stres je zákeřnější — tělo si zvykne na „plochou" zvýšenou hladinu kortizolu a přestane to vnímat jako něco mimořádného. První příznaky bývají nepřímé: horší spánek, častější nemoci, chuť na sladké.
+- **✅ Chronický stres často nemá dramatické příznaky jako akutní stres**
+  Přesně. Kortizol může být dlouhodobě mírně zvýšený bez zjevného bušení srdce — a přesto pomalu narušuje spánek, imunitu a náladu. Akutní stres cítíš (třes, bušení). Chronický je zákeřnější — tělo si zvykne na „plochou" zvýšenou hladinu kortizolu a přestane to vnímat jako něco mimořádného. První příznaky bývají nepřímé: horší spánek, častější nemoci, chuť na sladké.
 - ❌ Nejspíš opravdu žádný stres nemáš — bez příznaků není stres
   Toto je chyba. Akutní a chronický stres se projevují jinak. Klidně můžeš být měsíce ve zvýšeném kortizolu a necítit „klasické" příznaky stresu.
 - ❌ Tělo si vždycky řekne, když se něco děje — věděl/a bys to
@@ -204,8 +204,8 @@ The stress response is a **biologically clear process** — adrenaline for quick
 
 **Question:** Imagine that you tell yourself: "I'm fine, I don't feel stressed — no racing heart, no shaking. So nothing's bothering me." Why might this not be entirely true?
 
-- **✅ Chronic stress often doesn't show up through dramatic symptoms like acute stress does. Cortisol can be mildly elevated long-term without any obvious pounding heart — and still slowly disrupt sleep, immunity, and mood.**
-  Exactly. You feel acute stress (shaking, pounding). Chronic stress is sneakier — the body gets used to a "flat" elevated cortisol level and stops perceiving it as anything unusual. The first signs are usually indirect: worse sleep, more frequent illness, sugar cravings.
+- **✅ Chronic stress often lacks the dramatic symptoms of acute stress**
+  Exactly. Cortisol can be mildly elevated long-term without any obvious pounding heart — and still slowly disrupt sleep, immunity, and mood. You feel acute stress (shaking, pounding). Chronic stress is sneakier — the body gets used to a "flat" elevated cortisol level and stops perceiving it as anything unusual. The first signs are usually indirect: worse sleep, more frequent illness, sugar cravings.
 - ❌ You probably really have no stress — no symptoms means no stress
   This is a mistake. Acute and chronic stress show up differently. You can easily be in elevated cortisol for months and not feel the "classic" signs of stress.
 - ❌ Your body always tells you when something is wrong — you would know
@@ -215,8 +215,8 @@ The stress response is a **biologically clear process** — adrenaline for quick
 
 **Otázka:** Proč má smysl říkat, že stres není „nepřítel", kterého je potřeba úplně odstranit?
 
-- **✅ Stresová reakce je užitečný mobilizační mechanismus — bez ní bychom nedokázali reagovat na hrozby, přehrát zkoušku nebo se soustředit na důležitý úkol. Problém není stres samotný, ale jeho **délka a absence regenerace**.
-  Přesně. Krátký stres před zkouškou zostří pozornost a paměť. Krátký stres před zápasem zvýší výkon. „Zero stres" není ideál — ideálem je stres střídaný s regenerací. Tělo je na tenhle rytmus navržené.
+- **✅ Stres je užitečný, problém je délka a málo regenerace**
+  Přesně. Je to mobilizační mechanismus — bez stresové reakce bychom nedokázali reagovat na hrozby, přehrát zkoušku nebo se soustředit na důležitý úkol. Krátký stres před zkouškou zostří pozornost a paměť. Krátký stres před zápasem zvýší výkon. „Zero stres" není ideál — ideálem je stres střídaný s regenerací. Tělo je na tenhle rytmus navržené.
 - ❌ Stres je vlastně dobrý pro všechno — čím víc, tím líp
   Tohle je opačný extrém. Pořád platí, že chronický stres ničí. Smysl má krátký stres + regenerace, ne „hodně stresu pořád".
 - ❌ Stres nemá smysl odstraňovat, protože stejně zase přijde
@@ -226,8 +226,8 @@ The stress response is a **biologically clear process** — adrenaline for quick
 
 **Question:** Why does it make sense to say that stress isn't an "enemy" you need to eliminate completely?
 
-- **✅ The stress response is a useful mobilization mechanism — without it we couldn't react to threats, get through an exam, or focus on an important task. The problem isn't stress itself, but its **duration and lack of recovery**.
-  Exactly. A short burst of stress before an exam sharpens attention and memory. Short stress before a match raises performance. "Zero stress" isn't the ideal — the ideal is stress alternating with recovery. The body is designed for that rhythm.
+- **✅ Stress is useful; the problem is duration and missing recovery**
+  Exactly. It's a mobilization mechanism — without the stress response we couldn't react to threats, get through an exam, or focus on an important task. A short burst of stress before an exam sharpens attention and memory. Short stress before a match raises performance. "Zero stress" isn't the ideal — the ideal is stress alternating with recovery. The body is designed for that rhythm.
 - ❌ Stress is actually good for everything — the more the better
   This is the opposite extreme. Chronic stress still destroys. What makes sense is short stress + recovery, not "a lot of stress all the time."
 - ❌ There's no point trying to remove stress, it'll come back anyway
@@ -274,8 +274,8 @@ The main difference **isn't in the hormones** (they're the exact same hormones).
 
 **Otázka:** Představ si dvě situace, ve kterých se můžeš ocitnout. V první trénuješ měsíc na maraton — někdy jsi vyčerpaný, ale mezi tréninky odpočíváš a vidíš pokroky. Ve druhé máš 4 měsíce v kuse přesčasy v práci, denně do 22 hodin, bez víkendů. Proč jsi na konci té první „lepší", zatímco po té druhé jsi na pokraji vyčerpání?
 
-- **✅ Trénink na maraton je eustres — krátkodobé špičky stresu střídají dny zotavení, takže tělo se po každé špičce posílí. Práce 4 měsíce bez pauzy je distres — kortizol je trvale zvýšený, tělo nemá kdy regenerovat, takže se postupně rozkládá.**
-  Přesně. Tělo se nezlomí stresem samotným — zlomí se NEPŘETRŽITÝM stresem bez možnosti regenerace. Trénink na maraton = stres + zotavení + stres + zotavení. Práce 16 hodin denně = stres + stres + stres bez konce.
+- **✅ Trénink má pauzy na regeneraci, přesčasy ne — o to jde**
+  Přesně. Trénink na maraton je eustres — krátkodobé špičky stresu střídají dny zotavení, takže tělo se po každé špičce posílí. Práce 4 měsíce bez pauzy je distres — kortizol je trvale zvýšený, tělo nemá kdy regenerovat, takže se postupně rozkládá. Tělo se nezlomí stresem samotným — zlomí se NEPŘETRŽITÝM stresem bez možnosti regenerace. Trénink na maraton = stres + zotavení + stres + zotavení. Práce 16 hodin denně = stres + stres + stres bez konce.
 - ❌ Sport je zdravý a práce je nezdravá — to je celý rozdíl
   Sport může být taky nezdravý (přetrénování), a práce může být zdravá (krátké, kontrolované úseky). Rozdíl není v aktivitě, ale v cyklu „stres + regenerace".
 - ❌ Z pohybu máš víc endorfinů, z práce ne
@@ -285,8 +285,8 @@ The main difference **isn't in the hormones** (they're the exact same hormones).
 
 **Question:** Imagine two situations you could find yourself in. In the first, you're training for a marathon a month from now — sometimes you feel exhausted, but between sessions you rest and see progress. In the second, you've been doing overtime at work for 4 months straight, daily until 10 PM, no weekends. Why are you "better off" at the end of the first one, while after the second you're on the verge of burnout?
 
-- **✅ Marathon training is eustress — short stress peaks alternate with recovery days, so the body strengthens after each peak. Working 4 months without a break is distress — cortisol stays elevated, the body has no time to recover, so it gradually breaks down.**
-  Exactly. The body isn't broken by stress itself — it's broken by UNINTERRUPTED stress without the chance to recover. Marathon training = stress + recovery + stress + recovery. Work 16 hours a day = stress + stress + stress without end.
+- **✅ Training has recovery breaks, overtime doesn't — that's the key**
+  Exactly. Marathon training is eustress — short stress peaks alternate with recovery days, so the body strengthens after each peak. Working 4 months without a break is distress — cortisol stays elevated, the body has no time to recover, so it gradually breaks down. The body isn't broken by stress itself — it's broken by UNINTERRUPTED stress without the chance to recover. Marathon training = stress + recovery + stress + recovery. Work 16 hours a day = stress + stress + stress without end.
 - ❌ Sport is healthy and work is unhealthy — that's the whole difference
   Sport can also be unhealthy (overtraining), and work can be healthy (short, controlled stretches). The difference isn't in the activity, but in the "stress + recovery" cycle.
 - ❌ You get more endorphins from exercise than from work
@@ -330,8 +330,8 @@ In extreme cases, this leads to **burnout**, **depression**, or **anxiety disord
 
 **Otázka:** Představ si, že 6 měsíců pracuješ intenzivně bez dovolené. Říkáš si, že jsi v pohodě, ale poslední 2 měsíce máš 4× chřipku, ztratil/a jsi zájem o věci, které tě dřív bavily, a nemůžeš usnout. Co se v tvém těle nejspíš dostalo do nerovnováhy?
 
-- **✅ Dlouhodobě zvýšený kortizol postupně oslabil tvoji imunitu (proto časté nemoci), narušil hormony nálady a spánku (proto nemůžeš usnout a ztratil/a jsi zájem), a vytlačil tělo do stavu „přežití", kde je všechno mimo aktuální hrozbu odsunuto stranou**
-  Přesně. Tohle je klasický obraz blížícího se vyhoření. Tvoje tělo už 6 měsíců „přežívá" v krizovém režimu — a začíná mu docházet kapacita. Nemoci jsou důsledek oslabené imunity, ztráta zájmu znamená sníženou tvorbu dopaminu a serotoninu, nespavost znamená porušený rytmus melatoninu a kortizolu. Bez delší pauzy se to nezlepší.
+- **✅ Dlouhodobý kortizol oslabil imunitu, spánek i regeneraci**
+  Přesně. To vysvětluje časté nemoci, nespavost i ztrátu zájmu — všechno mimo aktuální hrozbu je odsunuto stranou. Tohle je klasický obraz blížícího se vyhoření. Tvoje tělo už 6 měsíců „přežívá" v krizovém režimu — a začíná mu docházet kapacita. Nemoci jsou důsledek oslabené imunity, ztráta zájmu znamená sníženou tvorbu dopaminu a serotoninu, nespavost znamená porušený rytmus melatoninu a kortizolu. Bez delší pauzy se to nezlepší.
 - ❌ Možná jsi začal/a víc kouřit nebo pít alkohol a tělo na to reaguje
   V příběhu o tom nic nevíme. I bez kouření a alkoholu by chronický stres způsobil přesně tyhle příznaky. To je hlavní mechanismus.
 - ❌ Asi máš vitamínový nedostatek z práce, stačí ti doplňky
@@ -341,8 +341,8 @@ In extreme cases, this leads to **burnout**, **depression**, or **anxiety disord
 
 **Question:** Your friend Tomáš has worked intensively for 6 months without a vacation. He tells himself he's fine, but for the last 2 months he's had the flu 4 times, lost interest in things he used to enjoy, and can't fall asleep. What in his body has most likely gone out of balance?
 
-- **✅ Long-term elevated cortisol gradually weakened his immunity (which is why he gets sick often), disrupted his mood and sleep hormones (which is why he can't sleep and lost interest), and pushed his body into "survival mode," where everything outside the current threat is set aside**
-  Exactly. This is the classic picture of approaching burnout. The body has been "surviving" in crisis mode for 6 months — and capacity is running out. The illnesses come from weakened immunity, the loss of interest reflects reduced dopamine and serotonin, the insomnia means a broken melatonin/cortisol rhythm. Without a longer break, it won't improve.
+- **✅ Long-term cortisol weakened his immunity, sleep, and recovery**
+  Exactly. Elevated cortisol pushed the body into survival mode — that explains the frequent illness, insomnia, and loss of interest — everything outside the current threat is set aside. This is the classic picture of approaching burnout. The body has been "surviving" in crisis mode for 6 months — and capacity is running out. The illnesses come from weakened immunity, the loss of interest reflects reduced dopamine and serotonin, the insomnia means a broken melatonin/cortisol rhythm. Without a longer break, it won't improve.
 - ❌ Maybe he started smoking or drinking more and his body is reacting
   The story doesn't tell us. Even without smoking or drinking, chronic stress would cause exactly these symptoms. That's the main mechanism.
 - ❌ He probably has a vitamin deficiency from work, supplements should fix it
@@ -368,8 +368,8 @@ A stressed athlete training six days a week with one day off can handle massive 
 
 **Otázka:** Proč může být jeden druh stresu (např. tvrdý sportovní trénink) zdravý, a jiný stres (např. dlouhá pracovní zátěž) ničivý — i když oba spouštějí stejné hormony?
 
-- **✅ Klíčová je střídání zátěže a regenerace. Trénink kulminuje a pak přichází odpočinek. Práce bez konce stresové hormony udržuje vysoké celé měsíce — a tělo nemá šanci se vrátit do klidu.**
-  Přesně. Tělo není navrženo pro plochou stresovou křivku. Je navrženo pro špičky a údolí. Když dáš špičku bez údolí, postupně se rozbije — i kdyby ta špička byla původně užitečná.
+- **✅ Klíčové je střídání zátěže a regenerace, ne samotný druh stresu**
+  Přesně. Trénink kulminuje a pak přichází odpočinek. Práce bez konce stresové hormony udržuje vysoké celé měsíce — a tělo nemá šanci se vrátit do klidu. Tělo není navrženo pro plochou stresovou křivku. Je navrženo pro špičky a údolí. Když dáš špičku bez údolí, postupně se rozbije — i kdyby ta špička byla původně užitečná.
 - ❌ Sportovní stres uvolňuje endorfiny, pracovní stres ne
   Sportovní stres opravdu uvolňuje endorfiny, ale to není hlavní rozdíl. Hlavní je RYTMUS. I cvičení bez regenerace (přetrénování) způsobuje stejné problémy jako přepracování v práci.
 - ❌ Sportovní stres je dobrovolný, pracovní stres je vynucený
@@ -379,8 +379,8 @@ A stressed athlete training six days a week with one day off can handle massive 
 
 **Question:** Why can one kind of stress (e.g. hard athletic training) be healthy, while another kind (e.g. long work load) is destructive — even though both trigger the same hormones?
 
-- **✅ The key is the alternation of load and recovery. Training peaks and then rest comes. Endless work keeps stress hormones elevated for months — and the body has no chance to return to calm.**
-  Exactly. The body isn't designed for a flat stress curve. It's designed for peaks and valleys. Give it a peak without a valley, and it will break down — even if that peak was originally useful.
+- **✅ The key is rhythm of load and recovery, not the stress type**
+  Exactly. Training peaks and then rest comes. Endless work keeps stress hormones elevated for months — and the body has no chance to return to calm. The body isn't designed for a flat stress curve. It's designed for peaks and valleys. Give it a peak without a valley, and it will break down — even if that peak was originally useful.
 - ❌ Athletic stress releases endorphins, work stress doesn't
   Athletic stress does release endorphins, but that's not the main difference. The main thing is RHYTHM. Even exercise without recovery (overtraining) causes the same problems as overwork.
 - ❌ Athletic stress is voluntary, work stress is forced
@@ -398,8 +398,8 @@ The body doesn't depend on **whether** you have stress — even an athlete and a
 
 **Otázka:** Proč kortizol nezpůsobuje jen „psychické" potíže (nálada, nespavost), ale i „fyzické" (časté nemoci, přibírání na břiše)?
 
-- **✅ Kortizol je systémový hormon — ovlivňuje skoro každou buňku v těle. Tlumí imunitní odpověď, mění způsob ukládání tuku a narušuje noční rytmus hormonů, takže psychické i fyzické potíže jsou jeden a ten samý mechanismus.**
-  Přesně. Nejde o „dvě různé věci". Jde o jeden hormon, který působí všude. Mozek, imunitní buňky, tukové buňky, slinivka, pohlavní žlázy — všechno má receptory pro kortizol. Dlouhodobě zvýšený signál všude změní chování celého systému.
+- **✅ Kortizol je systémový hormon a ovlivňuje skoro každou buňku v těle**
+  Přesně. Tlumí imunitní odpověď, mění způsob ukládání tuku a narušuje noční rytmus hormonů, takže psychické i fyzické potíže jsou jeden a ten samý mechanismus. Nejde o „dvě různé věci". Jde o jeden hormon, který působí všude. Mozek, imunitní buňky, tukové buňky, slinivka, pohlavní žlázy — všechno má receptory pro kortizol. Dlouhodobě zvýšený signál všude změní chování celého systému.
 - ❌ „Psychické" příznaky jdou z mozku, „fyzické" z těla — jsou to dva nezávislé mechanismy
   Toto je mýtus oddělující mozek a tělo. Ve skutečnosti jsou propojené právě skrze hormony, jako je kortizol. Oddělovat „psychiku" od „těla" je u stresu zavádějící.
 - ❌ Fyzické příznaky jsou způsobené tím, že se člověk pod stresem hůř stravuje
@@ -409,8 +409,8 @@ The body doesn't depend on **whether** you have stress — even an athlete and a
 
 **Question:** Why does cortisol cause not only "mental" troubles (mood, insomnia) but also "physical" ones (frequent illness, belly fat)?
 
-- **✅ Cortisol is a systemic hormone — it affects nearly every cell in the body. It suppresses immune response, changes how fat is stored, and disrupts the nightly rhythm of hormones, so mental and physical troubles are one and the same mechanism.**
-  Exactly. It's not "two different things." It's one hormone acting everywhere. The brain, immune cells, fat cells, pancreas, sex glands — all have cortisol receptors. A chronically elevated signal everywhere changes how the whole system behaves.
+- **✅ Cortisol is a systemic hormone that affects nearly every cell in the body**
+  Exactly. It suppresses immune response, changes how fat is stored, and disrupts the nightly rhythm of hormones, so mental and physical troubles are one and the same mechanism. It's not "two different things." It's one hormone acting everywhere. The brain, immune cells, fat cells, pancreas, sex glands — all have cortisol receptors. A chronically elevated signal everywhere changes how the whole system behaves.
 - ❌ "Mental" symptoms come from the brain, "physical" ones from the body — they're two independent mechanisms
   This is the myth that separates brain and body. In reality, they're linked precisely through hormones like cortisol. Separating "mind" from "body" is misleading when it comes to stress.
 - ❌ Physical symptoms are caused by poor eating under stress
@@ -420,8 +420,8 @@ The body doesn't depend on **whether** you have stress — even an athlete and a
 
 **Otázka:** Představ si, že si řekneš: „Mám úplně plochý život — žádný stres, ale taky žádné výzvy. A přesto se cítím unavený a bez motivace." Jak si to vysvětlit biologicky?
 
-- **✅ Tělo je stavěné na rytmus. Úplně plochá křivka — bez výzev, bez stresu, bez regenerace, která má co dohánět — vede k nedostatku aktivačních hormonů (dopamin, adrenalin v malých dávkách). Bez občasných špiček tělo „nevypne plyn" a postupně ztrácí tonus.
-  Přesně. Zdraví není „absence stresu". Zdraví je **rytmus**. Nepotřebuješ víc stresu v běžném smyslu, ale potřebuješ malé výzvy (fyzické, mentální, sociální), které tělu připomínají, že je aktivní organismus. „Bez zátěže = bez adaptace" platí pro tělo stejně jako pro svaly.
+- **✅ Tělo je stavěné na rytmus, ne na plochou křivku**
+  Přesně. Plochý život bez výzev vede k nedostatku aktivačních hormonů (dopamin, adrenalin v malých dávkách) a tělo postupně ztrácí tonus. Zdraví není „absence stresu". Zdraví je **rytmus**. Nepotřebuješ víc stresu v běžném smyslu, ale potřebuješ malé výzvy (fyzické, mentální, sociální), které tělu připomínají, že je aktivní organismus. „Bez zátěže = bez adaptace" platí pro tělo stejně jako pro svaly.
 - ❌ Prostě potřebuješ víc vitaminů nebo lepší stravu
   To možná pomůže, ale není to hlavní mechanismus. Hlavní je absence stresu + regenerace — tělo není stavěné na plochou křivku.
 - ❌ Jsi jen znuděný, biologie s tím nemá co dělat
@@ -431,8 +431,8 @@ The body doesn't depend on **whether** you have stress — even an athlete and a
 
 **Question:** Imagine you say to yourself: "I have a totally flat life — no stress, but also no challenges. And yet I feel tired and unmotivated." How can this be explained biologically?
 
-- **✅ The body is built for rhythm. A completely flat line — no challenges, no stress, no recovery that has anything to catch up on — leads to a shortage of activation hormones (dopamine, small doses of adrenaline). Without occasional peaks, the body doesn't "take its foot off the gas" and gradually loses tone.
-  Exactly. Health isn't "absence of stress." Health is **rhythm**. You don't need more stress in the everyday sense, but you need small challenges (physical, mental, social) that remind your body it's an active organism. "No load = no adaptation" applies to the body the same way it applies to muscles.
+- **✅ The body is built for rhythm, not for a flat line**
+  Exactly. A flat life without challenges leads to a shortage of activation hormones (dopamine, small doses of adrenaline), and the body gradually loses tone. Health isn't "absence of stress." Health is **rhythm**. You don't need more stress in the everyday sense, but you need small challenges (physical, mental, social) that remind your body it's an active organism. "No load = no adaptation" applies to the body the same way it applies to muscles.
 - ❌ You just need more vitamins or better food
   That might help, but it's not the main mechanism. The main thing is the absence of stress + recovery — the body isn't built for a flat line.
 - ❌ You're just bored, biology has nothing to do with it
@@ -475,8 +475,8 @@ The most effective tool is, paradoxically, **breath**. A slow **exhale** activat
 
 **Otázka:** Představ si, že máš za hodinu důležitý pracovní pohovor a cítíš, jak ti stoupá tep, ruce se ti třesou a nemůžeš si soustředit ani na jednu myšlenku. Která jednoduchá technika by ti pravděpodobně nejvíce pomohla zklidnit se v následujících 5 minutách?
 
-- **✅ Pomalé hluboké dýchání s prodlouženým výdechem (4 vteřiny nádech, 8 vteřin výdech) — aktivuje brzdu stresové reakce a sníží srdeční tep během 1–2 minut**
-  Přesně. Dech je jediná část stresové reakce, kterou můžeš VĚDOMĚ ovládat. Pomalý výdech říká vagálnímu nervu „není nebezpečí, můžeš to vypnout", a tělo skutečně začne reagovat — během minuty klesne tep a tlak. Sportovci a vojáci tuhle techniku používají běžně.
+- **✅ Pomalé dýchání s dlouhým výdechem (4 vs 8 vteřin)**
+  Přesně. Aktivuje brzdu stresové reakce a sníží srdeční tep během 1–2 minut. Dech je jediná část stresové reakce, kterou můžeš VĚDOMĚ ovládat. Pomalý výdech říká vagálnímu nervu „není nebezpečí, můžeš to vypnout", a tělo skutečně začne reagovat — během minuty klesne tep a tlak. Sportovci a vojáci tuhle techniku používají běžně.
 - ❌ Dát si silnou kávu, aby ses nabudil
   Káva by stres ještě prohloubila — kofein zvyšuje hladinu adrenalinu a stresu. Bylo by ti hůř, ne lépe.
 - ❌ Snažit se nemyslet na pohovor a soustředit se na něco jiného
@@ -486,8 +486,8 @@ The most effective tool is, paradoxically, **breath**. A slow **exhale** activat
 
 **Question:** Imagine you have an important job interview in an hour and you feel your pulse rising, your hands shaking, and you can't focus on a single thought. Which simple technique would most likely help you calm down in the next 5 minutes?
 
-- **✅ Slow deep breathing with extended exhale (4 seconds in, 8 seconds out) — it activates the brake of the stress response and lowers heart rate within 1–2 minutes**
-  Exactly. Breathing is the only part of the stress response you can CONSCIOUSLY control. A slow exhale tells the vagus nerve "no danger, you can turn this off," and the body actually starts responding — pulse and blood pressure drop within a minute. Athletes and soldiers use this routinely.
+- **✅ Slow breathing with a long exhale (4 in, 8 out)**
+  Exactly. It activates the brake of the stress response and lowers heart rate within 1–2 minutes. Breathing is the only part of the stress response you can CONSCIOUSLY control. A slow exhale tells the vagus nerve "no danger, you can turn this off," and the body actually starts responding — pulse and blood pressure drop within a minute. Athletes and soldiers use this routinely.
 - ❌ Drink a strong coffee to wake yourself up
   Coffee would deepen the stress — caffeine raises adrenaline and stress levels. You'd feel worse, not better.
 - ❌ Try not to think about the interview and focus on something else
@@ -517,8 +517,8 @@ Breath helps you manage **one stress episode**. But long-term recovery stands on
 
 **Otázka:** Představ si, že jsi byl dva měsíce v kuse pod tlakem v práci. Cítíš, že jsi „v háji" — neusínáš, jsi podrážděný, ztrácíš výkon. Říkáš si: „Až mi skončí ten projekt, dám si týden dovolené a budu zase fit." Proč pravděpodobně jeden týden dovolené po dvou měsících stresu nestačí?
 
-- **✅ Po dlouhodobém stresu tělu trvá týdny, někdy i měsíce, než se kortizol vrátí do normálu. Hormonální a nervové systémy se nezotaví za 7 dní. Týden dovolené je úleva, ale ne plná regenerace — obnova vyžaduje dlouhodobou změnu rytmu.**
-  Přesně. Tělo nepřejde z „přežívacího" do „normálního" režimu během týdne. Proto lidé po vyhoření často popisují, že se „cítili divně" ještě 6 měsíců po skončení stresové fáze. Krátké pauzy POSTUPNÝCH stresů jsou účinnější než jedna velká pauza po dlouhodobém stresu.
+- **✅ Po dlouhodobém stresu trvá kortizolu týdny až měsíce, než klesne zpět**
+  Přesně. Hormonální a nervové systémy se nezotaví za 7 dní. Týden dovolené je úleva, ale ne plná regenerace — obnova vyžaduje dlouhodobou změnu rytmu. Tělo nepřejde z „přežívacího" do „normálního" režimu během týdne. Proto lidé po vyhoření často popisují, že se „cítili divně" ještě 6 měsíců po skončení stresové fáze. Krátké pauzy POSTUPNÝCH stresů jsou účinnější než jedna velká pauza po dlouhodobém stresu.
 - ❌ Týden je málo, protože se tam stejně budeš stresovat z dovolené samotné
   To se může stát, ale není to hlavní mechanismus. I kdyby ses naprosto uvolnil, biologie regenerace prostě trvá déle než týden.
 - ❌ Měl by sis dát měsíc dovolené, pak by to stačilo
@@ -528,8 +528,8 @@ Breath helps you manage **one stress episode**. But long-term recovery stands on
 
 **Question:** Imagine you've been under pressure at work for two months straight. You feel "wrecked" — can't sleep, irritable, losing performance. You tell yourself: "Once this project is over, I'll take a week off and I'll be fit again." Why is one week of vacation after two months of stress probably not enough?
 
-- **✅ After long-term stress, it takes the body weeks, sometimes months, for cortisol to return to normal. Hormonal and nervous systems don't recover in 7 days. A week off is relief, but not full recovery — restoration requires a long-term change in rhythm.**
-  Exactly. The body doesn't switch from "survival" to "normal" mode within a week. That's why people after burnout often describe feeling "off" for 6 months after the stressful phase ended. Short breaks from GRADUAL stresses are more effective than one big break after long-term stress.
+- **✅ After long stress, cortisol takes weeks or months to return to normal**
+  Exactly. Hormonal and nervous systems don't recover in 7 days. A week off is relief, but not full recovery — restoration requires a long-term change in rhythm. The body doesn't switch from "survival" to "normal" mode within a week. That's why people after burnout often describe feeling "off" for 6 months after the stressful phase ended. Short breaks from GRADUAL stresses are more effective than one big break after long-term stress.
 - ❌ A week isn't enough because you'll just stress over the vacation itself
   That can happen, but it's not the main mechanism. Even if you fully relaxed, the biology of recovery simply takes longer than a week.
 - ❌ You should take a month off, then it would be enough
@@ -567,8 +567,8 @@ Practical rules that work for most people:
 
 **Otázka:** Proč je strategie „dva měsíce intenzivně pracovat, pak týden dovolené" obvykle horší než strategie „pracovat normálně, ale mít každý víkend volný"?
 
-- **✅ Kortizol se vrací do normálu pomalu — týden po dvou měsících nestačí na plnou regeneraci. Pravidelné menší pauzy nedovolí kortizolu vystoupat tak vysoko, takže tělo nikdy nepřejde do „přežívacího" režimu.**
-  Přesně. Tělo zvládne mnohem víc, když má pravidelné mikroregenerace, než když musí čekat na velkou pauzu. Podobně jako s jídlem: menší jídla s pauzami fungují líp než jedno obří jídlo a hladovění.
+- **✅ Pravidelné menší pauzy drží kortizol dole — týden po dvou měsících nestačí**
+  Přesně. Kortizol se vrací do normálu pomalu — týden po dvou měsících intenzity nestačí na plnou regeneraci. Pravidelné menší pauzy nedovolí kortizolu vystoupat tak vysoko, takže tělo nikdy nepřejde do „přežívacího" režimu. Tělo zvládne mnohem víc, když má pravidelné mikroregenerace, než když musí čekat na velkou pauzu. Podobně jako s jídlem: menší jídla s pauzami fungují líp než jedno obří jídlo a hladovění.
 - ❌ Lidé se na dlouhých dovolených víc nudí, takže je to nezotaví tolik jako víkendy
   Není to o nudě, ale o biologii. I kdyby se na dovolené bavili, kortizol by se nestihl vrátit do normálu po dvou měsících extrémního zatížení.
 - ❌ Týdenní dovolená je dražší, takže lidé mají stres z peněz a nezotaví se
@@ -578,8 +578,8 @@ Practical rules that work for most people:
 
 **Question:** Why is the strategy "work intensively for two months, then a week off" usually worse than "work normally, but have every weekend free"?
 
-- **✅ Cortisol returns to normal slowly — a week after two months isn't enough for full recovery. Regular smaller breaks don't let cortisol climb so high in the first place, so the body never enters "survival mode."**
-  Exactly. The body handles much more when it has regular micro-recoveries than when it has to wait for one big break. Similar to food: smaller meals with pauses work better than one giant meal and starvation.
+- **✅ Small regular breaks keep cortisol low — a week after two months isn't enough**
+  Exactly. Cortisol returns to normal slowly — a week after two months of intensity isn't enough for full recovery. Regular smaller breaks don't let cortisol climb so high in the first place, so the body never enters "survival mode." The body handles much more when it has regular micro-recoveries than when it has to wait for one big break. Similar to food: smaller meals with pauses work better than one giant meal and starvation.
 - ❌ People get more bored on long vacations, so they don't recover as well as on weekends
   It isn't about boredom, it's about biology. Even if they had a great time on vacation, cortisol wouldn't return to normal after two months of extreme load.
 - ❌ Weekly vacations are more expensive, so people stress about money and don't recover
@@ -597,8 +597,8 @@ You don't beat stress by eliminating it — life will always bring it. You beat 
 
 **Otázka:** Představ si, že se cítíš po každé pracovní schůzce vyčerpaný. Po skončení obvykle otevřeš sociální sítě a hodinu scrolluješ, abys „vypnul". Po týdnu takového režimu jsi ale ještě víc unavený. Proč scrollování není plnohodnotná regenerace po stresové události?
 
-- **✅ Scrollování mozek stimuluje (nové obrázky, krátké odměny dopaminu), takže nervový systém vlastně neutichá. Plná regenerace vyžaduje pokles aktivace — dech, pohyb, ticho, kontakt s blízkým — ne další proud stimulů.
-  Přesně. Mozek si při scrollování přepne mód, ale kortizol ani adrenalin nijak výrazně neklesají. Paradoxně můžeš být po hodině na sítích ještě unavenější než před ní. Skutečná regenerace znamená „vypnout plyn", ne „přehrát na jiný kanál".
+- **✅ Scrollování mozek stimuluje, takže nervový systém se neutiší**
+  Přesně. Scrollování nabízí nové obrázky a krátké odměny dopaminu, takže nervový systém vlastně neutichá. Plná regenerace vyžaduje pokles aktivace — dech, pohyb, ticho, kontakt s blízkým — ne další proud stimulů. Mozek si při scrollování přepne mód, ale kortizol ani adrenalin nijak výrazně neklesají. Paradoxně můžeš být po hodině na sítích ještě unavenější než před ní. Skutečná regenerace znamená „vypnout plyn", ne „přehrát na jiný kanál".
 - ❌ Scrollování je plně v pořádku, jsi unavený z jiných důvodů
   Pokud je to tvůj jediný „odpočinek", je to spoluviník. Scrollování nedává tělu signál „teď je klid".
 - ❌ Problém je, že scrolluješ moc dlouho — stačilo by 10 minut
@@ -608,8 +608,8 @@ You don't beat stress by eliminating it — life will always bring it. You beat 
 
 **Question:** Imagine you feel exhausted after every work meeting. Afterwards you usually open social media and scroll for an hour to "switch off." After a week of this routine, though, you're even more tired. Why isn't scrolling a full recovery after a stressful event?
 
-- **✅ Scrolling stimulates the brain (new images, short dopamine rewards), so the nervous system doesn't actually calm down. Full recovery requires a drop in activation — breath, movement, silence, contact with a close person — not more input.
-  Exactly. The brain switches modes while scrolling, but cortisol and adrenaline don't meaningfully drop. Paradoxically, you can be even more tired after an hour on social media than before it. True recovery means "taking your foot off the gas," not "switching channels."
+- **✅ Scrolling keeps the brain stimulated, so the nervous system doesn't calm**
+  Exactly. Scrolling delivers new images and short dopamine rewards, so the nervous system doesn't actually calm down. Full recovery requires a drop in activation — breath, movement, silence, contact with a close person — not more input. The brain switches modes while scrolling, but cortisol and adrenaline don't meaningfully drop. Paradoxically, you can be even more tired after an hour on social media than before it. True recovery means "taking your foot off the gas," not "switching channels."
 - ❌ Scrolling is completely fine, you're tired for other reasons
   If it's your only "rest," it's a contributor. Scrolling doesn't give your body the signal "now it's calm."
 - ❌ The problem is you scroll too long — 10 minutes would be enough
@@ -619,8 +619,8 @@ You don't beat stress by eliminating it — life will always bring it. You beat 
 
 **Otázka:** Představ si, že si řekneš: „Mám strašný stres v práci, ale nemůžu si dát dovolenou. Co mám dělat?" Která rada vychází z biologie stresu a pravděpodobně ti reálně pomůže?
 
-- **✅ Zabuduj **malé pravidelné mikroregenerace** přímo do dne — 5 minut dechu mezi schůzkami, 15 minut procházky v poledne, pevný čas na spánek, jedno odpoledne v týdnu bez práce. Tím kortizol nedovolíš vystoupat tak vysoko, jako když čekáš na velkou pauzu.
-  Přesně. Plná dovolená je ideál, ale ne nutný — tělo reaguje na rytmus zátěže a pauz, i když jsou pauzy krátké. 5 minut dechu několikrát denně + pevný spánek + jeden „prázdný" večer v týdnu dokážou víc než čekání na zázračnou dovolenou „někdy potom".
+- **✅ Zabuduj si **mikroregenerace** přímo do dne**
+  Přesně. Konkrétně: 5 minut dechu mezi schůzkami, 15 minut procházky v poledne, pevný čas na spánek, jedno odpoledne v týdnu bez práce. Tím kortizol nedovolíš vystoupat tak vysoko, jako když čekáš na velkou pauzu. Plná dovolená je ideál, ale ne nutný — tělo reaguje na rytmus zátěže a pauz, i když jsou pauzy krátké. 5 minut dechu několikrát denně + pevný spánek + jeden „prázdný" večer v týdnu dokážou víc než čekání na zázračnou dovolenou „někdy potom".
 - ❌ Jít za lékařem a požádat o prášky na uklidnění
   Pro některé vyhoření mohou léky pomoci, ale bez změny rytmu se stres vrátí. Léky neřeší příčinu — neřeší chybějící regeneraci.
 - ❌ Prostě to vydržet, stres přejde sám
@@ -630,8 +630,8 @@ You don't beat stress by eliminating it — life will always bring it. You beat 
 
 **Question:** Imagine you say to yourself: "I'm super stressed at work but I can't take a vacation. What should I do?" Which advice comes from the biology of stress and is most likely to actually help you?
 
-- **✅ Build **small regular micro-recoveries** directly into the day — 5 minutes of breathing between meetings, a 15-minute walk at noon, a fixed sleep time, one afternoon a week without work. That way you don't let cortisol climb as high as it does when you're waiting for a big break.
-  Exactly. Full vacation is ideal but not required — the body responds to the rhythm of load and pauses even when the pauses are short. 5 minutes of breathing several times a day + firm sleep + one "empty" evening a week do more than waiting for a magical vacation "someday."
+- **✅ Build **small micro-recoveries** into every day**
+  Exactly. Specifically: 5 minutes of breathing between meetings, a 15-minute walk at noon, a fixed sleep time, one afternoon a week without work. That way you don't let cortisol climb as high as it does when you're waiting for a big break. Full vacation is ideal but not required — the body responds to the rhythm of load and pauses even when the pauses are short. 5 minutes of breathing several times a day + firm sleep + one "empty" evening a week do more than waiting for a magical vacation "someday."
 - ❌ Go to a doctor and ask for calming pills
   For some burnout, meds can help, but without a change in rhythm the stress comes back. Pills don't solve the cause — they don't solve missing recovery.
 - ❌ Just endure it, stress will pass on its own

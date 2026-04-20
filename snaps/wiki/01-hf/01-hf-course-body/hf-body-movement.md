@@ -83,7 +83,7 @@ Only in the last ~100 years have we had the option to spend most of the day sitt
 
 **Otázka:** Která z následujících funkcí těla NENÍ přímo ovlivněna množstvím pohybu během dne?
 
-- **✅ Žádná — pohyb ovlivňuje všechny tyto funkce**
+- **✅ Žádná — ovlivněné jsou všechny**
   Přesně. Pohyb ovlivňuje srdce, kosti, hladinu cukru v krvi, náladu, mozek, imunitu, spánek, hormonální rovnováhu — prakticky každý systém. Proto je nedostatek pohybu tak destruktivní: nezhorší jednu věc, ale všechno najednou.
 - ❌ Zdraví srdce a cév
   Pohyb významně ovlivňuje srdce — pravidelná aktivita snižuje riziko infarktu o 30–40 %. Tohle je jeden z nejlépe zdokumentovaných efektů.
@@ -96,7 +96,7 @@ Only in the last ~100 years have we had the option to spend most of the day sitt
 
 **Question:** Which of the following body functions is NOT directly affected by the amount of movement during the day?
 
-- **✅ None — movement affects all of these functions**
+- **✅ None — all of these are affected**
   Exactly. Movement affects the heart, bones, blood sugar, mood, brain, immunity, sleep, hormonal balance — practically every system. That's why lack of movement is so destructive: it doesn't damage one thing, it damages everything at once.
 - ❌ Heart and cardiovascular health
   Movement significantly affects the heart — regular activity reduces heart attack risk by 30–40 %. This is one of the best-documented effects.
@@ -121,8 +121,8 @@ This principle is called **"use it or lose it."** The body is extremely efficien
 
 **Otázka:** Představ si, že máš za sebou 3měsíční zranění, kdy jsi měl nohu v sádře a vůbec ji nepoužíval. Po sundání sádry zjistíš, že stehno na té noze máš viditelně tenčí než na druhé. Proč?
 
-- **✅ Sval, který nedostává signál „jsi potřebný" (žádný pohyb, žádné zatížení), tělo postupně rozkládá, aby ušetřilo energii**
-  Přesně. Tomuto se říká svalová atrofie z nečinnosti. Tělo nechce zbytečně udržovat tkáň, kterou nevyužívá — proto ji rozloží a aminokyseliny použije jinde. Po pár týdnech bez pohybu může sval ztratit i 20 % své hmoty.
+- **✅ Bez signálu zátěže tělo sval postupně rozkládá**
+  Přesně. Tomuto se říká svalová atrofie z nečinnosti. Sval, který nedostává signál „jsi potřebný" (žádný pohyb, žádné zatížení), tělo rozloží a aminokyseliny použije jinde, aby ušetřilo energii. Po pár týdnech bez pohybu může sval ztratit i 20 % své hmoty.
 - ❌ Sádra svaly přímo poškodila tlakem
   Sádra fyzicky neničí svaly, jen znemožňuje pohyb. Atrofie je důsledek nepoužívání, ne tlaku.
 - ❌ Tělo přesunulo svaly do druhé nohy, aby bylo silnější
@@ -132,8 +132,8 @@ This principle is called **"use it or lose it."** The body is extremely efficien
 
 **Question:** Imagine you're coming back from a 3-month injury, where your leg was in a cast and you didn't use it at all. After the cast comes off, you see that the thigh on that leg is visibly thinner than on the other. Why?
 
-- **✅ A muscle that doesn't get the signal "you're needed" (no movement, no load) is gradually broken down by the body to save energy**
-  Exactly. This is called disuse atrophy. The body doesn't want to needlessly maintain tissue it isn't using — so it breaks it down and reuses the amino acids elsewhere. After a few weeks without movement, a muscle can lose up to 20 % of its mass.
+- **✅ Without a load signal, the body gradually breaks the muscle down**
+  Exactly. This is called disuse atrophy. A muscle that doesn't get the signal "you're needed" (no movement, no load) gets broken down and its amino acids reused elsewhere, so the body saves energy. After a few weeks without movement, a muscle can lose up to 20 % of its mass.
 - ❌ The cast directly damaged the muscle through pressure
   The cast doesn't physically destroy muscles, it just prevents movement. Atrophy is a consequence of disuse, not pressure.
 - ❌ The body moved the muscle to the other leg to make it stronger
@@ -155,8 +155,8 @@ And here comes the surprise: major studies (Lancet, JAMA) have shown that **sitt
 
 **Otázka:** Co znamená, že je sezení „samostatný rizikový faktor", nezávislý na tom, kolik cvičíš?
 
-- **✅ Dlouhé sezení škodí zdraví i u lidí, kteří pravidelně cvičí — hodina v posilovně nemůže plně vykompenzovat 8 hodin nehybnosti**
-  Přesně. Velké studie ukázaly, že lidé, kteří sedí 8+ hodin denně, mají horší zdravotní výsledky i přesto, že si dají hodinu cvičení. Tělo potřebuje pohyb rozložený do dne, ne jen jeden „nárazový" trénink.
+- **✅ Sezení škodí i těm, kteří pravidelně cvičí — trénink to nevykompenzuje**
+  Přesně. Velké studie ukázaly, že lidé, kteří sedí 8+ hodin denně, mají horší zdravotní výsledky i přesto, že si dají hodinu cvičení. Hodina v posilovně nemůže plně vykompenzovat 8 hodin nehybnosti — tělo potřebuje pohyb rozložený do dne, ne jen jeden „nárazový" trénink.
 - ❌ Znamená to, že kdo cvičí, může sedět neomezeně — cvičení vše vyrovná
   To je přesně mýtus, který studie vyvrátily. Cvičení je důležité, ale nezruší škody dlouhodobé nehybnosti.
 - ❌ Sezení nemá žádný vliv, pokud máš správnou kancelářskou židli
@@ -166,8 +166,8 @@ And here comes the surprise: major studies (Lancet, JAMA) have shown that **sitt
 
 **Question:** What does it mean that sitting is an "independent risk factor," regardless of how much you exercise?
 
-- **✅ Long sitting damages health even in people who exercise regularly — an hour at the gym can't fully offset 8 hours of stillness**
-  Exactly. Major studies have shown that people who sit 8+ hours a day have worse health outcomes even if they exercise for an hour. The body needs movement spread throughout the day, not just one "burst" workout.
+- **✅ Sitting harms even people who exercise regularly — training can't offset it**
+  Exactly. Major studies have shown that people who sit 8+ hours a day have worse health outcomes even if they exercise for an hour. An hour at the gym can't fully offset 8 hours of stillness — the body needs movement spread throughout the day, not just one "burst" workout.
 - ❌ It means people who exercise can sit unlimited amounts — exercise compensates for everything
   That's exactly the myth those studies disproved. Exercise is important, but it doesn't undo the damage of long-term immobility.
 - ❌ Sitting has no effect if you have the right office chair
@@ -185,8 +185,8 @@ The body isn't a machine that runs by itself. It's a system that needs to receiv
 
 **Otázka:** Proč lidské tělo degeneruje rychleji bez pohybu než se ho zdá „logické" pouze na základě věku?
 
-- **✅ Tělo je evolučně nastavené na pohyb jako na signál „udržuj systémy". Bez tohoto signálu aktivně rozkládá svaly, kosti a cévy, aby ušetřilo energii — nečeká pasivně, ale aktivně degraduje.**
-  Přesně. Klíčové slovo je „aktivně". Tělo není pasivní materiál, který prostě stárne. Je to systém, který neustále rozhoduje, co udržovat a co obětovat. Bez pohybu rozhoduje ve prospěch rozkladu.
+- **✅ Bez signálu pohybu tělo aktivně rozkládá, co nepoužíváš**
+  Přesně. Tělo je evolučně nastavené na pohyb jako na signál „udržuj systémy". Bez tohoto signálu aktivně rozkládá svaly, kosti a cévy, aby ušetřilo energii — nečeká pasivně, ale aktivně degraduje. Klíčové slovo je „aktivně": není to pasivní materiál, který prostě stárne, ale systém, který neustále rozhoduje, co udržovat a co obětovat.
 - ❌ Bez pohybu se tělo nudí a postupně vypíná jednotlivé systémy
   Tělo se „nenudí" — to je antropomorfizace. Jde o biologické signály, ne o emoce. Bez zatížení prostě schází spouštěč pro údržbu.
 - ❌ Pohyb dodává tělu kyslík, bez kterého buňky umírají rychleji
@@ -196,8 +196,8 @@ The body isn't a machine that runs by itself. It's a system that needs to receiv
 
 **Question:** Why does the human body degenerate faster without movement than seems "logical" based on age alone?
 
-- **✅ The body is evolutionarily wired to treat movement as the signal "maintain these systems." Without that signal, it actively breaks down muscles, bones, and blood vessels to save energy — it doesn't wait passively, it actively degrades.**
-  Exactly. The key word is "actively." The body isn't passive material that just ages. It's a system constantly deciding what to maintain and what to sacrifice. Without movement, it decides in favor of breakdown.
+- **✅ Without a movement signal, the body actively breaks down what you don't use**
+  Exactly. The body is evolutionarily wired to treat movement as the signal "maintain these systems." Without that signal, it actively breaks down muscles, bones, and blood vessels to save energy — it doesn't wait passively, it actively degrades. The key word is "actively": it's not passive material that just ages, it's a system constantly deciding what to maintain and what to sacrifice.
 - ❌ Without movement the body gets "bored" and gradually shuts down individual systems
   The body doesn't get "bored" — that's anthropomorphization. It's about biological signals, not emotions. Without load, the trigger for maintenance is simply missing.
 - ❌ Movement delivers oxygen to the body, without which cells die faster
@@ -207,8 +207,8 @@ The body isn't a machine that runs by itself. It's a system that needs to receiv
 
 **Otázka:** Představ si, že pracuješ v kanceláři, sedíš 9 hodin denně, ale třikrát týdně chodíš na hodinu do posilovny. Myslíš si, že jsi „v pohodě". Jak by ti správně odpověděl někdo, kdo zná výzkum o sezení?
 
-- **✅ Cvičení ti dává velkou výhodu, ale 9 hodin sezení je samostatný problém, který trénink plně nekompenzuje. Přidej krátké pauzy každou hodinu a budeš na tom mnohem líp.**
-  Přesně. Přístup „mám trénink, sezení je OK" vyvrátily studie. Děláš dobře, že cvičíš, ale ještě lepší by bylo rozbít dlouhé bloky sezení. Obě věci se sčítají, jedna druhou plně nenahradí.
+- **✅ Trénink pomáhá, ale 9 hodin sezení je samostatný problém**
+  Přesně. Cvičení ti dává velkou výhodu, ale trénink plně nekompenzuje 9 hodin sezení. Přidej krátké pauzy každou hodinu a budeš na tom mnohem líp. Přístup „mám trénink, sezení je OK" vyvrátily studie. Obě věci se sčítají, jedna druhou plně nenahradí.
 - ❌ Tři tréninky týdně stačí — sezení nemá žádný efekt, pokud jinak cvičíš
   To je přesně ten mýtus, který výzkum vyvrátil. Sezení škodí i u trénovaných lidí.
 - ❌ Měl bys cvičit denně 2 hodiny, pak teprve sezení vyrovnáš
@@ -218,8 +218,8 @@ The body isn't a machine that runs by itself. It's a system that needs to receiv
 
 **Question:** Imagine you work in an office, sit 9 hours a day, but go to the gym three times a week for an hour. You think you're "fine." How would someone who knows the research on sitting answer you?
 
-- **✅ Training gives you a big advantage, but 9 hours of sitting is a separate problem that workouts can't fully compensate for. Add short breaks every hour and you'll be much better off.**
-  Exactly. The "I train, sitting is OK" approach has been disproved by studies. You're doing well by exercising, but it would be even better to break up long blocks of sitting. The two add up — one can't fully replace the other.
+- **✅ Training helps, but 9 hours of sitting is a separate problem**
+  Exactly. Training gives you a big advantage, but workouts can't fully compensate for 9 hours of sitting. Add short breaks every hour and you'll be much better off. The "I train, sitting is OK" approach has been disproved by studies. The two add up — one can't fully replace the other.
 - ❌ Three workouts a week is enough — sitting has no effect if you train otherwise
   That's exactly the myth research disproved. Sitting harms even trained people.
 - ❌ You should train 2 hours a day, only then will sitting be offset
@@ -229,7 +229,7 @@ The body isn't a machine that runs by itself. It's a system that needs to receiv
 
 **Otázka:** Který z následujících scénářů nejlépe vystihuje princip „use it or lose it"?
 
-- **✅ Starší pán, který 30 let každý den vyšel 4 patra po schodech, má v 70 letech silnější nohy a lepší rovnováhu než jeho sousedé, kteří celý život používali výtah**
+- **✅ Starší pán, co 30 let chodí denně po schodech, má v 70 silnější nohy než sousedé s výtahem**
   Přesně. Tohle je princip „use it or lose it" v čisté formě. Tělo udržuje to, co pravidelně používá, a obětuje to, co ne. Není to o intenzitě, ale o tom, jestli tělo dostává signál, že tenhle systém je potřebný.
 - ❌ Mladý sportovec, který jednou týdně ukáže rekordní výkon, pak si týden odpočine a zase rekord
   Tohle je spíš o nárazové výkonnosti než o každodenním udržování. „Use it or lose it" je o signálu, který tělo dostává pravidelně — ne o jednorázových maximech.
@@ -240,7 +240,7 @@ The body isn't a machine that runs by itself. It's a system that needs to receiv
 
 **Question:** Which of the following scenarios best captures the "use it or lose it" principle?
 
-- **✅ An older man who for 30 years has walked up 4 flights of stairs every day has, at 70, stronger legs and better balance than his neighbors who used the elevator their whole lives**
+- **✅ An older man climbing stairs daily for 30 years has stronger legs at 70 than elevator neighbors**
   Exactly. This is "use it or lose it" in its pure form. The body maintains what it regularly uses and sacrifices what it doesn't. It's not about intensity, it's about whether the body receives the signal that this system is needed.
 - ❌ A young athlete who once a week puts up a record performance, rests a week, and then sets another record
   That's more about occasional peak performance than daily maintenance. "Use it or lose it" is about the signal the body receives regularly — not about one-off maxes.
@@ -280,8 +280,8 @@ What matters most: **repeated load on the heart gradually strengthens it**. The 
 
 **Otázka:** Představ si, že jsi před měsícem začal chodit 30 minut denně. Po měsíci máš víc energie, líp spíš a méně se stresuješ v práci. Co se v tvém těle pravděpodobně změnilo?
 
-- **✅ Pravidelná aerobní aktivita zlepšila výkon srdce, snížila klidovou tepovou frekvenci, zlepšila vyplavování serotoninu a dopaminu, a srovnala kortizolovou křivku během dne**
-  Přesně. Pravidelný pohyb mění mnoho věcí najednou. Srdce se stává efektivnějším (méně tepů na stejnou práci), nervový systém se uklidňuje, hormony nálady (serotonin, dopamin) se vyplavují líp, a stresový hormon kortizol má normálnější rytmus — vyšší ráno, nižší večer. Proto „víc energie" + „líp spí" jdou často ruku v ruce.
+- **✅ Aerobní aktivita zesílila srdce, upravila hormony nálady a kortizolovou křivku**
+  Přesně. Pravidelný pohyb mění mnoho věcí najednou: srdce se stává efektivnějším (méně tepů na stejnou práci, klidová frekvence klesá), nervový systém se uklidňuje, hormony nálady (serotonin, dopamin) se vyplavují líp, a stresový hormon kortizol má normálnější rytmus — vyšší ráno, nižší večer. Proto „víc energie" + „líp spí" jdou často ruku v ruce.
 - ❌ Spálil jsi tolik kalorií, že už jsi tak unavený, že večer rovnou usneš
   Chůze 30 minut spálí asi 100–150 kcal — to je málo, není to z únavy. Lepší spánek je z hormonálních a nervových změn, ne z vyčerpání.
 - ❌ Chůze tě odvedla od telefonu a sociálních sítí, v tom je celý efekt
@@ -291,8 +291,8 @@ What matters most: **repeated load on the heart gradually strengthens it**. The 
 
 **Question:** Imagine you started walking 30 minutes a day a month ago. After a month you have more energy, sleep better, and feel less stressed at work. What likely changed in your body?
 
-- **✅ Regular aerobic activity improved your heart performance, lowered your resting heart rate, improved serotonin and dopamine release, and balanced your cortisol curve through the day**
-  Exactly. Regular movement changes many things at once. The heart becomes more efficient (fewer beats for the same work), the nervous system calms down, mood hormones (serotonin, dopamine) release better, and the stress hormone cortisol has a more normal rhythm — higher in the morning, lower in the evening. That's why "more energy" + "better sleep" often go hand in hand.
+- **✅ Aerobic activity strengthened the heart, boosted mood hormones, and balanced cortisol**
+  Exactly. Regular movement changes many things at once: the heart becomes more efficient (fewer beats for the same work, lower resting rate), the nervous system calms down, mood hormones (serotonin, dopamine) release better, and the stress hormone cortisol has a more normal rhythm — higher in the morning, lower in the evening. That's why "more energy" + "better sleep" often go hand in hand.
 - ❌ You burned so many calories that you're now so tired you fall asleep immediately
   A 30-minute walk burns about 100–150 kcal — that's a small amount, it's not from exhaustion. Better sleep comes from hormonal and nervous changes, not depletion.
 - ❌ The walk took you away from your phone and social media, that's the whole effect
@@ -314,8 +314,8 @@ This process is called **hypertrophy**. And here's the key paradox: **muscle doe
 
 **Otázka:** Představ si, že chodíš do posilovny 6 dní v týdnu, cvičíš stejné svalové skupiny každý den a tlačíš se na maximum. Po dvou měsících jsi vyčerpaný, často nemocný a tvůj výkon klesá. Co se nejspíš v tvém těle děje?
 
-- **✅ Tělo nestíhá regenerovat — opakovaný stres bez dostatečného odpočinku vyčerpává nervový systém, narušuje hormonální rovnováhu a brzdí samotný růst svalů. Tomuto stavu se říká přetrénování.**
-  Přesně. Tělo neroste BĚHEM tréninku — roste BĚHEM regenerace. Když mu nedáš čas, dostaneš opačný efekt: ztrátu výkonu, oslabenou imunitu, zhoršený spánek a často i přibírání tuku (kvůli zvýšenému kortizolu).
+- **✅ Tělo nestíhá regenerovat — nastalo přetrénování**
+  Přesně. Opakovaný stres bez dostatečného odpočinku vyčerpává nervový systém, narušuje hormonální rovnováhu a brzdí samotný růst svalů. Tělo neroste BĚHEM tréninku — roste BĚHEM regenerace. Když mu nedáš čas, dostaneš opačný efekt: ztrátu výkonu, oslabenou imunitu, zhoršený spánek a často i přibírání tuku (kvůli zvýšenému kortizolu).
 - ❌ Cvičíš špatné cviky, měl bys je vyměnit za jiné
   Změna cviků by nepomohla — problém není ve výběru cviků, ale ve frekvenci a chybějící regeneraci. Stejný problém by vznikl i s jinými cviky.
 - ❌ Potřebuješ víc bílkovin, pak by tě to nevyčerpávalo
@@ -325,8 +325,8 @@ This process is called **hypertrophy**. And here's the key paradox: **muscle doe
 
 **Question:** Your friend Honza goes to the gym 6 days a week, trains the same muscle groups every day, and pushes to maximum every time. After two months he's exhausted, often sick, and his performance is dropping. What's most likely happening in his body?
 
-- **✅ The body can't keep up with recovery — repeated stress without enough rest exhausts the nervous system, disrupts hormonal balance, and actually slows muscle growth. This state is called overtraining.**
-  Exactly. The body doesn't grow DURING training — it grows DURING recovery. When you don't give it time, you get the opposite effect: loss of performance, weakened immunity, worse sleep, and often even fat gain (due to elevated cortisol).
+- **✅ The body can't recover — this is overtraining**
+  Exactly. Repeated stress without enough rest exhausts the nervous system, disrupts hormonal balance, and actually slows muscle growth. The body doesn't grow DURING training — it grows DURING recovery. When you don't give it time, you get the opposite effect: loss of performance, weakened immunity, worse sleep, and often even fat gain (due to elevated cortisol).
 - ❌ He's doing the wrong exercises, he should swap them
   Changing exercises wouldn't help — the problem isn't the choice of exercises, it's the frequency and missing recovery. The same problem would arise with different exercises.
 - ❌ He needs more protein, then it wouldn't exhaust him
@@ -348,8 +348,8 @@ Studies from the University of Illinois showed that in people who started walkin
 
 **Otázka:** Proč pravidelný pohyb zlepšuje paměť a schopnost učit se nové věci?
 
-- **✅ Pohyb vyplavuje BDNF, který podporuje růst nových neuronů a propojení v hipokampu — oblasti odpovědné za paměť a učení**
-  Přesně. BDNF je jako hnojivo pro mozek. Bez něj mozek jen udržuje to, co už má; s ním aktivně roste a tvoří nová spojení. Proto lidé, kteří pravidelně chodí, mají v testech paměti lepší výsledky než jejich sedavé vrstevníci.
+- **✅ Pohyb vyplavuje BDNF, který podporuje růst neuronů v hipokampu (paměť a učení)**
+  Přesně. BDNF je jako hnojivo pro mozek a hipokampus je oblast odpovědná za paměť a učení. Bez BDNF mozek jen udržuje to, co už má; s ním aktivně roste a tvoří nová spojení. Proto lidé, kteří pravidelně chodí, mají v testech paměti lepší výsledky než jejich sedavé vrstevníci.
 - ❌ Pohyb odvádí krev od mozku do svalů, takže mozek si po tréninku „odpočine" a líp funguje
   Přesně opak — během pohybu teče do mozku víc krve, ne míň. A efekt na učení není z „odpočinku", ale z růstu nových neuronů.
 - ❌ Pohyb zvyšuje teplotu těla, což urychluje chemické reakce v mozku
@@ -359,8 +359,8 @@ Studies from the University of Illinois showed that in people who started walkin
 
 **Question:** Why does regular movement improve memory and the ability to learn new things?
 
-- **✅ Movement releases BDNF, which supports the growth of new neurons and connections in the hippocampus — the area responsible for memory and learning**
-  Exactly. BDNF is like fertilizer for the brain. Without it, the brain just maintains what it has; with it, it actively grows and forms new connections. That's why people who walk regularly score better on memory tests than their sedentary peers.
+- **✅ Movement releases BDNF, which grows new neurons in the hippocampus (memory and learning area)**
+  Exactly. BDNF is like fertilizer for the brain, and the hippocampus is the area responsible for memory and learning. Without BDNF, the brain just maintains what it has; with it, it actively grows and forms new connections. That's why people who walk regularly score better on memory tests than their sedentary peers.
 - ❌ Movement directs blood away from the brain to the muscles, so the brain "rests" after training and works better
   Actually the opposite — during movement more blood flows to the brain, not less. And the effect on learning isn't from "rest," it's from the growth of new neurons.
 - ❌ Movement raises body temperature, which speeds up chemical reactions in the brain
@@ -378,8 +378,8 @@ The body doesn't grow while you train — **it grows while you recover from trai
 
 **Otázka:** Proč je pravidelný pohyb spojený s lepším spánkem a sníženým stresem, i když pohyb je sám o sobě „zátěž" pro tělo?
 
-- **✅ Pohyb mírně aktivuje stresovou reakci, ale zároveň trénuje tělo, jak se z ní rychle vrátit do klidu — a kromě toho vyplavuje hormony nálady (endorfiny, serotonin, dopamin), které stres neutralizují**
-  Přesně. Pohyb je „kontrolovaný" stres, který trénuje regulační systém těla. Po pohybu klesá kortizol pod úroveň před cvičením, zatímco hormony nálady zůstávají zvýšené. Výsledek: klidnější mysl a hlubší spánek.
+- **✅ Pohyb trénuje návrat do klidu a vyplavuje hormony nálady proti stresu**
+  Přesně. Pohyb mírně aktivuje stresovou reakci, ale zároveň trénuje tělo, jak se z ní rychle vrátit do klidu — a kromě toho vyplavuje hormony nálady (endorfiny, serotonin, dopamin), které stres neutralizují. Je to „kontrolovaný" stres, který trénuje regulační systém těla. Po pohybu klesá kortizol pod úroveň před cvičením, zatímco hormony nálady zůstávají zvýšené. Výsledek: klidnější mysl a hlubší spánek.
 - ❌ Pohyb je únavný, takže člověk je tak vyčerpaný, že prostě usne
   Pokud by šlo jen o vyčerpání, stačil by sebemíň fyzicky náročný den. Lidé po duševně náročném dni jsou taky vyčerpaní, ale nespí líp. Mechanismus pohybu je jiný — hormonální a nervový.
 - ❌ Pohyb spaluje stresové hormony tak, že už žádné v těle nezůstanou
@@ -389,8 +389,8 @@ The body doesn't grow while you train — **it grows while you recover from trai
 
 **Question:** Why is regular movement linked to better sleep and reduced stress, even though movement itself is a "stress" on the body?
 
-- **✅ Movement mildly activates the stress response, but at the same time trains the body to return to calm quickly — and on top of that releases mood hormones (endorphins, serotonin, dopamine) that neutralize stress**
-  Exactly. Movement is "controlled" stress that trains the body's regulatory system. After exercise, cortisol drops below the pre-exercise level, while mood hormones stay elevated. The result: a calmer mind and deeper sleep.
+- **✅ Movement trains the return to calm and releases mood hormones against stress**
+  Exactly. Movement mildly activates the stress response, but at the same time trains the body to return to calm quickly — and on top of that releases mood hormones (endorphins, serotonin, dopamine) that neutralize stress. It's "controlled" stress that trains the body's regulatory system. After exercise, cortisol drops below the pre-exercise level, while mood hormones stay elevated. The result: a calmer mind and deeper sleep.
 - ❌ Movement is exhausting, so the person is so wiped out they just fall asleep
   If it were just about exhaustion, any tiring day would do. People after a mentally exhausting day are also exhausted, but don't sleep better. The mechanism of movement is different — hormonal and neural.
 - ❌ Movement burns up stress hormones so none are left in the body
@@ -400,8 +400,8 @@ The body doesn't grow while you train — **it grows while you recover from trai
 
 **Otázka:** Co je hlavní biologický rozdíl mezi aerobním cvičením (chůze, běh, plavání) a silovým tréninkem (zvedání váhy)?
 
-- **✅ Aerobní trénink hlavně zlepšuje kardiovaskulární systém a vyplavuje BDNF, zatímco silový trénink vytváří mikrotrhliny ve svalech, které se při regeneraci opravují silnější**
-  Přesně. Jsou to dvě různé adaptace těla na dva různé druhy zátěže. Aerobní říká: „potřebuji lepší dodávku kyslíku." Silový říká: „potřebuji silnější svaly pro větší zátěž." Obě jsou cenné, ideální je kombinace.
+- **✅ Aerobní zesiluje srdce a BDNF, silový tvoří mikrotrhliny svalů**
+  Přesně. Aerobní trénink hlavně zlepšuje kardiovaskulární systém a vyplavuje BDNF, zatímco silový trénink vytváří mikrotrhliny ve svalech, které se při regeneraci opravují silnější. Jsou to dvě různé adaptace těla. Aerobní říká: „potřebuji lepší dodávku kyslíku." Silový říká: „potřebuji silnější svaly pro větší zátěž." Obě jsou cenné, ideální je kombinace.
 - ❌ Aerobní spaluje víc tuku, silový víc sacharidů — jinak jsou stejné
   Rozdíl není jen v palivu. Jsou to fundamentálně odlišné adaptace — jedna zesiluje srdce a cévy, druhá svaly a kosti. Hormonální i strukturní efekt je jiný.
 - ❌ Aerobní je zdravé, silový trénink je nebezpečný pro klouby
@@ -411,8 +411,8 @@ The body doesn't grow while you train — **it grows while you recover from trai
 
 **Question:** What's the main biological difference between aerobic exercise (walking, running, swimming) and strength training (lifting weights)?
 
-- **✅ Aerobic training mainly improves the cardiovascular system and releases BDNF, while strength training creates micro-tears in muscles that repair stronger during recovery**
-  Exactly. These are two different adaptations of the body to two different types of load. Aerobic says: "I need better oxygen delivery." Strength says: "I need stronger muscles for bigger loads." Both are valuable — the ideal is a combination.
+- **✅ Aerobic strengthens the heart and BDNF; strength creates muscle micro-tears**
+  Exactly. Aerobic training mainly improves the cardiovascular system and releases BDNF, while strength training creates micro-tears in muscles that repair stronger during recovery. These are two different adaptations. Aerobic says: "I need better oxygen delivery." Strength says: "I need stronger muscles for bigger loads." Both are valuable — the ideal is a combination.
 - ❌ Aerobic burns more fat, strength burns more carbs — otherwise they're the same
   The difference isn't just in fuel. They're fundamentally different adaptations — one strengthens the heart and vessels, the other muscles and bones. Both the hormonal and structural effects are different.
 - ❌ Aerobic is healthy, strength training is dangerous for the joints
@@ -422,8 +422,8 @@ The body doesn't grow while you train — **it grows while you recover from trai
 
 **Otázka:** Představ si, že studuješ na zkoušku a máš problém si zapamatovat velké množství látky. Slyšel jsi, že pohyb pomáhá paměti. Co je pro tebe z hlediska biologie nejlepší strategie?
 
-- **✅ Zařadit každý den 30–40 minut svižné chůze nebo lehkého běhu — pravidelně, ne jednorázově, protože efekt BDNF a růstu hipokampu se projeví po týdnech pravidelnosti**
-  Přesně. BDNF se vyplavuje při každém aerobním tréninku, ale strukturální změny v hipokampu (víc neuronů, víc propojení) přicházejí z pravidelnosti. Jednou si zaběhat den před zkouškou moc nepomůže — pravidelná aktivita během celé přípravy ano.
+- **✅ Zařadit každý den 30–40 minut chůze nebo běhu — pravidelně, ne jednorázově**
+  Přesně. Efekt BDNF a růstu hipokampu se projeví po týdnech pravidelnosti. BDNF se vyplavuje při každém aerobním tréninku, ale strukturální změny v hipokampu (víc neuronů, víc propojení) přicházejí z pravidelnosti. Jednou si zaběhat den před zkouškou moc nepomůže — pravidelná aktivita během celé přípravy ano.
 - ❌ Den před zkouškou si dát extrémně náročný 2hodinový trénink, aby se mozek maximálně okysličil
   Naopak — extrémní zátěž den před zkouškou tě vyčerpá a může zhoršit spánek. To je poslední věc, kterou potřebuješ. Efekt pohybu na paměť není o jednorázovém „nakopnutí", ale o dlouhodobé adaptaci.
 - ❌ Necvičit vůbec, abys ušetřil energii pro učení
@@ -433,8 +433,8 @@ The body doesn't grow while you train — **it grows while you recover from trai
 
 **Question:** Imagine you're studying for an exam and have trouble memorizing a lot of material. You heard that movement helps memory. From a biological perspective, what's your best strategy?
 
-- **✅ Include 30–40 minutes of brisk walking or light running every day — regularly, not as a one-off, because the BDNF effect and hippocampus growth show up after weeks of consistency**
-  Exactly. BDNF is released with every aerobic workout, but the structural changes in the hippocampus (more neurons, more connections) come from regularity. Going for a run the day before the exam won't help much — regular activity throughout preparation will.
+- **✅ Do 30–40 minutes of brisk walking or light running daily — regularly, not as a one-off**
+  Exactly. The BDNF effect and hippocampus growth show up after weeks of consistency. BDNF is released with every aerobic workout, but the structural changes in the hippocampus (more neurons, more connections) come from regularity. Going for a run the day before the exam won't help much — regular activity throughout preparation will.
 - ❌ Do an extremely hard 2-hour workout the day before the exam so your brain gets maximally oxygenated
   Actually the opposite — an extreme workout the day before would exhaust you and can hurt sleep. That's the last thing you need. Movement's effect on memory isn't about a one-off "kick," it's about long-term adaptation.
 - ❌ Not exercise at all to save energy for studying
@@ -473,8 +473,8 @@ This dose isn't "for athletes" — it's **the minimum below which health measura
 
 **Otázka:** Kolik pohybu týdně doporučuje WHO jako minimum pro dospělé, pod kterým začíná měřitelně klesat zdraví?
 
-- **✅ Asi 150 minut středně intenzivní aktivity (např. svižné chůze) plus 2 silové tréninky týdně**
-  Přesně. Rozloženo to znamená asi 22 minut denně + dva krátké silové tréninky. Není to „sportovní výkon" — je to základní údržba těla. Pod tím začíná tělo degradovat.
+- **✅ Asi 150 minut středně intenzivní aktivity plus 2 silové tréninky týdně**
+  Přesně. Středně intenzivní znamená třeba svižnou chůzi; rozloženo to vychází na asi 22 minut denně + dva krátké silové tréninky. Není to „sportovní výkon" — je to základní údržba těla. Pod tím začíná tělo degradovat.
 - ❌ Alespoň hodinu intenzivního cvičení denně, jinak to nemá smysl
   To je mnohem víc, než doporučuje WHO. Takové množství je cílem sportovců, ne „minimem pro zdraví". Lidé to často slyší a vzdají to dřív, než začnou.
 - ❌ Stačí jednou týdně si dobře zacvičit hodinu, pak si tělo „odpočine" do dalšího týdne
@@ -484,8 +484,8 @@ This dose isn't "for athletes" — it's **the minimum below which health measura
 
 **Question:** How much movement per week does WHO recommend as the minimum for adults, below which health measurably starts to decline?
 
-- **✅ About 150 minutes of moderate-intensity activity (e.g. brisk walking) plus 2 strength sessions per week**
-  Exactly. Spread out, that means about 22 minutes a day + two short strength sessions. It's not "athletic performance" — it's basic body maintenance. Below this, the body starts to degrade.
+- **✅ About 150 minutes of moderate-intensity activity plus 2 strength sessions a week**
+  Exactly. Moderate-intensity means e.g. brisk walking; spread out, that's about 22 minutes a day + two short strength sessions. It's not "athletic performance" — it's basic body maintenance. Below this, the body starts to degrade.
 - ❌ At least an hour of intense exercise every day, otherwise it's pointless
   That's much more than WHO recommends. That amount is a target for athletes, not a "minimum for health." People hear that and often give up before they even start.
 - ❌ Once a week a good one-hour workout is enough, then the body "rests" until next week
@@ -507,8 +507,8 @@ Studies show the difference between an "active" and "sedentary" person is often 
 
 **Otázka:** Představ si, že sedíš 9 hodin denně v práci a tvrdíš, že nemáš čas na pohyb. Která z těchto strategií by ti pravděpodobně přinesla největší zdravotní benefit s nejmenší časovou investicí?
 
-- **✅ Vstávat každou hodinu na 2–3 minuty (chůze po kanceláři, schody, krátký strečink) a zvýšit NEAT (schody, parkovat dál, telefonovat ve stoje) — ne kvůli kaloriím, ale kvůli „resetu" svalové aktivity a krevního oběhu**
-  Přesně. Klíčová je frekvence, ne intenzita. Studie ukazují, že rozdělené krátké pauzy během dne mají na metabolické zdraví větší vliv než jeden ucelený trénink po 8 hodinách sezení. Sval, který se každou hodinu „probudí", drží inzulinovou citlivost a krevní oběh v pohybu.
+- **✅ Vstávat každou hodinu na 2–3 minuty a zvýšit NEAT během dne**
+  Přesně. Konkrétně: chůze po kanceláři, schody, krátký strečink; zvýšit NEAT znamená schody místo výtahu, parkovat dál, telefonovat ve stoje — ne kvůli kaloriím, ale kvůli „resetu" svalové aktivity a krevního oběhu. Klíčová je frekvence, ne intenzita. Studie ukazují, že rozdělené krátké pauzy během dne mají na metabolické zdraví větší vliv než jeden ucelený trénink po 8 hodinách sezení. Sval, který se každou hodinu „probudí", drží inzulinovou citlivost a krevní oběh v pohybu.
 - ❌ Jednou týdně si dát extrémně náročný 2hodinový trénink, aby to vykompenzoval
   Jeden „nárazový" trénink kompenzuje sezení jen velmi částečně. Tělo potřebuje pohyb rozložený, ne nárazový. Navíc náhlá extrémní zátěž po týdnu nehybnosti zvyšuje riziko zranění.
 - ❌ Pracovat ve stoje celý den u stand-up stolu
@@ -518,8 +518,8 @@ Studies show the difference between an "active" and "sedentary" person is often 
 
 **Question:** Imagine you sit 9 hours a day at work and claim you have no time for movement. Which of these strategies would likely give you the biggest health benefit for the smallest time investment?
 
-- **✅ Stand up every hour for 2–3 minutes (walk around the office, stairs, brief stretch) and increase NEAT (stairs, park further, call while standing) — not for the calories, but to "reset" muscle activity and circulation**
-  Exactly. The key is frequency, not intensity. Studies show that short breaks spread throughout the day have a bigger effect on metabolic health than a single dedicated workout after 8 hours of sitting. A muscle that "wakes up" every hour keeps insulin sensitivity and circulation moving.
+- **✅ Stand hourly for 2–3 minutes and raise NEAT during the day**
+  Exactly. Specifically: walk around the office, take stairs, brief stretch; raising NEAT means stairs instead of elevators, parking further, calling while standing — not for the calories, but to "reset" muscle activity and circulation. The key is frequency, not intensity. Studies show that short breaks spread throughout the day have a bigger effect on metabolic health than a single dedicated workout after 8 hours of sitting. A muscle that "wakes up" every hour keeps insulin sensitivity and circulation moving.
 - ❌ Once a week do an extremely tough 2-hour workout to compensate
   One "burst" workout only partially compensates for sitting. The body needs movement spread out, not concentrated. Plus, sudden extreme effort after a week of immobility raises injury risk.
 - ❌ Work standing all day at a stand-up desk
@@ -541,8 +541,8 @@ The problem wasn't him. The problem was the **size of the commitment**. People u
 
 **Otázka:** Představ si, že se rozhodneš začít cvičit. Koupíš si drahé členství v posilovně, naplánuješ si 5 tréninků týdně po 90 minutách, koupíš oblečení, výživu, prášky. Po 3 týdnech přestaneš úplně. O půl roku později si řekneš: „Já na to nejsem". Co se nejspíš stalo?
 
-- **✅ Začal jsi s příliš velkým závazkem, který nebyl udržitelný v reálu tvého života. Jakmile přišel první týden, kdy jsi to nestihl, vypadl jsi ze systému a vzdal to úplně. Postupný start (10–15 minut denně) by byl mnohem účinnější dlouhodobě.**
-  Přesně. Lidé často podceňují sílu malých návyků a přeceňují sílu velkých rozhodnutí. Začít s 10 minutami denně, které vždycky stihneš, je lepší než plánovat 90 minut, které vždycky vynecháš. Stejnou chybu dělají lidé v lednu se „zdravým rokem" — a v únoru jsou zpátky.
+- **✅ Začal jsi s příliš velkým závazkem, který nebyl udržitelný**
+  Přesně. Závazek nebyl udržitelný v reálu tvého života. Jakmile přišel první týden, kdy jsi to nestihl, vypadl jsi ze systému a vzdal to úplně. Postupný start (10–15 minut denně) by byl mnohem účinnější dlouhodobě. Lidé často podceňují sílu malých návyků a přeceňují sílu velkých rozhodnutí. Začít s 10 minutami denně, které vždycky stihneš, je lepší než plánovat 90 minut, které vždycky vynecháš. Stejnou chybu dělají lidé v lednu se „zdravým rokem" — a v únoru jsou zpátky.
 - ❌ Cvičil jsi špatné cviky, proto ti to nešlo
   V příběhu nevíme nic o tvém cvičení. Problém nebyl v technice, ale v rozsahu závazku.
 - ❌ Měl jsi si koupit ještě dražší vybavení, pak by ses více motivoval
@@ -552,8 +552,8 @@ The problem wasn't him. The problem was the **size of the commitment**. People u
 
 **Question:** Imagine you decide to start exercising. You buy an expensive gym membership, plan 5 training sessions a week for 90 minutes, buy clothes, supplements, pills. After 3 weeks you stop completely. Six months later you tell yourself: "I'm not cut out for it." What likely happened?
 
-- **✅ You started with too big a commitment that wasn't sustainable in the reality of your life. The moment the first week came when you couldn't make it, you fell out of the system and gave up entirely. A gradual start (10–15 minutes a day) would have been far more effective long-term.**
-  Exactly. People often underestimate the power of small habits and overestimate the power of big decisions. Starting with 10 minutes a day that you always make is better than planning 90 minutes you always skip. The same mistake people make in January with a "healthy year" — and by February they're back where they were.
+- **✅ You started with too big a commitment that wasn't sustainable**
+  Exactly. The commitment didn't fit the reality of your life. The moment the first week came when you couldn't make it, you fell out of the system and gave up entirely. A gradual start (10–15 minutes a day) would have been far more effective long-term. People often underestimate the power of small habits and overestimate the power of big decisions. Starting with 10 minutes a day that you always make is better than planning 90 minutes you always skip. The same mistake people make in January with a "healthy year" — and by February they're back where they were.
 - ❌ You were doing the wrong exercises, that's why you failed
   The story tells us nothing about your exercises. The problem wasn't technique, it was the scope of the commitment.
 - ❌ You should have bought even more expensive equipment, then you'd be more motivated
@@ -571,7 +571,7 @@ The body doesn't measure **how big an action you took** — it measures **how of
 
 **Otázka:** Představ si, že máš sedavou práci a chceš začít být aktivnější. Zvažuješ tři strategie. Která má největší šanci fungovat dlouhodobě?
 
-- **✅ 10 minut svižné chůze ráno před prací + vstávat každou hodinu na 2 minuty + schody místo výtahu — postupně přidávat, až se to stane automatickým**
+- **✅ 10 minut chůze ráno + vstávat každou hodinu + schody místo výtahu, postupně přidávat**
   Přesně. Malý začátek, který je nepřekročitelně jednoduchý, vytvoří návyk. Tělo dostane pravidelný signál „pohyb patří k dni" a po pár týdnech se to stane samozřejmostí — teprve pak má smysl přidávat víc.
 - ❌ Koupit si drahé členství v posilovně, naplánovat 5 tréninků týdně a věřit, že tě cena bude motivovat
   Přesně ta chyba z textu. Cena motivuje 2 týdny, pak zmizí. A velký závazek se rozpadne při prvním „nestihnutém" týdnu.
@@ -582,8 +582,8 @@ The body doesn't measure **how big an action you took** — it measures **how of
 
 **Question:** Imagine you have a sedentary job and want to start being more active. You're considering three strategies. Which has the best chance of working long-term?
 
-- **✅ 10 minutes of brisk walking in the morning before work + stand up every hour for 2 minutes + stairs instead of the elevator — gradually add more as it becomes automatic**
-  Exactly. A small start that's impossible to skip builds a habit. The body gets the regular signal "movement belongs to the day" and after a few weeks it becomes second nature — only then does it make sense to add more.
+- **✅ 10 min of walking in the morning + stand up hourly + stairs instead of elevator**
+  Exactly. Gradually add more as it becomes automatic. A small start that's impossible to skip builds a habit. The body gets the regular signal "movement belongs to the day" and after a few weeks it becomes second nature — only then does it make sense to add more.
 - ❌ Buy an expensive gym membership, plan 5 workouts a week, and trust that the price will motivate you
   Exactly the mistake from the text. Price motivates for 2 weeks, then disappears. And a big commitment collapses at the first "missed" week.
 - ❌ Wait until you have more time and energy, and then start full-on
@@ -593,8 +593,8 @@ The body doesn't measure **how big an action you took** — it measures **how of
 
 **Otázka:** Proč je strategie „malé pauzy každou hodinu" obvykle účinnější než jeden 60minutový trénink po 8 hodinách sezení?
 
-- **✅ Tělo reaguje na frekvenci pohybu — krátké pauzy během dne udržují inzulinovou citlivost, krevní oběh a aktivitu velkých svalů, což jeden pozdější trénink už nezvládne plně obnovit**
-  Přesně. Tělo není kbelík, který by se „doplnil" jednou velkou akcí. Je to systém, který pracuje v reálném čase. Hodiny nehybnosti = hodiny degradace, které jeden trénink jen částečně vyrovná. Proto pauzy, schody, chůze — všechno se počítá.
+- **✅ Tělo reaguje na frekvenci — krátké pauzy udržují citlivost a oběh průběžně**
+  Přesně. Krátké pauzy během dne udržují inzulinovou citlivost, krevní oběh a aktivitu velkých svalů, což jeden pozdější trénink už nezvládne plně obnovit. Tělo není kbelík, který by se „doplnil" jednou velkou akcí — je to systém, který pracuje v reálném čase. Hodiny nehybnosti = hodiny degradace, které jeden trénink jen částečně vyrovná. Proto pauzy, schody, chůze — všechno se počítá.
 - ❌ Krátké pauzy spálí víc kalorií než jeden trénink
   Nespálí. Hodina v posilovně spálí výrazně víc kalorií než 5 krátkých pauz. Ale kalorie nejsou hlavní benefit pohybu — biologické signály jsou.
 - ❌ Krátké pauzy jsou jednodušší, takže člověk vytrvá, žádný hlubší biologický důvod tam není
@@ -604,8 +604,8 @@ The body doesn't measure **how big an action you took** — it measures **how of
 
 **Question:** Why is the "short breaks every hour" strategy usually more effective than one 60-minute workout after 8 hours of sitting?
 
-- **✅ The body responds to the frequency of movement — short breaks during the day maintain insulin sensitivity, circulation, and activity in large muscles, things that one later workout can't fully restore**
-  Exactly. The body isn't a bucket that gets "refilled" by one big action. It's a system that works in real time. Hours of immobility = hours of degradation, which one workout only partially offsets. That's why breaks, stairs, walking — it all counts.
+- **✅ Body responds to frequency — breaks keep sensitivity and circulation active**
+  Exactly. Short breaks during the day maintain insulin sensitivity, circulation, and activity in large muscles, things that one later workout can't fully restore. The body isn't a bucket that gets "refilled" by one big action — it's a system that works in real time. Hours of immobility = hours of degradation, which one workout only partially offsets. That's why breaks, stairs, walking — it all counts.
 - ❌ Short breaks burn more calories than one workout
   They don't. An hour in the gym burns significantly more calories than 5 short breaks. But calories aren't the main benefit of movement — biological signals are.
 - ❌ Short breaks are easier, so the person sticks with it; there's no deeper biological reason
@@ -615,8 +615,8 @@ The body doesn't measure **how big an action you took** — it measures **how of
 
 **Otázka:** Představ si, že celý den sedíš a rozhodneš se, že pro zdraví začneš každý den aspoň trochu chodit. Který z následujících návyků má největší šanci, že u tebe vydrží aspoň rok?
 
-- **✅ Každý den při cestě domů vystoupíš o jednu zastávku dřív a posledních ~10 minut dojdeš pěšky — jednoduché, automatické, nevyžaduje žádné další rozhodování**
-  Přesně. Nejsilnější návyky jsou ty, které „zapadnou" do existujícího dne, aniž bys musel něco přeplánovávat. Cesta domů je už v kalendáři — jen do ní zapojíš pohyb. Žádné rozhodování, žádná motivace, jen návyk.
+- **✅ Cestou domů vystoupíš o zastávku dřív a posledních 10 minut dojdeš pěšky**
+  Přesně. Jednoduché, automatické, nevyžaduje žádné další rozhodování. Nejsilnější návyky jsou ty, které „zapadnou" do existujícího dne, aniž bys musel něco přeplánovávat. Cesta domů je už v kalendáři — jen do ní zapojíš pohyb. Žádné rozhodování, žádná motivace, jen návyk.
 - ❌ Každé ráno v 5:30 vstávat na 45 minut běhu, i když normálně vstáváš v 7:00
   Velká změna rytmu + dlouhá aktivita = vysoké riziko, že to po týdnu vzdáš. Funguje to u někoho, ale je to nejtěžší cesta. Pro „začít být aktivnější" je to zbytečně ambiciózní.
 - ❌ Jednou týdně v sobotu jít na 3hodinový pochod, jinak nic
@@ -626,8 +626,8 @@ The body doesn't measure **how big an action you took** — it measures **how of
 
 **Question:** Imagine you sit all day and decide that for your health you'll walk at least a little every day. Which of the following habits has the best chance of sticking for at least a year?
 
-- **✅ Every day on the way home you get off one stop earlier and walk the last ~10 minutes — simple, automatic, requires no extra decision**
-  Exactly. The strongest habits are the ones that "slot into" an existing day without you having to replan anything. The commute home is already in the calendar — you just add movement to it. No decisions, no motivation, just habit.
+- **✅ Get off one stop earlier on the way home and walk the last 10 minutes**
+  Exactly. Simple, automatic, requires no extra decision. The strongest habits are the ones that "slot into" an existing day without you having to replan anything. The commute home is already in the calendar — you just add movement to it. No decisions, no motivation, just habit.
 - ❌ Every morning wake up at 5:30 for a 45-minute run, even though you normally wake at 7:00
   A big change in rhythm + long activity = high risk you give up after a week. It works for some, but it's the hardest path. For "start being more active" it's unnecessarily ambitious.
 - ❌ Once a week on Saturday go for a 3-hour hike, otherwise nothing

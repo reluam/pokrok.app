@@ -104,8 +104,8 @@ These shortcuts are evolutionarily old and mostly useful — they enable fast co
 
 **Otázka:** Představ si, že ti kolega ráno „zadarmo" přinese kávu. O týden později tě požádá, abys za něj převzal nepříjemný úkol, který bys normálně odmítl. Cítíš silné nutkání souhlasit. Jaký princip vlivu právě zafungoval?
 
-- **✅ Reciprocita — instinkt vrátit laskavost tomu, kdo ti ji prokázal, i když byla drobná a nevyžádaná**
-  Přesně. Reciprocita je jeden z nejsilnějších a evolučně nejstarších sociálních instinktů. „Dostal jsem, musím dát." Funguje i u drobných, nevyžádaných a formálně „zadarmo" dárků — mozek je stejně zapíše jako dluh. Tohohle principu hojně využívají obchodníci: ochutnávky zdarma, dárky k nákupu, „zkušební období" — všechno aktivuje reciprocitu.
+- **✅ Reciprocita — instinkt vrátit prokázanou laskavost**
+  Přesně. Vrací se tomu, kdo ti ji prokázal. Reciprocita je jeden z nejsilnějších a evolučně nejstarších sociálních instinktů. „Dostal jsem, musím dát." Funguje i u drobných, nevyžádaných a formálně „zadarmo" dárků — mozek je stejně zapíše jako dluh. Tohohle principu hojně využívají obchodníci: ochutnávky zdarma, dárky k nákupu, „zkušební období" — všechno aktivuje reciprocitu.
 - ❌ Je to jen tvá slabá vůle, neumíš říct „ne"
   Nemá to s vůlí nic společného. Reciprocita funguje i na lidi s velmi silnou vůlí. Je to automatický mechanismus, který tě nejprve ovlivní a teprve potom (pokud si ho všimneš) se mu můžeš rozhodnout nepodlehnout.
 - ❌ Je to náhoda, jen tě kolega požádal ve vhodnou chvíli
@@ -115,8 +115,8 @@ These shortcuts are evolutionarily old and mostly useful — they enable fast co
 
 **Question:** Imagine a coworker brings you "a free" coffee in the morning. A week later they ask you to take over an unpleasant task you'd normally refuse. You feel a strong urge to say yes. Which principle of influence just kicked in?
 
-- **✅ Reciprocity — the instinct to return a favor to someone who did one for you, even if it was small and unsolicited**
-  Exactly. Reciprocity is one of the strongest and evolutionarily oldest social instincts. "I got something, I must give something." It works even with small, unsolicited, and formally "free" gifts — the brain still logs them as a debt. Salespeople heavily rely on this principle: free samples, gifts with a purchase, "trial periods" — all activate reciprocity.
+- **✅ Reciprocity — the instinct to return any given favor**
+  Exactly. You return it to whoever did one for you. Reciprocity is one of the strongest and evolutionarily oldest social instincts. It works even with small, unsolicited favors. "I got something, I must give something." It works even with small, unsolicited, and formally "free" gifts — the brain still logs them as a debt. Salespeople heavily rely on this principle: free samples, gifts with a purchase, "trial periods" — all activate reciprocity.
 - ❌ It's just your weak willpower, you can't say "no"
   It has nothing to do with willpower. Reciprocity works on people with very strong willpower too. It's an automatic mechanism that first affects you; only afterward (if you notice it) can you decide not to give in.
 - ❌ It's a coincidence, the coworker just asked at a convenient moment
@@ -138,8 +138,8 @@ The problem starts when **someone deliberately uses these principles against you
 
 **Otázka:** Představ si, že v neznámém městě vybíráš restauraci. Dvě jsou vedle sebe: jedna má před dveřmi frontu, druhá je prázdná. Automaticky se táhneš k té s frontou. Jaký princip to popisuje — a je to racionální?
 
-- **✅ Sociální důkaz — a ve většině případů je racionální, jen občas se dá zneužít (umělé fronty, turistické pasti, falešné recenze)**
-  Přesně. Sociální důkaz („když to dělají ostatní, asi to má důvod") je v neznámém prostředí mocná zkratka. Ušetří ti čas, který bys jinak strávil analyzováním. Ale má své slepá místa — v turistických lokalitách se fronty někdy tvoří uměle, falešné recenze jsou byznys, a někdy prázdný podnik jen otvírá a je skvělý.
+- **✅ Sociální důkaz — většinou racionální, občas zneužitý**
+  Přesně. Sociální důkaz („když to dělají ostatní, asi to má důvod") je v neznámém prostředí mocná zkratka. Zneužití má typické formy: umělé fronty, turistické pasti, falešné recenze. Ušetří ti čas, který bys jinak strávil analyzováním. Ale má své slepá místa — v turistických lokalitách se fronty někdy tvoří uměle, falešné recenze jsou byznys, a někdy prázdný podnik jen otvírá a je skvělý.
 - ❌ Je to iracionální — prázdná restaurace bývá stejně dobrá
   „Stejně dobrá" to někdy je, ale sociální důkaz není iracionální. Je to levný a většinou přesný odhad v situaci bez informací. Problém je spíš v tom, že se dá zmanipulovat — ne že by sám o sobě byl chybný.
 - ❌ Není to princip vlivu, je to prostě instinkt „stáda"
@@ -149,8 +149,8 @@ The problem starts when **someone deliberately uses these principles against you
 
 **Question:** Imagine you're picking a restaurant in an unfamiliar city. Two are side by side: one has a line at the door, the other is empty. You automatically drift toward the one with the line. Which principle describes this — and is it rational?
 
-- **✅ Social proof — and in most cases it's rational, it's just occasionally exploited (fake lines, tourist traps, fake reviews)**
-  Exactly. Social proof ("if others are doing it, it must have a reason") is a powerful shortcut in an unfamiliar environment. It saves you the time you'd spend analyzing. But it has blind spots — in tourist areas, lines are sometimes staged; fake reviews are a business; and sometimes an empty place has just opened and is great.
+- **✅ Social proof — and it's usually rational, just occasionally exploited**
+  Exactly. Social proof ("if others are doing it, it must have a reason") is a powerful shortcut in an unfamiliar environment. Typical exploitation: fake lines, tourist traps, fake reviews. It saves you the time you'd spend analyzing. But it has blind spots — in tourist areas, lines are sometimes staged; fake reviews are a business; and sometimes an empty place has just opened and is great.
 - ❌ It's irrational — an empty restaurant is often just as good
   Sometimes "just as good," yes, but social proof isn't irrational. It's a cheap and usually accurate estimate in an information-poor situation. The problem is more that it can be manipulated — not that the shortcut itself is flawed.
 - ❌ It isn't a principle of influence, it's just a "herd" instinct
@@ -168,8 +168,8 @@ The problem starts when **someone deliberately uses these principles against you
 
 **Otázka:** Představ si, že si myslíš „na mě principy vlivu nefungují, jsem příliš chytrý". Proč je to **riziková** pozice?
 
-- **✅ Výzkum ukazuje, že principy fungují stejně silně na vzdělané i nevzdělané — sebedůvěra „jsem imunní" je právě to, co tě dělá zranitelnějším, protože přestaneš být ve střehu**
-  Přesně. Cialdini a další opakovaně testovali, jestli inteligence, vzdělání nebo „kritické myšlení" dělají člověka odolným vůči principům vlivu. Výsledek: prakticky ne. Principy působí podvědomě, dřív než stihne zapracovat analýza. Paradoxně lidé, kteří si myslí „na mě to neplatí", často podléhají víc — protože nevidí důvod být ve střehu.
+- **✅ Sebedůvěra „jsem imunní" tě dělá zranitelnějším**
+  Přesně. Přestaneš být ve střehu. Výzkum ukazuje, že principy fungují stejně silně na vzdělané i nevzdělané. Cialdini a další opakovaně testovali, jestli inteligence, vzdělání nebo „kritické myšlení" dělají člověka odolným vůči principům vlivu. Výsledek: prakticky ne. Principy působí podvědomě, dřív než stihne zapracovat analýza. Paradoxně lidé, kteří si myslí „na mě to neplatí", často podléhají víc — protože nevidí důvod být ve střehu.
 - ❌ Je to opatrný postoj — radši si věřit než se nechat napálit
   „Věřit si" je dobré u dovedností, které trénuješ. Ale u **podvědomých** mechanismů je přehnaná sebedůvěra past. Lepší postoj: „vím, že na mě principy působí, a učím se je rozpoznávat".
 - ❌ Na tom nic riskantního není, je to jen názor
@@ -179,8 +179,8 @@ The problem starts when **someone deliberately uses these principles against you
 
 **Question:** Imagine you think "principles of influence don't work on me, I'm too smart." Why is this a **risky** position?
 
-- **✅ Research shows the principles work just as strongly on the educated as on the uneducated — the self-confidence "I'm immune" is exactly what makes you more vulnerable, because you stop being alert**
-  Exactly. Cialdini and others repeatedly tested whether intelligence, education, or "critical thinking" make a person immune to influence principles. The result: essentially no. The principles act subconsciously, before analysis can kick in. Paradoxically, people who think "it doesn't work on me" often fall for them more — because they see no reason to be on guard.
+- **✅ The belief "I'm immune" makes you more vulnerable — less alert**
+  Exactly. You stop being alert. Research shows the principles work just as strongly on the educated as on the uneducated. Cialdini and others repeatedly tested whether intelligence, education, or "critical thinking" make a person immune to influence principles. The result: essentially no. The principles act subconsciously, before analysis can kick in. Paradoxically, people who think "it doesn't work on me" often fall for them more — because they see no reason to be on guard.
 - ❌ It's a cautious stance — better to trust yourself than get duped
   "Trusting yourself" is good for skills you train. But with **subconscious** mechanisms, excessive self-confidence is a trap. A better stance: "I know the principles act on me, and I'm learning to recognize them."
 - ❌ There's nothing risky about it, it's just an opinion
@@ -190,8 +190,8 @@ The problem starts when **someone deliberately uses these principles against you
 
 **Otázka:** Představ si, že ti na ulici podá cizí člověk „zadarmo" květinu a vzápětí požádá o dar. Cítíš tlak dát alespoň malou částku, i když jsi o to nestál. Jaká je nejlepší obrana?
 
-- **✅ V duchu si říct „nevyžádaný dárek není skutečný dárek" a klidně květinu vrátit nebo odmítnout — závazek, který jsi si neobjednal, nemá moc**
-  Přesně. Cialdini tento konkrétní scénář popsal jako klasickou zneužitou reciprocitu. Obrana není v tom, že přestaneš mít v sobě instinkt vrátit laskavost — ten ti zůstane. Obrana je v tom, že si uvědomíš, že nevyžádaný dárek byl **nástroj**, ne dárek. V tu chvíli závazek zmizí.
+- **✅ Říct si „nevyžádaný dárek není dárek" a jít dál**
+  Přesně. Klidně květinu vrať nebo odmítni. Závazek, který sis neobjednal, nemá moc. Cialdini tento konkrétní scénář popsal jako klasickou zneužitou reciprocitu. Obrana není v tom, že přestaneš mít v sobě instinkt vrátit laskavost — ten ti zůstane. Obrana je v tom, že si uvědomíš, že nevyžádaný dárek byl **nástroj**, ne dárek. V tu chvíli závazek zmizí.
 - ❌ Vzít květinu a dát malou částku, aby ses zbavil pocitu viny
   Pocit viny je přesně to, co manipulátor potřebuje — je to aktivovaná reciprocita. Když zaplatíš, princip fungoval. Malá částka násobená tisícem chodců dělá dobrý byznys.
 - ❌ Naštvat se a začít hádku
@@ -201,8 +201,8 @@ The problem starts when **someone deliberately uses these principles against you
 
 **Question:** Imagine a stranger on the street hands you a "free" flower and immediately asks for a donation. You feel pressure to give at least a small amount, even though you didn't want the flower. What's the best defense?
 
-- **✅ Tell yourself "an unsolicited gift isn't a real gift" and calmly return the flower or refuse — a commitment you didn't order has no power**
-  Exactly. Cialdini described this exact scenario as a classic exploitation of reciprocity. The defense isn't getting rid of your instinct to return a favor — you'll keep it. The defense is realizing that the unsolicited gift was a **tool**, not a gift. At that moment, the obligation disappears.
+- **✅ Say "an unsolicited gift isn't a gift" and refuse**
+  Exactly. A commitment you didn't order has no power. Cialdini described this exact scenario as a classic exploitation of reciprocity. The defense isn't getting rid of your instinct to return a favor — you'll keep it. The defense is realizing that the unsolicited gift was a **tool**, not a gift. At that moment, the obligation disappears.
 - ❌ Take the flower and give a small amount to get rid of the guilt
   Guilt is exactly what the manipulator needs — it's activated reciprocity. When you pay, the principle worked. A small amount times a thousand passersby makes a good business.
 - ❌ Get angry and start an argument
@@ -253,8 +253,8 @@ Restaurant lines, bestsellers, "most bought," "five stars from 2000 customers," 
 
 **Otázka:** Představ si, že vybíráš online kurz. Jeden má „over 50 000 students" a 4,8 hvězdičky, druhý má 120 studentů a 4,9 hvězdičky. Automaticky se kloníš k prvnímu. Kdy je ti **sociální důkaz** v tomto případě užitečný — a kdy může klamat?
 
-- **✅ Je užitečný, pokud recenze jsou pravé a studenti podobní tobě — ale klame, když je počet nafouknutý marketingem nebo recenze jsou z kampaně, ne od reálných uživatelů**
-  Přesně. 50 000 studentů může být skutečný ukazatel kvality — ale také může znamenat „kurz je dva roky starý a masivně se inzeroval zdarma". Lepší otázka než „kolik?" je **„kdo?"** — jsou recenzenti podobní tobě? Řeší tvůj problém? Popisují reálné výsledky? 120 studentů s detailními recenzemi od lidí, kteří řeší přesně tvou situaci, může být hodnotnější signál než 50 000 anonymních hvězdiček.
+- **✅ Je užitečný, pokud recenze jsou pravé a studenti podobní**
+  Přesně. Klame, když je počet nafouknutý marketingem nebo recenze jsou z kampaně, ne od reálných uživatelů. 50 000 studentů může být skutečný ukazatel kvality — ale také může znamenat „kurz je dva roky starý a masivně se inzeroval zdarma". Lepší otázka než „kolik?" je **„kdo?"** — jsou recenzenti podobní tobě? Řeší tvůj problém? Popisují reálné výsledky? 120 studentů s detailními recenzemi od lidí, kteří řeší přesně tvou situaci, může být hodnotnější signál než 50 000 anonymních hvězdiček.
 - ❌ Je vždycky užitečný, čím víc studentů, tím lepší kurz
   Tohle je naivní verze sociálního důkazu. Počet sám o sobě nic neříká, pokud nevíš, kdo ti lidé jsou a co vlastně hodnotí. Masový produkt často optimalizuje pro masu — ne pro tebe.
 - ❌ Je vždycky zavádějící, hvězdičky nic neznamenají
@@ -264,8 +264,8 @@ Restaurant lines, bestsellers, "most bought," "five stars from 2000 customers," 
 
 **Question:** Imagine you're choosing an online course. One has "over 50,000 students" and 4.8 stars, another has 120 students and 4.9 stars. You automatically lean toward the first. When is **social proof** useful here — and when can it mislead you?
 
-- **✅ It's useful if the reviews are real and the students are similar to you — but it misleads when the count is inflated by marketing or the reviews come from a campaign, not real users**
-  Exactly. 50,000 students may be a real quality signal — but it may also mean "the course is two years old and was massively advertised for free." A better question than "how many?" is **"who?"** — are the reviewers similar to you? Do they tackle your problem? Do they describe real results? 120 students with detailed reviews from people solving exactly your situation can be more valuable than 50,000 anonymous stars.
+- **✅ It's useful if the reviews are real and students similar**
+  Exactly. It misleads when the count is inflated by marketing or the reviews come from a campaign, not real users. 50,000 students may be a real quality signal — but it may also mean "the course is two years old and was massively advertised for free." A better question than "how many?" is **"who?"** — are the reviewers similar to you? Do they tackle your problem? Do they describe real results? 120 students with detailed reviews from people solving exactly your situation can be more valuable than 50,000 anonymous stars.
 - ❌ It's always useful, the more students, the better the course
   That's a naive version of social proof. Count alone says nothing if you don't know who those people are and what they're rating. Mass-market products often optimize for the mass — not for you.
 - ❌ It's always misleading, stars mean nothing
@@ -291,8 +291,8 @@ Defense: ask **who exactly** is the authority, **in what field** they're an expe
 
 **Otázka:** Představ si, že na sociální síti vidíš reklamu: „Doporučuje MUDr. Nováková, praktická lékařka — doplněk stravy na imunitu." Jaký je **nejlepší** kritický filtr, který na tuhle reklamu použít?
 
-- **✅ Zeptat se: je doktorka **skutečná expertka na imunitu**? Kdo ji platí? Existují **nezávislé** studie, nebo je jen její doporučení?**
-  Přesně. Praktická lékařka je autorita v obecné medicíně, ale **není** obvykle expertkou na imunologii nebo doplňky stravy. Plus: pokud je placena výrobcem, má ekonomický zájem doporučit produkt — a tím se autorita promění v placenou reklamu. Skutečnou sílu má **nezávislá** studie, ne osobní doporučení jednoho lékaře.
+- **✅ Zeptat se: je expertkou na imunitu a kdo ji platí?**
+  Přesně. Existují nezávislé studie, nebo jen její doporučení? Praktická lékařka je autorita v obecné medicíně, ale **není** obvykle expertkou na imunologii nebo doplňky stravy. Plus: pokud je placena výrobcem, má ekonomický zájem doporučit produkt — a tím se autorita promění v placenou reklamu. Skutečnou sílu má **nezávislá** studie, ne osobní doporučení jednoho lékaře.
 - ❌ „Doktorka to doporučuje, tak to asi funguje"
   Tohle je přesně past autority. Titul MUDr. aktivuje reflex důvěry, ale neříká nic o tom, zda je doktorka expertkou právě v téhle oblasti, ani o tom, jestli není placena.
 - ❌ „Doktoři jsou všichni zkorumpovaní, nevěřím jim"
@@ -302,8 +302,8 @@ Defense: ask **who exactly** is the authority, **in what field** they're an expe
 
 **Question:** Imagine you see an ad on social media: "Recommended by Dr. Nováková, GP — immunity supplement." What's the **best** critical filter to apply to this ad?
 
-- **✅ Ask: is the doctor **a real expert on immunity**? Who pays her? Are there **independent** studies, or is it just her recommendation?**
-  Exactly. A GP is an authority in general medicine but usually is **not** an expert in immunology or supplements. Plus: if she's paid by the manufacturer, she has an economic interest in recommending the product — and the authority turns into paid advertising. Real power lies in an **independent** study, not the personal recommendation of a single doctor.
+- **✅ Ask: is she an immunity expert and who pays her?**
+  Exactly. Are there independent studies, or is it just her recommendation? A GP is an authority in general medicine but usually is **not** an expert in immunology or supplements. Plus: if she's paid by the manufacturer, she has an economic interest in recommending the product — and the authority turns into paid advertising. Real power lies in an **independent** study, not the personal recommendation of a single doctor.
 - ❌ "A doctor recommends it, so it probably works"
   This is exactly the authority trap. The title "Dr." triggers a trust reflex, but says nothing about whether the doctor is an expert in this specific area, nor whether she's being paid.
 - ❌ "Doctors are all corrupt, I don't trust them"
@@ -329,8 +329,8 @@ Defense: the rule **"Did I want it yesterday?"** If the answer was "no," then "t
 
 **Otázka:** Představ si, že ti přijde e-mail: „POSLEDNÍ ŠANCE! Jen dnes 60% sleva, zítra končí!" Produkt jsi předtím neznal, ale začínáš cítit tlak koupit. Co je **nejlepší** reakce?
 
-- **✅ Udělat krok zpět a zeptat se: „Chtěl jsem tento produkt před e-mailem?" Pokud byla odpověď „ne", sleva není důvod ke koupi — je to signál ke zpomalení**
-  Přesně. Tohle je nejsilnější obrana proti vzácnosti. Sleva sama o sobě není důvod k akci — je to jen cena. Pokud jsi produkt předtím nepotřeboval, 60 % z nepotřebného je stále nepotřebné. Tlak času je záměrný prvek, který brzdí tvůj analytický mozek — tak s ním pracuješ tak, že si **uděláš čas**, i kdybys o nabídku přišel.
+- **✅ Zeptat se: „Chtěl jsem to před e-mailem?"**
+  Přesně. Pokud byla odpověď „ne", sleva není důvod ke koupi — je to signál ke zpomalení. Tohle je nejsilnější obrana proti vzácnosti. Sleva sama o sobě není důvod k akci — je to jen cena. Pokud jsi produkt předtím nepotřeboval, 60 % z nepotřebného je stále nepotřebné. Tlak času je záměrný prvek, který brzdí tvůj analytický mozek — tak s ním pracuješ tak, že si **uděláš čas**, i kdybys o nabídku přišel.
 - ❌ Koupit hned, než bude pozdě
   Tohle je přesně reakce, kterou marketing chce vyvolat. „Radši chybně koupit než chybně nechat ujít" — FOMO. Výsledkem jsou plné šuplíky věcí, které jsi nechtěl, za slevu, kterou si nepamatuješ.
 - ❌ Odhlásit se ze všech newsletterů, ať nemáš ty pokušení
@@ -340,8 +340,8 @@ Defense: the rule **"Did I want it yesterday?"** If the answer was "no," then "t
 
 **Question:** Imagine an email arrives: "LAST CHANCE! Only today 60% off, ends tomorrow!" You didn't know the product before, but you start feeling pressure to buy. What's the **best** reaction?
 
-- **✅ Step back and ask: "Did I want this product before the email?" If the answer was "no," the discount is not a reason to buy — it's a signal to slow down**
-  Exactly. This is the strongest defense against scarcity. A discount by itself isn't a reason to act — it's just a price. If you didn't need the product before, 60% off unneeded is still unneeded. Time pressure is a deliberate element that brakes your analytical brain — so you counter it by **giving yourself time**, even if it means losing the offer.
+- **✅ Ask: "Did I want this product before the email?"**
+  Exactly. If the answer was "no," the discount isn't a reason to buy — it's a signal to slow down. This is the strongest defense against scarcity. A discount by itself isn't a reason to act — it's just a price. If you didn't need the product before, 60% off unneeded is still unneeded. Time pressure is a deliberate element that brakes your analytical brain — so you counter it by **giving yourself time**, even if it means losing the offer.
 - ❌ Buy now before it's too late
   This is exactly the reaction marketing wants to trigger. "Better to wrongly buy than to wrongly miss out" — FOMO. The result is drawers full of things you didn't want, at a discount you don't remember.
 - ❌ Unsubscribe from all newsletters so you don't have the temptation
@@ -396,8 +396,8 @@ Using Cialdini's principles isn't morally wrong by itself. What matters is **who
 
 **Otázka:** Představ si, že ti kamarád radí, abys přestal pít alkohol, a k tomu ti ukáže studie o dopadu na zdraví, svůj vlastní příběh („mně se zlepšil spánek") a ptá se tě „o co bys přišel, kdybys tuhle variantu zkusil na měsíc?". Je to manipulace nebo přesvědčování?
 
-- **✅ Přesvědčování — využívá principy vlivu (autorita studií, sociální důkaz z osobní zkušenosti, drobný závazek „zkusit na měsíc"), ale cíl je tvoje zdraví, ne jeho prospěch**
-  Přesně. Kamarád používá stejné psychologické mechanismy jako prodejce, ale **slouží tvému zájmu**, ne svému. To je podstata rozdílu. Principy vlivu samy o sobě nejsou morální ani nemorální — jsou to nástroje. Přesvědčování je legitimní forma komunikace a probíhá v každodenním životě (lékaři, učitelé, rodiče, kamarádi).
+- **✅ Přesvědčování — cíl je tvé zdraví**
+  Přesně. Využívá principy vlivu (autorita studií, sociální důkaz z osobní zkušenosti, drobný závazek „zkusit na měsíc"), ale cíl je tvé zdraví, ne jeho prospěch. Kamarád používá stejné psychologické mechanismy jako prodejce, ale **slouží tvému zájmu**, ne svému. To je podstata rozdílu. Principy vlivu samy o sobě nejsou morální ani nemorální — jsou to nástroje. Přesvědčování je legitimní forma komunikace a probíhá v každodenním životě (lékaři, učitelé, rodiče, kamarádi).
 - ❌ Manipulace — používá psychologické triky
   Tohle by znamenalo, že každá forma přesvědčování je manipulace, a to by bylo absurdní. Nemohl bys nikomu doporučit knihu, kurz nebo lékaře. Rozdíl není ve **formě**, je v **záměru a prospěchu**.
 - ❌ Ani jedno — je to jen informování
@@ -407,8 +407,8 @@ Using Cialdini's principles isn't morally wrong by itself. What matters is **who
 
 **Question:** Imagine a friend advises you to stop drinking alcohol, and shows you studies on health impact, his own story ("my sleep improved"), and asks you "what would you lose if you tried this option for a month?" Is it manipulation or persuasion?
 
-- **✅ Persuasion — he uses principles of influence (authority of studies, social proof from personal experience, a small commitment "try for a month"), but the goal is your health, not his benefit**
-  Exactly. The friend uses the same psychological mechanisms as a salesperson, but **serves your interest**, not his own. That's the essence of the distinction. Principles of influence themselves aren't moral or immoral — they're tools. Persuasion is a legitimate form of communication and happens all the time (doctors, teachers, parents, friends).
+- **✅ Persuasion — the goal is your health**
+  Exactly. He uses the same principles of influence (authority of studies, social proof from personal experience, a small commitment "try for a month"), but serves your health, not his benefit. The friend uses the same psychological mechanisms as a salesperson, but **serves your interest**, not his own. That's the essence of the distinction. Principles of influence themselves aren't moral or immoral — they're tools. Persuasion is a legitimate form of communication and happens all the time (doctors, teachers, parents, friends).
 - ❌ Manipulation — he's using psychological tricks
   This would mean every form of persuasion is manipulation, which would be absurd. You couldn't recommend a book, a course, or a doctor to anyone. The distinction isn't in the **form**, it's in the **intent and benefit**.
 - ❌ Neither — it's just informing
@@ -442,8 +442,8 @@ A practical **defense checklist** against manipulation:
 
 **Otázka:** Představ si, že tě prodejce tlačí: „Tato nabídka platí jen do konce dne, rozhodněte se teď." Cítíš silný tlak. Co je **nejlepší** postup?
 
-- **✅ Klidně říct: „Potřebuji si to promyslet. Pokud nabídka platí jen do dnešního dne, pravděpodobně ji odmítnu." A odejít**
-  Přesně. Tohle dělá dvě věci najednou: dává ti čas na racionální rozhodnutí a zároveň testuje pravdivost tlaku. Pokud prodejce nabídku „za hodinu" změkčí („no, mohl bych se zeptat šéfa…"), víš, že tlak byl taktický — ne skutečný. Pokud nabídka fakticky skončí, nebyla pro tebe tak dobrá, jak ji prezentoval. **Neztratíš nic, o čem bys později litoval.**
+- **✅ Říct „Musím si to promyslet" a odejít**
+  Přesně. Můžeš doplnit: „Pokud nabídka platí jen do dneška, pravděpodobně ji odmítnu." Tohle dělá dvě věci najednou: dává ti čas na racionální rozhodnutí a zároveň testuje pravdivost tlaku. Pokud prodejce nabídku „za hodinu" změkčí („no, mohl bych se zeptat šéfa…"), víš, že tlak byl taktický — ne skutečný. Pokud nabídka fakticky skončí, nebyla pro tebe tak dobrá, jak ji prezentoval. **Neztratíš nic, o čem bys později litoval.**
 - ❌ Rychle koupit, aby nepropásl
   Tohle je přesně cíl manipulátora. FOMO (strach ze ztráty) + časový tlak + vzácnost = kombinace, která brzdí analytické myšlení. Dlouhodobě platíš za věci, o kterých jsi původně nevěděl, že je chceš.
 - ❌ Okamžitě koupit, aby ses rozhodnutí vyhnul
@@ -453,8 +453,8 @@ A practical **defense checklist** against manipulation:
 
 **Question:** Imagine a salesperson is pushing you: "This offer is only valid until the end of the day, decide now." You feel strong pressure. What's the **best** approach?
 
-- **✅ Calmly say: "I need to think it over. If the offer only lasts until today, I'll probably decline it." And leave**
-  Exactly. This does two things at once: gives you time for a rational decision, and tests the truth of the pressure. If the salesperson softens "in an hour" ("well, I could ask my boss…"), you know the pressure was tactical — not real. If the offer actually expires, it wasn't as good as they said. **You lose nothing you'd regret later.**
+- **✅ Say "I must think it over" and leave**
+  Exactly. You can add: "If the offer only lasts until today, I'll probably decline it." This does two things at once: gives you time for a rational decision, and tests the truth of the pressure. If the salesperson softens "in an hour" ("well, I could ask my boss…"), you know the pressure was tactical — not real. If the offer actually expires, it wasn't as good as they said. **You lose nothing you'd regret later.**
 - ❌ Buy fast so you don't miss out
   This is exactly the manipulator's goal. FOMO + time pressure + scarcity = a combination that brakes analytical thinking. Long-term, you pay for things you didn't originally know you wanted.
 - ❌ Buy immediately to avoid the decision
@@ -484,8 +484,8 @@ The goal isn't to "become impenetrable." The goal is to **shorten the gap** betw
 
 **Otázka:** Představ si, že chceš sám přesvědčit kamaráda, aby začal cvičit. Jaký je **eticky** nejlepší postup — takový, který využívá principy vlivu, ale neubližuje mu?
 
-- **✅ Použít autoritu (odkázat na nezávislý výzkum), sociální důkaz (vlastní příběh „mně to pomohlo takhle") a drobný závazek („zkusíš to na dva týdny?") — ale nechat mu svobodu odmítnout bez trestu**
-  Přesně. Tohle je přesvědčování v jeho zájmu, s využitím stejných principů, které používá marketing — rozdíl je **v úmyslu a ve svobodě druhého**. Pokud může odmítnout bez ztráty vztahu nebo výčitek, je to přesvědčování. Pokud by nad ním viselo „jsi slabý, jsi špatný kamarád, když nesouhlasíš", stává se to manipulací.
+- **✅ Použít principy vlivu a nechat mu svobodu odmítnout**
+  Přesně. Klíčové je, že odmítnutí nesmí být trestáno. Můžeš využít autoritu (odkaz na nezávislý výzkum), sociální důkaz (vlastní příběh „mně to pomohlo takhle") i drobný závazek („zkusíš to na dva týdny?"). Tohle je přesvědčování v jeho zájmu, s využitím stejných principů, které používá marketing — rozdíl je **v úmyslu a ve svobodě druhého**. Pokud může odmítnout bez ztráty vztahu nebo výčitek, je to přesvědčování. Pokud by nad ním viselo „jsi slabý, jsi špatný kamarád, když nesouhlasíš", stává se to manipulací.
 - ❌ Tlačit na něj opakovaně a vyčítat mu, že si neváží svého zdraví
   Tohle je manipulace skrz vinu. Krátkodobě možná něco udělá, ale dlouhodobě poškodíš vztah — a možná ho odradíš od cvičení ještě víc, protože ho bude spojovat s nepříjemnou zkušeností.
 - ❌ Neříkat nic, abys ho „nemanipuloval"
@@ -495,8 +495,8 @@ The goal isn't to "become impenetrable." The goal is to **shorten the gap** betw
 
 **Question:** Imagine you want to persuade a friend to start exercising. What's the **most ethical** approach — one that uses the principles of influence without harming him?
 
-- **✅ Use authority (point to independent research), social proof (your own story "it helped me like this"), and a small commitment ("would you try it for two weeks?") — but leave him free to refuse without punishment**
-  Exactly. This is persuasion in his interest, using the same principles marketing uses — the difference is **in intent and in the other person's freedom**. If he can refuse without losing the relationship or feeling guilty, it's persuasion. If "you're weak, you're a bad friend if you disagree" hangs over him, it becomes manipulation.
+- **✅ Use the principles of influence and let him refuse freely**
+  Exactly. Refusal must not be punished. You can use authority (point to independent research), social proof (your own story "it helped me like this"), and a small commitment ("would you try it for two weeks?"). This is persuasion in his interest, using the same principles marketing uses — the difference is **in intent and in the other person's freedom**. If he can refuse without losing the relationship or feeling guilty, it's persuasion. If "you're weak, you're a bad friend if you disagree" hangs over him, it becomes manipulation.
 - ❌ Push him repeatedly and blame him for not caring about his health
   This is manipulation via guilt. Short-term he may do something, but long-term you damage the relationship — and you may put him off exercising even more, because he'll associate it with an unpleasant experience.
 - ❌ Say nothing so as not to "manipulate" him

@@ -79,8 +79,8 @@ Most people feel hormones are "somewhere inside" and happen independently of the
 
 **Otázka:** Co jsou hormony z biologického pohledu?
 
-- **✅ Molekuly, které jedna část těla vyrobí, vypustí do krve, a jinak umístěná část těla je „přečte" a podle toho zareaguje**
-  Přesně. Hormony jsou systém zpráv — chemická pošta těla. Slinivka pošle inzulin → svaly ho přečtou → vezmou si glukózu z krve. Mozek pošle adrenalin → srdce ho přečte → začne pumpovat rychleji. Tahle komunikace probíhá nepřetržitě, 24/7.
+- **✅ Molekuly, které tělo posílá krví jako zprávy orgánům**
+  Přesně. Hormony jsou systém zpráv — chemická pošta těla. Jedna část těla je vypustí do krve, jiná si je „přečte" a podle toho zareaguje. Slinivka pošle inzulin → svaly ho přečtou → vezmou si glukózu z krve. Mozek pošle adrenalin → srdce ho přečte → začne pumpovat rychleji. Tahle komunikace probíhá nepřetržitě, 24/7.
 - ❌ Emoce, které vznikají v hlavě a šíří se do těla
   Hormony nejsou emoce — i když emoce ovlivňují. Hormony jsou fyzické molekuly, které tělo vyrábí a krev je rozváží. Emoce jsou subjektivní zážitek, který hormony spoluvytvářejí, ale nejsou s nimi totožné.
 - ❌ Specifické nervy, které spojují mozek s orgány
@@ -92,8 +92,8 @@ Most people feel hormones are "somewhere inside" and happen independently of the
 
 **Question:** What are hormones from a biological standpoint?
 
-- **✅ Molecules that one part of the body produces, releases into the blood, and a differently located part of the body "reads" them and reacts accordingly**
-  Exactly. Hormones are a message system — the body's chemical mail. The pancreas sends insulin → muscles read it → they take glucose from the blood. The brain sends adrenaline → the heart reads it → it pumps faster. This communication happens nonstop, 24/7.
+- **✅ Molecules the body sends via blood as messages to organs**
+  Exactly. Hormones are a message system — the body's chemical mail. One part of the body releases them into blood, another part "reads" them and reacts. The pancreas sends insulin → muscles read it → they take glucose from the blood. The brain sends adrenaline → the heart reads it → it pumps faster. This communication happens nonstop, 24/7.
 - ❌ Emotions that arise in the head and spread through the body
   Hormones aren't emotions — even though emotions influence them. Hormones are physical molecules the body makes and the blood transports. Emotions are a subjective experience that hormones co-create but aren't the same as.
 - ❌ Specific nerves that connect the brain to organs
@@ -137,7 +137,7 @@ Hormones work in balance — none of them is "good" or "bad." The body has dozen
 
 **Otázka:** Představ si, že se ráno cítíš vyčerpaný, i když jsi spal 8 hodin. Vstáváš unavený, potřebuješ hodinu a velkou kávu, než se „rozjedeš". Který hormon máš pravděpodobně s narušeným rytmem?
 
-- **✅ Kortizol — jeho ranní vrchol je pravděpodobně oslabený nebo posunutý, takže tělo nedostane jasný signál „je ráno, vstávej"**
+- **✅ Kortizol — jeho ranní vrchol je narušený**
   Přesně. Kortizol má za normálních okolností výrazný ranní vrchol, který tě biologicky probudí. Pokud je narušený (chronickým stresem, špatným spánkem, nepravidelností), ráno se cítíš jako rozbitý, i když jsi „spal dost". Káva vrchol dočasně nahradí, ale jen maskuje problém.
 - ❌ Inzulin — zřejmě jíš špatně před spaním
   Inzulin se ráno nemění natolik, aby způsobil takový pocit. Inzulin víc ovlivňuje pocit po jídle během dne, ne probuzení.
@@ -148,7 +148,7 @@ Hormones work in balance — none of them is "good" or "bad." The body has dozen
 
 **Question:** Imagine that you feel exhausted in the morning, even after 8 hours of sleep. You get up tired, need an hour and a big coffee before you "get going." Which hormone likely has a disrupted rhythm?
 
-- **✅ Cortisol — its morning peak is probably weakened or shifted, so the body doesn't get a clear "it's morning, get up" signal**
+- **✅ Cortisol — its morning peak is disrupted or shifted**
   Exactly. Under normal conditions, cortisol has a strong morning peak that biologically wakes you up. If it's disrupted (by chronic stress, bad sleep, irregularity), you feel broken in the morning even if you "slept enough." Coffee temporarily replaces the peak, but only masks the problem.
 - ❌ Insulin — you're probably eating wrong before bed
   Insulin doesn't change enough in the morning to cause that feeling. Insulin affects how you feel after meals during the day, not waking up.
@@ -167,8 +167,8 @@ A key principle: hormones don't work in isolation. They work in rhythms and mutu
 
 **Otázka:** Proč není přesné dělit hormony na „dobré" (serotonin, dopamin, oxytocin) a „špatné" (kortizol, adrenalin)?
 
-- **✅ Každý hormon má svou nezbytnou roli — bez kortizolu bys ani nevstal z postele, bez adrenalinu bys nepřežil žádnou krizi. Problém je vždycky nerovnováha, ne hormon sám.**
-  Přesně. Kortizol není „špatný" — je nezbytný pro denní fungování (probuzení, energie, mobilizace pod stresem). Problém začne, když je jeho hladina trvale zvýšená. Stejně tak „pozitivní" hormony jsou škodlivé v nadbytku (extrémní serotonin = serotoninový syndrom, extrémní dopamin = závislost).
+- **✅ Každý hormon má svou nezbytnou roli — problém je vždycky nerovnováha, ne hormon sám**
+  Přesně. Bez kortizolu bys ani nevstal z postele, bez adrenalinu bys nepřežil žádnou krizi. Kortizol není „špatný" — je nezbytný pro denní fungování (probuzení, energie, mobilizace pod stresem). Problém začne, když je jeho hladina trvale zvýšená. Stejně tak „pozitivní" hormony jsou škodlivé v nadbytku (extrémní serotonin = serotoninový syndrom, extrémní dopamin = závislost).
 - ❌ Hormony se mohou navzájem převést — kortizol může „přejít" na serotonin, takže jsou de facto stejné
   Hormony se na sebe nepřevádějí. Každý se vyrábí jinak (z různých prekurzorů, v různých tkáních). Tato představa je biologicky nesprávná.
 - ❌ Lidé to dělí špatně — ve skutečnosti jsou všechny hormony vlastně stresové, jen různě silné
@@ -178,8 +178,8 @@ A key principle: hormones don't work in isolation. They work in rhythms and mutu
 
 **Question:** Why is it inaccurate to split hormones into "good" (serotonin, dopamine, oxytocin) and "bad" (cortisol, adrenaline)?
 
-- **✅ Every hormone has its essential role — without cortisol you couldn't even get out of bed, without adrenaline you wouldn't survive any crisis. The problem is always imbalance, not the hormone itself.**
-  Exactly. Cortisol isn't "bad" — it's essential for daily functioning (waking up, energy, mobilizing under stress). The problem starts when its levels stay elevated long-term. Likewise, "positive" hormones are harmful in excess (extreme serotonin = serotonin syndrome, extreme dopamine = addiction).
+- **✅ Every hormone has its essential role — the problem is always imbalance, not the hormone itself**
+  Exactly. Without cortisol you couldn't get out of bed, without adrenaline you wouldn't survive any crisis. Cortisol isn't "bad" — it's essential for daily functioning (waking up, energy, mobilizing under stress). The problem starts when its levels stay elevated long-term. Likewise, "positive" hormones are harmful in excess (extreme serotonin = serotonin syndrome, extreme dopamine = addiction).
 - ❌ Hormones can convert into one another — cortisol can "turn into" serotonin, so they're essentially the same
   Hormones don't convert into one another. Each is made differently (from different precursors, in different tissues). This idea is biologically incorrect.
 - ❌ People split them wrong — actually all hormones are stress hormones, just at different strengths
@@ -197,8 +197,8 @@ Hormones are the **body's message system**, not a mystical force. They work in r
 
 **Otázka:** Představ si, že jsi minulou noc nespal skoro vůbec. Druhý den jsi nejen unavený, ale taky podrážděný, máš větší hlad na sladké než obvykle a ztrácíš motivaci dělat cokoliv. Proč jeden špatný spánek ovlivňuje tolik různých věcí najednou?
 
-- **✅ Hormony nepracují izolovaně — když je narušen jeden rytmus (spánek = kortizol, melatonin), ostatní hormony se rozhodí taky: serotonin (nálada), dopamin (motivace), ghrelin a leptin (hlad). Proto má jedna noc tak široký dopad.**
-  Přesně. Hormonální systém je síť — ne oddělené „kanálky". Špatný spánek zvedne ranní kortizol (podrážděnost), sníží serotonin a dopamin (špatná nálada, nechuť), a naruší leptin/ghrelin (větší hlad, hlavně na rychlé sacharidy). Všechno najednou.
+- **✅ Hormony nepracují izolovaně — když se rozhodí jeden rytmus, ostatní se rozhodí s ním**
+  Přesně. Hormonální systém je síť — ne oddělené „kanálky". Špatný spánek (kortizol, melatonin) zvedne ranní kortizol (podrážděnost), sníží serotonin a dopamin (špatná nálada, nechuť), a naruší leptin/ghrelin (větší hlad, hlavně na rychlé sacharidy). Všechno najednou.
 - ❌ Je to jen psychologie — když jsi unavený, jsi prostě mrzutý a chceš se „odměnit" jídlem
   Psychologie je důsledek, ne příčina. Za náladou, hladem i motivací stojí konkrétní hormonální změny, které se dají změřit v krvi. Není to „pocit", je to biologie.
 - ❌ Tělo se mstí za to, že jsi nerespektoval spánek — je to trest, ne rytmus
@@ -208,8 +208,8 @@ Hormones are the **body's message system**, not a mystical force. They work in r
 
 **Question:** Imagine that you barely slept last night. The next day you're not just tired, but also irritable, have stronger cravings for sweets than usual, and lose motivation to do anything. Why does one bad night of sleep affect so many different things at once?
 
-- **✅ Hormones don't work in isolation — when one rhythm is disrupted (sleep = cortisol, melatonin), other hormones get thrown off too: serotonin (mood), dopamine (motivation), ghrelin and leptin (hunger). That's why one night has such a broad impact.**
-  Exactly. The hormonal system is a network — not separate "channels." Bad sleep raises morning cortisol (irritability), drops serotonin and dopamine (bad mood, no drive), and disrupts leptin/ghrelin (more hunger, especially for fast carbs). All at once.
+- **✅ Hormones don't work in isolation — when one rhythm is disrupted, others get thrown off too**
+  Exactly. The hormonal system is a network — not separate "channels." Bad sleep (cortisol, melatonin) raises morning cortisol (irritability), drops serotonin and dopamine (bad mood, no drive), and disrupts leptin/ghrelin (more hunger, especially for fast carbs). All at once.
 - ❌ It's just psychology — when you're tired, you're grumpy and want to "reward" yourself with food
   Psychology is the consequence, not the cause. Behind the mood, hunger, and motivation are specific hormonal changes measurable in blood. It's not a "feeling," it's biology.
 - ❌ The body is punishing you for not respecting sleep — it's a punishment, not a rhythm
@@ -219,8 +219,8 @@ Hormones are the **body's message system**, not a mystical force. They work in r
 
 **Otázka:** Představ si, že si říkáš: „Já na hormony nevěřím, ty mě neovlivní. Všechno je o disciplíně a vůli." Co je na tomto tvrzení z biologického pohledu nepřesné?
 
-- **✅ Hormony nejsou otázka „víry" — jsou to měřitelné molekuly v krvi, které přímo ovlivňují, kolik energie máš, jak se cítíš a co chceš dělat. Disciplína funguje jen tak dobře, jak dobře máš hormonálně nastavené tělo.**
-  Přesně. Dokonce i „vůle" je z velké části hormonální — prefrontální kortex (řídící sebekontrolu) funguje hůř při vysokém kortizolu, špatném spánku a nízkém dopaminu. Není to boj „mysl vs. tělo" — mysl je součást těla a závisí na stejných hormonech.
+- **✅ Hormony nejsou „víra" — jsou to měřitelné molekuly řídící chování**
+  Přesně. Hormony přímo ovlivňují, kolik máš energie, jak se cítíš a co chceš dělat. Disciplína funguje jen tak dobře, jak dobře máš hormonálně nastavené tělo. Dokonce i „vůle" je z velké části hormonální — prefrontální kortex (řídící sebekontrolu) funguje hůř při vysokém kortizolu, špatném spánku a nízkém dopaminu. Není to boj „mysl vs. tělo" — mysl je součást těla a závisí na stejných hormonech.
 - ❌ Máš pravdu — hormony jsou v naší společnosti přeceňovaný pojem, důležitější je mentalita
   Hormony nejsou „přeceňovaný pojem". Jsou to konkrétní chemické látky s konkrétními efekty, stokrát ověřené ve studiích. Popírat je je jako popírat gravitaci.
 - ❌ Hormony fungují jen u žen a starších lidí
@@ -230,8 +230,8 @@ Hormones are the **body's message system**, not a mystical force. They work in r
 
 **Question:** Imagine that you say: "I don't believe in hormones, they don't affect me. It's all about discipline and willpower." What's biologically inaccurate about this claim?
 
-- **✅ Hormones aren't a matter of "belief" — they're measurable molecules in the blood that directly influence how much energy you have, how you feel, and what you want to do. Discipline only works as well as your hormonal setup lets it.**
-  Exactly. Even "willpower" is largely hormonal — the prefrontal cortex (which runs self-control) works worse under high cortisol, bad sleep, and low dopamine. It isn't a battle "mind vs. body" — the mind is part of the body and depends on the same hormones.
+- **✅ Hormones aren't "belief" — they're measurable molecules that drive behavior**
+  Exactly. Hormones directly influence how much energy you have, how you feel, and what you want to do. Discipline only works as well as your hormonal setup lets it. Even "willpower" is largely hormonal — the prefrontal cortex (which runs self-control) works worse under high cortisol, bad sleep, and low dopamine. It isn't a battle "mind vs. body" — the mind is part of the body and depends on the same hormones.
 - ❌ You're right — hormones are an overhyped concept in our society, mentality is more important
   Hormones aren't "overhyped." They're specific chemicals with specific effects, confirmed by hundreds of studies. Denying them is like denying gravity.
 - ❌ Hormones only matter for women and older people
@@ -241,8 +241,8 @@ Hormones are the **body's message system**, not a mystical force. They work in r
 
 **Otázka:** Který z následujících pohledů nejlépe vystihuje, jak hormony skutečně fungují v těle?
 
-- **✅ Jsou to chemické zprávy pracující v propojených rytmech — každodenní signály jako světlo, jídlo, pohyb a spánek je ovlivňují víc než „speciální" doplňky nebo pilulky**
-  Přesně. Hormonální systém reaguje hlavně na **rytmy a signály prostředí** — kdy je světlo, kdy jíš, kolik se hýbeš, s kým mluvíš. Proto je „lifestyle" silnější páka než většina doplňků. Tak to popisuje i Robert Sapolsky ve své práci o stresu a hormonech.
+- **✅ Jsou to chemické zprávy v propojených rytmech, řízených prostředím**
+  Přesně. Hormonální systém reaguje hlavně na **rytmy a signály prostředí** — kdy je světlo, kdy jíš, kolik se hýbeš, s kým mluvíš. Každodenní signály (světlo, jídlo, pohyb, spánek) je ovlivňují víc než „speciální" doplňky. Proto je „lifestyle" silnější páka než většina pilulek. Tak to popisuje i Robert Sapolsky ve své práci o stresu a hormonech.
 - ❌ Každý hormon má jeden úkol a funguje nezávisle na ostatních
   Hormony jsou propojený systém. Kortizol, melatonin, inzulin, dopamin a serotonin na sebe vzájemně působí. Dívat se na jeden izolovaně je jako opravovat jednu strunu kytary — celý zvuk se stejně změní.
 - ❌ Jsou stálé v průběhu dne, pokud nejsi nemocný nebo nemáš genetickou poruchu
@@ -252,8 +252,8 @@ Hormones are the **body's message system**, not a mystical force. They work in r
 
 **Question:** Which of the following views best captures how hormones actually work in the body?
 
-- **✅ They're chemical messages working in interconnected rhythms — everyday signals like light, food, movement, and sleep influence them more than "special" supplements or pills**
-  Exactly. The hormonal system mainly responds to **rhythms and environmental signals** — when there's light, when you eat, how much you move, who you talk to. That's why "lifestyle" is a stronger lever than most supplements. Robert Sapolsky describes exactly this in his work on stress and hormones.
+- **✅ They're chemical messages in interconnected rhythms, driven by environment**
+  Exactly. The hormonal system mainly responds to **rhythms and environmental signals** — when there's light, when you eat, how much you move, who you talk to. Everyday signals (light, food, movement, sleep) influence them more than "special" supplements. That's why "lifestyle" is a stronger lever than most pills. Robert Sapolsky describes exactly this in his work on stress and hormones.
 - ❌ Each hormone has one job and works independently of the others
   Hormones are a connected system. Cortisol, melatonin, insulin, dopamine, and serotonin interact with each other. Looking at one in isolation is like tuning one string on a guitar — the whole sound still changes.
 - ❌ They're stable throughout the day, unless you're sick or have a genetic disorder
@@ -292,8 +292,8 @@ When you take a bite of chocolate, dopamine levels rise a bit. But surprisingly,
 
 **Otázka:** Představ si, že každý večer scrolluješ sociální sítě 2 hodiny v posteli. Říkáš si, že to děláš, „protože tě to baví". Pak si stěžuješ, že ráno nemáš energii a všechno běžné ti připadá nudné. Co se v tvém mozku pravděpodobně děje?
 
-- **✅ Dopaminové centrum je přetížené — nepředvídatelné odměny ze sociálních sítí (občas něco zajímavého, občas nic) způsobují velké výkyvy dopaminu. Mozek si na vysoké výkyvy zvykne, takže běžné věci (káva, procházka, rozhovor) už ho „nevyhladí" — protože ve srovnání s tím nedávají dost.**
-  Přesně. Sociální sítě používají princip „nepředvídatelné odměny" — stejný, kterým fungují herní automaty. Tento mechanismus způsobuje největší výkyvy dopaminu, mnohem větší než reálný svět. Mozek se přizpůsobí, „resetuje" práh, a všechno mimo telefon vypadá nudně. Tomuto se říká dopaminová desenzibilizace.
+- **✅ Dopaminové centrum je přetížené a otupělé**
+  Přesně. Nepředvídatelné odměny ze sociálních sítí (občas něco zajímavého, občas nic) způsobují velké výkyvy dopaminu. Mozek si na ně zvykne, takže káva, procházka nebo rozhovor už ve srovnání s tím nedávají dost. Sociální sítě používají princip „nepředvídatelné odměny" — stejný, kterým fungují herní automaty. Tento mechanismus způsobuje největší výkyvy dopaminu, mnohem větší než reálný svět. Mozek se přizpůsobí, „resetuje" práh, a všechno mimo telefon vypadá nudně. Tomuto se říká dopaminová desenzibilizace.
 - ❌ Spíš pak málo, je to jen únava
   Únava může být součást, ale není hlavní. Dopaminová desenzibilizace je nezávislá na únavě — projevuje se i u lidí, kteří mají dost spánku, ale tráví hodiny na telefonu.
 - ❌ Sociální sítě obsahují modré světlo, které ti narušilo melatonin
@@ -303,8 +303,8 @@ When you take a bite of chocolate, dopamine levels rise a bit. But surprisingly,
 
 **Question:** Your friend Marek scrolls social media for 2 hours in bed every evening. He says he does it "because it's fun." Then he complains that he has no energy in the morning and everything ordinary feels boring. What's likely happening in his brain?
 
-- **✅ The dopamine system is overloaded — unpredictable rewards from social media (sometimes something interesting, sometimes nothing) cause big dopamine swings. The brain gets used to the big swings, so ordinary things (coffee, walk, conversation) no longer "satisfy" it — because they don't deliver enough by comparison.**
-  Exactly. Social media uses the "unpredictable reward" principle — the same one slot machines use. This mechanism causes the biggest dopamine swings, much bigger than the real world. The brain adapts, "resets" its threshold, and everything outside the phone looks boring. This is called dopamine desensitization.
+- **✅ The dopamine system is overloaded and desensitized**
+  Exactly. Unpredictable rewards from social media (sometimes something interesting, sometimes nothing) cause big dopamine swings. The brain gets used to them, so coffee, a walk, or a conversation no longer deliver enough by comparison. Social media uses the "unpredictable reward" principle — the same one slot machines use. This mechanism causes the biggest dopamine swings, much bigger than the real world. The brain adapts, "resets" its threshold, and everything outside the phone looks boring. This is called dopamine desensitization.
 - ❌ He sleeps less afterwards, it's just fatigue
   Fatigue may be part of it, but it isn't the main cause. Dopamine desensitization is independent of fatigue — it shows up even in people who get enough sleep but spend hours on their phone.
 - ❌ Social media has blue light that disrupts his melatonin
@@ -322,8 +322,8 @@ In neuroscience this phenomenon is called **dopamine tolerance**. The brain tend
 
 **Otázka:** Představ si, že si všimneš, že už tě nebaví nic „obyčejného" — knihy, procházky, klidný oběd. Vždycky chceš něco „víc": cestovat, párty, nový telefon, drama. Co se nejspíš stalo s tvým dopaminovým systémem?
 
-- **✅ Dlouhodobě jsi konzumoval intenzivní zdroje dopaminu (sítě, nákupy, drama, neustálé novinky), takže se ti mozek přizpůsobil na vysokou základní úroveň. Mírnější stimuly teď nevyplaví dost dopaminu na to, abys je cítil jako „odměnu", a tak jsou nudné.**
-  Přesně. Není to defekt charakteru — je to neuroadaptace. Mozek vždycky kalibruje vnímání podle posledních týdnů. Pokud byly poslední týdny plné silných stimulů, „normální" se posune nahoru a obyčejné věci spadnou pod práh, kde už nevyvolají pozitivní reakci.
+- **✅ Mozek si zvykl na intenzivní dopamin, takže mírnější stimuly už necítíš jako odměnu**
+  Přesně. Dlouhodobě jsi konzumoval intenzivní zdroje dopaminu (sítě, nákupy, drama, neustálé novinky), takže se mozek přizpůsobil na vysokou základní úroveň. Není to defekt charakteru — je to neuroadaptace. Mozek vždycky kalibruje vnímání podle posledních týdnů. Pokud byly poslední týdny plné silných stimulů, „normální" se posune nahoru a obyčejné věci spadnou pod práh, kde už nevyvolají pozitivní reakci.
 - ❌ Stárneš — to s věkem přichází ztráta zájmu o jednoduché věci
   Věk může hrát roli, ale není to hlavní. Stejný efekt vidíme u 20letých, kteří jsou na mobilu. Není to o věku, je to o stimulaci.
 - ❌ Asi máš vyšší inteligenci, takže tě „obyčejné věci" nudí, protože jsou pod tvou úrovní
@@ -333,8 +333,8 @@ In neuroscience this phenomenon is called **dopamine tolerance**. The brain tend
 
 **Question:** Imagine you notice that "ordinary" things don't excite you anymore — books, walks, a quiet lunch. You always want something "more": travel, parties, a new phone, drama. What likely happened to your dopamine system?
 
-- **✅ You've been consuming intense sources of dopamine for a long time (social media, shopping, drama, constant news), so your brain adapted to a high baseline. Milder stimuli now don't release enough dopamine for you to feel them as a "reward," so they're boring.**
-  Exactly. It isn't a character flaw — it's neuroadaptation. The brain always calibrates perception by the last few weeks. If recent weeks were full of strong stimuli, "normal" shifts up and ordinary things fall below the threshold where they trigger a positive reaction.
+- **✅ Your brain adapted to intense dopamine, so milder stimuli no longer feel like a reward**
+  Exactly. You've been consuming intense sources of dopamine for a long time (social media, shopping, drama, constant news), so your brain adapted to a high baseline. It isn't a character flaw — it's neuroadaptation. The brain always calibrates perception by the last few weeks. If recent weeks were full of strong stimuli, "normal" shifts up and ordinary things fall below the threshold where they trigger a positive reaction.
 - ❌ You're getting older — losing interest in simple things comes with age
   Age may play a role, but it isn't the main cause. We see the same effect in 20-year-olds glued to their phone. It isn't about age, it's about stimulation.
 - ❌ You probably have higher intelligence, so "ordinary things" bore you because they're below your level
@@ -356,8 +356,8 @@ The good news is that the dopamine system is plastic. If you reduce intense stim
 
 **Otázka:** Proč závislost na sociálních sítích nesouvisí přímo s tím, jestli jsou „zábavné", ale spíš s tím, jak fungují technicky?
 
-- **✅ Sítě využívají princip „nepředvídatelné odměny" — nikdy nevíš, jestli na tebe čeká něco zajímavého nebo ne. Tento princip vyplavuje nejvíc dopaminu (víc než zaručená odměna), a proto je nejvíc návykový.**
-  Přesně. Tomu se říká „variabilní odměnové schéma" — stejné, jaké používají herní automaty. Tvůj mozek nedokáže přestat „kontrolovat", protože vždycky existuje šance, že tentokrát bude něco zajímavého. To je biologicky silnější než nuda nebo zábava obsahu.
+- **✅ Sítě využívají princip „nepředvídatelné odměny" v mozku**
+  Přesně. Nikdy nevíš, jestli na tebe čeká něco zajímavého nebo ne — a tahle nejistota je silnější než zaručená odměna. Tomu se říká „variabilní odměnové schéma" — stejné, jaké používají herní automaty. Tvůj mozek nedokáže přestat „kontrolovat", protože vždycky existuje šance, že tentokrát bude něco zajímavého. To je biologicky silnější než nuda nebo zábava obsahu.
 - ❌ Obsah na sítích je pečlivě vyrobený, aby byl emocionálně silný
   Obsah hraje roli, ale není to hlavní mechanismus. I když jsi stokrát viděl nudné věci, scrolluješ dál — protože MOŽNÁ přijde něco lepšího. To je dopaminový hák.
 - ❌ Sítě nás odpojují od reálných vztahů, takže si je kompenzujeme online
@@ -367,8 +367,8 @@ The good news is that the dopamine system is plastic. If you reduce intense stim
 
 **Question:** Why is social media addiction not directly tied to whether it's "fun," but more to how it works technically?
 
-- **✅ Social networks use the "unpredictable reward" principle — you never know whether something interesting is waiting for you or not. This principle releases the most dopamine (more than a guaranteed reward), and that's why it's the most addictive.**
-  Exactly. This is called a "variable reward schedule" — the same one slot machines use. Your brain can't stop "checking," because there's always a chance that this time there'll be something interesting. That's biologically stronger than the boredom or fun of the content itself.
+- **✅ Social networks use the brain's "unpredictable reward" principle**
+  Exactly. You never know whether something interesting is waiting — and that uncertainty is stronger than a guaranteed reward. This is called a "variable reward schedule" — the same one slot machines use. Your brain can't stop "checking," because there's always a chance that this time there'll be something interesting. That's biologically stronger than the boredom or fun of the content itself.
 - ❌ Content on social media is carefully crafted to be emotionally intense
   Content plays a role, but it isn't the main mechanism. Even after seeing boring things a hundred times, you keep scrolling — because MAYBE something better is coming. That's the dopamine hook.
 - ❌ Social media disconnects us from real relationships, so we compensate online
@@ -386,8 +386,8 @@ The good news is that the dopamine system is plastic. If you reduce intense stim
 
 **Otázka:** Představ si, že si řekneš: „Když mi přijde zpráva, musím se podívat hned — jinak mi to nedá klid." Co se ti biologicky děje v momentě, kdy slyšíš notifikaci, ale ještě ses nepodíval?
 
-- **✅ Dopamin se vyplavuje už ve fázi očekávání — mozek předpovídá, že „tam něco je", a dokud se nepodíváš, dopaminový signál tě nutí jednat. Největší dávka dopaminu není ve zprávě samotné, ale v napětí před jejím otevřením.**
-  Přesně. Proto je tak těžké notifikaci ignorovat — tvé tělo doslova bolí „neodpovědět", i když víš, že je to pravděpodobně nic důležitého. Tento mechanismus využívají designéři aplikací záměrně — říká se tomu „hook" a je popsán v knihách o behaviorálním designu.
+- **✅ Dopamin se vyplavuje už ve fázi očekávání — napětí před otevřením**
+  Přesně. Mozek předpovídá, že „tam něco je", a dokud se nepodíváš, dopaminový signál tě nutí jednat. Proto je tak těžké notifikaci ignorovat — tvé tělo doslova bolí „neodpovědět", i když víš, že je to pravděpodobně nic důležitého. Tento mechanismus využívají designéři aplikací záměrně — říká se tomu „hook" a je popsán v knihách o behaviorálním designu.
 - ❌ Uvolňuje se serotonin — proto máš pocit neklidu, dokud neuvidíš zprávu
   Serotonin souvisí s klidem a náladou, ne s akutním neklidem před „otevřením". To je dopaminový mechanismus očekávání.
 - ❌ Tělo se připravuje na hrozbu — může to být něco špatného, tak reaguje stresově
@@ -397,8 +397,8 @@ The good news is that the dopamine system is plastic. If you reduce intense stim
 
 **Question:** Imagine you say to yourself: "When I get a message, I have to check right away — otherwise it won't leave me alone." What's biologically happening the moment you hear a notification but haven't looked yet?
 
-- **✅ Dopamine releases during the anticipation phase — the brain predicts "there's something there," and until you check, the dopamine signal pushes you to act. The biggest hit of dopamine isn't in the message itself, it's in the tension before opening it.**
-  Exactly. That's why it's so hard to ignore a notification — your body literally aches to "answer," even when you know it's probably nothing important. App designers use this mechanism intentionally — it's called a "hook" and it's described in books on behavioral design.
+- **✅ Dopamine releases during anticipation — the biggest hit is in the tension before opening**
+  Exactly. The brain predicts "there's something there," and until you check, the dopamine signal pushes you to act. That's why it's so hard to ignore a notification — your body literally aches to "answer," even when you know it's probably nothing important. App designers use this mechanism intentionally — it's called a "hook" and it's described in books on behavioral design.
 - ❌ Serotonin releases — which is why you feel restless until you see the message
   Serotonin is tied to calm and mood, not acute restlessness before "opening." That's a dopamine-anticipation mechanism.
 - ❌ The body is preparing for a threat — it might be something bad, so it reacts with stress
@@ -408,8 +408,8 @@ The good news is that the dopamine system is plastic. If you reduce intense stim
 
 **Otázka:** Představ si, že se rozhodneš, že budeš týden „odpočívat od dopaminu" — úplně vyřadíš telefon, hry, kávu, cukr, a ke všemu nebudeš dělat nic zábavného. Jaký je hlavní problém s tímto přístupem?
 
-- **✅ „Dopamine fasting" neznamená odstranění všech odměn — znamená omezení nejvíc návykových stimulů (krátká videa, scrolling), zatímco mírnější odměny (kniha, sport, rozhovor) se zachovávají. Úplné vyřazení je kontraproduktivní a rychle se vrátí zpátky.**
-  Přesně. Cílem je resetovat mozek tak, aby mírnější odměny zase fungovaly — ne odstranit odměny úplně. Radikální „nic" vede obvykle k tomu, že po pár dnech spadneš zpátky do intenzivní stimulace a efekt je nulový. Postupné omezení je udržitelnější a skutečně sníží práh.
+- **✅ Úplné vyřazení všech odměn najednou je kontraproduktivní**
+  Přesně. „Dopamine fasting" neznamená odstranit všechny odměny — omezují se jen krátká videa a scrolling, zatímco mírnější odměny (kniha, sport, rozhovor) se zachovávají. Cílem je resetovat mozek tak, aby mírnější odměny zase fungovaly — ne odstranit odměny úplně. Radikální „nic" vede obvykle k tomu, že po pár dnech spadneš zpátky do intenzivní stimulace a efekt je nulový. Postupné omezení je udržitelnější a skutečně sníží práh.
 - ❌ Týden je málo — musí to být aspoň 90 dní, jinak to nefunguje
   90 dní je mýtus. Huberman a další neurovědci ukazují, že už 1–3 týdny omezení intenzivních stimulů pomáhají mozku „resetovat" práh. Není to o délce, je to o konzistenci.
 - ❌ Káva neobsahuje dopamin, takže ji vyřadit je zbytečné
@@ -419,8 +419,8 @@ The good news is that the dopamine system is plastic. If you reduce intense stim
 
 **Question:** Imagine you decide to "detox from dopamine" for a week — you completely cut out your phone, games, coffee, sugar, and refuse to do anything fun. What's the main problem with this approach?
 
-- **✅ "Dopamine fasting" doesn't mean removing all rewards — it means cutting the most addictive stimuli (short videos, scrolling) while keeping milder rewards (book, sport, conversation). Total elimination is counterproductive and quickly snaps back.**
-  Exactly. The goal is to reset the brain so that milder rewards work again — not to remove rewards entirely. Radical "nothing" usually leads to falling back into intense stimulation after a few days, with zero effect. Gradual reduction is more sustainable and actually lowers the threshold.
+- **✅ Cutting every reward completely is counterproductive and snaps back**
+  Exactly. "Dopamine fasting" doesn't mean removing all rewards — you cut short videos and scrolling, while milder rewards (book, sport, conversation) stay. The goal is to reset the brain so that milder rewards work again — not to remove rewards entirely. Radical "nothing" usually leads to falling back into intense stimulation after a few days, with zero effect. Gradual reduction is more sustainable and actually lowers the threshold.
 - ❌ A week is too short — it has to be at least 90 days, otherwise it doesn't work
   90 days is a myth. Huberman and other neuroscientists show that 1–3 weeks of reducing intense stimuli is enough to help the brain "reset" the threshold. It's not about length, it's about consistency.
 - ❌ Coffee doesn't contain dopamine, so cutting it is pointless
@@ -430,8 +430,8 @@ The good news is that the dopamine system is plastic. If you reduce intense stim
 
 **Otázka:** Proč se podle neurovědy doporučuje dělat „obyčejné" věci (čtení, procházky, vaření) pravidelně, i když ti zpočátku nepřijdou dost zajímavé?
 
-- **✅ Pravidelné mírnější odměny pomáhají „snižovat práh" dopaminového systému — po několika týdnech začne mozek znovu vnímat mírné stimuly jako příjemné, a závislost na silných dávkách slábne**
-  Přesně. Dopaminový systém je plastický — kalibruje se podle toho, co mu pravidelně dáváš. Pokud mu dáváš hlavně silné výkyvy, „normální" se posune nahoru a obyčejné věci spadnou pod práh. Pokud mu dáváš konzistentně mírnější zážitky, práh se sníží a život zase „začne chutnat". Není to magie — je to neuroadaptace.
+- **✅ Pravidelné mírnější odměny „snižují práh" dopaminového systému**
+  Přesně. Po několika týdnech začne mozek znovu vnímat mírné stimuly jako příjemné a závislost na silných dávkách slábne. Dopaminový systém je plastický — kalibruje se podle toho, co mu pravidelně dáváš. Pokud mu dáváš hlavně silné výkyvy, „normální" se posune nahoru a obyčejné věci spadnou pod práh. Pokud mu dáváš konzistentně mírnější zážitky, práh se sníží a život zase „začne chutnat". Není to magie — je to neuroadaptace.
 - ❌ Obyčejné věci spalují čas, takže na telefonu strávíš míň — to je jediný důvod
   Omezení telefonu je následek, ne hlavní mechanismus. I kdyby ses na telefon díval stejně, pravidelné mírnější odměny by i tak mozku pomohly se kalibrovat.
 - ❌ Čtení a procházky zvyšují serotonin, který potom blokuje dopamin
@@ -441,8 +441,8 @@ The good news is that the dopamine system is plastic. If you reduce intense stim
 
 **Question:** Why does neuroscience recommend doing "ordinary" things (reading, walks, cooking) regularly, even when they don't feel interesting enough at first?
 
-- **✅ Regular milder rewards help "lower the threshold" of the dopamine system — after a few weeks, the brain starts registering mild stimuli as pleasant again, and the dependence on strong hits fades**
-  Exactly. The dopamine system is plastic — it calibrates to whatever you regularly feed it. If you mostly feed it big swings, "normal" shifts up and ordinary things fall below the threshold. If you consistently feed it milder experiences, the threshold drops and life starts "tasting" again. It isn't magic — it's neuroadaptation.
+- **✅ Regular milder rewards "lower the threshold" of the dopamine system**
+  Exactly. After a few weeks, the brain starts registering mild stimuli as pleasant again, and the dependence on strong hits fades. The dopamine system is plastic — it calibrates to whatever you regularly feed it. If you mostly feed it big swings, "normal" shifts up and ordinary things fall below the threshold. If you consistently feed it milder experiences, the threshold drops and life starts "tasting" again. It isn't magic — it's neuroadaptation.
 - ❌ Ordinary things kill time, so you spend less on your phone — that's the only reason
   Reducing phone time is a side effect, not the main mechanism. Even if you looked at your phone the same amount, regular milder rewards would still help the brain recalibrate.
 - ❌ Reading and walks raise serotonin, which then blocks dopamine
@@ -477,8 +477,8 @@ The first and most powerful lever is **morning light**. If you step outside into
 
 **Otázka:** Představ si, že se ráno cítíš pomalý a večer nemůžeš usnout. Pracuješ celý den doma a ven nechodíš. Která jednoduchá ranní změna by ti pravděpodobně přinesla největší zlepšení obou problémů?
 
-- **✅ 5–10 minut na slunci hned po probuzení (nebo pohled do okna na denní oblohu) — to spustí ranní kortizol a nastaví večerní melatonin**
-  Přesně. Tento jeden krok řeší oba problémy najednou. Ranní vrchol kortizolu probudí tělo (energie), a zároveň „nahodí" cirkadiánní hodiny — což znamená, že večer se melatonin začne tvořit ve správnou dobu. Tělo bude vědět, kdy je „den" a kdy „noc".
+- **✅ 5–10 minut na slunci hned po probuzení**
+  Přesně. I pohled z okna na denní oblohu stačí — spustí ranní kortizol a nastaví večerní melatonin. Tento jeden krok řeší oba problémy najednou. Ranní vrchol kortizolu probudí tělo (energie), a zároveň „nahodí" cirkadiánní hodiny — což znamená, že večer se melatonin začne tvořit ve správnou dobu. Tělo bude vědět, kdy je „den" a kdy „noc".
 - ❌ Vypít velkou kávu nalačno hned po probuzení
   Káva pomůže krátkodobě, ale nenastaví hormonální rytmus. Za pár hodin přijde „crash" a večerní problém se spánkem nevyřeší — naopak ho zhorší.
 - ❌ Cvičit 30 minut hned po probuzení
@@ -488,8 +488,8 @@ The first and most powerful lever is **morning light**. If you step outside into
 
 **Question:** Imagine you feel slow in the morning and can't fall asleep at night. You work from home all day and don't go out. Which simple morning change would likely bring the biggest improvement to both problems?
 
-- **✅ 5–10 minutes of sunlight right after waking up (or looking out a window at the daytime sky) — this triggers your morning cortisol and sets your evening melatonin**
-  Exactly. This one step solves both problems at once. The morning cortisol peak wakes the body (energy), and at the same time "starts" the circadian clock — meaning melatonin will begin forming at the right time in the evening. Your body will know when it's "day" and when it's "night."
+- **✅ 5–10 minutes of sunlight right after waking up**
+  Exactly. Even looking out a window at the daytime sky works — it triggers morning cortisol and sets evening melatonin. This one step solves both problems at once. The morning cortisol peak wakes the body (energy), and at the same time "starts" the circadian clock — meaning melatonin will begin forming at the right time in the evening. Your body will know when it's "day" and when it's "night."
 - ❌ Drink a big coffee on an empty stomach right after waking
   Coffee helps short-term, but doesn't set the hormonal rhythm. A crash comes a few hours later and the evening sleep problem isn't solved — it's made worse.
 - ❌ Exercise 30 minutes right after waking up
@@ -511,8 +511,8 @@ The important thing is that **you don't need to change everything at once**. The
 
 **Otázka:** Představ si, že chceš zlepšit svůj pocit z dne — mít víc energie, lepší náladu, klidnější mysl. Plánuješ udělat 5 změn najednou: rozsvítit ranní lampu, začít chodit na 10 minut chůze, omezit telefon, jíst víc bílkovin, jít spát ve stejný čas. Co se nejspíš stane, když to zkusíš všechno najednou?
 
-- **✅ Po pár dnech to vzdáš, protože tolik změn najednou je psychicky neudržitelné. Lépe by bylo začít s 1–2 změnami, počkat až se zafixují, a pak přidat další.**
-  Přesně. Hormonální rovnováha se nevybuduje za týden. Velké snahy najednou bývají kontraproduktivní — mozek to vnímá jako další stres a opouští systém. Princip „malé, ale udržitelné" funguje líp. Když si zvykneš na 1 změnu, druhou je snazší přidat.
+- **✅ Po pár dnech to vzdáš — tolik změn najednou je psychicky neudržitelné**
+  Přesně. Lépe je začít s 1–2 změnami, počkat až se zafixují, a pak přidat další. Hormonální rovnováha se nevybuduje za týden. Velké snahy najednou bývají kontraproduktivní — mozek to vnímá jako další stres a opouští systém. Princip „malé, ale udržitelné" funguje líp. Když si zvykneš na 1 změnu, druhou je snazší přidat.
 - ❌ Bude ti to fungovat — když děláš vše najednou, efekt se násobí
   Efekt se neutralizuje, protože psychická kapacita na změny je omezená. Lidé, kteří chtějí změnit „úplně všechno", obvykle nezmění nic.
 - ❌ Záleží to jen na tvé motivaci — pokud máš dost vůle, zvládneš to
@@ -522,8 +522,8 @@ The important thing is that **you don't need to change everything at once**. The
 
 **Question:** Imagine you want to improve how you feel day to day — more energy, better mood, calmer mind. You plan to make 5 changes at once: turn on a morning lamp, start walking 10 minutes, limit your phone, eat more protein, go to bed at the same time. What's likely to happen if you try it all at once?
 
-- **✅ After a few days you'll give up, because that many changes at once is mentally unsustainable. It would be better to start with 1–2 changes, let them stick, and then add more.**
-  Exactly. Hormonal balance doesn't get built in a week. Big efforts all at once are usually counterproductive — the brain reads it as more stress and abandons the system. The "small but sustainable" principle works better. Once one change has stuck, the second is easier to add.
+- **✅ After a few days you'll give up — that many changes is unsustainable**
+  Exactly. It would be better to start with 1–2 changes, let them stick, and then add more. Hormonal balance doesn't get built in a week. Big efforts all at once are usually counterproductive — the brain reads it as more stress and abandons the system. The "small but sustainable" principle works better. Once one change has stuck, the second is easier to add.
 - ❌ It'll work for you — doing everything at once multiplies the effect
   The effect actually cancels out, because mental capacity for change is limited. People who want to change "everything" usually change nothing.
 - ❌ It depends only on your motivation — if you have enough willpower, you'll manage
@@ -541,8 +541,8 @@ The third important area is **social contact**. A short conversation with someon
 
 **Otázka:** Proč ranní procházka venku obvykle pomáhá s VEČERNÍM spánkem víc než večerní rituály typu „teplý čaj a meditace 10 minut před spaním"?
 
-- **✅ Ranní světlo „nastaví" cirkadiánní rytmus — určí, kdy se má večer začít vyplavovat melatonin. Bez správného ranního signálu nemůže ani perfektní večerní rituál pomoct, protože melatonin nemá kdy začít vznikat.**
-  Přesně. Cirkadiánní rytmus se řídí ranním světlem — tělo si „zaznamená" čas vzbuzení podle jasu kolem. Melatonin pak začne vznikat asi 14 hodin po tomto signálu. Pokud signál nedostane (zatažené okno, žádné světlo), melatonin se večer nedostaví, ať uděláš cokoliv.
+- **✅ Ranní světlo „nastaví" cirkadiánní rytmus na celý den**
+  Přesně. Ranní signál určí, kdy večer přijde melatonin. Bez něj nemůže ani perfektní večerní rituál pomoct, protože melatonin nemá kdy začít vznikat. Cirkadiánní rytmus se řídí ranním světlem — tělo si „zaznamená" čas vzbuzení podle jasu kolem. Melatonin pak začne vznikat asi 14 hodin po tomto signálu. Pokud signál nedostane (zatažené okno, žádné světlo), melatonin se večer nedostaví, ať uděláš cokoliv.
 - ❌ Procházka spaluje energii, takže člověk je večer víc unavený
   Energie z 10minutové procházky je zanedbatelná. Spánek nepřichází z únavy z procházky, ale z hormonálního nastavení.
 - ❌ Večerní rituály nefungují, jsou to jen placebo
@@ -552,8 +552,8 @@ The third important area is **social contact**. A short conversation with someon
 
 **Question:** Why does a morning walk outside usually help EVENING sleep more than evening rituals like "warm tea and 10 minutes of meditation before bed"?
 
-- **✅ Morning light "sets" the circadian rhythm — it determines when melatonin should start releasing in the evening. Without the right morning signal, even a perfect evening ritual can't help, because melatonin has no time to start forming.**
-  Exactly. The circadian rhythm follows morning light — the body "registers" the wake-up time based on the brightness around. Melatonin then starts forming about 14 hours after that signal. If the signal doesn't come (closed window, no light), melatonin won't show up in the evening no matter what you do.
+- **✅ Morning light "sets" your circadian rhythm for the day**
+  Exactly. The morning signal decides when evening melatonin comes. Without it, even a perfect evening ritual can't help, because melatonin has no time to start forming. The circadian rhythm follows morning light — the body "registers" the wake-up time based on the brightness around. Melatonin then starts forming about 14 hours after that signal. If the signal doesn't come (closed window, no light), melatonin won't show up in the evening no matter what you do.
 - ❌ A walk burns energy, so the person is more tired in the evening
   The energy from a 10-minute walk is negligible. Sleep doesn't come from the fatigue of a walk, but from hormonal setup.
 - ❌ Evening rituals don't work, they're just placebo
@@ -571,8 +571,8 @@ Hormonal balance isn't about **magical supplements or extreme measures**. It's a
 
 **Otázka:** Představ si, že máš celé odpoledne pocit napětí a neklidu po náročném pracovním hovoru. Místo toho, abys sáhl po telefonu a scrolloval, zavoláš na 20 minut starému kamarádovi. Proč je tohle biologicky jedna z nejlepších věcí, kterou můžeš v tu chvíli udělat?
 
-- **✅ Rozhovor s blízkým člověkem vyplaví oxytocin, který přímo tlumí kortizol (stresový hormon) — efekt je měřitelný v krvi během desítek minut. Scrolování naopak kortizol udrží nebo zvýší a přidá dopaminové výkyvy.**
-  Přesně. Sociální kontakt je biologicky jeden z nejsilnějších „anti-stres" nástrojů, které lidské tělo má. Je to evolučně dané — lidé přežívali ve skupinách a blízkost druhých byla signál bezpečí. Oxytocin je přesně ten hormonální překlad této zkušenosti.
+- **✅ Rozhovor s blízkým vyplaví oxytocin, který přímo tlumí kortizol**
+  Přesně. Efekt je měřitelný v krvi během desítek minut. Scrolování naopak kortizol udrží nebo zvýší a přidá dopaminové výkyvy. Sociální kontakt je biologicky jeden z nejsilnějších „anti-stres" nástrojů, které lidské tělo má. Je to evolučně dané — lidé přežívali ve skupinách a blízkost druhých byla signál bezpečí. Oxytocin je přesně ten hormonální překlad této zkušenosti.
 - ❌ Je to jen rozptýlení — telefonát odvede pozornost od práce
   Rozptýlení by udělal i video nebo hra. Rozdíl je v hormonálním efektu — telefonát s blízkým člověkem má měřitelný vliv na kortizol a oxytocin, zatímco video ne.
 - ❌ Mluvení aktivuje mozek, takže kortizol klesne automaticky
@@ -582,8 +582,8 @@ Hormonal balance isn't about **magical supplements or extreme measures**. It's a
 
 **Question:** Imagine you feel tense and restless all afternoon after a hard work call. Instead of reaching for your phone to scroll, you call an old friend for 20 minutes. Why is that biologically one of the best things you can do in that moment?
 
-- **✅ A conversation with someone close releases oxytocin, which directly dampens cortisol (the stress hormone) — the effect is measurable in blood within tens of minutes. Scrolling, in contrast, keeps cortisol up or raises it and adds dopamine swings.**
-  Exactly. Social contact is biologically one of the strongest "anti-stress" tools the human body has. It's evolutionary — humans survived in groups and closeness was a safety signal. Oxytocin is exactly that hormonal translation of the experience.
+- **✅ Talking with someone close releases oxytocin, which dampens cortisol**
+  Exactly. The effect is measurable in blood within tens of minutes. Scrolling, in contrast, keeps cortisol up or raises it and adds dopamine swings. Social contact is biologically one of the strongest "anti-stress" tools the human body has. It's evolutionary — humans survived in groups and closeness was a safety signal. Oxytocin is exactly that hormonal translation of the experience.
 - ❌ It's just a distraction — a phone call draws attention away from work
   A video or a game would also distract. The difference is hormonal — a call with someone close has a measurable effect on cortisol and oxytocin, while a video doesn't.
 - ❌ Talking activates the brain, so cortisol automatically drops
@@ -593,8 +593,8 @@ Hormonal balance isn't about **magical supplements or extreme measures**. It's a
 
 **Otázka:** Představ si, že chceš začít zlepšovat hormonální zdraví, ale nevíš, kde začít. Ptáš se: „Co jedna jediná věc by měla největší dopad?" Která z těchto možností má biologicky nejsilnější a nejširší efekt?
 
-- **✅ Jít každé ráno 5–10 minut ven na denní světlo do 30 minut po probuzení — nastavuje cirkadiánní rytmus, ovlivňuje kortizol, melatonin, serotonin i dopamin najednou**
-  Přesně. Ranní světlo je jediný vstup, který ovlivňuje víc hormonů najednou. Spouští kortizolový vrchol (energie), nastavuje večerní melatonin (spánek), podporuje serotonin (nálada) a nepřímo i dopamin (motivace). Proto to neurovědci označují jako nejdůležitější jednotlivou změnu.
+- **✅ Každé ráno 5–10 minut ven na denní světlo**
+  Přesně. Ideálně do 30 minut po probuzení. Nastavuje cirkadiánní rytmus a ovlivňuje kortizol, melatonin, serotonin i dopamin najednou. Ranní světlo je jediný vstup, který ovlivňuje víc hormonů najednou. Spouští kortizolový vrchol (energie), nastavuje večerní melatonin (spánek), podporuje serotonin (nálada) a nepřímo i dopamin (motivace). Proto to neurovědci označují jako nejdůležitější jednotlivou změnu.
 - ❌ Koupit si doplněk s melatoninem a brát ho večer
   Doplněk může pomoci krátkodobě při jet lagu, ale neopraví rytmus. Pokud ráno nemáš signál světla, tělo neví, kdy „den začal", a melatonin z kapsle je jen náhražka jediné části systému.
 - ❌ Začít brát vitamin D3 v tabletách
@@ -604,8 +604,8 @@ Hormonal balance isn't about **magical supplements or extreme measures**. It's a
 
 **Question:** Imagine you want to start improving your hormonal health but don't know where to start. You ask: "What's the one thing with the biggest impact?" Which of these has the biologically strongest and broadest effect?
 
-- **✅ Going outside for 5–10 minutes of daylight within 30 minutes of waking up every morning — it sets the circadian rhythm and influences cortisol, melatonin, serotonin, and dopamine all at once**
-  Exactly. Morning light is the single input that affects multiple hormones at the same time. It triggers the cortisol peak (energy), sets the evening melatonin (sleep), supports serotonin (mood), and indirectly dopamine (motivation). That's why neuroscientists call it the most important single change.
+- **✅ Step outside for morning daylight each day**
+  Exactly. Ideally within 30 minutes of waking up. It sets the circadian rhythm and influences cortisol, melatonin, serotonin, and dopamine at once. Morning light is the single input that affects multiple hormones at the same time. It triggers the cortisol peak (energy), sets the evening melatonin (sleep), supports serotonin (mood), and indirectly dopamine (motivation). That's why neuroscientists call it the most important single change.
 - ❌ Buy a melatonin supplement and take it in the evening
   A supplement can help short-term with jet lag, but it doesn't fix the rhythm. If you don't get a light signal in the morning, the body doesn't know "day has started," and melatonin from a pill is just replacing one piece of the system.
 - ❌ Start taking vitamin D3 tablets
@@ -615,8 +615,8 @@ Hormonal balance isn't about **magical supplements or extreme measures**. It's a
 
 **Otázka:** Představ si, že zkusíš za týden všechny „hacky" (studená sprcha, doplňky, speciální dieta, meditace 3× denně, 10 000 kroků) a po 10 dnech to vzdáš — bylo to na tebe moc. Co by ti pravděpodobně přineslo trvalejší zlepšení hormonální rovnováhy?
 
-- **✅ Vybrat si 1–2 drobné návyky (např. ranní světlo + pravidelný čas spánku), které zvládneš dělat každý den měsíce, a přidat další až po zafixování prvních**
-  Přesně. Hormonální systém reaguje na **konzistenci, ne intenzitu**. Dva návyky udržované 3 měsíce posunou tělo víc než deset návyků udržovaných 10 dní. Tělo potřebuje dostat stejný signál pravidelně — jednorázová snaha nestačí. Postupné budování zvyků je biologicky i psychologicky udržitelnější.
+- **✅ Vybrat si 1–2 drobné návyky a držet je pravidelně každý den celé měsíce**
+  Přesně. Např. ranní světlo + pravidelný čas spánku — další přidáváš až po zafixování prvních. Hormonální systém reaguje na **konzistenci, ne intenzitu**. Dva návyky udržované 3 měsíce posunou tělo víc než deset návyků udržovaných 10 dní. Tělo potřebuje dostat stejný signál pravidelně — jednorázová snaha nestačí. Postupné budování zvyků je biologicky i psychologicky udržitelnější.
 - ❌ Měl bys zkusit ještě víc hacků najednou — někdy potřebuješ „šok", aby se systém probudil
   „Šokové" terapie u hormonů nefungují — tělo se jim brání. Čím prudší změna, tím silnější obrana (adaptivní mechanismy). Konzistence poráží intenzitu.
 - ❌ Problém je v tobě — nejsi dost silný, měl bys víc zabrat
@@ -626,8 +626,8 @@ Hormonal balance isn't about **magical supplements or extreme measures**. It's a
 
 **Question:** Imagine you try all the "hacks" in one week (cold shower, supplements, special diet, meditation 3× a day, 10,000 steps) and give up after 10 days — it's too much. What would likely bring you a more lasting improvement in hormonal balance?
 
-- **✅ Pick 1–2 small habits (e.g. morning light + a regular sleep time) you can do every day for months, and add more only after the first ones stick**
-  Exactly. The hormonal system responds to **consistency, not intensity**. Two habits held for 3 months will shift the body more than ten habits held for 10 days. The body needs the same signal regularly — a one-off effort isn't enough. Gradual habit building is both biologically and psychologically more sustainable.
+- **✅ Pick 1–2 tiny habits and keep them every single day for many long months**
+  Exactly. E.g. morning light + a regular sleep time — add more only after the first ones stick. The hormonal system responds to **consistency, not intensity**. Two habits held for 3 months will shift the body more than ten habits held for 10 days. The body needs the same signal regularly — a one-off effort isn't enough. Gradual habit building is both biologically and psychologically more sustainable.
 - ❌ You should try even more hacks at once — sometimes you need a "shock" to wake the system up
   "Shock" therapies don't work for hormones — the body fights them. The sharper the change, the stronger the defense (adaptive mechanisms). Consistency beats intensity.
 - ❌ The problem is with you — you're not strong enough, you should push harder

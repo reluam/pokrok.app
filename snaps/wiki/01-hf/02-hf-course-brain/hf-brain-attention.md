@@ -82,8 +82,8 @@ When it feels like you "can't focus," it's usually not about willpower. Your bra
 
 **Otázka:** Představ si, že sedíš u počítače a snažíš se napsat důležitý dopis, zatímco kolem tebe hraje rádio, mluví rodina a pípá ti telefon. Proč se nedokážeš dobře soustředit?
 
-- **✅ Tvůj mozek má omezenou kapacitu pro vědomé zpracování informací — když mu nabídneš víc vjemů, musí mezi nimi volit a na žádnou se nesoustředí plně**
-  Přesně. Není to selhání vůle ani „slabá povaha". Je to technický limit — pozornost je jako reflektor, který nemůže osvítit celou místnost najednou. Čím víc věcí se ti nabízí, tím méně ze sebe dá každé z nich.
+- **✅ Mozek má omezenou kapacitu a musí mezi vjemy volit**
+  Přesně. Není to selhání vůle ani „slabá povaha". Je to technický limit vědomého zpracování — pozornost je jako reflektor, který nemůže osvítit celou místnost najednou. Čím víc věcí se ti nabízí, tím méně ze sebe dá každé z nich, a na žádnou se nesoustředíš plně.
 - ❌ Máš slabou vůli, se kterou se rodíš — někdo se prostě soustředí lépe
   Vůle s tím nemá moc společného. Lidé s „silnou vůlí" ve stejném prostředí také ztrácejí pozornost. Problém je v prostředí a v tom, kolik vjemů mozek dostává.
 - ❌ Tvůj mozek je unavený a potřebuje víc kávy
@@ -93,8 +93,8 @@ When it feels like you "can't focus," it's usually not about willpower. Your bra
 
 **Question:** Imagine that you're sitting at your computer trying to write an important letter, while the radio is playing, your family is talking, and your phone is beeping. Why can't you focus well?
 
-- **✅ Your brain has a limited capacity for conscious processing — when you give it more inputs, it has to choose between them and doesn't fully focus on any one of them**
-  Exactly. It's not a willpower failure or "weak character." It's a technical limit — attention is like a spotlight that can't light up a whole room at once. The more things are competing for it, the less each one gets.
+- **✅ Your brain has a limited capacity — more inputs mean it has to choose**
+  Exactly. It's not a willpower failure or "weak character." It's a technical limit of conscious processing — attention is like a spotlight that can't light up a whole room at once. The more things are competing for it, the less each one gets, and you don't fully focus on any of them.
 - ❌ You have weak willpower that you were born with — some people just focus better
   Willpower has little to do with it. People with "strong willpower" also lose attention in the same environment. The problem is the environment and how many inputs the brain is getting.
 - ❌ Your brain is tired and needs more coffee
@@ -116,8 +116,8 @@ Every switch means the brain has to "unload" one context and "load" another. Tha
 
 **Otázka:** Představ si, že píšeš e-mail a každých pár minut se podíváš na Instagram „jen na vteřinu". Jak to pravděpodobně ovlivní tvou práci?
 
-- **✅ Po každém pohledu na telefon ti bude trvat několik minut, než se plně vrátíš zpátky k e-mailu — celková doba napsání se prodlouží třeba z 5 na 20 minut**
-  Přesně. Studie ukazují, že po přerušení trvá 10–25 minut, než se mozek plně vrátí k hluboké práci. Pocitově si myslíš „jen vteřinu", ale měřitelně ztrácíš mnohem víc.
+- **✅ Po pohledu na telefon ti trvá minuty, než se vrátíš k práci**
+  Přesně. Studie ukazují, že po přerušení trvá 10–25 minut, než se mozek plně vrátí k hluboké práci — celková doba napsání se prodlouží třeba z 5 na 20 minut. Pocitově si myslíš „jen vteřinu", ale měřitelně ztrácíš mnohem víc.
 - ❌ Nic se nestane, mozek zvládne obojí současně bez ztráty
   Pocitově ano, ale měřitelně ne. Obě činnosti kvalitou i rychlostí klesají, jen si toho v momentě nevšimneš.
 - ❌ Budeš efektivní, protože tvůj mozek trénuje multitasking
@@ -127,8 +127,8 @@ Every switch means the brain has to "unload" one context and "load" another. Tha
 
 **Question:** Imagine you're writing an email and every few minutes you check Instagram "just for a second." How will that likely affect your work?
 
-- **✅ After each glance at your phone, it'll take several minutes before you fully return to the email — the total writing time stretches from maybe 5 to 20 minutes**
-  Exactly. Studies show it takes 10–25 minutes for the brain to fully return to deep work after an interruption. You feel like it was "just a second," but measurably you lose much more.
+- **✅ After each glance, it'll take minutes before you fully return to the email**
+  Exactly. Studies show it takes 10–25 minutes for the brain to fully return to deep work after an interruption — total writing time stretches from maybe 5 to 20 minutes. You feel like it was "just a second," but measurably you lose much more.
 - ❌ Nothing will happen, your brain handles both at the same time without loss
   It feels that way, but it isn't measurable. Both activities drop in quality and speed, you just don't notice at the moment.
 - ❌ You'll be effective because your brain is training multitasking
@@ -150,8 +150,8 @@ Phones and notifications are designed exactly to constantly trigger your **diffu
 
 **Otázka:** Proč ti notifikace na telefonu narušují soustředění, i když je hned nezkontroluješ?
 
-- **✅ Aktivují automatickou rozptýlenou pozornost — mozek musí vyhodnotit, zda je signál důležitý, a tím odtáhne zdroje od zaměřené pozornosti**
-  Přesně. I samotné pípnutí bez reakce „ukradne" pozornost na okamžik. Mozek nemůže ignorovat nový signál, musí ho alespoň zběžně posoudit. A to stojí zdroje.
+- **✅ Aktivují automatickou rozptýlenou pozornost a odtáhnou zdroje od soustředění**
+  Přesně. Mozek musí vyhodnotit, zda je signál důležitý — i samotné pípnutí bez reakce „ukradne" pozornost na okamžik. Nemůže ignorovat nový signál, musí ho alespoň zběžně posoudit. A to stojí zdroje.
 - ❌ Notifikace fungují jen tehdy, když na ně klikneš — dokud je nečteš, nic se neděje
   To je iluze. Studie ukazují, že i samotná přítomnost telefonu s notifikacemi (i ztlumeného) snižuje měřitelně výkon v testech pozornosti.
 - ❌ Mozek si rychle zvykne a notifikace ho přestanou rušit
@@ -161,8 +161,8 @@ Phones and notifications are designed exactly to constantly trigger your **diffu
 
 **Question:** Why do phone notifications disrupt your focus, even if you don't check them right away?
 
-- **✅ They activate automatic diffuse attention — your brain has to evaluate whether the signal is important, and that pulls resources away from focused attention**
-  Exactly. Even just a beep without a reaction "steals" attention for a moment. Your brain can't ignore a new signal, it has to at least briefly assess it. And that costs resources.
+- **✅ They activate automatic diffuse attention and pull resources away from focus**
+  Exactly. Your brain has to evaluate whether the signal is important — even just a beep without a reaction "steals" attention for a moment. It can't ignore a new signal, it has to at least briefly assess it. And that costs resources.
 - ❌ Notifications only work when you click them — as long as you don't read them, nothing happens
   That's an illusion. Studies show that even just the presence of a phone with notifications (even silenced) measurably reduces performance in attention tests.
 - ❌ Your brain gets used to it quickly and notifications stop distracting you
@@ -180,8 +180,8 @@ Phones and notifications are designed exactly to constantly trigger your **diffu
 
 **Otázka:** Co je hlavní důvod, proč lidé, kteří často multitaskují, paradoxně bývají horší v soustředění než ti, kdo dělají jednu věc po druhé?
 
-- **✅ Neustálé přepínání trénuje mozek na rozptýlený režim — hluboké soustředění se pak stává obtížnější, protože ho mozek používá méně často**
-  Přesně. Pozornost funguje jako sval — co netrénuješ, slábne. Kdo léta přepíná, přijde o schopnost zůstat u jedné věci, i když ji potřebuje. Návrat k hluboké práci je pak nepříjemný a chvíli trvá.
+- **✅ Přepínání trénuje rozptýlený režim, hluboká práce pak jde hůř**
+  Přesně. Pozornost funguje jako sval — co netrénuješ, slábne. Mozek ji používá méně často, takže kdo léta přepíná, přijde o schopnost zůstat u jedné věci, i když ji potřebuje. Návrat k hluboké práci je pak nepříjemný a chvíli trvá.
 - ❌ Multitaskeři mají méně inteligentní mozek — je to genetická predispozice
   S inteligencí ani genetikou to nesouvisí. Je to o zvyku a tréninku pozornosti, nikoli o vrozené schopnosti.
 - ❌ Mají slabší vůli a méně motivace než ostatní
@@ -191,8 +191,8 @@ Phones and notifications are designed exactly to constantly trigger your **diffu
 
 **Question:** What's the main reason people who frequently multitask are paradoxically worse at focusing than those who do one thing at a time?
 
-- **✅ Constant switching trains the brain for the diffuse mode — deep focus then becomes harder, because the brain uses it less often**
-  Exactly. Attention works like a muscle — what you don't train, weakens. Someone who switches for years loses the ability to stay on one thing, even when they need to. Returning to deep work is then uncomfortable and takes a while.
+- **✅ Switching trains the diffuse mode, deep focus then gets harder**
+  Exactly. Attention works like a muscle — what you don't train, weakens. The brain uses deep focus less often, so someone who switches for years loses the ability to stay on one thing, even when they need to. Returning to deep work is then uncomfortable and takes a while.
 - ❌ Multitaskers have less intelligent brains — it's a genetic predisposition
   It has nothing to do with intelligence or genetics. It's about habit and training of attention, not an innate ability.
 - ❌ They have weaker willpower and less motivation than others
@@ -202,7 +202,7 @@ Phones and notifications are designed exactly to constantly trigger your **diffu
 
 **Otázka:** Představ si, že máš za hodinu odevzdat zprávu a zbývá ti napsat poslední dvě stránky. Co má největší šanci ti pomoct se plně soustředit?
 
-- **✅ Dát telefon do druhé místnosti, zavřít e-mail a Slack a pracovat 45 minut bez přerušení**
+- **✅ Dát telefon do druhé místnosti, zavřít Slack a pracovat 45 minut v kuse**
   Přesně. Fyzická vzdálenost od rušičů dělá obrovský rozdíl — i samotná přítomnost telefonu na stole (i ztlumeného) prokazatelně snižuje výkon v testech pozornosti. Blok bez přerušení dá mozku šanci „naložit kontext" a zůstat v něm.
 - ❌ Otevřít si na druhém monitoru Slack, abys „zůstal v obraze" o ostatním dění
   To je právě ten klasický způsob, jak o pozornost přijít. Slack bude neustále aktivovat tvou rozptýlenou pozornost a kvalita zprávy tím spadne.
@@ -213,7 +213,7 @@ Phones and notifications are designed exactly to constantly trigger your **diffu
 
 **Question:** Imagine that you have to hand in a report in an hour and you still need to write the last two pages. What's most likely to help you fully focus?
 
-- **✅ Put your phone in another room, close email and Slack, and work for 45 minutes without interruption**
+- **✅ Put your phone in another room, close Slack, and work 45 minutes straight**
   Exactly. Physical distance from distractors makes a huge difference — even just the presence of a phone on your desk (even silenced) demonstrably lowers performance in attention tests. A block without interruption gives the brain a chance to "load the context" and stay in it.
 - ❌ Open Slack on your second monitor so you "stay in the loop" about everything else
   That's exactly the classic way to lose attention. Slack will constantly activate your diffuse attention and the quality of the report will drop.
@@ -253,8 +253,8 @@ When someone's name or number "melts away" from your head just when you need it,
 
 **Otázka:** Představ si, že si chceš zapamatovat sedmimístné telefonní číslo, ale zároveň někdo vedle tebe vypráví příběh. Proč ti číslo pravděpodobně „vypadne"?
 
-- **✅ Pracovní paměť má kapacitu jen asi 4 položky současně — příběh obsadí část této kapacity a na číslo už nezbyde místo**
-  Přesně. Pracovní paměť není rozšiřitelná — je pevně daná. Když ji přetížíš dvěma úlohami, některé informace se ztratí. Proto i „jednoduché" úkoly s rušením bývají těžké.
+- **✅ Pracovní paměť zvládne 4 položky a příběh ji obsadí**
+  Přesně. Na číslo už nezbyde místo. Pracovní paměť není rozšiřitelná — je pevně daná. Když ji přetížíš dvěma úlohami, některé informace se ztratí. Proto i „jednoduché" úkoly s rušením bývají těžké.
 - ❌ Máš špatnou paměť, normální mozek by to zvládl
   Ne — tohle je normální chování každého mozku. Limit kapacity pracovní paměti je u všech lidí velmi podobný.
 - ❌ Číslo se zapsalo špatně do dlouhodobé paměti
@@ -264,8 +264,8 @@ When someone's name or number "melts away" from your head just when you need it,
 
 **Question:** Imagine you want to memorize a seven-digit phone number, but at the same time someone next to you is telling a story. Why does the number likely "slip" away?
 
-- **✅ Working memory has a capacity of only about 4 items at a time — the story takes up part of this capacity and there's no room left for the number**
-  Exactly. Working memory isn't expandable — it's fixed. When you overload it with two tasks, some information is lost. That's why even "simple" tasks with distractions are often hard.
+- **✅ Working memory holds ~4 items — the story fills it up**
+  Exactly. There's no room left for the number. Working memory isn't expandable — it's fixed. When you overload it with two tasks, some information is lost. That's why even "simple" tasks with distractions are often hard.
 - ❌ You have bad memory, a normal brain would handle it
   No — this is normal behavior of every brain. The capacity limit of working memory is very similar across all people.
 - ❌ The number was written incorrectly into long-term memory
@@ -287,8 +287,8 @@ That's why hard decisions in the evening are often worse than in the morning. Yo
 
 **Otázka:** Představ si, že po dni plném pracovních porad sedíš večer u lednice a nemůžeš se rozhodnout, co si dáš k jídlu. Proč je to tak těžké?
 
-- **✅ Během dne jsi udělal stovky drobných rozhodnutí — mozek je unavený a „jednoduchá" volba mu už připadá neúměrně složitá**
-  Přesně. Tomu se říká decision fatigue. Kapacita mozku pro rozhodování je jako baterie — během dne se vybíjí. Proto je rozumné důležitá rozhodnutí dělat ráno, ne večer.
+- **✅ Stovky rozhodnutí za den — mozek je unavený**
+  Přesně. „Jednoduchá" volba mu už připadá neúměrně složitá. Tomu se říká decision fatigue. Kapacita mozku pro rozhodování je jako baterie — během dne se vybíjí. Proto je rozumné důležitá rozhodnutí dělat ráno, ne večer.
 - ❌ Jsi líný a neumíš se rozhodnout — potřebuješ silnější vůli
   Není to o vůli. I lidé s „železnou vůlí" mají večer zhoršenou schopnost rozhodovat. Je to technický jev.
 - ❌ Máš hlad a nízkou hladinu cukru v krvi
@@ -298,8 +298,8 @@ That's why hard decisions in the evening are often worse than in the morning. Yo
 
 **Question:** Imagine that after a day full of work meetings you're sitting in the evening by the fridge and can't decide what to eat. Why is it so hard?
 
-- **✅ Throughout the day you made hundreds of small decisions — your brain is tired and a "simple" choice seems disproportionately complex**
-  Exactly. This is called decision fatigue. The brain's capacity for decisions is like a battery — during the day it drains. That's why it's smart to make important decisions in the morning, not in the evening.
+- **✅ Hundreds of small decisions drained your brain**
+  Exactly. A "simple" choice now seems disproportionately complex. This is called decision fatigue. The brain's capacity for decisions is like a battery — during the day it drains. That's why it's smart to make important decisions in the morning, not in the evening.
 - ❌ You're lazy and can't decide — you need stronger willpower
   It's not about willpower. Even people with "iron willpower" have worse decision-making ability in the evening. It's a technical phenomenon.
 - ❌ You're hungry and have low blood sugar
@@ -325,8 +325,8 @@ Bad news: when you've lived in the "constantly switch" mode for a long time, you
 
 **Otázka:** Představ si, že se rozhodneš každé ráno dvě hodiny pracovat bez telefonu a bez e-mailu. První tři dny se cítíš úzkostně a „nervózně". Co se pravděpodobně děje?
 
-- **✅ Tvůj mozek je zvyklý na neustálé přepínání a najednou nemá svůj obvyklý „tok" podnětů — jako bys odebral kofein někomu, kdo pije 10 káv denně. Za pár dní se to srovná.**
-  Přesně. Mozek reaguje na změnu návyku. Když mu odebereš obvyklou dávku přepínání, zpočátku protestuje. Ale pozornost je sval, který se vrátí k hluboké práci po několika dnech pravidelného tréninku. Obvykle je zlom kolem dne 4–7.
+- **✅ Mozek odvyká přepínání — jako bys odebral kofein závislému**
+  Přesně. Najednou nemá svůj obvyklý „tok" podnětů a zpočátku protestuje. Za pár dní se to srovná. Pozornost je sval, který se vrátí k hluboké práci po několika dnech pravidelného tréninku. Obvykle je zlom kolem dne 4–7.
 - ❌ Ta strategie ti nefunguje, měl bys ji okamžitě opustit
   Naopak — úzkost je důkaz, že tvůj mozek odvykne staré návyky. Kdybys strategii opustil hned, nikdy se nedostaneš přes přechodovou fázi.
 - ❌ Máš úzkostnou poruchu, kterou by ses měl nechat vyšetřit
@@ -336,8 +336,8 @@ Bad news: when you've lived in the "constantly switch" mode for a long time, you
 
 **Question:** Imagine you decide to work every morning for two hours without your phone and email. The first three days you feel anxious and "on edge." What's most likely happening?
 
-- **✅ Your brain is used to constant switching and suddenly doesn't have its usual "flow" of stimuli — like taking caffeine away from someone who drinks 10 coffees a day. In a few days it'll level out.**
-  Exactly. The brain reacts to a habit change. When you take away its usual dose of switching, at first it protests. But attention is a muscle that returns to deep work after a few days of regular training. Usually the tipping point is around day 4–7.
+- **✅ Your brain is unlearning switching — like caffeine withdrawal**
+  Exactly. Suddenly it doesn't have its usual "flow" of stimuli and at first it protests. In a few days it'll level out. Attention is a muscle that returns to deep work after a few days of regular training. Usually the tipping point is around day 4–7.
 - ❌ That strategy isn't working for you, you should immediately abandon it
   On the contrary — anxiety is proof that your brain is unlearning old habits. If you abandoned the strategy right away, you'd never get through the transition phase.
 - ❌ You have an anxiety disorder and should get checked out
@@ -355,8 +355,8 @@ Bad news: when you've lived in the "constantly switch" mode for a long time, you
 
 **Otázka:** Proč mají lidé, kteří se rozhodují o oblečení, jídle a drobnostech ráno, často horší výkon v důležitých úkolech během dne?
 
-- **✅ Každé rozhodnutí — i malé — spotřebovává část pozornosti. Kdo ráno rozhoduje o drobnostech, má odpoledne menší kapacitu pro důležité úkoly.**
-  Přesně. Proto mnoho známých rozhodovatelů (Steve Jobs, Obama) záměrně omezovali drobná rozhodnutí — měli „uniformu", aby ušetřili pozornost pro věci, na kterých záleželo. Decision fatigue je kumulativní.
+- **✅ Každé rozhodnutí — i malé — ubírá z kapacity pozornosti**
+  Přesně. Kdo ráno rozhoduje o drobnostech, má odpoledne menší kapacitu pro důležité úkoly. Proto mnoho známých rozhodovatelů (Steve Jobs, Obama) záměrně omezovali drobná rozhodnutí — měli „uniformu", aby ušetřili pozornost pro věci, na kterých záleželo. Decision fatigue je kumulativní.
 - ❌ Ranní rozhodování nemá na pozornost žádný vliv, je to mýtus
   Výzkumy ukazují opak — počet drobných rozhodnutí během dne má měřitelný dopad na schopnost rozhodovat se později.
 - ❌ Problém je v tom, že ráno ještě nejsou plně probuzeni
@@ -366,8 +366,8 @@ Bad news: when you've lived in the "constantly switch" mode for a long time, you
 
 **Question:** Why do people who make decisions about clothes, food, and small things in the morning often have worse performance on important tasks during the day?
 
-- **✅ Every decision — even a small one — uses up part of attention. Someone who decides on small things in the morning has less capacity for important tasks in the afternoon.**
-  Exactly. That's why many famous decision-makers (Steve Jobs, Obama) deliberately limited small decisions — they had a "uniform" to save attention for things that mattered. Decision fatigue is cumulative.
+- **✅ Every decision — even a small one — uses up part of attention**
+  Exactly. Someone who decides on small things in the morning has less capacity for important tasks in the afternoon. That's why many famous decision-makers (Steve Jobs, Obama) deliberately limited small decisions — they had a "uniform" to save attention for things that mattered. Decision fatigue is cumulative.
 - ❌ Morning decisions have no effect on attention, it's a myth
   Research shows the opposite — the number of small decisions during the day has a measurable impact on the ability to make decisions later.
 - ❌ The problem is that they're not fully awake in the morning yet
@@ -377,8 +377,8 @@ Bad news: when you've lived in the "constantly switch" mode for a long time, you
 
 **Otázka:** Co je nejpravděpodobnější důsledek, když si dáš na stůl telefon s notifikacemi, i když ho neotvíráš?
 
-- **✅ Tvá pozornost bude výrazně horší — i samotná přítomnost telefonu na stole prokazatelně snižuje výkon v testech pozornosti**
-  Přesně. Studie (např. z University of Texas) ukázaly, že i ztlumený telefon položený obličejem dolů na stole snižuje výkon lidí v testech pracovní paměti. Mozek ví, že tam je, a část pozornosti „hlídá", jestli náhodou nepípne.
+- **✅ Pozornost bude horší — stačí přítomnost telefonu**
+  Přesně. Studie (např. z University of Texas) ukázaly, že i ztlumený telefon položený obličejem dolů na stole prokazatelně snižuje výkon lidí v testech pozornosti a pracovní paměti. Mozek ví, že tam je, a část pozornosti „hlídá", jestli náhodou nepípne.
 - ❌ Žádný — pokud ho neotevíráš, nemá na tebe vliv
   To je častý omyl. Telefon „funguje" jako rušič, i když na něj nesáhneš. Samotná jeho přítomnost stojí mozek energii.
 - ❌ Zlepší se ti pozornost, protože máš telefon „pod kontrolou"
@@ -388,8 +388,8 @@ Bad news: when you've lived in the "constantly switch" mode for a long time, you
 
 **Question:** What's the most likely consequence when you put a phone with notifications on your desk, even if you don't open it?
 
-- **✅ Your attention will be noticeably worse — even the mere presence of a phone on the desk demonstrably lowers performance on attention tests**
-  Exactly. Studies (e.g. from the University of Texas) showed that even a silenced phone placed face down on the desk reduced people's performance on working memory tests. The brain knows it's there, and part of your attention is "watching" to see if it buzzes.
+- **✅ Attention drops — mere presence of the phone is enough**
+  Exactly. Studies (e.g. from the University of Texas) showed that even a silenced phone placed face down on the desk demonstrably reduces performance on attention and working memory tests. The brain knows it's there, and part of your attention is "watching" to see if it buzzes.
 - ❌ None — if you don't open it, it has no effect on you
   That's a common mistake. The phone "works" as a distractor even if you don't touch it. Its mere presence costs the brain energy.
 - ❌ Your attention will improve because you have the phone "under control"
@@ -462,8 +462,8 @@ In blocks, one thing is key: **one task at a time**. Not "I focus on a project a
 
 **Otázka:** Představ si, že začneš dělat dvouhodinový deep work blok každé ráno a první tři dny je to těžké a cítíš se vyčerpaný. Co má největší šanci ti pomoct?
 
-- **✅ Pokračovat v blocích po dobu alespoň týdne — mozek si zvyká na hlubokou práci a nepříjemný pocit po pár dnech ustoupí**
-  Přesně. Pozornost je sval, který se musí adaptovat. První dny jsou nepohodlné, protože mozek je zvyklý přepínat. Zlom obvykle přijde mezi dnem 4 a 7. Pak začne hluboká práce chutnat a výkon prudce vzroste.
+- **✅ Pokračovat v blocích alespoň týden — mozek se adaptuje**
+  Přesně. Nepříjemný pocit po pár dnech ustoupí. Pozornost je sval, který se musí adaptovat. První dny jsou nepohodlné, protože mozek je zvyklý přepínat. Zlom obvykle přijde mezi dnem 4 a 7. Pak začne hluboká práce chutnat a výkon prudce vzroste.
 - ❌ Okamžitě blok zkrátit, protože není udržitelný
   Zkrácení signalizuje mozku „tohle je moc". Lepší je vydržet původní délku a nechat ho adaptovat se.
 - ❌ Během bloku si dát pauzu s telefonem, abys si odpočinul
@@ -473,8 +473,8 @@ In blocks, one thing is key: **one task at a time**. Not "I focus on a project a
 
 **Question:** Imagine that you start doing a two-hour deep work block every morning and the first three days it's hard and you feel exhausted. What has the biggest chance of helping you?
 
-- **✅ Keep going with the blocks for at least a week — the brain adapts to deep work and the uncomfortable feeling passes after a few days**
-  Exactly. Attention is a muscle that has to adapt. The first days are uncomfortable because the brain is used to switching. The tipping point usually comes between day 4 and 7. Then deep work starts to feel good and performance jumps.
+- **✅ Keep going with the blocks at least a week — the brain adapts**
+  Exactly. The uncomfortable feeling passes after a few days. Attention is a muscle that has to adapt. The first days are uncomfortable because the brain is used to switching. The tipping point usually comes between day 4 and 7. Then deep work starts to feel good and performance jumps.
 - ❌ Immediately shorten the block because it's not sustainable
   Shortening signals to the brain "this is too much." Better to hold the original length and let it adapt.
 - ❌ During the block take a break with your phone to relax
@@ -496,8 +496,8 @@ The moment when you notice that your attention has wandered and consciously brin
 
 **Otázka:** Proč i „špatná" meditace, kdy ti pozornost neustále utíká, trénuje tvou pozornost?
 
-- **✅ Každé uvědomění si, že pozornost utekla, a návrat zpět je opakování — a právě opakování je to, co mozek trénuje. Úspěšná meditace není ta bez rušení, ale ta, ve které se mnohokrát vracíš zpátky.**
-  Přesně. Meditace není o „prázdné hlavě" — to je mýtus. Cílem je všimnout si, že myšlenka odešla, a vrátit pozornost zpět. Každý návrat = jedno „cvičení" pro pozornostní obvody mozku. Proto i 10 minut „špatné" meditace denně funguje.
+- **✅ Každý návrat pozornosti je opakování — a to mozek trénuje**
+  Přesně. Úspěšná meditace není ta bez rušení, ale ta, ve které se mnohokrát vracíš zpátky. Meditace není o „prázdné hlavě" — to je mýtus. Cílem je všimnout si, že myšlenka odešla, a vrátit pozornost zpět. Každý návrat = jedno „cvičení" pro pozornostní obvody mozku. Proto i 10 minut „špatné" meditace denně funguje.
 - ❌ Špatná meditace netrénuje nic, potřebuješ se naučit „správně" meditovat
   Naopak — snaha o „dokonalou" meditaci obvykle vede ke frustraci a vzdání. Skutečný trénink je v opakování návratu, ne v tichém, „dokonalém" stavu.
 - ❌ Jediný účinek meditace je relaxace, pozornost s tím nesouvisí
@@ -507,8 +507,8 @@ The moment when you notice that your attention has wandered and consciously brin
 
 **Question:** Why does even "bad" meditation, where your attention constantly wanders, train your attention?
 
-- **✅ Every realization that attention has wandered and bringing it back is a repetition — and repetition is what the brain trains. Successful meditation isn't the one without distractions, but the one in which you return many times.**
-  Exactly. Meditation isn't about an "empty head" — that's a myth. The goal is to notice a thought has left and bring attention back. Every return = one "rep" for the attention circuits of the brain. That's why even 10 minutes of "bad" meditation a day works.
+- **✅ Every return of attention is a repetition — and repetition is what trains the brain**
+  Exactly. Successful meditation isn't the one without distractions, but the one in which you return many times. Meditation isn't about an "empty head" — that's a myth. The goal is to notice a thought has left and bring attention back. Every return = one "rep" for the attention circuits of the brain. That's why even 10 minutes of "bad" meditation a day works.
 - ❌ Bad meditation doesn't train anything, you need to learn how to meditate "properly"
   On the contrary — trying for "perfect" meditation usually leads to frustration and giving up. Real training is in the repetition of returning, not in a quiet "perfect" state.
 - ❌ The only effect of meditation is relaxation, attention has nothing to do with it
@@ -526,8 +526,8 @@ The moment when you notice that your attention has wandered and consciously brin
 
 **Otázka:** Představ si, že si dáš za cíl dělat každý den 90minutový deep work blok, ale po týdnu zjistíš, že se v něm neustále rozptyluješ a práce nejde. Co je nejpravděpodobnější příčina?
 
-- **✅ Nedostatečně jsi odstranil rušiče — telefon, Slack, notifikace nebo otevřené karty stále „krmí" tvou rozptýlenou pozornost**
-  Přesně. Deep work je extrémně citlivý na rušiče. I jedna věc, kterou jsi nechal aktivní (notifikace na hodinkách, otevřený e-mail v druhém okně), může celý blok „rozbít". Zkontroluj, jestli jsi odstranil *všechny* rušiče, ne jen ty hlavní.
+- **✅ Neodstranil jsi všechny rušiče — něco tě pořád ruší**
+  Přesně. Telefon, Slack, notifikace nebo otevřené karty stále aktivují rozptýlenou pozornost. Deep work je extrémně citlivý na rušiče. I jedna věc, kterou jsi nechal aktivní (notifikace na hodinkách, otevřený e-mail v druhém okně), může celý blok „rozbít". Zkontroluj, jestli jsi odstranil *všechny* rušiče, ne jen ty hlavní.
 - ❌ 90 minut je příliš dlouhá doba — potřebuješ maximálně 30 minut
   Pro většinu lidí je 90 minut po adaptaci dosažitelné. Kratší bloky mají smysl na začátku, ale nejsou strukturálně lepší — jen snadnější.
 - ❌ Nemáš dost vůle, musíš se víc snažit
@@ -537,8 +537,8 @@ The moment when you notice that your attention has wandered and consciously brin
 
 **Question:** Imagine that you set a goal to do a 90-minute deep work block every day, but after a week you find out you're constantly getting distracted in it and the work isn't progressing. What's the most likely cause?
 
-- **✅ You haven't sufficiently removed distractors — phone, Slack, notifications or open tabs are still "feeding" your diffuse attention**
-  Exactly. Deep work is extremely sensitive to distractors. Even one thing you left active (notifications on a watch, an open email in another window) can "break" the whole block. Check whether you removed *all* distractors, not just the main ones.
+- **✅ Some distractor still "feeds" your diffuse attention**
+  Exactly. Phone, Slack, notifications or open tabs are still activating your diffuse attention. Deep work is extremely sensitive to distractors. Even one thing you left active (notifications on a watch, an open email in another window) can "break" the whole block. Check whether you removed *all* distractors, not just the main ones.
 - ❌ 90 minutes is too long — you need 30 minutes max
   For most people, 90 minutes is achievable after adaptation. Shorter blocks make sense at the start, but they're not structurally better — just easier.
 - ❌ You don't have enough willpower, you just have to try harder
@@ -548,8 +548,8 @@ The moment when you notice that your attention has wandered and consciously brin
 
 **Otázka:** Co je hlavní chyba, kterou dělají lidé, kteří si stěžují, že „nedokážou přečíst ani článek bez toho, aby nesáhli po telefonu"?
 
-- **✅ Obviňují se ze „slabé vůle" místo toho, aby změnili prostředí. Řešením je dát telefon pryč, ne „víc se snažit".**
-  Přesně. Pokus o souboj s prostředím čistou vůlí je prohra už předem. Pozornost se netrénuje bojem proti rušičům — trénuje se tak, že rušiče odstraníš a dáš mozku šanci zůstat v jedné věci. Pak se pozornost postupně vrátí.
+- **✅ Obviňují se ze „slabé vůle" místo aby změnili prostředí**
+  Přesně. Řešením je dát telefon pryč, ne „víc se snažit". Pokus o souboj s prostředím čistou vůlí je prohra už předem. Pozornost se netrénuje bojem proti rušičům — trénuje se tak, že rušiče odstraníš a dáš mozku šanci zůstat v jedné věci. Pak se pozornost postupně vrátí.
 - ❌ Čtou špatné články, které jim nezajímají — problém je v obsahu, ne v pozornosti
   To může hrát malou roli, ale hlavní problém je stav pozornosti — lidé si stěžují i u knih, které mají rádi. Hlavní faktor je prostředí a trénink.
 - ❌ Mají ADHD a potřebují medikaci
@@ -559,8 +559,8 @@ The moment when you notice that your attention has wandered and consciously brin
 
 **Question:** What's the main mistake people make who complain that they "can't even read an article without reaching for their phone"?
 
-- **✅ They blame themselves for "weak willpower" instead of changing the environment. The solution is to put the phone away, not "try harder."**
-  Exactly. Trying to fight the environment with pure willpower is a lost battle from the start. Attention isn't trained by fighting distractors — it's trained by removing distractors and giving the brain a chance to stay on one thing. Then attention gradually returns.
+- **✅ They blame "weak willpower" instead of changing the environment**
+  Exactly. The solution is to put the phone away, not "try harder." Trying to fight the environment with pure willpower is a lost battle from the start. Attention isn't trained by fighting distractors — it's trained by removing distractors and giving the brain a chance to stay on one thing. Then attention gradually returns.
 - ❌ They're reading bad articles they're not interested in — the problem is the content, not attention
   That can play a small role, but the main problem is the state of attention — people complain even with books they like. The main factor is environment and training.
 - ❌ They have ADHD and need medication

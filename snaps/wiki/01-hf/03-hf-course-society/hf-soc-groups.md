@@ -87,8 +87,8 @@ And this was a **trivial task**. In more complex situations (politics, ethics, w
 
 **Otázka:** Představ si, že jsi na poradě a všichni kolegové s nadšením souhlasí s rizikovým projektem. Ty vidíš tři konkrétní důvody, proč to nemusí fungovat. Cítíš silné nutkání mlčet, abys nevybočoval. Co se s tebou pravděpodobně děje?
 
-- **✅ Skupinový tlak aktivuje stejné sociální obavy jako v Aschově experimentu — nechceš být „ten negativní" a tvůj mozek potlačuje pochybnosti, aby chránil tvé místo ve skupině**
-  Přesně. Tohle není slabost charakteru ani nedostatek odvahy. Je to **systémový** tlak, který funguje i na velmi sebevědomé lidi. Mozek zpracovává vyloučení ze skupiny jako hrozbu — stejné oblasti, které řeší fyzickou bolest. Mlčení je automatická obranná reakce, ne racionální rozhodnutí.
+- **✅ Skupinový tlak jako v Aschově pokusu**
+  Přesně. Nechceš být „ten negativní" a mozek potlačuje pochybnosti, aby chránil tvé místo ve skupině — aktivuje stejné sociální obavy jako v Aschově experimentu. Tohle není slabost charakteru ani nedostatek odvahy. Je to **systémový** tlak, který funguje i na velmi sebevědomé lidi. Mozek zpracovává vyloučení ze skupiny jako hrozbu — stejné oblasti, které řeší fyzickou bolest. Mlčení je automatická obranná reakce, ne racionální rozhodnutí.
 - ❌ Je to tím, že v hloubi duše nevěříš svým argumentům
   Argumenty můžeš mít dobré — ale tlak skupiny působí **nezávisle** na jejich kvalitě. Asch to potvrdil u úlohy, kde účastníci věděli s jistotou, co je správná odpověď. Problém není v jistotě, je v sociálním riziku vyjádření.
 - ❌ Je to lenost — nechceš se hádat
@@ -98,8 +98,8 @@ And this was a **trivial task**. In more complex situations (politics, ethics, w
 
 **Question:** Imagine you're at a meeting and all your colleagues enthusiastically agree with a risky project. You see three concrete reasons why it might not work. You feel a strong urge to stay silent so you don't stick out. What's probably happening to you?
 
-- **✅ Group pressure activates the same social fears as in the Asch experiment — you don't want to be "the negative one," and your brain suppresses doubts to protect your place in the group**
-  Exactly. This isn't a character weakness or a lack of courage. It's a **systemic** pressure that works even on very confident people. The brain processes exclusion from a group as a threat — the same areas that handle physical pain. Silence is an automatic defensive reaction, not a rational decision.
+- **✅ Group pressure like in Asch's experiment**
+  Exactly. You don't want to be "the negative one" and the brain suppresses doubts to protect your place in the group — activating the same social fears as in Asch's experiment. This isn't a character weakness or a lack of courage. It's a **systemic** pressure that works even on very confident people. The brain processes exclusion from a group as a threat — the same areas that handle physical pain. Silence is an automatic defensive reaction, not a rational decision.
 - ❌ It's because deep down you don't believe your arguments
   Your arguments may be solid — but group pressure acts **independently** of their quality. Asch confirmed this on a task where participants knew for sure what the right answer was. The problem isn't certainty, it's the social risk of expressing it.
 - ❌ It's laziness — you don't want to argue
@@ -135,8 +135,8 @@ Paradox: the **more cohesive** the group, the higher the risk of groupthink. Goo
 
 **Otázka:** Představ si, že jsi v malém týmu, kde máš ráda všechny kolegyně. Na schůzce všechny rychle souhlasí s návrhem, o kterém sama máš pochybnosti. Proč je paradoxně **vyšší** riziko groupthinku právě v soudržném týmu?
 
-- **✅ Čím víc lidí v týmu máš ráda, tím vyšší je sociální cena vyjádření nesouhlasu — bojíš se, že poškodíš vztahy, a tak raději mlčíš, i když máš pravdu**
-  Přesně. Janis tento paradox popsal jako hlavní rys groupthinku. Soudržné týmy vytvářejí iluzi bezpečí („jsme si blízcí"), ale ve skutečnosti z nich mizí **kritická debata**, protože nikdo nechce narušit atmosféru. Cizí, neosobní tým by paradoxně byl otevřenější — nikdo by se nebál „být ten nepříjemný".
+- **✅ Čím víc lidí máš ráda, tím vyšší je sociální cena nesouhlasu**
+  Přesně. Bojíš se poškodit vztahy a raději mlčíš, i když máš pravdu. Janis tento paradox popsal jako hlavní rys groupthinku. Soudržné týmy vytvářejí iluzi bezpečí („jsme si blízcí"), ale ve skutečnosti z nich mizí **kritická debata**, protože nikdo nechce narušit atmosféru. Cizí, neosobní tým by paradoxně byl otevřenější — nikdo by se nebál „být ten nepříjemný".
 - ❌ Protože v soudržném týmu jsou lidé líní kriticky myslet
   Není to lenost. Je to **empatie** — nechceš zranit ostatní. Ale zrovna tato hezká motivace se mění v past, když zabraňuje tomu, co by skupině pomohlo nejvíc: ve včasné kritické zpětné vazbě.
 - ❌ Protože soudržný tým dělá lepší rozhodnutí, takže kritika není potřeba
@@ -146,8 +146,8 @@ Paradox: the **more cohesive** the group, the higher the risk of groupthink. Goo
 
 **Question:** Imagine you're on a small team where you like all your colleagues. At a meeting they all quickly agree on a proposal you yourself have doubts about. Why is the risk of groupthink paradoxically **higher** in a cohesive team?
 
-- **✅ The more people on the team you like, the higher the social cost of expressing disagreement — you fear damaging relationships, so you stay silent even when you're right**
-  Exactly. Janis described this paradox as the main feature of groupthink. Cohesive teams create an illusion of safety ("we're close"), but in reality **critical debate** disappears from them, because nobody wants to disrupt the atmosphere. A foreign, impersonal team would paradoxically be more open — nobody would fear "being the unpleasant one."
+- **✅ The more people you like, the higher the social cost of disagreement**
+  Exactly. You fear damaging relationships and stay silent even when you're right. Janis described this paradox as the main feature of groupthink. Cohesive teams create an illusion of safety ("we're close"), but in reality **critical debate** disappears from them, because nobody wants to disrupt the atmosphere. A foreign, impersonal team would paradoxically be more open — nobody would fear "being the unpleasant one."
 - ❌ Because in a cohesive team people are lazy to think critically
   It isn't laziness. It's **empathy** — you don't want to hurt the others. But that nice motivation turns into a trap when it prevents what the group needs most: timely critical feedback.
 - ❌ Because a cohesive team makes better decisions, so criticism isn't needed
@@ -165,8 +165,8 @@ Paradox: the **more cohesive** the group, the higher the risk of groupthink. Goo
 
 **Otázka:** Představ si, že sedíš na poradě a máš jasnou pochybnost, ale všichni okolo už kývají. Jaký **konkrétní** krok ti v reálném čase nejvíc pomůže ji vyslovit?
 
-- **✅ Zformulovat ji jako otázku, ne jako tvrzení: „Jen abych to správně pochopil — jak tohle řešíme, když nastane X?"**
-  Přesně. Otázka má **mnohem nižší sociální cenu** než tvrzení. Netvrdíš, že jsou všichni na špatné cestě — jen se ptáš, jak se bude řešit konkrétní scénář. Dáváš skupině prostor, aby sama objevila slepé místo, a zároveň se neukážeš jako „ten negativní". Tenhle prostý přeformulovací trik zachraňuje desítky projektů měsíčně v týmech po celém světě.
+- **✅ Zformulovat svou pochybnost jako otázku, ne jako tvrzení**
+  Přesně. Například: „Jak to řešíme, když nastane X?" Otázka má **mnohem nižší sociální cenu** než tvrzení. Netvrdíš, že jsou všichni na špatné cestě — jen se ptáš, jak se bude řešit konkrétní scénář. Dáváš skupině prostor, aby sama objevila slepé místo, a zároveň se neukážeš jako „ten negativní". Tenhle prostý přeformulovací trik zachraňuje desítky projektů měsíčně v týmech po celém světě.
 - ❌ Ostře říct: „Všichni jste vedle, tohle nebude fungovat."
   Vysoká sociální cena, velmi nízká pravděpodobnost, že tě někdo uslyší. Lidé se dostanou do obrany ještě dřív, než stihnou pochopit tvé důvody. Technicky můžeš mít pravdu, ale prakticky jsi tým rozdělil, ne posunul.
 - ❌ Nic neříkat a počkat, jestli si toho někdo jiný všimne
@@ -176,8 +176,8 @@ Paradox: the **more cohesive** the group, the higher the risk of groupthink. Goo
 
 **Question:** Imagine you're in a meeting and you have a clear doubt, but everyone around is already nodding. Which **concrete** step helps you most to voice it in real time?
 
-- **✅ Frame it as a question, not a statement: "Just so I understand — how do we handle this if X happens?"**
-  Exactly. A question has **much lower social cost** than a statement. You're not claiming everyone is on the wrong track — you're just asking how a specific scenario will be handled. You give the group space to discover the blind spot itself, and at the same time you don't come across as "the negative one." This simple reframing trick saves dozens of projects a month in teams around the world.
+- **✅ Frame your doubt as a question, not as a statement**
+  Exactly. For example: "How do we handle this if X happens?" A question has **much lower social cost** than a statement. You're not claiming everyone is on the wrong track — you're just asking how a specific scenario will be handled. You give the group space to discover the blind spot itself, and at the same time you don't come across as "the negative one." This simple reframing trick saves dozens of projects a month in teams around the world.
 - ❌ Say sharply: "You're all wrong, this won't work."
   High social cost, very low chance anyone will listen. People go into defense before they can grasp your reasons. Technically you may be right, but practically you split the team, not moved it forward.
 - ❌ Say nothing and wait to see if someone else notices
@@ -187,8 +187,8 @@ Paradox: the **more cohesive** the group, the higher the risk of groupthink. Goo
 
 **Otázka:** Představ si, že sám vedeš malou schůzku a chceš se vyhnout groupthinku. Jaký je **nejúčinnější** preventivní krok?
 
-- **✅ Nechat lidi **před** schůzkou napsat svůj názor krátce písemně — a až pak otevřít diskuzi**
-  Přesně. Tenhle postup (někdy se říká „silent brainstorming" nebo „premortem") úplně obchází sociální tlak. Lidé píšou názor, když ještě nevědí, co si myslí ostatní — takže nemůžou podlehnout „iluzi jednomyslnosti". Na diskuzi přicházejí s napsaným názorem, který se mnohem hůř mění pod tlakem. Jednoduchá změna, obrovský efekt na kvalitu rozhodnutí.
+- **✅ Nechat lidi **před** schůzkou napsat svůj názor**
+  Přesně. Teprve pak otevři diskuzi. Tenhle postup (někdy se říká „silent brainstorming" nebo „premortem") úplně obchází sociální tlak. Lidé píšou názor, když ještě nevědí, co si myslí ostatní — takže nemůžou podlehnout „iluzi jednomyslnosti". Na diskuzi přicházejí s napsaným názorem, který se mnohem hůř mění pod tlakem. Jednoduchá změna, obrovský efekt na kvalitu rozhodnutí.
 - ❌ Zeptat se veřejně „má někdo jiný názor?"
   Nefunguje. Jakmile někdo už něco řekl, sociální cena nesouhlasu prudce stoupá. Lidé, kteří by v soukromí něco namítli, v tuhle chvíli raději kývnou. Otevřená otázka je dobrý úmysl, ale špatný nástroj.
 - ❌ Nechat to přirozeně plynout — dobří lidé řeknou, co si myslí
@@ -198,8 +198,8 @@ Paradox: the **more cohesive** the group, the higher the risk of groupthink. Goo
 
 **Question:** Imagine you're running a small meeting yourself and want to avoid groupthink. What's the **most effective** preventive step?
 
-- **✅ Have people write their view briefly **before** the meeting — and only then open the discussion**
-  Exactly. This method (sometimes called "silent brainstorming" or a "premortem") completely bypasses social pressure. People write their view while they don't yet know what others think — so they can't fall for "the illusion of unanimity." They come to the discussion with a written view, which is much harder to change under pressure. A simple change, huge effect on decision quality.
+- **✅ Have people write their view **before** the meeting**
+  Exactly. Only then open the discussion. This method (sometimes called "silent brainstorming" or a "premortem") completely bypasses social pressure. People write their view while they don't yet know what others think — so they can't fall for "the illusion of unanimity." They come to the discussion with a written view, which is much harder to change under pressure. A simple change, huge effect on decision quality.
 - ❌ Ask publicly "does anyone have a different opinion?"
   Doesn't work. Once someone has already said something, the social cost of disagreement shoots up. People who'd object in private would rather nod at that moment. The open question is a good intention, but a bad tool.
 - ❌ Let it flow naturally — good people will say what they think
@@ -262,8 +262,8 @@ This happens **without your awareness**. And in **all cultures**.
 
 **Otázka:** Představ si, že fandíš fotbalovému klubu. Když tvůj tým udělá tvrdý faul, říkáš „to byl jen sportovní souboj". Když to samé udělá druhý tým, říkáš „to je sprostota!". Upřímně víš, že oba fauly byly stejné. Co se s tebou děje?
 
-- **✅ In-group bias — mozek automaticky „omlouvá" chování tvé skupiny a zdůrazňuje chyby cizích, aniž by tě o to žádal**
-  Přesně. Tohle není pokrytectví — pokrytectví by bylo **vědomé**. Toto je **automatický** filtr, který se aktivuje dřív, než začneš přemýšlet. Tvůj mozek dostane signál „to je náš/cizí" a podle toho zmírní nebo zesílí soud. Dokonce i vzpomínka na stejný faul se může lišit podle toho, kdo ho udělal.
+- **✅ In-group bias — mozek omlouvá „svoje" a tvrdě soudí „cizí"**
+  Přesně. Děje se to automaticky, bez tvého záměru. Tohle není pokrytectví — pokrytectví by bylo **vědomé**. Toto je **automatický** filtr, který se aktivuje dřív, než začneš přemýšlet. Tvůj mozek dostane signál „to je náš/cizí" a podle toho zmírní nebo zesílí soud. Dokonce i vzpomínka na stejný faul se může lišit podle toho, kdo ho udělal.
 - ❌ Jsem jen špatný fanoušek, u dobrého by to tak nebylo
   Tohle dělá **každý** fanoušek, kdekoli na světě. Studie na desítkách sportů, zemí a ligách to opakovaně potvrzují. Není to charakterová vada — je to standardní funkce mozku.
 - ❌ Je to jen o fotbale, v jiných oblastech to nedělám
@@ -273,8 +273,8 @@ This happens **without your awareness**. And in **all cultures**.
 
 **Question:** Imagine you're a fan of a soccer club. When your team commits a hard foul, you say "that was just a sporting challenge." When the other team does the same, you say "that's dirty!" You honestly know both fouls were the same. What's happening to you?
 
-- **✅ In-group bias — the brain automatically "excuses" your group's behavior and emphasizes others' mistakes, without asking you**
-  Exactly. This isn't hypocrisy — hypocrisy would be **conscious**. This is an **automatic** filter that activates before you start thinking. Your brain gets the signal "ours/theirs" and softens or sharpens the judgment accordingly. Even the memory of the same foul can differ depending on who committed it.
+- **✅ In-group bias — brain excuses "ours" and judges "theirs"**
+  Exactly. It happens automatically, without your intent. This isn't hypocrisy — hypocrisy would be **conscious**. This is an **automatic** filter that activates before you start thinking. Your brain gets the signal "ours/theirs" and softens or sharpens the judgment accordingly. Even the memory of the same foul can differ depending on who committed it.
 - ❌ I'm just a bad fan, a good one wouldn't do this
   **Every** fan does this, anywhere in the world. Studies in dozens of sports, countries, and leagues repeatedly confirm it. It isn't a character flaw — it's a standard brain function.
 - ❌ It's just about soccer, I don't do it in other areas
@@ -308,8 +308,8 @@ This has huge implications:
 
 **Otázka:** Představ si, že čteš zprávu o nějakém politickém skandálu. Stejná slova, stejný obsah. Ale v polovině případů ti někdo řekne, že to udělal politik, kterého obecně podporuješ; v polovině, že to udělal ten druhý. Jak se pravděpodobně změní tvé hodnocení?
 
-- **✅ Stejný čin od „svého" politika bude mít rozumnější výmluvy („měl pro to důvody"), od „cizího" tvrdší soud („to je charakterová vada") — automaticky, bez záměru**
-  Přesně. Tohle je empiricky potvrzený jev a funguje **silně** i u lidí, kteří si myslí, že jsou „objektivní". Mozek nevědomě mění **výklad** stejných faktů podle toho, koho se týkají. Dokonce si na stejnou zprávu zapamatuješ různé detaily. Nejsilnější obrana je si tenhle mechanismus **otevřeně přiznat** — ne tvrdit, že „na mě neplatí".
+- **✅ „Svému" politikovi najdeš výmluvy, „cizího" odsoudíš**
+  Přesně. Stejný čin, jiný soud: od „svých" „měl důvody", od „cizích" „charakterová vada". Děje se to automaticky, bez záměru. Tohle je empiricky potvrzený jev a funguje **silně** i u lidí, kteří si myslí, že jsou „objektivní". Mozek nevědomě mění **výklad** stejných faktů podle toho, koho se týkají. Dokonce si na stejnou zprávu zapamatuješ různé detaily. Nejsilnější obrana je si tenhle mechanismus **otevřeně přiznat** — ne tvrdit, že „na mě neplatí".
 - ❌ Ne — jsem dostatečně kritický i vůči své straně
   Tohle si myslí **naprostá většina lidí**. Výzkumy to opakovaně testují metodou, kdy se identické zprávy připisují různým táborům, a skoro nikdy není výsledek „stejné hodnocení". Není v tom žádná morální vada — je to automatický filtr mozku. Uvědomění je jediná cesta, jak ho zmírnit.
 - ❌ Záleží jen na faktech, politická strana je nepodstatná
@@ -319,8 +319,8 @@ This has huge implications:
 
 **Question:** Imagine you read a news story about a political scandal. Same words, same content. But in half of the cases someone tells you it was done by a politician you generally support; in the other half, by the other side. How does your judgment probably change?
 
-- **✅ The same act by "your" politician gets more reasonable excuses ("he had reasons"), by the "other" a harsher judgment ("that's a character flaw") — automatically, without intent**
-  Exactly. This is an empirically confirmed effect and works **strongly** even on people who think they're "objective." The brain unconsciously changes the **interpretation** of the same facts depending on who they apply to. You'll even remember different details from the same news. The strongest defense is to **openly admit** this mechanism — not claim "it doesn't work on me."
+- **✅ You'll excuse "your" politician and condemn the "other"**
+  Exactly. Same act, different judgment: from "yours" it's "he had reasons," from "theirs" "that's a character flaw." It happens automatically, without intent. This is an empirically confirmed effect and works **strongly** even on people who think they're "objective." The brain unconsciously changes the **interpretation** of the same facts depending on who they apply to. You'll even remember different details from the same news. The strongest defense is to **openly admit** this mechanism — not claim "it doesn't work on me."
 - ❌ No — I'm critical enough toward my own side as well
   This is what the **overwhelming majority** of people think. Research repeatedly tests this by ascribing identical news to different camps, and the result is almost never "equal judgment." There's no moral flaw in it — it's an automatic brain filter. Awareness is the only path to mitigating it.
 - ❌ Only facts matter, political party is irrelevant
@@ -362,8 +362,8 @@ Good news: in-group bias **isn't destiny**. The same studies that document it al
 
 **Otázka:** Představ si, že si všimneš, jak ti automaticky vadí politik/herečka/umělec jen proto, že patří k „druhé straně", i když konkrétně nic zlého neudělal. Co je **nejúčinnější** protikrok?
 
-- **✅ Vědomě si zkusit najít **nejlepší** verzi toho, co ten člověk říká — a zeptat se: „Kdyby tohle řekl někdo z mé strany, co bych si o tom myslel?"**
-  Přesně. „Steelmanning" plus „test strany" jsou dva nejúčinnější mentální nástroje proti in-group biasu. Test strany je zvlášť odhalující: pokud bys stejnou větu od „svých" pochválil a od „cizích" kritizoval, víš, že reaguješ na **etiketu**, ne na obsah. Tato prostá změna perspektivy doslova přeprogramovává, jak mozek zpracovává stejný vstup.
+- **✅ Najít **nejlepší** verzi jeho slov a udělat „test strany"**
+  Přesně. Zeptej se: „Kdyby to řekl někdo z mé strany, co bych si o tom myslel?" „Steelmanning" plus „test strany" jsou dva nejúčinnější mentální nástroje proti in-group biasu. Test strany je zvlášť odhalující: pokud bys stejnou větu od „svých" pochválil a od „cizích" kritizoval, víš, že reaguješ na **etiketu**, ne na obsah. Tato prostá změna perspektivy doslova přeprogramovává, jak mozek zpracovává stejný vstup.
 - ❌ Přidat se k většině — „ostatní asi vědí, proč ho nemají rádi"
   To je kombinace in-group biasu a sociálního důkazu. Posiluje původní bias, místo aby ho rozvolnilo. Tudy cesta nevede — dostaneš se dál od pravdy, ne blíž.
 - ❌ Úplně opustit svou skupinu, aby ses jí necítil svázán
@@ -373,8 +373,8 @@ Good news: in-group bias **isn't destiny**. The same studies that document it al
 
 **Question:** Imagine you notice that you automatically dislike a politician/actor/artist just because they belong to "the other side," even though they haven't specifically done anything wrong. What's the **most effective** counter-step?
 
-- **✅ Consciously try to find the **best** version of what that person is saying — and ask: "If someone from my side said this, what would I think?"**
-  Exactly. "Steelmanning" plus the "side test" are the two most effective mental tools against in-group bias. The side test is especially revealing: if you'd praise the same sentence from "yours" and criticize it from "others," you know you're reacting to **a label**, not content. This simple perspective shift literally reprograms how the brain processes the same input.
+- **✅ Find the **best** version of their words and run a "side test"**
+  Exactly. Ask: "If someone from my side said this, what would I think?" "Steelmanning" plus the "side test" are the two most effective mental tools against in-group bias. The side test is especially revealing: if you'd praise the same sentence from "yours" and criticize it from "others," you know you're reacting to **a label**, not content. This simple perspective shift literally reprograms how the brain processes the same input.
 - ❌ Join the majority — "others probably know why they don't like him"
   That's a combination of in-group bias and social proof. It strengthens the original bias instead of loosening it. This path leads further from the truth, not closer.
 - ❌ Completely leave your group so you don't feel tied to it
@@ -429,8 +429,8 @@ A healthy group isn't formed by gathering "nice people." It's formed by having a
 
 **Otázka:** Představ si, že vedeš malý tým a chceš snížit riziko groupthinku **bez toho**, abys lidem dělal přednášku o psychologii. Který nástroj má **nejlepší poměr** mezi jednoduchostí a dopadem?
 
-- **✅ Před každým důležitým rozhodnutím požádat všechny, aby nezávisle napsali 3 důvody, proč by projekt mohl selhat — a teprve pak otevřít diskuzi**
-  Přesně. Premortem je jednoduchý, rychlý, nevyžaduje žádné školení a okamžitě mění dynamiku porady. Místo „shoduje se s vedoucím?" lidé přemýšlejí „co může selhat?". Kritické myšlení se stává součástí procesu, ne sociálně riskantním aktem. Výzkum ukazuje, že tato jediná změna zlepšuje kvalitu rozhodnutí ve skupinách o 20–30 %.
+- **✅ Před rozhodnutím nechat všechny nezávisle napsat 3 důvody pro selhání**
+  Přesně. Teprve pak otevři diskuzi. Premortem je jednoduchý, rychlý, nevyžaduje žádné školení a okamžitě mění dynamiku porady. Místo „shoduje se s vedoucím?" lidé přemýšlejí „co může selhat?". Kritické myšlení se stává součástí procesu, ne sociálně riskantním aktem. Výzkum ukazuje, že tato jediná změna zlepšuje kvalitu rozhodnutí ve skupinách o 20–30 %.
 - ❌ Říct všem, aby byli „otevřenější a odvážnější" v diskuzi
   Dobrý úmysl, ale neúčinné. Apelování na charakter nefunguje proti automatickému sociálnímu tlaku. Lidé v tu chvíli s tebou souhlasí („ano, budu otevřenější!") a pak dělají přesně totéž co předtím. Potřebuješ **strukturu**, ne výzvy.
 - ❌ Každou poradu začínat dlouhým monologem o tom, proč je groupthink nebezpečný
@@ -440,8 +440,8 @@ A healthy group isn't formed by gathering "nice people." It's formed by having a
 
 **Question:** Imagine you lead a small team and want to reduce the risk of groupthink **without** giving people a psychology lecture. Which tool has the **best ratio** of simplicity to impact?
 
-- **✅ Before every important decision, ask everyone to independently write 3 reasons why the project could fail — and only then open the discussion**
-  Exactly. A premortem is simple, fast, requires no training, and immediately changes meeting dynamics. Instead of "do I agree with the leader?" people think "what can fail?" Critical thinking becomes part of the process, not a socially risky act. Research shows this single change improves group decision quality by 20–30%.
+- **✅ Before a decision, have everyone write 3 reasons it could fail**
+  Exactly. Have them do it independently, and only then open the discussion. A premortem is simple, fast, requires no training, and immediately changes meeting dynamics. Instead of "do I agree with the leader?" people think "what can fail?" Critical thinking becomes part of the process, not a socially risky act. Research shows this single change improves group decision quality by 20–30%.
 - ❌ Tell everyone to be "more open and braver" in discussion
   A good intention, but ineffective. Appeals to character don't work against automatic social pressure. People agree with you at the moment ("yes, I'll be more open!") and then do exactly the same as before. You need **structure**, not exhortations.
 - ❌ Start every meeting with a long monologue on why groupthink is dangerous
@@ -471,8 +471,8 @@ In practice this means: if a "us versus them" arises in a team or a family, the 
 
 **Otázka:** Představ si, že v rodině vznikly dva tábory — „starší generace" a „mladší generace" — které se při každé debatě chytí a vzájemně si nerozumí. Co je **nejúčinnější** strategie, jak dynamiku zlepšit?
 
-- **✅ Najít společný úkol nebo projekt, který má význam pro obě generace a vyžaduje jejich spolupráci (rodinná oslava, oprava chalupy, péče o někoho blízkého) — sdílený cíl sjednocuje víc než debaty o neshodách**
-  Přesně. Sherif tohle empiricky prokázal: diskuze o rozdílech nic neřeší — jen je posiluje. Co funguje, je **společná činnost**, ve které obě strany musí spolupracovat a ve které je druhá strana **potřebná**. Najednou „ti druzí" nejsou soupeři, ale spolupracovníci s jinými silnými stránkami.
+- **✅ Najít společný úkol, který vyžaduje spolupráci obou stran**
+  Přesně. Může to být rodinná oslava, oprava chalupy nebo péče o někoho blízkého — něco, co má význam pro obě generace. Sdílený cíl sjednocuje víc než debaty. Sherif tohle empiricky prokázal: diskuze o rozdílech nic neřeší — jen je posiluje. Co funguje, je **společná činnost**, ve které obě strany musí spolupracovat a ve které je druhá strana **potřebná**. Najednou „ti druzí" nejsou soupeři, ale spolupracovníci s jinými silnými stránkami.
 - ❌ Uspořádat velkou debatu, ve které se všichni vyslechnou
   Intuitivní, ale většinou neúčinné. Debaty o rozdílech obvykle tyto rozdíly **zdůrazňují**. Každý vidí důkazy o tom, proč „ti druzí" nechápou — a odchází s posíleným pocitem oddělení. Paradoxně: méně mluvení o rozdílech a víc společné činnosti funguje lépe.
 - ❌ Oddělit obě generace a dělat věci zvlášť, ať se nehádají
@@ -482,8 +482,8 @@ In practice this means: if a "us versus them" arises in a team or a family, the 
 
 **Question:** Imagine two camps have formed in a family — "older generation" and "younger generation" — that clash and misunderstand each other in every debate. What's the **most effective** strategy for improving the dynamic?
 
-- **✅ Find a shared task or project that matters to both generations and requires their cooperation (a family celebration, fixing the cottage, caring for someone close) — a shared goal unites more than debates about disagreements**
-  Exactly. Sherif proved this empirically: discussions about differences don't solve anything — they reinforce them. What works is **shared activity** where both sides have to cooperate and where the other side is **needed**. Suddenly "the others" aren't opponents but collaborators with different strengths.
+- **✅ Find a shared task requiring cooperation from both sides**
+  Exactly. It can be a family celebration, fixing the cottage, or caring for someone close — something that matters to both generations. A shared goal unites more than debates. Sherif proved this empirically: discussions about differences don't solve anything — they reinforce them. What works is **shared activity** where both sides have to cooperate and where the other side is **needed**. Suddenly "the others" aren't opponents but collaborators with different strengths.
 - ❌ Organize a big debate where everyone gets heard
   Intuitive but usually ineffective. Debates about differences usually **highlight** those differences. Everyone sees evidence of why "the others" don't get it — and leaves with a strengthened sense of separation. Paradoxically: less talking about differences and more shared activity works better.
 - ❌ Separate both generations and do things apart so they don't fight
@@ -517,8 +517,8 @@ Caution: **diversity alone isn't enough**. If a mixed team lacks psychological s
 
 **Otázka:** Představ si, že pozoruješ skupinu (v práci, mezi přáteli, v rodině), kde se všichni rychle shodnou na všem. Zvenčí to vypadá jako „skvělý kolektiv". Proč je to ve skutečnosti **varovný signál**?
 
-- **✅ Rychlý souhlas na složité věci obvykle znamená buď triviální problém, nebo — častěji — že lidé **potlačují** pochybnosti. A potlačené pochybnosti vedou ke slepým místům, která nikdo nevidí**
-  Přesně. Zdravá skupina při složitém rozhodnutí **diskutuje**, i když nakonec dojde ke shodě. Pokud diskuze není, je to obvykle proto, že lidé čtou sociální tlak a mlčí. „Skvělý kolektiv" často znamená „kolektiv, ve kterém se neříká, co si lidé opravdu myslí". Varovný signál — ne pochvala.
+- **✅ Rychlá shoda na složité věci znamená **potlačené** pochybnosti**
+  Přesně. A potlačené pochybnosti vedou ke slepým místům, která nikdo nevidí. Zdravá skupina při složitém rozhodnutí **diskutuje**, i když nakonec dojde ke shodě. Pokud diskuze není, je to obvykle proto, že lidé čtou sociální tlak a mlčí. „Skvělý kolektiv" často znamená „kolektiv, ve kterém se neříká, co si lidé opravdu myslí". Varovný signál — ne pochvala.
 - ❌ Je to naopak dobře — skupina funguje efektivně, neplýtvá časem
   Občas ano, u triviálních věcí. Ale u složitých rozhodnutí je rychlý konsenzus statisticky spojen s **horšími výsledky**. Efektivita bez debaty je klamný pocit — ušetřený čas se vybere později v nápravě špatných rozhodnutí.
 - ❌ Znamená to, že skupina je mimořádně inteligentní
@@ -528,8 +528,8 @@ Caution: **diversity alone isn't enough**. If a mixed team lacks psychological s
 
 **Question:** Imagine you observe a group (at work, among friends, in a family) where everyone quickly agrees on everything. From outside it looks like "a great team." Why is this actually a **warning signal**?
 
-- **✅ Fast agreement on a complex thing usually means either a trivial problem, or — more often — that people are **suppressing** doubts. And suppressed doubts lead to blind spots no one sees**
-  Exactly. A healthy group **debates** on a complex decision, even when it reaches agreement in the end. If there's no discussion, it's usually because people are reading the social pressure and staying silent. "A great team" often means "a team where people don't say what they really think." A warning signal — not a compliment.
+- **✅ Fast agreement on a complex thing means **suppressed** doubts**
+  Exactly. And suppressed doubts lead to blind spots no one sees. A healthy group **debates** on a complex decision, even when it reaches agreement in the end. If there's no discussion, it's usually because people are reading the social pressure and staying silent. "A great team" often means "a team where people don't say what they really think." A warning signal — not a compliment.
 - ❌ On the contrary — the group works efficiently and doesn't waste time
   Sometimes yes, on trivial things. But on complex decisions, fast consensus is statistically associated with **worse outcomes**. Efficiency without debate is a misleading feeling — the saved time is paid back later in fixing bad decisions.
 - ❌ It means the group is extraordinarily intelligent

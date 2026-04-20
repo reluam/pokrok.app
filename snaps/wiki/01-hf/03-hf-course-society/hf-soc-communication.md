@@ -86,7 +86,7 @@ The same sentence "it's fine" can, in different tones, mean "I'm calm, nothing t
 
 **Otázka:** Představ si, že řekneš partnerovi „v pohodě, mně to nevadí", ale stojíš s rukama v kříži, odvrátíš pohled a řekneš to ledovým tónem. Co tvůj partner pravděpodobně slyší — a proč?
 
-- **✅ Slyší „nejsem v pohodě, ale nechci o tom mluvit", protože mozek v rozporu mezi slovy a tónem věří tónu**
+- **✅ Slyší „nejsem v pohodě", protože mozek při rozporu věří tónu**
   Přesně. Neverbální signály (tón, postoj, pohled) jsou pro mozek rychlejší a důvěryhodnější než slova — jsou mnohem těžší „předstírat". Tvůj partner nereaguje na slova, ale na nesoulad. A ten nesoulad mu říká: „něco je špatně, ale nemám o tom mluvit".
 - ❌ Slyší doslova to, co řekneš — „jsi v pohodě, nic ti nevadí"
   Kdyby to tak bylo, komunikace by byla snadná. Ve skutečnosti mozek neverbální signály zpracovává rychleji a podvědomě. Lidé reagují na tón dřív, než stačí rozpoznat slova.
@@ -97,7 +97,7 @@ The same sentence "it's fine" can, in different tones, mean "I'm calm, nothing t
 
 **Question:** Imagine you tell your partner "it's fine, I don't mind," but you stand with arms crossed, avert your gaze, and say it in an icy tone. What does your partner probably hear — and why?
 
-- **✅ They hear "I'm not fine, but I don't want to talk about it," because when words and tone conflict, the brain believes the tone**
+- **✅ They hear "I'm not fine" because the brain trusts tone over words**
   Exactly. Nonverbal signals (tone, posture, gaze) are faster and more credible to the brain than words — they're much harder to "fake." Your partner isn't reacting to the words but to the mismatch. And that mismatch tells them: "something's wrong, but I shouldn't talk about it."
 - ❌ They hear literally what you said — "you're fine, nothing bothers you"
   If that were true, communication would be easy. In reality, the brain processes nonverbal signals faster and unconsciously. People react to tone before they finish recognizing the words.
@@ -120,7 +120,7 @@ These small details have enormous impact, even if neither speaker nor listener c
 
 **Otázka:** Představ si, že na poradě říkáš: „Souhlasím, je to dobrý nápad" — ale říkáš to pomaleji, s povzdechem a pohledem do stolu. Jaký signál pravděpodobně vyšleš ke kolegům, i když to tak nemyslíš?
 
-- **✅ „Ve skutečnosti s tím nesouhlasím, jen to nechci otevřeně říct" — tón a pomalost mají větší váhu než slovo „souhlasím"**
+- **✅ „Nesouhlasím, jen to neřeknu" — tón přebije slova**
   Přesně. Pomalá řeč, povzdech a pohled dolů jsou neverbální signály nesouhlasu nebo rezignace. Kolegové je čtou automaticky a tvoje slovo „souhlasím" tomu nijak neodporuje — obsah se prostě ztratí pod formou. Výsledek: buď ti nevěří, nebo se cítí nesví, i když nevědí proč.
 - ❌ Vyšleš přesně ten signál, který jsi chtěl — že souhlasíš
   Slova říkají „souhlasím", ale mozek kolegů dá přednost neverbálním signálům. I kdyby si to racionálně nepřiznali, jejich pocit z rozhovoru bude: „nebyl si jistý".
@@ -131,7 +131,7 @@ These small details have enormous impact, even if neither speaker nor listener c
 
 **Question:** Imagine you say at a meeting: "I agree, it's a good idea" — but you say it slowly, with a sigh and your gaze at the table. What signal do you probably send your colleagues, even if you don't mean to?
 
-- **✅ "Actually I disagree, I just don't want to say so openly" — tone and slowness weigh more than the word "agree"**
+- **✅ "I disagree" — tone overrides the word**
   Exactly. Slow speech, a sigh, and a downward gaze are nonverbal signals of disagreement or resignation. Colleagues read them automatically, and the word "agree" doesn't contradict them — the content simply gets lost under the form. Result: either they don't believe you, or they feel uneasy without knowing why.
 - ❌ You send exactly the signal you intended — that you agree
   The words say "I agree," but your colleagues' brains give priority to nonverbal signals. Even if they don't admit it rationally, their feeling from the meeting will be: "he wasn't sure."
@@ -150,8 +150,8 @@ These small details have enormous impact, even if neither speaker nor listener c
 
 **Otázka:** Představ si, že chceš kolegovi upřímně pogratulovat k povýšení, ale sám jsi o to místo přišel. Slova říkáš správná („gratuluju, zasloužíš si to"), ale cítíš v sobě hořkost. Co je **nejlepší** postup?
 
-- **✅ Přiznat si hořkost pro sebe, uvědomit si, že ji tvůj tón stejně prozradí, a raději říct méně slov — ale opravdu upřímně**
-  Přesně. Hrát „velkou gratulaci" v okamžiku, kdy v sobě nosíš zklamání, skoro vždy skončí falešně. Tělo prozradí víc, než si myslíš. Kratší a upřímnější verze („gratuluju, je to zasloužené") působí mnohem líp, protože obsah i forma jsou v souladu — nic nepředstíráš.
+- **✅ Přiznat si hořkost a říct méně slov, ale upřímně**
+  Přesně. Hrát „velkou gratulaci" v okamžiku, kdy v sobě nosíš zklamání, skoro vždy skončí falešně. Tělo prozradí víc, než si myslíš. Tón stejně prozradí, co cítíš. Kratší a upřímnější verze („gratuluju, je to zasloužené") působí mnohem líp, protože obsah i forma jsou v souladu — nic nepředstíráš.
 - ❌ Říct co nejvíc nadšených slov, aby hořkost překryla
   Čím víc slov, tím větší kontrast s tónem — a tím silněji druhý vycítí faleš. Velká slova + neutrální až kyselý tón je klasický recept na „bylo to divné".
 - ❌ Neříct vůbec nic, aby neprozradil svou hořkost
@@ -161,8 +161,8 @@ These small details have enormous impact, even if neither speaker nor listener c
 
 **Question:** Imagine you want to sincerely congratulate a coworker on their promotion, but you yourself were passed over for that spot. You say the right words ("congrats, you deserve it"), but you feel bitterness inside. What's the **best** approach?
 
-- **✅ Acknowledge the bitterness to yourself, realize your tone will betray it anyway, and say fewer words — but really honest ones**
-  Exactly. Playing a "big congrats" while carrying disappointment inside almost always comes out fake. The body reveals more than you think. A shorter, more honest version ("congrats, it's well-earned") lands much better, because content and form are aligned — you're not pretending anything.
+- **✅ Acknowledge the bitterness to yourself and say fewer, honest words**
+  Exactly. Playing a "big congrats" while carrying disappointment inside almost always comes out fake. The body reveals more than you think — your tone will betray it anyway. A shorter, more honest version ("congrats, it's well-earned") lands much better, because content and form are aligned — you're not pretending anything.
 - ❌ Say as many enthusiastic words as possible so the bitterness gets covered up
   The more words, the bigger the contrast with the tone — and the more strongly the other picks up on the fakeness. Big words + a neutral-to-sour tone is a classic recipe for "that was weird."
 - ❌ Say nothing at all, so you don't reveal your bitterness
@@ -172,8 +172,8 @@ These small details have enormous impact, even if neither speaker nor listener c
 
 **Otázka:** Představ si, že chceš po nepříjemné schůzce partnerovi vyjádřit podporu. Který kanál je **nejlepší** pro takto citlivou zprávu?
 
-- **✅ Osobní rozhovor nebo alespoň telefonát — aby v tvých slovech slyšel tvůj tón a ne jen jejich písmena**
-  Přesně. Čím citlivější téma, tím **bohatší** kanál. Text má z komunikace odstraněn tón, mimiku, pauzy a pohled — to je 80 % sdělení. Podpora v textu často zní chladně, i když tak vůbec není myšlena. Osobně nebo telefonicky je riziko mnohem menší.
+- **✅ Osobní rozhovor, nebo aspoň telefonát — aby slyšel tón**
+  Přesně. Čím citlivější téma, tím **bohatší** kanál — aby v tvých slovech slyšel tón, ne jen písmena. Text má z komunikace odstraněn tón, mimiku, pauzy a pohled — to je 80 % sdělení. Podpora v textu často zní chladně, i když tak vůbec není myšlena. Osobně nebo telefonicky je riziko mnohem menší.
 - ❌ Dlouhá zpráva v chatu, aby sis rozmyslel každé slovo
   Delší text sice má víc informací, ale stejně zůstává bez tónu. A navíc: čím delší text, tím víc možností pro nedorozumění. Krátký osobní kontakt je obvykle účinnější než dlouhý text.
 - ❌ Emoji smajlík s palci nahoru, aby věděl, že mu fandíš
@@ -183,8 +183,8 @@ These small details have enormous impact, even if neither speaker nor listener c
 
 **Question:** Imagine you want to express support to your partner after an unpleasant meeting. Which channel is **best** for such a sensitive message?
 
-- **✅ A face-to-face conversation or at least a phone call — so they hear your tone in your words, not just the letters**
-  Exactly. The more sensitive the topic, the **richer** the channel. Text strips communication of tone, facial expression, pauses, and gaze — that's 80% of the message. Support in text often sounds cold even when it isn't meant that way. In person or by phone, the risk is much smaller.
+- **✅ A face-to-face talk, or at least a phone — so they hear tone**
+  Exactly. The more sensitive the topic, the **richer** the channel — so they hear your tone, not just letters. Text strips communication of tone, facial expression, pauses, and gaze — that's 80% of the message. Support in text often sounds cold even when it isn't meant that way. In person or by phone, the risk is much smaller.
 - ❌ A long message in a chat so you can think through every word
   A longer text carries more information, but it still has no tone. And besides: the longer the text, the more chances for misunderstanding. A short personal contact usually beats a long text.
 - ❌ An emoji with thumbs up so they know you're rooting for them
@@ -235,8 +235,8 @@ Most people think they're "listening," but they're actually doing one of these t
 
 **Otázka:** Představ si, že ti kamarádka popisuje nepříjemnou hádku se svou matkou. Ty hned řekneš: „Jo, to znám, u mě to bylo ještě horší, to bys neuvěřila…" a začneš vyprávět svůj příběh. Proč se tvoje kamarádka pravděpodobně necítí slyšena?
 
-- **✅ Přetočil jsi rozhovor na sebe — místo abys zůstal u jejího zážitku, použil jsi ho jako odpalovací rampu pro svůj vlastní**
-  Přesně. Tohle je nejčastější chyba v „empatickém" poslouchání. Z povrchu to vypadá jako sdílení zkušenosti („taky to znám"), ale fakticky je to převzetí mikrofonu. Tvoje kamarádka potřebovala, aby její příběh dostal prostor — místo toho byla odsunuta, aby mohla poslouchat tvůj. Pocit „byl jsem slyšen" je často důležitější než jakákoli rada.
+- **✅ Přetočil jsi rozhovor na sebe**
+  Přesně. Místo abys zůstal u jejího zážitku, použil jsi ho jako odpalovací rampu pro svůj vlastní. Tohle je nejčastější chyba v „empatickém" poslouchání. Z povrchu to vypadá jako sdílení zkušenosti („taky to znám"), ale fakticky je to převzetí mikrofonu. Tvoje kamarádka potřebovala, aby její příběh dostal prostor — místo toho byla odsunuta, aby mohla poslouchat tvůj. Pocit „byl jsem slyšen" je často důležitější než jakákoli rada.
 - ❌ Neřekl jsi jí žádnou konkrétní radu
   Rada není to, co potřebovala. Potřebovala prostor a uznání. I kdybys dal skvělou radu, pocit ignorace by zůstal, protože byla přerušena dřív, než stihla svůj příběh dovyprávět.
 - ❌ Neměl jsi stejný zážitek jako ona
@@ -246,8 +246,8 @@ Most people think they're "listening," but they're actually doing one of these t
 
 **Question:** Imagine your friend is describing an unpleasant fight with her mother. You immediately say: "Yeah, I know that, it was even worse with me, you wouldn't believe it…" and start telling your story. Why does your friend probably not feel heard?
 
-- **✅ You turned the conversation back to yourself — instead of staying with her experience, you used it as a launchpad for your own**
-  Exactly. This is the most common mistake in "empathetic" listening. On the surface it looks like sharing experience ("I know that too"), but it's actually taking the microphone. Your friend needed her story to have space — instead she was pushed aside so she could listen to yours. The feeling of "being heard" is often more important than any advice.
+- **✅ You turned the conversation back to yourself**
+  Exactly. Instead of staying with her experience, you used it as a launchpad for your own. This is the most common mistake in "empathetic" listening. On the surface it looks like sharing experience ("I know that too"), but it's actually taking the microphone. Your friend needed her story to have space — instead she was pushed aside so she could listen to yours. The feeling of "being heard" is often more important than any advice.
 - ❌ You didn't give her any specific advice
   Advice isn't what she needed. She needed space and acknowledgment. Even great advice wouldn't have removed the feeling of being ignored, because she was interrupted before she could finish telling her story.
 - ❌ You didn't have the same experience as her
@@ -277,7 +277,7 @@ Another powerful tool is **paraphrasing**: repeat in your own words what the oth
 
 **Otázka:** Představ si, že ti partner rozrušený vypráví o problému v práci. Chceš mu pomoct. Který začátek rozhovoru mu pravděpodobně pomůže **nejvíc**?
 
-- **✅ „To mě mrzí. Chceš, abych ti k tomu něco řekl, nebo to teď potřebuješ hlavně říct nahlas?"**
+- **✅ „To mě mrzí. Chceš radu, nebo to jen říct nahlas?"**
   Přesně. Dáváš najevo, že slyšíš, a zároveň mu necháváš svobodu vybrat si, co potřebuje. Většinou si vybere „hlavně to říct nahlas" — a až potom je ochotný poslouchat tvoje nápady. Tahle jediná otázka přeskočí desítky zbytečných konfliktů z toho, že „jsi mu dával nevyžádané rady".
 - ❌ „Měl bys okamžitě jít za šéfem a říct mu to. Tady máš plán."
   Bez toho, abys věděl, co druhý vlastně chce, skočíš do rady. I kdyby byla perfektní, v emočně nabitém momentě ji nepřijme — cítí se přeskočený, ne pochopený.
@@ -288,7 +288,7 @@ Another powerful tool is **paraphrasing**: repeat in your own words what the oth
 
 **Question:** Imagine your partner is upset and telling you about a problem at work. You want to help. Which beginning of the conversation probably helps the **most**?
 
-- **✅ "I'm sorry to hear that. Do you want me to say something about it, or do you mainly need to say it out loud right now?"**
+- **✅ "I'm sorry. Do you want advice, or just to say it out loud?"**
   Exactly. You show that you hear, and at the same time you give them freedom to choose what they need. Usually they'll pick "mainly say it out loud" — and only after that are they ready to hear your ideas. This one question skips dozens of pointless conflicts about "giving unsolicited advice."
 - ❌ "You should go to your boss right now and tell them. Here's a plan."
   Without knowing what the other person actually wants, you jump to advice. Even if it were perfect, in an emotional moment they won't accept it — they feel skipped over, not understood.
@@ -323,8 +323,8 @@ The pause is underrated. In real communication, it gives the other person space 
 
 **Otázka:** Představ si, že chceš dlouhodobě zlepšit svou schopnost naslouchat. Který návyk ti pravděpodobně pomůže nejvíc?
 
-- **✅ Před každou svou reakcí udělat krátkou pauzu a zeptat se sám sebe: „Pochopil jsem opravdu, co druhý říkal?" — a pokud ne, zeptat se**
-  Přesně. Tahle pauza přeruší automatický návyk „poslouchat-aby-se-dalo-odpovědět" a donutí tě krátce zpomalit. A hlavně: dává prostor pro **kontrolní otázku** — parafrázi. Tím se odhalí většina nedorozumění dřív, než z nich vzniknou hádky.
+- **✅ Před reakcí se ptát: „Pochopil jsem, co druhý říkal?"**
+  Přesně. Krátká pauza před reakcí přeruší automatický návyk „poslouchat-aby-se-dalo-odpovědět" a donutí tě krátce zpomalit. A hlavně: dává prostor pro **kontrolní otázku** — parafrázi. Pokud si nejsi jistý, zeptej se. Tím se odhalí většina nedorozumění dřív, než z nich vzniknou hádky.
 - ❌ Naučit se pokládat víc chytrých otázek, abys vypadal zainteresovaně
   Chytré otázky bez opravdového zájmu působí jako výslech. Problém není technika, je to **pozornost**. Nejlepší otázky vznikají samy, když opravdu posloucháš.
 - ❌ Mluvit víc o sobě, aby druhý cítil, že tě zná
@@ -334,8 +334,8 @@ The pause is underrated. In real communication, it gives the other person space 
 
 **Question:** Imagine you want to improve your listening ability long-term. Which habit probably helps you most?
 
-- **✅ Before each of your reactions, take a short pause and ask yourself: "Did I really understand what they were saying?" — and if not, ask**
-  Exactly. This pause breaks the automatic habit of "listening-to-be-able-to-reply" and forces you to slow down briefly. And crucially: it makes space for a **check question** — a paraphrase. This reveals most misunderstandings before they grow into fights.
+- **✅ Before reacting, ask: "Did I really understand them?"**
+  Exactly. A short pause before reacting breaks the automatic habit of "listening-to-be-able-to-reply" and forces you to slow down briefly. And crucially: it makes space for a **check question** — a paraphrase. If unsure, ask. This reveals most misunderstandings before they grow into fights.
 - ❌ Learn to ask more clever questions so you look engaged
   Clever questions without real interest feel like an interrogation. The problem isn't technique, it's **attention**. The best questions emerge on their own when you're really listening.
 - ❌ Talk more about yourself so the other person feels they know you
@@ -378,7 +378,7 @@ The other person's brain reads them as physical threat — and triggers defense.
 
 **Otázka:** Představ si, že partner znovu zapomněl na něco, na čem jste se domluvili. Cítíš vztek a chceš to řešit. Která formulace má **největší** šanci vést k rozhovoru, ne k hádce?
 
-- **✅ „Mrzí mě, že se to zase stalo. Cítím se, jako bys na mě nemyslel — potřebovala bych si o tom promluvit."**
+- **✅ „Cítím se přehlížená. Promluvíme si?"**
   Přesně. Tohle je já-výrok: popisuje **konkrétní situaci**, **tvůj pocit** a **tvou potřebu**. Žádné „nikdy", „pořád" ani „jsi". Druhý se nemusí bránit před útokem, protože útok nepřišel — přišlo pozvání k rozhovoru. Má mnohem větší šanci, že opravdu odpoví.
 - ❌ „Ty na mě nikdy nemyslíš, jsi sobec."
   Klasický ty-výrok se zobecněním. Druhý okamžitě vyletí do obrany („to není pravda, před týdnem jsem…") a původní téma se ztratí v souboji o to, kdo má pravdu.
@@ -389,7 +389,7 @@ The other person's brain reads them as physical threat — and triggers defense.
 
 **Question:** Imagine your partner forgot again about something you'd agreed on. You feel anger and want to address it. Which phrasing has the **best** chance of leading to a conversation, not a fight?
 
-- **✅ "I'm sorry this happened again. I feel like you weren't thinking of me — I'd need to talk about it."**
+- **✅ "I'm sorry. I feel overlooked — let's talk about it."**
   Exactly. This is an I-statement: it describes a **specific situation**, **your feeling**, and **your need**. No "never," no "always," no "you are." The other person doesn't need to defend against an attack, because no attack came — an invitation to talk did. Much higher chance they'll actually respond.
 - ❌ "You never think of me, you're selfish."
   A classic you-statement with generalization. The other instantly jumps into defense ("that's not true, last week I…") and the original topic gets lost in a fight about who's right.
@@ -420,7 +420,7 @@ In a healthy argument, you attack the **problem**, not your partner. You're on t
 
 **Otázka:** Představ si, že jsi v polovině hádky a cítíš, jak ti buší srdce, hlava ti horčí a začínáš mluvit rychle a hlasitě. Co je **nejlepší** další krok?
 
-- **✅ Navrhnout krátkou pauzu: „Cítím, že se ve mně něco zavírá, potřebuju 20 minut, pak se k tomu vrátíme."**
+- **✅ Navrhnout pauzu: „20 minut, pak se vrátíme."**
   Přesně. Když se fyziologicky aktivuješ (bušící srdce, rychlý dech), kognitivní schopnosti klesají — doslova hůř přemýšlíš. Pokračovat v hádce v tomto stavu skoro vždy znamená říct něco, co později litujete. Krátká pauza umožní tělu se uklidnit, a pak se dá mluvit racionálně. Klíčové je **slíbit návrat** — ne odejít a nechat to viset.
 - ❌ Tlačit rozhovor k rychlému závěru, aby to bylo vyřešené teď
   V aktivovaném stavu nedokážeš ani ty, ani druhý vyjednávat rozumně. „Vyřešení" pod tlakem je často jen kapitulace jednoho z vás — a vrátí se to za týden.
@@ -431,7 +431,7 @@ In a healthy argument, you attack the **problem**, not your partner. You're on t
 
 **Question:** Imagine you're in the middle of an argument and feel your heart pounding, your head heating up, and you're starting to talk fast and loud. What's the **best** next step?
 
-- **✅ Propose a short pause: "I feel something closing inside me, I need 20 minutes, then we'll come back to it."**
+- **✅ Propose a pause: "20 minutes, then we come back."**
   Exactly. When you're physiologically activated (pounding heart, fast breathing), cognitive abilities drop — you literally think worse. Continuing the fight in this state almost always means saying something you'll regret later. A short pause lets the body calm down, and then rational talk is possible. The key is **promising to come back** — not leaving and leaving it hanging.
 - ❌ Push the conversation to a quick conclusion so it's resolved now
   In an activated state neither you nor the other can negotiate reasonably. A "resolution" under pressure is often just one of you capitulating — and it comes back in a week.
@@ -470,8 +470,8 @@ More practical tools for conflict:
 
 **Otázka:** Představ si, že máš s partnerem tendenci opakovaně řešit stejné téma, které skončí vždy hádkou. Který přístup pravděpodobně pomůže **nejvíc** změnit dynamiku?
 
-- **✅ Dohodnout se, že o tématu budete mluvit v klidu mimo akutní situaci — s pravidly: já-výroky, žádné zobecňování, pauza když se někdo aktivuje**
-  Přesně. Opakující se hádky neznamenají, že jste „nekompatibilní" — znamenají, že řešíte **v nevhodnou chvíli** (unavení, hladoví, v emocích) a **nevhodnou formou** (ty-výroky, útoky). Předem dohodnutý rámec a klidný moment mění úplně všechno. Neřešíte téma horkou hlavou, ale s chladnou hlavou a teplým srdcem.
+- **✅ Mluvit v klidu mimo akutní situaci, s pravidly**
+  Přesně. Opakující se hádky neznamenají, že jste „nekompatibilní" — znamenají, že řešíte **v nevhodnou chvíli** (unavení, hladoví, v emocích) a **nevhodnou formou** (ty-výroky, útoky). Pravidla: já-výroky, žádné zobecňování, pauza když se někdo aktivuje. Předem dohodnutý rámec a klidný moment mění úplně všechno. Neřešíte téma horkou hlavou, ale s chladnou hlavou a teplým srdcem.
 - ❌ Téma úplně ignorovat, ať se konfliktu vyhnete
   Vyhýbání se problém nezruší, jen ho odkládá. Potlačené téma se vrací pravidelně ve větších výbuchech.
 - ❌ Řešit to vždy okamžitě, když vznikne, ať se to „nehromadí"
@@ -481,8 +481,8 @@ More practical tools for conflict:
 
 **Question:** Imagine you and your partner tend to keep returning to the same topic, and it always ends in a fight. Which approach will most likely help change the dynamic the **most**?
 
-- **✅ Agree to talk about the topic calmly outside the acute situation — with rules: I-statements, no generalizing, a pause when someone gets activated**
-  Exactly. Recurring fights don't mean you're "incompatible" — they mean you're addressing them **at the wrong moment** (tired, hungry, emotional) and in the **wrong form** (you-statements, attacks). A pre-agreed frame and a calm moment changes everything. You're not solving the topic with a hot head, but with a cool head and a warm heart.
+- **✅ Talk calmly outside the acute moment, with agreed rules**
+  Exactly. Recurring fights don't mean you're "incompatible" — they mean you're addressing them **at the wrong moment** (tired, hungry, emotional) and in the **wrong form** (you-statements, attacks). Rules: I-statements, no generalizing, a pause when someone gets activated. A pre-agreed frame and a calm moment changes everything. You're not solving the topic with a hot head, but with a cool head and a warm heart.
 - ❌ Ignore the topic completely to avoid conflict
   Avoidance doesn't erase the problem, just postpones it. A suppressed topic returns regularly in bigger explosions.
 - ❌ Always address it immediately when it arises, so it "doesn't pile up"

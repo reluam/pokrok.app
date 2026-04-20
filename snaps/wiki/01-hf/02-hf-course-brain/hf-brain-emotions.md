@@ -83,8 +83,8 @@ Fear says "watch out, danger." Anger says "something I care about is threatened.
 
 **Otázka:** Představ si, že sedíš na poradě a tvůj šéf tě veřejně zkritizuje. Okamžitě cítíš vlnu vzteku. Co se ti tvoje tělo pravděpodobně snaží říct?
 
-- **✅ „Něco, co je pro mě důležité — respekt a sebehodnota — je právě teď ohrožené." Vztek je signál, ne selhání.**
-  Přesně. Emoce nejsou iracionální — jsou to rychlé signály o tom, co pro tebe věc znamená. Vztek v tomto případě říká „tohle vnímám jako útok na něco, co je pro mě důležité". Jakmile signál pochopíš, můžeš se rozhodnout, co s ním uděláš.
+- **✅ „Něco důležitého pro mě je ohrožené." Vztek je signál, ne selhání.**
+  Přesně. Emoce nejsou iracionální — jsou to rychlé signály o tom, co pro tebe věc znamená. V tomto případě jde o respekt a sebehodnotu: vztek říká „tohle vnímám jako útok na něco, co je pro mě důležité". Jakmile signál pochopíš, můžeš se rozhodnout, co s ním uděláš.
 - ❌ „Jsi slabý, neměl bys vůbec nic cítit — silní lidé emoce nemají"
   To je mýtus. I „silní" lidé emoce mají — jen je umějí číst a usměrňovat. Emoce samy o sobě nejsou slabost, slabost je nedokázat s nimi pracovat.
 - ❌ „Tvůj mozek má vadu a potřebuješ léky, aby ses uklidnil"
@@ -94,8 +94,8 @@ Fear says "watch out, danger." Anger says "something I care about is threatened.
 
 **Question:** Imagine you're sitting in a meeting and your boss criticizes you publicly. Immediately you feel a wave of anger. What is your body most likely trying to tell you?
 
-- **✅ "Something that's important to me — respect and self-worth — is being threatened right now." Anger is a signal, not a failure.**
-  Exactly. Emotions aren't irrational — they're fast signals about what the thing means to you. Anger in this case says "I perceive this as an attack on something important to me." Once you understand the signal, you can decide what to do with it.
+- **✅ "Something important to me is being threatened." Anger is a signal, not a failure.**
+  Exactly. Emotions aren't irrational — they're fast signals about what the thing means to you. In this case it's respect and self-worth: anger says "I perceive this as an attack on something important to me." Once you understand the signal, you can decide what to do with it.
 - ❌ "You're weak, you shouldn't feel anything at all — strong people don't have emotions"
   That's a myth. Even "strong" people have emotions — they just know how to read and direct them. Emotions themselves aren't weakness; weakness is being unable to work with them.
 - ❌ "Your brain has a defect and you need medication to calm down"
@@ -117,8 +117,8 @@ That's why you sometimes feel like you "reacted before you thought about it." Th
 
 **Otázka:** Představ si, že kráčíš po chodníku a najednou koutkem oka zahlédneš něco dlouhého a tmavého u svých nohou. Tvé tělo uhne ještě dřív, než stihneš pomyslet „to je had". Která část tvého mozku tuto rychlou reakci spustila?
 
-- **✅ Amygdala — vyhodnotila tvar jako potenciálně nebezpečný a spustila reakci dřív, než se zapojilo vědomé myšlení**
-  Přesně. Amygdala je „rychlý detektor hrozeb". Pracuje v milisekundách a její práce je vyhodnotit „bezpečné nebo ne?". Lepší tisíckrát uhnout zbytečně než jednou nestihnout reagovat. Až po sekundě nebo dvou se zapne prefrontální kůra a řekne: „Klid, je to jen větev."
+- **✅ Amygdala — spustila reakci dřív, než se zapojilo vědomé myšlení**
+  Přesně. Amygdala je „rychlý detektor hrozeb". Pracuje v milisekundách a její práce je vyhodnotit „bezpečné nebo ne?" — v tomto případě tvar u nohou vyhodnotila jako potenciálně nebezpečný. Lepší tisíckrát uhnout zbytečně než jednou nestihnout reagovat. Až po sekundě nebo dvou se zapne prefrontální kůra a řekne: „Klid, je to jen větev."
 - ❌ Prefrontální kůra — logicky zvážila situaci a rozhodla uhnout
   Prefrontální kůra reaguje pomaleji než amygdala. Rychlé instinktivní reakce nezvládá — je to „chytrá", ale pomalá část mozku. Uhnutí před hadem je příliš rychlé na to, aby ho řídila.
 - ❌ Mozeček — řídí veškerý pohyb a reagoval automaticky
@@ -128,8 +128,8 @@ That's why you sometimes feel like you "reacted before you thought about it." Th
 
 **Question:** Imagine you're walking on a sidewalk and suddenly out of the corner of your eye you spot something long and dark at your feet. Your body jumps back before you manage to think "that's a snake." Which part of your brain triggered that fast reaction?
 
-- **✅ The amygdala — it evaluated the shape as potentially dangerous and triggered a reaction before conscious thinking engaged**
-  Exactly. The amygdala is a "fast threat detector." It works in milliseconds and its job is to evaluate "safe or not?" Better to jump back a thousand times unnecessarily than once fail to react in time. Only after a second or two does the prefrontal cortex kick in and say: "Relax, it's just a branch."
+- **✅ The amygdala — it triggered the reaction before conscious thinking engaged**
+  Exactly. The amygdala is a "fast threat detector." It works in milliseconds and its job is to evaluate "safe or not?" — in this case it flagged the shape at your feet as potentially dangerous. Better to jump back a thousand times unnecessarily than once fail to react in time. Only after a second or two does the prefrontal cortex kick in and say: "Relax, it's just a branch."
 - ❌ The prefrontal cortex — logically considered the situation and decided to jump
   The prefrontal cortex reacts more slowly than the amygdala. It can't handle fast instinctive reactions — it's the "smart" but slow part of the brain. Jumping away from a snake is too fast for it to control.
 - ❌ The cerebellum — it controls all movement and reacted automatically
@@ -151,8 +151,8 @@ Between the amygdala and the prefrontal cortex there's a constant conversation. 
 
 **Otázka:** Proč jsou děti a dospívající náchylnější k impulzivním emočním reakcím než dospělí?
 
-- **✅ Jejich prefrontální kůra se vyvíjí pomaleji než amygdala a je plně dozrálá až kolem 25. roku — takže „rychlá emoce" často dojde ke slovu dřív, než stihne „moudrá rada"**
-  Přesně. Amygdala je u dětí i dospívajících plně funkční od narození, ale prefrontální kůra — „brzda a moudrý hlas" — dozrává až do raně dvacátých. Proto mladí lidé častěji reagují „z afektu" nejen kvůli hormonům, ale i kvůli neurologické architektuře. Není to morální vada, je to vývojový fakt.
+- **✅ Prefrontální kůra dozrává až kolem 25. roku a „brzda" nestíhá**
+  Přesně. Amygdala je u dětí i dospívajících plně funkční od narození, ale prefrontální kůra — „brzda a moudrý hlas" — dozrává až do raně dvacátých. Proto „rychlá emoce" u mladých často dojde ke slovu dřív, než stihne racionální zvážení — nejen kvůli hormonům, ale i kvůli neurologické architektuře. Není to morální vada, je to vývojový fakt.
 - ❌ Mají „víc emocí" než dospělí — biochemicky jich vyrábějí víc
   Množství emocí není výrazně jiné. Rozdíl je v tom, jak dobře je umějí regulovat. Dospělý má k dispozici silnější prefrontální kůru.
 - ❌ Mají nedovyvinutou amygdalu, která „přehání" reakce
@@ -162,8 +162,8 @@ Between the amygdala and the prefrontal cortex there's a constant conversation. 
 
 **Question:** Why are children and adolescents more prone to impulsive emotional reactions than adults?
 
-- **✅ Their prefrontal cortex develops more slowly than the amygdala and is only fully mature around age 25 — so "fast emotion" often gets to speak before the "wise advisor" can**
-  Exactly. The amygdala is fully functional from birth in children and adolescents, but the prefrontal cortex — the "brake and wise voice" — doesn't mature until the early twenties. That's why young people more often react "in the heat of the moment" not just because of hormones, but because of neurological architecture. It's not a moral flaw, it's a developmental fact.
+- **✅ Their prefrontal cortex matures only by 25 — the brake can't keep up**
+  Exactly. The amygdala is fully functional from birth in children and adolescents, but the prefrontal cortex — the "brake and wise voice" — doesn't mature until the early twenties. That's why "fast emotion" gets to speak first in young people — not just because of hormones, but because of neurological architecture. It's not a moral flaw, it's a developmental fact.
 - ❌ They have "more emotions" than adults — biochemically they produce more
   The quantity of emotions isn't dramatically different. The difference is how well they can regulate them. Adults have a stronger prefrontal cortex available.
 - ❌ They have an underdeveloped amygdala that "overreacts"
@@ -181,8 +181,8 @@ Between the amygdala and the prefrontal cortex there's a constant conversation. 
 
 **Otázka:** Co je hlavní rozdíl mezi „emocionálním" a „racionálním" člověkem, pokud oba v životě fungují dobře?
 
-- **✅ Oba mají stejné emoce, ale jeden je lépe umí číst, pojmenovat a pracovat s nimi. „Racionalita" nevzniká absencí emocí, ale jejich dobrou regulací.**
-  Přesně. Neexistuje „racionální člověk bez emocí" — taková osoba by nedokázala ani zvolit, co si dá k snídani (rozhodování se opírá o emoční signály). Rozdíl je ve schopnosti emoce číst a usměrnit, ne v jejich přítomnosti.
+- **✅ Oba mají stejné emoce — jeden je jen umí lépe číst, pojmenovat a regulovat.**
+  Přesně. „Racionalita" nevzniká absencí emocí, ale jejich dobrou regulací — schopností je číst, pojmenovat a pracovat s nimi. Neexistuje „racionální člověk bez emocí" — taková osoba by nedokázala ani zvolit, co si dá k snídani (rozhodování se opírá o emoční signály). Rozdíl je ve schopnosti emoce číst a usměrnit, ne v jejich přítomnosti.
 - ❌ Racionální člověk má menší amygdalu a silnější prefrontální kůru — je to biologický rozdíl
   Zjednodušení. Rozdíly v mozku existují, ale hlavní je nacvičená schopnost emoce regulovat, ne jejich nepřítomnost.
 - ❌ Racionální člověk potlačuje emoce, emocionální je dává volně ven
@@ -192,8 +192,8 @@ Between the amygdala and the prefrontal cortex there's a constant conversation. 
 
 **Question:** What's the main difference between an "emotional" and a "rational" person if both function well in life?
 
-- **✅ Both have the same emotions, but one is better at reading, naming, and working with them. "Rationality" doesn't come from an absence of emotions, but from good regulation of them.**
-  Exactly. There's no "rational person without emotions" — such a person couldn't even choose what to have for breakfast (decision-making relies on emotional signals). The difference is in the ability to read and direct emotions, not in their presence.
+- **✅ Both have the same emotions — one is just better at reading and regulating them.**
+  Exactly. "Rationality" doesn't come from an absence of emotions, but from good regulation — the ability to read, name and work with them. There's no "rational person without emotions" — such a person couldn't even choose what to have for breakfast (decision-making relies on emotional signals). The difference is in the ability to read and direct emotions, not in their presence.
 - ❌ A rational person has a smaller amygdala and a stronger prefrontal cortex — it's a biological difference
   An oversimplification. Brain differences exist, but the main thing is the practiced ability to regulate emotions, not their absence.
 - ❌ A rational person suppresses emotions, an emotional one lets them out freely
@@ -203,8 +203,8 @@ Between the amygdala and the prefrontal cortex there's a constant conversation. 
 
 **Otázka:** Představ si, že tvůj partner zapomněl na tvé narozeniny a ty cítíš smutek. Co ti ten smutek pravděpodobně říká?
 
-- **✅ „Tohle je pro mě důležité a já jsem doufal/a, že to vidí i on/ona. Něco důležitého jsem ztratil/a — pocit důležitosti v očích druhé osoby."**
-  Přesně. Smutek bývá signál „něco, co pro mě mělo hodnotu, není, jak jsem doufal/a". Je to informace. Když ji přečteš, můžeš reagovat uvážlivě — například partnerovi říct, proč je to pro tebe důležité, místo abys to dusil/a nebo vybuchl/a.
+- **✅ „Něco důležitého jsem ztratil/a — pocit, že na mně záleží."**
+  Přesně. Smutek bývá signál „něco, co pro mě mělo hodnotu, není, jak jsem doufal/a" — v tomto případě jsi doufal/a, že to partner/ka vidí taky. Je to informace. Když ji přečteš, můžeš reagovat uvážlivě — například partnerovi říct, proč je to pro tebe důležité, místo abys to dusil/a nebo vybuchl/a.
 - ❌ „Jsi slabý/á a přecitlivělý/á, partnera bys měl/a nechat být"
   Tohle je potlačení. Zamlčená emoce nezmizí — prohlubuje se a může v budoucnu vyvolat větší reakci. Lepší je emoci pojmenovat a probrat.
 - ❌ „Nic ti neříká, je to prostě chemický odpad v mozku"
@@ -214,8 +214,8 @@ Between the amygdala and the prefrontal cortex there's a constant conversation. 
 
 **Question:** Imagine that your partner forgot your birthday and you feel sad. What is the sadness most likely telling you?
 
-- **✅ "This matters to me and I had hoped they'd see it too. I've lost something important — the feeling of mattering to another person."**
-  Exactly. Sadness is usually a signal "something that had value to me isn't as I hoped." It's information. When you read it, you can respond thoughtfully — for example, tell your partner why it matters to you, instead of bottling it up or exploding.
+- **✅ "I've lost something important — the feeling that I matter to them."**
+  Exactly. Sadness is usually a signal "something that had value to me isn't as I hoped" — in this case, you'd hoped your partner would see it too. It's information. When you read it, you can respond thoughtfully — for example, tell your partner why it matters to you, instead of bottling it up or exploding.
 - ❌ "You're weak and oversensitive, you should let your partner be"
   That's suppression. A silenced emotion doesn't go away — it deepens and may cause a bigger reaction later. It's better to name the emotion and discuss it.
 - ❌ "It's telling you nothing, it's just chemical waste in the brain"
@@ -254,8 +254,8 @@ One of the most powerful tools of emotional regulation is called **affect labeli
 
 **Otázka:** Představ si, že během konfliktu s blízkou osobou cítíš vlnu vzteku. Zkusíš si v duchu říct: „Cítím vztek, protože se cítím nepochopený/á." Co se v tvém mozku pravděpodobně stane?
 
-- **✅ Aktivuje se prefrontální kůra, která při pojmenování emoce utlumí amygdalu — intenzita vzteku klesne během několika vteřin**
-  Přesně. Tomu se říká affect labeling. Studie z UCLA ukázaly, že jakmile člověk emoci pojmenuje (slovně nebo písemně), aktivita amygdaly na mozkových snímcích viditelně klesá a zapojí se prefrontální kůra. Je to doslova měřitelný jev.
+- **✅ Prefrontální kůra ztlumí amygdalu a vztek**
+  Přesně. Tomu se říká affect labeling: pojmenování emoce aktivuje prefrontální kůru, která utlumí amygdalu — intenzita vzteku klesne během několika vteřin. Studie z UCLA ukázaly, že jakmile člověk emoci pojmenuje (slovně nebo písemně), aktivita amygdaly na mozkových snímcích viditelně klesá a zapojí se prefrontální kůra. Je to doslova měřitelný jev.
 - ❌ Nic se nestane — slovo emoci nezmění
   Výzkumy ukazují opak. Samotné pojmenování je jedním z nejlépe prozkoumaných nástrojů emoční regulace a funguje i u lidí, kteří tomu nevěří.
 - ❌ Vztek zesílí, protože se na něj víc zaměříš
@@ -265,8 +265,8 @@ One of the most powerful tools of emotional regulation is called **affect labeli
 
 **Question:** Imagine that during a conflict with a loved one you feel a wave of anger. You try to say to yourself: "I feel angry because I feel misunderstood." What likely happens in your brain?
 
-- **✅ The prefrontal cortex activates and, upon naming the emotion, dampens the amygdala — the intensity of the anger drops within a few seconds**
-  Exactly. This is called affect labeling. Studies at UCLA showed that as soon as a person names the emotion (verbally or in writing), the amygdala's activity visibly drops on brain scans and the prefrontal cortex engages. It's a literally measurable phenomenon.
+- **✅ The prefrontal cortex dampens the amygdala — anger drops**
+  Exactly. This is called affect labeling: naming the emotion activates the prefrontal cortex, which dampens the amygdala — the intensity of the anger drops within a few seconds. Studies at UCLA showed that as soon as a person names the emotion (verbally or in writing), the amygdala's activity visibly drops on brain scans and the prefrontal cortex engages. It's a literally measurable phenomenon.
 - ❌ Nothing happens — a word doesn't change an emotion
   Research shows the opposite. Naming itself is one of the best-researched tools for emotional regulation, and it works even for people who don't believe in it.
 - ❌ The anger intensifies because you focus on it more
@@ -288,8 +288,8 @@ Those few seconds allow the prefrontal cortex to catch up with the amygdala. The
 
 **Otázka:** Představ si, že ti přijde nepříjemný e-mail od kolegy, který tě naštve, a ty okamžitě chceš odeslat ostrou odpověď. Co je pravděpodobně nejlepší?
 
-- **✅ Napsat odpověď, ale neodeslat ji hned — uložit jako koncept a vrátit se k ní za hodinu**
-  Přesně. Tomuto se říká „spací test". Za hodinu (nebo ještě lépe zítra) se k odpovědi vrátíš s aktivní prefrontální kůrou a amygdala už bude zklidněná. Obvykle koncept upravíš nebo úplně přepíšeš — a vyhneš se škodě, kterou by „teplý" e-mail napáchal.
+- **✅ Uložit odpověď jako koncept a vrátit se k ní za hodinu**
+  Přesně. Tomuto se říká „spací test" — napíšeš, ale neodešleš hned. Za hodinu (nebo ještě lépe zítra) se k odpovědi vrátíš s aktivní prefrontální kůrou a amygdala už bude zklidněná. Obvykle koncept upravíš nebo úplně přepíšeš — a vyhneš se škodě, kterou by „teplý" e-mail napáchal.
 - ❌ Odeslat odpověď okamžitě, dokud je vztek „čerstvý" a slova silná
   To je přesně ten způsob, jak se ničí vztahy. „Silná slova z afektu" obvykle později litujeme. Prefrontální kůra se dostane ke slovu až později — proto je moudré počkat.
 - ❌ Neodpovídat vůbec a potlačit vztek
@@ -299,8 +299,8 @@ Those few seconds allow the prefrontal cortex to catch up with the amygdala. The
 
 **Question:** Imagine that you get an unpleasant email from a colleague that makes you angry, and you immediately want to send a sharp reply. What's probably best?
 
-- **✅ Write the reply but don't send it right away — save it as a draft and come back to it in an hour**
-  Exactly. This is called the "sleep test." In an hour (or better yet, tomorrow) you return to the reply with an active prefrontal cortex and the amygdala will have calmed down. Usually you edit or completely rewrite the draft — and avoid the damage a "hot" email would have caused.
+- **✅ Save the reply as a draft and come back to it in an hour**
+  Exactly. This is called the "sleep test" — write it, but don't send it right away. In an hour (or better yet, tomorrow) you return to the reply with an active prefrontal cortex and the amygdala will have calmed down. Usually you edit or completely rewrite the draft — and avoid the damage a "hot" email would have caused.
 - ❌ Send the reply immediately while the anger is "fresh" and the words are strong
   That's exactly how relationships get destroyed. "Strong words in the heat of the moment" are usually regretted later. The prefrontal cortex only gets to speak later — which is why waiting is wise.
 - ❌ Don't reply at all and suppress the anger
@@ -322,8 +322,8 @@ Research repeatedly shows that people who frequently suppress emotions have **wo
 
 **Otázka:** Proč lidé, kteří se naučili „nikdy se nerozčílit" a potlačovat vztek, často mívají zhoršené fyzické zdraví?
 
-- **✅ Potlačená emoce nezmizí — přesune se do těla a zvyšuje dlouhodobě stresové hormony, napětí a fyzické problémy jako bolesti hlavy, zažívací potíže či srdeční riziko**
-  Přesně. Mozek a tělo jsou propojené. Když se emoce nezpracuje vědomě, tělo ji „drží" — svalovým napětím, zvýšenou hladinou kortizolu, zhoršeným spánkem. Dlouhodobé potlačování je jedním z nejhorších vzorců pro zdraví.
+- **✅ Potlačená emoce nezmizí — přesune se do těla a zvýší stresové hormony**
+  Přesně. Dlouhodobě zvyšuje stresové hormony, napětí a fyzické problémy jako bolesti hlavy, zažívací potíže či srdeční riziko. Mozek a tělo jsou propojené. Když se emoce nezpracuje vědomě, tělo ji „drží" — svalovým napětím, zvýšenou hladinou kortizolu, zhoršeným spánkem. Dlouhodobé potlačování je jedním z nejhorších vzorců pro zdraví.
 - ❌ Nerozčilovat se je naopak zdravé a prodlužuje život
   Nezáleží na tom, zda se „rozčílíš" navenek — záleží, zda emoci zpracuješ. Lidé, kteří emoci uvědoměle řeší (třeba mluví, pojmenují ji), jsou zdravější než ti, kdo ji dusí.
 - ❌ Mají vrozenou genetickou predispozici k fyzickým problémům — potlačování na tom nic nemění
@@ -333,8 +333,8 @@ Research repeatedly shows that people who frequently suppress emotions have **wo
 
 **Question:** Why do people who learned to "never get angry" and suppress anger often have worse physical health?
 
-- **✅ A suppressed emotion doesn't disappear — it moves into the body and long-term raises stress hormones, tension, and physical problems like headaches, digestive issues, or heart risk**
-  Exactly. The brain and body are connected. When an emotion isn't processed consciously, the body "holds" it — through muscle tension, elevated cortisol, worse sleep. Long-term suppression is one of the worst patterns for health.
+- **✅ A suppressed emotion doesn't disappear — it moves into the body and raises stress hormones**
+  Exactly. Long-term it worsens tension and physical problems like headaches, digestive issues, or heart risk. The brain and body are connected. When an emotion isn't processed consciously, the body "holds" it — through muscle tension, elevated cortisol, worse sleep. Long-term suppression is one of the worst patterns for health.
 - ❌ Not getting angry is actually healthy and extends life
   It doesn't matter whether you "lose it" outwardly — what matters is whether you process the emotion. People who deal with emotions consciously (for example by talking or naming them) are healthier than those who bottle them up.
 - ❌ They have an inherited genetic predisposition to physical problems — suppression doesn't change anything
@@ -352,8 +352,8 @@ Research repeatedly shows that people who frequently suppress emotions have **wo
 
 **Otázka:** Představ si, že se cítíš úzkostně kvůli blížící se prezentaci a máš chuť na to „nemyslet". Co pravděpodobně funguje líp než potlačování?
 
-- **✅ Pojmenovat si úzkost: „Cítím úzkost, protože se bojím, že selžu před kolegy." Tímto aktivuješ prefrontální kůru a intenzita klesne.**
-  Přesně. Affect labeling snižuje intenzitu emoce během vteřin. Úzkost se nevypaří, ale přestane tě „ovládat". Pak můžeš jednat — například se na prezentaci lépe připravit.
+- **✅ Pojmenovat úzkost: „Bojím se, že selžu."**
+  Přesně. Tím aktivuješ prefrontální kůru a intenzita klesne — affect labeling snižuje intenzitu emoce během vteřin. Úzkost se nevypaří, ale přestane tě „ovládat". Pak můžeš jednat — například se na prezentaci lépe připravit.
 - ❌ Zkusit na to „nemyslet" a dělat něco jiného
   To je forma potlačení. Mozek pracuje „nepřímo" — zákaz myšlenky obvykle myšlenku posiluje (tzv. white bear effect). Lepší je emoci uznat.
 - ❌ Napít se alkoholu nebo si vzít prášek na uklidnění
@@ -363,8 +363,8 @@ Research repeatedly shows that people who frequently suppress emotions have **wo
 
 **Question:** Imagine you feel anxious about an upcoming presentation and you have the urge to "not think about it." What probably works better than suppression?
 
-- **✅ Name the anxiety: "I feel anxious because I'm afraid I'll fail in front of my colleagues." This activates the prefrontal cortex and the intensity drops.**
-  Exactly. Affect labeling reduces the intensity of an emotion within seconds. The anxiety won't evaporate, but it'll stop "controlling" you. Then you can act — for example, prepare for the presentation better.
+- **✅ Name the anxiety: "I'm afraid I'll fail."**
+  Exactly. This activates the prefrontal cortex and the intensity drops — affect labeling reduces the intensity of an emotion within seconds. The anxiety won't evaporate, but it'll stop "controlling" you. Then you can act — for example, prepare for the presentation better.
 - ❌ Try to "not think about it" and do something else
   That's a form of suppression. The brain works "indirectly" — banning a thought usually strengthens it (the white bear effect). Better to acknowledge the emotion.
 - ❌ Have a drink or take a tranquilizer
@@ -374,8 +374,8 @@ Research repeatedly shows that people who frequently suppress emotions have **wo
 
 **Otázka:** Co je hlavní rozdíl mezi „vyjádřit emoci" a „jednat z emoce"?
 
-- **✅ Vyjádřit znamená pojmenovat, co cítíš, a sdělit to klidně. Jednat z emoce znamená nechat amygdalu řídit tvé chování bez kontroly prefrontální kůry.**
-  Přesně. Vyjádření emoce je kontrolovaný proces, ve kterém prefrontální kůra říká: „cítím X, protože Y, a chci Z". Jednání z emoce je nekontrolované — křik, rozbíjení, urážky. Vyjádření pomáhá, jednání obvykle škodí.
+- **✅ Vyjádření je klidné pojmenování; jednání řídí amygdala.**
+  Přesně. Vyjádření emoce je kontrolovaný proces, ve kterém prefrontální kůra říká: „cítím X, protože Y, a chci Z". Jednání z emoce je nekontrolované — křik, rozbíjení, urážky — bez kontroly prefrontální kůry. Vyjádření pomáhá, jednání obvykle škodí.
 - ❌ Vyjádřit a jednat je totéž — obojí znamená emoci „nedržet v sobě"
   Ne. „Držet v sobě" není totéž co „kontrolovaně vyjádřit". Zdravé vyjádření má slovní formu a klidný tón. Jednání z afektu je impulz, ne výraz.
 - ❌ Vyjádření je slabost, jednání je síla
@@ -385,8 +385,8 @@ Research repeatedly shows that people who frequently suppress emotions have **wo
 
 **Question:** What's the main difference between "expressing an emotion" and "acting from an emotion"?
 
-- **✅ Expressing means naming what you feel and communicating it calmly. Acting from emotion means letting the amygdala drive your behavior without control from the prefrontal cortex.**
-  Exactly. Expressing an emotion is a controlled process in which the prefrontal cortex says: "I feel X because of Y, and I want Z." Acting from emotion is uncontrolled — shouting, breaking things, insults. Expression helps; acting usually harms.
+- **✅ Expression is calm naming; acting lets the amygdala drive.**
+  Exactly. Expressing an emotion is a controlled process in which the prefrontal cortex says: "I feel X because of Y, and I want Z." Acting from emotion is uncontrolled — shouting, breaking things, insults — without control from the prefrontal cortex. Expression helps; acting usually harms.
 - ❌ Expressing and acting are the same — both mean "not keeping it inside"
   No. "Keeping it inside" is not the same as "expressing in a controlled way." Healthy expression has a verbal form and a calm tone. Acting in the heat is an impulse, not expression.
 - ❌ Expression is weakness, action is strength
@@ -425,8 +425,8 @@ In that time your priorities will sort themselves out. Usually you'll find that 
 
 **Otázka:** Představ si, že právě teď ti někdo na sítích napsal urážlivý komentář a ty cítíš vlnu vzteku. Co je pravděpodobně nejlepší reakce?
 
-- **✅ Zavřít aplikaci a vrátit se k tomu za hodinu. Během té hodiny udělat něco jiného — procházka, voda, úkol — a potom se rozhodnout, jestli odpovědět.**
-  Přesně. Po hodině obvykle zjistíš, že komentář nestojí za ostrou odpověď, nebo že máš lepší slova než „teplá". Amygdala se zklidnila, prefrontální kůra rozhoduje.
+- **✅ Zavřít aplikaci a vrátit se k tomu za hodinu.**
+  Přesně. Během té hodiny udělej něco jiného — procházka, voda, úkol — a pak se rozhodni, jestli odpovědět. Po hodině obvykle zjistíš, že komentář nestojí za ostrou odpověď, nebo že máš lepší slova než „teplá". Amygdala se zklidnila, prefrontální kůra rozhoduje.
 - ❌ Odpovědět okamžitě s plnou silou, dokud je emoce „autentická"
   Autentická neznamená dobrá. Autentické jsou i rány, které pak litujeme. V digitálním světě jsou „teplé" reakce jednou z nejčastějších příčin škod na vztazích a reputaci.
 - ❌ Smazat účet a nikdy na sítě nechodit
@@ -436,8 +436,8 @@ In that time your priorities will sort themselves out. Usually you'll find that 
 
 **Question:** Imagine that right now someone posted an insulting comment to you on social media and you feel a wave of anger. What's probably the best response?
 
-- **✅ Close the app and come back to it in an hour. During that hour do something else — a walk, water, a task — and then decide whether to reply.**
-  Exactly. After an hour you usually find the comment isn't worth a sharp response, or that you have better words than the "hot" ones. The amygdala has calmed down, the prefrontal cortex is deciding.
+- **✅ Close the app and come back to the comment in an hour.**
+  Exactly. During that hour do something else — a walk, water, a task — and then decide whether to reply. After an hour you usually find the comment isn't worth a sharp response, or that you have better words than the "hot" ones. The amygdala has calmed down, the prefrontal cortex is deciding.
 - ❌ Reply immediately with full force while the emotion is "authentic"
   Authentic doesn't mean good. Punches we later regret are also authentic. In the digital world, "hot" reactions are one of the most common causes of damage to relationships and reputations.
 - ❌ Delete the account and never go on socials
@@ -459,8 +459,8 @@ A long slow exhale (4 seconds in, 6 seconds out, repeat 5 times) activates the p
 
 **Otázka:** Představ si, že máš za 5 minut jít přednášet před 200 lidí a cítíš silnou úzkost. Co ti pravděpodobně rychle pomůže?
 
-- **✅ 5× pomalý hluboký výdech (4 s nádech, 6 s výdech) — aktivuje parasympatický nervový systém a během minuty sníží srdeční tep a úzkost**
-  Přesně. Dýchání je jeden z mála tělesných systémů, které umíš vědomě ovládat. Pomalý výdech vysílá tělu signál „nebezpečí pominulo" a aktivuje „brzdu" (parasympatikus). Amygdala se zklidní a prefrontální kůra se vrátí ke slovu. Je to nejrychlejší a nejlepší nástroj „on the spot".
+- **✅ 5× pomalý výdech (nádech 4 s, výdech 6 s)**
+  Přesně. Aktivuje parasympatický nervový systém a během minuty sníží srdeční tep a úzkost. Dýchání je jeden z mála tělesných systémů, které umíš vědomě ovládat. Pomalý výdech vysílá tělu signál „nebezpečí pominulo" a aktivuje „brzdu" (parasympatikus). Amygdala se zklidní a prefrontální kůra se vrátí ke slovu. Je to nejrychlejší a nejlepší nástroj „on the spot".
 - ❌ Sníst kostku čokolády pro rychlou energii
   Cukr na pár minut zvedne energii, ale úzkost tím nesnížíš. Navíc prudký nárůst cukru může ještě zhoršit pocit „rozklepanosti".
 - ❌ Dát si 5 rychlých kliků pro adrenalin
@@ -470,8 +470,8 @@ A long slow exhale (4 seconds in, 6 seconds out, repeat 5 times) activates the p
 
 **Question:** Imagine that in 5 minutes you have to go speak in front of 200 people and you feel strong anxiety. What will probably help you quickly?
 
-- **✅ 5 slow deep exhales (4 s in, 6 s out) — activate the parasympathetic nervous system and within a minute lower your heart rate and anxiety**
-  Exactly. Breathing is one of the few bodily systems you can consciously control. A slow exhale sends a signal to the body "danger has passed" and activates the "brake" (parasympathetic). The amygdala calms down and the prefrontal cortex comes back. It's the fastest and best "on the spot" tool.
+- **✅ 5 slow exhales (4 s in, 6 s out)**
+  Exactly. This activates the parasympathetic nervous system and within a minute lowers your heart rate and anxiety. Breathing is one of the few bodily systems you can consciously control. A slow exhale sends a signal to the body "danger has passed" and activates the "brake" (parasympathetic). The amygdala calms down and the prefrontal cortex comes back. It's the fastest and best "on the spot" tool.
 - ❌ Eat a piece of chocolate for quick energy
   Sugar raises energy for a few minutes but doesn't lower anxiety. Plus a sharp rise in sugar can worsen the "jittery" feeling.
 - ❌ Do 5 quick push-ups for adrenaline
@@ -493,8 +493,8 @@ That's why the rule: **don't make big decisions in a strong emotion**. Not "in a
 
 **Otázka:** Představ si, že se pohádáš s partnerem a napadne tě „seberu se a půjdu pryč natrvalo". Co je pravděpodobně nejlepší?
 
-- **✅ Odejít z místnosti na pár hodin, uklidnit se, a velké rozhodnutí (rozchod) odložit minimálně o 24 hodin**
-  Přesně. „Seberu se a půjdu natrvalo" je klasická reakce z afektu. Krátký odchod (procházka, pokoj, kavárna) je v pořádku a často potřebný. Ale natrvalé rozhodnutí dělat v amygdalovém stavu je obrovská chyba — obvykle toho později člověk lituje.
+- **✅ Odejít, uklidnit se a rozhodnutí odložit o 24 hodin**
+  Přesně. „Seberu se a půjdu natrvalo" je klasická reakce z afektu. Krátký odchod z místnosti (procházka, pokoj, kavárna) je v pořádku a často potřebný. Ale natrvalé rozhodnutí typu rozchod dělat v amygdalovém stavu je obrovská chyba — obvykle toho později člověk lituje.
 - ❌ Odejít okamžitě a natrvalo — emoce ti ukazuje pravdu
   Silná emoce neukazuje pravdu o vztahu, ukazuje pravdu o tom, co teď cítíš. Po 24 hodinách uvidíš situaci mnohem jasněji.
 - ❌ Zůstat a hádat se dál, dokud se to nevyřeší
@@ -504,8 +504,8 @@ That's why the rule: **don't make big decisions in a strong emotion**. Not "in a
 
 **Question:** Imagine that you have a fight with your partner and you get the thought "I'll pack up and leave for good." What's probably best?
 
-- **✅ Leave the room for a few hours, calm down, and postpone the big decision (break-up) by at least 24 hours**
-  Exactly. "I'll pack up and leave for good" is a classic reaction in the heat of the moment. A short exit (a walk, another room, a café) is fine and often needed. But making a permanent decision in an amygdala state is a huge mistake — usually you regret it later.
+- **✅ Leave, calm down, and postpone the decision by 24 hours**
+  Exactly. "I'll pack up and leave for good" is a classic reaction in the heat of the moment. A short exit from the room (a walk, another room, a café) is fine and often needed. But making a permanent decision like a break-up in an amygdala state is a huge mistake — usually you regret it later.
 - ❌ Leave immediately and for good — the emotion is showing you the truth
   A strong emotion doesn't show the truth about the relationship, it shows the truth about what you feel right now. After 24 hours you'll see the situation much more clearly.
 - ❌ Stay and keep arguing until it's resolved
@@ -523,8 +523,8 @@ That's why the rule: **don't make big decisions in a strong emotion**. Not "in a
 
 **Otázka:** Proč „pravidlo 24 hodin" pro velká rozhodnutí funguje tak spolehlivě?
 
-- **✅ Za 24 hodin se amygdala zcela zklidní, stresové hormony klesnou a prefrontální kůra vidí situaci jasně. Co ti v emoci vypadalo jako „jediná možnost", obvykle už není tak jednoznačné.**
-  Přesně. Neurochemie emoce doslova pomíjí — kortizol a adrenalin mají poločas hodiny, ne dny. Po 24 hodinách jsi jiný člověk, kognitivně schopnější rozhodovat. Proto pravidlo funguje spolehlivě.
+- **✅ Za 24 hodin se amygdala zklidní a prefrontální kůra vidí jasně.**
+  Přesně. Stresové hormony (kortizol, adrenalin) mají poločas hodiny, ne dny — neurochemie emoce doslova pomíjí. Co ti v emoci vypadalo jako „jediná možnost", obvykle už není tak jednoznačné. Po 24 hodinách jsi jiný člověk, kognitivně schopnější rozhodovat. Proto pravidlo funguje spolehlivě.
 - ❌ Po 24 hodinách zapomeneš, o co šlo, a situace se vyřeší sama
   Ne — pamatuješ si. Jen ji vidíš jinýma očima. Rozdíl je v tom, že teď rozhoduješ chladně, ne z afektu.
 - ❌ 24 hodin je náhodné číslo, stejně dobře by fungovaly 2 hodiny
@@ -534,8 +534,8 @@ That's why the rule: **don't make big decisions in a strong emotion**. Not "in a
 
 **Question:** Why does the "24-hour rule" for big decisions work so reliably?
 
-- **✅ After 24 hours the amygdala fully calms down, stress hormones drop, and the prefrontal cortex sees the situation clearly. What looked like the "only option" in emotion is usually no longer so clear-cut.**
-  Exactly. The neurochemistry of an emotion literally passes — cortisol and adrenaline have a half-life of hours, not days. After 24 hours you're a different person, cognitively more capable of deciding. That's why the rule works reliably.
+- **✅ After 24 hours the amygdala calms down and the prefrontal cortex sees clearly.**
+  Exactly. Stress hormones (cortisol, adrenaline) have a half-life of hours, not days — the neurochemistry of an emotion literally passes. What looked like the "only option" in emotion is usually no longer so clear-cut. After 24 hours you're a different person, cognitively more capable of deciding. That's why the rule works reliably.
 - ❌ After 24 hours you forget what it was about and the situation resolves itself
   No — you remember. You just see it with different eyes. The difference is that now you're deciding coolly, not in the heat.
 - ❌ 24 hours is an arbitrary number, 2 hours would work just as well
@@ -545,8 +545,8 @@ That's why the rule: **don't make big decisions in a strong emotion**. Not "in a
 
 **Otázka:** Co je nejčastější chyba, kterou lidé dělají při práci s vlastními emocemi?
 
-- **✅ Potlačují emoce místo toho, aby je pojmenovali a zpracovali — a pak se diví, že emoce „vybuchnou" někdy jindy nebo se projeví v těle**
-  Přesně. Potlačování je nejhorší strategie — emoce nezmizí, jen se přesune. Objeví se jako fyzický problém, výbuch na nesprávné osobě, nebo chronická úzkost. Pojmenování a zpracování je mnohem účinnější.
+- **✅ Potlačují emoce místo toho, aby je pojmenovali a zpracovali**
+  Přesně. Potlačování je nejhorší strategie — emoce nezmizí, jen se přesune. Pak „vybuchne" někdy jindy, objeví se jako fyzický problém, výbuch na nesprávné osobě, nebo chronická úzkost. Pojmenování a zpracování je mnohem účinnější.
 - ❌ Dávají emocím příliš velkou váhu a nechávají se jimi řídit
   To je druhý extrém, ale méně častý. Většina lidí spíš emoce dusí, než že by jim plně vyhovovala. Obě krajnosti jsou problém.
 - ❌ Mluví o emocích s druhými lidmi místo toho, aby si je nechali pro sebe
@@ -556,8 +556,8 @@ That's why the rule: **don't make big decisions in a strong emotion**. Not "in a
 
 **Question:** What's the most common mistake people make when working with their own emotions?
 
-- **✅ They suppress emotions instead of naming and processing them — and then they're surprised when emotions "explode" at another time or show up in the body**
-  Exactly. Suppression is the worst strategy — the emotion doesn't go away, it just moves. It shows up as a physical problem, an outburst at the wrong person, or chronic anxiety. Naming and processing is much more effective.
+- **✅ They suppress emotions instead of naming and processing them consciously**
+  Exactly. Suppression is the worst strategy — the emotion doesn't go away, it just moves. Then it "explodes" at another time, shows up as a physical problem, an outburst at the wrong person, or chronic anxiety. Naming and processing is much more effective.
 - ❌ They give emotions too much weight and let themselves be driven by them
   That's the other extreme, but less common. Most people bottle emotions up rather than fully indulging them. Both extremes are a problem.
 - ❌ They talk about emotions with others instead of keeping them to themselves
