@@ -91,21 +91,23 @@ export default function Navigation() {
     const path = PILL_PATHS[variant % 3];
     return (
       <span className="relative inline-flex items-center justify-center px-4 py-1.5">
-        <svg
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          viewBox="0 0 200 60"
-          preserveAspectRatio="none"
-        >
-          <path
-            d={path}
-            fill={isActive ? "#FFE4CC" : "transparent"}
-            stroke={isActive ? "#171717" : "rgba(23,23,23,0.35)"}
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-        </svg>
+        {isActive && (
+          <svg
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            viewBox="0 0 200 60"
+            preserveAspectRatio="none"
+          >
+            <path
+              d={path}
+              fill="#FFE4CC"
+              stroke="#171717"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
         <span
           className={`relative text-sm font-display font-bold ${
             isActive ? "text-foreground" : "text-foreground/75 group-hover:text-foreground"
@@ -135,7 +137,7 @@ export default function Navigation() {
                 preserveAspectRatio="none"
               >
                 <path
-                  d="M 30 10 Q 320 4 600 12 Q 880 8 1170 10 Q 1188 40 1170 72 Q 880 76 600 70 Q 320 74 30 72 Q 12 40 30 10 Z"
+                  d="M 30 8 Q 320 6 600 8 Q 880 6 1170 8 Q 1190 40 1170 72 Q 880 74 600 72 Q 320 74 30 72 Q 10 40 30 8 Z"
                   fill="rgba(23,23,23,0.9)"
                 />
               </svg>
@@ -146,7 +148,7 @@ export default function Navigation() {
                 preserveAspectRatio="none"
               >
                 <path
-                  d="M 30 10 Q 320 4 600 12 Q 880 8 1170 10 Q 1188 40 1170 72 Q 880 76 600 70 Q 320 74 30 72 Q 12 40 30 10 Z"
+                  d="M 30 8 Q 320 6 600 8 Q 880 6 1170 8 Q 1190 40 1170 72 Q 880 74 600 72 Q 320 74 30 72 Q 10 40 30 8 Z"
                   fill="#ffffff"
                 />
               </svg>
@@ -157,7 +159,7 @@ export default function Navigation() {
                 preserveAspectRatio="none"
               >
                 <path
-                  d="M 30 10 Q 320 4 600 12 Q 880 8 1170 10 Q 1188 40 1170 72 Q 880 76 600 70 Q 320 74 30 72 Q 12 40 30 10 Z"
+                  d="M 30 8 Q 320 6 600 8 Q 880 6 1170 8 Q 1190 40 1170 72 Q 880 74 600 72 Q 320 74 30 72 Q 10 40 30 8 Z"
                   fill="none"
                   stroke="#171717"
                   strokeWidth="2"
