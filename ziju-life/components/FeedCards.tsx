@@ -262,10 +262,10 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
 
   return (
     <Link href={href} className={`block group h-full relative ${rotationClass} hover:rotate-0 hover:-translate-y-0.5 transition-all duration-200`}>
-      {/* Hand-drawn shadow */}
+      {/* Hand-drawn shadow — visible only on hover */}
       <svg
         aria-hidden="true"
-        className="absolute inset-0 w-full h-full pointer-events-none translate-x-1 translate-y-1 group-hover:translate-x-1.5 group-hover:translate-y-1.5 transition-transform"
+        className="absolute inset-0 w-full h-full pointer-events-none translate-x-1.5 translate-y-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
         viewBox="0 0 300 200"
         preserveAspectRatio="none"
       >

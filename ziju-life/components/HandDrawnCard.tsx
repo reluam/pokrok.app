@@ -14,6 +14,7 @@ export default function HandDrawnCard({
   className = "",
   innerClassName = "",
   shadow = true,
+  shadowOffset = 4,
   fill = "#FDFBF7",
   stroke = "#171717",
   strokeWidth = 2,
@@ -23,17 +24,20 @@ export default function HandDrawnCard({
   className?: string;
   innerClassName?: string;
   shadow?: boolean;
+  /** Shadow offset in pixels (x & y). Default 4. Bigger cards need bigger offset. */
+  shadowOffset?: number;
   fill?: string;
   stroke?: string;
   strokeWidth?: number;
 }) {
   const path = BORDER_PATHS[variant % 3];
   return (
-    <div className={`relative ${className}`}>
+    <div className={`group relative ${className}`}>
       {shadow && (
         <svg
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full pointer-events-none translate-x-1 translate-y-1 group-hover:translate-x-1.5 group-hover:translate-y-1.5 transition-transform"
+          className="absolute inset-0 w-full h-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          style={{ transform: `translate(${shadowOffset}px, ${shadowOffset}px)` }}
           viewBox="0 0 300 200"
           preserveAspectRatio="none"
         >

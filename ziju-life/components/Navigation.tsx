@@ -91,7 +91,7 @@ export default function Navigation() {
     const path = PILL_PATHS[variant % 3];
     return (
       <span className="relative inline-flex items-center justify-center px-4 py-1.5">
-        {isActive && (
+        {isActive ? (
           <svg
             aria-hidden="true"
             className="absolute inset-0 w-full h-full pointer-events-none"
@@ -102,6 +102,22 @@ export default function Navigation() {
               d={path}
               fill="#FFE4CC"
               stroke="#171717"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          </svg>
+        ) : (
+          <svg
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
+            viewBox="0 0 200 60"
+            preserveAspectRatio="none"
+          >
+            <path
+              d={path}
+              fill="rgba(23,23,23,0.06)"
+              stroke="rgba(23,23,23,0.3)"
               strokeWidth="1.5"
               strokeLinejoin="round"
               strokeLinecap="round"

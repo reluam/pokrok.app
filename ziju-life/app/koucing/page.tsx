@@ -220,7 +220,7 @@ export default async function KoucingPage() {
           preserveAspectRatio="none"
         >
           <path
-            d="M0,20 C120,20 200,120 360,140 C460,152 520,80 640,40 C700,15 760,10 820,25 C900,48 940,90 1020,85 C1100,80 1180,40 1280,20 C1360,6 1420,10 1440,15 L1440,180 L0,180 Z"
+            d="M0,22 C260,24 440,150 720,162 C1000,170 1180,26 1440,18 L1440,180 L0,180 Z"
             fill="#FBF8F0"
           />
         </svg>
@@ -245,7 +245,7 @@ export default async function KoucingPage() {
           <HandDrawnCard
             variant={0}
             shadow={false}
-            stroke="rgba(23,23,23,0.45)"
+            stroke="#171717"
             strokeWidth={1.5}
             innerClassName="px-10 md:px-16 py-14 md:py-20 space-y-5"
           >
@@ -411,7 +411,7 @@ export default async function KoucingPage() {
           preserveAspectRatio="none"
         >
           <path
-            d="M0,20 C120,20 200,120 360,140 C460,152 520,80 640,40 C700,15 760,10 820,25 C900,48 940,90 1020,85 C1100,80 1180,40 1280,20 C1360,6 1420,10 1440,15 L1440,180 L0,180 Z"
+            d="M0,22 C260,24 440,150 720,162 C1000,170 1180,26 1440,18 L1440,180 L0,180 Z"
             fill="#FBF8F0"
           />
         </svg>
@@ -449,7 +449,7 @@ export default async function KoucingPage() {
           preserveAspectRatio="none"
         >
           <path
-            d="M0,20 C120,20 200,120 360,140 C460,152 520,80 640,40 C700,15 760,10 820,25 C900,48 940,90 1020,85 C1100,80 1180,40 1280,20 C1360,6 1420,10 1440,15 L1440,180 L0,180 Z"
+            d="M0,22 C260,24 440,150 720,162 C1000,170 1180,26 1440,18 L1440,180 L0,180 Z"
             fill="#FBF8F0"
           />
         </svg>
@@ -479,10 +479,9 @@ export default async function KoucingPage() {
             <HandDrawnCard
               variant={1}
               shadow={false}
-              fill="#F8EEDB"
-              stroke="rgba(23,23,23,0.35)"
-              strokeWidth={1.25}
-              innerClassName="px-7 md:px-12 py-10 md:py-14"
+              stroke="#171717"
+              strokeWidth={1.5}
+              innerClassName="px-10 md:px-16 py-14 md:py-20"
             >
               <span className="badge-soon absolute -top-3 left-1/2 -translate-x-1/2 !bg-[#c6f1ec] !text-[#2ba89e] !rotate-0 shadow-sm z-10">
                 Zdarma &bull; bez závazku
@@ -577,13 +576,42 @@ export default async function KoucingPage() {
               })}
             </div>
 
-            <div className="rounded-2xl bg-[#E8FAF8] border border-[#2ba89e]/25 px-6 py-5 space-y-1.5">
-              <p className="text-sm font-display font-extrabold text-[#2ba89e]">
-                Pro prvních 10 klientů &mdash; zvýhodněná cena výměnou za hodnocení
-              </p>
-              <p className="text-sm text-foreground/75">
-                Jedno sezení za <span className="font-semibold text-foreground">1 800 Kč</span> <span className="line-through text-foreground/35">3 000 Kč</span> &mdash; při deseti a více sezeních pak <span className="font-semibold text-foreground">1 500 Kč</span> <span className="line-through text-foreground/35">2 500 Kč</span> za sezení. Rozsah domluvíme na konzultaci.
-              </p>
+            <div className="relative">
+              <svg
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                viewBox="0 0 1200 180"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M 20 10 Q 300 6 600 12 Q 900 18 1180 10 Q 1194 90 1180 170 Q 900 174 600 168 Q 300 162 20 170 Q 6 90 20 10 Z"
+                  fill="#E8FAF8"
+                />
+              </svg>
+              <svg
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                viewBox="0 0 1200 180"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M 20 10 Q 300 6 600 12 Q 900 18 1180 10 Q 1194 90 1180 170 Q 900 174 600 168 Q 300 162 20 170 Q 6 90 20 10 Z"
+                  fill="none"
+                  stroke="rgba(23,23,23,0.3)"
+                  strokeWidth="1.25"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+              <div className="relative px-6 py-5 space-y-1.5">
+                <p className="text-sm font-display font-extrabold text-[#2ba89e]">
+                  Pro prvních 10 klientů &mdash; zvýhodněná cena výměnou za hodnocení
+                </p>
+                <p className="text-sm text-foreground/75">
+                  Jedno sezení za <span className="font-semibold text-foreground">1 800 Kč</span> <span className="line-through text-foreground/35">3 000 Kč</span> &mdash; při deseti a více sezeních pak <span className="font-semibold text-foreground">1 500 Kč</span> <span className="line-through text-foreground/35">2 500 Kč</span> za sezení. Rozsah domluvíme na konzultaci.
+                </p>
+              </div>
             </div>
           </div>
         </section>

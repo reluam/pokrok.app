@@ -53,14 +53,10 @@ export default function OMnePage() {
 
         {/* ─── Hero ─── */}
         <section className="mb-16 md:mb-20 animate-fade-up relative">
-          <div className="absolute -top-4 right-4 text-3xl animate-float opacity-60 hidden md:block">
-            🌿
-          </div>
-
           <HandDrawnCard
             variant={0}
             shadow={false}
-            stroke="rgba(23,23,23,0.45)"
+            stroke="#171717"
             strokeWidth={1.5}
             innerClassName="px-10 md:px-16 py-16 md:py-20"
           >
@@ -101,7 +97,7 @@ export default function OMnePage() {
           <HandDrawnCard
             variant={1}
             shadow={false}
-            stroke="rgba(23,23,23,0.45)"
+            stroke="#171717"
             strokeWidth={1.5}
             innerClassName="px-10 md:px-16 py-16 md:py-20"
           >
@@ -175,7 +171,7 @@ export default function OMnePage() {
           <HandDrawnCard
             variant={2}
             shadow={false}
-            stroke="rgba(23,23,23,0.45)"
+            stroke="#171717"
             strokeWidth={1.5}
             innerClassName="px-8 md:px-12 py-12 md:py-16 space-y-6"
           >
@@ -228,7 +224,13 @@ export default function OMnePage() {
           className="mb-12 animate-fade-up"
           style={{ animationDelay: "400ms" }}
         >
-          <div className="paper-card p-8 md:p-10 text-center space-y-5">
+          <HandDrawnCard
+            variant={2}
+            shadow={false}
+            stroke="#171717"
+            strokeWidth={1.5}
+            innerClassName="px-10 md:px-16 py-14 md:py-20 text-center space-y-5"
+          >
             <p className="text-2xl mb-1">👋</p>
             <h3 className="font-display text-2xl md:text-3xl font-extrabold leading-snug">
               Pojďme se potkat
@@ -242,13 +244,13 @@ export default function OMnePage() {
               </Link>
               <Link
                 href="/knihovna"
-                className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group"
+                className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors group/link"
               >
                 Nebo čti dál v Knihovně
-                <span className="inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                <span className="inline-block transition-transform group-hover/link:translate-x-0.5">&rarr;</span>
               </Link>
             </div>
-          </div>
+          </HandDrawnCard>
         </section>
 
         {/* ─── Thinkable (vedlejší projekt) ─── */}
@@ -256,7 +258,7 @@ export default function OMnePage() {
           className="animate-fade-up"
           style={{ animationDelay: "500ms" }}
         >
-          <HandDrawnCard variant={1} innerClassName="p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:items-center">
+          <HandDrawnCard variant={1} innerClassName="p-8 md:p-12 flex flex-col sm:flex-row gap-5 sm:gap-6 sm:items-center">
             <HandDrawnIcon bg="#ffe4cc" variant={0} size={56} className="mx-auto sm:mx-0">
               <span className="text-2xl">⚙️</span>
             </HandDrawnIcon>
@@ -266,7 +268,7 @@ export default function OMnePage() {
               </p>
               <h3 className="font-display text-lg font-extrabold mb-1">Na čem ještě pracuju</h3>
               <p className="text-sm text-foreground/70 leading-relaxed">
-                Mimo koučink pracuju na <strong>Thinkable</strong> &mdash; mobilní appce pro trénink mentálních modelů. Duolingo pro myšlení &mdash; každý den 5 minut, abys lépe přemýšlel a rozhodoval se.
+                Mimo Žiju.life pracuju na <strong>Thinkable</strong> &mdash; mobilní appce pro trénink mentálních modelů.
               </p>
             </div>
             <a
