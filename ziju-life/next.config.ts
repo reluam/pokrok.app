@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   images: {
     deviceSizes: [256, 384, 640, 750, 828, 1080, 1200, 1920, 2048],
     qualities: [70, 75, 80, 85, 90],
+    remotePatterns: [
+      { protocol: "https", hostname: "substackcdn.com" },
+      { protocol: "https", hostname: "substack-post-media.s3.amazonaws.com" },
+    ],
   },
   async headers() {
     return [

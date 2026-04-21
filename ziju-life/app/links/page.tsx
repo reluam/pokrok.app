@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import LinksNewsletterForm from "@/components/LinksNewsletterForm";
+import { listCuratedPosts } from "@/lib/curated-posts-db";
+import HandDrawnIcon from "@/components/HandDrawnIcon";
 
 export const metadata: Metadata = {
   title: "Žiju life | Rozcestník",
   description:
-    "Všechny důležité linky na jednom místě. Žiju life — místo, kde se učíme žít život podle sebe.",
+    "Manuál pro život v 21. století. Poslední článek, Substack a konzultace zdarma.",
 };
+
+const SUBSTACK_URL =
+  "https://zijulife.substack.com/?r=86mho4&utm_campaign=pub-share-checklist";
 
 const socials = [
   {
@@ -48,65 +52,91 @@ const socials = [
   },
 ];
 
-const navItems = [
-  { label: "Koučing", href: "/koucing", icon: "🎯" },
-  { label: "Knihovna", href: "/knihovna", icon: "✨" },
-  { label: "O mně", href: "/o-mne", icon: "👋" },
-];
+interface FeaturedPost {
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  cover_image_url: string | null;
+  source_url: string | null;
+}
 
-const YOUTUBE_CHANNEL_ID = "UCXVKWfPc3cv67mY5V40AMCg";
-
-async function getLatestYouTubeVideoId(): Promise<string | null> {
+async function getFeaturedSubstackPost(): Promise<FeaturedPost | null> {
   try {
-    const res = await fetch(
-      `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return null;
-    const xml = await res.text();
-    const match = xml.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
-    return match?.[1] ?? null;
+    const { posts } = await listCuratedPosts({
+      status: "published",
+      tag: "substack",
+      page: 1,
+      limit: 1,
+    });
+    const post = posts[0] as FeaturedPost | undefined;
+    return post ?? null;
   } catch {
     return null;
   }
 }
 
 export default async function LinksPage() {
-  const latestVideoId = await getLatestYouTubeVideoId();
+  const featured = await getFeaturedSubstackPost();
+  const featuredHref = featured?.source_url ?? SUBSTACK_URL;
+
   return (
-    <div className="min-h-screen bg-[#FDFDF7] relative overflow-hidden">
-      {/* Decorative background shapes */}
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Decorative background blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute -top-20 -right-20 w-64 h-64 rounded-full opacity-[0.07]"
-          style={{ background: "var(--accent-primary)" }}
-        />
-        <div
-          className="absolute top-1/3 -left-16 w-48 h-48 rounded-full opacity-[0.06]"
-          style={{ background: "var(--accent-secondary)" }}
-        />
-        <div
-          className="absolute bottom-20 right-10 w-32 h-32 rounded-full opacity-[0.05]"
-          style={{ background: "var(--accent-tertiary)" }}
-        />
+        <svg
+          aria-hidden="true"
+          className="absolute -top-10 -right-16 w-72 h-72 opacity-[0.18]"
+          viewBox="0 0 200 200"
+          style={{ transform: "rotate(12deg)" }}
+        >
+          <path
+            fill="#FFD966"
+            d="M94,4 C142,-2 180,18 194,62 C206,100 198,138 186,172 C172,206 148,232 116,238 C88,244 58,232 34,212 C12,192 -2,160 4,120 C8,82 16,44 42,20 C58,8 74,4 94,4 Z"
+          />
+        </svg>
+        <svg
+          aria-hidden="true"
+          className="absolute top-1/2 -left-20 w-56 h-56 opacity-[0.16]"
+          viewBox="0 0 200 200"
+          style={{ transform: "rotate(-18deg)" }}
+        >
+          <path
+            fill="#B0A7F5"
+            d="M94,4 C142,-2 180,18 194,62 C206,100 198,138 186,172 C172,206 148,232 116,238 C88,244 58,232 34,212 C12,192 -2,160 4,120 C8,82 16,44 42,20 C58,8 74,4 94,4 Z"
+          />
+        </svg>
+        <svg
+          aria-hidden="true"
+          className="absolute bottom-20 right-4 w-40 h-40 opacity-[0.14]"
+          viewBox="0 0 200 200"
+          style={{ transform: "rotate(6deg)" }}
+        >
+          <path
+            fill="#4ECDC4"
+            d="M94,4 C142,-2 180,18 194,62 C206,100 198,138 186,172 C172,206 148,232 116,238 C88,244 58,232 34,212 C12,192 -2,160 4,120 C8,82 16,44 42,20 C58,8 74,4 94,4 Z"
+          />
+        </svg>
       </div>
 
-      <main className="relative z-10 flex flex-col items-center px-4 pt-10 pb-10 sm:pt-14 sm:pb-14 max-w-md mx-auto">
+      <main className="relative z-10 flex flex-col items-center px-4 pt-10 pb-14 sm:pt-14 sm:pb-16 max-w-md mx-auto">
         {/* Profile photo */}
         <Link href="/" className="group mb-2">
-          <div className="relative w-22 h-22 sm:w-26 sm:h-26 rounded-full overflow-hidden border-[3px] border-white shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+          <div
+            className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:-translate-y-0.5"
+            style={{ border: "3px solid #171717" }}
+          >
             <Image
               src="/o-mne-moment.jpg"
               alt="Žiju life"
               fill
               className="object-cover"
-              sizes="104px"
+              sizes="112px"
               priority
             />
           </div>
         </Link>
 
-        {/* Logo as title */}
+        {/* Logo */}
         <Link href="/" className="mt-3">
           <Image
             src="/ziju-life-logo.png"
@@ -117,11 +147,11 @@ export default async function LinksPage() {
             sizes="140px"
           />
         </Link>
-        <p className="text-foreground/60 text-center mt-2 text-sm sm:text-base max-w-xs leading-relaxed">
-          Učím se žít life podle sebe. A za pochodu.
+        <p className="font-display text-foreground/70 text-center mt-2 text-sm sm:text-base max-w-xs leading-relaxed">
+          <span className="underline-playful">Manuál</span> pro život v 21. století.
         </p>
 
-        {/* Social icons — top */}
+        {/* Socials */}
         <div className="flex items-center gap-1 mt-4">
           {socials.map((social) => (
             <a
@@ -129,7 +159,7 @@ export default async function LinksPage() {
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-foreground/30 hover:text-[var(--accent-primary)] hover:scale-110 transition-all duration-200"
+              className="p-2 text-foreground/40 hover:text-[var(--accent-primary)] hover:scale-110 hover:-rotate-3 transition-all duration-200"
               aria-label={social.label}
             >
               {social.icon}
@@ -137,135 +167,222 @@ export default async function LinksPage() {
           ))}
         </div>
 
-        {/* === BENTO GRID === */}
-        <div className="w-full mt-6 flex flex-col gap-3">
-          {/* Koučing + Knihovna — two squares */}
-          <div className="grid grid-cols-2 gap-3">
-            <Link href="/koucing" className="group block">
-              <div
-                className="relative bg-gradient-to-br from-[#4ECDC4]/10 to-[#FDFDF7] rounded-3xl p-4 sm:p-5 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between border border-[#4ECDC4]/12"
-                style={{ borderBottom: "3px solid #4ECDC4" }}
-              >
-                {/* Background SVG — top right */}
-                <svg viewBox="0 0 200 200" fill="none" className="absolute -top-3 -right-3 w-28 h-28 text-[#4ECDC4] opacity-[0.12]" aria-hidden="true">
-                  <rect x="30" y="50" width="70" height="40" rx="12" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  <path d="M50 90l-8 12 15-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <rect x="100" y="80" width="70" height="40" rx="12" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  <circle cx="35" cy="35" r="8" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  <circle cx="165" cy="65" r="8" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                </svg>
-                {/* Chat bubbles icon */}
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#4ECDC4]/12 flex items-center justify-center">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#4ECDC4]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                    <path d="M8 9h8M8 13h4" opacity="0.5" />
-                  </svg>
-                </div>
-                <div className="relative z-10">
-                  <div className="font-bold text-foreground group-hover:text-foreground/80 transition-colors text-base sm:text-lg">
-                    Koučing
-                  </div>
-                  <div className="text-xs text-foreground/40 mt-0.5 leading-snug">
-                    Osobní průvodce na cestě životem
-                  </div>
-                </div>
-                <svg
-                  className="absolute bottom-3 right-3 w-4 h-4 text-foreground/15 group-hover:text-foreground/35 transition-all duration-300 group-hover:translate-x-0.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                </svg>
-              </div>
-            </Link>
-
-            <Link href="/knihovna" className="group block">
-              <div
-                className="relative bg-gradient-to-br from-[#B0A7F5]/10 to-[#FDFDF7] rounded-3xl p-4 sm:p-5 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between border border-[#B0A7F5]/12"
-                style={{ borderBottom: "3px solid #B0A7F5" }}
-              >
-                {/* Background SVG — top right */}
-                <svg viewBox="0 0 200 200" fill="none" className="absolute -top-3 -right-3 w-28 h-28 text-[#B0A7F5] opacity-[0.12]" aria-hidden="true">
-                  <rect x="40" y="40" width="50" height="65" rx="4" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  <rect x="55" y="35" width="50" height="65" rx="4" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  <rect x="70" y="30" width="50" height="65" rx="4" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                  <line x1="80" y1="48" x2="110" y2="48" stroke="currentColor" strokeWidth="2" opacity="0.4" />
-                  <line x1="80" y1="56" x2="105" y2="56" stroke="currentColor" strokeWidth="2" opacity="0.3" />
-                  <line x1="80" y1="64" x2="100" y2="64" stroke="currentColor" strokeWidth="2" opacity="0.2" />
-                </svg>
-                {/* Book icon */}
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#B0A7F5]/12 flex items-center justify-center">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#B0A7F5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
-                    <path d="M8 7h8M8 11h5" opacity="0.5" />
-                  </svg>
-                </div>
-                <div className="relative z-10">
-                  <div className="font-bold text-foreground group-hover:text-foreground/80 transition-colors text-base sm:text-lg">
-                    Knihovna
-                  </div>
-                  <div className="text-xs text-foreground/40 mt-0.5 leading-snug">
-                    Tipy, novinky, myšlenky a mnoho dalšího
-                  </div>
-                </div>
-                <svg
-                  className="absolute bottom-3 right-3 w-4 h-4 text-foreground/15 group-hover:text-foreground/35 transition-all duration-300 group-hover:translate-x-0.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                </svg>
-              </div>
-            </Link>
-          </div>
-
-          {/* 3. Aktuální video — YouTube embed (auto-fetched latest) */}
-          {latestVideoId && (
-            <div className="rounded-3xl overflow-hidden bg-black/[0.03] border border-black/5">
-              <div className="aspect-[9/16] max-h-[480px] w-full">
-                <iframe
-                  src={`https://www.youtube.com/embed/${latestVideoId}?rel=0&modestbranding=1`}
-                  className="w-full h-full"
-                  title="Aktuální video — Žiju life"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+        {/* === HLAVNÍ 3 CTA === */}
+        <div className="w-full mt-8 flex flex-col gap-5">
+          {/* 1. Featured — nejčtenější článek ze Substacku */}
+          {featured && (
+            <a
+              href={featuredHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block hover:-translate-y-1 transition-all duration-200"
+            >
+              <div className="relative">
+                {/* Shadow plate */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  style={{
+                    transform: "translate(6px, 6px)",
+                    background: "#171717",
+                  }}
                 />
+                <div
+                  className="relative rounded-3xl overflow-hidden"
+                  style={{
+                    background: "#FDFBF7",
+                    border: "3px solid #171717",
+                  }}
+                >
+                  {/* Cover image */}
+                  <div className="relative w-full aspect-[16/10] overflow-hidden" style={{ borderBottom: "3px solid #171717" }}>
+                    {featured.cover_image_url ? (
+                      <Image
+                        src={featured.cover_image_url}
+                        alt={featured.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        sizes="(max-width: 768px) 100vw, 448px"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #ffe4cc 0%, #dfd8fa 100%)",
+                        }}
+                      >
+                        <span className="text-6xl">✨</span>
+                      </div>
+                    )}
+                    {/* Badge */}
+                    <div
+                      className="absolute top-3 left-3 px-3 py-1 rounded-full font-display text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground"
+                      style={{
+                        background: "#FFD966",
+                        border: "2px solid #171717",
+                      }}
+                    >
+                      Nejčtenější článek
+                    </div>
+                  </div>
+                  {/* Body */}
+                  <div className="p-5 sm:p-6">
+                    <h2 className="font-display font-extrabold text-xl sm:text-2xl text-foreground tracking-tight leading-tight mb-2">
+                      {featured.title}
+                    </h2>
+                    {featured.subtitle && (
+                      <p className="text-sm sm:text-base text-foreground/65 leading-snug line-clamp-3 mb-4">
+                        {featured.subtitle}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                        Číst na Substacku
+                      </span>
+                      <span
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm transition-transform duration-200 group-hover:translate-x-0.5"
+                        style={{
+                          background: "#FF8C42",
+                          border: "2px solid #171717",
+                        }}
+                      >
+                        &rarr;
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </a>
           )}
 
-          {/* 4. Newsletter / sběr emailů */}
-          <div className="bg-gradient-to-br from-[#FF8C42]/8 to-[#B0A7F5]/8 rounded-3xl p-5 sm:p-6">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-lg">📬</span>
-              <span className="text-xs font-bold uppercase tracking-wider text-foreground/40">
-                Newsletter
-              </span>
+          {/* 2. Substack — Čti další články */}
+          <a
+            href={SUBSTACK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group block hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <div className="relative">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                style={{
+                  transform: "translate(5px, 5px)",
+                  background: "#171717",
+                }}
+              />
+              <div
+                className="relative rounded-2xl px-5 py-4 sm:py-5 flex items-center gap-4"
+                style={{
+                  background: "#FDFBF7",
+                  border: "2.5px solid #171717",
+                }}
+              >
+                <HandDrawnIcon bg="#ffe4cc" variant={0} size={56}>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-6 h-6"
+                    style={{ color: "#FF8C42" }}
+                  >
+                    <path d="M4 7h16" />
+                    <path d="M4 11h16" />
+                    <path d="M4 15l8 5 8-5" />
+                  </svg>
+                </HandDrawnIcon>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display font-extrabold text-foreground text-lg sm:text-xl tracking-tight leading-tight">
+                    Čti další články
+                  </div>
+                  <div className="text-xs sm:text-sm text-foreground/60 mt-0.5 leading-snug">
+                    Newsletter Žiju life na Substacku
+                  </div>
+                </div>
+                <span
+                  className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm transition-transform duration-200 group-hover:translate-x-0.5"
+                  style={{
+                    background: "#FF8C42",
+                    border: "2px solid #171717",
+                  }}
+                >
+                  &rarr;
+                </span>
+              </div>
             </div>
-            <div className="font-bold text-lg sm:text-xl text-foreground mb-1">
-              Připoj se k Žiju.life
+          </a>
+
+          {/* 3. Koučink — Zarezervuj konzultaci zdarma */}
+          <Link
+            href="/koucing#rezervace"
+            className="group block hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <div className="relative">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                style={{
+                  transform: "translate(5px, 5px)",
+                  background: "#171717",
+                }}
+              />
+              <div
+                className="relative rounded-2xl px-5 py-4 sm:py-5 flex items-center gap-4"
+                style={{
+                  background: "#FDFBF7",
+                  border: "2.5px solid #171717",
+                }}
+              >
+                <HandDrawnIcon bg="#c6f1ec" variant={1} size={56}>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-6 h-6"
+                    style={{ color: "#2a9d95" }}
+                  >
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                    <path d="M8 9h8M8 13h4" opacity="0.55" />
+                  </svg>
+                </HandDrawnIcon>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display font-extrabold text-foreground text-lg sm:text-xl tracking-tight leading-tight">
+                    Koučink
+                  </div>
+                  <div className="text-xs sm:text-sm text-foreground/60 mt-0.5 leading-snug">
+                    Zarezervuj konzultaci zdarma
+                  </div>
+                </div>
+                <span
+                  className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm transition-transform duration-200 group-hover:translate-x-0.5"
+                  style={{
+                    background: "#4ECDC4",
+                    border: "2px solid #171717",
+                  }}
+                >
+                  &rarr;
+                </span>
+              </div>
             </div>
-            <p className="text-sm text-foreground/50 mb-4 leading-snug">
-              Jednou za 14 dní ti pošlu shrnutí toho, co jsem zjistil, co testuju a co mě baví. Bez spamu.
-            </p>
-            <LinksNewsletterForm />
-          </div>
+          </Link>
         </div>
 
-        {/* Social icons */}
-        <div className="flex items-center gap-1 mt-8">
+        {/* Socials — bottom */}
+        <div className="flex items-center gap-1 mt-10">
           {socials.map((social) => (
             <a
               key={social.label}
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2.5 text-foreground/30 hover:text-[var(--accent-primary)] hover:scale-110 transition-all duration-200"
+              className="p-2.5 text-foreground/40 hover:text-[var(--accent-primary)] hover:scale-110 hover:-rotate-3 transition-all duration-200"
               aria-label={social.label}
             >
               {social.icon}
@@ -273,24 +390,6 @@ export default async function LinksPage() {
           ))}
         </div>
       </main>
-
-      {/* Bottom navigation bar */}
-      <nav className="bg-white/90 backdrop-blur-md border-t border-black/5">
-        <div className="max-w-md mx-auto flex justify-around items-center py-2.5 px-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="flex flex-col items-center gap-0.5 px-3 py-1 text-foreground/40 hover:text-[var(--accent-primary)] transition-colors"
-            >
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wide">
-                {item.label}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </nav>
     </div>
   );
 }

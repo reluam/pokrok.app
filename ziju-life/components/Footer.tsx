@@ -18,7 +18,7 @@ export default function Footer() {
               />
             </div>
             <p className="text-sm text-muted">
-              Učím se žít life podle sebe. A za pochodu.
+              Manuál pro život v 21. století.
             </p>
           </div>
 
