@@ -79,8 +79,8 @@ Neuroscientist Adam Gazzaley in The Distracted Mind shows that attention changes
 
 **Otázka:** Jaký je hlavní koncept — proč se schopnost soustředit mění?
 
-- **✅ Pozornost je trénovatelný sval — posiluješ ji nebo oslabíješ podle toho, co děláš denně**
-  Přesně. Trénuješ krátkou pozornost (scrolling) → zesiluje. Trénuješ dlouhou (čtení) → zesiluje. Bez tréninku atrofuje.
+- **✅ Pozornost je trénovatelný sval**
+  Přesně. Posiluješ ji nebo oslabíješ podle toho, co děláš denně — trénuješ krátkou pozornost (scrolling) → zesiluje, trénuješ dlouhou (čtení) → zesiluje. Bez tréninku atrofuje.
 - ❌ Pozornost je fixní vlastnost daná genetikou
   Mozek je plastický — pozornost se mění podle užívání. Newport a neurovědci to potvrzují.
 - ❌ Pozornost s věkem automaticky klesá
@@ -90,8 +90,8 @@ Neuroscientist Adam Gazzaley in The Distracted Mind shows that attention changes
 
 **Question:** What's the core concept — why does the ability to focus change?
 
-- **✅ Attention is a trainable muscle — you build it or weaken it depending on what you do every day**
-  Exactly. Train short attention (scrolling) → it grows. Train long attention (reading) → it grows. Without training, it atrophies.
+- **✅ Attention is a trainable muscle**
+  Exactly. You build or weaken it depending on what you do every day — train short attention (scrolling) → it grows, train long attention (reading) → it grows. Without training, it atrophies.
 - ❌ Attention is a fixed trait determined by genetics
   The brain is plastic — attention shifts with use. Newport and neuroscientists confirm it.
 - ❌ Attention automatically declines with age
@@ -134,8 +134,8 @@ Newport proposes an "internet diet": instead of blocking the internet, schedule 
 
 **Otázka:** Proč Newport doporučuje „internet diet" — naplánované časy pro internet místo blokování?
 
-- **✅ Okamžité přepnutí na internet při každé nudě = trénink krátké pozornosti. Nuda bez internetu = trénink vytrvalosti a kreativity**
-  Přesně. Pokud vždy utečeš k telefonu při první nudě, mozek se učí, že nuda je nesnesitelná. Naplánovaný internet je OK — nekontrolované používání oslabuje pozornost.
+- **✅ Útěk k internetu trénuje krátkou pozornost**
+  Přesně. Nuda bez internetu naopak trénuje vytrvalost a kreativitu. Pokud vždy utečeš k telefonu při první nudě, mozek se učí, že nuda je nesnesitelná. Naplánovaný internet je OK — nekontrolované používání oslabuje pozornost.
 - ❌ Protože internet je zlo a je třeba ho omezit
   Newport netvrdí, že internet je zlo. Tvrdí, že bezplánové použití oslabuje pozornost.
 - ❌ Aby lidé četli víc knih místo internetu
@@ -145,8 +145,8 @@ Newport proposes an "internet diet": instead of blocking the internet, schedule 
 
 **Question:** Why does Newport recommend an "internet diet" — scheduled internet times instead of blocking?
 
-- **✅ Jumping to the internet at every moment of boredom = training short attention. Boredom without internet = training stamina and creativity**
-  Exactly. If you always escape to the phone at the first sign of boredom, your brain learns that boredom is unbearable. Scheduled internet is fine — unplanned use weakens attention.
+- **✅ Escaping to internet in boredom trains short attention**
+  Exactly. Boredom without internet trains stamina and creativity instead. If you always escape to the phone at the first sign of boredom, your brain learns boredom is unbearable. Scheduled internet is fine — unplanned use weakens attention.
 - ❌ Because the internet is evil and needs to be restricted
   Newport isn't saying the internet is evil. He's saying unplanned use weakens attention.
 - ❌ So people read more books instead of the internet
@@ -197,8 +197,8 @@ How to train attention in practice: 1) Read printed books for 30+ minutes withou
 
 **Otázka:** Co je lepší pro trénink pozornosti — hodinový deep work blok denně, nebo přečíst 2 knihy za měsíc?
 
-- **✅ Obojí — oba posilují pozornost. Deep work trénuje „pracovní pozornost", čtení trénuje „klidnou pozornost"**
-  Přesně. Různé typy pozornosti se doplňují. Nemusíš volit — zahrň oboje. Ideál: deep work ráno, čtení večer.
+- **✅ Obojí — oba trénují jiný typ pozornosti**
+  Přesně. Deep work trénuje „pracovní pozornost", čtení „klidnou pozornost" — různé typy pozornosti se doplňují. Nemusíš volit, zahrň oboje. Ideál: deep work ráno, čtení večer.
 - ❌ Jen deep work — čtení je zábava, ne trénink
   Čtení knih je silný trénink pozornosti. Mnoho úspěšných lidí (Buffett, Gates, Obama) staví svou pozornost právě na čtení.
 - ❌ Jen čtení — deep work je práce, ne trénink
@@ -208,8 +208,8 @@ How to train attention in practice: 1) Read printed books for 30+ minutes withou
 
 **Question:** What's better for training attention — a one-hour deep-work block every day, or reading 2 books a month?
 
-- **✅ Both — they both strengthen attention. Deep work trains "working attention," reading trains "calm attention"**
-  Exactly. Different types of attention complement each other. You don't have to choose — include both. Ideal: deep work in the morning, reading in the evening.
+- **✅ Both — each trains a different type of attention**
+  Exactly. Deep work trains "working attention," reading trains "calm attention" — different types complement each other. You don't have to choose, include both. Ideal: deep work in the morning, reading in the evening.
 - ❌ Only deep work — reading is fun, not training
   Reading books is strong attention training. Many successful people (Buffett, Gates, Obama) build their attention on reading.
 - ❌ Only reading — deep work is work, not training
@@ -227,8 +227,8 @@ Meditation is strong attention training. The essence: not focusing on a quiet mi
 
 **Otázka:** Začínáš meditovat, ale po minutě se mysl rozběhne k plánům a starostem. Cítíš se jako neúspěšný. Jak to správně vyhodnotit?
 
-- **✅ To je přesně moment tréninku — všimni si, že mysl utekla, a vrať se k dechu. Každé vrácení = jedno opakování svalu pozornosti**
-  Přesně. Meditace není o klidu mysli. Je o sledování a vracení. Každé vrácení posiluje pozornost. Všichni meditující to zažívají, i zkušení.
+- **✅ To je moment tréninku — všimni si a vrať se**
+  Přesně. Každé vrácení = jedno opakování svalu pozornosti. Meditace není o klidu mysli, je o sledování a vracení. Každé vrácení posiluje pozornost. Všichni meditující to zažívají, i zkušení.
 - ❌ Vzdát to — meditace prostě není pro tebe
   Přesně naopak. To, co zažíváš, je normální a je to podstata tréninku.
 - ❌ Meditovat déle, dokud se mysl neutiší
@@ -238,8 +238,8 @@ Meditation is strong attention training. The essence: not focusing on a quiet mi
 
 **Question:** You start meditating, but after a minute your mind races off to plans and worries. You feel like a failure. How should you evaluate this?
 
-- **✅ This is exactly the training moment — notice your mind wandered and return to the breath. Every return = one rep of the attention muscle**
-  Exactly. Meditation isn't about a quiet mind. It's about noticing and returning. Every return strengthens attention. Every meditator, even experienced ones, lives this.
+- **✅ Training moment — notice and return**
+  Exactly. Every return = one rep of the attention muscle. Meditation isn't about a quiet mind, it's about noticing and returning. Every return strengthens attention. Every meditator, even experienced ones, lives this.
 - ❌ Give up — meditation just isn't for you
   The exact opposite. What you're experiencing is normal and it is the essence of the training.
 - ❌ Meditate longer until your mind settles
@@ -249,8 +249,8 @@ Meditation is strong attention training. The essence: not focusing on a quiet mi
 
 **Otázka:** Co NEJVÍC oslabuje pozornost?
 
-- **✅ Fragmentované scrollování (TikTok, Instagram) v mikro-okamžicích nudy**
-  Přesně. Trénuje mozek na neustálé přepínání a odměny za 3 sekundy — opak toho, co potřebuje deep work. A je to nenápadné: „jen 5 minut" se sčítá.
+- **✅ Scrollování v mikro-nudách**
+  Přesně. TikTok a Instagram trénují mozek na neustálé přepínání a odměny za 3 sekundy — opak toho, co potřebuje deep work. A je to nenápadné: „jen 5 minut" se sčítá.
 - ❌ Dlouhé filmy a seriály
   Filmy trénují dlouhou pozornost, ne fragmentovanou. Nejsou hlavním problémem.
 - ❌ Čtení blogů a zpráv online
@@ -260,8 +260,8 @@ Meditation is strong attention training. The essence: not focusing on a quiet mi
 
 **Question:** What weakens attention the MOST?
 
-- **✅ Fragmented scrolling (TikTok, Instagram) in micro-moments of boredom**
-  Exactly. It trains your brain for constant switching and 3-second rewards — the opposite of what deep work needs. And it's stealthy: "just 5 minutes" adds up.
+- **✅ Scrolling in micro-boredom**
+  Exactly. TikTok and Instagram train your brain for constant switching and 3-second rewards — the opposite of what deep work needs. And it's stealthy: "just 5 minutes" adds up.
 - ❌ Long films and TV series
   Films train long attention, not fragmented attention. They aren't the main problem.
 - ❌ Reading blogs and news online

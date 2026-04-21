@@ -79,8 +79,8 @@ The brain is great at forgetting — 80% of information in a month. The second b
 
 **Otázka:** Proč je „druhý mozek" potřeba?
 
-- **✅ Biologický mozek zapomíná — druhý mozek zapomínat nesmí a umožňuje kumulativní využití toho, co potkáš**
-  Přesně. Mozek je výborný v zapomínání. Druhý mozek řeší ztrátu — uchová pro budoucí já.
+- **✅ Mozek zapomíná, druhý mozek nesmí**
+  Přesně. Mozek je výborný v zapomínání. Druhý mozek řeší ztrátu — uchová pro budoucí já a umožňuje kumulativní využití toho, co potkáš.
 - ❌ Druhý mozek je chytřejší než biologický
   Není chytřejší — je jen trvalejší. Chytrost přichází z tvého myšlení, druhý mozek jen uchovává materiál.
 - ❌ Aby se dalo chlubit svým archivem
@@ -90,8 +90,8 @@ The brain is great at forgetting — 80% of information in a month. The second b
 
 **Question:** Why do you need a "second brain"?
 
-- **✅ Your biological brain forgets — the second brain can't, which makes it possible to compound what you come across**
-  Exactly. The brain is great at forgetting. The second brain solves the loss — it keeps things for your future self.
+- **✅ Your biological brain forgets, the second can't**
+  Exactly. The brain is great at forgetting. The second brain solves the loss — it keeps things for your future self and lets you compound what you come across.
 - ❌ The second brain is smarter than the biological one
   It's not smarter — it's just more persistent. Smarts come from your thinking; the second brain just stores the raw material.
 - ❌ So you can show off your archive
@@ -134,8 +134,8 @@ Forte offers two frameworks: PARA for organization and CODE for the process. PAR
 
 **Otázka:** Přečteš zajímavý článek o designu. Kde ho v PARA uložit?
 
-- **✅ Záleží — pokud na designu teď aktivně pracuješ, tak do Projects. Pokud je to obecné téma zájmu, tak do Resources**
-  Přesně. PARA je dynamická — stejný obsah může být na různých místech podle aktuální relevance. Otázka „kde to použiji?" rozhoduje.
+- **✅ Záleží — podle toho, kde to použiješ**
+  Přesně. Pokud na designu teď aktivně pracuješ, do Projects. Pokud je to obecné téma zájmu, do Resources. PARA je dynamická — stejný obsah může být na různých místech podle aktuální relevance. Otázka „kde to použiji?" rozhoduje.
 - ❌ Vždy do Resources — je to informace
   Ne vždy. Pokud máš aktivní designový projekt, patří to tam. Projects mají přednost před Resources.
 - ❌ Do Archive — hotové věci patří tam
@@ -145,8 +145,8 @@ Forte offers two frameworks: PARA for organization and CODE for the process. PAR
 
 **Question:** You read an interesting article about design. Where in PARA should you store it?
 
-- **✅ It depends — if you're currently working on design (active project), then Projects. If it's just a general topic of interest, then Resources**
-  Exactly. PARA is dynamic — the same content can live in different places depending on current relevance. The question "where will I use this?" decides.
+- **✅ It depends — on where you'll use it**
+  Exactly. If you're actively working on design, then Projects. If it's a general topic of interest, then Resources. PARA is dynamic — the same content can live in different places depending on current relevance. The question "where will I use this?" decides.
 - ❌ Always Resources — it's information
   Not always. If you have an active design project, it belongs there. Projects take priority over Resources.
 - ❌ Archive — finished things belong there
@@ -197,8 +197,8 @@ The problem of collecting without distilling: you save 10–15 articles a day, a
 
 **Otázka:** Ukládáš každý den 10–15 článků do Notion. Po 3 měsících máš 900 poznámek, ale nikdy se k nim nevracíš. Co je špatně?
 
-- **✅ Přebírání bez destilace — poznámky jsou jen kopie článků, ne zhuštěné postřehy. Při hledání musíš číst 10 stran místo 5 řádků**
-  Přesně. Forte to nazývá „progressive summarization". Bez destilace je systém balíček nepoužitelného obsahu.
+- **✅ Sběr bez destilace**
+  Přesně. Poznámky jsou jen kopie článků, ne zhuštěné postřehy. Při hledání musíš číst 10 stran místo 5 řádků. Forte to nazývá „progressive summarization". Bez destilace je systém balíček nepoužitelného obsahu.
 - ❌ Máš příliš mnoho poznámek
   Počet není problém — problém je v jejich zpracování. 900 dobře destilovaných poznámek je zlato.
 - ❌ Máš špatný nástroj
@@ -208,8 +208,8 @@ The problem of collecting without distilling: you save 10–15 articles a day, a
 
 **Question:** You save 10–15 articles a day into Notion. After 3 months you have 900 notes but never revisit any of them. What's wrong?
 
-- **✅ Capturing without distilling — the notes are just copies of articles, not condensed insights. When searching, you have to read 10 pages instead of 5 lines**
-  Exactly. Forte calls this "progressive summarization." Without distilling, the system is a pile of unusable content.
+- **✅ Capture without distilling**
+  Exactly. The notes are just copies of articles, not condensed insights. When searching, you read 10 pages instead of 5 lines. Forte calls this "progressive summarization." Without distilling, the system is a pile of unusable content.
 - ❌ You have too many notes
   Quantity isn't the problem — processing is. 900 well-distilled notes is gold.
 - ❌ You have the wrong tool
@@ -227,8 +227,8 @@ Practical steps: 1) Pick a tool (Notion, Obsidian, Apple Notes). 2) Set up PARA 
 
 **Otázka:** Jak často bys měl destilovat poznámky?
 
-- **✅ Destiluj JEN tehdy, když poznámku potřebuješ pro konkrétní práci (just-in-time) — ne dopředu pro archiv**
-  Přesně. Forte nazývá tento princip „just-in-time". Destiluješ pro projekt, ne pro archiv. Šetří hodiny, které bys jinak ztratil na destilaci věcí, které nepoužiješ.
+- **✅ Just-in-time — až když ji potřebuješ**
+  Přesně. Forte nazývá tento princip „just-in-time". Destiluješ pro konkrétní projekt, ne dopředu pro archiv. Šetří hodiny, které bys jinak ztratil na destilaci věcí, které nepoužiješ.
 - ❌ Každý den 30 minut destilovat staré poznámky
   Tohle je past perfekcionismu. Destiluješ věci, které nepoužiješ. Ztráta času.
 - ❌ Destilovat vše okamžitě při uložení
@@ -238,8 +238,8 @@ Practical steps: 1) Pick a tool (Notion, Obsidian, Apple Notes). 2) Set up PARA 
 
 **Question:** How often should you distill notes?
 
-- **✅ Distill ONLY when you need the note for a specific piece of work (just-in-time) — not upfront for the archive**
-  Exactly. Forte calls this "just-in-time." You distill for the project, not the archive. It saves hours you'd otherwise lose distilling things you never use.
+- **✅ Just-in-time — only when you actually need it**
+  Exactly. Forte calls this "just-in-time." You distill for a specific project, not upfront for the archive. It saves hours you'd otherwise lose distilling things you never use.
 - ❌ 30 minutes a day distilling old notes
   That's a perfectionism trap. You distill things you don't use. A waste of time.
 - ❌ Distill everything immediately on capture
@@ -249,8 +249,8 @@ Practical steps: 1) Pick a tool (Notion, Obsidian, Apple Notes). 2) Set up PARA 
 
 **Otázka:** Co NEPATŘÍ do druhého mozku?
 
-- **✅ Vše, co ti přijde na oči — druhý mozek musí být kurátorský, ne sběratelský**
-  Přesně. Forte varuje: „Pokud to nejsi ochoten znovu přečíst, nezachytávej to." Kurátorství = kvalita. Sběratelství = chaos.
+- **✅ Vše, co ti přijde na oči**
+  Přesně. Druhý mozek musí být kurátorský, ne sběratelský. Forte varuje: „Pokud to nejsi ochoten znovu přečíst, nezachytávej to." Kurátorství = kvalita. Sběratelství = chaos.
 - ❌ Poznámky z aktivních projektů
   Ty tam patří — jsou to nejdůležitější položky (Projects v PARA).
 - ❌ Citace a výtahy z knih
@@ -260,8 +260,8 @@ Practical steps: 1) Pick a tool (Notion, Obsidian, Apple Notes). 2) Set up PARA 
 
 **Question:** What does NOT belong in a second brain?
 
-- **✅ Everything that crosses your eyes — a second brain has to be curated, not hoarded**
-  Exactly. Forte warns: "If you're not willing to reread it later, don't capture it." Curation = quality. Collecting = chaos.
+- **✅ Everything that crosses your eyes**
+  Exactly. A second brain has to be curated, not hoarded. Forte warns: "If you're not willing to reread it later, don't capture it." Curation = quality. Collecting = chaos.
 - ❌ Notes from active projects
   Those belong in it — they're the most important items (Projects in PARA).
 - ❌ Quotes and excerpts from books

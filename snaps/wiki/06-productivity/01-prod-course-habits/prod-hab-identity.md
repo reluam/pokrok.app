@@ -79,8 +79,8 @@ James Clear distinguishes three layers of change: **outcomes** (what you have), 
 
 **Otázka:** Místo „chci zhubnout 10 kg" si řekneš: „Jsem člověk, který si vybírá zdravě." Proč tento rámec funguje lépe než cíl „zhubnout"?
 
-- **✅ Identita je motorem chování — když věříš, že JSI zdravý člověk, chováš se podle toho bez vůle**
-  Přesně. Identita je nejhlubší vrstva — změníš ji a chování jde samo.
+- **✅ Věříš, že JSI takový — jednáš podle**
+  Přesně. Identita je nejhlubší vrstva — změníš ji a chování jde samo bez vůle.
 - ❌ Cíle jsou horší, protože jsou měřitelné
   Měřitelnost je naopak výhoda. Problém je, že cíle neříkají, kým chceš být.
 - ❌ Identita je jen slovní hra
@@ -90,8 +90,8 @@ James Clear distinguishes three layers of change: **outcomes** (what you have), 
 
 **Question:** Instead of "I want to lose 10 kg," you tell yourself: "I'm someone who makes healthy choices." Why does this frame work better than the goal "lose weight"?
 
-- **✅ Identity drives behavior — when you believe you ARE a healthy person, you act that way without willpower**
-  Exactly. Identity is the deepest layer — change it and behavior follows.
+- **✅ You believe you ARE it — you act like it**
+  Exactly. Identity is the deepest layer — change it and behavior follows without willpower.
 - ❌ Goals are worse because they're measurable
   Measurability is actually an advantage. The problem is that goals don't tell you who you want to be.
 - ❌ Identity is just word games
@@ -109,8 +109,8 @@ Don't live for the goal. Live for the identity. You hit the goal and it's over. 
 
 **Otázka:** Dva lidé se snaží přestat kouřit. Jeden říká: „Snažím se přestat." Druhý říká: „Nekouřím." Který má vyšší šanci?
 
-- **✅ Druhý — „nekouřím" je identita, „snažím se přestat" je cíl**
-  Přesně. „Snažím se přestat" implikuje, že jsi pořád kuřák. „Nekouřím" říká: tak já jsem.
+- **✅ Druhý — identita**
+  Přesně. „Snažím se přestat" implikuje, že jsi pořád kuřák — je to cíl. „Nekouřím" říká: tak já jsem.
 - ❌ První — je poctivější
   Poctivost tu není kritériem úspěchu. Rámec „snažím se přestat" sabotuje proces.
 - ❌ Oba stejně
@@ -120,8 +120,8 @@ Don't live for the goal. Live for the identity. You hit the goal and it's over. 
 
 **Question:** Two people are trying to quit smoking. One says: "I'm trying to quit." The other says: "I don't smoke." Who has a higher chance?
 
-- **✅ The second — "I don't smoke" is an identity, "I'm trying to quit" is a goal**
-  Exactly. "I'm trying to quit" implies you're still a smoker. "I don't smoke" says: this is who I am.
+- **✅ Second — it's identity**
+  Exactly. "I'm trying to quit" implies you're still a smoker fighting a goal. "I don't smoke" says: this is who I am.
 - ❌ The first — it's more honest
   Honesty isn't the success criterion. The "trying to quit" frame sabotages the process.
 - ❌ Both the same
@@ -131,8 +131,8 @@ Don't live for the goal. Live for the identity. You hit the goal and it's over. 
 
 **Otázka:** Clear říká, že každá akce je „hlas" ve prospěch identity. Co to konkrétně znamená?
 
-- **✅ Napíšeš stránku = hlas pro „jsem spisovatel". Jdeš na trénink = hlas pro „jsem sportovec". Identita je demokracie malých hlasů**
-  Přesně. Nepotřebuješ většinu. Potřebuješ dostatek hlasů, aby identita začala být realita.
+- **✅ Každá akce je hlas — demokracie identity**
+  Přesně. Napíšeš stránku = hlas pro „jsem spisovatel". Jdeš trénovat = hlas pro „jsem sportovec". Nepotřebuješ většinu — jen dost hlasů, aby identita začala být realita.
 - ❌ Musíš dosáhnout velkého výsledku, aby se identita potvrdila
   Ne — malé akce stačí. Identita se buduje tisíci malých hlasů.
 - ❌ Stačí si to opakovat v hlavě
@@ -142,8 +142,8 @@ Don't live for the goal. Live for the identity. You hit the goal and it's over. 
 
 **Question:** Clear says every action is a "vote" for identity. What does that concretely mean?
 
-- **✅ Write a page = vote for "I'm a writer." Go to training = vote for "I'm an athlete." Identity is a democracy of small votes**
-  Exactly. You don't need a majority. You need enough votes for the identity to become reality.
+- **✅ Every action is a vote — identity as democracy**
+  Exactly. Write a page = vote for "I'm a writer." Go train = vote for "I'm an athlete." You don't need a majority — just enough votes for the identity to become reality.
 - ❌ You need a big achievement for the identity to be confirmed
   No — small actions suffice. Identity is built by thousands of small votes.
 - ❌ Just repeating it in your head is enough
@@ -180,8 +180,8 @@ Why is identity the strongest motivator? Psychologists like Leon Festinger (cogn
 
 **Otázka:** Který má vyšší šanci opravdu přestat?
 
-- **✅ Druhý — „nekouřím" je identita, „snažím se přestat" je cíl, kterému se mozek brání**
-  Přesně. Studie skutečně ukázala tento efekt. „Snažím se přestat" implikuje, že jsi pořád kuřák bojující s cílem. „Nekouřím" říká: tak já jsem. Mozek to přijme jako fakt a upraví chování.
+- **✅ Druhý — identita**
+  Přesně. Studie to ukázala. „Snažím se přestat" je cíl — implikuje, že jsi pořád kuřák bojující s cílem, kterému se mozek brání. „Nekouřím" říká: tak já jsem. Mozek to přijme jako fakt a upraví chování.
 - ❌ První — je poctivější
   Poctivost tu není kritériem úspěchu. Rámec „snažím se přestat" drží člověka v identitě kuřáka a sabotuje proces.
 - ❌ Oba stejně
@@ -193,8 +193,8 @@ Why is identity the strongest motivator? Psychologists like Leon Festinger (cogn
 
 **Question:** Which has a higher chance of actually quitting?
 
-- **✅ The second — "I don't smoke" is an identity, "I'm trying to quit" is a goal your brain resists**
-  Exactly. A study actually showed this effect. "I'm trying to quit" implies you're still a smoker fighting a goal. "I don't smoke" says: this is who I am. Your brain takes it as fact and adjusts your behavior.
+- **✅ Second — it's identity**
+  Exactly. A study actually showed this. "I'm trying to quit" is a goal your brain resists — it implies you're still a smoker fighting a goal. "I don't smoke" says: this is who I am. Your brain takes it as fact and adjusts your behavior.
 - ❌ The first — it's more honest
   Honesty isn't the success criterion here. The "trying to quit" frame keeps you in the smoker identity and sabotages the process.
 - ❌ Both the same
@@ -233,8 +233,8 @@ How to apply identity in practice: 1) Write down who you want to be (one sentenc
 
 **Otázka:** Který rámec generuje lepší dennodenní chování?
 
-- **✅ B — „Jsem čtenář" se ptá každý den „co by čtenář teď dělal?" a odpovědí je „přečetl by stránku"**
-  Přesně. Identita pracuje každý den. Cíl 30 knih je abstraktní číslo, které v úterý večer nepomáhá. „Jsem čtenář" ano.
+- **✅ B — identita řídí chování denně**
+  Přesně. Identita se ptá „co by čtenář teď dělal?" a odpovědí je „přečetl by stránku". Cíl 30 knih je abstraktní číslo, které v úterý večer nepomáhá. „Jsem čtenář" ano.
 - ❌ A — cíl je konkrétnější a měřitelnější
   Měřitelnost je dobrá, ale neřídí chování v každém okamžiku. Identita ano.
 - ❌ Oba jsou stejné
@@ -246,8 +246,8 @@ How to apply identity in practice: 1) Write down who you want to be (one sentenc
 
 **Question:** Which frame generates better day-to-day behavior?
 
-- **✅ B — "I'm a reader" asks every day "what would a reader do now?" and the answer is "read a page"**
-  Exactly. Identity works every single day. The 30-books goal is an abstract number that doesn't help you on a Tuesday night. "I'm a reader" does.
+- **✅ B — identity drives daily behavior**
+  Exactly. Identity asks "what would a reader do now?" and the answer is "read a page." The 30-books goal is an abstract number that doesn't help on a Tuesday night. "I'm a reader" does.
 - ❌ A — the goal is more concrete and measurable
   Measurability is good, but it doesn't steer behavior moment to moment. Identity does.
 - ❌ Both are the same
@@ -267,7 +267,7 @@ The other critical step: identity needs evidence. Telling yourself "I'm a runner
 
 **Otázka:** Který přístup dává silnější „důkazy" pro identitu?
 
-- **✅ B — psaní MIT každý den je akce, která skutečně hlasuje pro identitu**
+- **✅ B — MIT denně hlasuje pro identitu**
   Ano. Nákup aplikace je jednorázová akce bez opakování. Psaní MIT je opakovaná akce, která buduje identitu jako demokracii — každý den nový hlas.
 - ❌ A — profesionální nástroj = profesionální identita
   Nástroje nedělají identitu. Akce ano. Spousta lidí má drahé aplikace a ničím neprodukuje.
@@ -280,7 +280,7 @@ The other critical step: identity needs evidence. Telling yourself "I'm a runner
 
 **Question:** Which approach produces stronger "evidence" for the identity?
 
-- **✅ B — writing MITs every day is an action that actually votes for the identity**
+- **✅ B — daily MITs cast votes**
   Yes. Buying an app is a one-time action with no repetition. Writing MITs is a repeated action that builds identity like a democracy — a new vote every day.
 - ❌ A — a pro tool = a pro identity
   Tools don't build identity. Actions do. Plenty of people own expensive apps and ship nothing.
@@ -310,8 +310,8 @@ Case study: Jakub played guitar on and off for 10 years and wanted to be a "musi
 
 **Otázka:** Co bylo hlavní změnou mezi 10 lety stagnace a 2 lety průlomu?
 
-- **✅ Přijetí identity před dosažením důkazů — a pak každodenní malé důkazy, které ji potvrdily**
-  Přesně. Většina lidí čeká, až „bude dost dobrá", aby si řekla „jsem X". Clear říká: obráceně. Nejdřív identita, pak důkazy. Identita vede důkazy, ne naopak.
+- **✅ Identita první**
+  Přesně. Většina lidí čeká, až „bude dost dobrá", aby si řekla „jsem X". Clear to otáčí: přijmi identitu dřív než máš důkazy, a pak ji potvrzuj malými denními akcemi. Identita vede důkazy, ne naopak.
 - ❌ Koupení lepší kytary
   Nástroje pomáhají, ale 10 let stagnace se nevyřeší kytarou. Vyřeší se změnou sebeobrazu.
 - ❌ Víc motivace
@@ -321,8 +321,8 @@ Case study: Jakub played guitar on and off for 10 years and wanted to be a "musi
 
 **Question:** What was the main change between 10 years of stagnation and 2 years of breakthrough?
 
-- **✅ Adopting the identity before having the evidence — and then small daily proofs to confirm it**
-  Exactly. Most people wait until they're "good enough" to say "I am X." Clear says: flip it. Identity first, evidence second. Identity leads the evidence, not the other way around.
+- **✅ Identity came first**
+  Exactly. Most people wait until they're "good enough" to say "I am X." Clear flips it: adopt the identity before you have evidence, then prove it with small daily actions. Identity leads the evidence, not the other way around.
 - ❌ Buying a better guitar
   Tools help, but a guitar won't fix 10 years of stagnation. Changing the self-image does.
 - ❌ More motivation
@@ -340,8 +340,8 @@ Practical steps for working with identity: 1) Write one sentence: "I'm someone w
 
 **Otázka:** Co NEJLÉPE charakterizuje identity-based habits?
 
-- **✅ Každá akce je hlas ve prospěch nové identity, malé a konzistentní > velké a sporadické**
-  Přesně. Demokracie identity. Nikdy se nebudeš mít dost hlasů, když je budeš sbírat jen 1× měsíčně. Drobné hlasování denně = trvalá identita.
+- **✅ Každá akce je hlas pro novou identitu**
+  Přesně. Demokracie identity — malé a konzistentní > velké a sporadické. Nebudeš mít dost hlasů, když je sbíráš jen 1× měsíčně. Drobné hlasování denně = trvalá identita.
 - ❌ Myslet si, že jsi X, i když nic nedělám
   To je pozitivní myšlení bez důkazů — a nefunguje. Identita potřebuje akce, ne jen afirmace.
 - ❌ Stanovit si ambiciózní cíl a jít za ním
@@ -351,8 +351,8 @@ Practical steps for working with identity: 1) Write one sentence: "I'm someone w
 
 **Question:** What BEST characterizes identity-based habits?
 
-- **✅ Every action is a vote for the new identity, and small + consistent beats big + sporadic**
-  Exactly. Identity as democracy. You'll never have enough votes if you only cast them once a month. Tiny daily votes = lasting identity.
+- **✅ Every action is a vote for the new identity**
+  Exactly. Identity as democracy — small + consistent beats big + sporadic. You'll never have enough votes if you only cast them once a month. Tiny daily votes = lasting identity.
 - ❌ Thinking you're X even if you do nothing
   That's positive thinking without evidence — and it doesn't work. Identity needs action, not just affirmations.
 - ❌ Set an ambitious goal and chase it

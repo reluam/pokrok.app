@@ -83,8 +83,8 @@ Time blocking is the answer to this problem. Instead of a to-do list, you **plan
 
 **Otázka:** Proč je kalendář silnější nástroj plánování než to-do list?
 
-- **✅ Kalendář počítá s časem — nelze si naplánovat víc, než se vejde do 8 hodin. To-do list tuhle kontrolu nemá**
-  Přesně. Na to-do list napíšeš 14 úkolů, jako by den měl 40 hodin. Kalendář tě nutí vybrat a umístit — a to je reálný plán, ne přání.
+- **✅ Kalendář počítá s časem**
+  Přesně. Nelze si naplánovat víc, než se vejde do 8 hodin — to-do list tuhle kontrolu nemá. Na to-do list napíšeš 14 úkolů, jako by den měl 40 hodin. Kalendář tě nutí vybrat a umístit — a to je reálný plán, ne přání.
 - ❌ Kalendář vypadá profesionálněji
   Vzhled není podstatný. Podstatné je, že kalendář je konfrontace s realitou času.
 - ❌ To-do list je pro amatéry
@@ -94,8 +94,8 @@ Time blocking is the answer to this problem. Instead of a to-do list, you **plan
 
 **Question:** Why is a calendar a stronger planning tool than a to-do list?
 
-- **✅ The calendar accounts for time — you can't schedule more than fits in 8 hours. A to-do list has no such check**
-  Exactly. A to-do list fits 14 tasks as if the day had 40 hours. The calendar forces you to pick and place — and that's a real plan, not a wish.
+- **✅ The calendar accounts for time**
+  Exactly. You can't schedule more than fits in 8 hours — a to-do list has no such check. A to-do list fits 14 tasks as if the day had 40 hours. The calendar forces you to pick and place — and that's a real plan, not a wish.
 - ❌ The calendar looks more professional
   Looks aren't the point. The point is that the calendar is a confrontation with the reality of time.
 - ❌ To-do lists are for amateurs
@@ -146,8 +146,8 @@ Why does time blocking work? Three reasons: 1) **It kills decision fatigue** —
 
 **Otázka:** Jaká je výhoda plánování v malých blocích (15–30 minut)?
 
-- **✅ Nutí tě realisticky odhadnout, kolik věci skutečně trvají — velké bloky skrývají fragmentaci**
-  Přesně. Když si plánuješ „10:00–12:00 marketing", schováš tam 7 věcí, které se nestihnou. Když plánuješ po 30 minutách, vidíš přesnou kapacitu.
+- **✅ Nutí realisticky odhadovat čas**
+  Přesně. Velké bloky skrývají fragmentaci — když si plánuješ „10:00–12:00 marketing", schováš tam 7 věcí, které se nestihnou. Když plánuješ po 30 minutách, vidíš přesnou kapacitu.
 - ❌ Vypadá to profesionálněji
   Vzhled není kritérium. Jde o odhadování reality.
 - ❌ Menší bloky ti dávají víc pauz
@@ -157,8 +157,8 @@ Why does time blocking work? Three reasons: 1) **It kills decision fatigue** —
 
 **Question:** What's the advantage of planning in small blocks (15–30 minutes)?
 
-- **✅ They force a realistic estimate of how long things actually take — big blocks hide fragmentation**
-  Exactly. When you schedule "10:00–12:00 marketing," you hide 7 things inside that won't get done. When you block in 30-minute units, you see your real capacity.
+- **✅ Forces realistic time estimates**
+  Exactly. Big blocks hide fragmentation — when you schedule "10:00–12:00 marketing," you hide 7 things inside that won't get done. When you block in 30-minute units, you see your real capacity.
 - ❌ It looks more professional
   Looks aren't the criterion. It's about estimating reality.
 - ❌ Smaller blocks give you more breaks
@@ -209,8 +209,8 @@ How to actually start time blocking: 1) **In the evening** (not the morning!) op
 
 **Otázka:** Představ si, že plánuješ den s: prezentací (4 h), 20 maily (1 h), 2 schůzkami (1,5 h), revizí dokumentu (30 min) a obědem (30 min). Který plán je nejlepší?
 
-- **✅ 9–11 prezentace (deep work), 11–12 maily/revize, 12–12:30 oběd, 13–14:30 schůzky, 14:30–16:30 zbytek prezentace, 16:30–17 nárazník**
-  Perfektní. Deep work ráno, administrativa kolem poledne, schůzky odpoledne, nárazník na konci. Reality-based a chrání klíčovou práci.
+- **✅ Deep work ráno, admin v poledne, schůzky odpoledne**
+  Perfektní. Konkrétně: 9–11 prezentace, 11–12 maily/revize, 12–12:30 oběd, 13–14:30 schůzky, 14:30–16:30 zbytek prezentace, 16:30–17 nárazník na konci. Reality-based a chrání klíčovou práci.
 - ❌ 9–17 dělej vše podle priorit, jak přijdou
   Tohle není time blocking, to je chaos. Bez bloků skončíš v mailu celý den a prezentaci nedokončíš.
 - ❌ 9–10 maily, 10–18 prezentace, pauza neplánována
@@ -220,8 +220,8 @@ How to actually start time blocking: 1) **In the evening** (not the morning!) op
 
 **Question:** Imagine planning a day with: a presentation (4 h), 20 emails (1 h), 2 meetings (1.5 h), document review (30 min), and lunch (30 min). Which plan is best?
 
-- **✅ 9–11 presentation (deep work), 11–12 email/review, 12–12:30 lunch, 13–14:30 meetings, 14:30–16:30 rest of presentation, 16:30–17 buffer**
-  Perfect. Deep work in the morning, admin around noon, meetings in the afternoon, buffer at the end. Reality-based and it protects the key work.
+- **✅ Deep work morning, admin noon, meetings later**
+  Perfect. Specifically: 9–11 presentation, 11–12 email/review, 12–12:30 lunch, 13–14:30 meetings, 14:30–16:30 rest of presentation, 16:30–17 buffer at the end. Reality-based and it protects the key work.
 - ❌ 9–17 do everything by priority as it comes
   That's not time blocking, that's chaos. Without blocks, you'll spend the day in email and never finish the presentation.
 - ❌ 9–10 email, 10–18 presentation, breaks unplanned
@@ -239,8 +239,8 @@ Important: when the plan fails (and it will), **re-plan**. Don't give up — rew
 
 **Otázka:** V 10:00 ti přijde neplánovaná urgentní schůzka a zboří tvůj deep work blok. Co uděláš?
 
-- **✅ Okamžitě přeplánuješ zbytek dne — přesunout deep work do odpoledního bloku, zkrátit něco méně důležitého**
-  Přesně. Time blocking není statický — je to živý plán, který se upravuje podle reality. Klíčové je neztratit strukturu.
+- **✅ Okamžitě přeplánuješ zbytek dne**
+  Přesně. Přesuň deep work do odpoledního bloku a zkrať něco méně důležitého. Time blocking není statický — je to živý plán, který se upravuje podle reality. Klíčové je neztratit strukturu.
 - ❌ Vzdáš plán na dnešek a improvizuješ
   To je cesta k chaosu. Jeden vyrušený blok neznamená rozbitý celý den.
 - ❌ Zbytek dne pracuješ bez plánu
@@ -250,8 +250,8 @@ Important: when the plan fails (and it will), **re-plan**. Don't give up — rew
 
 **Question:** At 10:00 an urgent unplanned meeting comes in and destroys your deep-work block. What do you do?
 
-- **✅ You immediately re-plan the rest of the day — move the deep work to an afternoon block, shorten something less important**
-  Exactly. Time blocking isn't static — it's a living plan you adjust to reality. The key is not to lose structure.
+- **✅ You immediately re-plan the rest of the day**
+  Exactly. Move the deep work to an afternoon block and shorten something less important. Time blocking isn't static — it's a living plan you adjust to reality. The key is not to lose structure.
 - ❌ You abandon today's plan and wing it
   That's a path to chaos. One broken block doesn't mean a broken day.
 - ❌ You work the rest of the day without a plan
@@ -261,8 +261,8 @@ Important: when the plan fails (and it will), **re-plan**. Don't give up — rew
 
 **Otázka:** Jaká je nejčastější chyba při time blockingu?
 
-- **✅ Přeplánování — naplnění 100 % dne bez nárazníku pro neočekávané věci**
-  Přesně. 100% plán se rozpadne na první překvapení. 70% plán je robustní.
+- **✅ Přeplánování**
+  Přesně. Naplnění 100 % dne bez nárazníku pro neočekávané věci se rozpadne na první překvapení. 70% plán je robustní.
 - ❌ Plánování moc detailně po 15 minutách
   Detail je naopak dobrá věc — nutí tě odhadovat realisticky. Chyba je spíše v přeplánování kapacity.
 - ❌ Plánování jen na 3 hodiny dopředu
@@ -272,8 +272,8 @@ Important: when the plan fails (and it will), **re-plan**. Don't give up — rew
 
 **Question:** What's the most common mistake with time blocking?
 
-- **✅ Overplanning — filling 100% of the day with no buffer for surprises**
-  Exactly. A 100% plan collapses on the first surprise. A 70% plan is robust.
+- **✅ Overplanning**
+  Exactly. Filling 100% of the day with no buffer for surprises collapses on the first surprise. A 70% plan is robust.
 - ❌ Planning too granularly, in 15-minute slices
   Granularity is actually good — it forces realistic estimates. The real mistake is overplanning capacity.
 - ❌ Only planning 3 hours ahead

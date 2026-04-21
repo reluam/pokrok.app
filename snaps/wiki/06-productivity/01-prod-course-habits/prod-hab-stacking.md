@@ -79,8 +79,8 @@ Every single morning you do the same thing: get up, walk to the kitchen, pour yo
 
 **Otázka:** Každé ráno si liješ kávu a sedáš na pohovku — 3 roky bez výjimky. Chceš začít meditovat. Jak nejlépe využiješ tento řetěz?
 
-- **✅ Po tom, co si sedneš s kávou, 2 minuty dýcháš se zavřenýma očima před prvním lokem**
-  Přesně to je habit stacking! Přilepíš nový návyk na pevnou lokomotivu. Kontext sedí: klid, sedíš, máš čas.
+- **✅ Po sednutí s kávou 2 minuty dýcháš**
+  Přesně to je habit stacking! Přilepíš nový návyk (dýchání se zavřenýma očima před prvním lokem) na pevnou lokomotivu. Kontext sedí: klid, sedíš, máš čas.
 - ❌ Nastavíš si alarm v telefonu na 8:00
   Alarm je externí připomínka — mozek se učí ji ignorovat. Habit stacking používá už zavedený návyk jako spouštěč.
 - ❌ Budeš meditovat, až budeš mít čas
@@ -90,8 +90,8 @@ Every single morning you do the same thing: get up, walk to the kitchen, pour yo
 
 **Question:** Every morning you pour your coffee and sit on the couch — 3 years without fail. You want to start meditating. How do you best use this chain?
 
-- **✅ After sitting down with your coffee, breathe with eyes closed for 2 minutes before the first sip**
-  That's habit stacking! You stick the new habit onto a rock-solid locomotive. The context fits: quiet, seated, you have a moment.
+- **✅ Sit with coffee, breathe 2 minutes**
+  That's habit stacking! You stick the new habit (eyes closed, before the first sip) onto a rock-solid locomotive. The context fits: quiet, seated, you have a moment.
 - ❌ Set a phone alarm for 8 a.m.
   An alarm is an external reminder — your brain learns to ignore it. Habit stacking uses an already established habit as the cue.
 - ❌ Meditate when you have the time
@@ -109,7 +109,7 @@ Don't build habits from scratch — attach them to what already works. The formu
 
 **Otázka:** Chceš číst víc knih. Porovnej dvě strategie: A) „V kalendáři 17:00 — 20 minut čtení." B) „Po tom, co si lehnu do postele, přečtu 2 strany." Která má vyšší šanci uspět?
 
-- **✅ B — habit stacking napojený na lehnutí do postele**
+- **✅ B — stack napojený na lehnutí**
   Lehnutí do postele je 100% spolehlivá akce, čtení se na ni nalepí. Strategie A závisí na tom, zda ti v 17:00 nepřijde schůzka.
 - ❌ A — kalendář dává jasnou strukturu
   Kalendářové bloky fungují pro deep work, ale pro malé návyky jsou křehké. Nejlepší jsou akce navázané na neotřesitelnou rutinu.
@@ -120,7 +120,7 @@ Don't build habits from scratch — attach them to what already works. The formu
 
 **Question:** You want to read more books. Compare two strategies: A) "Calendar: 5 p.m. — 20 minutes of reading." B) "After I get into bed, I'll read 2 pages." Which has a higher chance of working?
 
-- **✅ B — habit stacking anchored to getting into bed**
+- **✅ B — stack anchored to getting into bed**
   Getting into bed is a 100% reliable action, and reading sticks right onto it. Strategy A depends on whether a meeting comes up at 5 p.m.
 - ❌ A — the calendar gives clear structure
   Calendar blocks work great for deep work, but for building a small habit they're fragile. The best habits are anchored to an unshakeable routine.
@@ -131,8 +131,8 @@ Don't build habits from scratch — attach them to what already works. The formu
 
 **Otázka:** BJ Fogg v Tiny Habits říká, že klíč je „najít správného hostitele". Co to znamená?
 
-- **✅ Existující rutinu, která se koná každý den bez výjimky — na ni se nový návyk přilepí**
-  Přesně. Špatný hostitel (něco, co děláš jen občas) → návyk selže. Dobrý hostitel (káva, zuby, sprcha) → návyk se přilepí za týden.
+- **✅ Rutinu, která se děje bez výjimky každý den**
+  Přesně — na takovou se nový návyk přilepí. Špatný hostitel (něco, co děláš jen občas) → návyk selže. Dobrý hostitel (káva, zuby, sprcha) → návyk se přilepí za týden.
 - ❌ Najít osobu, která tě bude kontrolovat
   Hostitel v kontextu Fogga je rutina, ne člověk. Vnější kontrola se nedá udržet dlouhodobě.
 - ❌ Najít aplikaci, která ti bude připomínat
@@ -142,8 +142,8 @@ Don't build habits from scratch — attach them to what already works. The formu
 
 **Question:** BJ Fogg in Tiny Habits says the key is "finding the right host." What does that mean?
 
-- **✅ An existing routine that happens every single day — the new habit sticks to it**
-  Exactly. Wrong host (something you only do sometimes) → the habit fails. Good host (coffee, teeth, shower) → the habit sticks within a week.
+- **✅ A routine that happens every single day**
+  Exactly — the new habit sticks to it. Wrong host (something you only do sometimes) → the habit fails. Good host (coffee, teeth, shower) → the habit sticks within a week.
 - ❌ Finding a person to hold you accountable
   "Host" in Fogg's context is a routine, not a person. External accountability can't be sustained long-term.
 - ❌ Finding an app that will remind you
@@ -178,8 +178,8 @@ Why does habit stacking work better than a standalone new habit? Because your br
 
 **Otázka:** Chceš dělat 10 kliků denně. Uvažuješ o stacku: „Po tom, co se ráno vyčurám, udělám 10 kliků." Je to dobrý stack?
 
-- **✅ Ano — ranní toaleta je železná rutina a kliky na ni mohou plynule navázat**
-  Přesně. Ranní toaleta se koná každý den bez výjimky. Kliky jsou rychlá akce, která se přilepí. Může to znít divně, ale funguje to.
+- **✅ Ano — je to železná rutina**
+  Přesně, a kliky na ni mohou plynule navázat. Ranní toaleta se koná každý den bez výjimky. Kliky jsou rychlá akce, která se přilepí. Může to znít divně, ale funguje to.
 - ❌ Ne — je to nevkusné
   Vkus není kritérium — funguje to, nebo ne. A tohle spojení je mimořádně spolehlivé.
 - ❌ Ne — kliky se mají dělat v posilovně
@@ -189,8 +189,8 @@ Why does habit stacking work better than a standalone new habit? Because your br
 
 **Question:** You want to do 10 push-ups a day. You're considering this stack: "After I pee in the morning, I'll do 10 push-ups." Is it a good stack?
 
-- **✅ Yes — the morning bathroom trip is an iron-clad routine and push-ups can flow right after**
-  Exactly. The morning bathroom trip happens every day without fail. Push-ups are a quick action that sticks. It may sound weird, but it works.
+- **✅ Yes — a solid daily routine**
+  Exactly, and push-ups can flow right after. The morning bathroom trip happens every day without fail. Push-ups are a quick action that sticks. It may sound weird, but it works.
 - ❌ No — it's tacky
   Taste isn't the criterion — it either works or it doesn't. And this pairing is extremely reliable.
 - ❌ No — push-ups belong in the gym
@@ -216,8 +216,8 @@ The more stable the locomotive, the more reliable the car. Coffee, teeth, shower
 
 **Otázka:** Vytvořil sis stack: „Po tom, co si uvařím oběd v práci, přečtu 10 stránek." První týden to zvládneš 1×. Proč stack pravděpodobně selhává?
 
-- **✅ Oběd v práci není 100% pravidelná rutina — někdy chodíš ven, jindy vynecháváš**
-  Ano. Lokomotiva není dost spolehlivá. Lepší by byl stack na něco, co děláš každý den bez výjimky.
+- **✅ Oběd není pravidelný**
+  Ano — někdy chodíš ven, jindy vynecháváš. Lokomotiva není dost spolehlivá. Lepší by byl stack na něco, co děláš každý den bez výjimky.
 - ❌ 10 stránek je moc
   Délka může být problém, ale hlavní je nespolehlivá lokomotiva.
 - ❌ Knihy se nečtou u jídla
@@ -227,8 +227,8 @@ The more stable the locomotive, the more reliable the car. Coffee, teeth, shower
 
 **Question:** You built this stack: "After I make lunch at work, I'll read 10 pages." In the first week, you did it once. Why is the stack most likely failing?
 
-- **✅ Lunch at work isn't a 100% regular routine — sometimes you go out, sometimes you skip**
-  Yes. The locomotive isn't reliable enough. A better stack would be something you do every single day without fail.
+- **✅ Lunch at work isn't regular**
+  Yes — sometimes you go out, sometimes you skip. The locomotive isn't reliable enough. A better stack would be something you do every single day without fail.
 - ❌ 10 pages is too much
   Length could be an issue, but the main problem is the unreliable locomotive.
 - ❌ You don't read books while eating
@@ -238,8 +238,8 @@ The more stable the locomotive, the more reliable the car. Coffee, teeth, shower
 
 **Otázka:** Habit stacking je křehký jako poslední článek řetězu. Co je jeho nejslabší místo?
 
-- **✅ Spolehlivost hostitele — pokud se lokomotiva nekoná každý den, celý stack padá**
-  Přesně. Síla celku závisí na síle hostitele. Vybírej železné rutiny.
+- **✅ Spolehlivost hostitele**
+  Přesně — pokud se lokomotiva nekoná každý den, celý stack padá. Síla celku závisí na síle hostitele. Vybírej železné rutiny.
 - ❌ Velikost nového návyku
   Velikost hraje roli, ale pokud je lokomotiva spolehlivá, i větší návyk může fungovat. Nespolehlivý hostitel zničí i ten nejmenší návyk.
 - ❌ Počet stacků v řetězu
@@ -249,8 +249,8 @@ The more stable the locomotive, the more reliable the car. Coffee, teeth, shower
 
 **Question:** A habit stack is as fragile as its weakest link. What's its weakest point?
 
-- **✅ The host's reliability — if the locomotive doesn't fire every day, the whole stack falls**
-  Exactly. The whole thing depends on the host. Pick iron-clad routines.
+- **✅ The reliability of the host**
+  Exactly — if the locomotive doesn't fire every day, the whole stack falls. The whole thing depends on the host. Pick iron-clad routines.
 - ❌ The size of the new habit
   Size plays a role, but if the locomotive is reliable, even a bigger habit can work. An unreliable host kills even the tiniest habit.
 - ❌ The number of stacks in the chain
@@ -285,8 +285,8 @@ Imagine you want to build 4 new habits: drink more water, meditate, read, and jo
 
 **Otázka:** Proč Clear doporučuje začít s jedním stackem místo pěti?
 
-- **✅ Mozek zvládne zautomatizovat jen omezený počet změn najednou — přetížení vede k selhání všech**
-  Přesně. Každý nový návyk vyžaduje vědomé úsilí, dokud se nezautomatizuje. Pět najednou přetíží kapacitu a nezautomatizuje se ani jeden.
+- **✅ Mozek zvládne jen pár změn najednou**
+  Přesně — přetížení vede k selhání všech. Každý nový návyk vyžaduje vědomé úsilí, dokud se nezautomatizuje. Pět najednou přetíží kapacitu a nezautomatizuje se ani jeden.
 - ❌ Pět stacků je moc složitý systém
   Stacky samy o sobě jsou jednoduché. Problém je kognitivní kapacita na zavedení víc věcí zároveň.
 - ❌ Lidé se nudí, když dělají víc návyků
@@ -296,8 +296,8 @@ Imagine you want to build 4 new habits: drink more water, meditate, read, and jo
 
 **Question:** Why does Clear recommend starting with one stack instead of five?
 
-- **✅ Your brain can only automate a limited number of changes at once — overload means all of them fail**
-  Exactly. Every new habit takes conscious effort until it's automated. Five at once overloads capacity and none of them locks in.
+- **✅ The brain automates only a few changes**
+  Exactly — overload means all of them fail. Every new habit takes conscious effort until it's automated. Five at once overloads capacity and none of them locks in.
 - ❌ Five stacks is too complicated a system
   The stacks themselves are simple. The problem is cognitive capacity for building multiple things at the same time.
 - ❌ People get bored running too many habits
@@ -323,8 +323,8 @@ Habit stacking is the most effective habit-building tool because it eliminates t
 
 **Otázka:** Jak vypadá dobře navržený řetěz stacků?
 
-- **✅ Po vstávání → sklenice vody → 2 min meditace → po meditaci 1 věta do deníku → po zubech před spaním 5 min čtení**
-  Každý návyk má svou lokomotivu a zároveň je sám lokomotivou pro další. Řetěz využívá přirozené body dne.
+- **✅ Vstávání → voda → meditace → věta do deníku → čtení**
+  Každý návyk má svou lokomotivu a zároveň je sám lokomotivou pro další. Konkrétně: po vstávání sklenice vody → 2 min meditace → po meditaci 1 věta do deníku → po zubech před spaním 5 min čtení. Řetěz využívá přirozené body dne.
 - ❌ Všechny 4 návyky ráno v jednom bloku, každý 15 minut
   Tohle je intenzivní blok, ne habit stacking. Když ráno něco nezvládneš, spadne všechno.
 - ❌ Použít aplikaci, která upomíná ve 4 různých časech
@@ -334,8 +334,8 @@ Habit stacking is the most effective habit-building tool because it eliminates t
 
 **Question:** What does a well-designed chain of stacks look like?
 
-- **✅ After waking → glass of water → 2 min meditation → after meditation 1 sentence in journal → after brushing teeth at night 5 min of reading**
-  Each habit has its own locomotive and also serves as the locomotive for the next. The chain uses the natural points of the day.
+- **✅ Waking → water → meditation → journal line → reading**
+  Each habit has its own locomotive and also serves as the locomotive for the next. Specifically: after waking a glass of water → 2 min meditation → after meditation 1 sentence in journal → after brushing teeth at night 5 min of reading. The chain uses the natural points of the day.
 - ❌ All 4 habits in one morning block, 15 minutes each
   That's an intense block, not habit stacking. If you blow the morning, everything collapses.
 - ❌ Use an app that reminds you at 4 different times
@@ -345,8 +345,8 @@ Habit stacking is the most effective habit-building tool because it eliminates t
 
 **Otázka:** Kroky k funkčnímu habit stackingu jsou: 1) Vyber existující návyk. 2) Vyber nový malý návyk. 3) Napiš větu „Po X udělám Y". 4) Testuj 7 dní. Pokud stack nefunguje, co je nejpravděpodobnější příčina?
 
-- **✅ Problém je v lokomotivě — existující návyk není dost spolehlivý nebo se nekoná každý den**
-  Přesně. Pokud se lokomotiva nekoná, celý stack padá. Změň hostitele a zkus znovu.
+- **✅ Problém je v lokomotivě, ne v tobě**
+  Přesně — existující návyk není dost spolehlivý nebo se nekoná každý den. Pokud lokomotiva selže, celý stack padá. Změň hostitele a zkus znovu.
 - ❌ Nový návyk je špatný
   Nový návyk sám o sobě málokdy selže, pokud je dostatečně malý. Problém je téměř vždy v hostiteli.
 - ❌ Habit stacking nefunguje pro tvůj typ osobnosti
@@ -356,8 +356,8 @@ Habit stacking is the most effective habit-building tool because it eliminates t
 
 **Question:** The steps to a working habit stack are: 1) Pick an existing habit. 2) Pick a new small habit. 3) Write "After X, I will Y." 4) Test for 7 days. If the stack isn't working, what's the most likely cause?
 
-- **✅ The problem is the locomotive — the existing habit isn't reliable enough or doesn't happen every day**
-  Exactly. If the locomotive doesn't fire, the whole stack falls. Change the host and try again.
+- **✅ The problem is the locomotive, not you**
+  Exactly — the existing habit isn't reliable enough or doesn't happen every day. If the locomotive doesn't fire, the whole stack falls. Change the host and try again.
 - ❌ The new habit is bad
   The new habit itself rarely fails if it's small enough. The problem is almost always the host.
 - ❌ Habit stacking doesn't work for your personality type
@@ -392,8 +392,8 @@ Imagine you're a project manager who wants to build 4 new habits: drink more wat
 
 **Otázka:** Pokud stack nefunguje po 7 dnech, co máš udělat?
 
-- **✅ Změnit lokomotivu — vybrat spolehlivější existující rutinu a zkusit znovu**
-  Přesně. Problém je téměř vždy v hostiteli, ne v tobě. Nový hostitel = nová šance.
+- **✅ Změnit lokomotivu a zkusit znovu**
+  Přesně — vybereš spolehlivější existující rutinu. Problém je téměř vždy v hostiteli, ne v tobě. Nový hostitel = nová šance.
 - ❌ Přidat víc vůle
   Vůle není řešení. Pokud stack potřebuje vůli, je špatně navržený.
 - ❌ Vzdát to — habit stacking pro tebe nefunguje
@@ -403,8 +403,8 @@ Imagine you're a project manager who wants to build 4 new habits: drink more wat
 
 **Question:** If a stack isn't working after 7 days, what should you do?
 
-- **✅ Change the locomotive — pick a more reliable existing routine and try again**
-  Exactly. The problem is almost always the host, not you. New host = new chance.
+- **✅ Change the locomotive and try again**
+  Exactly — pick a more reliable existing routine. The problem is almost always the host, not you. New host = new chance.
 - ❌ Add more willpower
   Willpower isn't the fix. If a stack requires willpower, it's badly designed.
 - ❌ Give up — habit stacking doesn't work for you
@@ -430,7 +430,7 @@ Habit stacking eliminates forgetting by attaching the new habit to an existing a
 
 **Otázka:** Který z následujících stacků je nejlépe navržený?
 
-- **✅ „Po tom, co si ráno vyčistím zuby, udělám 5 dřepů u umyvadla."**
+- **✅ „Po ranní hygieně udělám 5 dřepů u umyvadla."**
   Zuby jsou 100% spolehlivá rutina, dřepy jsou malá akce a místo (umyvadlo) je jasné. Perfektní stack.
 - ❌ „Po tom, co si zaběhám, napíšu jednu větu do deníku."
   Pokud neběháš každý den, lokomotiva je nespolehlivá. Stack selže.
@@ -441,7 +441,7 @@ Habit stacking eliminates forgetting by attaching the new habit to an existing a
 
 **Question:** Which of the following stacks is best designed?
 
-- **✅ "After I brush my teeth in the morning, I'll do 5 squats by the sink."**
+- **✅ "After brushing my teeth, I'll do 5 squats by the sink."**
   Teeth are a 100% reliable routine, squats are a small action, and the place (sink) is clear. Perfect stack.
 - ❌ "After I go for a run, I'll write one sentence in my journal."
   If you don't run every day, the locomotive is unreliable. The stack will fail.
@@ -452,8 +452,8 @@ Habit stacking eliminates forgetting by attaching the new habit to an existing a
 
 **Otázka:** Co je hlavní výhoda habit stackingu oproti jiným metodám budování návyků?
 
-- **✅ Eliminuje zapomenutí — nový návyk se spustí automaticky díky napojení na existující rutinu**
-  Přesně. Zapomenutí je důvod č. 1, proč návyky selhávají. Habit stacking tento problém řeší tím, že nový návyk nepotřebuje vlastní spouštěč.
+- **✅ Eliminuje zapomenutí nového návyku**
+  Přesně — spustí se automaticky díky napojení na existující rutinu. Zapomenutí je důvod č. 1, proč návyky selhávají. Habit stacking tento problém řeší tím, že nový návyk nepotřebuje vlastní spouštěč.
 - ❌ Je rychlejší než ostatní metody
   Rychlost není hlavní výhoda. Hlavní je spolehlivost — návyk se spustí sám díky lokomotivě.
 - ❌ Funguje bez jakéhokoli úsilí
@@ -463,8 +463,8 @@ Habit stacking eliminates forgetting by attaching the new habit to an existing a
 
 **Question:** What's the main advantage of habit stacking over other habit-building methods?
 
-- **✅ It eliminates forgetting — the new habit fires automatically thanks to the connection to an existing routine**
-  Exactly. Forgetting is the #1 reason habits fail. Habit stacking solves this by not requiring the new habit to have its own cue.
+- **✅ It eliminates habit forgetting**
+  Exactly — the new habit fires automatically thanks to the existing routine. Forgetting is the #1 reason habits fail. Habit stacking solves this by not requiring the new habit to have its own cue.
 - ❌ It's faster than other methods
   Speed isn't the main advantage. Reliability is — the habit fires on its own thanks to the locomotive.
 - ❌ It works without any effort

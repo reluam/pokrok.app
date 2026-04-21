@@ -79,8 +79,8 @@ James Clear argues that most habits fail at the start, not in the upkeep. That's
 
 **Otázka:** Místo „3× týdně hodina cvičení" si nastavíš pravidlo: „Jdu do posilovny a udělám jeden dřep. Pak můžu jít domů." Proč zní toto pravidlo paradoxně, ale funguje?
 
-- **✅ Odstraňuje bariéru začátku — mozek se nebojí „jen jedné věci" a jakmile začneš, většinou pokračuješ dál**
-  Přesně! Clear ukazuje, že návyky ztroskotávají na startu. Pravidlo 2 minut zlomí bariéru a vybuduje identitu „jsem ten, kdo chodí do posilovny" — i kdyby to byl 1 dřep.
+- **✅ Odstraňuje bariéru startu — 1 dřep neodradí**
+  Přesně! Clear ukazuje, že návyky ztroskotávají na startu. Mozek se nebojí „jen jedné věci" a jakmile začneš, většinou pokračuješ dál. Pravidlo 2 minut zlomí bariéru a vybuduje identitu „jsem ten, kdo chodí do posilovny" — i kdyby to byl 1 dřep.
 - ❌ Jeden dřep stačí pro fyzickou zdatnost
   Fyzicky ne — ale o to nejde. Jde o návyk, ne o výkon. Z jednoho dřepu časem bude hodina.
 - ❌ Je to jen výmluva, abys nemusel cvičit naplno
@@ -90,8 +90,8 @@ James Clear argues that most habits fail at the start, not in the upkeep. That's
 
 **Question:** Instead of "an hour of training 3 times a week," you set the rule: "I'll go to the gym and do one squat. Then I can go home." Why does this rule sound paradoxical but work?
 
-- **✅ It removes the barrier to starting — your brain isn't scared of "just one thing," and once you begin, you usually keep going**
-  Exactly! Clear shows habits die at the start. The two-minute rule breaks the barrier and builds the identity of "I'm someone who goes to the gym" — even if it's 1 squat.
+- **✅ Removes the barrier — one squat is easy**
+  Exactly! Clear shows habits die at the start. Your brain isn't scared of "just one thing," and once you begin, you usually keep going. The two-minute rule breaks the barrier and builds the identity of "I'm someone who goes to the gym" — even if it's 1 squat.
 - ❌ One squat is enough for physical fitness
   Not physically — but that's not the point. This is about the habit, not performance. One squat will grow into an hour.
 - ❌ It's just an excuse not to train hard
@@ -109,7 +109,7 @@ Habits are won at the starting line. When the start is trivial, the habit locks 
 
 **Otázka:** Chceš psát knihu. Zkusíš „1000 slov denně" a po 4 dnech to vzdáš. Jak by mělo znít pravidlo 2 minut?
 
-- **✅ „Otevřu dokument a napíšu jednu větu."**
+- **✅ „Otevřu dokument a napíšu větu."**
   Přesně. Otevřít dokument + 1 věta = triviální. Ale jakmile je dokument otevřený, většinou nezůstaneš u jedné věty.
 - ❌ „Napíšu 500 slov místo 1000."
   Pořád je to velký závazek. Pravidlo 2 minut musí být směšně malé.
@@ -120,7 +120,7 @@ Habits are won at the starting line. When the start is trivial, the habit locks 
 
 **Question:** You want to write a book. You try "1,000 words a day" and quit after 4 days. How should the two-minute rule sound?
 
-- **✅ "I'll open the document and write one sentence."**
+- **✅ "I'll open the doc and write a sentence."**
   Exactly. Open doc + 1 sentence = trivial. But once the doc is open, you usually won't stop at one sentence.
 - ❌ "I'll write 500 words instead of 1,000."
   It's still a big commitment. The two-minute rule has to be ridiculously small.
@@ -131,8 +131,8 @@ Habits are won at the starting line. When the start is trivial, the habit locks 
 
 **Otázka:** Clear tomu říká „gateway habit" — brána. Co to znamená?
 
-- **✅ Jedna věta není cílem psaní, ale bránou do režimu psaní — většinou nezůstaneš u brány a pokračuješ dál**
-  Přesně. I kdyby ses zastavil u brány, splnil jsi závazek a posílil identitu. Ale většinou pokračuješ.
+- **✅ Jedna věta je brána do režimu psaní**
+  Přesně. Není cílem psaní — většinou u brány nezůstaneš a pokračuješ dál. I kdyby ses u ní zastavil, splnil jsi závazek a posílil identitu.
 - ❌ Brána je první krok velkého plánu
   Brána není o plánu — je o překonání psychologické bariéry startu. Plán přijde sám po překonání brány.
 - ❌ Brána je metafora pro motivaci
@@ -142,8 +142,8 @@ Habits are won at the starting line. When the start is trivial, the habit locks 
 
 **Question:** Clear calls it a "gateway habit." What does that mean?
 
-- **✅ One sentence isn't the point of writing — it's the gateway into writing mode. You usually don't stop at the gate**
-  Exactly. Even if you stop at the gate, you kept your commitment and reinforced identity. But usually you keep going.
+- **✅ One sentence is the gateway into writing mode**
+  Exactly. It isn't the point of writing — you usually don't stop at the gate and keep going. Even if you stop there, you kept your commitment and reinforced identity.
 - ❌ A gateway is the first step of a big plan
   A gateway isn't about the plan — it's about overcoming the psychological barrier to starting. The plan takes care of itself.
 - ❌ A gateway is a metaphor for motivation
@@ -178,8 +178,8 @@ Neuroscience shows that the shift from rest to action (so-called **activation en
 
 **Otázka:** Chceš zdravěji jíst. Které pravidlo 2 minut je nejlepší?
 
-- **✅ „Při každém jídle sním jednu zeleninu před ostatním jídlem."**
-  Skvělé. Triviální akce, navázaná na existující rutinu, opakovatelná. Z toho časem vznikne přirozený návyk zdravějšího talíře.
+- **✅ „Ke každému jídlu sním jednu zeleninu."**
+  Skvělé. Triviální akce, navázaná na existující rutinu, opakovatelná. Zelenina jde před ostatní jídlo. Z toho časem vznikne přirozený návyk zdravějšího talíře.
 - ❌ „Budu jíst jen zdravě — žádný cukr, žádné smažené."
   Tohle není pravidlo 2 minut, je to radikální změna. Většina lidí to vzdá do týdne.
 - ❌ „Budu si vařit každý den doma."
@@ -189,8 +189,8 @@ Neuroscience shows that the shift from rest to action (so-called **activation en
 
 **Question:** You want to eat healthier. Which two-minute rule is best?
 
-- **✅ "At every meal, I'll eat one vegetable before the rest of the food."**
-  Great. Trivial action, anchored to an existing routine, repeatable. Over time, this grows into a natural habit of a healthier plate.
+- **✅ "At every meal I'll eat one vegetable."**
+  Great. Trivial action, anchored to an existing routine, repeatable. The vegetable goes before the rest of the food. Over time, this grows into a natural habit of a healthier plate.
 - ❌ "I'll only eat healthy — no sugar, no fried food."
   That's not a two-minute rule, it's a radical change. Most people quit within a week.
 - ❌ "I'll cook at home every day."
@@ -216,8 +216,8 @@ The two-minute rule says: "You don't need motivation to do a lot. You need motiv
 
 **Otázka:** 3 týdny dodržuješ „otevřu knihu a přečtu stránku". Už je to automatické. Chceš zvýšit na 30 stránek denně. Co je na tomto kroku problematické?
 
-- **✅ Zvyšování mění pravidlo z „brány" na „závazek" — a závazky lidé opouštějí pod tlakem**
-  Ano. Lepší: nechat „stránku" jako povinnost, zbytek jako bonus. Většinou přečteš 30 stran stejně.
+- **✅ Z brány se stane závazek**
+  Ano. A závazky lidé pod tlakem opouštějí. Lepší: nechat „stránku" jako povinnost, zbytek jako bonus. Většinou přečteš 30 stran stejně.
 - ❌ Nic — 30 stran je rozumný cíl
   Cíl je rozumný, ale mechanismus ne. Závazky tvrdě bojují s unavenými dny. Pravidlo 2 minut chrání i ty nejtěžší dny.
 - ❌ 30 stran je moc
@@ -227,8 +227,8 @@ The two-minute rule says: "You don't need motivation to do a lot. You need motiv
 
 **Question:** For 3 weeks you've kept "I'll open the book and read a page." It's automatic now. You want to scale to 30 pages a day. What's wrong with this move?
 
-- **✅ Scaling turns the rule from a "gateway" into a "commitment" — and commitments get dropped under pressure**
-  Yes. Better: keep "a page" as the duty, treat the rest as a bonus. You'll usually read 30 pages anyway.
+- **✅ The gateway turns into a commitment**
+  Yes. And commitments get dropped under pressure. Better: keep "a page" as the duty, treat the rest as a bonus. You'll usually read 30 pages anyway.
 - ❌ Nothing — 30 pages is a reasonable goal
   The goal is reasonable, the mechanism isn't. Commitments collide hard with tired days.
 - ❌ 30 pages is too much
@@ -238,8 +238,8 @@ The two-minute rule says: "You don't need motivation to do a lot. You need motiv
 
 **Otázka:** Proč Clear říká „nezvyšuj, dokud není 100 % automatické"?
 
-- **✅ Zvýšení nároků před automatizací vrátí bariéru startu — a návyk se zhroutí v prvním těžkém týdnu**
-  Přesně. Automatizace znamená, že start nevyžaduje vůli. Zvýšení nároků před tímto bodem vrátí boj s vůlí zpět.
+- **✅ Vrátí se bariéra startu**
+  Přesně. Zvýšení nároků před automatizací zlomí návyk v prvním těžkém týdnu. Automatizace znamená, že start nevyžaduje vůli — zvýšení před tímto bodem vrátí boj s vůlí zpět.
 - ❌ Protože malé návyky stačí navždy
   Ne — cílem je růst. Ale růst přichází až po automatizaci startu.
 - ❌ Protože lidé jsou líní
@@ -249,8 +249,8 @@ The two-minute rule says: "You don't need motivation to do a lot. You need motiv
 
 **Question:** Why does Clear say "don't scale up until it's 100% automatic"?
 
-- **✅ Raising the bar before automation brings back the starting barrier — and the habit collapses in the first tough week**
-  Exactly. Automation means the start doesn't require willpower. Raising the bar before that point brings the willpower battle back.
+- **✅ The starting barrier comes back**
+  Exactly. Raising the bar before automation collapses the habit in the first tough week. Automation means the start doesn't require willpower — raising the bar before that point brings the willpower battle back.
 - ❌ Because small habits are enough forever
   No — the goal is growth. But growth comes only after the start is automated.
 - ❌ Because people are lazy
@@ -315,8 +315,8 @@ The two-minute rule isn't about how much you do. It's about guaranteeing that yo
 
 **Otázka:** Pětkrát jsi selhal s plánem „běhám 3× týdně 5 km". Pak zavedíš pravidlo: „Každý den si po práci obleču běžecké boty a vyjdu ze dveří. Co dál, je bonus." Proč „vyjít ze dveří" funguje lépe než „běhat 5 km"?
 
-- **✅ Minimální prahová bariéra + identita člověka, co se obléká a chodí ven = návyk vzniká**
-  Přesně. Přestaneš bojovat s motivací „dneska musím 5 km" a bojuješ jen s „oblékni si boty". To zvládneš vždy.
+- **✅ Nízký práh + identita běžce**
+  Přesně. Místo boje s „dneska musím 5 km" bojuješ jen s „oblékni si boty". To zvládneš vždy — a návyk vzniká.
 - ❌ Běhání je snazší, když je kratší
   Délka není podstatná. Podstatná je pravidelnost. Triviální start s pravidelností funguje.
 - ❌ Našel jsi lepší trasu
@@ -326,8 +326,8 @@ The two-minute rule isn't about how much you do. It's about guaranteeing that yo
 
 **Question:** You've failed five times with "I'll run 5K three times a week." Then you set the rule: "Every day after work I put on my running shoes and walk out the door. Anything beyond that is a bonus." Why does "walking out the door" work better than "running 5K"?
 
-- **✅ A minimal threshold + the identity of someone who gears up and heads out = a habit is born**
-  Exactly. You stop fighting the "5K today" battle and only fight the "put on your shoes" battle. That one you always win.
+- **✅ Low threshold + runner's identity**
+  Exactly. Instead of fighting "5K today," you only fight "put on your shoes." That one you always win — and a habit is born.
 - ❌ Running is easier when it's shorter
   Length isn't the point. Consistency is. A trivial start with consistency works.
 - ❌ You found a better route
@@ -337,8 +337,8 @@ The two-minute rule isn't about how much you do. It's about guaranteeing that yo
 
 **Otázka:** Pravidlo 2 minut je strategické. Proč?
 
-- **✅ Ne proto, abys dělal málo, ale abys dělal konzistentně — konzistence > intenzita**
-  Přesně. 2 minuty denně × 365 dní = víc než 1 hodina jednou za měsíc. Konzistence buduje návyk, intenzita ne.
+- **✅ Zaručuje konzistenci, ne objem**
+  Přesně. Konzistence > intenzita. 2 minuty denně × 365 dní = víc než 1 hodina jednou za měsíc. Konzistence buduje návyk, intenzita ne.
 - ❌ Protože 2 minuty jsou fyzicky nejefektivnější
   Fyzicky ne. Ale psychologicky a návykově ano — zaručují start.
 - ❌ Protože méně práce = méně stresu
@@ -348,8 +348,8 @@ The two-minute rule isn't about how much you do. It's about guaranteeing that yo
 
 **Question:** The two-minute rule is strategic. Why?
 
-- **✅ Not because you want to do little, but because you want to do it consistently — consistency > intensity**
-  Exactly. 2 minutes daily × 365 days = more than 1 hour once a month. Consistency builds the habit, intensity doesn't.
+- **✅ It guarantees consistency, not volume**
+  Exactly. Consistency > intensity. 2 minutes daily × 365 days = more than 1 hour once a month. Consistency builds the habit, intensity doesn't.
 - ❌ Because 2 minutes is physically most efficient
   Not physically. But psychologically and habit-wise, yes — it guarantees the start.
 - ❌ Because less work = less stress
@@ -384,8 +384,8 @@ Imagine you want to start running. You've failed five times with "5K three times
 
 **Otázka:** Proč Clear doporučuje držet 2minutovou verzi jako minimum i po roce?
 
-- **✅ Chrání návyk v nejtěžších dnech — když jsi unavený nebo nemocný, „stránka" nebo „boty" stále zvládneš**
-  Přesně. Pravidlo 2 minut je pojistka. V dobrých dnech děláš víc. V špatných dnech děláš minimum. Ale nikdy nepřestaneš.
+- **✅ Pojistka pro nejtěžší dny**
+  Přesně. Když jsi unavený nebo nemocný, „stránka" nebo „boty" stále zvládneš. V dobrých dnech děláš víc, v špatných minimum. Ale nikdy nepřestaneš.
 - ❌ Protože více by bylo škodlivé
   Víc není škodlivé. Ale víc jako povinnost vytváří tlak, který v těžkých dnech vede k úplnému vzdání.
 - ❌ Protože 2 minuty denně stačí k výsledkům
@@ -395,8 +395,8 @@ Imagine you want to start running. You've failed five times with "5K three times
 
 **Question:** Why does Clear recommend keeping the 2-minute version as the minimum even after a year?
 
-- **✅ It protects the habit on the hardest days — when you're tired or sick, "a page" or "shoes" is still doable**
-  Exactly. The two-minute rule is a safety net. On good days you do more. On bad days you do the minimum. But you never stop.
+- **✅ A safety net for the hardest days**
+  Exactly. When you're tired or sick, "a page" or "shoes" is still doable. On good days you do more, on bad days the minimum. But you never stop.
 - ❌ Because more would be harmful
   More isn't harmful. But more as a duty creates pressure that leads to complete abandonment on tough days.
 - ❌ Because 2 minutes a day is enough for results
@@ -422,8 +422,8 @@ The two-minute rule is strategic — not because you want to do little, but beca
 
 **Otázka:** Co NEJLÉPE vystihuje pravidlo 2 minut?
 
-- **✅ Zmenši nový návyk, dokud není směšné ho nedělat — tím odstraníš bariéru startu a zaručíš konzistenci**
-  Přesně. „Směšně malé" je záměrné. Cílem je start, ne výkon. Výkon přijde sám po startu.
+- **✅ Zmenši, dokud není směšné ho nedělat**
+  Přesně. Tím odstraníš bariéru startu a zaručíš konzistenci. „Směšně malé" je záměrné. Cílem je start, ne výkon. Výkon přijde sám po startu.
 - ❌ Dělej jen 2 minuty čehokoli a pak přestaň
   Pravidlo neříká „přestaň po 2 minutách". Říká „povinnost jsou 2 minuty, zbytek je bonus". Většinou pokračuješ dál.
 - ❌ 2 minuty denně stačí k velkým výsledkům
@@ -433,8 +433,8 @@ The two-minute rule is strategic — not because you want to do little, but beca
 
 **Question:** What BEST captures the two-minute rule?
 
-- **✅ Shrink the new habit until it's ridiculous not to do it — removing the starting barrier and guaranteeing consistency**
-  Exactly. "Ridiculously small" is intentional. The goal is the start, not performance. Performance comes on its own after the start.
+- **✅ Shrink until it's ridiculous not to do it**
+  Exactly. That removes the starting barrier and guarantees consistency. "Ridiculously small" is intentional. The goal is the start, not performance. Performance comes on its own after the start.
 - ❌ Do just 2 minutes of anything and then stop
   The rule doesn't say "stop after 2 minutes." It says "the duty is 2 minutes, the rest is a bonus." You usually keep going.
 - ❌ 2 minutes a day is enough for big results
@@ -444,8 +444,8 @@ The two-minute rule is strategic — not because you want to do little, but beca
 
 **Otázka:** Které z těchto tvrzení je PRAVDIVÉ o pravidle 2 minut?
 
-- **✅ Platí i pro zkušené lidi — i po roce automatizace je 2minutová verze pojistka pro nejtěžší dny**
-  Přesně. Pravidlo 2 minut není jen pro začátečníky. Je to trvalá strategie, která chrání návyk za všech okolností.
+- **✅ Platí i pro zkušené — je to trvalá pojistka**
+  Přesně. I po roce automatizace chrání 2minutová verze návyk v nejtěžších dnech. Pravidlo 2 minut není jen pro začátečníky — je to trvalá strategie, která chrání návyk za všech okolností.
 - ❌ Je jen pro začátečníky — po měsíci ho můžeš zahodit
   Ne. Zahození pravidla 2 minut vrací bariéru startu. Drž ho jako minimum navždy.
 - ❌ Funguje jen pro fyzické návyky
@@ -455,8 +455,8 @@ The two-minute rule is strategic — not because you want to do little, but beca
 
 **Question:** Which of these statements is TRUE about the two-minute rule?
 
-- **✅ It applies even to experienced people — even after a year of automation, the 2-minute version is a safety net for the hardest days**
-  Exactly. The two-minute rule isn't just for beginners. It's a permanent strategy that protects the habit under all circumstances.
+- **✅ It applies to veterans too — a permanent safety net**
+  Exactly. Even after a year of automation, the 2-minute version protects the habit on the hardest days. It isn't just for beginners — it's a permanent strategy that protects the habit under all circumstances.
 - ❌ It's only for beginners — after a month you can drop it
   No. Dropping the two-minute rule brings back the starting barrier. Keep it as a minimum forever.
 - ❌ It only works for physical habits

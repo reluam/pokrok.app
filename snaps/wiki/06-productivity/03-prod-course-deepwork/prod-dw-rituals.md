@@ -79,8 +79,8 @@ Newport cites famous creators: Maya Angelou rented empty hotel rooms. Haruki Mur
 
 **Otázka:** Proč je rituál silnější než pouhá intence „soustředit se"?
 
-- **✅ Rituál redukuje čas na „rozjezd" — mozek se naučí, že fixní sekvence akcí = hluboké soustředění. Autopilot přepne do správného módu bez vůle**
-  Přesně. Když uděláš stejnou sekvenci (zavřít dveře, káva, sluchátka, fullscreen), mozek si ji spojí s deep work a automaticky se přepne. Žádná vůle.
+- **✅ Zkrátí rozjezd a zapne autopilota**
+  Přesně. Mozek se naučí, že fixní sekvence akcí = hluboké soustředění. Když uděláš stejnou sekvenci (zavřít dveře, káva, sluchátka, fullscreen), mozek si ji spojí s deep work a automaticky se přepne. Žádná vůle.
 - ❌ Rituály vypadají profesionálněji
   Vzhled není kritérium. Jde o neurologickou asociaci — opakování + kontext = automatické přepnutí.
 - ❌ Rituály nutí být přísnější k sobě
@@ -90,8 +90,8 @@ Newport cites famous creators: Maya Angelou rented empty hotel rooms. Haruki Mur
 
 **Question:** Why is a ritual stronger than just intending to "focus"?
 
-- **✅ A ritual shortens the ramp-up time — your brain learns that a fixed sequence of actions = deep focus. The autopilot flips into the right mode without willpower**
-  Exactly. When you do the same sequence (close the door, coffee, headphones, fullscreen), your brain links it to deep work and switches automatically. No willpower.
+- **✅ Shortens ramp-up and flips the autopilot**
+  Exactly. Your brain learns that a fixed sequence of actions = deep focus. When you do the same sequence (close the door, coffee, headphones, fullscreen), your brain links it to deep work and switches automatically. No willpower.
 - ❌ Rituals look more professional
   Looks aren't the criterion. It's a neurological association — repetition + context = automatic switch.
 - ❌ Rituals force you to be stricter with yourself
@@ -134,8 +134,8 @@ Newport lays out 5 questions for every deep-work ritual: 1) Where will you work?
 
 **Otázka:** Proč flexibilita v rituálu — „pracuji, kdy mám náladu" — selhává?
 
-- **✅ Mozek potřebuje strukturu, aby věděl, že „teď je čas". Flexibilita = nikdy není ten správný čas**
-  Přesně. Rituál se mozek naučí za 7–14 dní opakování. Flexibilita tuto asociaci zabrání vytvořit — pokaždé je to „nová situace".
+- **✅ Mozek potřebuje strukturu „teď je čas"**
+  Přesně. Flexibilita = nikdy není ten správný čas. Rituál se mozek naučí za 7–14 dní opakování — flexibilita tuto asociaci zabrání vytvořit, pokaždé je to „nová situace".
 - ❌ Flexibilní lidi je těžší řídit
   Jde o neurologii, ne o management. Flexibilita brání vytváření automatické asociace.
 - ❌ Záleží na osobnosti — extrovertům to vyhovuje
@@ -145,8 +145,8 @@ Newport lays out 5 questions for every deep-work ritual: 1) Where will you work?
 
 **Question:** Why does flexibility in a ritual — "I'll work when I'm in the mood" — fail?
 
-- **✅ Your brain needs structure to know "now is the time." Flexibility = there's never a right time**
-  Exactly. Your brain learns the ritual in 7–14 days of repetition. Flexibility prevents this association from forming — every time it's a "new situation."
+- **✅ Your brain needs structure: "now is the time"**
+  Exactly. Flexibility = there's never a right time. The brain learns a ritual in 7–14 days of repetition — flexibility prevents this association from forming, every time it's a "new situation."
 - ❌ Flexible people are harder to manage
   This is about neurology, not management. Flexibility prevents automatic association.
 - ❌ It depends on personality — extroverts prefer it
@@ -197,8 +197,8 @@ How to design your own deep-work ritual: 1) Pick a specific time (same every day
 
 **Otázka:** Navrhuješ rituál: „9:00 sedím u stolu, otevřu dokument, piju čaj, vypnu notifikace." Po týdnu zjišťuješ, že se nemůžeš soustředit. Co může být špatně?
 
-- **✅ Chybí jasná pravidla a hranice — co když přijde mail? Co když přijde myšlenka? Rituál bez pravidel selže**
-  Přesně. Rituál musí mít pravidla pro to, co se nesmí (žádný internet) a jak reagovat na rušení (zapsat a vrátit se). Bez pravidel mozek rituál nebere vážně.
+- **✅ Chybí jasná pravidla a hranice**
+  Přesně. Co když přijde mail? Co když přijde myšlenka? Rituál musí mít pravidla pro to, co se nesmí (žádný internet) a jak reagovat na rušení (zapsat a vrátit se). Bez pravidel mozek rituál nebere vážně.
 - ❌ Čaj je špatný nápoj, lépe funguje káva
   Nápoj nerozhoduje. Rozhoduje struktura a pravidla.
 - ❌ 9:00 je špatný čas, ráno není vhodné
@@ -208,8 +208,8 @@ How to design your own deep-work ritual: 1) Pick a specific time (same every day
 
 **Question:** You design a ritual: "9:00 I sit at the desk, open the document, drink tea, turn off notifications." A week in, you still can't focus. What might be wrong?
 
-- **✅ It's missing clear rules and boundaries — what happens when an email arrives? What about intrusive thoughts? A ritual without rules fails**
-  Exactly. The ritual has to have rules for what's off-limits (no internet) and how to handle interruptions (write it down, come back). Without rules your brain doesn't take the ritual seriously.
+- **✅ It's missing clear rules and boundaries**
+  Exactly. What happens when an email arrives? What about intrusive thoughts? The ritual has to have rules for what's off-limits (no internet) and how to handle interruptions (write it down, come back). Without rules your brain doesn't take the ritual seriously.
 - ❌ Tea is the wrong drink, coffee works better
   The drink isn't the point. Structure and rules are.
 - ❌ 9:00 is the wrong time, mornings aren't suitable
@@ -227,8 +227,8 @@ A good ritual is concrete. Instead of "I'll focus" → "phone in another room, w
 
 **Otázka:** Co je nejčastější chyba při zavádění rituálu?
 
-- **✅ Příliš častá změna rituálu — mozek se nikdy nenaučí asociaci a automatismus nevznikne**
-  Přesně. Rituál potřebuje opakování k tomu, aby se automatizoval. Konstantní změny = žádná automatizace = žádný deep work.
+- **✅ Příliš častá změna rituálu**
+  Přesně. Mozek se nikdy nenaučí asociaci a automatismus nevznikne. Rituál potřebuje opakování k tomu, aby se automatizoval. Konstantní změny = žádná automatizace = žádný deep work.
 - ❌ Příliš konkrétní rituál — to omezuje
   Naopak — konkrétnost je síla. Mlhavý rituál nefunguje.
 - ❌ Deep work blok delší než 90 minut — to je příliš
@@ -238,8 +238,8 @@ A good ritual is concrete. Instead of "I'll focus" → "phone in another room, w
 
 **Question:** What's the most common mistake when building a ritual?
 
-- **✅ Changing the ritual too often — your brain never learns the association and automatism never develops**
-  Exactly. A ritual needs repetition to automate. Constant changes = no automation = no deep work.
+- **✅ Changing the ritual too often**
+  Exactly. Your brain never learns the association and automatism never develops. A ritual needs repetition to automate. Constant changes = no automation = no deep work.
 - ❌ Making the ritual too specific — it feels constraining
   On the contrary — specificity is its strength. A vague ritual doesn't work.
 - ❌ Deep-work blocks longer than 90 minutes — that's too much
@@ -249,8 +249,8 @@ A good ritual is concrete. Instead of "I'll focus" → "phone in another room, w
 
 **Otázka:** Rituál funguje doma, ale zítra musíš pracovat z kavárny. Jak nejlépe přistoupit k rituálu?
 
-- **✅ Přenést co nejvíc prvků (sluchátka, stejné vstupní akce) a přijmout, že adaptace nového místa trvá 1–2 týdny**
-  Přesně. Rituál není místo — je to sekvence akcí. Sluchátka, hudba, vstupní sekvence přeneseš. Místo se adaptuje.
+- **✅ Přenést co nejvíc prvků do nového místa**
+  Přesně. Rituál není místo — je to sekvence akcí. Sluchátka, hudba a stejné vstupní akce přeneseš a přijmeš, že adaptace nového místa trvá 1–2 týdny.
 - ❌ V kavárně deep work neprovádět, vrátit se domů
   Občas to není možné. Rituál musí být aspoň částečně přenositelný.
 - ❌ V kavárně se prostě „pokusit soustředit" bez rituálu
@@ -260,8 +260,8 @@ A good ritual is concrete. Instead of "I'll focus" → "phone in another room, w
 
 **Question:** The ritual works at home, but tomorrow you have to work from a café. How best to approach the ritual?
 
-- **✅ Carry as many elements as possible (headphones, same entry actions) and accept that adapting to a new place takes 1–2 weeks**
-  Exactly. The ritual isn't the place — it's the sequence of actions. Headphones, music, entry sequence travel with you. The place adapts.
+- **✅ Carry as many elements as possible to the new place**
+  Exactly. The ritual isn't the place — it's the sequence of actions. Headphones, music and the same entry actions travel with you, and accept that adapting to a new place takes 1–2 weeks.
 - ❌ Don't do deep work in a café — go home
   Sometimes that's not an option. The ritual has to be at least partly portable.
 - ❌ In the café just "try to focus" without any ritual

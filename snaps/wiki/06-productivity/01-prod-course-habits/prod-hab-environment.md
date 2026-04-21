@@ -79,7 +79,7 @@ James Clear keeps repeating: "People who look like they have self-control just l
 
 **Otázka:** Každý večer si lehneš s telefonem v ruce a scrolluješ 2 hodiny. Která změna má největší šanci snížit screen time?
 
-- **✅ Nechat telefon v obýváku a přesunout nabíječku z ložnice pryč**
+- **✅ Nechat telefon a nabíječku v obýváku**
   Přesně. Když telefon není na dosah, nezvedneš ho. Rozhodnutí se přesunulo z „pokušení v ruce" na „musím vstát a jít do obýváku" — a to nikdy neuděláš.
 - ❌ Nainstalovat aplikaci, která blokuje Instagram večer
   Aplikace pomáhá, ale můžeš ji obejít. Fyzická vzdálenost je silnější než softwarová bariéra.
@@ -90,7 +90,7 @@ James Clear keeps repeating: "People who look like they have self-control just l
 
 **Question:** Every night you lie in bed with your phone and scroll for 2 hours. Which change has the best shot at cutting your screen time?
 
-- **✅ Leave the phone in the living room and move the charger out of the bedroom**
+- **✅ Leave the phone and charger in the living room**
   Exactly. When the phone isn't within reach, you don't pick it up. The decision shifts from "temptation in my hand" to "I'd have to get up and walk to the living room" — which you'll never do.
 - ❌ Install an app that blocks Instagram at night
   Apps help, but you can bypass them. Physical distance beats a software barrier.
@@ -134,8 +134,8 @@ Why is environment so powerful? Behavioral scientists have found that most of yo
 
 **Otázka:** Co dokazuje studie o průhledné míse sladkostí na stole vs. sladkostech ve skříni?
 
-- **✅ Viditelnost je mocný spouštěč konzumace — „z očí sejde, z mysli sejde"**
-  Přesně. Pouhé přesunutí ze stolu do skříně snížilo konzumaci dramaticky. Žádná vůle — jen geografie.
+- **✅ Viditelnost je mocný spouštěč konzumace**
+  Přesně. „Z očí sejde, z mysli sejde" — pouhé přesunutí ze stolu do skříně snížilo konzumaci dramaticky. Žádná vůle, jen geografie.
 - ❌ Lidé s průhlednou mísou mají slabší povahu
   To je fundamentální atribuční chyba. Lidé jsou stejní — rozdíl dělá prostředí.
 - ❌ Průhledné misky jsou designově horší
@@ -145,8 +145,8 @@ Why is environment so powerful? Behavioral scientists have found that most of yo
 
 **Question:** What does the study about see-through candy bowls on the counter vs. sweets in a cupboard prove?
 
-- **✅ Visibility is a powerful consumption cue — "out of sight, out of mind"**
-  Exactly. Just moving sweets from the counter to the cupboard cut consumption dramatically. No willpower — just geography.
+- **✅ Visibility is a powerful consumption cue**
+  Exactly. "Out of sight, out of mind" — just moving sweets from the counter to the cupboard cut consumption dramatically. No willpower, just geography.
 - ❌ People with see-through bowls have weaker characters
   That's the fundamental attribution error. People are the same — the environment makes the difference.
 - ❌ See-through bowls are worse design
@@ -172,8 +172,8 @@ Self-control is expensive and short-lived. Environment design is cheap and perma
 
 **Otázka:** Pracuješ z domova a chceš jíst méně sladkého. V kuchyni máš v průhledné míse bonbóny na stole „pro hosty". Co uděláš místo „buď silnější"?
 
-- **✅ Přesuneš bonbóny do neprůhledné krabice do skříně — pro hosty je připravíš při návštěvě**
-  Neviditelnost + fyzická bariéra + kognitivní úsilí „dojít do skříně" = 90 % problému vyřešeno.
+- **✅ Schováš je do neprůhledné krabice ve skříni**
+  Pro hosty je připravíš až při návštěvě. Neviditelnost + fyzická bariéra + kognitivní úsilí „dojít do skříně" = 90 % problému vyřešeno.
 - ❌ Nahradíš bonbóny sušenkami
   To není lepší — jen jiné sladké. Problém není druh, ale viditelnost a dostupnost.
 - ❌ Necháš bonbóny, ale zapíšeš si každý snězený kus
@@ -183,8 +183,8 @@ Self-control is expensive and short-lived. Environment design is cheap and perma
 
 **Question:** You work from home and want to eat less sugar. You keep candies in a see-through bowl on the counter "for guests." What do you do instead of "be stronger"?
 
-- **✅ Move the candies into an opaque box in a cupboard — put them out when guests actually come over**
-  Invisibility + physical barrier + the cognitive effort of "I'd have to walk to the cupboard" = 90% of the problem solved.
+- **✅ Hide them in an opaque box in a cupboard**
+  Put them out only when guests actually come over. Invisibility + physical barrier + the cognitive effort of "I'd have to walk to the cupboard" = 90% of the problem solved.
 - ❌ Replace the candies with cookies
   That's not better — just different sugar. The problem isn't the treat, it's visibility and availability.
 - ❌ Keep the candies but track every piece you eat
@@ -194,8 +194,8 @@ Self-control is expensive and short-lived. Environment design is cheap and perma
 
 **Otázka:** Clear říká 4 zákony pro dobré návyky. Který z nich NEJVÍCE závisí na designu prostředí?
 
-- **✅ Udělej je viditelnými a snadnými — obojí je přímý důsledek toho, jak máš uspořádaný prostor**
-  Přesně. Kniha na polštáři = viditelná a snadná. Telefon v jiné místnosti = neviditelný a obtížný. Vše je o prostředí.
+- **✅ Viditelnými a snadnými**
+  Přesně. Obojí přímo závisí na uspořádání prostoru. Kniha na polštáři = viditelná a snadná. Telefon v jiné místnosti = neviditelný a obtížný. Vše je o prostředí.
 - ❌ Udělej je přitažlivými
   Přitažlivost je spíš o dopaminu a spojení s odměnou než o fyzickém prostředí.
 - ❌ Udělej je uspokojujícími
@@ -205,8 +205,8 @@ Self-control is expensive and short-lived. Environment design is cheap and perma
 
 **Question:** Clear states 4 laws for good habits. Which one MOST depends on environment design?
 
-- **✅ Make them obvious and easy — both are a direct result of how your space is arranged**
-  Exactly. Book on the pillow = obvious and easy. Phone in another room = invisible and hard. It's all about the environment.
+- **✅ Obvious and easy**
+  Exactly. Both depend directly on how your space is arranged. Book on the pillow = obvious and easy. Phone in another room = invisible and hard. It's all about the environment.
 - ❌ Make them attractive
   Attractiveness is more about dopamine and reward pairing than physical environment.
 - ❌ Make them satisfying
@@ -241,8 +241,8 @@ Practical environment design techniques: 1) Make good habits more visible (book 
 
 **Otázka:** Pracuješ z domova z postele. Po čase zjišťuješ, že nemůžeš usnout — postel se ti spojila s prací a stresem. Jak to vyřešíš?
 
-- **✅ Pracovat jen u stolu. Postel používat výhradně na spánek**
-  Přesně. Když prostor má jednu funkci, mozek automaticky přepne do správného režimu. Postel = spánek → snadno usneš.
+- **✅ Postel výhradně na spánek**
+  Přesně. Pracuj jen u stolu. Když prostor má jednu funkci, mozek automaticky přepne do správného režimu. Postel = spánek → snadno usneš.
 - ❌ Koupit si lepší matraci
   Matrace neřeší problém. Problém je v asociaci postele s prací.
 - ❌ Pít před spaním víc bylinkového čaje
@@ -252,8 +252,8 @@ Practical environment design techniques: 1) Make good habits more visible (book 
 
 **Question:** You work from home in bed. After a while you can't fall asleep — your bed has gotten linked to work and stress. How do you fix it?
 
-- **✅ Work only at a desk. Use the bed exclusively for sleep**
-  Exactly. When a space has one function, your brain automatically flips into the right mode. Bed = sleep → easy to fall asleep.
+- **✅ Bed exclusively for sleep**
+  Exactly. Work only at a desk. When a space has one function, your brain automatically flips into the right mode. Bed = sleep → easy to fall asleep.
 - ❌ Buy a better mattress
   A mattress doesn't fix the problem. The problem is the bed-work association.
 - ❌ Drink more herbal tea before bed
@@ -271,8 +271,8 @@ One space = one function. Mixing functions leads to mixed signals and weakened h
 
 **Otázka:** Chceš snížit screen time z 5 hodin denně. Zkoušel jsi aplikace, blokátory, pravidla — nic nefungovalo déle než 3 dny. Jaká je nejúčinnější strategie?
 
-- **✅ Radikální změna prostředí: telefon do šuplíku, ikony smazány, nabíječka v kuchyni**
-  Přesně. Každá vrstva třecí síly (šuplík, mazání ikon, vzdálená nabíječka) snižuje pravděpodobnost, že telefon zvedneš. Žádná vůle — jen geografie.
+- **✅ Radikální změna prostředí**
+  Přesně. Telefon do šuplíku, ikony smazat, nabíječka v kuchyni. Každá vrstva třecí síly (šuplík, mazání ikon, vzdálená nabíječka) snižuje pravděpodobnost, že telefon zvedneš. Žádná vůle — jen geografie.
 - ❌ Ještě silnější blokátor
   Blokátory můžeš obejít. Fyzická vzdálenost je silnější.
 - ❌ Slíbit si „od zítřka"
@@ -282,8 +282,8 @@ One space = one function. Mixing functions leads to mixed signals and weakened h
 
 **Question:** You want to cut screen time from 5 hours a day. You've tried apps, blockers, rules — nothing lasted more than 3 days. What's the most effective strategy?
 
-- **✅ Radical environment change: phone in a drawer, icons deleted, charger in the kitchen**
-  Exactly. Every layer of friction (drawer, deleted icons, distant charger) lowers the chance you'll pick up the phone. No willpower — just geography.
+- **✅ A radical environment change**
+  Exactly. Phone in a drawer, icons deleted, charger in the kitchen. Every layer of friction (drawer, deleted icons, distant charger) lowers the chance you'll pick up the phone. No willpower — just geography.
 - ❌ An even stronger blocker
   Blockers can be bypassed. Physical distance is stronger.
 - ❌ Promise yourself "starting tomorrow"
@@ -293,8 +293,8 @@ One space = one function. Mixing functions leads to mixed signals and weakened h
 
 **Otázka:** Která z těchto strategií je nejúčinnější pro eliminaci špatného návyku?
 
-- **✅ Odstranit pokušení úplně, pokud je to možné**
-  Přesně. Nejlepší bitva je ta, kterou nebojuješ. Odstranění spouštěče je permanentní řešení.
+- **✅ Odstranit pokušení úplně**
+  Přesně. Kde to jde, spouštěč prostě odstraň. Nejlepší bitva je ta, kterou nebojuješ. Je to permanentní řešení.
 - ❌ Vystavit se pokušení, abys otestoval sebekázeň
   Studie ukazují, že „testování vůle" téměř vždy vede k selhání.
 - ❌ Střídat dny s pokušením a bez
@@ -304,8 +304,8 @@ One space = one function. Mixing functions leads to mixed signals and weakened h
 
 **Question:** Which strategy is most effective for eliminating a bad habit?
 
-- **✅ Remove the temptation entirely, if possible**
-  Exactly. The best battle is the one you don't fight. Removing the cue is a permanent fix.
+- **✅ Remove the temptation entirely**
+  Exactly. Wherever possible, remove the cue. The best battle is the one you don't fight. It's a permanent fix.
 - ❌ Expose yourself to temptation to test your self-discipline
   Studies show "willpower tests" almost always end in failure.
 - ❌ Alternate days with and without the temptation
@@ -340,8 +340,8 @@ Imagine wanting to cut your screen time from 5 hours a day. You've tried apps, b
 
 **Otázka:** Jaký je hlavní princip, který funguje při snižování screen time změnou prostředí?
 
-- **✅ Přidání třecí síly (friction) mezi tebou a pokušením na každé úrovni**
-  Ano. Každá další sekunda mezi tebou a akcí dramaticky snižuje pravděpodobnost, že ji uděláš.
+- **✅ Vrstvy frictionu**
+  Ano. Třecí síla na každé úrovni mezi tebou a pokušením. Každá další sekunda mezi tebou a akcí dramaticky snižuje pravděpodobnost, že ji uděláš.
 - ❌ Silnější motivace
   Motivace se nezměnila — nepomohla dříve, nepomohla by ani teď. Pomohl design.
 - ❌ Nový telefon
@@ -351,8 +351,8 @@ Imagine wanting to cut your screen time from 5 hours a day. You've tried apps, b
 
 **Question:** What's the main principle at work when you cut screen time through environment change?
 
-- **✅ Adding friction between you and the temptation at every layer**
-  Yes. Every extra second between you and the action dramatically lowers the chance you take it.
+- **✅ Friction layers**
+  Yes. Friction on every layer between you and the temptation. Every extra second between you and the action dramatically lowers the chance you take it.
 - ❌ Stronger motivation
   Motivation didn't change — it didn't help before, it wouldn't help now. Design did.
 - ❌ A new phone
@@ -378,8 +378,8 @@ You're the architect of your behavior. It's not about being stronger — it's ab
 
 **Otázka:** Máš pocit, že nemůžeš eliminovat rušení, protože „kdybych neodpovídal, nikdo by se mnou nechtěl pracovat." Jak na to?
 
-- **✅ Otestovat malou eliminaci (1 blok denně bez telefonu) a sledovat skutečnou reakci — obvykle je realita lepší než strach**
-  Přesně. Strach je obvykle horší než realita. Experiment 1 blok = nízké riziko, velký potenciální přínos.
+- **✅ Vyzkoušet 1 blok denně bez telefonu**
+  Přesně. Malá eliminace + sleduj skutečnou reakci — obvykle je realita lepší než strach. Experiment 1 blok = nízké riziko, velký potenciální přínos.
 - ❌ Smířit se s tím, že design prostředí pro tebe nefunguje
   Rezignace není strategie. 1 hodina denně bez telefonu je dosažitelná pro každého.
 - ❌ Odpovídat na všechno okamžitě, aby byli všichni spokojení
@@ -389,8 +389,8 @@ You're the architect of your behavior. It's not about being stronger — it's ab
 
 **Question:** You feel like you can't eliminate distractions because "if I stopped replying, no one would want to work with me." How do you handle that?
 
-- **✅ Try a small elimination (1 block a day without the phone) and watch the real reaction — reality is usually better than the fear**
-  Exactly. Fear is usually worse than reality. A 1-block experiment = low risk, big potential upside.
+- **✅ Try one block a day without the phone**
+  Exactly. A small elimination + watch the real reaction — reality is usually better than the fear. A 1-block experiment = low risk, big potential upside.
 - ❌ Accept that environment design doesn't work for you
   Giving up isn't a strategy. 1 hour a day without a phone is achievable for anyone.
 - ❌ Reply to everything instantly so everyone is happy
@@ -400,8 +400,8 @@ You're the architect of your behavior. It's not about being stronger — it's ab
 
 **Otázka:** Co NEJLÉPE shrnuje princip designu prostředí?
 
-- **✅ Udělej dobré návyky viditelnými a snadnými, špatné neviditelnými a těžkými — prostředí pracuje za tebe 24/7**
-  Přesně. Prostředí je neúnavný spolupracovník. Nastavíš ho jednou a funguje bez tvé účasti.
+- **✅ Dobré návyky viditelné, špatné skryté**
+  Přesně. Prostředí pak pracuje za tebe 24/7 — je to neúnavný spolupracovník. Nastavíš ho jednou a funguje bez tvé účasti.
 - ❌ Buď disciplinovanější a odolávej pokušení
   Clear opakovaně ukazuje, že disciplína je iluze. „Disciplinovaní" lidé žijí v lepším prostředí.
 - ❌ Používej aplikace na sledování návyků
@@ -411,8 +411,8 @@ You're the architect of your behavior. It's not about being stronger — it's ab
 
 **Question:** What BEST summarizes the environment design principle?
 
-- **✅ Make good habits obvious and easy, bad ones invisible and hard — the environment works for you 24/7**
-  Exactly. The environment is a tireless collaborator. Set it once and it works without your participation.
+- **✅ Good habits visible, bad ones hidden**
+  Exactly. The environment then works for you 24/7 — a tireless collaborator. Set it once and it works without your participation.
 - ❌ Be more disciplined and resist temptation
   Clear repeatedly shows that discipline is an illusion. "Disciplined" people just live in a better environment.
 - ❌ Use habit-tracking apps

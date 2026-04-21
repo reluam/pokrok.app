@@ -79,8 +79,8 @@ Every day you're in "action mode" — reacting. The weekly review is "strategic 
 
 **Otázka:** Co je hlavní smysl týdenní revize?
 
-- **✅ Vyčistit systém, zpomalit, podívat se z odstupu na týden a naplánovat příští — bez revize systém hnije**
-  Přesně. Denně jsi v akčním módu. Týdenní revize je strategický mód — vidíš souvislosti a opravuješ kurz. Bez ní běžíš rychle, ale špatným směrem.
+- **✅ Vyčistit systém a získat strategický odstup**
+  Přesně. Denně jsi v akčním módu. Týdenní revize je strategický mód — podíváš se z odstupu na týden, naplánuješ příští a opravíš kurz. Bez revize systém hnije a běžíš rychle, ale špatným směrem.
 - ❌ Vytvořit dlouhý seznam úkolů na příští týden
   Revize není o přidávání — je o přehledu, úklidu a rozhodování. Seznamy už existují, revize je aktualizuje.
 - ❌ Potvrdit si, že pracuješ dost
@@ -90,8 +90,8 @@ Every day you're in "action mode" — reacting. The weekly review is "strategic 
 
 **Question:** What's the main point of the weekly review?
 
-- **✅ Clean up the system, slow down, look at the week from a distance, and plan the next one — without the review the system rots**
-  Exactly. Every day you're in action mode. The weekly review is strategic mode — you see connections and correct course. Without it you run fast but in the wrong direction.
+- **✅ Clean up and get strategic distance**
+  Exactly. Every day you're in action mode. The weekly review is strategic mode — you step back, plan the next week, and correct course. Without it the system rots and you run fast in the wrong direction.
 - ❌ Create a long to-do list for next week
   The review isn't about adding — it's about the overview, the tidy-up, and decisions. The lists already exist, the review updates them.
 - ❌ Confirm that you're working enough
@@ -134,8 +134,8 @@ Allen's weekly review template: 1) Clear every inbox (email, paper, head). 2) Wa
 
 **Otázka:** Chceš zkusit revizi, ale první session ti trvá hodinu a půl. „Není to moc?"
 
-- **✅ Hodina a půl je běžné pro začátky — za pár týdnů se zkrátí na 30–60 minut. A i ta hodina a půl šetří 10+ hodin chaosu**
-  Přesně. Začátky jsou delší, protože chybí stabilizovaný systém. Investice se vrací mnohokrát — klid, jasnost, předvídavost.
+- **✅ Hodina a půl je na začátku běžné**
+  Přesně. Za pár týdnů se revize zkrátí na 30–60 minut — stabilizuje se systém. A i ta hodina a půl šetří 10+ hodin chaosu. Investice se vrací mnohokrát — klid, jasnost, předvídavost.
 - ❌ Zkrátit na 15 minut — méně je víc
   15 minut nestačí na skutečnou revizi. Lepší 60 minut pořádně než 15 minut povrchně.
 - ❌ Vzdát revizi — moc času
@@ -145,8 +145,8 @@ Allen's weekly review template: 1) Clear every inbox (email, paper, head). 2) Wa
 
 **Question:** You want to try the review, but the first session takes an hour and a half. "Isn't that too much?"
 
-- **✅ An hour and a half is normal at the start — in a few weeks it drops to 30–60 minutes. And even 90 minutes saves 10+ hours of a chaotic week**
-  Exactly. Early sessions run long because the system isn't stabilized yet. The investment pays back many times — calm, clarity, foresight.
+- **✅ 90 minutes is normal at the start**
+  Exactly. In a few weeks it drops to 30–60 minutes as the system stabilizes. And even 90 minutes saves 10+ hours of a chaotic week. The investment pays back many times — calm, clarity, foresight.
 - ❌ Cut it to 15 minutes — less is more
   15 minutes isn't enough for a real review. Better 60 minutes done properly than 15 minutes skimmed.
 - ❌ Give up the review — too much time
@@ -197,8 +197,8 @@ How to start a weekly review: 1) Pick a fixed time (Friday afternoon is the clas
 
 **Otázka:** Nastavíš si pátek 15:00 jako revizi. Ve čtvrtek ti přijde urgent schůzka na pátek 15:00. Jak postupovat?
 
-- **✅ Přesunout revizi na pátek ráno nebo sobotu — neposunout ji o celý týden. Revize se musí dít, jen jindy**
-  Přesně. Revize je důležitá, ale flexibilní v čase. „Musí se dít v pátek 15:00" není podstatné. „Musí se dít tento týden" je. Přesun na 10:00 nebo sobotu je OK.
+- **✅ Přesunout revizi jinam v rámci týdne**
+  Přesně. Revize je důležitá, ale flexibilní v čase — musí se dít, jen jindy. „Musí se dít v pátek 15:00" není podstatné. „Musí se dít tento týden" je. Přesun na ráno nebo sobotu je OK.
 - ❌ Vynechat tento týden, udělat příští
   Přesně takhle revize vymírá. Jeden vynechaný týden znamená dva vynechané. A pak konec.
 - ❌ Odmítnout schůzku kvůli revizi
@@ -208,8 +208,8 @@ How to start a weekly review: 1) Pick a fixed time (Friday afternoon is the clas
 
 **Question:** You set Friday 15:00 as your review. On Thursday an urgent meeting from your boss lands on Friday 15:00. What do you do?
 
-- **✅ Move the review to Friday morning or Saturday — don't push it a whole week. The review has to happen, just at a different time**
-  Exactly. The review is important, but flexible in timing. "It has to happen at 3 p.m. Friday" isn't the point. "It has to happen this week" is. Moving it to 10 a.m. or Saturday is fine.
+- **✅ Move the review elsewhere this week**
+  Exactly. The review is important, but flexible in timing — it has to happen, just at a different time. "It has to happen at 3 p.m. Friday" isn't the point. "It has to happen this week" is. Moving it to morning or Saturday is fine.
 - ❌ Skip this week, do it next
   That's exactly how the review dies. One skipped week becomes two. Then it's over.
 - ❌ Refuse the meeting because of the review
@@ -227,8 +227,8 @@ Most common mistake: reducing the review to "planning next week." The review is 
 
 **Otázka:** Děláš revizi jen 15 minut — naplánuješ si příští týden a hotovo. Proč to nefunguje dobře?
 
-- **✅ Chybí zpětný pohled — co se minulý týden stalo, co se uzavřelo, co bylo odloženo, co se naučilo**
-  Přesně. Revize bez zpětného pohledu je jen plánování. Plánování bez reflexe opakuje stejné chyby. Zpětný pohled je 50 % hodnoty revize.
+- **✅ Chybí zpětný pohled**
+  Přesně. Revize bez reflexe (co se stalo, co se uzavřelo, co bylo odloženo, co ses naučil) je jen plánování. A plánování bez reflexe opakuje stejné chyby. Zpětný pohled je 50 % hodnoty revize.
 - ❌ Potřebuješ delší plánování dopředu
   Delší plánování bez reflexe nepomůže. Problém je v obsahu, ne v čase.
 - ❌ Potřebuješ lepší šablonu
@@ -238,8 +238,8 @@ Most common mistake: reducing the review to "planning next week." The review is 
 
 **Question:** Your review takes only 15 minutes — you plan next week and you're done. Why isn't it working well?
 
-- **✅ The look back is missing — what happened last week, what closed, what slipped, what you learned**
-  Exactly. A review without the look back is just planning. Planning without reflection repeats the same mistakes. The look back is 50% of the review's value.
+- **✅ The look back is missing**
+  Exactly. A review without reflection (what happened, what closed, what slipped, what you learned) is just planning. And planning without reflection repeats the same mistakes. The look back is 50% of the review's value.
 - ❌ You need longer forward planning
   More planning without reflection won't help. The problem is content, not time.
 - ❌ You need a better template
@@ -249,8 +249,8 @@ Most common mistake: reducing the review to "planning next week." The review is 
 
 **Otázka:** Co je nejčastější důvod, proč týdenní revize selhává?
 
-- **✅ Lidé ji vynechávají v „těžkých týdnech" — přesně kdy je nejvíc potřeba**
-  Přesně. Paradox: když máš chaos, nechce se ti revidovat. Ale chaos je signál, že revize je kritická. Nevynechávej — drž i v nejtěžších týdnech.
+- **✅ Lidé ji vynechávají v „těžkých týdnech"**
+  Přesně — a to je přesně kdy je nejvíc potřeba. Paradox: když máš chaos, nechce se ti revidovat. Ale chaos je signál, že revize je kritická. Nevynechávej — drž i v nejtěžších týdnech.
 - ❌ Je příliš podrobná a zabírá moc času
   Podrobnost je výhoda. Lidé obvykle selhávají na opuštění, ne na přílišné pečlivosti.
 - ❌ Nástroje nejsou dost dobré pro revizi
@@ -260,8 +260,8 @@ Most common mistake: reducing the review to "planning next week." The review is 
 
 **Question:** What's the most common reason the weekly review fails?
 
-- **✅ People skip it during "hard weeks" — exactly when it's needed most**
-  Exactly. The paradox: when you're in chaos, you don't feel like reviewing. But chaos is precisely the signal that the review is critical. Don't skip — hold it even in the hardest weeks.
+- **✅ People skip it during "hard weeks"**
+  Exactly — which is when it's needed most. The paradox: when you're in chaos, you don't feel like reviewing. But chaos is precisely the signal that the review is critical. Don't skip — hold it even in the hardest weeks.
 - ❌ It's too detailed and takes too much time
   Detail is an advantage. People usually fail by abandoning it, not by being too thorough.
 - ❌ The tools aren't good enough for the review

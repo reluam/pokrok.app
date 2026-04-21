@@ -83,8 +83,8 @@ Pomodoro: set a timer for **25 minutes**, work with ZERO interruptions, then a *
 
 **Otázka:** Proč funguje i jednoduchá minutka?
 
-- **✅ Krátký časový limit odstraňuje strach ze začátku a dává jasný konec — mozek se nebojí „jen 25 minut"**
-  Přesně. 25 minut je psychologicky zvládnutelné. Zároveň je to dost dlouho, aby ses dostal/a do flow. Jasný konec = žádný strach ze závazku.
+- **✅ Jasný začátek i konec**
+  Přesně. Mozek se nebojí „jen 25 minut" — je to psychologicky zvládnutelné a zároveň dost dlouho, aby ses dostal/a do flow. Jasný konec = žádný strach ze závazku.
 - ❌ Minutka dává pocit tlaku a stres
   Stres tu nehraje pozitivní roli. Minutka strukturuje — ne stresuje. Dává rámec, nic víc.
 - ❌ Je to placebo
@@ -94,8 +94,8 @@ Pomodoro: set a timer for **25 minutes**, work with ZERO interruptions, then a *
 
 **Question:** Why does a simple timer actually work?
 
-- **✅ A short time limit removes the fear of starting and gives a clear end — your brain isn't scared of "just 25 minutes"**
-  Exactly. 25 minutes is psychologically manageable. It's also long enough to slip into flow. Clear end = no fear of the commitment.
+- **✅ Clear start and clear end**
+  Exactly. Your brain isn't scared of "just 25 minutes" — it's psychologically manageable and long enough to slip into flow. Clear end = no fear of the commitment.
 - ❌ The timer creates pressure and stress
   Stress isn't the positive lever here. The timer structures, it doesn't stress. It gives a frame, nothing more.
 - ❌ It's a placebo
@@ -146,8 +146,8 @@ Why 25 minutes? Cirillo experimented with different lengths and 25 came out as t
 
 **Otázka:** Pracuješ a jsi „v tempu". Minutka zazvoní — konec pomodora. Co uděláš?
 
-- **✅ Vezmeš pauzu — i když jsi v tempu. Pravidelné pauzy udrží flow po dlouhé hodiny, pokračování bez pauzy vede k vyhoření po 2 hodinách**
-  Přesně. Paradox: pauzy dělají produktivitu dlouhodobě vyšší, ne nižší. Kdo jede bez pauzy, za 2 hodiny je vyčerpaný. Kdo bere pauzy, pracuje produktivně 6+ hodin.
+- **✅ Vezmeš pauzu — i když jsi v tempu**
+  Přesně. Pravidelné pauzy udrží flow po dlouhé hodiny, pokračování bez pauzy vede k vyhoření po 2 hodinách. Paradox: pauzy dělají produktivitu dlouhodobě vyšší, ne nižší. Kdo bere pauzy, pracuje produktivně 6+ hodin.
 - ❌ Pokračuješ, dokud jsi v zóně — nechceš přerušit flow
   Přirozený pocit, ale nefunguje dlouhodobě. Cirillo na to varuje: nejvíc lidí selže právě na „vynechání pauzy". Za 2 hodiny únava udeří tvrdě.
 - ❌ Zkrátíš pauzu na 1 minutu
@@ -157,8 +157,8 @@ Why 25 minutes? Cirillo experimented with different lengths and 25 came out as t
 
 **Question:** You're working and "on a roll." The timer rings — pomodoro over. What do you do?
 
-- **✅ You take the break — even while on a roll. Regular breaks keep flow running for hours; pushing through burns you out within two**
-  Exactly. Paradox: breaks make long-term productivity higher, not lower. Skipping breaks leaves you fried in 2 hours. Taking them lets you work productively for 6+.
+- **✅ You take the break — even while on a roll**
+  Exactly. Regular breaks keep flow running for hours; pushing through burns you out within two. Paradox: breaks make long-term productivity higher, not lower. Taking them lets you work productively for 6+ hours.
 - ❌ You keep going while in the zone — don't break the flow
   A natural feeling, but it fails long-term. Cirillo warns about this: most people fail on "skipping the break while I'm on a roll." Two hours later, fatigue hits hard.
 - ❌ You cut the break to 1 minute
@@ -209,8 +209,8 @@ How to apply Pomodoro in practice: 1) Pick one task. 2) Set a 25-minute timer. 3
 
 **Otázka:** Zkusíš pomodoro, ale během prvních 25 minut si 3× sáhneš na telefon „jen rychle zkontrolovat". Je to ještě pomodoro?
 
-- **✅ Ne — pomodoro vyžaduje BEZ rušení. Každá kontrola telefonu pomodoro rozbíjí a je třeba začít znovu**
-  Přesně. Cirillo je v tom striktní: rozbitý pomodoro neexistuje. Buď celých 25 minut soustředění, nebo nic. Jinak si budujete jen iluzi struktury.
+- **✅ Ne — musí být BEZ rušení**
+  Přesně. Každá kontrola telefonu pomodoro rozbíjí a je třeba začít znovu. Cirillo je v tom striktní: rozbitý pomodoro neexistuje. Buď celých 25 minut soustředění, nebo nic. Jinak si budujete jen iluzi struktury.
 - ❌ Ano — stačí, že ses snažil/a
   Snaha nestačí — pomodoro je o strukturním rámci, ne o dobrých úmyslech. Kompromis zničí celou techniku.
 - ❌ Ano, ale zkrátit počítání
@@ -220,8 +220,8 @@ How to apply Pomodoro in practice: 1) Pick one task. 2) Set a 25-minute timer. 3
 
 **Question:** You try a pomodoro, but during the first 25 minutes you grab your phone 3 times "just for a quick check." Is that still a pomodoro?
 
-- **✅ No — a pomodoro requires ZERO interruptions. Every phone check breaks it and you start again**
-  Exactly. Cirillo is strict: there's no such thing as a broken pomodoro. Either the full 25 minutes of focus or nothing. Otherwise you're only building an illusion of structure.
+- **✅ No — needs no interruptions**
+  Exactly. Every phone check breaks it and you start again. Cirillo is strict: there's no such thing as a broken pomodoro. Either the full 25 minutes of focus or nothing. Otherwise you're only building an illusion of structure.
 - ❌ Yes — the effort counts
   Effort isn't enough — pomodoro is about the structural frame, not good intentions. A compromise destroys the whole technique.
 - ❌ Yes, but shorten the count
@@ -239,8 +239,8 @@ Practical tricks: 1) Put your phone in another room (not a drawer). 2) Write dow
 
 **Otázka:** Uprostřed pomodora si uvědomíš, že jsi zapomněl/a odpovědět na důležitý mail. Co uděláš?
 
-- **✅ Zapíšeš si „odpovědět na mail" na papír a vrátíš se k aktuálnímu úkolu — mail vyřídíš v 5minutové pauze**
-  Ano. 99 % „urgentních" věcí může počkat 15 minut. Zápis vyčistí mysl, pomodoro drží.
+- **✅ Zapíšeš si mail na papír a pokračuješ**
+  Ano. Aktuální MIT dokončíš, mail vyřídíš v 5minutové pauze — 99 % „urgentních" věcí může počkat 15 minut. Zápis vyčistí mysl, pomodoro drží.
 - ❌ Rychle odpovíš — zvládneš to za minutu
   Žádná akce netrvá „jen minutu". A i kdyby, rozbil/a jsi pomodoro. Lepší strategie: zapsat a vrátit se.
 - ❌ Zrušíš pomodoro a řešíš mail
@@ -250,8 +250,8 @@ Practical tricks: 1) Put your phone in another room (not a drawer). 2) Write dow
 
 **Question:** Mid-pomodoro you realize you forgot to reply to an important email. What do you do?
 
-- **✅ You write "reply to email" on paper and go back to the current task — you'll handle the email in the 5-minute break**
-  Yes. 99% of "urgent" things can wait 15 minutes. The note clears your mind, the pomodoro holds.
+- **✅ You write the email down and keep going**
+  Yes. Finish the current task and handle the email in the 5-minute break — 99% of "urgent" things can wait 15 minutes. The note clears your mind, the pomodoro holds.
 - ❌ You reply quickly — it'll only take a minute
   No action is ever "just a minute." And even if it were, it broke the pomodoro. Better strategy: write it down and come back.
 - ❌ You cancel the pomodoro and deal with the email
@@ -261,8 +261,8 @@ Practical tricks: 1) Put your phone in another room (not a drawer). 2) Write dow
 
 **Otázka:** Co dělat v 5minutové pauze?
 
-- **✅ Vstát, napít se, podívat se z okna, protáhnout se — fyzický reset mozku a těla**
-  Přesně. Pauza musí být aktivní fyzický odpočinek od obrazovky. Mozek potřebuje změnu perspektivy, oči pohled do dálky.
+- **✅ Vstát, napít se, z okna ven**
+  Přesně. Protáhnout se a odejít od obrazovky. Pauza musí být aktivní fyzický odpočinek. Mozek potřebuje změnu perspektivy, oči pohled do dálky.
 - ❌ Scrollovat Instagram „pro rozptýlení"
   To je naopak další kognitivní zátěž. Mozek nemá čas regenerovat. Instagramová pauza znehodnocuje pomodoro.
 - ❌ Odpovídat na maily
@@ -272,8 +272,8 @@ Practical tricks: 1) Put your phone in another room (not a drawer). 2) Write dow
 
 **Question:** What should you do during the 5-minute break?
 
-- **✅ Stand up, drink water, look out the window, stretch — a physical reset for brain and body**
-  Exactly. The break has to be active physical rest away from the screen. Your brain needs a change of perspective, your eyes need to look into the distance.
+- **✅ Stand, drink, look out**
+  Exactly. Stretch and step away from the screen. The break has to be active physical rest. Your brain needs a change of perspective, your eyes need to look into the distance.
 - ❌ Scroll Instagram "for a distraction"
   That's just more cognitive load. Your brain gets no recovery. An Instagram break guts the pomodoro.
 - ❌ Answer emails

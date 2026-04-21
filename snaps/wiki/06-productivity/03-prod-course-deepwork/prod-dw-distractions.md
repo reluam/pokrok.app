@@ -79,8 +79,8 @@ University of Texas research: even the mere presence of a phone in the room (eve
 
 **Otázka:** Jaké je nejjednodušší, ale nejúčinnější řešení problému s telefonem při práci?
 
-- **✅ Fyzicky přesunout telefon do jiné místnosti na celé pracovní bloky**
-  Přesně. Fyzická vzdálenost je jediné spolehlivé řešení. Vůle selhává, blokátor lze obejít „jen abych zkontroloval čas".
+- **✅ Přesunout telefon do jiné místnosti**
+  Přesně. Na celé pracovní bloky — fyzická vzdálenost je jediné spolehlivé řešení. Vůle selhává, blokátor lze obejít „jen abych zkontroloval čas".
 - ❌ Silnější vůle — „nebudu na něj sahat"
   Vůle selhává vždy, když je telefon viditelný. Mozek vědomě i nevědomě bojuje s nutkáním.
 - ❌ Nainstalovat blokátor aplikací
@@ -90,8 +90,8 @@ University of Texas research: even the mere presence of a phone in the room (eve
 
 **Question:** What's the simplest, most effective fix for the phone problem at work?
 
-- **✅ Physically move the phone into another room for entire work blocks**
-  Exactly. Physical distance is the only reliable fix. Willpower fails, a blocker can be bypassed "just to check the time."
+- **✅ Move the phone into another room**
+  Exactly. For entire work blocks — physical distance is the only reliable fix. Willpower fails, a blocker can be bypassed "just to check the time."
 - ❌ Stronger willpower — "I won't touch it"
   Willpower fails every time the phone is visible. Your brain battles the urge consciously and unconsciously.
 - ❌ Install an app blocker
@@ -134,8 +134,8 @@ Distractions come in two types: external (phone, colleague, notification) and in
 
 **Otázka:** Jak se nejlépe vyrovnat s vnitřním rušením (vnikající myšlenky, úzkosti)?
 
-- **✅ Mít vedle sebe papír — každou myšlenku okamžitě zapsat a pak se vrátit k práci. Mozek se uklidní, protože ví, že nezapomene**
-  Přesně. Zápis myšlenky zbavuje mozek potřeby ji držet. Uvolní se kapacita pro soustředění.
+- **✅ Mít vedle sebe papír a myšlenky zapisovat**
+  Přesně. Každou myšlenku okamžitě zapsat a vrátit se k práci — mozek se uklidní, protože ví, že nezapomene. Zápis ho zbavuje potřeby ji držet a uvolní kapacitu pro soustředění.
 - ❌ Ignorovat myšlenky a tvrdě se soustředit
   Ignorování je jako odhrnout myšlenku — vrací se silnější. Zapsání ji „vyřeší" a mozek se uklidní.
 - ❌ Okamžitě myšlenku vyřešit a pak se vrátit k práci
@@ -145,8 +145,8 @@ Distractions come in two types: external (phone, colleague, notification) and in
 
 **Question:** How do you best handle internal distractions (intrusive thoughts, anxieties)?
 
-- **✅ Keep paper beside you — write each thought down immediately and return to work. Your brain relaxes because it knows it won't forget**
-  Exactly. Writing the thought down releases your brain from holding it. Capacity opens up for focus.
+- **✅ Keep paper beside you and capture each thought**
+  Exactly. Write each thought down immediately and return to work — your brain relaxes because it knows it won't forget. Writing it releases the brain from holding it and opens capacity for focus.
 - ❌ Ignore the thoughts and focus harder
   Ignoring is like shoving the thought away — it comes back stronger. Writing it down "solves" it and your brain calms down.
 - ❌ Solve the thought immediately and then return to work
@@ -197,8 +197,8 @@ Systematic distraction elimination: 1) Turn off all notifications (push, email, 
 
 **Otázka:** Pracuješ v open space a nemůžeš přesunout telefon ani vypnout Slack (klient píše). Jaká je nejlepší strategie?
 
-- **✅ Sluchátka (i bez hudby — signál „nerušit"), Slack status „deep work do 11:00, urgent = volejte", telefon otočený displejem dolů**
-  Perfektní. Sluchátka jsou jasný signál okolí. Status na Slacku řeší klienta s možností urgentu. Otočený telefon eliminuje vizuální lákadlo. Pragmatické a funkční.
+- **✅ Sluchátka, Slack status a otočený telefon**
+  Perfektní. Sluchátka (i bez hudby) jsou jasný signál „nerušit". Status „deep work do 11:00, urgent = volejte" řeší klienta s možností urgentu. Otočený telefon eliminuje vizuální lákadlo. Pragmatické a funkční.
 - ❌ Rezignovat na deep work v open space
   Nemusíš. S přizpůsobením jde deep work i tam. „Nejde to" je obvykle neochota k malým krokům.
 - ❌ Celý den poslouchat velmi hlasitou hudbu
@@ -208,8 +208,8 @@ Systematic distraction elimination: 1) Turn off all notifications (push, email, 
 
 **Question:** You work in an open space and can't move the phone away or turn off Slack (a client writes you). What's the best strategy?
 
-- **✅ Headphones (even without music — a "do not disturb" signal), Slack status "deep work until 11:00, urgent = call," phone flipped screen-down**
-  Perfect. Headphones are a clear signal to the room. The Slack status handles the client with an urgency escape hatch. Flipping the phone kills the visual lure. Pragmatic and effective.
+- **✅ Headphones, status, flipped phone**
+  Perfect. Headphones (even without music) are a clear "do not disturb" signal. The status "deep work until 11:00, urgent = call" handles the client with an escape hatch. Flipping the phone kills the visual lure. Pragmatic and effective.
 - ❌ Give up on deep work in the open space
   You don't have to. With adjustments deep work works there too. "Can't do it" is usually unwillingness to try small steps.
 - ❌ Play very loud music all day
@@ -227,8 +227,8 @@ Another trick is the "urgency policy": communicate in advance how people should 
 
 **Otázka:** Bojíš se, že pokud přestaneš okamžitě odpovídat, nikdo s tebou nebude chtít pracovat. Jaký je nejlepší první krok?
 
-- **✅ Otestovat malou eliminaci (1 blok denně bez Slacku) a sledovat skutečnou reakci — obvykle je realita lepší než strach**
-  Přesně. Strach je obvykle horší než realita. Týmy se adaptují na jasnou komunikaci. Experiment 1 blok = nízké riziko.
+- **✅ Otestovat malou eliminaci**
+  Přesně. Zkus 1 blok denně bez Slacku — obvykle je realita lepší než strach. Týmy se adaptují na jasnou komunikaci. Experiment 1 blok = nízké riziko.
 - ❌ Smířit se s tím, že deep work není možný
   Rezignace není strategie. 1 hodina deep worku denně je dosažitelná pro každého.
 - ❌ Hned změnit práci
@@ -238,8 +238,8 @@ Another trick is the "urgency policy": communicate in advance how people should 
 
 **Question:** You're afraid that if you stop replying instantly, no one will want to work with you. What's the best first step?
 
-- **✅ Test a small elimination (1 block a day without Slack) and watch the real reaction — reality is usually better than the fear**
-  Exactly. Fear is usually worse than reality. Teams adapt to clear communication. A 1-block experiment = low risk.
+- **✅ Test a small elimination**
+  Exactly. Try 1 block a day without Slack — reality is usually better than the fear. Teams adapt to clear communication. A 1-block experiment = low risk.
 - ❌ Accept that deep work isn't possible
   Giving up isn't a strategy. 1 hour of deep work a day is achievable for anyone.
 - ❌ Change jobs right away
@@ -249,8 +249,8 @@ Another trick is the "urgency policy": communicate in advance how people should 
 
 **Otázka:** Co tě udělá skutečně nezávislým na rušení?
 
-- **✅ Kombinace fyzických bariér (telefon pryč), pravidel (notifikace off) a vnitřní strategie (capture and release)**
-  Přesně. Potřebuješ všechny tři vrstvy — fyzické, procedurální i vnitřní. Jedna vrstva samotná selhává.
+- **✅ Kombinace tří vrstev — fyzické i vnitřní**
+  Přesně. Telefon pryč (fyzická bariéra), notifikace off (pravidlo) a capture and release (vnitřní strategie). Jedna vrstva samotná selhává.
 - ❌ Silná vůle — když se opravdu snažíš
   Vůle je poslední obranná linie a selhává. Lepší je pokušení vůbec nevytvořit.
 - ❌ Dokonalá koncentrace po letech meditace
@@ -260,8 +260,8 @@ Another trick is the "urgency policy": communicate in advance how people should 
 
 **Question:** What will truly make you independent of distractions?
 
-- **✅ A combination of physical barriers (phone away), rules (notifications off), and an internal strategy (capture and release)**
-  Exactly. You need all three layers — physical, procedural, and internal. One layer on its own fails.
+- **✅ Three layers — physical, rules and internal**
+  Exactly. Phone away (physical barrier), notifications off (rule), and capture and release (internal strategy). One layer on its own fails.
 - ❌ Strong willpower — when you really try
   Willpower is the last line of defense and it fails. Better to never create the temptation.
 - ❌ Perfect concentration after years of meditation

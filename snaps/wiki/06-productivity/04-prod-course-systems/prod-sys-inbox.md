@@ -79,8 +79,8 @@ The inbox orders emails chronologically, not by priority. As a to-do list it fai
 
 **Otázka:** Proč inbox nestačí jako to-do list?
 
-- **✅ Inbox zobrazuje maily chronologicky, ne podle priority — důležité věci se míchají s nepodstatnými**
-  Přesně. Maily nepřicházejí podle důležitosti. Inbox musí být prázdný, úkoly jsou jinde.
+- **✅ Řadí maily chronologicky, ne podle priority**
+  Přesně. Maily nepřicházejí podle důležitosti — důležité věci se míchají s nepodstatnými. Inbox musí být prázdný, úkoly jsou jinde.
 - ❌ Protože „inbox zero" zní lépe než „to-do list"
   Marketingový důvod to není. Je to strukturální problém — inbox není designovaný jako úkolový systém.
 - ❌ Protože tak to Mann napsal
@@ -90,8 +90,8 @@ The inbox orders emails chronologically, not by priority. As a to-do list it fai
 
 **Question:** Why isn't the inbox good enough as a to-do list?
 
-- **✅ The inbox orders emails chronologically, not by priority — important things get mixed up with trivial ones**
-  Exactly. Emails don't arrive in order of importance. The inbox has to be empty, tasks live somewhere else.
+- **✅ It orders emails chronologically, not by priority**
+  Exactly. Emails don't arrive in order of importance — important things get mixed with trivial ones. The inbox has to be empty, tasks live somewhere else.
 - ❌ Because "inbox zero" sounds better than "to-do list"
   It isn't a marketing reason. It's a structural problem — the inbox isn't designed as a task system.
 - ❌ Because that's how Mann wrote it
@@ -134,8 +134,8 @@ Mann proposed the 5D rule: every email runs through the filter: 1) Delete — sp
 
 **Otázka:** Dostaneš mail: „Můžeš mi poslat ten report z minulého týdne?" — trvá 30 sekund ho najít a poslat. Co s ním?
 
-- **✅ Do — trvá méně než 2 minuty, udělej hned a pak archivuj**
-  Přesně. Pravidlo 2 minut: rychleji udělat než organizovat. Ušetří hory administrativy.
+- **✅ Do — pravidlo 2 minut: udělej hned**
+  Přesně. Trvá to méně než 2 minuty — rychleji udělat než organizovat. Pak archivuj. Ušetří hory administrativy.
 - ❌ Defer — přidat do to-do listu
   Chyba. Přidání do seznamu trvá déle než samotné poslání. Pravidlo 2 minut.
 - ❌ Nechat v inboxu jako připomínku
@@ -145,8 +145,8 @@ Mann proposed the 5D rule: every email runs through the filter: 1) Delete — sp
 
 **Question:** You get an email: "Can you send me last week's report?" — it takes 30 seconds to find and send. What do you do with it?
 
-- **✅ Do — it takes less than 2 minutes, handle it now and then archive**
-  Exactly. The 2-minute rule: doing it is faster than managing it. It saves mountains of admin.
+- **✅ Do — 2-minute rule: handle it now**
+  Exactly. It takes less than 2 minutes — doing it is faster than managing it. Then archive. Saves mountains of admin.
 - ❌ Defer — add it to the to-do list
   Wrong. Adding it to a list takes longer than sending it. 2-minute rule.
 - ❌ Leave it in the inbox as a reminder
@@ -189,8 +189,8 @@ Practical implementation: 1) Set fixed times for email (e.g., 11:00 and 16:00). 
 
 **Otázka:** Chceš zkusit Inbox Zero, ale bojíš se, že klienti budou naštvaní za pomalé odpovědi. Jak postupovat?
 
-- **✅ Nastavit autoreply: „Maily zpracovávám 11:00 a 16:00. Urgentní věci volejte." Klienti se adaptují rychle**
-  Přesně. Jasná komunikace předem řeší 99 % úzkosti. Klienti nejsou naštvaní za pomalost — jsou naštvaní za nejistotu. Autoreply dává jistotu.
+- **✅ Nastavit autoreply s pravidly a urgent linkou**
+  Přesně. Autoreply typu „Maily zpracovávám 11:00 a 16:00. Urgentní věci volejte." Klienti se adaptují rychle — jasná komunikace předem řeší 99 % úzkosti. Nejsou naštvaní za pomalost, jsou naštvaní za nejistotu. Autoreply dává jistotu.
 - ❌ Vzdát Inbox Zero — je to moc riskantní
   Riziko je iluzorní. Statisticky téměř nikdo nepotřebuje odpověď do 10 minut. Urgent = telefon.
 - ❌ Kontrolovat mail každých 30 minut pro jistotu
@@ -200,8 +200,8 @@ Practical implementation: 1) Set fixed times for email (e.g., 11:00 and 16:00). 
 
 **Question:** You want to try Inbox Zero, but you're worried clients will be upset by slow replies. How do you proceed?
 
-- **✅ Set an autoreply: "I process email at 11:00 and 16:00. For urgent matters, call." Clients adapt fast**
-  Exactly. Clear upfront communication solves 99% of the anxiety. Clients aren't angry at slowness — they're angry at uncertainty. The autoreply gives them certainty.
+- **✅ Set an autoreply with rules and urgent line**
+  Exactly. Autoreply like "I process email at 11:00 and 16:00. For urgent matters, call." Clients adapt fast — clear upfront communication solves 99% of the anxiety. They're not angry at slowness, they're angry at uncertainty. The autoreply gives them certainty.
 - ❌ Give up on Inbox Zero — it's too risky
   The risk is illusory. Statistically almost no one needs a reply within 10 minutes. Urgent = phone.
 - ❌ Check email every 30 minutes just in case
@@ -219,8 +219,8 @@ Example situation: while processing your inbox you find an email that needs a lo
 
 **Otázka:** Proč Inbox Zero funguje lépe než „kontrolovat, kdy potřebuješ"?
 
-- **✅ Eliminuje rozhodovací únavu a fragmentaci — mozek neutrpí desítkami mikro-kontrol denně**
-  Přesně. Každá „jen rychlá kontrola" stojí mentální energii. 2 velké bloky zvládnou stejný objem s desetinou nákladu na mozek.
+- **✅ Mizí únava a fragmentace**
+  Přesně. Mozek neutrpí desítkami mikro-kontrol denně. Každá „jen rychlá kontrola" stojí mentální energii. 2 velké bloky zvládnou stejný objem s desetinou nákladu na mozek.
 - ❌ Mail se přečte rychleji v dávkách
   Samotné čtení je stejné. Rozdíl je v přepínání kontextu mezi mailem a prací.
 - ❌ Protože to dělají produktivní lidé
@@ -230,8 +230,8 @@ Example situation: while processing your inbox you find an email that needs a lo
 
 **Question:** Why does Inbox Zero work better than "check when you need to"?
 
-- **✅ It eliminates decision fatigue and fragmentation — your brain doesn't eat dozens of micro-checks a day**
-  Exactly. Every "just a quick check" burns mental energy. 2 big blocks handle the same volume with a fraction of the cognitive cost.
+- **✅ No fatigue or fragmentation**
+  Exactly. Your brain doesn't eat dozens of micro-checks a day. Every "just a quick check" burns mental energy. 2 big blocks handle the same volume with a fraction of the cognitive cost.
 - ❌ Email gets read faster in batches
   The reading itself is the same. The difference is switching context between email and work.
 - ❌ Because productive people do it
@@ -241,8 +241,8 @@ Example situation: while processing your inbox you find an email that needs a lo
 
 **Otázka:** Máš v inboxu 5 000+ mailů. Jak začít?
 
-- **✅ „Inbox bankrupt" — vše starší než 30 dní do archivu, zbytek zpracovat podle 5D. Čistý start**
-  Přesně. Staré maily jsou obvykle neaktuální — nikdo už nečeká. Vyčištění dá čistý start a eliminuje strach z „co všechno jsem propásl".
+- **✅ „Inbox bankrupt" — čistý start**
+  Přesně. Vše starší než 30 dní do archivu, zbytek zpracuj podle 5D. Staré maily jsou obvykle neaktuální — nikdo už nečeká. Vyčištění dá čistý start a eliminuje strach z „co všechno jsem propásl".
 - ❌ Projít všech 5 000 mailů jeden po druhém
   To trvá dny a demotivuje. Inbox bankrupt je pragmatické řešení.
 - ❌ Smazat vše bez čtení
@@ -252,8 +252,8 @@ Example situation: while processing your inbox you find an email that needs a lo
 
 **Question:** You have 5,000+ emails in your inbox. How do you start?
 
-- **✅ "Inbox bankruptcy" — everything older than 30 days to archive, the rest processed with 5D. A clean start**
-  Exactly. Old emails are usually stale — nobody is still waiting. The cleanup gives you a clean start and kills the fear of "what did I miss."
+- **✅ "Inbox bankruptcy" — a clean start**
+  Exactly. Everything older than 30 days to archive, process the rest with 5D. Old emails are usually stale — nobody is still waiting. The cleanup gives you a clean start and kills the fear of "what did I miss."
 - ❌ Go through all 5,000 emails one by one
   That takes days and is demotivating. Inbox bankruptcy is the pragmatic solution.
 - ❌ Delete everything without reading

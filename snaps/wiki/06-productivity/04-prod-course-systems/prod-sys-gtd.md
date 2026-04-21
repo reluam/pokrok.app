@@ -79,8 +79,8 @@ Every "open loop" (an unfinished task in your head) steals energy. In Getting Th
 
 **Otázka:** Jaké je jádro řešení podle GTD?
 
-- **✅ Dostat VŠECHNO z hlavy do externího důvěryhodného systému, aby mozek mohl myslet, ne pamatovat**
-  Přesně. Allen to nazývá „mind like water" — klidný mozek, který ví, že nezapomene. Klíč: systém, kterému věříš.
+- **✅ Dostat vše z hlavy ven**
+  Přesně. Externí důvěryhodný systém uvolní mozek na myšlení, ne pamatování. Allen to nazývá „mind like water" — klidný mozek, který ví, že nezapomene. Klíč: systém, kterému věříš.
 - ❌ Zlepšit svou paměť tréninkem
   GTD tvrdí opak — přestaň paměti důvěřovat. Spoléhání na paměť je zdroj stresu.
 - ❌ Mít méně úkolů
@@ -90,8 +90,8 @@ Every "open loop" (an unfinished task in your head) steals energy. In Getting Th
 
 **Question:** What's the core of GTD's solution?
 
-- **✅ Get EVERYTHING out of your head into an external trusted system so your brain can think, not remember**
-  Exactly. Allen calls it "mind like water" — a calm brain that knows nothing will be forgotten. The key: a system you trust.
+- **✅ Get it all out of your head**
+  Exactly. An external trusted system frees the brain to think, not remember. Allen calls it "mind like water" — a calm brain that knows nothing will be forgotten. The key: a system you trust.
 - ❌ Improve your memory through training
   GTD says the opposite — stop trusting memory. Relying on memory is a source of stress.
 - ❌ Have fewer tasks
@@ -134,8 +134,8 @@ GTD has 5 steps: 1) Capture — write EVERYTHING down. 2) Clarify — ask "what 
 
 **Otázka:** Do inboxu ti přistane „Nový marketingový nápad pro Instagram." Jak to clarifikovat podle GTD?
 
-- **✅ Zeptat se: „Vyžaduje to akci?" Ano → „Jaká je další konkrétní akce?" (např. „Napsat návrh do pátku"). Pak zařadit do projektu**
-  Přesně. „Marketingový nápad" je vágní. Clarify ho převede na konkrétní akci. Bez clarifikace inbox roste a utopí tě.
+- **✅ Převést na další akci**
+  Přesně. Zeptej se: „Vyžaduje to akci?" Ano → „Jaká je další konkrétní akce?" (např. „Napsat návrh do pátku"). Pak do projektu. „Marketingový nápad" je vágní — clarify ho převede na akci. Bez clarifikace inbox roste a utopí tě.
 - ❌ Nechat to v inboxu, až bude jasno
   To je chyba — inbox se naplní nejasnými věcmi. Každá položka musí dostat clarifikaci.
 - ❌ Smazat — není to konkrétní úkol
@@ -145,8 +145,8 @@ GTD has 5 steps: 1) Capture — write EVERYTHING down. 2) Clarify — ask "what 
 
 **Question:** Your inbox gets an item: "New marketing idea for Instagram." How do you clarify it in GTD terms?
 
-- **✅ Ask: "Does it need action?" Yes → "What's the next concrete action?" (e.g., "Write a draft by Friday"). Then slot it into a project**
-  Exactly. "Marketing idea" is vague. Clarify converts it into a concrete action. Without clarifying, the inbox grows and drowns you.
+- **✅ Turn it into a concrete next action**
+  Exactly. Ask: "Does it need action?" Yes → "What's the next concrete action?" (e.g., "Write a draft by Friday"). Then into a project. "Marketing idea" is vague — clarify turns it into action. Without clarifying, the inbox grows and drowns you.
 - ❌ Leave it in the inbox until it's clearer
   That's a mistake — the inbox fills with vague stuff. Every item has to be clarified.
 - ❌ Delete it — it isn't a concrete task
@@ -197,8 +197,8 @@ Practical GTD implementation: 1) Pick one system (Todoist, Things, Notion, paper
 
 **Otázka:** Uděláš brain dump a vyjde 87 položek. Cítíš se zahlcený. Jak postupovat?
 
-- **✅ Projít všech 87 položek postupně — clarifikovat, zařadit, nebo smazat. Trvá to hodinu, ale pak je mozek volný**
-  Přesně. Zahlcení je DOČASNÉ — 87 položek v hlavě bylo mnohem horší než 87 v seznamu. Hodina clarifikace vyřeší to, co roky trápilo.
+- **✅ Projít a clarifikovat všech 87**
+  Přesně. Každou zařaď, nebo smaž. Trvá to hodinu, ale pak je mozek volný. Zahlcení je DOČASNÉ — 87 položek v hlavě bylo mnohem horší než 87 v seznamu. Hodina clarifikace vyřeší to, co roky trápilo.
 - ❌ Vzdát to — je to příliš mnoho
   Přesně takhle GTD selhává u většiny lidí. Nezvládnou první clarifikaci. Hodina práce = měsíce klidu.
 - ❌ Smazat vše a začít znovu od nuly
@@ -208,8 +208,8 @@ Practical GTD implementation: 1) Pick one system (Todoist, Things, Notion, paper
 
 **Question:** You do a brain dump and end up with 87 items. You feel overwhelmed. How do you proceed?
 
-- **✅ Work through all 87 items one by one — clarify, sort, or delete. It takes an hour, but then your brain is free**
-  Exactly. The overwhelm is TEMPORARY — 87 items in your head was way worse than 87 on a list. An hour of clarifying solves what's been grinding for years.
+- **✅ Work through all 87 items and clarify**
+  Exactly. Sort or delete each one. Takes an hour, then your brain is free. The overwhelm is TEMPORARY — 87 items in your head was way worse than 87 on a list. An hour of clarifying solves what's been grinding for years.
 - ❌ Give up — it's too much
   That's exactly how GTD fails for most people. They can't handle the first clarify pass. One hour of work = months of peace.
 - ❌ Delete everything and start from scratch
@@ -227,8 +227,8 @@ Putting a task in the right list is crucial. Example: "Organize the company team
 
 **Otázka:** Co bylo klíčové pro úspěch v GTD po prvním roce praxe?
 
-- **✅ Disciplína týdenní revize — bez ní systém hnije a ztrácí důvěryhodnost**
-  Přesně. Allen říká: „GTD bez týdenní revize není GTD — je to jen to-do list." Revize udržuje systém živý.
+- **✅ Disciplína týdenní revize**
+  Přesně. Bez ní systém hnije a ztrácí důvěryhodnost. Allen říká: „GTD bez týdenní revize není GTD — je to jen to-do list." Revize udržuje systém živý.
 - ❌ Koupení správné aplikace nebo nástroje
   Nástroj nerozhoduje — disciplína ano. Aplikace bez revize je stejně chaotická jako papír bez revize.
 - ❌ Mít méně projektů najednou
@@ -238,8 +238,8 @@ Putting a task in the right list is crucial. Example: "Organize the company team
 
 **Question:** What was key to success in GTD after the first year of practice?
 
-- **✅ The discipline of the weekly review — without it the system rots and loses trust**
-  Exactly. Allen says: "GTD without a weekly review isn't GTD — it's just a to-do list." The review keeps the system alive.
+- **✅ The weekly review discipline**
+  Exactly. Without it the system rots and loses trust. Allen says: "GTD without a weekly review isn't GTD — it's just a to-do list." The review keeps the system alive.
 - ❌ Buying the right app or tool
   The tool doesn't decide — discipline does. An app without a review is as chaotic as paper without a review.
 - ❌ Having fewer projects at once
@@ -249,8 +249,8 @@ Putting a task in the right list is crucial. Example: "Organize the company team
 
 **Otázka:** Co je největší past GTD?
 
-- **✅ Capture bez clarify — inbox roste a lidé se v něm topí, systém ztrácí důvěryhodnost**
-  Přesně. Mnoho lidí se naučí „všechno zapisovat" a skončí s 500 nejasnými položkami. Clarify je rozhodující krok.
+- **✅ Capture bez clarify**
+  Přesně. Inbox roste a lidé se v něm topí — systém ztrácí důvěryhodnost. Mnoho lidí se naučí „všechno zapisovat" a skončí s 500 nejasnými položkami. Clarify je rozhodující krok.
 - ❌ Týdenní revize trvá příliš dlouho
   Revize trvá 30–60 minut a šetří hory stresu. Není to problém — je to podmínka úspěchu.
 - ❌ GTD má příliš mnoho seznamů
@@ -260,8 +260,8 @@ Putting a task in the right list is crucial. Example: "Organize the company team
 
 **Question:** What's the biggest GTD trap?
 
-- **✅ Capture without clarify — the inbox grows and people drown in it, the system loses trust**
-  Exactly. Many people learn to "write everything down" and end up with 500 vague items. Clarify is the decisive step.
+- **✅ Capture without clarify**
+  Exactly. The inbox grows and people drown in it — the system loses trust. Many people learn to "write everything down" and end up with 500 vague items. Clarify is the decisive step.
 - ❌ The weekly review takes too long
   The review takes 30–60 minutes and saves mountains of stress. It's not a problem — it's a requirement.
 - ❌ GTD has too many lists

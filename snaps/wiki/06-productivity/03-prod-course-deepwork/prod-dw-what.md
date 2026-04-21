@@ -79,8 +79,8 @@ Cal Newport defines deep work as "professional activities performed in a state o
 
 **Otázka:** Jak Newport definuje deep work?
 
-- **✅ Profesionální aktivity v bezrušivé koncentraci, které posouvají kognitivní schopnosti na limit a vytvářejí novou hodnotu**
-  Přesně. Deep work je náročné myšlení bez rušení — programování, psaní, strategie, analýza. Shallow work je logistika, co zvládne kdokoli při rozptýlení.
+- **✅ Soustředěná práce na limit kognice**
+  Přesně. Newport ji definuje jako profesionální aktivity v bezrušivé koncentraci, které vytvářejí novou hodnotu. Shallow work je logistika, co zvládne kdokoli při rozptýlení — programování, psaní, strategie nebo analýza spadají do deep worku.
 - ❌ Jakákoliv práce, která trvá víc než 2 hodiny
   Délka neurčuje deep work. Rozhoduje kvalita soustředění — 4 hodiny přepínání mezi úkoly jsou stále shallow work.
 - ❌ Práce vykonávaná v kanceláři
@@ -90,8 +90,8 @@ Cal Newport defines deep work as "professional activities performed in a state o
 
 **Question:** How does Newport define deep work?
 
-- **✅ Professional activities in distraction-free concentration that push cognitive capabilities to their limit and create new value**
-  Exactly. Deep work is hard thinking without interruption — coding, writing, strategy, analysis. Shallow work is logistics that anyone can do while distracted.
+- **✅ Focused work at cognitive limit**
+  Exactly. Newport defines it as distraction-free professional activity that creates new value. Shallow work is logistics anyone can do while distracted — coding, writing, strategy, and analysis all count as deep work.
 - ❌ Any work that takes more than 2 hours
   Length doesn't define deep work. The quality of focus does — 4 hours of task-switching is still shallow work.
 - ❌ Work done in the office
@@ -134,8 +134,8 @@ Newport distinguishes two types of work. Deep work = demanding, uninterrupted, c
 
 **Otázka:** Kdo pravděpodobně napíše lepší odbornou úvahu — ten, kdo pracuje 8 hodin s 50 maily a 5 schůzkami, nebo ten, kdo má 4 hodiny čistého deep work bloku?
 
-- **✅ Ten s 4 hodinami deep worku — kvalita výstupu roste exponenciálně s délkou nepřerušeného bloku**
-  Přesně. Newport opakovaně ukazuje, že 4 souvislé hodiny = 4× lepší výsledek než 4 × 1 fragmentovaná hodina. Koncentrace se nelze přepínat jako tlačítko.
+- **✅ Ten se 4 hodinami deep worku**
+  Přesně. Kvalita výstupu roste exponenciálně s délkou nepřerušeného bloku — Newport ukazuje, že 4 souvislé hodiny = 4× lepší výsledek než 4 × 1 fragmentovaná hodina. Koncentrace se nelze přepínat jako tlačítko.
 - ❌ Ten s 8 hodinami — víc hodin = víc práce
   Hodiny nejsou práce. Jsou to přítomnost. Skutečná práce vyžaduje soustředění.
 - ❌ Záleží na zkušenosti, výsledek bude stejný
@@ -145,8 +145,8 @@ Newport distinguishes two types of work. Deep work = demanding, uninterrupted, c
 
 **Question:** Who will likely write a better expert brief — someone who works 8 hours with 50 emails and 5 meetings, or someone with a 4-hour uninterrupted deep-work block?
 
-- **✅ The one with 4 hours of deep work — output quality grows exponentially with the length of an uninterrupted block**
-  Exactly. Newport shows again and again: 4 continuous hours = 4× the result of 4 × 1 fragmented hours. Focus can't be switched like a button.
+- **✅ The one with 4 hours of deep work**
+  Exactly. Output quality grows exponentially with uninterrupted block length — Newport shows 4 continuous hours = 4× the result of 4 × 1 fragmented hours. Focus can't be switched like a button.
 - ❌ The one with 8 hours — more hours = more work
   Hours aren't work. They're presence. Real work demands concentration.
 - ❌ Same outcome, it depends on experience
@@ -197,8 +197,8 @@ Newport's test: "If an untrained intern had to do this thing, how many months of
 
 **Otázka:** Která z aktivit JE deep work?
 
-- **✅ Navrhovat marketingovou strategii pro nový produkt**
-  Ano. Vyžaduje integraci znalostí, kreativity a analytického myšlení. Stážista bez zkušeností by to nedokázal. Deep work.
+- **✅ Navrhovat marketingovou strategii**
+  Ano. Vyžaduje integraci znalostí, kreativity a analytického myšlení pro nový produkt. Stážista bez zkušeností by to nedokázal. Deep work.
 - ❌ Odpovědět na mail od klienta
   Shallow work. Kdokoli se základní komunikací to zvládne — nevyžaduje kognitivní limit.
 - ❌ Zúčastnit se statusové schůzky
@@ -208,8 +208,8 @@ Newport's test: "If an untrained intern had to do this thing, how many months of
 
 **Question:** Which activity IS deep work?
 
-- **✅ Designing a marketing strategy for a new product**
-  Yes. It requires integrating knowledge, creativity, and analytical thinking. An untrained intern couldn't do it. Deep work.
+- **✅ Designing a marketing strategy**
+  Yes. It requires integrating knowledge, creativity, and analytical thinking for a new product. An untrained intern couldn't do it. Deep work.
 - ❌ Replying to a client email
   Shallow work. Anyone with basic communication skills can do it — it doesn't push cognitive limits.
 - ❌ Attending a status meeting
@@ -227,8 +227,8 @@ Practical steps to grow your deep-work share: 1) Measure how much deep work you 
 
 **Otázka:** Co je nejdůležitější první krok ke zvětšení deep worku?
 
-- **✅ Naplánovat pevné bloky bez rušení a bránit je jako posvátné**
-  Přesně. Bez plánu deep work nenastává. Bez obrany plánu deep work nezůstává. Oboje jsou nezbytné.
+- **✅ Naplánovat pevné bloky bez rušení**
+  Přesně. A bránit je jako posvátné — bez plánu deep work nenastává, bez obrany plánu nezůstává. Oboje jsou nezbytné.
 - ❌ Přečíst víc knih o produktivitě
   Znalosti jsou bezcenné bez akce. Naplánovat blok dnes večer > přečíst další knihu.
 - ❌ Najít dokonalý nástroj nebo aplikaci
@@ -238,8 +238,8 @@ Practical steps to grow your deep-work share: 1) Measure how much deep work you 
 
 **Question:** What's the most important first step to growing deep work?
 
-- **✅ Plan fixed, interruption-free blocks and defend them as sacred**
-  Exactly. Without a plan, deep work doesn't happen. Without defending the plan, deep work doesn't stay. Both are necessary.
+- **✅ Plan fixed blocks of deep work**
+  Exactly. And defend them as sacred — without a plan deep work doesn't happen, without defending it doesn't stay. Both are necessary.
 - ❌ Read more productivity books
   Knowledge is worthless without action. Block tonight's calendar > read another book.
 - ❌ Find the perfect tool or app
@@ -249,8 +249,8 @@ Practical steps to grow your deep-work share: 1) Measure how much deep work you 
 
 **Otázka:** Deep work je v 21. století „superschopnost". Proč?
 
-- **✅ Protože jí systematicky ubývá (technologie nás rozptylují), ale ekonomika ji odměňuje čím dál víc**
-  Přesně. Paradox: výkon mozku v soustředěné práci se stává vzácnějším — a zároveň hodnotnějším. Kdo ji kultivuje, má neúměrnou výhodu.
+- **✅ Ubývá jí, ale ekonomika ji odměňuje víc**
+  Přesně. Technologie nás rozptylují, a tak se výkon mozku v soustředěné práci stává vzácnějším — a zároveň hodnotnějším. Kdo ji kultivuje, má neúměrnou výhodu.
 - ❌ Protože deep work dělají jen géniové
   Deep work je dovednost, ne talent. Trénuje se jako sval — každý ji může rozvíjet.
 - ❌ Protože pomáhá jen v akademické práci
@@ -260,8 +260,8 @@ Practical steps to grow your deep-work share: 1) Measure how much deep work you 
 
 **Question:** Deep work is a "superpower" in the 21st century. Why?
 
-- **✅ Because it's systematically getting rarer (technology distracts us) yet the economy rewards it more and more**
-  Exactly. The paradox: cognitive performance in focused work is becoming scarcer — and simultaneously more valuable. Whoever cultivates it has a disproportionate advantage.
+- **✅ It's getting rarer and more valuable**
+  Exactly. Technology distracts us, so cognitive performance in focused work is becoming scarcer — and simultaneously more valuable. Whoever cultivates it has a disproportionate advantage.
 - ❌ Because only geniuses can do deep work
   Deep work is a skill, not a talent. It's trained like a muscle — anyone can develop it.
 - ❌ Because it only helps in academic work

@@ -83,8 +83,8 @@ Batching principle: group similar tasks. **Email twice a day. Calls in one block
 
 **Otázka:** Proč je mail 2× denně lepší než „kontrolovat, když přijde"?
 
-- **✅ Každé přepnutí kontextu stojí mozek 15+ minut na plné soustředění — 60 kontrol denně = chaos a nulové flow**
-  Přesně. Studie Gloria Mark (UC Irvine) ukazují 23 minut průměrný čas na „full focus recovery" po vyrušení. 60 vyrušení = celý den bez soustředění. Batching eliminuje tento problém.
+- **✅ Každé přepnutí kontextu stojí mozek 15+ minut**
+  Přesně. 60 kontrol denně = chaos a nulové flow. Studie Gloria Mark (UC Irvine) ukazují 23 minut průměrný čas na „full focus recovery" po vyrušení. 60 vyrušení = celý den bez soustředění. Batching to eliminuje.
 - ❌ Mail 2× denně je fyzicky rychlejší
   Čas na samotné čtení je stejný. Rozdíl je v přepínání mezi úkoly — to je největší žrout produktivity.
 - ❌ Méně mailů je psychologicky méně stresující
@@ -94,8 +94,8 @@ Batching principle: group similar tasks. **Email twice a day. Calls in one block
 
 **Question:** Why is email 2× a day better than "check when it comes"?
 
-- **✅ Every context switch costs your brain 15+ minutes to regain full focus — 60 checks a day = chaos and zero flow**
-  Exactly. Gloria Mark's studies (UC Irvine) show 23 minutes average for "full focus recovery" after an interruption. 60 interruptions = a day without focus. Batching kills this problem.
+- **✅ Every context switch costs 15+ minutes**
+  Exactly. 60 checks a day = chaos and zero flow. Gloria Mark's studies (UC Irvine) show 23 minutes average for "full focus recovery" after an interruption. 60 interruptions = a day without focus. Batching kills it.
 - ❌ Email 2× a day is physically faster
   The reading time itself is the same. The difference is in switching between tasks — that's the biggest productivity eater.
 - ❌ Fewer emails is psychologically less stressful
@@ -146,8 +146,8 @@ Neuroscience shows the brain has limited "working memory" — what it's processi
 
 **Otázka:** Píšeš článek (hluboké soustředění) a přijde Slack zpráva „kdy můžeš zavolat?". Odpovíš „za hodinu" a vrátíš se k článku. Jaká je skutečná cena tohoto přerušení?
 
-- **✅ 10+ minut na znovu se dostat do flow kolem článku, ne 10 vteřin odpovědi**
-  Přesně. Výzkum ukazuje, že i 2sekundové přerušení zdvojnásobuje chybovost a 4sekundové ztrojnásobuje ji. Budeš psát další odstavec mnohem pomaleji.
+- **✅ Minuty návratu do flow**
+  Přesně. Skutečná cena je v návratu k článku, ne v samotné odpovědi. Výzkum ukazuje, že i 2sekundové přerušení zdvojnásobuje chybovost a 4sekundové ji ztrojnásobuje. Budeš psát další odstavec mnohem pomaleji.
 - ❌ Žádná — Slack zpráva byla rychlá
   To je iluze. Subjektivně „to bylo rychlé", ale mozek potřebuje čas na znovu-nastavení. Cena je skrytá.
 - ❌ 10 vteřin
@@ -157,8 +157,8 @@ Neuroscience shows the brain has limited "working memory" — what it's processi
 
 **Question:** You're writing an article (deep focus) and a Slack message comes in: "When can you call?" You reply "in an hour" and go back to the article. What's the real cost of that interruption?
 
-- **✅ 10+ minutes to get back into flow on the article, not 10 seconds of reply**
-  Exactly. Research shows even a 2-second interruption doubles error rates and a 4-second one triples them. You'll write the next paragraph much slower.
+- **✅ Minutes back into flow**
+  Exactly. The real cost is in returning to the article, not the reply itself. Research shows even a 2-second interruption doubles error rates and a 4-second one triples them. You'll write the next paragraph much slower.
 - ❌ None — the Slack message was quick
   That's the illusion. Subjectively "it was quick," but your brain needs time to reset. The cost is hidden.
 - ❌ 10 seconds
@@ -209,8 +209,8 @@ How to implement batching: 1) List every type of task in your day (email, calls,
 
 **Otázka:** Máš každý den: maily (2 h), telefonáty (1 h), psaní reportů (3 h), schůzky (2 h). Který batching plán je nejlepší?
 
-- **✅ 9–12 psaní (deep work), 12–13 oběd, 13–14 maily, 14–16 schůzky, 16–17 telefonáty**
-  Perfektní. Deep work ráno (nejvyšší energie), shallow work odpoledne, telefonáty na konec (kdy už psaní nedává smysl). Každý typ má svůj blok.
+- **✅ Psaní ráno, maily a schůzky odpoledne, telefonáty na konec**
+  Perfektní. Konkrétně: 9–12 psaní (deep work), 12–13 oběd, 13–14 maily, 14–16 schůzky, 16–17 telefonáty. Deep work při nejvyšší energii, shallow work odpoledne, telefonáty na konec. Každý typ má svůj blok.
 - ❌ Celý den střídat: 30 min maily, 30 min psaní, 30 min telefonáty, opakovat
   To je anti-batching. Konstantní přepínání = konstantní ztráty. Žádný blok nevygeneruje flow.
 - ❌ Vše dělat „jak to přijde"
@@ -220,8 +220,8 @@ How to implement batching: 1) List every type of task in your day (email, calls,
 
 **Question:** Every day you have: email (2 h), calls (1 h), writing reports (3 h), meetings (2 h). Which batching plan is best?
 
-- **✅ 9–12 writing (deep work), 12–13 lunch, 13–14 email, 14–16 meetings, 16–17 calls**
-  Perfect. Deep work in the morning (highest energy), shallow work in the afternoon, calls at the end (when writing no longer makes sense). Each type has its block.
+- **✅ Deep work morning, admin noon, meetings later**
+  Perfect. Specifically: 9–12 writing (deep work), 12–13 lunch, 13–14 email, 14–16 meetings, 16–17 calls. Deep work at highest energy, shallow work in the afternoon, calls at the end. Each type has its block.
 - ❌ Alternate all day: 30 min email, 30 min writing, 30 min calls, repeat
   That's anti-batching. Constant switching = constant losses. No block creates flow.
 - ❌ Do everything "as it comes"
@@ -239,8 +239,8 @@ Batching needs "signaling." When you're in a writing block, your surroundings ha
 
 **Otázka:** Batchuješ, ale kolegové tě stále ruší. Který signál je nejefektivnější?
 
-- **✅ Jasně sdělit týmu: „Od 9 do 11 jsem v deep worku, nereaguji na Slack. Pak jsem celý/á váš/vaše" + status na Slacku**
-  Přesně. Jasná domluva + viditelný status. Lidé potřebují vědět předem, ne uhodnout. Jasnost chrání vztahy i batch.
+- **✅ Domluva s týmem a status**
+  Přesně. Sděl: „Od 9 do 11 jsem v deep worku, nereaguji na Slack. Pak jsem celý/á váš/vaše" a přidej status na Slacku. Lidé potřebují vědět předem, ne uhodnout. Jasnost chrání vztahy i batch.
 - ❌ Zavřít dveře a doufat, že pochopí
   Zavřené dveře jsou slabý signál — mnoho lidí prostě zaklepe. Verbální/písemná domluva je silnější.
 - ❌ Mít mrzutý výraz
@@ -250,8 +250,8 @@ Batching needs "signaling." When you're in a writing block, your surroundings ha
 
 **Question:** You're batching, but colleagues keep interrupting you. Which signal is most effective?
 
-- **✅ Tell the team clearly: "From 9 to 11 I'm in deep work, I won't answer Slack. After that I'm all yours" + Slack status**
-  Exactly. A clear agreement + a visible status. People need to know in advance, not guess. Clarity protects both relationships and the batch.
+- **✅ Team agreement plus a status**
+  Exactly. Tell them: "From 9 to 11 I'm in deep work, I won't answer Slack. After that I'm all yours" and add a Slack status. People need to know in advance, not guess. Clarity protects both relationships and the batch.
 - ❌ Close the door and hope they'll get it
   A closed door is a weak signal — many people just knock. A verbal/written agreement is stronger.
 - ❌ Pull a grumpy face
@@ -261,8 +261,8 @@ Batching needs "signaling." When you're in a writing block, your surroundings ha
 
 **Otázka:** Která aktivita by se NEMĚLA batchovat?
 
-- **✅ Kreativní hluboká práce (psaní, design, strategie) — potřebuje dlouhé souvislé bloky, ne seskupení drobných úkolů**
-  Přesně. Batching je pro seskupení PODOBNÝCH drobných úkolů. Deep work má svůj vlastní blok, ale není to batch — je to samostatný typ práce.
+- **✅ Tvůrčí práce**
+  Přesně. Psaní, design a strategie potřebují dlouhé souvislé bloky, ne seskupení drobných úkolů. Batching je pro seskupení PODOBNÝCH drobných úkolů. Deep work má svůj vlastní blok, ale není to batch — je to samostatný typ práce.
 - ❌ Telefonáty
   Telefonáty jsou ideální pro batching — stejný kontext, stejný typ interakce.
 - ❌ Administrativa
@@ -272,8 +272,8 @@ Batching needs "signaling." When you're in a writing block, your surroundings ha
 
 **Question:** Which activity should NOT be batched?
 
-- **✅ Creative deep work (writing, design, strategy) — it needs long uninterrupted blocks, not clusters of small tasks**
-  Exactly. Batching is for grouping SIMILAR small tasks. Deep work gets its own block, but that's not a batch — it's its own type of work.
+- **✅ Write**
+  Exactly. Writing, design and strategy need long uninterrupted blocks, not clusters of small tasks. Batching is for grouping SIMILAR small tasks. Deep work gets its own block, but that's not a batch — it's its own type of work.
 - ❌ Calls
   Calls are ideal for batching — same context, same type of interaction.
 - ❌ Admin

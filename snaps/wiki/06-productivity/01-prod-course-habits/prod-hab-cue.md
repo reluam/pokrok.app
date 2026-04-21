@@ -79,8 +79,8 @@ In Atomic Habits, James Clear describes the habit loop: **cue → craving → re
 
 **Otázka:** Představ si, že máš sílu vůle a touhu číst. Přesto ani po měsíci nepřečteš jedinou kapitolu. Jaká klíčová součást návyku ti chybí?
 
-- **✅ Jasný spouštěč — konkrétní signál, kdy máš začít číst**
-  Přesně. Clear ukazuje, že bez spouštěče návyk nevznikne. Potřebuješ jasný moment „teď". Třeba: „Když si lehnu do postele, otevřu knihu."
+- **✅ Jasný spouštěč — signál „teď"**
+  Přesně — konkrétní signál, kdy máš začít číst. Clear ukazuje, že bez spouštěče návyk nevznikne. Potřebuješ jasný moment „teď". Třeba: „Když si lehnu do postele, otevřu knihu."
 - ❌ Víc motivace a disciplíny
   Motivace přichází a odchází — to není spolehlivý základ. Pokud si to opakuješ rok, motivace máš dost. Potřebuješ design, ne vůli.
 - ❌ Kratší kniha, která tě víc zaujme
@@ -90,8 +90,8 @@ In Atomic Habits, James Clear describes the habit loop: **cue → craving → re
 
 **Question:** Imagine you have willpower and a real desire to read. Yet after a month you haven't finished a single chapter. What key habit component are you missing?
 
-- **✅ A clear cue — a specific signal telling you when to start reading**
-  Exactly. Clear shows that without a cue, no habit takes hold. You need a clear "now" moment. For example: "When I get into bed, I open the book."
+- **✅ A clear cue — a "now" signal**
+  Exactly — a specific signal telling you when to start reading. Clear shows that without a cue, no habit takes hold. You need a clear "now" moment. For example: "When I get into bed, I open the book."
 - ❌ More motivation and discipline
   Motivation comes and goes — it's not a reliable foundation. If you've been repeating this for a year, you have plenty of motivation. You need design, not willpower.
 - ❌ A shorter book that grabs you more
@@ -109,8 +109,8 @@ A habit without a cue is like a car with no keys in the ignition. A working cue 
 
 **Otázka:** Proč „budu meditovat, když si na to vzpomenu" skoro nikdy nefunguje?
 
-- **✅ Bez fixního spouštěče si mozek „vzpomene" v náhodných chvílích, kdy nemáš čas nebo prostor — a návyk se neuloží**
-  Ano. Vzpomínka není spouštěč — přichází náhodně, často v nevhodnou chvíli. Fixní spouštěč vytváří opakování, opakování vytváří návyk.
+- **✅ Bez fixního spouštěče si vzpomeneš náhodně**
+  Ano — často v chvíli, kdy nemáš čas ani prostor, a návyk se neuloží. Vzpomínka není spouštěč — přichází náhodně, často v nevhodnou chvíli. Fixní spouštěč vytváří opakování, opakování vytváří návyk.
 - ❌ Meditace není dostatečně důležitá, aby si ji mozek pamatoval
   Důležitost tu nehraje roli — zapomínáš i na důležité věci. Mozek potřebuje vnější signál, ne vnitřní hodnocení.
 - ❌ Chybí ti dostatek vůle
@@ -120,8 +120,8 @@ A habit without a cue is like a car with no keys in the ignition. A working cue 
 
 **Question:** Why does "I'll meditate whenever I remember" almost never work?
 
-- **✅ Without a fixed cue, your brain "remembers" at random moments when you don't have time or space — and the habit never sticks**
-  Yes. Remembering isn't a cue — it pops up randomly, often at bad moments. A fixed cue creates repetition, repetition creates a habit.
+- **✅ Without a fixed cue you remember randomly**
+  Yes — often at moments when you have no time or space, and the habit never sticks. Remembering isn't a cue — it pops up randomly, often at bad moments. A fixed cue creates repetition, repetition creates a habit.
 - ❌ Meditation isn't important enough for the brain to remember
   Importance isn't the issue — you forget important things all the time. The brain needs an external signal, not an internal judgment of value.
 - ❌ You don't have enough willpower
@@ -131,7 +131,7 @@ A habit without a cue is like a car with no keys in the ignition. A working cue 
 
 **Otázka:** Který z následujících popisů je funkční spouštěč?
 
-- **✅ „Po tom, co si ráno vyčistím zuby, udělám 3 dřepy u umyvadla."**
+- **✅ „Po ranní hygieně udělám 3 dřepy."**
   Přesně. Konkrétní akce (zuby) + konkrétní místo (u umyvadla) + jasná reakce (3 dřepy). Mozek za týden vytvoří automatický řetězec.
 - ❌ „Budu víc cvičit, jakmile si na to vzpomenu."
   Tohle není spouštěč, to je přání. Není tu kotva v čase ani místě.
@@ -142,7 +142,7 @@ A habit without a cue is like a car with no keys in the ignition. A working cue 
 
 **Question:** Which of the following is a working cue?
 
-- **✅ "After I brush my teeth in the morning, I'll do 3 squats by the sink."**
+- **✅ "After my teeth, I'll do 3 squats."**
   Exactly. A specific action (teeth) + a specific place (by the sink) + a clear response (3 squats). Within a week the brain runs it as an automatic chain.
 - ❌ "I'll exercise more whenever I remember."
   That's not a cue, that's a wish. There's no anchor in time or place.
@@ -178,8 +178,8 @@ Why does a cue work? Your brain saves energy by automating everything it does re
 
 **Otázka:** Fogg doporučuje tzv. implementation intentions: „Budu [návyk] v [čas] na [místo]." Proč tato formulace zvyšuje úspěšnost 2–3×?
 
-- **✅ Dává mozku konkrétní signál v čase i prostoru — přesně to, co bazální ganglia potřebují k automatizaci**
-  Přesně. Vágní plány („budu cvičit") nechávají mozek bez signálu. Konkrétní formulace vytvářejí neuronovou dráhu, která se opakováním zesiluje.
+- **✅ Dává mozku konkrétní signál v čase i prostoru**
+  Přesně — to bazální ganglia potřebují k automatizaci. Vágní plány („budu cvičit") nechávají mozek bez signálu. Konkrétní formulace vytvářejí neuronovou dráhu, která se opakováním zesiluje.
 - ❌ Protože napsaný plán motivuje víc
   Motivace není hlavní mechanismus. Hlavní je neurologická asociace mezi kontextem a akcí.
 - ❌ Protože je to komplikovanější, a proto to bereme vážněji
@@ -189,8 +189,8 @@ Why does a cue work? Your brain saves energy by automating everything it does re
 
 **Question:** Fogg recommends "implementation intentions": "I will [habit] at [time] in [place]." Why does this formulation increase success 2–3×?
 
-- **✅ It gives your brain a concrete signal in both time and space — exactly what the basal ganglia need for automation**
-  Exactly. Vague plans ("I'll exercise") leave the brain without a signal. Concrete formulations build a neural pathway that strengthens with repetition.
+- **✅ It gives the brain a concrete signal in time and space**
+  Exactly — that's what the basal ganglia need for automation. Vague plans ("I'll exercise") leave the brain without a signal. Concrete formulations build a neural pathway that strengthens with repetition.
 - ❌ Because a written plan is more motivating
   Motivation isn't the main mechanism. The main thing is the neurological association between context and action.
 - ❌ Because it's more complicated, so we take it more seriously
@@ -216,8 +216,8 @@ The best cue is one that already exists. You don't have to invent anything — j
 
 **Otázka:** Chceš cvičit 3× týdně. Tvůj spouštěč je: „Po práci si obleču cvičební oblečení." Co tomuhle spouštěči chybí?
 
-- **✅ Není tam jasný den a konkrétní moment — „po práci" je široké okno**
-  Ano! „Po práci" může být v 16:00 i v 19:00. Lepší: „V pondělí, středu a pátek, jakmile zaparkuju u domu."
+- **✅ Chybí jasný den a konkrétní moment začátku**
+  Ano — „po práci" je široké okno, může být v 16:00 i v 19:00. Lepší: „V pondělí, středu a pátek, jakmile zaparkuju u domu."
 - ❌ Měl bys dávat 30 minut cvičení, ne jen oblečení
   Naopak, začít obléknutím je skvělá aplikace pravidla 2 minut. Problém je jinde — v nejasném čase.
 - ❌ Žádný problém, spouštěč je v pořádku
@@ -227,8 +227,8 @@ The best cue is one that already exists. You don't have to invent anything — j
 
 **Question:** You want to work out 3× a week. Your cue: "After work I put on my workout clothes." What's missing?
 
-- **✅ There's no clear day and specific moment — "after work" is a broad window**
-  Yes! "After work" could mean 4 p.m. or 7 p.m. Better: "On Monday, Wednesday, and Friday, as soon as I park at the house."
+- **✅ There's no clear day and specific moment**
+  Yes — "after work" is a broad window that could mean 4 p.m. or 7 p.m. Better: "On Monday, Wednesday, and Friday, as soon as I park at the house."
 - ❌ You should aim for 30 minutes of exercise, not just getting dressed
   Actually, starting with getting dressed is a great application of the 2-minute rule. The problem is elsewhere — in the unclear time.
 - ❌ No problem, the cue is fine
@@ -238,8 +238,8 @@ The best cue is one that already exists. You don't have to invent anything — j
 
 **Otázka:** Dobrý spouštěč projde testem „kdybych to natočil na kameru, byl by moment zřejmý?". Který spouštěč tímto testem projde?
 
-- **✅ „Když si sednu s ranní kávou na pohovku, přečtu jednu stránku."**
-  Přesně. Na kameře bys viděl jasný moment — sednutí s kávou. Je to konkrétní, opakovatelné a nezaměnitelné.
+- **✅ „Po kávě přečtu stránku."**
+  Přesně. Na kameře bys viděl jasný moment — sednutí s ranní kávou na pohovku a otevření knihy. Je to konkrétní, opakovatelné a nezaměnitelné.
 - ❌ „Budu číst ráno."
   „Ráno" je několik hodin. Na kameře by nebylo jasné, kdy přesně má čtení začít.
 - ❌ „Přečtu si, až budu mít náladu."
@@ -249,8 +249,8 @@ The best cue is one that already exists. You don't have to invent anything — j
 
 **Question:** A good cue passes the test "if I filmed this on camera, would the moment be obvious?" Which cue passes this test?
 
-- **✅ "When I sit down with my morning coffee on the couch, I'll read one page."**
-  Exactly. On camera you'd see a clear moment — sitting down with coffee. It's concrete, repeatable, and unmistakable.
+- **✅ "After coffee, I'll read a page."**
+  Exactly. On camera you'd see a clear moment — sitting down with morning coffee on the couch. It's concrete, repeatable, and unmistakable.
 - ❌ "I'll read in the morning."
   "Morning" spans several hours. On camera it wouldn't be clear when reading should start.
 - ❌ "I'll read when I'm in the mood."
@@ -285,8 +285,8 @@ How do you design a cue in practice? Three steps: 1) Pick a specific existing ro
 
 **Otázka:** Chceš začít pít víc vody. Který spouštěč bude fungovat nejlépe?
 
-- **✅ „Když si udělám ranní kávu, hned vypiju plnou sklenici vody."**
-  Perfektní. Konkrétní akce (káva) + konkrétní čas (hned) + jasná reakce (sklenice vody). Mozek za týden udělá automatický řetězec.
+- **✅ „Při ranní kávě vypiju sklenici vody."**
+  Perfektní. Konkrétní akce (káva) + konkrétní čas (hned) + jasná reakce (plná sklenice vody). Mozek za týden udělá automatický řetězec.
 - ❌ „Budu pít víc vody, jakmile si na to vzpomenu."
   Tohle není spouštěč, to je přání. Není tu kotva v čase ani místě.
 - ❌ „Budu vypít 2 litry vody denně."
@@ -296,8 +296,8 @@ How do you design a cue in practice? Three steps: 1) Pick a specific existing ro
 
 **Question:** You want to start drinking more water. Which cue will work best?
 
-- **✅ "When I make my morning coffee, I'll immediately drink a full glass of water."**
-  Perfect. A specific action (coffee) + a specific time (immediately) + a clear response (a glass of water). Within a week the brain runs it as an automatic chain.
+- **✅ "With my coffee, I'll drink a glass of water."**
+  Perfect. A specific action (morning coffee) + a specific time (immediately) + a clear response (a full glass of water). Within a week the brain runs it as an automatic chain.
 - ❌ "I'll drink more water whenever I remember."
   That's not a cue, that's a wish. There's no anchor in time or place.
 - ❌ "I'll drink 2 liters of water a day."
@@ -323,8 +323,8 @@ A good cue passes the test "if I filmed this on camera, would the moment be obvi
 
 **Otázka:** Co je nejlepší test „funkčního spouštěče"?
 
-- **✅ Opakuje se každý den ve stejném kontextu a nelze ho snadno přehlédnout**
-  Přesně. Konzistence + nepřehlédnutelnost. Proto fungují rutiny jako zuby, káva, zaparkování auta.
+- **✅ Denně a nepřehlédnutelně**
+  Přesně — konzistence + nepřehlédnutelnost ve stejném kontextu. Proto fungují rutiny jako zuby, káva, zaparkování auta.
 - ❌ Je motivující a příjemný
   Spouštěč nemusí být příjemný — může to být třeba zhasnutí budíku. Hlavní je, že se opakuje.
 - ❌ Je napsaný na nástěnce
@@ -334,8 +334,8 @@ A good cue passes the test "if I filmed this on camera, would the moment be obvi
 
 **Question:** What's the best test of a "working cue"?
 
-- **✅ It repeats every day in the same context and can't easily be overlooked**
-  Exactly. Consistency + unmissability. That's why routines like teeth, coffee, or parking the car work so well.
+- **✅ Daily, in context, unmissable**
+  Exactly — consistency + unmissability in the same context. That's why routines like teeth, coffee, or parking the car work so well.
 - ❌ It's motivating and pleasant
   A cue doesn't have to be pleasant — it can be something like turning off an alarm. What matters is that it repeats.
 - ❌ It's written on a bulletin board
@@ -345,8 +345,8 @@ A good cue passes the test "if I filmed this on camera, would the moment be obvi
 
 **Otázka:** 3 měsíce ses snažil o ranní protahování s plánem „každé ráno 10 minut jógy". Nefungovalo to. Pak jsi to přepsal na: „Po tom, co si dojdu pro kávu, rozvinu podložku a udělám 3 polohy." Po 3 týdnech cvičíš každé ráno. Co bylo hlavní změnou?
 
-- **✅ Navázání na konkrétní existující rutinu (káva) místo volného „každé ráno"**
-  Přesně. Vytvořil jsi řetěz: káva → podložka → cvičení. Spouštěč (káva) už fungoval dávno, nový návyk se jen přilepil.
+- **✅ Kotva v rutině (káva)**
+  Přesně — konkrétní káva místo volného „každé ráno". Vytvořil jsi řetěz: káva → podložka → cvičení. Spouštěč (káva) už fungoval dávno, nový návyk se jen přilepil.
 - ❌ Zkrácení cvičení
   Zkrácení pomohlo, ale hlavní byl spouštěč. I 10 minut „každé ráno" by selhalo bez kotvy v existující rutině.
 - ❌ Přečtení knihy o návycích
@@ -356,8 +356,8 @@ A good cue passes the test "if I filmed this on camera, would the moment be obvi
 
 **Question:** For 3 months you tried a morning stretch routine with the plan "10 minutes of yoga every morning." It didn't work. Then you rewrote it: "After I grab my coffee, I unroll the mat and do 3 poses." Three weeks later you're practicing every morning. What was the main change?
 
-- **✅ Anchoring to a specific existing routine (coffee) instead of a loose "every morning"**
-  Exactly. You built a chain: coffee → mat → practice. The cue (coffee) was already firing reliably, and the new habit just latched onto it.
+- **✅ Anchor on the coffee routine**
+  Exactly — a specific existing routine instead of a loose "every morning". You built a chain: coffee → mat → practice. The cue (coffee) was already firing reliably, and the new habit just latched onto it.
 - ❌ Shortening the practice
   Shortening helped, but the cue was the main thing. Even 10 minutes "every morning" would have failed without an anchor in an existing routine.
 - ❌ Reading a book about habits
@@ -392,8 +392,8 @@ Imagine that for 3 months you've wanted to start a morning stretch. You write: "
 
 **Otázka:** Co je nejčastější chyba při designu spouštěče?
 
-- **✅ Spoléhání na motivaci a vůli místo na konkrétní signál v prostředí**
-  Přesně. Lidé čekají na „správnou náladu" místo toho, aby si navrhli jasný spouštěč. Spouštěč funguje bez ohledu na náladu.
+- **✅ Spoléhání na motivaci a vůli**
+  Přesně — místo konkrétního signálu v prostředí. Lidé čekají na „správnou náladu" místo toho, aby si navrhli jasný spouštěč. Spouštěč funguje bez ohledu na náladu.
 - ❌ Příliš jednoduchý spouštěč
   Jednoduchost je naopak výhoda. Čím jednodušší spouštěč, tím snáze se automatizuje.
 - ❌ Příliš mnoho spouštěčů najednou
@@ -403,8 +403,8 @@ Imagine that for 3 months you've wanted to start a morning stretch. You write: "
 
 **Question:** What's the most common mistake when designing a cue?
 
-- **✅ Relying on motivation and willpower instead of a concrete signal in the environment**
-  Exactly. People wait for the "right mood" instead of designing a clear cue. A cue works regardless of mood.
+- **✅ Relying on willpower**
+  Exactly — instead of a concrete signal in the environment. People wait for the "right mood" instead of designing a clear cue. A cue works regardless of mood.
 - ❌ Making the cue too simple
   Simplicity is actually an advantage. The simpler the cue, the easier it automates.
 - ❌ Too many cues at once
@@ -430,8 +430,8 @@ Habit = cue + action + reward. Pick a good cue and you're 80% of the way there. 
 
 **Otázka:** Proč funguje napojení nového návyku na existující rutinu lépe než kalendářní připomínka?
 
-- **✅ Existující rutina je už automatizovaná v bazálních gangliích — mozek ji provede bez přemýšlení a nový návyk se na ni „přilepí"**
-  Přesně. Kalendářní připomínka je externí signál, který mozek časem ignoruje. Existující rutina je interní signál, který se koná každý den spolehlivě.
+- **✅ Rutina je už automatizovaná**
+  Přesně — mozek ji provede bez přemýšlení (bazální ganglia) a nový návyk se na ni „přilepí". Kalendářní připomínka je externí signál, který mozek časem ignoruje. Existující rutina je interní signál, který se koná každý den spolehlivě.
 - ❌ Kalendáře jsou nespolehlivé
   Kalendáře fungují dobře pro schůzky, ale pro malé návyky jsou křehké — snadno je odmáchneš.
 - ❌ Rutina je příjemnější
@@ -441,8 +441,8 @@ Habit = cue + action + reward. Pick a good cue and you're 80% of the way there. 
 
 **Question:** Why does attaching a new habit to an existing routine work better than a calendar reminder?
 
-- **✅ The existing routine is already automated in the basal ganglia — the brain runs it without thinking and the new habit "sticks" to it**
-  Exactly. A calendar reminder is an external signal the brain tunes out over time. An existing routine is an internal signal that fires reliably every day.
+- **✅ Routine is already automated**
+  Exactly — the brain runs it without thinking (basal ganglia) and the new habit sticks to it. A calendar reminder is an external signal the brain tunes out over time. An existing routine is an internal signal that fires reliably every day.
 - ❌ Calendars are unreliable
   Calendars work fine for meetings, but for small habits they're fragile — you easily dismiss them.
 - ❌ The routine is more pleasant
@@ -452,8 +452,8 @@ Habit = cue + action + reward. Pick a good cue and you're 80% of the way there. 
 
 **Otázka:** Který z těchto návyků má nejlépe navržený spouštěč?
 
-- **✅ „Po tom, co zaparkuju auto u domu, vezmu si z kufru běžecké boty a udělám 5minutovou procházku."**
-  Perfektní. Zaparkování je 100% spolehlivá akce, boty v kufru jsou fyzicky dostupné a 5minutová procházka je triviální. Vše sedí.
+- **✅ „Po zaparkování jdu na procházku."**
+  Perfektní. Zaparkování u domu je 100% spolehlivá akce, boty v kufru jsou fyzicky dostupné a 5minutová procházka je triviální. Vše sedí.
 - ❌ „Budu běhat, když budu mít čas."
   „Když budu mít čas" je anti-spouštěč. Čas se „nenajde" — musí se navrhnout.
 - ❌ „Každý den v 18:00 půjdu běhat."
@@ -463,8 +463,8 @@ Habit = cue + action + reward. Pick a good cue and you're 80% of the way there. 
 
 **Question:** Which of these habits has the best-designed cue?
 
-- **✅ "After I park my car at home, I grab my running shoes from the trunk and take a 5-minute walk."**
-  Perfect. Parking is a 100% reliable action, shoes in the trunk are physically available, and a 5-minute walk is trivial. Everything fits.
+- **✅ "After parking, 5-minute walk."**
+  Perfect. Parking at home is a 100% reliable action, shoes in the trunk are physically available, and a 5-minute walk is trivial. Everything fits.
 - ❌ "I'll run when I have time."
   "When I have time" is an anti-cue. Time doesn't "appear" — it has to be designed.
 - ❌ "Every day at 6 p.m. I'll go running."

@@ -83,8 +83,8 @@ MIT technique from Leo Babauta: every morning (or the night before), write on pa
 
 **Otázka:** Proč 1–3 úkoly, ne víc?
 
-- **✅ Víc priorit = žádná priorita. Když máš 7 MIT, mozek si vybere ty nejsnazší a důležité zůstanou nevyřešené**
-  Přesně. Slovo „priorita" původně existovalo jen v jednotném čísle. Víc priorit = žádné rozlišení. Potřebuješ 1–3 věci, které tě opravdu posunou.
+- **✅ Víc priorit = žádná priorita**
+  Přesně. Když máš 7 MIT, mozek si vybere ty nejsnazší a důležité zůstanou nevyřešené. Slovo „priorita" původně existovalo jen v jednotném čísle. Potřebuješ 1–3 věci, které tě opravdu posunou.
 - ❌ Protože víc úkolů se nedá za den zvládnout
   Víc úkolů se za den zvládnout dá — ale MIT není celý seznam. Je to výběr nejdůležitějších. Ostatní věci se dělají taky, jen po MIT.
 - ❌ Protože Babauta je lenivý
@@ -94,8 +94,8 @@ MIT technique from Leo Babauta: every morning (or the night before), write on pa
 
 **Question:** Why 1–3 tasks, not more?
 
-- **✅ More priorities = no priority. With 7 MITs your brain picks the easiest and the important ones stay unresolved**
-  Exactly. The word "priority" originally only existed in the singular. More priorities = no ranking. You need 1–3 things that really move you forward.
+- **✅ More priorities = no priority**
+  Exactly. With 7 MITs your brain picks the easiest and the important ones stay unresolved. The word "priority" originally only existed in the singular. You need 1–3 things that really move you forward.
 - ❌ Because you can't get more tasks done in a day
   You can get more tasks done in a day — but MITs aren't the whole task list. They're the pick of the most important. The rest get done too, just after the MITs.
 - ❌ Because Babauta is lazy
@@ -146,8 +146,8 @@ MITs build on the Pareto principle (80/20): 20% of activity drives 80% of result
 
 **Otázka:** Máš dnes: A) Odpovědět na 20 mailů. B) Dokončit business plán pro grant 500 000 Kč. C) Revidovat dokumenty. D) Aktualizovat Instagram. Který úkol je MIT #1?
 
-- **✅ B — business plán má nejvyšší potenciální dopad a snadno se odkládá, protože nic netlačí**
-  Přesně. MIT není urgentní úkol — je to IMPORTANT úkol. Eisenhowerova matice: důležité + neurgentní věci se nejčastěji odkládají. MIT je řeší.
+- **✅ B — business plán pro grant**
+  Přesně. Snadno se odkládá, protože nic netlačí. MIT není urgentní úkol — je to IMPORTANT úkol. Eisenhowerova matice: důležité + neurgentní věci se nejčastěji odkládají. MIT je řeší.
 - ❌ A — 20 mailů je největší objem práce
   Objem není důležitost. Maily jsou shallow work — snadno se přesunují na později. Business plán ne.
 - ❌ D — Instagram je rychlý
@@ -157,8 +157,8 @@ MITs build on the Pareto principle (80/20): 20% of activity drives 80% of result
 
 **Question:** Today you have: A) Reply to 20 emails. B) Finish a business plan for a 500,000 CZK grant. C) Review documents. D) Update Instagram. Which task is MIT #1?
 
-- **✅ B — the business plan has the biggest potential impact and is easily postponed because nothing pushes it**
-  Exactly. An MIT isn't an urgent task — it's an IMPORTANT task. The Eisenhower matrix: important + not urgent things are most often postponed. MITs solve that.
+- **✅ B — the business plan for the grant**
+  Exactly. It's easily postponed because nothing pushes it. An MIT isn't an urgent task — it's an IMPORTANT task. The Eisenhower matrix: important + not urgent things are most often postponed. MITs solve that.
 - ❌ A — 20 emails is the biggest volume of work
   Volume isn't importance. Email is often shallow work — easy to push to later. The business plan isn't.
 - ❌ D — Instagram is quick
@@ -209,8 +209,8 @@ How to actually use MITs: 1) The night before (or in the morning), write **1–3
 
 **Otázka:** Napíšeš jako MIT: „1. Práce na projektu. 2. Maily. 3. Schůzky." Po týdnu se necítíš produktivněji. Co je špatně?
 
-- **✅ MIT jsou mlhavé a široké — „práce na projektu" není akce, to je kategorie. Správně: „Dokončit modul X", „Napsat sekci Y"**
-  Přesně. MIT musí být konkrétní a dokončitelná akce. „Práce na projektu" je dobrá 20 minut i 8 hodin — nic neměří. Konkrétní úkol dává jasné „hotovo".
+- **✅ MIT jsou mlhavé a široké**
+  Přesně. „Práce na projektu" není akce, to je kategorie. Správně: „Dokončit modul X", „Napsat sekci Y". MIT musí být konkrétní a dokončitelná — „práce na projektu" je dobrá 20 minut i 8 hodin a nic neměří. Konkrétní úkol dává jasné „hotovo".
 - ❌ Měl/a bys mít jen 1 MIT, ne 3
   3 MIT je v pořádku — problém je v jejich konkrétnosti, ne v počtu.
 - ❌ MIT jsou moc ambiciózní
@@ -220,8 +220,8 @@ How to actually use MITs: 1) The night before (or in the morning), write **1–3
 
 **Question:** You write as your MITs: "1. Work on the project. 2. Email. 3. Meetings." A week in, you don't feel more productive. What's wrong?
 
-- **✅ The MITs are vague and broad — "work on the project" isn't an action, it's a category. Better: "Finish module X," "Write section Y"**
-  Exactly. An MIT has to be a concrete, completable action. "Work on the project" fits 20 minutes or 8 hours — it measures nothing. A concrete task gives a clear "done."
+- **✅ The MITs are vague and broad**
+  Exactly. "Work on the project" isn't an action, it's a category. Better: "Finish module X," "Write section Y." An MIT has to be concrete and completable — "work on the project" fits 20 minutes or 8 hours and measures nothing. A concrete task gives a clear "done."
 - ❌ You should have only 1 MIT, not 3
   3 MITs is fine — the issue is the specificity, not the count.
 - ❌ The MITs are too ambitious
@@ -239,8 +239,8 @@ The specificity rule: an MIT has to have a clear "done." "Write the article intr
 
 **Otázka:** Máš MIT „Dokončit přípravu prezentace". Uprostřed dne tě napadne skvělý nový nápad na marketing. Co uděláš?
 
-- **✅ Zapíšeš nápad do zásobníku na další dny a dokončíš aktuální MIT — nespouštíš nic nového**
-  Přesně. Disciplína MIT je: nic nového, dokud MIT nestojí. Nápady neignoruj — zapiš do seznamu „někdy/možná". MIT chrání soustředění.
+- **✅ Zapíšeš nápad a dokončíš MIT**
+  Přesně. Zásobník na další dny vyřeší nápad, nespouštíš nic nového. Disciplína MIT je: nic nového, dokud MIT nestojí. Nápady neignoruj — zapiš do seznamu „někdy/možná". MIT chrání soustředění.
 - ❌ Okamžitě začneš s novým nápadem, dokud je motivace čerstvá
   Přesně takhle se MIT disciplína rozbíjí. Nové nápady jsou dopamin — ale neposouvají MIT. Zapiš a pokračuj.
 - ❌ Střídáš obojí — 30 minut MIT, 30 minut nápad
@@ -250,8 +250,8 @@ The specificity rule: an MIT has to have a clear "done." "Write the article intr
 
 **Question:** Your MIT is "Finish prepping the presentation." Mid-day a great new marketing idea strikes. What do you do?
 
-- **✅ You write the idea into a backlog for later days and finish the current MIT — you don't start anything new**
-  Exactly. MIT discipline is: nothing new until the MIT stands. Don't ignore ideas — drop them into a "someday/maybe" list. MITs protect focus.
+- **✅ You capture the idea and finish the MIT**
+  Exactly. Drop it into a backlog for later days — you don't start anything new. MIT discipline is: nothing new until the MIT stands. Don't ignore ideas, use a "someday/maybe" list. MITs protect focus.
 - ❌ You start on the new idea right away while motivation is fresh
   This is exactly how MIT discipline breaks. New ideas are dopamine — but they don't move the MIT. Write it down and keep going.
 - ❌ You alternate — 30 minutes MIT, 30 minutes idea
@@ -261,8 +261,8 @@ The specificity rule: an MIT has to have a clear "done." "Write the article intr
 
 **Otázka:** Který je dobře formulovaný MIT?
 
-- **✅ „Napsat a poslat nabídku klientovi"**
-  Přesně. Konkrétní, dokončitelné, jasné „hotovo". Buď je napsáno a posláno, nebo není.
+- **✅ „Poslat nabídku dnes"**
+  Přesně. Konkrétní, dokončitelné, jasné „hotovo" — napsáno a posláno, nebo nic. Buď je hotovo, nebo není.
 - ❌ „Pracovat na marketingu"
   Mlhavé. Není jasné, kdy je „hotovo". Mohl/a bys to dělat celý týden a nikdy neskončit.
 - ❌ „Být produktivní"
@@ -272,8 +272,8 @@ The specificity rule: an MIT has to have a clear "done." "Write the article intr
 
 **Question:** Which is a well-formed MIT?
 
-- **✅ "Write and send the client proposal"**
-  Exactly. Concrete, completable, clear "done." Either it's written and sent or it isn't.
+- **✅ "Send proposal now"**
+  Exactly. Concrete, completable, clear "done" — written and sent, or nothing. Either it's done or it isn't.
 - ❌ "Work on marketing"
   Vague. It's not clear when you're "done." You could work a whole week and never finish.
 - ❌ "Be productive"
