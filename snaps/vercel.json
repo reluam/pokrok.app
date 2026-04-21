@@ -1,8 +1,0 @@
-{
-  "buildCommand": "cd web && npm install && npm run build",
-  "outputDirectory": "web/out",
-  "installCommand": "echo 'skipped — web/ installs its own deps'",
-  "framework": null,
-  "cleanUrls": true,
-  "trailingSlash": false
-}
