@@ -1,6 +1,7 @@
 {
   "crons": [
-    {"path": "/api/cron/send-newsletters", "schedule": "33 11 * * *"}
+    {"path": "/api/cron/send-newsletters", "schedule": "33 11 * * *"},
+    {"path": "/api/cron/substack-sync", "schedule": "17 4 * * *"}
   ],
   "headers": [
     {

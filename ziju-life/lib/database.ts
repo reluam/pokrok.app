@@ -471,6 +471,8 @@ export async function initializeDatabase() {
       )
     `
 
+    await sql`ALTER TABLE curated_posts ADD COLUMN IF NOT EXISTS source_url TEXT`
+
     await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_slug ON curated_posts(slug)`
     await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_status ON curated_posts(status)`
     await sql`CREATE INDEX IF NOT EXISTS idx_curated_posts_type ON curated_posts(type)`

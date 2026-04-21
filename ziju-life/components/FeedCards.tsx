@@ -43,6 +43,7 @@ export interface CuratedPost {
   tags: string[];
   published_at: string;
   cover_image_url: string | null;
+  source_url?: string | null;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -167,7 +168,8 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
     imageUrl = getVideoThumbnail(post.body_markdown);
   }
 
-  const href = `/feed/${post.slug}`;
+  const href = post.source_url || `/feed/${post.slug}`;
+  const isExternal = Boolean(post.source_url);
 
   const descText = post.body_markdown
     .split("\n")
@@ -206,9 +208,13 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
   // ── Bento mode (homepage) ──
   if (bento) {
     const bgImage = thumbnail || imageUrl;
+    const BentoLink: React.ElementType = isExternal ? "a" : Link;
+    const bentoLinkProps = isExternal
+      ? { href, target: "_blank", rel: "noopener noreferrer" }
+      : { href };
 
     return (
-      <Link href={href} className="block group h-full">
+      <BentoLink {...bentoLinkProps} className="block group h-full">
         <article className="relative rounded-2xl overflow-hidden h-full bg-gray-100 hover:shadow-lg transition-all duration-200">
           {/* Background */}
           {bgImage ? (
@@ -242,7 +248,7 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
             </p>
           </div>
         </article>
-      </Link>
+      </BentoLink>
     );
   }
 
@@ -260,8 +266,14 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
   ];
   const path = borderPaths[variantIdx];
 
+  const linkClass = `block group h-full relative ${rotationClass} hover:rotate-0 hover:-translate-y-0.5 transition-all duration-200`;
+  const LinkTag: React.ElementType = isExternal ? "a" : Link;
+  const linkProps = isExternal
+    ? { href, target: "_blank", rel: "noopener noreferrer" }
+    : { href };
+
   return (
-    <Link href={href} className={`block group h-full relative ${rotationClass} hover:rotate-0 hover:-translate-y-0.5 transition-all duration-200`}>
+    <LinkTag {...linkProps} className={linkClass}>
       {/* Hand-drawn shadow — visible only on hover */}
       <svg
         aria-hidden="true"
@@ -355,6 +367,6 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
           strokeLinecap="round"
         />
       </svg>
-    </Link>
+    </LinkTag>
   );
 }
