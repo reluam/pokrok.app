@@ -82,8 +82,8 @@ Dweck's experiments revealed a surprising finding: children who were told "you'r
 
 **Otázka:** Celé dětství slýcháš „jsi tak chytrý/á, to máš po tátovi". Dospěješ a vyhýbáš se všemu, kde bys mohl/a vypadat hloupě. Proč?
 
-- **✅ Chvála za vrozenou vlastnost vytvořila křehkou identitu, kterou musíš chránit**
-  Přesně. „Jsi chytrý/á" je skvělé, dokud jsi chytrý/á. Jakmile něco nezvládneš, identita se hroutí — takže se radši nezkoušíš.
+- **✅ Chvála talentu = strach**
+  Přesně. Vytvořila identitu, kterou teď musíš chránit. Jakmile něco nezvládneš, identita se hroutí — radši se nezkoušíš.
 - ❌ Je to geneticky zakódované
   Výzkum Dweckové ukazuje, že chování je tvořeno zpětnou vazbou v dětství, ne genetikou. Můžeš to změnit.
 - ❌ Je to jen osobnost
@@ -93,8 +93,8 @@ Dweck's experiments revealed a surprising finding: children who were told "you'r
 
 **Question:** Your whole childhood you hear "you're so smart, you got that from your dad." You grow up and avoid anything where you might look stupid. Why?
 
-- **✅ Praise for an innate trait created a fragile identity you have to protect**
-  Exactly. "You're smart" is great as long as you're smart. The moment you can't handle something, the identity collapses — so you'd rather not try.
+- **✅ Talent praise = fear**
+  Exactly. It created an identity you now have to protect. The moment you can't handle something, the identity collapses — so you'd rather not try.
 - ❌ It's genetically coded
   Dweck's research shows behavior is shaped by childhood feedback, not genetics. You can change it.
 - ❌ It's just personality
@@ -116,8 +116,8 @@ This applies to internal dialogue too. Instead of "I'm stupid for not handling i
 
 **Otázka:** Vedeš tým. Junior udělá výborný návrh. Která zpětná vazba nejvíc podpoří růst?
 
-- **✅ „Líbí se mi, jak jsi zvážil/a tři alternativy před rozhodnutím. To ukazuje dobrý proces."**
-  Přesně. Chválíš konkrétní strategii, kterou junior může vědomě opakovat. Je to „know-how", ne „kdo jsi".
+- **✅ „Zvážil/a jsi tři alternativy."**
+  Přesně. Pojmenuješ konkrétní strategii, kterou junior může vědomě opakovat. „Know-how", ne „kdo jsi".
 - ❌ „Jsi génius, měl/a by ses v této roli prosadit."
   Identitní chvála. Junior teď musí každý další návrh nést tíhu „být géniem".
 - ❌ „Dobrá práce."
@@ -127,8 +127,8 @@ This applies to internal dialogue too. Instead of "I'm stupid for not handling i
 
 **Question:** You lead a team. A junior produces an excellent proposal. Which feedback best supports growth?
 
-- **✅ "I like how you weighed three alternatives before deciding. That shows a good process."**
-  Exactly. You're praising a specific strategy the junior can consciously repeat. It's "know-how," not "who you are."
+- **✅ "You weighed three alternatives."**
+  Exactly. You name a specific strategy the junior can consciously repeat. "Know-how," not "who you are."
 - ❌ "You're a genius, you should really own this role."
   Identity praise. The junior now has to carry the weight of "being a genius" into every future proposal.
 - ❌ "Good work."
@@ -146,8 +146,8 @@ This applies to internal dialogue too. Instead of "I'm stupid for not handling i
 
 **Otázka:** Dostaneš vynikající recenzi na svou práci. Jak si ji zpracuješ nejzdravěji?
 
-- **✅ „Konkrétně tyto věci fungovaly. Použiji je i příště a vylepším, co ne."**
-  Přesně. Extrahuješ strategii (co funguje), kterou lze opakovat. To je zralá práce se zpětnou vazbou.
+- **✅ „Tohle fungovalo, použiji to příště."**
+  Přesně. Extrahuješ strategii, kterou lze opakovat. Zralá práce se zpětnou vazbou.
 - ❌ „Jsem fakt skvělý/á. To bych mohl/a říct i mámě."
   Chvála jako identitní palivo. Příště budeš muset obhajovat „být skvělý/á" — a to je stres.
 - ❌ „Měl/a jsem štěstí."
@@ -157,8 +157,8 @@ This applies to internal dialogue too. Instead of "I'm stupid for not handling i
 
 **Question:** You get an excellent review of your work. How do you process it most healthily?
 
-- **✅ "These specific things worked. I'll use them next time and improve what didn't."**
-  Exactly. You extract the strategy (what works), which can be repeated. That's mature work with feedback.
+- **✅ "This worked, I'll reuse it."**
+  Exactly. You extract a strategy that can be repeated. Mature work with feedback.
 - ❌ "I'm really great. I could tell my mom about this."
   Praise as identity fuel. Next time you'll have to defend "being great" — and that's stressful.
 - ❌ "I got lucky."
@@ -168,8 +168,8 @@ This applies to internal dialogue too. Instead of "I'm stupid for not handling i
 
 **Otázka:** Tvé dítě přijde ze školy a řekne: „Mám jedničku." Jak reaguješ s růstovou chválou?
 
-- **✅ „Super! Jak ses učil/a? Co ti nejvíc pomohlo?"**
-  Přesně. Chválíš, ale zároveň vedeš k reflexi strategie, kterou může opakovat. Učíš přemýšlet o vlastním učení.
+- **✅ „Výborně! Jak ses učil/a?"**
+  Přesně. Chválíš a vedeš k reflexi strategie, kterou může opakovat. Učíš přemýšlet o vlastním učení.
 - ❌ „Jsi tak chytrý/á! Můj génius!"
   Chvála identity. Dítě bude mít strach z další zkoušky, protože musí „být génius" vždycky.
 - ❌ „To je samozřejmé, další!"
@@ -179,8 +179,8 @@ This applies to internal dialogue too. Instead of "I'm stupid for not handling i
 
 **Question:** Your child comes home from school and says: "I got an A." How do you respond with growth praise?
 
-- **✅ "Great! How did you study? What helped you the most?"**
-  Exactly. You praise and also guide toward reflecting on the strategy they can repeat. You teach them to think about their own learning.
+- **✅ "Great! How did you study?"**
+  Exactly. You praise and guide them to reflect on the strategy they can repeat. You teach them to think about their own learning.
 - ❌ "You're so smart! My little genius!"
   Identity praise. The child will fear the next test because they have to "be a genius" every time.
 - ❌ "That's expected, next!"
@@ -190,8 +190,8 @@ This applies to internal dialogue too. Instead of "I'm stupid for not handling i
 
 **Otázka:** Která věta je procesní chvála?
 
-- **✅ „Všiml/a jsem si, že sis udělal/a seznam kroků před začátkem — to ti pomohlo zůstat soustředěný/á."**
-  Chválí konkrétní strategii (plánování) + její dopad (soustředění). Přesný příklad procesní chvály.
+- **✅ „Všiml/a jsem si, že sis udělal/a seznam."**
+  Chválí konkrétní strategii — plánování před začátkem. Přesný příklad procesní chvály. Seznam kroků je jasná strategie, kterou lze vědomě opakovat.
 - ❌ „Jsi neuvěřitelně disciplinovaný/á, je to vzácný dar."
   Identitní chvála balená jako „dar". Přesně to, čemu se vyhýbat.
 - ❌ „Skvělý výsledek, pokračuj!"
@@ -201,8 +201,8 @@ This applies to internal dialogue too. Instead of "I'm stupid for not handling i
 
 **Question:** Which sentence is process praise?
 
-- **✅ "I noticed you made a list of steps before starting — that helped you stay focused."**
-  Praises a specific strategy (planning) + its impact (focus). Exact example of process praise.
+- **✅ "I noticed you made a list of steps."**
+  Praises a specific strategy — planning before starting. Exact example of process praise.
 - ❌ "You're incredibly disciplined, it's a rare gift."
   Identity praise wrapped as a "gift." Exactly what to avoid.
 - ❌ "Great result, keep it up!"
@@ -241,8 +241,8 @@ This applies to you too. When something goes well, don't stop at "I'm good." Ask
 
 **Otázka:** Šéf ti řekne: „Tvůj report byl výborný." Chceš dostat užitečnou zpětnou vazbu. Co se zeptáš?
 
-- **✅ „Díky. Která konkrétní část nejvíc pomohla a proč?"**
-  Přesně. Aktivně si extrahuješ procesní informaci z obecné chvály. Necháváš si ji přeložit do použitelného.
+- **✅ „Díky. Která část nejvíc pomohla?"**
+  Přesně. Překládáš obecnou chválu na použitelnou konkrétní informaci, kterou můžeš použít v dalším reportu.
 - ❌ „Díky, moc si toho vážím."
   Hezké, ale nic neextrahuješ. Chvála jde nazmar.
 - ❌ „Fakt? Nebyl/a jsem si jistý/á, jestli je to dost."
@@ -252,8 +252,8 @@ This applies to you too. When something goes well, don't stop at "I'm good." Ask
 
 **Question:** Your boss says: "Your report was excellent." You want useful feedback. What do you ask?
 
-- **✅ "Thanks. Which specific part helped the most and why?"**
-  Exactly. You're actively extracting process information from the general praise. You're turning it into something usable.
+- **✅ "Thanks. Which part helped most?"**
+  Exactly. You turn general praise into usable, concrete information you can apply to the next report.
 - ❌ "Thanks, I really appreciate it."
   Nice, but you extract nothing. The praise goes to waste.
 - ❌ "Really? I wasn't sure it was good enough."
@@ -275,7 +275,7 @@ Don't write "I'm capable." Write "what specifically I did that made it work." Th
 
 **Otázka:** Co je hlavní rozdíl mezi chválou výsledku a chválou procesu?
 
-- **✅ Chvála procesu říká, CO funguje a jak to opakovat. Chvála výsledku říká jen, že to dopadlo dobře.**
+- **✅ Procesní říká, CO funguje a jak to opakovat**
   Přesně. Procesní chvála je návod. Výsledková chvála je jen verdikt — hezký, ale nepoužitelný.
 - ❌ Chvála výsledku je upřímnější
   Obě mohou být upřímné. Rozdíl je v tom, kolik informace předáváš. Procesní předává víc.
@@ -286,7 +286,7 @@ Don't write "I'm capable." Write "what specifically I did that made it work." Th
 
 **Question:** What's the main difference between outcome praise and process praise?
 
-- **✅ Process praise says WHAT works and how to repeat it. Outcome praise only says it turned out well.**
+- **✅ Process praise says WHAT works, how to repeat**
   Exactly. Process praise is a manual. Outcome praise is just a verdict — nice, but not usable.
 - ❌ Outcome praise is more genuine
   Both can be genuine. The difference is how much information you convey. Process conveys more.
@@ -305,8 +305,8 @@ Don't write "I'm capable." Write "what specifically I did that made it work." Th
 
 **Otázka:** Proč je důležité chválit za proces i sám/sama sebe, nejen ostatní?
 
-- **✅ Protože vnitřní dialog funguje stejně — „jsem skvělý/á" buduje křehkost, „tohle fungovalo" buduje know-how**
-  Přesně. Tvůj mozek reaguje na vlastní chválu stejně jako na cizí. Identitní chvála = křehkost. Procesní = učení.
+- **✅ Vnitřní dialog funguje úplně stejně**
+  Přesně. Tvůj mozek reaguje na vlastní chválu stejně jako na cizí. Identitní = křehkost. Procesní = učení.
 - ❌ Protože sebeúcta je důležitější než úcta od ostatních
   Sebeúcta je důležitá, ale tady jde o typ sebeúcty. Zdravá sebeúcta stojí na kompetenci, ne na identitě.
 - ❌ Protože to zvyšuje sebevědomí
@@ -316,8 +316,8 @@ Don't write "I'm capable." Write "what specifically I did that made it work." Th
 
 **Question:** Why is it important to praise yourself for process too, not just others?
 
-- **✅ Because internal dialogue works the same way — "I'm great" builds fragility, "this worked" builds know-how**
-  Exactly. Your brain responds to your own praise the same way as others'. Identity praise = fragility. Process praise = learning.
+- **✅ Internal dialogue works the exact same way**
+  Exactly. Your brain responds to your own praise the same way as others'. Identity = fragility. Process = learning.
 - ❌ Because self-esteem matters more than esteem from others
   Self-esteem matters, but what counts here is the type of self-esteem. Healthy self-esteem stands on competence, not identity.
 - ❌ Because it boosts confidence
@@ -327,8 +327,8 @@ Don't write "I'm capable." Write "what specifically I did that made it work." Th
 
 **Otázka:** Jak souvisí chvála za proces s růstovým mindsetem?
 
-- **✅ Procesní chvála učí, že úspěch pochází z úsilí a strategie — přesně to, co říká růstový mindset**
-  Přesně. Chvála za talent říká „buď takový, jaký jsi". Chvála za proces říká „děl to, co funguje, a zlepšuj se". To je růstový mindset v praxi.
+- **✅ Učí, že úspěch pochází z úsilí a strategie**
+  Přesně — a to je přesně to, co říká růstový mindset. Chvála za proces říká „děl to, co funguje, a zlepšuj se". Růstový mindset v praxi.
 - ❌ Nemají nic společného
   Mají všechno společné. Procesní chvála je praktický nástroj, kterým růstový mindset předáváš dál.
 - ❌ Růstový mindset vyžaduje jen vlastní práci, ne chválu
@@ -338,8 +338,8 @@ Don't write "I'm capable." Write "what specifically I did that made it work." Th
 
 **Question:** How does process praise relate to a growth mindset?
 
-- **✅ Process praise teaches that success comes from effort and strategy — exactly what a growth mindset says**
-  Exactly. Praise for talent says "be who you are." Praise for process says "do what works, and improve." That's growth mindset in practice.
+- **✅ Success comes from effort and strategy**
+  Exactly — and that's precisely what a growth mindset says. Praise for process says "do what works, and improve." Growth mindset in practice.
 - ❌ They have nothing in common
   They have everything in common. Process praise is the practical tool through which you pass on a growth mindset.
 - ❌ A growth mindset requires only your own work, not praise
@@ -349,8 +349,8 @@ Don't write "I'm capable." Write "what specifically I did that made it work." Th
 
 **Otázka:** Komu by ses měl/a ptát „Jaká strategie fungovala?" po úspěchu?
 
-- **✅ Hlavně sám/sama sobě — aby sis z každého úspěchu odnesl/a konkrétní know-how, které můžeš opakovat**
-  Přesně. Nejcennější zpětná vazba často přichází od tebe. „Co jsem udělal/a jinak?" je otázka, která mění úspěch z náhody na systém.
+- **✅ Hlavně sám/sama sobě — pro vlastní učení**
+  Přesně. Aby sis z každého úspěchu odnesl/a konkrétní know-how, které můžeš opakovat. Nejcennější zpětná vazba často přichází od tebe. „Co jsem udělal/a jinak?" je otázka, která mění úspěch z náhody na systém.
 - ❌ Jen ostatním — sám/sama to nepotřebuješ
   Potřebuješ to možná nejvíc. Bez sebereflexe se úspěchy stávají „štěstím" místo opakovatelnou strategií.
 - ❌ Nikomu — úspěch mluví sám za sebe
@@ -360,8 +360,8 @@ Don't write "I'm capable." Write "what specifically I did that made it work." Th
 
 **Question:** Who should you ask "What strategy worked?" after success?
 
-- **✅ Mainly yourself — so you take away specific know-how from every success that you can repeat**
-  Exactly. The most valuable feedback often comes from you. "What did I do differently?" is the question that turns success from luck into a system.
+- **✅ Mainly yourself — for your own learning**
+  Exactly. So you take away specific know-how from every success that you can repeat. The most valuable feedback often comes from you. "What did I do differently?" is the question that turns success from luck into a system.
 - ❌ Only others — you don't need it yourself
   You might need it the most. Without self-reflection, successes become "luck" instead of a repeatable strategy.
 - ❌ Nobody — success speaks for itself

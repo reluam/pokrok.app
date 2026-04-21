@@ -83,8 +83,8 @@ Legacy has three levels: 1) **People who remember you directly** (family, friend
 
 **Otázka:** Trávíš hodiny denně scrollováním. Večer se ptáš: „Co po mně zbude, kdybych umřel/a příští týden?" Jak ti tato otázka pomůže?
 
-- **✅ Je to kompas — okamžitě ti ukáže, co dnes děláš a co bys chtěl/a dělat**
-  Přesně. Otázka o odkazu je filtr pro dnešní volby. Co přežije pohled ze 80 let? To dělej.
+- **✅ Je to kompas pro dnešek**
+  Přesně. Filtr pro dnešní volby: co přežije pohled ze 80 let? To dělej.
 - ❌ Dostane tě do deprese
   Jen pokud ji pojmeš morbidně. Správně použitá dává smysl a směr, ne skleslost.
 - ❌ Donutí tě psát knihu o sobě
@@ -94,8 +94,8 @@ Legacy has three levels: 1) **People who remember you directly** (family, friend
 
 **Question:** You spend hours a day scrolling. In the evening you ask: "What would remain of me if I died next week?" How does this question help?
 
-- **✅ It's a compass — it instantly shows you what you do today and what you'd want to do**
-  Exactly. The legacy question is a filter for today's choices. What survives the view from age 80? Do that.
+- **✅ It's a compass for today**
+  Exactly. A filter for today's choices: what survives the view from age 80? Do that.
 - ❌ It will depress you
   Only if taken morbidly. Used right, it gives meaning and direction, not gloom.
 - ❌ It will force you to write a book about yourself
@@ -117,8 +117,8 @@ Legacy isn't about fame. It's about what's left of you — even if only in five 
 
 **Otázka:** Jsi zdravotní sestra/bratr. Pracuješ skromně, ne slavně. Jaký je tvůj odkaz?
 
-- **✅ Ohromný — dotkl/a ses stovek, možná tisíců lidí ve chvílích jejich největší zranitelnosti**
-  Přesně. Odkaz se neměří slávou. Tvůj odkaz je hluboký, i když není veřejný.
+- **✅ Ohromný — dotkl/a ses tisíců**
+  Přesně. Odkaz se neměří slávou — tvůj je hluboký, i když není veřejný.
 - ❌ Malý — nic velkého jsi nevybudoval/a
   Chybné měřítko. Velikost odkazu není velikost díla, ale hloubka a počet dotyků.
 - ❌ Nulový — nejsi slavný/á
@@ -128,8 +128,8 @@ Legacy isn't about fame. It's about what's left of you — even if only in five 
 
 **Question:** You're a nurse. You work modestly, not famously. What is your legacy?
 
-- **✅ Enormous — you've touched hundreds, maybe thousands of people in their most vulnerable moments**
-  Exactly. Legacy isn't measured by fame. Your legacy is deep even if it isn't public.
+- **✅ Enormous — you've touched thousands**
+  Exactly. Legacy isn't measured by fame — yours is deep even if it isn't public.
 - ❌ Small — you haven't built anything big
   Wrong metric. The size of legacy isn't the size of the work, but the depth and number of touches.
 - ❌ Zero — you aren't famous
@@ -147,8 +147,8 @@ Legacy isn't about fame. It's about what's left of you — even if only in five 
 
 **Otázka:** Co NEJLÉPE popisuje myšlení v odkazu?
 
-- **✅ Filtr pro dnešní rozhodnutí: „Co z toho přežije pohled ze smrtelné postele?"**
-  Přesně. Odkaz není plán na konci — je to filtr na začátku každého dne.
+- **✅ Filtr pro dnešní rozhodnutí**
+  Přesně. „Co přežije pohled ze smrtelné postele?" Filtr na začátku každého dne.
 - ❌ Usilování o slávu a uznání
   Odkaz může být naprosto anonymní a přesto hluboký.
 - ❌ Starost o to, co si o tobě myslí ostatní
@@ -158,8 +158,8 @@ Legacy isn't about fame. It's about what's left of you — even if only in five 
 
 **Question:** What BEST describes legacy thinking?
 
-- **✅ A filter for today's decisions: "Which of this survives the view from the deathbed?"**
-  Exactly. Legacy isn't a plan at the end — it's a filter at the start of each day.
+- **✅ A filter for today's decisions**
+  Exactly. "What survives the deathbed view?" A filter at the start of each day.
 - ❌ Chasing fame and recognition
   A legacy can be completely anonymous and still deep.
 - ❌ Worrying about what others think
@@ -169,8 +169,8 @@ Legacy isn't about fame. It's about what's left of you — even if only in five 
 
 **Otázka:** Jsi v krizi: dluhy, rozpad vztahu, ztracená kariéra. Jak ti myšlení v odkazu pomůže?
 
-- **✅ Ukáže ti, že tyto věci za 50 let nebudou definovat tvůj život. Definuje ho to, jak z krize vylezeš.**
-  Přesně. Odkaz dává perspektivu — současná bolest není celý příběh.
+- **✅ Dá perspektivu na život**
+  Přesně. Za 50 let nedefinuje tvůj život krize, ale to, jak jsi z ní vylezl/a.
 - ❌ Řekne ti, aby ses vzdal/a
   Opak odkazu. Odkaz je nástroj pro vstávání, ne pro padání.
 - ❌ Ukáže, že na ničem nezáleží
@@ -180,8 +180,8 @@ Legacy isn't about fame. It's about what's left of you — even if only in five 
 
 **Question:** You're in crisis: debt, broken relationship, lost career. How does legacy thinking help?
 
-- **✅ It shows these things won't define your life in 50 years. What defines it is how you climb out.**
-  Exactly. Legacy gives perspective — the current pain isn't the whole story.
+- **✅ Gives life perspective**
+  Exactly. In 50 years your life isn't defined by the crisis, but by how you climbed out.
 - ❌ It tells you to give up
   The opposite of legacy. Legacy is a tool for getting up, not going down.
 - ❌ It shows nothing matters
@@ -191,8 +191,8 @@ Legacy isn't about fame. It's about what's left of you — even if only in five 
 
 **Otázka:** Rozhoduješ se mezi dvěma prácemi: 1) Vysoký plat v korporaci, která otravuje prostředí. 2) Nižší plat v neziskovce pomáhající dětem. Jak otázka odkazu pomáhá?
 
-- **✅ Za 50 let se neptáš „kolik jsem měl/a peněz?" ale „co jsem udělal/a?". Druhá práce má smysluplnější odpověď.**
-  Přesně. Odkaz jako filtr ukazuje, která volba přežije pohled zpět.
+- **✅ Druhá má smysluplnější odpověď**
+  Přesně. Za 50 let se neptáš „kolik peněz?" ale „co jsem udělal/a?".
 - ❌ Obě stejně — odkaz je subjektivní
   Částečně. Většina lidí zpětně lituje, že nedali víc hodnoty — ne že měli menší plat.
 - ❌ První — peníze znamenají bezpečí
@@ -202,8 +202,8 @@ Legacy isn't about fame. It's about what's left of you — even if only in five 
 
 **Question:** Choosing between: 1) High salary at a company that pollutes. 2) Lower salary at a nonprofit helping children. How does the legacy question help?
 
-- **✅ In 50 years you don't ask "how much money did I have?" but "what did I do?" The second has a more meaningful answer.**
-  Exactly. Legacy as a filter shows which choice survives the look back.
+- **✅ The second has a more meaningful answer**
+  Exactly. In 50 years you don't ask "how much money?" but "what did I do?"
 - ❌ Both the same — legacy is subjective
   Only partially. Most people looking back regret not giving more value — not having a smaller salary.
 - ❌ The first — money means security

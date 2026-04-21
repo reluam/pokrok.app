@@ -83,8 +83,8 @@ This difference fundamentally shapes how you approach challenges. A fixed mindse
 
 **Otázka:** Šéf ti navrhne kurz datové analýzy. Okamžitě si řekneš: „To nezvládnu, nejsem na čísla." Co se právě stalo v tvé hlavě?
 
-- **✅ Zapnul se fixní mindset — věříš, že tvá schopnost je vrozená a neměnná**
-  Přesně. Nevidíš kurz jako příležitost k růstu, ale jako test identity. Fixní mindset se chrání před potenciálním selháním tím, že se výzvě vyhne.
+- **✅ Zapnul se fixní mindset**
+  Přesně — věříš, že tvá schopnost je vrozená a neměnná. Nevidíš kurz jako příležitost k růstu, ale jako test identity. Fixní mindset se chrání před potenciálním selháním tím, že se výzvě vyhne.
 - ❌ Jsi realistický/á — znáš svoje limity
   „Realismus" je často jen jméno pro fixní mindset. Neznáš své skutečné limity — nikdy jsi je netestoval/a. Jen věříš příběhu, který sis sám/sama vyprávěl/a.
 - ❌ Jsi skromný/á a neposuzuješ se nad ostatní
@@ -94,8 +94,8 @@ This difference fundamentally shapes how you approach challenges. A fixed mindse
 
 **Question:** Your boss suggests a data analytics course. You immediately think: "I can't do that, I'm not a numbers person." What just happened in your head?
 
-- **✅ A fixed mindset kicked in — you believe your ability is innate and unchangeable**
-  Exactly. You don't see the course as a chance to grow, but as a test of identity. A fixed mindset protects itself from potential failure by avoiding the challenge.
+- **✅ A fixed mindset kicked in**
+  Exactly — you believe your ability is innate and unchangeable. You don't see the course as a chance to grow, but as a test of identity. A fixed mindset protects itself from potential failure by avoiding the challenge.
 - ❌ You're being realistic — you know your limits
   "Realism" is often just another name for a fixed mindset. You don't know your real limits — you've never tested them. You just believe a story you told yourself.
 - ❌ You're being humble and don't put yourself above others
@@ -117,8 +117,8 @@ When your worth lies in a fixed trait, every test is a threat. The safest thing 
 
 **Otázka:** Proč děti chválené za „chytrost" vybíraly lehké úlohy?
 
-- **✅ Bály se, že když selžou, přijdou o identitu „chytré dítě"**
-  Přesně. Když je tvá hodnota navázaná na fixní vlastnost, každý test je hrozbou. Nejbezpečnější strategie je vyhnout se testům — a přesně to dělaly.
+- **✅ Bály se, že selháním přijdou o identitu**
+  Přesně — o identitu „chytré dítě". Když je tvá hodnota navázaná na fixní vlastnost, každý test je hrozbou. Nejbezpečnější strategie je vyhnout se testům — a přesně to dělaly.
 - ❌ Byly líné — chtěly jednoduchou cestu
   Ne. Byly motivované — jen jinak. Chtěly potvrdit svou „chytrost", ne riskovat její zpochybnění.
 - ❌ Chytré děti si správně vybraly podle svých schopností
@@ -128,8 +128,8 @@ When your worth lies in a fixed trait, every test is a threat. The safest thing 
 
 **Question:** Why did children praised for "smartness" pick the easy tasks?
 
-- **✅ They feared that if they failed, they'd lose their "smart kid" identity**
-  Exactly. When your worth is tied to a fixed trait, every test is a threat. The safest strategy is to avoid tests — and that's exactly what they did.
+- **✅ They feared that failing would cost them their identity**
+  Exactly — their "smart kid" identity. When your worth is tied to a fixed trait, every test is a threat. The safest strategy is to avoid tests — and that's exactly what they did.
 - ❌ They were lazy — they wanted the easy way
   No. They were motivated — just differently. They wanted to confirm their "smartness," not risk having it questioned.
 - ❌ The smart kids correctly chose according to their abilities
@@ -147,8 +147,8 @@ When your worth lies in a fixed trait, every test is a threat. The safest thing 
 
 **Otázka:** Fixní mindset se týká jen schopností jako matematika nebo sport. Souhlasíš?
 
-- **✅ Ne — fixní mindset se týká i charakteru: „jsem introvert", „nejsem kreativní typ", „neumím vztahy"**
-  Přesně. Každé tvrzení typu „jsem/nejsem" zavírá dveře. Růstový mindset by řekl: „Teď v tom nejsem silný/á. Jak to zlepším?"
+- **✅ Ne — týká se i charakteru**
+  Přesně. Věty jako „jsem introvert", „nejsem kreativní typ", „neumím vztahy" jsou taky fixní. Každé tvrzení typu „jsem/nejsem" zavírá dveře. Růstový mindset by řekl: „Teď v tom nejsem silný/á. Jak to zlepším?"
 - ❌ Ano — jde jen o měřitelné schopnosti
   Fixní mindset je o jakémkoliv přesvědčení, že tvá vlastnost je neměnná. Může to být inteligence, kreativita, empatia, organizovanost nebo cokoliv jiného.
 - ❌ Záleží na typu osobnosti
@@ -158,8 +158,8 @@ When your worth lies in a fixed trait, every test is a threat. The safest thing 
 
 **Question:** A fixed mindset only applies to abilities like math or sports. Do you agree?
 
-- **✅ No — a fixed mindset also applies to character: "I'm an introvert," "I'm not the creative type," "I'm bad at relationships"**
-  Exactly. Every statement of the form "I am/I'm not" closes a door. A growth mindset would say: "I'm not strong at this right now. How can I improve?"
+- **✅ No — it also applies to character**
+  Exactly. Statements like "I'm an introvert," "I'm not the creative type," "I'm bad at relationships" are fixed too. Every statement of the form "I am/I'm not" closes a door. A growth mindset would say: "I'm not strong at this right now. How can I improve?"
 - ❌ Yes — it's only about measurable abilities
   A fixed mindset is about any belief that your trait is unchangeable. It can be intelligence, creativity, empathy, organization, or anything else.
 - ❌ It depends on personality type
@@ -169,7 +169,7 @@ When your worth lies in a fixed trait, every test is a threat. The safest thing 
 
 **Otázka:** Po rozchodu si řekneš: „Já prostě nejsem ten typ, co umí vztahy." Jak by zněla ta samá situace s růstovým mindsetem?
 
-- **✅ „Co konkrétně mi ve vztazích nejde a co s tím můžu dělat?"**
+- **✅ „Co konkrétně mi nejde a co s tím udělat?"**
   Růstový mindset mění identitu („nejsem typ") na proces („co se naučit"). Otázka otevírá cestu ke změně.
 - ❌ „Všechno je moje chyba a musím se úplně změnit."
   To není růstový mindset, ale sebemrskačství. Růstový mindset není o vině — je o učení.
@@ -180,8 +180,8 @@ When your worth lies in a fixed trait, every test is a threat. The safest thing 
 
 **Question:** After a breakup you tell yourself: "I'm just not the type who's good at relationships." How would the same situation sound with a growth mindset?
 
-- **✅ "What specifically am I struggling with in relationships and what can I do about it?"**
-  A growth mindset turns identity ("I'm not the type") into a process ("what to learn"). The question opens a path to change.
+- **✅ "What am I struggling with and what can I do?"**
+  A growth mindset turns identity ("I'm not the type") into a process ("what to learn"). The question opens a path to change — specifically about what's not working in relationships.
 - ❌ "It's all my fault and I have to completely change myself."
   That's not a growth mindset, that's self-flagellation. A growth mindset isn't about blame — it's about learning.
 - ❌ "It was their fault, I'm fine."
@@ -191,8 +191,8 @@ When your worth lies in a fixed trait, every test is a threat. The safest thing 
 
 **Otázka:** Která situace NEJLÉPE ukazuje růstový mindset?
 
-- **✅ Dostaneš negativní zpětnou vazbu a ptáš se, co konkrétně zlepšit**
-  Aktivně hledáš informaci, která ti pomůže růst — přesný obraz růstového mindsetu.
+- **✅ Ptáš se na konkrétní zlepšení po kritice**
+  Aktivně hledáš informaci, která ti pomůže růst — přesný obraz růstového mindsetu. Negativní zpětná vazba se stává palivem.
 - ❌ Nikdy neděláš chyby, protože si bereš jen jisté úkoly
   To je fixní mindset chránící identitu. Nedělat chyby je cíl fixního mindsetu.
 - ❌ Opakuješ si „jsem nejlepší, všechno zvládnu"
@@ -202,8 +202,8 @@ When your worth lies in a fixed trait, every test is a threat. The safest thing 
 
 **Question:** Which situation BEST shows a growth mindset?
 
-- **✅ You get negative feedback and ask what specifically to improve**
-  You're actively seeking information that will help you grow — the exact picture of a growth mindset.
+- **✅ You ask for specifics after criticism**
+  You're actively seeking information that will help you grow — the exact picture of a growth mindset. Negative feedback becomes fuel.
 - ❌ You never make mistakes because you only take on safe tasks
   That's a fixed mindset protecting identity. Making no mistakes is the goal of a fixed mindset.
 - ❌ You repeat "I'm the best, I can handle anything"
@@ -276,8 +276,8 @@ What changed? Not your IQ. What changed was how much energy you invested in the 
 
 **Otázka:** Celý život ses považoval/a za „špatného/špatnou v číslech", ale po půl roce práce s výkazy vedeš rozpočtovou schůzi. Co se vlastně změnilo?
 
-- **✅ Přestal/a jsi věřit, že tvé schopnosti jsou vrozené — a začal/a jsi investovat do učení**
-  Přesně. Změna mindsetu odemkla investici úsilí. Úsilí pak vybudovalo skutečnou kompetenci. Není to magie, je to mechanismus.
+- **✅ Začal/a jsi investovat do učení**
+  Přesně. Přestal/a jsi věřit, že tvé schopnosti jsou vrozené, a změna mindsetu odemkla investici úsilí. Úsilí pak vybudovalo skutečnou kompetenci. Není to magie, je to mechanismus.
 - ❌ Získal/a jsi nové IQ body
   IQ se nezměnilo. Změnilo se, kolik energie jsi do oblasti investoval/a. Mindset řídí úsilí, úsilí řídí růst.
 - ❌ Měl/a jsi štěstí na snadnou práci
@@ -287,8 +287,8 @@ What changed? Not your IQ. What changed was how much energy you invested in the 
 
 **Question:** You always thought of yourself as "bad with numbers," but after six months of working with financial statements you're leading budget meetings. What actually changed?
 
-- **✅ You stopped believing your abilities were innate — and started investing in learning**
-  Exactly. The mindset shift unlocked effort investment. Effort then built real competence. It's not magic, it's a mechanism.
+- **✅ You invested in learning**
+  Exactly. You stopped believing your abilities were innate, and the mindset shift unlocked effort investment. Effort then built real competence. It's not magic, it's a mechanism.
 - ❌ You gained new IQ points
   IQ didn't change. What changed was how much energy you put into the area. Mindset drives effort, effort drives growth.
 - ❌ You got lucky with an easy job
@@ -328,8 +328,8 @@ What changed? Not your IQ. What changed was how much energy you invested in the 
 
 **Otázka:** Proč je růstový mindset silnější než pouhý optimismus?
 
-- **✅ Protože nevyžaduje víru v úspěch — vyžaduje víru, že úsilí a strategie vedou k růstu**
-  Přesně. Optimista říká „bude to dobré". Růstový mindset říká „co musím udělat, aby to bylo lepší?" Rozdíl je v akci, ne v pocitech.
+- **✅ Vyžaduje víru v úsilí, ne v úspěch**
+  Přesně. Růstový mindset vyžaduje víru, že úsilí a strategie vedou k růstu. Optimista říká „bude to dobré". Růstový mindset říká „co musím udělat, aby to bylo lepší?" Rozdíl je v akci, ne v pocitech.
 - ❌ Protože garantuje výsledky
   Nic negarantuje výsledky. Ale růstový mindset maximalizuje pravděpodobnost, že se něco naučíš — i když selžeš.
 - ❌ Protože eliminuje strach ze selhání
@@ -339,8 +339,8 @@ What changed? Not your IQ. What changed was how much energy you invested in the 
 
 **Question:** Why is a growth mindset stronger than mere optimism?
 
-- **✅ Because it doesn't require believing in success — it requires believing that effort and strategy lead to growth**
-  Exactly. An optimist says "it'll be fine." A growth mindset says "what do I need to do to make it better?" The difference is in action, not feelings.
+- **✅ Requires faith in effort, not success**
+  Exactly. A growth mindset requires believing that effort and strategy lead to growth. An optimist says "it'll be fine." A growth mindset says "what do I need to do to make it better?" The difference is in action, not feelings.
 - ❌ Because it guarantees results
   Nothing guarantees results. But a growth mindset maximizes the chance that you learn something — even if you fail.
 - ❌ Because it eliminates fear of failure
@@ -350,8 +350,8 @@ What changed? Not your IQ. What changed was how much energy you invested in the 
 
 **Otázka:** Jak poznáš, že v nějaké oblasti máš fixní mindset?
 
-- **✅ Vyhýbáš se výzvám v té oblasti a říkáš věty typu „na tohle prostě nejsem"**
-  Přesně. Vyhýbání + identitní tvrzení = klasický znak fixního mindsetu. Řešení: malý krok do nepohodlí a slovo „ještě".
+- **✅ Vyhýbáš se výzvám s „na to nejsem"**
+  Přesně. Vyhýbání se výzvám v té oblasti + identitní tvrzení = klasický znak fixního mindsetu. Řešení: malý krok do nepohodlí a slovo „ještě".
 - ❌ Občas se ti v té oblasti nedaří
   Nedařit se je normální v jakékoliv oblasti. Fixní mindset nepoznáš podle výsledků, ale podle toho, jak na ně reaguješ.
 - ❌ Necítíš nadšení pro tu oblast
@@ -361,8 +361,8 @@ What changed? Not your IQ. What changed was how much energy you invested in the 
 
 **Question:** How do you know you have a fixed mindset in a particular area?
 
-- **✅ You avoid challenges in that area and say things like "I'm just not built for this"**
-  Exactly. Avoidance + identity statements = classic signs of a fixed mindset. The fix: a small step into discomfort and the word "yet."
+- **✅ You avoid it and say "not built for this"**
+  Exactly. Avoiding challenges in that area + identity statements = classic signs of a fixed mindset. The fix: a small step into discomfort and the word "yet."
 - ❌ You sometimes struggle in that area
   Struggling is normal in any area. You don't recognize a fixed mindset by results, but by how you react to them.
 - ❌ You don't feel excited about that area

@@ -83,8 +83,8 @@ Historically: a Roman builder had to sleep under his bridge on the first night a
 
 **Otázka:** Hledáš investiční radu. V televizi „expert" doporučuje fond. Pak najdeš poradce, který sám své úspory takto investoval. Komu věřit?
 
-- **✅ Tomu druhému — má „skin in the game". Jeho rada stojí na něčem, co ho osobně bolelo.**
-  Přesně. Bez kůže ve hře jsou slova levná. Když někdo riskuje svou vlastní kůži, jeho rada je o řád kvalitnější.
+- **✅ Tomu druhému — má kůži ve hře**
+  Přesně. Jeho rada stojí na něčem, co ho osobně bolelo. Bez kůže ve hře jsou slova levná.
 - ❌ Oba jsou stejně věrohodní, rozhoduje obsah
   Obsah bez kontextu klame. Někdo, kdo nenese následky, může doporučovat cokoliv.
 - ❌ Tomu z televize — je slavný
@@ -94,8 +94,8 @@ Historically: a Roman builder had to sleep under his bridge on the first night a
 
 **Question:** You're looking for investment advice. A TV "expert" recommends a fund. Then you find an advisor who actually invested their own savings in it. Who do you trust?
 
-- **✅ The second — they have "skin in the game." Their advice stands on something that personally hurt them.**
-  Exactly. Without skin in the game, words are cheap. When someone risks their own skin, their advice is an order of magnitude better.
+- **✅ The second — they have skin in the game**
+  Exactly. Their advice stands on something that personally hurt them. Without skin in the game, words are cheap.
 - ❌ Both are equally credible, content should decide
   Content without context deceives. Someone who doesn't bear consequences can recommend anything.
 - ❌ The TV one — they're famous
@@ -117,8 +117,8 @@ The other side: you should be in the game too. Don't just be someone who critici
 
 **Otázka:** Hledáš kouče na podnikání. Má výběr: 1) Kouč, který nikdy nepodnikal, ale má certifikát. 2) Kouč, který má vlastní firmu. Koho vybereš?
 
-- **✅ Druhého — má skin in the game, jeho rady vyrostly z reálné bolesti**
-  Přesně. Certifikát je jen papír. Vlastní podnikání je zkušenost pod tlakem.
+- **✅ Druhého — má kůži ve hře**
+  Přesně. Jeho rady vyrostly z reálné bolesti. Certifikát je jen papír; vlastní podnikání je zkušenost pod tlakem.
 - ❌ Prvního — má formální vzdělání
   Formální vzdělání bez praxe je jen teorie. Kouč, který nikdy nepodnikal, nikdy necítil strach o cashflow.
 - ❌ Oba stejně dobří
@@ -128,8 +128,8 @@ The other side: you should be in the game too. Don't just be someone who critici
 
 **Question:** You're looking for a business coach. Options: 1) A coach who's never run a business but has a certificate. 2) A coach who has their own company. Who do you pick?
 
-- **✅ The second — they have skin in the game, their advice grew from real pain**
-  Exactly. A certificate is just paper. Running your own business is experience under pressure.
+- **✅ The second — skin in the game**
+  Exactly. Their advice grew from real pain. A certificate is just paper; running your own business is experience under pressure.
 - ❌ The first — they have formal education
   Formal education without practice is just theory. A coach who's never run a business has never felt fear about cash flow.
 - ❌ Both equally good
@@ -147,8 +147,8 @@ The other side: you should be in the game too. Don't just be someone who critici
 
 **Otázka:** Co NEJLÉPE definuje „skin in the game"?
 
-- **✅ Osobní následek za vlastní rady nebo rozhodnutí — finanční, reputační nebo fyzický**
-  Přesně. Klíčové slovo je „následek". Bez něj jsou rady levné a často nespolehlivé.
+- **✅ Osobní následek za vlastní rady**
+  Přesně. Finanční, reputační nebo fyzický. Bez následku jsou rady levné.
 - ❌ Mít dost peněz na to, aby ses mohl/a investovat
   Skin in the game není o bohatství — je o zranitelnosti. I malá částka může být skin.
 - ❌ Být odborníkem v dané oblasti
@@ -158,8 +158,8 @@ The other side: you should be in the game too. Don't just be someone who critici
 
 **Question:** What BEST defines "skin in the game"?
 
-- **✅ Personal consequence for your own advice or decisions — financial, reputational, or physical**
-  Exactly. The key word is "consequence." Without it, advice is cheap and often unreliable.
+- **✅ Personal cost for your advice**
+  Exactly. Financial, reputational, or physical. Without consequence, advice is cheap.
 - ❌ Having enough money to invest
   Skin in the game isn't about wealth — it's about vulnerability. Even a small amount can be skin.
 - ❌ Being an expert in the field
@@ -169,8 +169,8 @@ The other side: you should be in the game too. Don't just be someone who critici
 
 **Otázka:** Přečteš anonymní recenzi restaurace, která ji pomlouvá. Kolik váhy má ta recenze?
 
-- **✅ Málo — autor nic neriskuje svým názorem. Může psát cokoliv bez následků.**
-  Přesně. Anonymní kritika je často nulové skin in the game.
+- **✅ Málo — autor nic neriskuje**
+  Přesně. Může psát cokoliv bez následků. Anonymní kritika je často nulové skin in the game.
 - ❌ Hodně — recenze je recenze
   Každá recenze má jiný kontext. Anonymní recenze jsou v průměru méně kvalitní než podepsané.
 - ❌ Záleží jen na počtu slov
@@ -180,8 +180,8 @@ The other side: you should be in the game too. Don't just be someone who critici
 
 **Question:** You read an anonymous restaurant review that trashes it. How much weight should the review carry?
 
-- **✅ Little — the author risks nothing with their opinion. They can write anything without consequences.**
-  Exactly. Anonymous criticism often has zero skin in the game.
+- **✅ Little — the author risks nothing**
+  Exactly. They can write anything without consequences. Anonymous criticism often has zero skin in the game.
 - ❌ A lot — a review is a review
   Every review has a different context. Anonymous reviews are on average lower quality than signed ones.
 - ❌ It only depends on the word count
@@ -191,8 +191,8 @@ The other side: you should be in the game too. Don't just be someone who critici
 
 **Otázka:** Chceš investovat. Slyšíš radu od tří lidí: 1) tchána, který sám ztratil všechno v krizi. 2) guru na YouTube s 500 000 sledujícími. 3) kamaráda, který sám investuje a popisuje své zisky i ztráty. Kdo má nejvyšší skin in the game?
 
-- **✅ Tchán a kamarád — oba reálně zaplatili za své lekce. YouTube guru pravděpodobně ne.**
-  Přesně. Tchán zaplatil ztrátou, kamarád se zisky i ztrátami. YouTube guru často žije z reklamy.
+- **✅ Tchán a kamarád — oba zaplatili**
+  Přesně. Tchán ztrátou, kamarád zisky i ztrátami. YouTube guru často žije z reklamy.
 - ❌ YouTube guru — má nejvíc sledujících
   Sledovanost není skin in the game. Je to marketing.
 - ❌ Jen kamarád — tchán už neinvestuje
@@ -202,8 +202,8 @@ The other side: you should be in the game too. Don't just be someone who critici
 
 **Question:** You want to invest. You hear advice from: 1) your father-in-law, who lost everything in a crisis. 2) a YouTube guru with 500,000 followers. 3) a friend who invests and describes both gains and losses. Who has the highest skin in the game?
 
-- **✅ Father-in-law and friend — both actually paid for their lessons. The YouTube guru probably didn't.**
-  Exactly. The father-in-law paid with loss, the friend with both gains and losses. A YouTube guru often lives off ads.
+- **✅ Father-in-law and friend — both paid**
+  Exactly. Father-in-law with loss, friend with gains and losses. The YouTube guru often lives off ads.
 - ❌ YouTube guru — most followers
   Audience size isn't skin in the game. It's marketing.
 - ❌ Only the friend — the father-in-law no longer invests

@@ -83,8 +83,8 @@ Thomas Edison supposedly said: "I haven't failed. I've found 10,000 ways that do
 
 **Otázka:** Otevřeš kavárnu, rok sníš, půl roku plánuješ, tři měsíce ji vedeš — a pak zavřeš. Dluhy. Co odlišuje růstový přístup od fixního?
 
-- **✅ Oddělíš identitu od výsledku — neselhal/a jsi TY, selhal PROJEKT**
-  Přesně. Fixní mindset říká „jsem neschopný/á". Růstový říká „ten pokus neuspěl — co se z něj naučím?" Obrovský rozdíl.
+- **✅ Oddělíš identitu od výsledku**
+  Přesně. Neselhal/a jsi TY, selhal PROJEKT. Fixní mindset říká „jsem neschopný/á". Růstový říká „ten pokus neuspěl — co se z něj naučím?" Obrovský rozdíl.
 - ❌ Přerámovat to na úspěch, i když to byl propadák
   Selhání je selhání. Nesnažíš se ho vydávat za úspěch — snažíš se z něj něco vytěžit.
 - ❌ Zapomenout na to a jít dál
@@ -94,8 +94,8 @@ Thomas Edison supposedly said: "I haven't failed. I've found 10,000 ways that do
 
 **Question:** You open a café, a year of dreaming, six months of planning, three months of running it — then you shut it down. Debt. What distinguishes a growth approach from a fixed one?
 
-- **✅ You separate identity from outcome — YOU didn't fail, the PROJECT failed**
-  Exactly. A fixed mindset says "I'm incompetent." A growth mindset says "that attempt didn't work — what can I learn from it?" Huge difference.
+- **✅ You separate identity from outcome**
+  Exactly. YOU didn't fail, the PROJECT failed. A fixed mindset says "I'm incompetent." A growth mindset says "that attempt didn't work — what can I learn from it?" Huge difference.
 - ❌ Reframe it as a success even though it was a flop
   Failure is failure. You don't try to spin it as success — you try to extract something from it.
 - ❌ Forget about it and move on
@@ -117,8 +117,8 @@ Important: some failures are just expensive and painful. Don't reframe pain as j
 
 **Otázka:** Připravuješ se na zkoušku, neudělal/a jsi ji. Místo analýzy si řekneš: „Jsem hloupý/á." Co s takovým závěrem nejde dělat?
 
-- **✅ Nijak jej využít — je to identitní tvrzení bez praktických kroků**
-  Přesně. „Jsem hloupý/á" neříká, co zlepšit. „Učil/a jsem se jen den předem" říká přesně, co změnit.
+- **✅ Využít ho k praktickým krokům**
+  Přesně. „Jsem hloupý/á" je identitní soud — neříká, co zlepšit. „Učil/a jsem se jen den předem" říká přesně, co změnit.
 - ❌ Pomůže ti přijmout realitu
   Nic nepřijímáš — jen si vytváříš novou identitu. A na identitě se učit nedá.
 - ❌ Zmírní tlak na další pokus
@@ -128,8 +128,8 @@ Important: some failures are just expensive and painful. Don't reframe pain as j
 
 **Question:** You study for an exam and fail it. Instead of analysis you tell yourself: "I'm stupid." What can't you do with that conclusion?
 
-- **✅ Use it for anything — it's an identity statement with no practical steps**
-  Exactly. "I'm stupid" doesn't say what to improve. "I only studied a day before" says exactly what to change.
+- **✅ Turn it into practical steps**
+  Exactly. "I'm stupid" is an identity statement with no steps. "I only studied a day before" says exactly what to change.
 - ❌ It helps you accept reality
   You're not accepting anything — you're just creating a new identity. And you can't learn from identity.
 - ❌ It reduces pressure on the next attempt
@@ -147,8 +147,8 @@ Important: some failures are just expensive and painful. Don't reframe pain as j
 
 **Otázka:** Který z následujících postojů NEJLÉPE ilustruje „selhání jako učitele"?
 
-- **✅ Po neúspěchu projektu sepsat, co konkrétně nefungovalo, a tato poučení aplikovat**
-  Přesně. Aktivní extrakce poučení + jejich aplikace = učení ze selhání.
+- **✅ Sepsat, co konkrétně nefungovalo, a použít to příště**
+  Přesně. Po neúspěchu aktivní extrakce poučení + jejich aplikace = učení ze selhání.
 - ❌ Říct si „všechno se děje z nějakého důvodu" a jít dál
   To je pasivní přerámování. Nic se neučíš — jen si dovolíš necítit bolest.
 - ❌ Analyzovat do detailu každou chybu a trpět
@@ -158,8 +158,8 @@ Important: some failures are just expensive and painful. Don't reframe pain as j
 
 **Question:** Which of the following attitudes BEST illustrates "failure as teacher"?
 
-- **✅ After a failed project, write down what specifically didn't work and apply those lessons**
-  Exactly. Active extraction of lessons + applying them = learning from failure.
+- **✅ Write what didn't work and apply it next time**
+  Exactly. After a failed project, active extraction of lessons + applying them = learning from failure.
 - ❌ Tell yourself "everything happens for a reason" and move on
   That's passive reframing. You're not learning — you're just giving yourself permission not to feel pain.
 - ❌ Analyze every mistake in detail and suffer
@@ -169,8 +169,8 @@ Important: some failures are just expensive and painful. Don't reframe pain as j
 
 **Otázka:** Vedl/a jsi projekt, který se nepovedl. Šéf se ptá „Co si z toho odnášíš?" Která odpověď ukazuje nejzralejší přístup?
 
-- **✅ „Podcenil/a jsem onboarding uživatelů. Příště strávím první dva týdny rozhovory s nimi."**
-  Konkrétní diagnóza + konkrétní korekce pro příště. To je učení ze selhání v čisté formě.
+- **✅ „Podcenil/a jsem onboarding. Příště začnu rozhovory."**
+  Konkrétní diagnóza + konkrétní korekce pro příště — první dva týdny věnovat rozhovorům s uživateli. To je učení ze selhání v čisté formě.
 - ❌ „Udělal/a jsem všechno, co jsem mohl/a. Prostě to nevyšlo."
   Obrana. Pokud bys udělal/a všechno správně, vyšlo by to — což je vzácné. Obvykle je tam co zlepšit.
 - ❌ „Jsem hrozný/á manažer/ka. Měli byste mě vyhodit."
@@ -180,8 +180,8 @@ Important: some failures are just expensive and painful. Don't reframe pain as j
 
 **Question:** You led a project that didn't work out. Your boss asks "What are you taking away from this?" Which answer shows the most mature approach?
 
-- **✅ "I underestimated user onboarding. Next time I'll spend the first two weeks talking to them."**
-  Specific diagnosis + specific correction for next time. That's learning from failure in pure form.
+- **✅ "I underestimated onboarding. I'll talk to users."**
+  Specific diagnosis + specific correction — spend the first two weeks talking to users. That's learning from failure in pure form.
 - ❌ "I did everything I could. It just didn't work."
   Defense. If you'd done everything right, it would have worked — which is rare. There's usually something to improve.
 - ❌ "I'm a terrible manager. You should fire me."
@@ -191,7 +191,7 @@ Important: some failures are just expensive and painful. Don't reframe pain as j
 
 **Otázka:** Dostaneš kopačky. Místo „nejsem dost dobrý/á" si sedneš s blokem. Co by měl/a jsi na papír napsat?
 
-- **✅ Konkrétní situace: kdy se začalo kazit, co jsi dělal/a ty, co on/ona**
+- **✅ Konkrétní situace: kdy se to začalo kazit a co kdo dělal**
   Přesně. Data, ne soudy. „V posledním měsíci jsem byl/a často unavený/á a málo naslouchal/a" je použitelné. „Jsem neschopný/á" není.
 - ❌ Všechny jeho/její chyby, které si zaslouží obvinění
   To je obrana, ne učení. Mozek se snaží chránit identitu obviněním druhé strany.
@@ -202,7 +202,7 @@ Important: some failures are just expensive and painful. Don't reframe pain as j
 
 **Question:** You get dumped. Instead of "I'm not good enough" you sit down with a notebook. What should you write on the paper?
 
-- **✅ Specific situations: when things started going wrong, what you did, what they did**
+- **✅ Specific situations: when it broke and what each did**
   Exactly. Data, not judgments. "In the last month I was often tired and didn't listen much" is useful. "I'm incompetent" isn't.
 - ❌ All their mistakes that they deserve to be blamed for
   That's defense, not learning. The brain tries to protect identity by blaming the other side.
@@ -242,8 +242,8 @@ Try a "failure journal." Every time something doesn't work out — big or small 
 
 **Otázka:** Vedeš si deník neúspěchů tři měsíce. Najdeš vzor: většina tvých „selhání" v práci souvisí s tím, že souhlasíš s termíny, které nemůžeš splnit. Jak reaguješ?
 
-- **✅ Začneš říkat „ne" nebo vyjednávat realističtější termíny**
-  Přesně. Insight bez akce je jen pozorování. Růst vyžaduje změnu chování, ne jen pochopení.
+- **✅ Začneš říkat „ne" a vyjednávat termíny**
+  Přesně. Vyjednávat realističtější deadliny. Insight bez akce je jen pozorování. Růst vyžaduje změnu chování, ne jen pochopení.
 - ❌ Pracovat tvrději, aby ses stíhal/a
   To je stejná strategie, jen zintenzívnělá. Insight ukázal, že problém je v přijímání, ne v plnění.
 - ❌ Zapsat si to a pokračovat jako dřív
@@ -253,8 +253,8 @@ Try a "failure journal." Every time something doesn't work out — big or small 
 
 **Question:** You've been keeping a failure journal for three months. You find a pattern: most of your work "failures" relate to agreeing to deadlines you can't meet. How do you respond?
 
-- **✅ Start saying "no" or negotiating more realistic deadlines**
-  Exactly. Insight without action is just observation. Growth requires behavior change, not just understanding.
+- **✅ Start saying "no" or renegotiating**
+  Exactly. Push for more realistic deadlines. Insight without action is just observation. Growth requires behavior change, not just understanding.
 - ❌ Work harder to meet every deadline
   That's the same strategy intensified. The insight showed the problem is in accepting, not delivering.
 - ❌ Note it down and continue as before
@@ -276,7 +276,7 @@ Learning from failure = diagnosis (what didn't work) + plan (what to do differen
 
 **Otázka:** Co je správný postup po selhání?
 
-- **✅ Diagnóza (co nefungovalo) + plán (co jinak) + akce (udělej to)**
+- **✅ Diagnóza, plán a akce (co, jinak, udělej)**
   Přesně. Všechny tři kroky jsou nezbytné. Diagnóza bez plánu je jen analýza. Plán bez akce je jen teorie.
 - ❌ Říct si „všechno se děje z nějakého důvodu" a jít dál
   Pasivní přerámování. Nic se neučíš — jen si dovolíš necítit bolest.
@@ -287,7 +287,7 @@ Learning from failure = diagnosis (what didn't work) + plan (what to do differen
 
 **Question:** What is the right process after failure?
 
-- **✅ Diagnosis (what didn't work) + plan (what to do differently) + action (do it)**
+- **✅ Diagnosis, plan and action (what, differently, do it)**
   Exactly. All three steps are necessary. Diagnosis without a plan is just analysis. A plan without action is just theory.
 - ❌ Tell yourself "everything happens for a reason" and move on
   Passive reframing. You learn nothing — you just give yourself permission not to feel pain.
@@ -306,8 +306,8 @@ Learning from failure = diagnosis (what didn't work) + plan (what to do differen
 
 **Otázka:** Proč „deník neúspěchů" funguje lépe než jen „učení se z chyb v hlavě"?
 
-- **✅ Protože odhaluje vzory, které si v hlavě neuvědomíš — vidíš, které chyby opakuješ**
-  Přesně. Zápis externalizuje data. Po měsíci uvidíš vzory, které ti jinak zůstanou skryté. A vzory se dají prolomit.
+- **✅ Odhaluje vzory, co v hlavě nevidíš**
+  Přesně. Vidíš, které chyby opakuješ. Zápis externalizuje data. Po měsíci uvidíš vzory, které ti jinak zůstanou skryté. A vzory se dají prolomit.
 - ❌ Protože psaní je terapeutické
   Terapeutický efekt je bonus, ale hlavní hodnota je v diagnostice vzorů a jejich změně.
 - ❌ Protože tím trestáš sám/sama sebe za chyby
@@ -317,8 +317,8 @@ Learning from failure = diagnosis (what didn't work) + plan (what to do differen
 
 **Question:** Why does a "failure journal" work better than just "learning from mistakes in your head"?
 
-- **✅ Because it reveals patterns you don't notice in your head — you see which mistakes you repeat**
-  Exactly. Writing externalizes data. After a month you'll see patterns that would otherwise stay hidden. And patterns can be broken.
+- **✅ Because it reveals hidden patterns**
+  Exactly. You see which mistakes you repeat. Writing externalizes data. After a month you'll see patterns that would otherwise stay hidden. And patterns can be broken.
 - ❌ Because writing is therapeutic
   The therapeutic effect is a bonus, but the main value is in diagnosing patterns and changing them.
 - ❌ Because it punishes you for your mistakes
@@ -328,8 +328,8 @@ Learning from failure = diagnosis (what didn't work) + plan (what to do differen
 
 **Otázka:** Proč je důležité rozlišovat mezi „bolest ze selhání" a „poučení ze selhání"?
 
-- **✅ Protože obojí je legitimní — bolest cítíš, ale zároveň se učíš. Přerámovat bolest na radost je toxická pozitivita.**
-  Přesně. Selhání bolí. To je normální. Ale bolest a učení existují vedle sebe. Nesnaž se cítit dobře — snaž se cítit jasněji.
+- **✅ Obojí je legitimní a existuje vedle sebe**
+  Přesně. Bolest cítíš, ale zároveň se učíš. Přerámovat bolest na radost je toxická pozitivita. Selhání bolí — to je normální. Nesnaž se cítit dobře — snaž se cítit jasněji.
 - ❌ Protože bolest je zbytečná a měl/a bys ji ignorovat
   Bolest je signál. Ignorovat ji je popření. Cíl je přijmout ji a zároveň z ní vytěžit informaci.
 - ❌ Protože poučení odstraní bolest
@@ -339,8 +339,8 @@ Learning from failure = diagnosis (what didn't work) + plan (what to do differen
 
 **Question:** Why is it important to distinguish between "pain from failure" and "lessons from failure"?
 
-- **✅ Because both are legitimate — you feel the pain, but you also learn. Reframing pain as joy is toxic positivity.**
-  Exactly. Failure hurts. That's normal. But pain and learning exist side by side. Don't try to feel good — try to feel clearer.
+- **✅ Both are legitimate and exist side by side**
+  Exactly. You feel the pain, but you also learn. Reframing pain as joy is toxic positivity. Failure hurts — that's normal. Don't try to feel good — try to feel clearer.
 - ❌ Because pain is useless and you should ignore it
   Pain is a signal. Ignoring it is denial. The goal is to accept it while also extracting information from it.
 - ❌ Because learning removes the pain
@@ -350,8 +350,8 @@ Learning from failure = diagnosis (what didn't work) + plan (what to do differen
 
 **Otázka:** Který přístup k selhání je nejzralejší?
 
-- **✅ Přiznat, co nefungovalo, naplánovat korekci a udělat ji — bez identitního soudu o sobě**
-  Přesně. „Podcenil/a jsem přípravu. Příště začnu dřív." To je čisté učení ze selhání — konkrétní diagnóza, konkrétní akce, žádné „jsem neschopný/á."
+- **✅ Přiznat chybu, naplánovat korekci a udělat ji**
+  Přesně — bez identitního soudu o sobě. „Podcenil/a jsem přípravu. Příště začnu dřív." To je čisté učení ze selhání — konkrétní diagnóza, konkrétní akce, žádné „jsem neschopný/á."
 - ❌ Být na sebe tvrdý/á, aby ses to příště neodvážil/a zopakovat
   Tvrdost není učení. Strach z opakování vede k vyhýbání, ne k růstu.
 - ❌ Zapomenout a jít dál — co bylo, bylo
@@ -361,8 +361,8 @@ Learning from failure = diagnosis (what didn't work) + plan (what to do differen
 
 **Question:** Which approach to failure is the most mature?
 
-- **✅ Admit what didn't work, plan a correction, and do it — without an identity judgment about yourself**
-  Exactly. "I underestimated the preparation. Next time I'll start earlier." That's pure learning from failure — specific diagnosis, specific action, no "I'm incompetent."
+- **✅ Admit the mistake, plan a correction, and do it**
+  Exactly — without an identity judgment about yourself. "I underestimated the preparation. Next time I'll start earlier." That's pure learning from failure — specific diagnosis, specific action, no "I'm incompetent."
 - ❌ Be hard on yourself so you won't dare repeat it
   Harshness isn't learning. Fear of repetition leads to avoidance, not growth.
 - ❌ Forget about it and move on — what's done is done

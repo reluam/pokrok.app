@@ -83,8 +83,8 @@ Marcus Aurelius, the most powerful man of his time, constantly reminded himself 
 
 **Otázka:** Máš na výběr: podepsat smlouvu za 200 tisíc, ale zatajit klientovi podstatný detail, nebo odmítnout. Co by řekl stoik?
 
-- **✅ Peníze jsou lhostejné — charakter je jediné dobro. Pokud zalžeš, poškodíš to, co opravdu záleží.**
-  Přesně. Pro stoiky je ctnost (poctivost) jediným skutečným dobrem. Peníze jsou „preferovaná lhostejná" — hezké mít, ale ne za cenu charakteru.
+- **✅ Charakter je jediné dobro — nelži.**
+  Přesně. Peníze jsou lhostejné, pokud zalžeš, poškodíš to, co opravdu záleží. Pro stoiky je ctnost (poctivost) jediným skutečným dobrem. Peníze jsou „preferovaná lhostejná" — hezké mít, ale ne za cenu charakteru.
 - ❌ Peníze jsou důležitější — rodina je priorita
   Stoici by řekli: rodina bude poškozena mnohem více tvou ztrátou integrity než ztrátou peněz.
 - ❌ Je to moudré — klient si má pohlídat sám
@@ -94,8 +94,8 @@ Marcus Aurelius, the most powerful man of his time, constantly reminded himself 
 
 **Question:** You can sign a contract for 200,000 but you'd have to hide an important detail from the client, or refuse. What would a Stoic say?
 
-- **✅ Money is indifferent — character is the only good. If you lie, you damage what really matters.**
-  Exactly. For the Stoics, virtue (honesty) is the only real good. Money is a "preferred indifferent" — nice to have, but not at the cost of character.
+- **✅ Character is the only good — don't lie.**
+  Exactly. Money is indifferent; if you lie, you damage what really matters. For the Stoics, virtue (honesty) is the only real good. Money is a "preferred indifferent" — nice to have, but not at the cost of character.
 - ❌ Money is more important — family is the priority
   Stoics would say: your family will be hurt far more by your loss of integrity than by a loss of money.
 - ❌ It's smart — the client should watch out for themselves
@@ -117,8 +117,8 @@ A practical exercise: before every bigger decision, run through the four virtues
 
 **Otázka:** Propustí tě. Cítíš, že jsi „přišel/přišla o všechno". Co by ti řekl Marcus Aurelius?
 
-- **✅ „Přišel/přišla jsi o preferovanou lhostejnou věc. Ale to jediné, co je skutečně tvoje — tvá moudrost, odvaha, poctivost — ti zůstává."**
-  Přesně. Stoici rozlišují vnější ztrátu a vnitřní hodnotu. Neztratil/a jsi nic ze svého opravdového já.
+- **✅ „Přišel/přišla jsi jen o lhostejnou věc."**
+  Přesně. To jediné, co je skutečně tvoje — tvá moudrost, odvaha, poctivost — ti zůstává. Stoici rozlišují vnější ztrátu a vnitřní hodnotu. Neztratil/a jsi nic ze svého opravdového já.
 - ❌ „Nic se nestalo, práce byla stejně na nic."
   Popření ztráty. Stoici uznávali ztrátu — jen ji vkládali do širšího kontextu.
 - ❌ „Teď se nemůžeš cítit dobře, dokud nenajdeš jinou."
@@ -128,8 +128,8 @@ A practical exercise: before every bigger decision, run through the four virtues
 
 **Question:** You get fired. You feel you've "lost everything." What would Marcus Aurelius tell you?
 
-- **✅ "You lost a preferred indifferent. But the only thing that's really yours — your wisdom, courage, honesty — stays with you."**
-  Exactly. Stoics distinguish between external loss and inner worth. You didn't lose anything of your true self.
+- **✅ "You only lost an indifferent thing."**
+  Exactly. The only thing that's really yours — your wisdom, courage, honesty — stays with you. Stoics distinguish between external loss and inner worth. You didn't lose anything of your true self.
 - ❌ "Nothing happened, the job was no good anyway."
   Denial of loss. Stoics acknowledged loss — they just placed it in a broader context.
 - ❌ "Now you can't feel good until you find another one."
@@ -147,8 +147,8 @@ A practical exercise: before every bigger decision, run through the four virtues
 
 **Otázka:** Které tvrzení je stoické?
 
-- **✅ Ctnost je jediné skutečné dobro; ostatní věci jsou lhostejné, i když některé preferované**
-  Přesný popis stoické etiky — ctnost je jediné dobro, ostatní je lhostejné.
+- **✅ Ctnost je jediné skutečné dobro**
+  Přesný popis stoické etiky — ctnost je jediné dobro, ostatní věci jsou lhostejné, i když některé preferované.
 - ❌ Peníze jsou kořen všeho zla
   Stoici to neříkali. Peníze jsou lhostejné — ani dobré, ani zlé. Záleží, jak s nimi nakládáš.
 - ❌ Všechno je relativní, neexistuje objektivní dobro
@@ -158,8 +158,8 @@ A practical exercise: before every bigger decision, run through the four virtues
 
 **Question:** Which statement is Stoic?
 
-- **✅ Virtue is the only real good; other things are indifferent, though some are preferred**
-  Precise description of Stoic ethics — virtue is the only good, everything else is indifferent.
+- **✅ Virtue is the only real good**
+  Precise description of Stoic ethics — virtue is the only good, other things are indifferent, though some are preferred.
 - ❌ Money is the root of all evil
   Stoics didn't say that. Money is indifferent — neither good nor evil. It depends on how you use it.
 - ❌ Everything is relative, there is no objective good
@@ -169,8 +169,8 @@ A practical exercise: before every bigger decision, run through the four virtues
 
 **Otázka:** Zvažuješ, zda říct šéfovi o chybě kolegy, která poškodí projekt. Kolega je kamarád. Jak ti ctnosti pomohou rozhodnout?
 
-- **✅ Spravedlnost říká: ano, musíš říct. Odvaha překonává strach ze ztráty přátelství.**
-  Přesně. Ctnosti dávají jasný rámec. Můžeš nejdřív mluvit s kolegou (moudrost) a pak, pokud nevyřeší, jít k šéfovi.
+- **✅ Spravedlnost a odvaha říkají: řekni to.**
+  Přesně — spravedlnost vyžaduje promluvit, odvaha překonává strach ze ztráty přátelství. Ctnosti dávají jasný rámec. Můžeš nejdřív mluvit s kolegou (moudrost) a pak, pokud nevyřeší, jít k šéfovi.
 - ❌ Mlčet — přátelství je důležitější než pravda
   Stoici by řekli: skutečné přátelství nestaví na lži. Spravedlnost vůči všem zainteresovaným je základ.
 - ❌ Rozkřičet to — spravedlnost je absolutní
@@ -180,8 +180,8 @@ A practical exercise: before every bigger decision, run through the four virtues
 
 **Question:** You're weighing whether to tell your boss about a colleague's mistake that will hurt the project. The colleague is a friend. How do the virtues help?
 
-- **✅ Justice says: yes, you must speak up. Courage overcomes the fear of losing the friendship.**
-  Exactly. The virtues give a clear framework. You can first talk to the colleague (wisdom) and then, if that doesn't resolve it, go to the boss.
+- **✅ Justice and courage say: speak up.**
+  Exactly — justice demands it, courage overcomes the fear of losing the friendship. The virtues give a clear framework. You can first talk to the colleague (wisdom) and then, if that doesn't resolve it, go to the boss.
 - ❌ Keep quiet — friendship matters more than truth
   Stoics would say: true friendship isn't built on lies. Justice toward everyone involved is the foundation.
 - ❌ Shout it out — justice is absolute
@@ -191,8 +191,8 @@ A practical exercise: before every bigger decision, run through the four virtues
 
 **Otázka:** Máš možnost manipulovat s recenzemi a získat víc klientů. Nikdo by se to nedozvěděl. Co by ti řekl Marcus Aurelius?
 
-- **✅ „Ty bys to věděl/a. A tvůj charakter je to jediné, co opravdu máš."**
-  Přesně. Stoici zdůrazňovali: ty sám/sama jsi svědek svého jednání. Ctnost je vztah k sobě, ne k okolí.
+- **✅ „Ty bys to věděl/a."**
+  Přesně — a tvůj charakter je to jediné, co opravdu máš. Stoici zdůrazňovali: ty sám/sama jsi svědek svého jednání. Ctnost je vztah k sobě, ne k okolí.
 - ❌ „Udělej to — výsledek je důležitější než prostředky."
   Opak stoicismu. Pro stoiky byl správný prostředek vše.
 - ❌ „Je mi to jedno — dělej, co chceš."
@@ -202,8 +202,8 @@ A practical exercise: before every bigger decision, run through the four virtues
 
 **Question:** You could manipulate reviews to gain more clients. Nobody would find out. What would Marcus Aurelius tell you?
 
-- **✅ "You would know. And your character is the only thing you really have."**
-  Exactly. Stoics stressed: you yourself are the witness to your actions. Virtue is a relationship with yourself, not with your surroundings.
+- **✅ "You would know."**
+  Exactly — and your character is the only thing you really have. Stoics stressed: you yourself are the witness to your actions. Virtue is a relationship with yourself, not with your surroundings.
 - ❌ "Do it — the outcome matters more than the means."
   The opposite of Stoicism. For Stoics, the right means was everything.
 - ❌ "I don't care — do what you want."

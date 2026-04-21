@@ -83,8 +83,8 @@ When you know today might be your last, you stop worrying about what your collea
 
 **Otázka:** Chceš si připomínat perspektivu konečnosti pravidelně — ne jen po nehodě. Co by ti doporučili stoici?
 
-- **✅ Memento Mori — každý den si krátce připomenout konečnost života**
-  Přesně. Stoici nosili medailony s lebkou, četli ráno pasáž o smrti — ne z morbidnosti, ale pro jasnost, co opravdu záleží.
+- **✅ Memento Mori — krátce denně**
+  Přesně — každý den si krátce připomenout konečnost života. Stoici nosili medailony s lebkou, četli ráno pasáž o smrti — ne z morbidnosti, ale pro jasnost, co opravdu záleží.
 - ❌ Žít každý den jako poslední — dělat všechno, co chceš
   To je hedonismus, ne Memento Mori. Stoici mysleli opak: kdybys měl/a poslední den, nehádal/a by ses o koš, ale ani by ses netopil/a v zábavě.
 - ❌ Nemyslet na smrt — je to depresivní
@@ -94,8 +94,8 @@ When you know today might be your last, you stop worrying about what your collea
 
 **Question:** You want to remember the perspective of finiteness regularly — not just after an accident. What would the Stoics recommend?
 
-- **✅ Memento Mori — briefly remind yourself of life's finiteness every day**
-  Exactly. Stoics wore skull pendants and read a passage about death in the morning — not out of morbidness, but for clarity about what really matters.
+- **✅ Memento Mori — briefly, daily**
+  Exactly — briefly remind yourself of life's finiteness every day. Stoics wore skull pendants and read a passage about death in the morning — not out of morbidness, but for clarity about what really matters.
 - ❌ Live every day like your last — do anything you want
   That's hedonism, not Memento Mori. The Stoics meant the opposite: if it were your last day, you wouldn't fight about trash, but you also wouldn't drown in entertainment.
 - ❌ Don't think about death — it's depressing
@@ -117,7 +117,7 @@ Marcus Aurelius wrote: "Act, speak, and think as if you were about to say goodby
 
 **Otázka:** Začneš si každé ráno představovat smrt, ale pokaždé pláčeš a jsi vystrašený/á. Co děláš špatně?
 
-- **✅ Dlouho a hluboce se ponoříš do myšlenky, místo abys ji využil/a jako krátký filtr**
+- **✅ Ponoříš se moc dlouho místo krátkého filtru**
   Přesně. Memento Mori je nástroj, ne meditace o smrti. Stoici si ji připomínali na 10 vteřin a šli dál.
 - ❌ Myslíš na smrt špatně — měl/a bys myslet jen na život
   Myslet na konec ti dá perspektivu pro teď. Vyhýbání by neuleví — jen odloží.
@@ -128,7 +128,7 @@ Marcus Aurelius wrote: "Act, speak, and think as if you were about to say goodby
 
 **Question:** You start imagining death every morning, but each time you cry and feel scared. What are you doing wrong?
 
-- **✅ You dive deep into the thought for a long time instead of using it as a short filter**
+- **✅ You dive too deep instead of a short filter**
   Exactly. Memento Mori is a tool, not a meditation about death. Stoics reminded themselves for 10 seconds and moved on.
 - ❌ You're thinking about death wrong — you should only think about life
   Thinking about the end gives you perspective for now. Avoidance won't bring relief — just delay.
@@ -147,8 +147,8 @@ Marcus Aurelius wrote: "Act, speak, and think as if you were about to say goodby
 
 **Otázka:** Ráno se zeptáš: „Kdyby to byl můj poslední týden, dělal/a bych dnes to, co plánuji?" Zjistíš, že jsi plánoval/a celý den scrollovat na sítích. Co je moudrou reakcí?
 
-- **✅ Vybrat jednu konkrétní věc, která by dnes přinesla skutečnou hodnotu, a začít ji**
-  Přesně. Memento Mori není o vytvoření viny — je o jasnějším směru. Jedna malá akce ve správném směru.
+- **✅ Vybrat jednu věc s hodnotou a začít ji**
+  Přesně — zvol to, co by dnes přineslo skutečný smysl. Memento Mori není o vytvoření viny — je o jasnějším směru. Jedna malá akce ve správném směru.
 - ❌ Nenávidět se za to, že marníš čas
   Sebemrskačství není poučení. Memento Mori má otevřít volbu, ne uzavřít sebeobviněním.
 - ❌ Ignorovat myšlenku a pokračovat
@@ -158,8 +158,8 @@ Marcus Aurelius wrote: "Act, speak, and think as if you were about to say goodby
 
 **Question:** In the morning you ask: "If this were my last week, would I be doing what I'm planning today?" You realize you were planning to scroll social media all day. What's the wise reaction?
 
-- **✅ Pick one specific thing that would bring real value today and start it**
-  Exactly. Memento Mori isn't about creating guilt — it's about clearer direction. One small action in the right direction.
+- **✅ Pick one valuable thing and start it**
+  Exactly — choose something that would bring real meaning today. Memento Mori isn't about creating guilt — it's about clearer direction. One small action in the right direction.
 - ❌ Hate yourself for wasting time
   Self-flagellation isn't a lesson. Memento Mori should open a choice, not close it with self-blame.
 - ❌ Ignore the thought and carry on
@@ -169,8 +169,8 @@ Marcus Aurelius wrote: "Act, speak, and think as if you were about to say goodby
 
 **Otázka:** Která interpretace Memento Mori je správná?
 
-- **✅ Krátká denní praxe, která pomáhá rozlišit malicherné od důležitého**
-  Přesně. Krátká, praktická, každodenní — filtr pro jednání, ne meditace o konci.
+- **✅ Krátká denní praxe — filtr důležitého**
+  Přesně. Pomáhá rozlišit malicherné od toho, na čem skutečně záleží. Krátká, praktická, každodenní — filtr pro jednání, ne meditace o konci.
 - ❌ Dlouhá kontemplace o vlastní smrti a smyslu existence
   To by byla existenciální filozofie, ne stoická praxe. Stoici preferovali krátké a účinné.
 - ❌ Carpe diem — užívej si každý den jako poslední
@@ -180,8 +180,8 @@ Marcus Aurelius wrote: "Act, speak, and think as if you were about to say goodby
 
 **Question:** Which interpretation of Memento Mori is correct?
 
-- **✅ A short daily practice that helps distinguish the trivial from the important**
-  Exactly. Short, practical, daily — a filter for action, not a meditation on the end.
+- **✅ A short daily practice — a filter**
+  Exactly. It helps distinguish the trivial from what really matters. Short, practical, daily — a filter for action, not a meditation on the end.
 - ❌ A long contemplation about your own death and the meaning of existence
   That would be existential philosophy, not Stoic practice. Stoics preferred things short and effective.
 - ❌ Carpe diem — enjoy every day as your last
@@ -191,8 +191,8 @@ Marcus Aurelius wrote: "Act, speak, and think as if you were about to say goodby
 
 **Otázka:** Máš strach říct šéfovi, že chceš přejít do jiné role. Jak ti Memento Mori pomůže?
 
-- **✅ Ukáže, že z pohledu celého života je šéfova dočasná reakce malicherná ve srovnání s tím, co tě naplňuje**
-  Přesně. Memento Mori dává perspektivu — drobné sociální obavy se zmenší, když vidíš obraz celého života.
+- **✅ Šéfova reakce je z pohledu života malicherná**
+  Přesně. Ve srovnání s tím, co tě dlouhodobě naplňuje, je to drobnost. Memento Mori dává perspektivu — drobné sociální obavy se zmenší, když vidíš obraz celého života.
 - ❌ Ukáže ti, že stejně všichni jednou umřeme, takže na ničem nezáleží
   To je nihilismus, ne Memento Mori. Stoicismus je opak: protože je čas konečný, volby mají větší, ne menší váhu.
 - ❌ Donutí tě okamžitě dát výpověď bez ohledu na následky
@@ -202,8 +202,8 @@ Marcus Aurelius wrote: "Act, speak, and think as if you were about to say goodby
 
 **Question:** You're afraid to tell your boss you want to move into a different role. How does Memento Mori help?
 
-- **✅ It shows that from a whole-life view, the boss's temporary reaction is trivial compared to what fulfills you**
-  Exactly. Memento Mori gives perspective — small social fears shrink when you see the picture of a whole life.
+- **✅ The boss's reaction is trivial in life's scale**
+  Exactly — compared to what fulfills you long-term, it's small. Memento Mori gives perspective — small social fears shrink when you see the picture of a whole life.
 - ❌ It shows that we all die anyway, so nothing matters
   That's nihilism, not Memento Mori. Stoicism is the opposite: because time is finite, choices have more weight, not less.
 - ❌ It makes you quit immediately regardless of consequences

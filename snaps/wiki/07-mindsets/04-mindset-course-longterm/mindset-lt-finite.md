@@ -83,8 +83,8 @@ Simon Sinek applied this to business: companies playing a finite game (quarterly
 
 **Otázka:** Ve vztahu „vyhráváš" asi 50 hádek za rok. Teď jsi sám/sama — partner/ka odešla. Co jsi přehlédl/a?
 
-- **✅ Vztah je nekonečná hra — cílem není vyhrát, ale pokračovat. Hrál/a jsi konečnou hru v nekonečném kontextu.**
-  Přesně. Zaměňovat typ hry je jeden z největších životních chyb.
+- **✅ Vztah je nekonečná hra**
+  Přesně. Cílem není vyhrát, ale pokračovat. Hrál/a jsi konečnou hru v nekonečném kontextu — zaměňovat typ hry je jedna z největších životních chyb.
 - ❌ Měl/a jsi být chytřejší v hádkách
   Už jsi byl/a nejchytřejší — a právě proto jsi prohrál/a. V nekonečných hrách vítězství „v kole" nevítězí ve hře.
 - ❌ Měl/a jsi méně hádat
@@ -94,8 +94,8 @@ Simon Sinek applied this to business: companies playing a finite game (quarterly
 
 **Question:** In your relationship you "win" about 50 arguments a year. Now you're alone — your partner left. What did you miss?
 
-- **✅ A relationship is an infinite game — the goal isn't to win, it's to keep playing. You played a finite game in an infinite context.**
-  Exactly. Mixing up the type of game is one of life's biggest mistakes.
+- **✅ A relationship is an infinite game**
+  Exactly. The goal isn't to win, it's to keep playing. You played a finite game in an infinite context — mixing up the type of game is one of life's biggest mistakes.
 - ❌ You should have been smarter in arguments
   You were already the smartest — and that's exactly why you lost.
 - ❌ You should have argued less
@@ -117,8 +117,8 @@ A practical filter: "If I make this choice, will it help me stay in the game, or
 
 **Otázka:** Vedeš tým a vybíráš mezi: 1) Tlak na čísla za každou cenu (bonus tento rok). 2) Budování kultury a dlouhodobého výkonu. Která je v nekonečném duchu?
 
-- **✅ Druhá — kariéra je nekonečná hra a vyhoření týmu za rok zničí dalších 10 let**
-  Přesně. Krátkodobé vítězství za cenu dlouhodobého zničení = konečné myšlení v nekonečné hře.
+- **✅ Druhá — kultura**
+  Přesně. Kariéra je nekonečná hra a vyhoření týmu za rok zničí dalších 10 let. Krátkodobé vítězství za cenu dlouhodobého zničení = konečné myšlení v nekonečné hře.
 - ❌ První — odměna teď je reálná
   Past konečného myšlení. Pokud neuhýbáš hru, časem ji stejně prohraješ.
 - ❌ Obě stejně dobré
@@ -128,8 +128,8 @@ A practical filter: "If I make this choice, will it help me stay in the game, or
 
 **Question:** You lead a team choosing between: 1) Push for numbers at any cost (bonus this year). 2) Build culture and long-term performance. Which is in the infinite spirit?
 
-- **✅ The second — career is an infinite game and a team burned out in a year will ruin the next 10**
-  Exactly. Short-term victory at the cost of long-term destruction = finite thinking in an infinite game.
+- **✅ The second — culture**
+  Exactly. Career is an infinite game and a team burned out in a year will ruin the next 10. Short-term victory at the cost of long-term destruction = finite thinking in an infinite game.
 - ❌ The first — the bonus now is real
   The finite-mindset trap. If you don't play the game, you'll lose it eventually.
 - ❌ Both equally good
@@ -147,8 +147,8 @@ A practical filter: "If I make this choice, will it help me stay in the game, or
 
 **Otázka:** Která hra je nekonečná?
 
-- **✅ Kariéra — nemá konec, pravidla se mění, cílem je pokračovat a rozvíjet se**
-  Přesně. Kariéra je paradigmatická nekonečná hra. Přestaneš hrát = odpadneš.
+- **✅ Kariéra**
+  Přesně. Nemá konec, pravidla se mění, cílem je pokračovat a rozvíjet se. Kariéra je paradigmatická nekonečná hra — přestaneš hrát = odpadneš.
 - ❌ Šachová partie
   Konečná. Jasná pravidla, jasný vítěz, jasný konec.
 - ❌ Pohovor o práci
@@ -158,8 +158,8 @@ A practical filter: "If I make this choice, will it help me stay in the game, or
 
 **Question:** Which is an infinite game?
 
-- **✅ A career — no end, rules shift, the goal is to keep going and growing**
-  Exactly. A career is the paradigmatic infinite game. Stop playing = drop out.
+- **✅ A career**
+  Exactly. No end, rules shift, the goal is to keep going and growing. A career is the paradigmatic infinite game — stop playing = drop out.
 - ❌ A chess match
   Finite. Clear rules, clear winner, clear end.
 - ❌ A job interview
@@ -169,8 +169,8 @@ A practical filter: "If I make this choice, will it help me stay in the game, or
 
 **Otázka:** V partnerském vztahu bojuješ „o to, kdo má pravdu". Jak to změnit v nekonečném duchu?
 
-- **✅ Ptát se „co je dobré pro nás jako dlouhodobou jednotku?" místo „kdo má pravdu teď?"**
-  Přesně. Přesun z konečné („kdo vyhraje") na nekonečnou („jak udržíme vztah zdravý").
+- **✅ Ptát se „co je dobré pro nás?"**
+  Přesně. Místo „kdo má pravdu teď?" — přesun z konečné hry („kdo vyhraje") na nekonečnou („jak udržíme vztah dlouhodobě zdravý").
 - ❌ Přestat hádat úplně a nic neříkat
   Pasivita je jiná chyba. Nekonečná hra stále vyžaduje komunikaci — jen s jiným cílem.
 - ❌ Nastavit pravidla, kdo má kdy pravdu
@@ -180,8 +180,8 @@ A practical filter: "If I make this choice, will it help me stay in the game, or
 
 **Question:** In your relationship you fight "over who's right." How do you shift to an infinite spirit?
 
-- **✅ Ask "what's good for us as a long-term unit?" instead of "who's right now?"**
-  Exactly. Shifting from finite ("who wins") to infinite ("how do we keep the relationship healthy").
+- **✅ Ask "what's good for us?"**
+  Exactly. Instead of "who's right now?" — shifting from finite ("who wins") to infinite ("how do we keep the relationship healthy long-term").
 - ❌ Stop arguing entirely and say nothing
   Passivity is another mistake. The infinite game still needs communication — just with a different goal.
 - ❌ Set rules for who is right when
@@ -191,8 +191,8 @@ A practical filter: "If I make this choice, will it help me stay in the game, or
 
 **Otázka:** Jako šéf malé firmy stojíš před volbou: 1) Rychlý zisk za cenu otrávení vztahů se zákazníky. 2) Pomalejší růst s udržitelnými vztahy. Co by řekl Sinek?
 
-- **✅ Druhá — byznys je nekonečná hra a otrávené vztahy se vrátí**
-  Přesně. Sinek argumentuje, že firmy s „infinite mindset" drtí ty s „finite mindset" v dlouhém horizontu.
+- **✅ Druhá — byznys je nekonečná hra**
+  Přesně. Otrávené vztahy se vrátí. Sinek argumentuje, že firmy s „infinite mindset" drtí ty s „finite mindset" v dlouhém horizontu.
 - ❌ První — rychlý zisk je hmatatelný
   Konečné myšlení. Pracuje dobře na kvartál, zabíjí na dekádu.
 - ❌ Ani jedna, pokud nebudeš mít monopol
@@ -202,8 +202,8 @@ A practical filter: "If I make this choice, will it help me stay in the game, or
 
 **Question:** Running a small company, you face: 1) Fast profit at the cost of poisoning customer relationships. 2) Slower growth with sustainable relationships. What would Sinek say?
 
-- **✅ The second — business is an infinite game and poisoned relationships come back**
-  Exactly. Sinek argues that companies with an "infinite mindset" crush "finite mindset" competitors long-term.
+- **✅ The second — business is an infinite game**
+  Exactly. Poisoned relationships come back. Sinek argues that companies with an "infinite mindset" crush "finite mindset" competitors long-term.
 - ❌ The first — fast profit is tangible
   Finite thinking. Works for a quarter, kills over a decade.
 - ❌ Neither, unless you have a monopoly

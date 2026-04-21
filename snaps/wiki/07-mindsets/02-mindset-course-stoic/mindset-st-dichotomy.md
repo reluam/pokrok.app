@@ -83,8 +83,8 @@ The Stoic philosopher Epictetus opens his Enchiridion with: "Some things are in 
 
 **Otázka:** Máš za týden prezentaci a stresem nespíš. Co by s tím udělal Epiktétos?
 
-- **✅ Rozdělil by situaci na „moje" (příprava, obsah, trénink) a „ne moje" (reakce publika) a věnoval by se jen prvnímu**
-  Přesně. Epiktétos začíná Příručku: „Některé věci jsou v naší moci, jiné ne." Úsilí patří k prvním. Výsledek k druhým.
+- **✅ Rozdělil by to na „moje" a „ne moje"**
+  Přesně. Energii dáš jen do prvního. Do „moje" patří příprava, obsah, trénink; do „ne moje" reakce publika. Epiktétos začíná Příručku: „Některé věci jsou v naší moci, jiné ne." Úsilí patří k prvním. Výsledek k druhým.
 - ❌ Řekl by ti „neboj se, všechno dobře dopadne"
   Stoici se vyhýbají slepému optimismu. Místo toho nabízejí přesnou analýzu, co je v tvé moci.
 - ❌ Doporučil by ti prezentaci zrušit
@@ -94,8 +94,8 @@ The Stoic philosopher Epictetus opens his Enchiridion with: "Some things are in 
 
 **Question:** You have a presentation in a week and you can't sleep from stress. What would Epictetus do with this?
 
-- **✅ Split the situation into "mine" (preparation, content, rehearsal) and "not mine" (audience reaction) and focus only on the first**
-  Exactly. Epictetus opens the Enchiridion: "Some things are in our power, others are not." Effort belongs to the first. Outcome to the second.
+- **✅ Split it into "mine" vs "not mine" and act on mine**
+  Exactly. "Mine" = preparation, content, rehearsal; "not mine" = audience reaction. Epictetus opens the Enchiridion: "Some things are in our power, others are not." Effort belongs to the first. Outcome to the second.
 - ❌ Tell you "don't worry, everything will work out"
   Stoics avoid blind optimism. Instead they offer a precise analysis of what's in your power.
 - ❌ Recommend you cancel the presentation
@@ -117,8 +117,8 @@ Modern psychology research (ACT, CBT) rediscovered what Epictetus taught 2,000 y
 
 **Otázka:** Tvůj otec je nemocný. Denně kontroluješ telefon, trápíš se, nemůžeš spát. Co spadá do „v tvé moci"?
 
-- **✅ Jak často voláš, co říkáš, kdy jedeš na návštěvu, jak reaguješ — ne uzdravení**
-  Přesně. Tvé činy jsou v tvé moci. Zdravotní stav není. Stoicismus ti říká: dělej všechno, co je tvou povinností, a nech ostatní přírodě.
+- **✅ Tvé činy — hovory, návštěvy, reakce. Ne uzdravení**
+  Přesně. Jak často voláš, co říkáš, kdy jedeš na návštěvu. Tvé činy jsou v tvé moci. Zdravotní stav není. Stoicismus ti říká: dělej všechno, co je tvou povinností, a nech ostatní přírodě.
 - ❌ Všechno — je to tvá rodina, musíš všechno zvládnout
   Tohle přesvědčení vede k vyhoření. Nemůžeš kontrolovat biologii tátova těla — jen své vlastní jednání.
 - ❌ Nic — nemoc je mimo tebe, máš to pustit
@@ -128,8 +128,8 @@ Modern psychology research (ACT, CBT) rediscovered what Epictetus taught 2,000 y
 
 **Question:** Your father is sick. You check your phone every day, agonize, can't sleep. What falls under "in your power"?
 
-- **✅ How often you call, what you say, when you visit, how you react — not the recovery**
-  Exactly. Your actions are in your power. The medical condition isn't. Stoicism tells you: do everything that is your duty, and leave the rest to nature.
+- **✅ Your actions — calls, visits, reactions. Not the recovery**
+  Exactly. How often you call, what you say, when you visit. Your actions are in your power. The medical condition isn't. Stoicism tells you: do everything that is your duty, and leave the rest to nature.
 - ❌ Everything — it's your family, you have to handle everything
   That belief leads to burnout. You can't control the biology of your father's body — only your own actions.
 - ❌ Nothing — the illness is outside you, you should let go
@@ -169,8 +169,8 @@ Modern psychology research (ACT, CBT) rediscovered what Epictetus taught 2,000 y
 
 **Otázka:** Čekáš na výsledky testu, který byl před třemi dny. Nemůžeš s tím nic dělat, ale nemůžeš se soustředit na nic jiného. Jaký je stoický přístup?
 
-- **✅ Uznat, že výsledek není v tvé moci, a vědomě se zaměřit na to, co dělat lze teď**
-  Přesně. Dichotomie kontroly není o necítění — je o přesměrování pozornosti. Cítíš úzkost, ale nenecháš ji řídit den.
+- **✅ Přijmout to a zaměřit se na to, co jde**
+  Přesně. Výsledek není v tvé moci. Dichotomie kontroly není o necítění — je o přesměrování pozornosti. Cítíš úzkost, ale nenecháš ji řídit den.
 - ❌ Donutit se necítit žádnou úzkost
   Stoici to nikdy neříkali. Učili akceptovat cit, ale oddělit ho od jednání.
 - ❌ Zavolat lékaři 20×, dokud neodpoví
@@ -180,8 +180,8 @@ Modern psychology research (ACT, CBT) rediscovered what Epictetus taught 2,000 y
 
 **Question:** You're waiting for test results from three days ago. You can't do anything about it, but you can't focus on anything else. What's the Stoic approach?
 
-- **✅ Recognize the outcome isn't in your power and consciously focus on what you can do now**
-  Exactly. The dichotomy of control isn't about not feeling — it's about redirecting attention. You feel the anxiety but don't let it run your day.
+- **✅ Accept it and focus on what you can do now**
+  Exactly. The outcome isn't in your power. The dichotomy of control isn't about not feeling — it's about redirecting attention. You feel the anxiety but don't let it run your day.
 - ❌ Force yourself to feel no anxiety
   Stoics never said that. They taught accepting the feeling but separating it from action.
 - ❌ Call the doctor 20 times until they answer
@@ -191,8 +191,8 @@ Modern psychology research (ACT, CBT) rediscovered what Epictetus taught 2,000 y
 
 **Otázka:** Kolegyně dostala povýšení, které jsi chtěl/a ty. Co je v tvé moci podle Epikteta?
 
-- **✅ Tvá další akce, tvá reakce, tvá příprava na budoucí příležitost**
-  Přesně. Rozhodnutí šéfa bylo a je mimo tebe. Tvá reakce na to však je plně tvá. A ta určuje, jak dál.
+- **✅ Tvá reakce a příprava na příští příležitost**
+  Přesně. Tvá další akce je plně v tobě. Rozhodnutí šéfa bylo a je mimo tebe. Tvá reakce na to však je plně tvá. A ta určuje, jak dál.
 - ❌ Přesvědčit šéfa, aby povýšení zrušil
   Mimo tvou kontrolu. Můžeš argumentovat — ale výsledek je na něm.
 - ❌ Nenechat se pocity ovlivnit — neměl/a bys nic cítit
@@ -202,8 +202,8 @@ Modern psychology research (ACT, CBT) rediscovered what Epictetus taught 2,000 y
 
 **Question:** A colleague got a promotion you wanted. What is in your power according to Epictetus?
 
-- **✅ Your next step, your reaction, your preparation for a future opportunity**
-  Exactly. The boss's decision was and is outside you. But your reaction to it is fully yours. And that determines what comes next.
+- **✅ Your reaction and prep for a future opportunity**
+  Exactly. Your next step is fully yours. The boss's decision was and is outside you. But your reaction to it is fully yours. And that determines what comes next.
 - ❌ Convincing the boss to reverse the promotion
   Outside your control. You can argue — but the outcome is up to them.
 - ❌ Not letting feelings affect you — you shouldn't feel anything
@@ -242,8 +242,8 @@ Epictetus's trick: when something upsets you, ask "is this in my power?" If not,
 
 **Otázka:** Trápí tě: 1) nepřítel v práci ti dělá naschvály, 2) partner/ka je distancovaný/á, 3) akcie padly, 4) bolí tě ucho. Co je v tvé moci?
 
-- **✅ Jak s nepřítelem jednáš, jestli mluvíš s partnerem/kou, co uděláš s investicemi, jestli jdeš k lékaři**
-  Přesně. Chování druhých, pohyby trhu a biologie tvé bolesti nejsou v tvé moci. Ale tvá odpověď na každou z nich ano.
+- **✅ Tvé jednání, slova, rozhodnutí i návštěva lékaře**
+  Přesně. Jak jednáš s nepřítelem, jestli mluvíš s partnerem/kou, co uděláš s investicemi, jestli jdeš k lékaři. Chování druhých, pohyby trhu a biologie tvé bolesti nejsou v tvé moci. Ale tvá odpověď na každou z nich ano.
 - ❌ Změnit, jak se kolega chová, a nutit partnera/ku se vyjádřit
   Jednání druhých není nikdy v tvé moci. Můžeš ovlivnit prostředí, ne jejich volbu.
 - ❌ Nic — máš to všechno přijmout
@@ -253,8 +253,8 @@ Epictetus's trick: when something upsets you, ask "is this in my power?" If not,
 
 **Question:** You're dealing with: 1) an enemy at work making life hard, 2) your partner is distant, 3) stocks fell, 4) your ear hurts. What's in your power?
 
-- **✅ How you deal with the enemy, whether you talk to your partner, what you do about investments, whether you go to a doctor**
-  Exactly. Others' behavior, market movements, and the biology of your pain aren't in your power. But your response to each of them is.
+- **✅ Your actions, words, choices, and a doctor visit**
+  Exactly. How you deal with the enemy, whether you talk to your partner, what you do about investments, whether you see a doctor. Others' behavior, market movements, and the biology of your pain aren't in your power. But your response to each of them is.
 - ❌ Change how the colleague behaves and force your partner to speak up
   Others' actions are never in your power. You can shape the environment, not their choice.
 - ❌ Nothing — you should accept it all
@@ -276,8 +276,8 @@ For the Stoics, freedom doesn't mean doing what you want. It means wanting what 
 
 **Otázka:** Lidé zaměňují dichotomii kontroly s rezignací. Jaký je rozdíl?
 
-- **✅ Rezignace říká „vzdám to". Dichotomie říká „do úsilí dám všechno — ale výsledek neovládám"**
-  Přesně. Stoici to mysleli opačně než rezignaci: právě proto, že výsledek neovládáš, do úsilí dáváš všechno.
+- **✅ Rezignace vzdá, dichotomie dá úsilí vše**
+  Přesně. Rezignace říká „vzdám to". Dichotomie říká „do úsilí dám všechno — ale výsledek neovládám". Stoici to mysleli opačně než rezignaci: právě proto, že výsledek neovládáš, do úsilí dáváš všechno.
 - ❌ Žádný — je to totéž
   Zásadní rozdíl. Rezignace = nečinnost. Dichotomie = plná akce v tom, co je tvé, bez trápení se o zbytek.
 - ❌ Dichotomie kontroly říká, že neovládáš své emoce
@@ -287,8 +287,8 @@ For the Stoics, freedom doesn't mean doing what you want. It means wanting what 
 
 **Question:** People confuse the dichotomy of control with resignation. What's the difference?
 
-- **✅ Resignation says "I give up." The dichotomy says "I'll put everything into my effort — but I don't control the outcome"**
-  Exactly. The Stoics meant the opposite of resignation: precisely because you don't control the outcome, you put everything into the effort.
+- **✅ Resignation gives up; dichotomy gives full effort**
+  Exactly. Resignation says "I give up." Dichotomy says "I'll put everything into effort — but I don't control the outcome." The Stoics meant the opposite of resignation: precisely because you don't control the outcome, you put everything into the effort.
 - ❌ None — it's the same thing
   A fundamental difference. Resignation = inaction. Dichotomy = full action on what's yours, without agonizing over the rest.
 - ❌ The dichotomy of control says you don't control your emotions
@@ -306,8 +306,8 @@ For the Stoics, freedom doesn't mean doing what you want. It means wanting what 
 
 **Otázka:** Proč moderní psychologie (ACT, CBT) potvrzuje to, co učil Epiktétos?
 
-- **✅ Protože přijetí toho, co nemůžeš kontrolovat, snižuje úzkost efektivněji než snaha to ovládat**
-  Přesně. Přesměrování energie z nekontrolovatelného na kontrolovatelné je jádrem jak stoicismu, tak moderní terapie.
+- **✅ Přijetí nekontrolovatelného snižuje úzkost**
+  Přesně. Efektivněji než snaha to ovládat. Přesměrování energie z nekontrolovatelného na kontrolovatelné je jádrem jak stoicismu, tak moderní terapie.
 - ❌ Protože staří filozofové měli lepší výzkumné metody
   Ne — měli lepší intuici. Moderní věda to jen ověřila jinými nástroji.
 - ❌ Protože stoicismus je forma terapie
@@ -317,8 +317,8 @@ For the Stoics, freedom doesn't mean doing what you want. It means wanting what 
 
 **Question:** Why does modern psychology (ACT, CBT) confirm what Epictetus taught?
 
-- **✅ Because accepting what you can't control reduces anxiety more effectively than trying to control it**
-  Exactly. Redirecting energy from the uncontrollable to the controllable is the core of both Stoicism and modern therapy.
+- **✅ Accepting the uncontrollable reduces anxiety**
+  Exactly — more effectively than trying to control it. Redirecting energy from the uncontrollable to the controllable is the core of both Stoicism and modern therapy.
 - ❌ Because ancient philosophers had better research methods
   No — they had better intuition. Modern science just verified it with different tools.
 - ❌ Because Stoicism is a form of therapy
@@ -328,8 +328,8 @@ For the Stoics, freedom doesn't mean doing what you want. It means wanting what 
 
 **Otázka:** Jsi naštvaný/á, že ti nezvedli plat. Co je v tvé moci?
 
-- **✅ Jestli požádáš o zpětnou vazbu, jestli se zeptáš co zlepšit, jestli začneš hledat jinde**
-  Přesně. Rozhodnutí firmy je mimo tebe. Tvá odpověď — co uděláš dál — je plně v tvé moci.
+- **✅ Zpětná vazba nebo hledat jinde**
+  Přesně. Jestli požádáš o zpětnou vazbu, na co zlepšit, nebo začneš hledat jinou práci. Rozhodnutí firmy je mimo tebe. Tvá odpověď — co uděláš dál — je plně v tvé moci.
 - ❌ Přesvědčit šéfa, že udělal chybu
   Mimo tvou kontrolu. Můžeš argumentovat, ale výsledek je na něm.
 - ❌ Necítit nic — stoik přece necítí
@@ -339,8 +339,8 @@ For the Stoics, freedom doesn't mean doing what you want. It means wanting what 
 
 **Question:** You're angry they didn't raise your salary. What's in your power?
 
-- **✅ Whether you ask for feedback, whether you ask what to improve, whether you start looking elsewhere**
-  Exactly. The company's decision is outside you. Your response — what you do next — is fully in your power.
+- **✅ Asking for feedback or looking elsewhere**
+  Exactly. Whether you ask for feedback, ask what to improve, or start looking for another job. The company's decision is outside you. Your response — what you do next — is fully in your power.
 - ❌ Convincing the boss they made a mistake
   Outside your control. You can argue, but the outcome is up to them.
 - ❌ Feeling nothing — a Stoic doesn't feel
@@ -350,8 +350,8 @@ For the Stoics, freedom doesn't mean doing what you want. It means wanting what 
 
 **Otázka:** Jak začneš používat dichotomii kontroly prakticky od zítřka?
 
-- **✅ Každé ráno si polož otázku: „Co dnes můžu ovlivnit a co ne?" — a energii věnuj jen prvnímu**
-  Přesně. Jednoduchá ranní praxe, která za měsíc změní tvůj přístup ke stresu. Marcus Aurelius to dělal denně.
+- **✅ Ranní otázka: „Co dnes můžu ovlivnit?"**
+  Přesně. Energii věnuj jen tomu. Jednoduchá ranní praxe, která za měsíc změní tvůj přístup ke stresu. Marcus Aurelius to dělal denně.
 - ❌ Přečtu si celou Příručku Epiktétovu a pak začnu
   Teorie bez praxe je odklad. Začni jednou otázkou zítra ráno. Knihu přečteš později.
 - ❌ Přestanu cítit emoce
@@ -361,8 +361,8 @@ For the Stoics, freedom doesn't mean doing what you want. It means wanting what 
 
 **Question:** How do you start using the dichotomy of control practically from tomorrow?
 
-- **✅ Every morning ask yourself: "What can I influence today and what can't I?" — and devote energy only to the first**
-  Exactly. A simple morning practice that changes your relationship with stress within a month. Marcus Aurelius did it daily.
+- **✅ Morning question: "What can I influence?"**
+  Exactly. Devote your energy only to that. A simple morning practice that changes your relationship with stress within a month. Marcus Aurelius did it daily.
 - ❌ Read all of Epictetus's Enchiridion and then start
   Theory without practice is procrastination. Start with one question tomorrow morning. Read the book later.
 - ❌ Stop feeling emotions

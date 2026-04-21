@@ -83,8 +83,8 @@ Marcus Aurelius told himself in the morning: "Today I will meet ungrateful, arro
 
 **Otázka:** Před prezentací si představuješ: co když zamrzne počítač? Co když se zeptají na něco, co neumíš? Pro každou situaci promýšlíš řešení. Je to zdravý nebo nezdravý zvyk?
 
-- **✅ Premeditatio Malorum — stoické předběžné promýšlení, které tě připraví, ne vystraší**
-  Přesně. Seneca učil: představ si, co se může pokazit, ne pro strach, ale pro přípravu. Výsledek: klidnější jednání.
+- **✅ Zdravé — Premeditatio**
+  Přesně. Stoické předběžné promýšlení tě připraví, ne vystraší. Seneca učil: představ si, co se může pokazit, ne pro strach, ale pro přípravu. Výsledek: klidnější jednání.
 - ❌ Katastrofizuješ, měl/a bys přestat
   Katastrofizace je pasivní trápení. Premeditatio je aktivní plánování. Rozdíl je klíčový: pro každou situaci plánuješ řešení.
 - ❌ Jsi pesimista
@@ -94,8 +94,8 @@ Marcus Aurelius told himself in the morning: "Today I will meet ungrateful, arro
 
 **Question:** Before a presentation you imagine: what if the computer freezes? What if they ask something you don't know? For each situation you think through what you'd do. Is this a healthy or unhealthy habit?
 
-- **✅ Premeditatio Malorum — Stoic advance thinking-through of problems, which prepares you rather than scaring you**
-  Exactly. Seneca taught: imagine what can go wrong, not out of fear, but for preparation. Result: calmer action in the moment.
+- **✅ Premeditatio Malorum — healthy**
+  Exactly. Stoic advance thinking-through prepares you rather than scaring you. Seneca taught: imagine what can go wrong, not out of fear, but for preparation. Result: calmer action in the moment.
 - ❌ You're catastrophizing, you should stop
   Catastrophizing is passive suffering. Premeditatio is active planning. The difference is crucial: you plan a solution for every situation.
 - ❌ You're a pessimist
@@ -117,8 +117,8 @@ Exercise: before your next important event, write three worst-case scenarios. Fo
 
 **Otázka:** Začneš s Premeditatio Malorum — a teď trávíš hodiny denně představováním všech možných problémů. Jsi smutný/á a úzkostný/á. Co děláš špatně?
 
-- **✅ Zaměnil/a jsi nástroj za trvalý stav — Premeditatio je krátké cvičení, ne denní rozpoložení**
-  Přesně. Stoici dělali krátce a šli dál. Delší než pár minut ztrácí smysl a stává se z toho trápení.
+- **✅ Zaměňuješ nástroj za trvalý stav**
+  Přesně. Premeditatio je krátké cvičení, ne denní rozpoložení. Stoici dělali krátce a šli dál. Delší než pár minut ztrácí smysl a stává se z toho trápení.
 - ❌ Měl/a bys přestat úplně
   Nástroj není špatný — jen způsob použití. Zkrátit, ne zahodit.
 - ❌ Měl/a bys přemýšlet jen pozitivně
@@ -128,8 +128,8 @@ Exercise: before your next important event, write three worst-case scenarios. Fo
 
 **Question:** You get into Premeditatio Malorum — and now you spend hours a day imagining every possible problem. You're sad and anxious. What are you doing wrong?
 
-- **✅ You mistook a tool for a permanent state — Premeditatio is a short exercise, not a daily mood**
-  Exactly. Stoics did it briefly and moved on. Longer than a few minutes loses its point and turns into suffering.
+- **✅ A tool became a permanent state**
+  Exactly. Premeditatio is a short exercise, not a daily mood. Stoics did it briefly and moved on. Longer than a few minutes loses its point and turns into suffering.
 - ❌ You should stop entirely
   The tool isn't bad — just your way of using it. Shorten it, don't discard it.
 - ❌ You should only think positively
@@ -147,8 +147,8 @@ Exercise: before your next important event, write three worst-case scenarios. Fo
 
 **Otázka:** Co NEJLÉPE popisuje Premeditatio Malorum?
 
-- **✅ Krátké, konkrétní cvičení před akcí: představit si nejhorší + plán pro každý scénář**
-  Přesně. Krátké, konkrétní, s plánem — tři klíčové prvky, aby to fungovalo a nebylo to jen trápení.
+- **✅ Krátké cvičení před akcí s plánem**
+  Přesně. Představíš si nejhorší scénář a pro každý připravíš plán. Krátké, konkrétní, s plánem — tři klíčové prvky, aby to fungovalo a nebylo to jen trápení.
 - ❌ Trvalá úzkost z budoucnosti
   Opak. Premeditatio úzkost snižuje, ne zvyšuje — pokud se dělá správně (krátce a s plánem).
 - ❌ Pozitivní vizualizace úspěchu
@@ -158,8 +158,8 @@ Exercise: before your next important event, write three worst-case scenarios. Fo
 
 **Question:** What BEST describes Premeditatio Malorum?
 
-- **✅ A short, concrete exercise before action: imagine the worst + a plan for each scenario**
-  Exactly. Short, concrete, with a plan — the three key elements to make it work and not turn into suffering.
+- **✅ A brief exercise before action**
+  Exactly. You imagine the worst scenarios and prepare a plan for each. Short, concrete, with a plan — the three key elements to make it work and not turn into suffering.
 - ❌ Constant anxiety about the future
   The opposite. Premeditatio reduces anxiety, doesn't increase it — if done right (briefly and with a plan).
 - ❌ Positive visualization of success
@@ -169,8 +169,8 @@ Exercise: before your next important event, write three worst-case scenarios. Fo
 
 **Otázka:** Máš zítra těžký rozhovor s partnerem/kou o společné budoucnosti. Jak ti správně pomůže Premeditatio?
 
-- **✅ Deset minut večer: představit si tři možné scénáře a pro každý napsat svou odpověď**
-  Přesně. Deset minut, tři scénáře, plán. Pak to pustíš a jdeš spát. Druhý den jsi klidnější.
+- **✅ Deset minut večer: tři scénáře, každý s plánem**
+  Přesně. Představíš si tři možné scénáře a pro každý napíšeš svou odpověď. Pak to pustíš a jdeš spát. Druhý den jsi klidnější.
 - ❌ Celou noc promýšlet všechno, co se může pokazit
   Katastrofizace. Zítra budeš vyčerpaný/á a úzkostný/á — opak cíle.
 - ❌ Nepřemýšlet o tom, nechat to přijít spontánně
@@ -180,8 +180,8 @@ Exercise: before your next important event, write three worst-case scenarios. Fo
 
 **Question:** You have a hard conversation with your partner about the future tomorrow. How does Premeditatio help properly?
 
-- **✅ Ten minutes in the evening: imagine three possible scenarios and write your response for each**
-  Exactly. Ten minutes, three scenarios, a plan. Then let it go and go to sleep. The next day you're calmer.
+- **✅ Ten minutes in the evening: three scenarios with a plan**
+  Exactly. You imagine three possible scenarios and write your response for each. Then let it go and go to sleep. The next day you're calmer.
 - ❌ Spend all night thinking through everything that could go wrong
   Catastrophizing. Tomorrow you'll be exhausted and anxious — the opposite of the goal.
 - ❌ Don't think about it, let it come spontaneously
@@ -191,8 +191,8 @@ Exercise: before your next important event, write three worst-case scenarios. Fo
 
 **Otázka:** Proč Premeditatio Malorum slouží dvojitě?
 
-- **✅ 1) Klid před problémy (jsi připraven/a), 2) Vděčnost za to, co máš (uvědomuješ si, že to ztratíš)**
-  Přesně. Když si představíš ztrátu toho, co máš, přestaneš to brát jako samozřejmost. Paradoxně: lidé, kteří to dělají, jsou šťastnější.
+- **✅ Klid před problémy a vděčnost za to, co máš**
+  Přesně — 1) jsi připraven/a na problémy, 2) uvědomuješ si, že to jednou ztratíš. Když si představíš ztrátu toho, co máš, přestaneš to brát jako samozřejmost. Paradoxně: lidé, kteří to dělají, jsou šťastnější.
 - ❌ Protože tě učí být pesimistou i optimistou zároveň
   Premeditatio není o pesimismu ani optimismu — je o realismu s plánem.
 - ❌ Neslouží dvojitě — má jen jeden účel
@@ -202,8 +202,8 @@ Exercise: before your next important event, write three worst-case scenarios. Fo
 
 **Question:** Why does Premeditatio Malorum serve a double purpose?
 
-- **✅ 1) Calm in the face of problems (you're prepared), 2) Gratitude for what you have (you realize you'll lose it)**
-  Exactly. When you imagine losing what you have, you stop taking it for granted. Paradoxically: people who do this are happier.
+- **✅ Calm in problems and gratitude for what you have**
+  Exactly — 1) you're prepared for problems, 2) you realize you'll lose it one day. When you imagine losing what you have, you stop taking it for granted. Paradoxically: people who do this are happier.
 - ❌ Because it teaches you to be both a pessimist and an optimist
   Premeditatio isn't about pessimism or optimism — it's about realism with a plan.
 - ❌ It doesn't serve a double purpose — it has only one

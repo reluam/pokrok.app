@@ -83,8 +83,8 @@ Amor Fati distinguishes two kinds of suffering. **Primary:** pain from the event
 
 **Otázka:** Rok se trápíš, že jsi nedostal/a tu práci. „Kdybych tehdy lépe prezentoval/a..." Co prakticky znamená Amor Fati?
 
-- **✅ Přestat chtít, aby se věci staly jinak, a začít pracovat s tím, co je**
-  Přesně. Amor Fati není „líbí se mi to". Je to „pustím touhu to měnit a budu pracovat s realitou, která je".
+- **✅ Přestat chtít, aby to bylo jinak**
+  Přesně — a začít pracovat s tím, co je. Amor Fati není „líbí se mi to". Je to „pustím touhu to měnit a budu pracovat s realitou, která je".
 - ❌ Tvářit se, že to bylo vlastně skvělé
   To je toxická pozitivita. Amor Fati nepřepisuje bolest — jen ji přestává násobit odporem.
 - ❌ Přestat cítit cokoliv ohledně minulosti
@@ -94,8 +94,8 @@ Amor Fati distinguishes two kinds of suffering. **Primary:** pain from the event
 
 **Question:** You've been tormenting yourself for a year over not getting that job. "If only I'd presented better..." What does Amor Fati mean in practice?
 
-- **✅ Stop wishing things had happened differently and start working with what is**
-  Exactly. Amor Fati isn't "I like this." It's "I'll let go of the desire to change it and work with the reality that exists."
+- **✅ Stop wishing things were different**
+  Exactly — and start working with what is. Amor Fati isn't "I like this." It's "I'll let go of the desire to change it and work with the reality that exists."
 - ❌ Pretend it was actually great
   That's toxic positivity. Amor Fati doesn't rewrite pain — it just stops multiplying it with resistance.
 - ❌ Stop feeling anything about the past
@@ -117,8 +117,8 @@ A concrete practice: when you catch yourself saying "if only...", switch it to "
 
 **Otázka:** Rozvedeš se. Cítíš obrovský smutek. Kde končí primární bolest a začíná sekundární?
 
-- **✅ Smutek je primární. Obsedantní otázky „proč já, proč teď, to není fér" jsou sekundární**
-  Přesně. Smutek přišel s rozvodem. Ruminace o nespravedlnosti je přidaná vrstva, kterou Amor Fati rozpouští.
+- **✅ Smutek primární, „proč já" sekundární**
+  Přesně. Smutek přišel s rozvodem — je nevyhnutelný. Obsedantní otázky „proč já, proč teď, to není fér" jsou ruminace, přidaná vrstva, kterou Amor Fati rozpouští.
 - ❌ Celý smutek by měl být pryč
   Amor Fati nedělá lidi necitelné. Smutek je přirozenou reakcí na ztrátu a má se prožít.
 - ❌ Všechno je sekundární a má se ignorovat
@@ -128,8 +128,8 @@ A concrete practice: when you catch yourself saying "if only...", switch it to "
 
 **Question:** You get divorced. You feel tremendous grief. Where does primary pain end and secondary pain begin?
 
-- **✅ The grief is primary. Obsessive questions "why me, why now, it's not fair" are secondary**
-  Exactly. The grief came with the divorce. Ruminating about injustice is an added layer that Amor Fati dissolves.
+- **✅ Grief is primary, "why me" is secondary**
+  Exactly. The grief came with the divorce — it's unavoidable. Obsessive questions "why me, why now, it's not fair" are rumination, an added layer that Amor Fati dissolves.
 - ❌ All the grief should be gone
   Amor Fati doesn't make people numb. Grief is a natural reaction to loss and should be felt.
 - ❌ Everything is secondary and should be ignored
@@ -147,7 +147,7 @@ A concrete practice: when you catch yourself saying "if only...", switch it to "
 
 **Otázka:** Přijdeš o zakázku kvůli konkurenci. „Kdyby moje cena byla o 5 % nižší..." Jak to přepneš do Amor Fati?
 
-- **✅ „Zakázka je pryč. Co se z toho můžu naučit a kde hledat další?"**
+- **✅ „Zakázka je pryč. Co se naučím a kde hledat další?"**
   Přesně. Přesměruješ pozornost z „kdyby" na „co teď". Energie se vrátí do přítomnosti.
 - ❌ „Bylo to pro mě vlastně dobré, že jsem ji nedostal/a."
   Toxická pozitivita. Nevíš, jestli to bylo dobré. Amor Fati nepřepisuje minulost na pozitivní — jen s ní pracuje.
@@ -158,7 +158,7 @@ A concrete practice: when you catch yourself saying "if only...", switch it to "
 
 **Question:** You lose a contract to a competitor. "If my price had been 5% lower..." How do you switch to Amor Fati?
 
-- **✅ "The contract is gone. What can I learn from it and where do I look for the next one?"**
+- **✅ "Contract gone. What can I learn and where's the next one?"**
   Exactly. You redirect attention from "if only" to "what now." Energy returns to the present.
 - ❌ "It was actually good for me that I didn't get it."
   Toxic positivity. You don't know if it was good. Amor Fati doesn't rewrite the past as positive — it just works with it.
@@ -169,8 +169,8 @@ A concrete practice: when you catch yourself saying "if only...", switch it to "
 
 **Otázka:** Co NEJLÉPE popisuje Amor Fati?
 
-- **✅ Přijetí reality jako materiálu k dalším rozhodnutím, bez odporu vůči tomu, co se stalo**
-  Přesně. Přijetí + akce. Bez odporu, ale s aktivním jednáním vpřed.
+- **✅ Přijetí reality jako materiál k akci**
+  Přesně — bez odporu vůči tomu, co se stalo. Přijetí + akce. Bez odporu, ale s aktivním jednáním vpřed.
 - ❌ Milovat bolest a považovat ji za dobrou
   Karikatura. Amor Fati nepřepisuje bolest na radost — jen přestává plýtvat energií na odpor.
 - ❌ Vzdát se a nechat věci být
@@ -180,8 +180,8 @@ A concrete practice: when you catch yourself saying "if only...", switch it to "
 
 **Question:** What BEST describes Amor Fati?
 
-- **✅ Accepting reality as material for your next decisions, without resisting what happened**
-  Exactly. Acceptance + action. Without resistance, but with active forward movement.
+- **✅ Accept reality as material for action**
+  Exactly — without resisting what happened. Acceptance + action. Without resistance, but with active forward movement.
 - ❌ Loving pain and considering it good
   A caricature. Amor Fati doesn't rewrite pain as joy — it just stops wasting energy on resistance.
 - ❌ Giving up and letting things be
@@ -191,7 +191,7 @@ A concrete practice: when you catch yourself saying "if only...", switch it to "
 
 **Otázka:** Máš autohavárii. Auto totálně zničeno, nikdo nezraněn. Tvá první reakce: „Proč zrovna já?" Jak by vypadala reakce s Amor Fati?
 
-- **✅ „Auto je pryč, jsem naživu. Co udělám jako další krok?"**
+- **✅ „Auto je pryč, jsem naživu. Co udělám teď?"**
   Přesně. Fakta přijatá, pozornost směrována k tomu, co teď lze udělat. Bez odporu, ale s akcí.
 - ❌ „To je skvělé, dostanu novější auto!"
   Toxická pozitivita. Auto je skutečná ztráta a ignorovat ji je popření.

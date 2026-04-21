@@ -83,8 +83,8 @@ Nassim Taleb argues that we have a poor vocabulary: we can describe **fragile** 
 
 **Otázka:** Jeden bratranec „šetří tělo" a nechodí do posilovny, druhý cvičí třikrát týdně a trhá si vlákna. Za pět let: první má slabé svaly a bolavá záda, druhý je silnější. Proč?
 
-- **✅ Tělo je antifragilní — potřebuje dávky stresu, aby rostlo silnější. Bez stresu atrofuje.**
-  Přesně. Taleb zavedl slovo „antifragilní" pro věci, které ze stresu nejen přežívají, ale přímo rostou.
+- **✅ Tělo je antifragilní**
+  Přesně. Potřebuje dávky stresu, aby rostlo — bez stresu atrofuje.
 - ❌ Druhý má štěstí na genetiku
   Genetika je faktor, ale není to hlavní rozdíl. Hlavní je vystavení stresu.
 - ❌ První prostě stárne
@@ -94,8 +94,8 @@ Nassim Taleb argues that we have a poor vocabulary: we can describe **fragile** 
 
 **Question:** One cousin "saves their body" and skips the gym, the other works out three times a week. Five years later: the first has weak muscles and an aching back, the second is stronger. Why?
 
-- **✅ The body is antifragile — it needs doses of stress to grow stronger. Without stress it atrophies.**
-  Exactly. Taleb coined "antifragile" for things that not only survive stress but actively grow from it.
+- **✅ The body is antifragile**
+  Exactly. It needs doses of stress to grow — without stress it atrophies.
 - ❌ The second has lucky genetics
   Genetics is a factor, but not the main difference. The main thing is exposure to stress.
 - ❌ The first is just getting older
@@ -117,8 +117,8 @@ Protection from all stress doesn't build resilience — **it creates fragility**
 
 **Otázka:** Chceš být psychicky odolnější. Zkusíš: absolvovat 10denní meditační retreat v tichu. Je to dobrá strategie pro začátečníka?
 
-- **✅ Nejspíš příliš velká dávka — lepší začít s 5 minutami denně a postupně přidávat**
-  Přesně. Antifragilita roste v postupných dávkách. Skok do extrému může zranit, ne posílit.
+- **✅ Příliš velká dávka pro začátečníka**
+  Přesně. Lepší začít s 5 minutami denně. Skok do extrému může zranit, ne posílit.
 - ❌ Ano — čím extrémnější, tím rychlejší růst
   Častá chyba. Skok do extrému obvykle znamená trauma, ne růst.
 - ❌ Ne — meditace by měla být příjemná
@@ -128,8 +128,8 @@ Protection from all stress doesn't build resilience — **it creates fragility**
 
 **Question:** You want to be more psychologically resilient. You try: a 10-day silent meditation retreat. Is that a good strategy for a beginner?
 
-- **✅ Probably too big a dose — better to start with 5 minutes a day and add gradually**
-  Exactly. Antifragility grows in gradual doses. A leap into the extreme can injure, not strengthen.
+- **✅ Too big a dose for a beginner**
+  Exactly. Better to start with 5 minutes a day. A leap into the extreme can injure, not strengthen.
 - ❌ Yes — the more extreme, the faster the growth
   Common mistake. Leaping to extremes usually means trauma, not growth.
 - ❌ No — meditation should be pleasant
@@ -147,8 +147,8 @@ Protection from all stress doesn't build resilience — **it creates fragility**
 
 **Otázka:** Co je antifragilní?
 
-- **✅ Imunitní systém vystavený drobným infekcím**
-  Přesně. Každá drobná infekce imunitní systém posílí. Bez nich zakrní.
+- **✅ Imunitní systém**
+  Přesně. Drobné infekce ho posilují — bez nich zakrní.
 - ❌ Porcelánový talíř
   Křehký. Stres (pád) ho zničí.
 - ❌ Žulový kámen
@@ -158,8 +158,8 @@ Protection from all stress doesn't build resilience — **it creates fragility**
 
 **Question:** What is antifragile?
 
-- **✅ An immune system exposed to small infections**
-  Exactly. Every small infection strengthens the immune system. Without them it withers.
+- **✅ An immune system**
+  Exactly. Small infections strengthen it — without them it withers.
 - ❌ A porcelain plate
   Fragile. Stress (a drop) destroys it.
 - ❌ A granite rock
@@ -169,7 +169,7 @@ Protection from all stress doesn't build resilience — **it creates fragility**
 
 **Otázka:** Chceš antifragilní kariéru. Co uděláš?
 
-- **✅ Získáš několik různých dovedností a vystavíš se různým výzvám — nezůstaneš v jedné „bezpečné" roli**
+- **✅ Diverzifikuješ dovednosti a vystavíš se výzvám**
   Přesně. Diverzifikace dovedností + vystavení výzvám = antifragilní kariéra.
 - ❌ Zůstaneš v jedné bezpečné korporaci 30 let
   Křehké. Jedna restrukturalizace a jsi vyřízený/á — nemáš jiné dovednosti ani sítě.
@@ -180,7 +180,7 @@ Protection from all stress doesn't build resilience — **it creates fragility**
 
 **Question:** You want an antifragile career. What do you do?
 
-- **✅ Acquire several different skills and expose yourself to varied challenges — don't stay in one "safe" role**
+- **✅ Diversify skills and face challenges**
   Exactly. Diversified skills + exposure to challenges = an antifragile career.
 - ❌ Stay in one safe corporation for 30 years
   Fragile. One restructuring and you're done — no other skills or networks.
@@ -191,8 +191,8 @@ Protection from all stress doesn't build resilience — **it creates fragility**
 
 **Otázka:** Nikdy si neříkáš o zvýšení platu, protože se „bojíš" rozhovoru. Jak to posílit antifragilně?
 
-- **✅ Začít malými „neohroženými" prosbami (kolegům, kamarádům) a postupně zvyšovat sázky**
-  Přesně. Postupné dávky stresu v situacích, kde selhání nic zásadního neznamená. Po mnoha zkouškách je rozhovor se šéfem méně děsivý.
+- **✅ Začít malými prosbami a zvyšovat sázky**
+  Přesně. Postupné dávky stresu tam, kde selhání nic neznamená — pak je rozhovor se šéfem méně děsivý.
 - ❌ Jít rovnou za šéfem a vyžádat si velkou sumu
   Skok do extrému. Pravděpodobně se zhroutíš a utrpíš trauma. Antifragilita roste postupně.
 - ❌ Počkat, až se budeš cítit „připraveně"
@@ -202,8 +202,8 @@ Protection from all stress doesn't build resilience — **it creates fragility**
 
 **Question:** You never ask for a raise because you're "afraid" of the conversation. How do you strengthen this antifragilely?
 
-- **✅ Start with small "low-stakes" requests (to coworkers, friends) and gradually raise the stakes**
-  Exactly. Gradual doses of stress in situations where failure doesn't mean much. After many trials, the conversation with the boss is less scary.
+- **✅ Start small and raise the stakes**
+  Exactly. Gradual doses of stress where failure means little — then the conversation with the boss is less scary.
 - ❌ Go straight to the boss and ask for a big amount
   Leaping to the extreme. You'll likely crumble and suffer a trauma. Antifragility grows gradually.
 - ❌ Wait until you "feel ready"

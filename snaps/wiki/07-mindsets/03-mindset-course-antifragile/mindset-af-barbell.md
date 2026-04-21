@@ -83,8 +83,8 @@ Why doesn't the middle work? Because it looks safe but offers neither real loss 
 
 **Otázka:** Máš dvě možnosti s úsporami: 1) Všechno do středně rizikových akcií. 2) 90 % do vkladů a 10 % do startupu. Co by řekl Taleb?
 
-- **✅ Druhá — barbell: extrémně bezpečná většina + extrémně riskantní menšina. Omezená ztráta, neomezený upside.**
-  Přesně. Barbell strategie se vyhýbá středu. Krajnosti jsou předvídatelné.
+- **✅ Druhá — barbell strategie**
+  Přesně. Extrémně bezpečná většina + extrémně riskantní menšina = omezená ztráta, neomezený upside. Barbell se vyhýbá středu; krajnosti jsou předvídatelné.
 - ❌ První — diverzifikace ve středu je bezpečnější
   Taleb tvrdí opak. „Bezpečný střed" je iluze — za krize padá stejně, ale bez upside.
 - ❌ Obě stejně dobré
@@ -94,8 +94,8 @@ Why doesn't the middle work? Because it looks safe but offers neither real loss 
 
 **Question:** Two options with savings: 1) Everything into medium-risk stocks. 2) 90% into deposits, 10% into a startup. What would Taleb say?
 
-- **✅ The second — barbell: extremely safe majority + extremely risky minority. Limited loss, unlimited upside.**
-  Exactly. The barbell avoids the middle. Extremes are predictable.
+- **✅ The second — barbell strategy**
+  Exactly. Extremely safe majority + extremely risky minority = limited loss, unlimited upside. The barbell avoids the middle; extremes are predictable.
 - ❌ The first — middle diversification is safer
   Taleb argues the opposite. The "safe middle" is an illusion — in a crisis it falls just as hard, but without upside.
 - ❌ Both equally good
@@ -117,8 +117,8 @@ The key: make sure a disaster on the risky side doesn't destroy you. You can fai
 
 **Otázka:** 100 % času investuješ do jedné korporátní kariéry. Žádné vedlejší projekty. Jak začneš barbell?
 
-- **✅ Vyhradit 5–10 hodin týdně na něco, co by mohlo otevřít nové dveře — podcast, kurz, vedlejší projekt**
-  Přesně. Malý krok, který omezuje downside (jen pár hodin), ale může otevřít upside.
+- **✅ Vyhradit 5–10 hodin týdně na vedlejší projekt**
+  Přesně. Podcast, kurz, něco, co by mohlo otevřít nové dveře. Malý krok, který omezuje downside (jen pár hodin), ale může otevřít upside.
 - ❌ Dát výpověď a plně skočit do nového projektu
   Opak barbell — to je vše na riskantní stranu. Zničí downside protection.
 - ❌ Počkat, až budeš mít jasno, co chceš dělat
@@ -128,8 +128,8 @@ The key: make sure a disaster on the risky side doesn't destroy you. You can fai
 
 **Question:** You invest 100% of your time in one corporate career. No side projects. How do you start a barbell?
 
-- **✅ Set aside 5–10 hours a week for something that might open new doors — a podcast, a course, a side project**
-  Exactly. A small step that limits the downside (only a few hours) but can open an upside.
+- **✅ Set aside 5–10 hours a week for a side project**
+  Exactly. A podcast, a course, something that might open new doors. A small step that limits the downside (only a few hours) but can open an upside.
 - ❌ Quit and jump fully into a new project
   The opposite of a barbell — everything on the risky side. Destroys the downside protection.
 - ❌ Wait until you're clear on what you want
@@ -147,8 +147,8 @@ The key: make sure a disaster on the risky side doesn't destroy you. You can fai
 
 **Otázka:** Které rozdělení NEJLÉPE odpovídá barbell strategii?
 
-- **✅ 85 % v nízkoúrokových vkladech + 15 % ve vysoce volatilních startupech**
-  Přesný barbell: velká jistota + malá divokost. Ztráta omezená, upside velký.
+- **✅ 85 % vklady + 15 % rizikové startupy**
+  Přesný barbell: nízkoúrokové vklady + vysoce volatilní startupy. Velká jistota + malá divokost. Ztráta omezená, upside velký.
 - ❌ 50 % v středně rizikových fondech + 50 % v dluhopisech
   Klasický „rozumný střed". Taleb by řekl: máš plnou expozici bez upside.
 - ❌ 100 % v jednom startupu
@@ -158,8 +158,8 @@ The key: make sure a disaster on the risky side doesn't destroy you. You can fai
 
 **Question:** Which allocation BEST matches the barbell strategy?
 
-- **✅ 85% in low-interest deposits + 15% in highly volatile startups**
-  A precise barbell: big certainty + small wildness. Loss limited, upside large.
+- **✅ 85% deposits + 15% risky startups**
+  A precise barbell: low-interest deposits + highly volatile startups. Big certainty + small wildness. Loss limited, upside large.
 - ❌ 50% in medium-risk mutual funds + 50% in bonds
   The classic "reasonable middle." Taleb would say: full exposure with no upside.
 - ❌ 100% in one startup
@@ -169,8 +169,8 @@ The key: make sure a disaster on the risky side doesn't destroy you. You can fai
 
 **Otázka:** Jak by vypadal barbell v trávení volna?
 
-- **✅ Většina času na obnovu (spánek, cvičení, rodina), malá část na extrémní zážitky nebo nové dovednosti**
-  Přesně. Jistá obnova + riskantní experimenty. Vyhnutí se průměrným aktivitám, které nedávají ani odpočinek, ani růst.
+- **✅ Většina obnova, malá část extrémní zážitky**
+  Přesně. Spánek, cvičení, rodina + extrémní zážitky nebo nové dovednosti. Jistá obnova + riskantní experimenty; vyhnutí se průměrným aktivitám, které nedávají ani odpočinek, ani růst.
 - ❌ Všechno na Netflix — to je bezpečné
   Fragile. Nedává upside ani kvalitní regeneraci.
 - ❌ Všechno na maximum efektivity a výkon
@@ -180,8 +180,8 @@ The key: make sure a disaster on the risky side doesn't destroy you. You can fai
 
 **Question:** What would a barbell in free time look like?
 
-- **✅ Most time on recovery (sleep, exercise, family), a small part on extreme experiences or new skills**
-  Exactly. Certain recovery + risky experiments. Avoiding average activities that give neither rest nor growth.
+- **✅ Mostly recovery, small part extreme experiences**
+  Exactly. Sleep, exercise, family + extreme experiences or new skills. Certain recovery + risky experiments; avoiding average activities that give neither rest nor growth.
 - ❌ Everything on Netflix — that's safe
   Fragile. Gives no upside and no real recovery.
 - ❌ Everything on maximum efficiency and performance
@@ -191,8 +191,8 @@ The key: make sure a disaster on the risky side doesn't destroy you. You can fai
 
 **Otázka:** Proč barbell není 50/50?
 
-- **✅ Protože 50/50 by ti dalo „průměrné" riziko i „průměrný" výnos — to je přesně ten střed, kterému se vyhýbáš**
-  Přesně. Musí to být extrémy. Riskantní strana musí být taková, že i když selže 10×, stačí jeden úspěch.
+- **✅ 50/50 by dalo „průměrný" výnos**
+  Přesně. I průměrné riziko — to je přesně ten střed, kterému se vyhýbáš. Musí to být extrémy: riskantní strana musí být taková, že i když selže 10×, stačí jeden úspěch.
 - ❌ Protože 50 % je příliš málo na bezpečné straně
   Jde o princip, ne o přesné číslo. Klíč je: jistota kryje základy, risk otevírá upside.
 - ❌ Protože barbell je jen pro finance
@@ -202,8 +202,8 @@ The key: make sure a disaster on the risky side doesn't destroy you. You can fai
 
 **Question:** Why isn't barbell 50/50?
 
-- **✅ Because 50/50 would give you "average" risk and "average" return — that's exactly the middle you're avoiding**
-  Exactly. It has to be extremes. The risky side must be set up so even if it fails 10 times, one success covers the losses.
+- **✅ 50/50 would give an "average" return**
+  Exactly. And average risk — that's exactly the middle you're avoiding. It has to be extremes: the risky side must be set up so even if it fails 10 times, one success covers the losses.
 - ❌ Because 50% is too little for the safe side
   It's about the principle, not the exact number. The key: certainty covers the basics, risk opens upside.
 - ❌ Because barbell is only for finance

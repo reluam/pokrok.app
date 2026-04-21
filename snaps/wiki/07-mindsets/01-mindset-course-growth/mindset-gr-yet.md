@@ -82,8 +82,8 @@ Your brain responds to this linguistic shift: you stop seeing your position as a
 
 **Otázka:** Říkáš si nad úkolem: „Já to prostě nepochopím." Pak přidáš slovo „ještě". Co se právě stalo?
 
-- **✅ Věta se změnila z rozsudku na mapu — z „nikdy" na „teď ne"**
-  Přesně. Jediné slovo změnilo uzavřené tvrzení v popis fáze. Z identity se stal proces. A proces má další kroky.
+- **✅ Věta se změnila v otevřenou mapu**
+  Přesně. Z „nikdy" se stalo „teď ne". Z identity se stal proces. A proces má další kroky.
 - ❌ Lžeš si, abys se cítil/a lépe
   Není to lež — je to přesnější popis. „Nepochopím" je predikce, kterou jsi nikdy netestoval/a. „Nepochopím ještě" je fakt.
 - ❌ Nic — je to jen slovíčkaření
@@ -93,8 +93,8 @@ Your brain responds to this linguistic shift: you stop seeing your position as a
 
 **Question:** You're thinking about a task: "I'm just not going to get this." Then you add the word "yet." What just happened?
 
-- **✅ The sentence changed from a verdict to a map — from "never" to "not now"**
-  Exactly. A single word turned a closed statement into a description of a phase. Identity became process. And a process has next steps.
+- **✅ The verdict turned into a map**
+  Exactly. From "never" to "not now." Identity became process. And a process has next steps.
 - ❌ You're lying to yourself to feel better
   It's not a lie — it's a more accurate description. "I won't get it" is a prediction you've never tested. "I don't get it yet" is a fact.
 - ❌ Nothing — it's just wordplay
@@ -116,8 +116,8 @@ But be careful: "yet" only works with concrete action. "I haven't lost weight ye
 
 **Otázka:** Opakuješ si „Nikdy nezhubnu." Co je na té větě špatně?
 
-- **✅ Je to predikce o budoucnosti, kterou vydáváš za fakt o přítomnosti**
-  Přesně. „Nikdy" je obrovské tvrzení o celé budoucnosti — a nikdo ho nemůže dokázat. „Ještě jsem nezhubnul/a" je pravda.
+- **✅ Vydáváš predikci budoucnosti za fakt**
+  Přesně. „Nikdy" je tvrzení o celé budoucnosti, které nelze dokázat. „Ještě jsem nezhubnul/a" je pravda.
 - ❌ Nic — jsi realistický/á
   Realismus je o pozorování, ne o predikci. Pozoruješ minulost a překládáš ji na věčnou budoucnost.
 - ❌ Měl/a by sis říct „určitě zhubnu" místo toho
@@ -127,8 +127,8 @@ But be careful: "yet" only works with concrete action. "I haven't lost weight ye
 
 **Question:** You keep repeating "I'll never lose weight." What's wrong with that sentence?
 
-- **✅ It's a prediction about the future dressed up as a fact about the present**
-  Exactly. "Never" is a huge claim about the entire future — and nobody can prove it. "I haven't lost weight yet" is true.
+- **✅ You're dressing a future prediction as fact**
+  Exactly. "Never" is a claim about the entire future that can't be proven. "I haven't lost weight yet" is true.
 - ❌ Nothing — you're being realistic
   Realism is about observation, not prediction. You're observing the past and translating it into an eternal future.
 - ❌ You should say "I'll definitely lose weight" instead
@@ -146,8 +146,8 @@ But be careful: "yet" only works with concrete action. "I haven't lost weight ye
 
 **Otázka:** Říkáš si: „Ještě nemám vysněnou práci." Co k tomu potřebuješ přidat, aby to fungovalo?
 
-- **✅ Jeden konkrétní krok, který uděláš tento týden k jejímu získání**
-  Přesně. „Ještě" otevře dveře, akce jimi projde. Bez akce je to jen další způsob odkládání.
+- **✅ Jeden konkrétní krok tento týden**
+  Přesně. „Ještě" otevře dveře, akce jimi projde. Bez kroku je to jen odkládání.
 - ❌ Afirmaci „zasloužím si vysněnou práci"
   Afirmace bez akce jsou rituál, ne změna. Mozek potřebuje důkaz, ne opakování.
 - ❌ Vizualizaci, jak ji máš
@@ -157,8 +157,8 @@ But be careful: "yet" only works with concrete action. "I haven't lost weight ye
 
 **Question:** You tell yourself: "I don't have my dream job yet." What do you need to add for it to work?
 
-- **✅ One concrete step you'll take this week toward getting it**
-  Exactly. "Yet" opens the door, action walks through. Without action it's just another way of procrastinating.
+- **✅ One small concrete step this week**
+  Exactly. "Yet" opens the door, action walks through. Without a step it's just procrastination.
 - ❌ The affirmation "I deserve my dream job"
   Affirmations without action are ritual, not change. The brain needs evidence, not repetition.
 - ❌ Visualization of having it
@@ -168,8 +168,8 @@ But be careful: "yet" only works with concrete action. "I haven't lost weight ye
 
 **Otázka:** Napíšeš si: „Neumím plavat ještě — zaplavu Kanál La Manche." Co je na tomto plánu problém?
 
-- **✅ Krok je příliš velký — mezi „neumím plavat" a kanálem je propast**
-  Přesně. Mozek potřebuje malé vítězství, aby si věřil. Správný první krok by byl „jdu v sobotu do bazénu na 30 minut".
+- **✅ Krok je příliš velký — chybí malá vítězství**
+  Přesně. Mozek potřebuje malé vítězství, aby si věřil. Správný první krok: „jdu v sobotu do bazénu na 30 minut".
 - ❌ Měl/a by sis dát ambicióznější cíl
   Cíl může být velký, ale první krok musí být malý. „Ještě" pracuje s drobnými konkrétními činy, ne s vizemi.
 - ❌ Neměl/a bys plánovat — jen říct „ještě" a improvizovat
@@ -179,8 +179,8 @@ But be careful: "yet" only works with concrete action. "I haven't lost weight ye
 
 **Question:** You write: "I can't swim yet — I'll swim the English Channel." What's wrong with this plan?
 
-- **✅ The step is too big — there's a chasm between "I can't swim" and the Channel**
-  Exactly. The brain needs a small win to build belief. The right first step would be "I'll go to the pool for 30 minutes on Saturday."
+- **✅ The step is too big — no small win built first**
+  Exactly. The brain needs a small win to build belief. The right first step: "I'll go to the pool for 30 minutes on Saturday."
 - ❌ You should set a more ambitious goal
   The goal can be big, but the first step has to be small. "Yet" works with tiny concrete acts, not visions.
 - ❌ You shouldn't plan — just say "yet" and improvise
@@ -190,7 +190,7 @@ But be careful: "yet" only works with concrete action. "I haven't lost weight ye
 
 **Otázka:** Která věta NEJLÉPE využívá sílu slova „ještě"?
 
-- **✅ „Neumím vést tým ještě — zítra zkusím vést naši pondělní schůzku"**
+- **✅ „Neumím vést tým ještě — zítra zkusím pondělní schůzku"**
   Perfektní kombinace: čestné přiznání, otevřené „ještě", konkrétní malý krok s deadlinem.
 - ❌ „Neumím vést tým, ale jednou budu skvělý/á vedoucí"
   Toto je snění, ne „ještě". Chybí most mezi „teď" a „jednou" — žádný konkrétní krok.
@@ -201,7 +201,7 @@ But be careful: "yet" only works with concrete action. "I haven't lost weight ye
 
 **Question:** Which sentence BEST uses the power of the word "yet"?
 
-- **✅ "I can't lead a team yet — tomorrow I'll try leading our Monday meeting"**
+- **✅ "I can't lead yet — tomorrow I'll try Monday's meeting"**
   Perfect combination: honest admission, open "yet," concrete small step with a deadline.
 - ❌ "I can't lead a team, but one day I'll be a great leader"
   This is daydreaming, not "yet." The bridge between "now" and "one day" is missing — no concrete step.
@@ -241,8 +241,8 @@ A practical task: write down three sentences of the form "I'm not..." or "I can'
 
 **Otázka:** Dostaneš zpětnou vazbu, že tvé prezentace byly nudné. Tvá první reakce: „Nejsem prostě zábavný typ." Jaká by byla odpověď v duchu „ještě"?
 
-- **✅ „Ještě neumím dělat poutavé prezentace. Zítra si poslechnu jedno TED podání a zkusím jeden trik."**
-  Přesně. Proměňuješ identitu („nejsem typ") v dovednost („neumím ještě") a přidáváš akci.
+- **✅ „Poutavé prezentace ještě neumím. Zítra zkusím TED trik."**
+  Přesně. Proměňuješ identitu („nejsem typ") v dovednost („neumím ještě") a přidáváš konkrétní krok — poslech TED podání a zkoušku jedné techniky.
 - ❌ „To není fér, dával/a jsem do toho všechno."
   Obrana před zpětnou vazbou. Fixní mindset v akci.
 - ❌ „Jsem skvělý/á prezentátor/ka, oni to prostě nepochopili."
@@ -252,8 +252,8 @@ A practical task: write down three sentences of the form "I'm not..." or "I can'
 
 **Question:** You get feedback that your presentations were boring. Your first reaction: "I'm just not an entertaining type." What would a "yet"-style response look like?
 
-- **✅ "I can't make engaging presentations yet. Tomorrow I'll listen to one TED talk and try one technique."**
-  Exactly. You're turning identity ("I'm not the type") into a skill ("I can't yet") and adding action.
+- **✅ "Can't engage yet. I'll try a TED trick tomorrow."**
+  Exactly. You're turning identity ("I'm not the type") into a skill ("I can't yet") and adding a concrete step — listening to a TED talk and trying one technique.
 - ❌ "It's not fair, I put everything into it."
   Defense against feedback. A fixed mindset in action.
 - ❌ "I'm a great presenter, they just didn't get it."
@@ -275,8 +275,8 @@ Three words change your mindset: "yet," "specifically," "today." Use them togeth
 
 **Otázka:** Vedeš si „deník ještě" tři měsíce a máš za sebou 90 malých kroků. Co je na tom nejcennější?
 
-- **✅ Postupně se mění tvé přesvědčení o sobě — ne díky afirmacím, ale díky důkazům z vlastních činů**
-  Přesně. Malé kroky budují důkazy. Důkazy mění přesvědčení. Přesvědčení mění chování. Je to spirála nahoru.
+- **✅ Mění se tvé přesvědčení o sobě — díky důkazům**
+  Přesně. Ne díky afirmacím, ale díky vlastním činům. Malé kroky budují důkazy. Důkazy mění přesvědčení. Přesvědčení mění chování. Je to spirála nahoru.
 - ❌ Číslo 90 — kvantita je to nejdůležitější
   Kvantita pomáhá, ale klíč je v tom, že každý krok je důkaz, že „ještě" je pravda. Jeden smysluplný krok má větší hodnotu než deset bezmyšlenkovitých.
 - ❌ Nic — tři měsíce jsou příliš krátká doba
@@ -286,8 +286,8 @@ Three words change your mindset: "yet," "specifically," "today." Use them togeth
 
 **Question:** You've been keeping a "yet journal" for three months and have 90 small steps behind you. What's most valuable about it?
 
-- **✅ Your beliefs about yourself gradually change — not from affirmations, but from evidence from your own actions**
-  Exactly. Small steps build evidence. Evidence changes beliefs. Beliefs change behavior. It's an upward spiral.
+- **✅ Your beliefs about yourself change — from evidence**
+  Exactly. Not from affirmations, but from your own actions. Small steps build evidence. Evidence changes beliefs. Beliefs change behavior. It's an upward spiral.
 - ❌ The number 90 — quantity is the most important thing
   Quantity helps, but the key is that each step is evidence that "yet" is true. One meaningful step has more value than ten thoughtless ones.
 - ❌ Nothing — three months is too short
@@ -305,8 +305,8 @@ Three words change your mindset: "yet," "specifically," "today." Use them togeth
 
 **Otázka:** Proč „ještě" bez konkrétního kroku nefunguje?
 
-- **✅ Protože se z něj stává jen odkládání — otevřeš dveře, ale neprojdeš jimi**
-  Přesně. „Ještě" je nálepka na dveřích. Neprojdeš skrz nálepku — musíš dveře otevřít a udělat krok.
+- **✅ Stává se z něj jen odkládání v pěkném obalu**
+  Přesně. Otevřeš dveře, ale neprojdeš jimi. „Ještě" je nálepka na dveřích. Neprojdeš skrz nálepku — musíš dveře otevřít a udělat krok.
 - ❌ Protože mozek potřebuje pozitivní vizualizaci, ne slova
   Naopak — mozek potřebuje důkaz z akce, ne vizualizaci. Slova otevírají prostor, akce ho vyplňuje.
 - ❌ Protože „ještě" je jen prázdná pozitivita
@@ -316,8 +316,8 @@ Three words change your mindset: "yet," "specifically," "today." Use them togeth
 
 **Question:** Why doesn't "yet" work without a concrete step?
 
-- **✅ Because it becomes just procrastination — you open the door but don't walk through it**
-  Exactly. "Yet" is a label on the door. You don't walk through the label — you have to open the door and take a step.
+- **✅ Because it becomes just procrastination in disguise**
+  Exactly. You open the door but don't walk through it. "Yet" is a label on the door. You don't walk through the label — you have to open the door and take a step.
 - ❌ Because the brain needs positive visualization, not words
   On the contrary — the brain needs evidence from action, not visualization. Words open space, action fills it.
 - ❌ Because "yet" is just empty positivity
@@ -327,8 +327,8 @@ Three words change your mindset: "yet," "specifically," "today." Use them togeth
 
 **Otázka:** Jak „ještě" funguje ve vnitřním dialogu?
 
-- **✅ Místo „jsem hloupý/á" řekneš „ještě nemám strategii, která by v téhle situaci fungovala" — a hledáš ji**
-  Přesně. „Ještě" mění sebeobviňování na diagnostiku. Diagnostika vede k akci, sebeobviňování k paralýze.
+- **✅ Místo „jsem hloupý/á" řekneš „ještě nemám strategii"**
+  Přesně. Místo identitního odsudku pojmenuješ chybějící strategii v dané situaci. „Ještě" mění sebeobviňování na diagnostiku. Diagnostika vede k akci, sebeobviňování k paralýze — a pak ji vědomě hledáš.
 - ❌ Opakuješ si „ještě, ještě, ještě" jako mantru
   Mantra bez akce je rituál. „Ještě" potřebuje konkrétní krok, ne opakování.
 - ❌ Ignoruješ negativní myšlenky a nahrazuješ je pozitivními
@@ -338,8 +338,8 @@ Three words change your mindset: "yet," "specifically," "today." Use them togeth
 
 **Question:** How does "yet" work in your inner dialogue?
 
-- **✅ Instead of "I'm stupid" you say "I don't have a strategy yet that would work in this situation" — and you look for one**
-  Exactly. "Yet" turns self-blame into diagnosis. Diagnosis leads to action, self-blame leads to paralysis.
+- **✅ Say "no strategy yet" instead of "I'm stupid"**
+  Exactly. Instead of an identity verdict you name the missing strategy in that specific situation. "Yet" turns self-blame into diagnosis. Diagnosis leads to action, self-blame leads to paralysis — and then you deliberately look for the strategy.
 - ❌ You repeat "yet, yet, yet" as a mantra
   A mantra without action is ritual. "Yet" needs a concrete step, not repetition.
 - ❌ You ignore negative thoughts and replace them with positive ones
@@ -349,8 +349,8 @@ Three words change your mindset: "yet," "specifically," "today." Use them togeth
 
 **Otázka:** Která kombinace nejlépe vystihuje kompletní „recept ještě"?
 
-- **✅ Čestné přiznání + slovo „ještě" + nejmenší možný krok s deadlinem**
-  Přesně. Například: „Neumím prezentovat ještě. Zítra zkusím vést pětiminutovou poradu." Žádná část sama o sobě nestačí — funguje jen kombinace.
+- **✅ Přiznání + „ještě" + malý krok s deadlinem**
+  Přesně. Čestné přiznání, otevřené „ještě" a nejmenší možný krok. Například: „Neumím prezentovat ještě. Zítra zkusím vést pětiminutovou poradu." Žádná část sama o sobě nestačí — funguje jen kombinace.
 - ❌ Slovo „ještě" + velký ambiciózní cíl
   Velký cíl bez malého kroku je sen. „Ještě" potřebuje něco, co můžeš udělat dnes nebo zítra.
 - ❌ Pozitivní afirmace + vizualizace úspěchu
@@ -360,8 +360,8 @@ Three words change your mindset: "yet," "specifically," "today." Use them togeth
 
 **Question:** Which combination best captures the complete "yet recipe"?
 
-- **✅ An honest admission + the word "yet" + the smallest possible step with a deadline**
-  Exactly. For example: "I can't present yet. Tomorrow I'll try leading a five-minute meeting." No single part is enough on its own — only the combination works.
+- **✅ Admission + "yet" + a small step with a deadline**
+  Exactly. An honest admission, an open "yet," and the smallest possible step. For example: "I can't present yet. Tomorrow I'll try leading a five-minute meeting." No single part is enough on its own — only the combination works.
 - ❌ The word "yet" + a big ambitious goal
   A big goal without a small step is a dream. "Yet" needs something you can do today or tomorrow.
 - ❌ Positive affirmations + visualization of success

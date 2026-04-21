@@ -83,8 +83,8 @@ The Rule of 72: want to double your capital? Divide 72 by the return in %. At 7%
 
 **Otázka:** Odkládáš si 2 000 Kč měsíčně s výnosem 7 %. Po pěti letech máš 130 tisíc. „To je málo, vzdám to." Starší kolegyně ti ukáže svůj výpis — dělá to samé od 25, teď má 3 miliony. Jak to vysvětlíš?
 
-- **✅ Složené úročení — výnos se sčítá k jistině a další výnos se počítá z většího čísla. Exponenciální růst vystřelí na konci.**
-  Přesně. Klíč: vydržet až do fáze, kde se exponent začne projevovat. Posledních 10 let vydělá víc než prvních 30.
+- **✅ Složené úročení**
+  Přesně. Výnos se sčítá k jistině a další výnos se počítá z většího čísla. Exponent vystřelí na konci — vydrž.
 - ❌ Kolegyně měla víc štěstí s investicemi
   Většina rozdílu nepochází ze štěstí, ale z času. Při stejném výnosu bys dopadl/a stejně.
 - ❌ Je to inflace
@@ -94,8 +94,8 @@ The Rule of 72: want to double your capital? Divide 72 by the return in %. At 7%
 
 **Question:** You save 2,000 CZK a month at 7% return. After five years you have 130,000. "That's not much, I'll quit." An older colleague shows you her statement — she's been doing the same since 25, now has 3 million. How do you explain it?
 
-- **✅ Compounding — the return adds to the principal and the next return is calculated from a bigger number. Exponential growth shoots up at the end.**
-  Exactly. The key: hold on until the exponent starts to show. The last 10 years earn more than the first 30.
+- **✅ Compounding**
+  Exactly. The return adds to the principal and the next return is calculated from a bigger number. The exponent shoots up at the end — hold on.
 - ❌ The colleague got luckier with investments
   Most of the difference comes from time, not luck. At the same return you'd end up the same.
 - ❌ It's inflation
@@ -117,8 +117,8 @@ The danger: it works in reverse too. Sugar every day = diabetes in 20 years. A f
 
 **Otázka:** Učíš se čínsky. Za tři měsíce umíš 200 slov. „To je k ničemu, bude mi to trvat věky." Co přehlížíš?
 
-- **✅ Že každé další slovo se učí snáz — znalost roste exponenciálně, ne lineárně**
-  Přesně. Po 200 slovech jsi pomalý. Po 2000 najednou rozumíš větám a učení zrychluje.
+- **✅ Znalosti rostou exponenciálně**
+  Přesně. Po 200 slovech jsi pomalý, po 2000 najednou rozumíš větám a učení zrychluje.
 - ❌ Je to k ničemu — všichni se učí stejně
   Ti, kdo vydrží přes „nudnou" fázi, získají obrovskou výhodu. Jsi blízko přelomu — a vzdáváš to.
 - ❌ Čínština je příliš těžká
@@ -128,8 +128,8 @@ The danger: it works in reverse too. Sugar every day = diabetes in 20 years. A f
 
 **Question:** You're learning Chinese. After three months you know 200 words. "This is hopeless, it'll take forever." What are you missing?
 
-- **✅ That each new word is easier because it has more connections — knowledge grows exponentially, not linearly**
-  Exactly. At 200 words you're slow. At 2,000 you suddenly understand sentences and learning speeds up.
+- **✅ Knowledge compounds exponentially**
+  Exactly. At 200 words you're slow; at 2,000 you suddenly understand sentences and learning speeds up.
 - ❌ It's useless — everyone learns at the same rate
   Those who push through the "boring" phase gain a huge advantage. You're close to the breakthrough — and quitting.
 - ❌ Chinese is just too hard
@@ -147,7 +147,7 @@ The danger: it works in reverse too. Sugar every day = diabetes in 20 years. A f
 
 **Otázka:** Co NEJLÉPE vystihuje princip složeného úročení?
 
-- **✅ Malé pravidelné příspěvky se zpočátku skládají pomalu, ale exponenciálně rostou přes roky**
+- **✅ Malé pravidelné příspěvky rostoucí exponenciálně**
   Přesně. Malé, pravidelné, dlouho = exponenciální výsledek.
 - ❌ Rychlé velké sázky, které zdvojnásobí kapitál za rok
   To je spekulace, ne compounding. Compounding je nudný a pomalý na začátek.
@@ -158,7 +158,7 @@ The danger: it works in reverse too. Sugar every day = diabetes in 20 years. A f
 
 **Question:** What BEST captures the principle of compounding?
 
-- **✅ Small regular contributions compound slowly at first, but grow exponentially over the years**
+- **✅ Small regular contributions compounding**
   Exactly. Small, regular, long = exponential result.
 - ❌ Quick big bets that double your capital in a year
   That's speculation, not compounding. Compounding is boring and slow at the start.
@@ -169,8 +169,8 @@ The danger: it works in reverse too. Sugar every day = diabetes in 20 years. A f
 
 **Otázka:** Je ti 30 a říkáš „už je pozdě začít s investováním". Co je pravda?
 
-- **✅ Máš před sebou 30+ let — to je víc než dost pro exponenciální růst. Dnes je nejlepší den začít.**
-  Přesně. Nejlepší den začít byl před 10 lety. Druhý nejlepší je dnes.
+- **✅ Dnes je nejlepší den začít**
+  Přesně. Máš 30+ let — dost pro exponenciální růst. Nejlepší den byl před 10 lety; druhý je dnes.
 - ❌ Opravdu je pozdě — už nemá smysl začínat
   Nepravda. 30 let compoundingu dělá obrovský rozdíl. „Pozdě" je přesvědčení, které brání akci.
 - ❌ Měl/a bys doufat, že vyhraješ v loterii
@@ -180,8 +180,8 @@ The danger: it works in reverse too. Sugar every day = diabetes in 20 years. A f
 
 **Question:** You're 30 and say "it's too late to start investing." What's the truth?
 
-- **✅ You have 30+ years ahead — more than enough for exponential growth. Today is the best day to start.**
-  Exactly. The best day to start was 10 years ago. The second best is today.
+- **✅ Today is the best day to start**
+  Exactly. You have 30+ years — enough for exponential growth. The best day was 10 years ago; the second is today.
 - ❌ It really is too late — no point starting now
   False. 30 years of compounding makes a huge difference. "Too late" is a belief that blocks action.
 - ❌ You should just hope to win the lottery
@@ -191,8 +191,8 @@ The danger: it works in reverse too. Sugar every day = diabetes in 20 years. A f
 
 **Otázka:** Chodíš spát pozdě „jen o půl hodiny". Kolega varuje: „To je compounding, ale negativní." Co má na mysli?
 
-- **✅ Půl hodiny horšího spánku denně se za rok skládá do výrazně horšího zdraví a soustředění**
-  Přesně. Negativní compounding: jeden den je neviditelný, 365 dní znamená viditelnou změnu.
+- **✅ Za rok se to složí do horšího zdraví**
+  Přesně. Jeden den je neviditelný, 365 dní znamená viditelnou změnu ve zdraví a soustředění.
 - ❌ Že ztrácíš přesně 182 hodin spánku ročně
   Matematicky sedí, ale chybí exponenciální prvek. Horší spánek = horší rozhodování = ještě horší spánek.
 - ❌ Žádný rozdíl to neudělá
@@ -202,8 +202,8 @@ The danger: it works in reverse too. Sugar every day = diabetes in 20 years. A f
 
 **Question:** You go to bed late "just by half an hour." A colleague warns: "That's compounding too, but negative." What do they mean?
 
-- **✅ Half an hour of worse sleep a day compounds over a year into significantly worse health and focus**
-  Exactly. Negative compounding: one day is invisible, 365 days means visible change.
+- **✅ Over a year it compounds into worse health**
+  Exactly. One day is invisible, 365 days means visible change in health and focus.
 - ❌ That you lose exactly 182 hours of sleep a year
   The math works but misses the exponential element. Worse sleep = worse decisions = even worse sleep.
 - ❌ It won't make any difference

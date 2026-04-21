@@ -83,8 +83,8 @@ Why does it work? Two forces: 1) **Certainty** — you know what's bad, but you 
 
 **Otázka:** Chceš být zdravější. Koupíš superpotraviny, prášky, vibrationsdestku. Po měsíci nic necítíš. Co bys měl/a udělat jako první?
 
-- **✅ Odstranit to, co evidentně škodí — cukr, alkohol, sedění — před přidáním čehokoliv nového**
-  Přesně. Via Negativa: zlepšuj odstraňováním. Víš jistě, co škodí. Nevíš jistě, co pomáhá.
+- **✅ Odstranit to, co evidentně škodí**
+  Přesně. Cukr, alkohol, sedění — odstraň před přidáním čehokoliv nového. Víš jistě, co škodí.
 - ❌ Přidat ještě víc doplňků, aby se efekt zesílil
   Typická past. Více není automaticky lepší. Často to jen maskuje základní problémy.
 - ❌ Jít k doktorovi a nechat si předepsat léky
@@ -94,8 +94,8 @@ Why does it work? Two forces: 1) **Certainty** — you know what's bad, but you 
 
 **Question:** You want to be healthier. You buy superfoods, pills, a vibration plate. After a month you feel nothing. What should you do first?
 
-- **✅ Remove what clearly harms — sugar, alcohol, sitting — before adding anything new**
-  Exactly. Via Negativa: improve by removing. You know for sure what harms. You don't know for sure what helps.
+- **✅ Remove what clearly harms**
+  Exactly. Sugar, alcohol, sitting — remove before adding anything new. You know for sure what harms.
 - ❌ Add even more supplements to amplify the effect
   A typical trap. More isn't automatically better. Often it just masks the underlying problems.
 - ❌ Go to the doctor and have medicine prescribed
@@ -117,8 +117,8 @@ Michelangelo was asked how he created David. He supposedly said: "David was in t
 
 **Otázka:** Máš toxického přítele/přítelkyni, který/á tě vyčerpává. Zkusíš „přidat" pozitivní lidi, aby to vyvážili. Nefunguje to. Co doporučuje Via Negativa?
 
-- **✅ Odstranit toxického člověka — to má větší dopad než kolikrát víc pozitivních**
-  Přesně. Jeden odběratel energie může zničit efekt deseti dárců. Nejdřív odstranit škodlivé, pak přidat dobré.
+- **✅ Odstranit toxického člověka**
+  Přesně. Jeden odběratel energie zničí efekt deseti dárců. Nejdřív odstranit škodlivé.
 - ❌ Přidat ještě víc pozitivních lidí
   Dokud nevytlačíš toxický vliv, stále odčerpává energii. Přidávání nevyřeší základní leak.
 - ❌ Přijmout situaci a nic neměnit
@@ -128,8 +128,8 @@ Michelangelo was asked how he created David. He supposedly said: "David was in t
 
 **Question:** You have a toxic friend who drains you. You try to "add" positive people to balance it out. It doesn't work. What does Via Negativa recommend?
 
-- **✅ Remove the toxic person — that has more impact than several times more positive people**
-  Exactly. One energy drainer can destroy the effect of ten energy givers. Remove the harmful first, then add the good.
+- **✅ Remove the toxic person**
+  Exactly. One energy drainer destroys the effect of ten givers. Remove the harmful first.
 - ❌ Add even more positive people
   Until you stop the toxic influence, energy keeps draining. Adding doesn't fix the underlying leak.
 - ❌ Accept the situation and change nothing
@@ -147,8 +147,8 @@ Michelangelo was asked how he created David. He supposedly said: "David was in t
 
 **Otázka:** Co nejvíc odpovídá Via Negativa?
 
-- **✅ Zlepšování přes odstraňování škodlivých prvků, ne přidávání nových**
-  Přesně. Klíčový princip: to, co víš jistě, že škodí, odstraň dřív, než přidáš cokoliv.
+- **✅ Zlepšování přes odstraňování**
+  Přesně. Co víš jistě, že škodí, odstraň dřív, než přidáš cokoliv.
 - ❌ Pesimistická filozofie zaměřená na ztráty
   Via Negativa není pesimismus. Je to strategie: pracuje s tím, co víš jistě (škody).
 - ❌ Redukce všeho na minimum
@@ -158,8 +158,8 @@ Michelangelo was asked how he created David. He supposedly said: "David was in t
 
 **Question:** What best matches Via Negativa?
 
-- **✅ Improving by removing harmful elements, not adding new ones**
-  Exactly. The key principle: remove what you know harms before adding anything.
+- **✅ Improving by removing**
+  Exactly. Remove what you know harms before adding anything.
 - ❌ A pessimistic philosophy focused on losses
   Via Negativa isn't pessimism. It's a strategy: it works with what you know for sure (harms).
 - ❌ Reducing everything to a minimum
@@ -169,8 +169,8 @@ Michelangelo was asked how he created David. He supposedly said: "David was in t
 
 **Otázka:** Chceš lepší finanční situaci. Co uděláš jako Via Negativa?
 
-- **✅ Zrušit předplatná, která nepoužíváš, omezit impulzivní nákupy**
-  Přesně. Výdaje odstraníš jistě. Nový příjem je hypotéza. Začni s tím, co je jisté.
+- **✅ Zrušit nepoužívaná předplatná**
+  Přesně. A omezit impulzivní nákupy. Výdaje odstraníš jistě, nový příjem je hypotéza — začni s tím, co je jisté.
 - ❌ Začít investovat a hledat novou práci s vyšším platem
   Přidání. Může pomoci, ale je to nejistější. Nejdřív odstraň zbytečné výdaje.
 - ❌ Naučit se finanční plánování
@@ -180,8 +180,8 @@ Michelangelo was asked how he created David. He supposedly said: "David was in t
 
 **Question:** You want a better financial situation. What's your Via Negativa move?
 
-- **✅ Cancel subscriptions you don't use, cut impulse buys**
-  Exactly. You can cut expenses for certain. New income is a hypothesis. Start with what's certain.
+- **✅ Cancel unused subscriptions**
+  Exactly. And cut impulse buys. You can cut expenses for certain, new income is a hypothesis — start with what's certain.
 - ❌ Start investing and look for a higher-paying job
   Addition. It can help, but it's less certain. First cut unnecessary expenses.
 - ❌ Learn financial planning
@@ -191,8 +191,8 @@ Michelangelo was asked how he created David. He supposedly said: "David was in t
 
 **Otázka:** Chceš být kreativnější. Co ti doporučí Via Negativa?
 
-- **✅ Nejdřív odstraň to, co ti kreativitu zabíjí — hluk, neustálé notifikace, toxické prostředí**
-  Přesně. Kreativita často nevzniká z nových nástrojů, ale z odstranění rušení. Klid + nuda = kreativita.
+- **✅ Odstraň to, co kreativitu zabíjí**
+  Přesně. Hluk, notifikace, toxické prostředí — nejdřív pryč. Klid + nuda = kreativita.
 - ❌ Přihlas se do kurzu kreativity
   Přidávání. Pokud máš rušení, kurz neuspěje. Nejdřív vyčisti prostředí.
 - ❌ Začni používat nové kreativní aplikace
@@ -202,8 +202,8 @@ Michelangelo was asked how he created David. He supposedly said: "David was in t
 
 **Question:** You want to be more creative. What does Via Negativa recommend?
 
-- **✅ First remove what's killing your creativity — noise, constant notifications, a toxic environment**
-  Exactly. Creativity often doesn't come from new tools, but from removing distractions. Quiet + boredom = creativity.
+- **✅ Remove what kills creativity**
+  Exactly. Noise, notifications, a toxic environment — out first. Quiet + boredom = creativity.
 - ❌ Sign up for a creativity course
   Adding. If you have distractions, the course won't work. Clean up the environment first.
 - ❌ Start using new creative apps

@@ -83,8 +83,8 @@ The famous marshmallow experiment: kids who could wait 15 minutes for a second m
 
 **Otázka:** Učíš se jazyk 20 minut denně. Tvůj kamarád se zaváže intenzivním kurzem — 4 hodiny denně po měsíc. Po měsíci zná víc slovíček a vzdá to. Po třech letech ty mluvíš plynně. Co byla tvá superschopnost?
 
-- **✅ Trpělivost — konzistentní malé úsilí bez vyžadování okamžitých výsledků**
-  Přesně. Trpělivost není pasivita. Je to schopnost pracovat bez okamžité odměny a nevzdávat to.
+- **✅ Trpělivost — malé úsilí dlouho**
+  Přesně. Konzistentní práce bez okamžité odměny a bez vzdávání.
 - ❌ Byl/a jsi prostě chytřejší
   Nebylo to o IQ. Bylo to o strategii: malé dávky, dlouho, bez vyhoření.
 - ❌ Měl/a jsi víc volného času
@@ -94,8 +94,8 @@ The famous marshmallow experiment: kids who could wait 15 minutes for a second m
 
 **Question:** You learn a language 20 minutes a day. Your friend commits to an intensive course — 4 hours a day for a month. After a month they know more words and quit. Three years later you speak fluently. What was your superpower?
 
-- **✅ Patience — consistent small effort without demanding immediate results**
-  Exactly. Patience isn't passivity. It's the ability to work without immediate reward and not quit.
+- **✅ Patient small effort**
+  Exactly. Consistent work without immediate reward and without quitting.
 - ❌ You were just smarter
   It wasn't about IQ. It was about strategy: small doses, for a long time, without burnout.
 - ❌ You had more free time
@@ -117,8 +117,8 @@ Exercise: pick one goal you're impatient about. Define a realistic horizon. Then
 
 **Otázka:** Tvůj trénink v posilovně „nic nedělá" dva měsíce. Chceš to vzdát. Co by udělal trpělivý přístup?
 
-- **✅ Pokračovat — viditelné svalové změny trvají 3–6 měsíců. Vnímané „nic" je jen perioda před inflexním bodem.**
-  Přesně. Většina lidí se vzdává těsně před viditelným pokrokem.
+- **✅ Pokračovat — jsi před inflexním bodem**
+  Přesně. Viditelné změny trvají 3–6 měsíců. Většina lidí se vzdá těsně před zlomem.
 - ❌ Změnit program — pravděpodobně nefunguje
   Častá chyba. Změna programu prodlužuje čas potřebný k prvním výsledkům.
 - ❌ Vyzkoušet „rychlé" doplňky
@@ -128,8 +128,8 @@ Exercise: pick one goal you're impatient about. Define a realistic horizon. Then
 
 **Question:** Your gym training has been "doing nothing" for two months. You want to quit. What would a patient approach do?
 
-- **✅ Keep going — visible muscle changes take 3–6 months. The perceived "nothing" is just the period before the inflection point.**
-  Exactly. Most people quit right before visible progress.
+- **✅ Keep going — you're near the turn**
+  Exactly. Visible changes take 3–6 months. Most people quit right before the turn.
 - ❌ Change the program — it's probably not working
   A common mistake. Changing programs extends the time needed for first results.
 - ❌ Try "fast" supplements
@@ -147,8 +147,8 @@ Exercise: pick one goal you're impatient about. Define a realistic horizon. Then
 
 **Otázka:** Co NEJLÉPE vystihuje trpělivost?
 
-- **✅ Konzistentní úsilí ve správné strategii bez vyžadování okamžitých výsledků**
-  Přesně. Úsilí + strategie + absence netrpělivého vzdání = trpělivost, která vítězí.
+- **✅ Konzistentní úsilí ve správné strategii**
+  Přesně. Úsilí + správná strategie + absence netrpělivého vzdání se = trpělivost, která vítězí. Bez vyžadování okamžitých výsledků.
 - ❌ Pasivní čekání, že se věci samy udělají
   To je lenost, ne trpělivost. Trpělivost je aktivní, jen bez okamžité odměny.
 - ❌ Snášení nesnesitelných podmínek bez změny
@@ -158,8 +158,8 @@ Exercise: pick one goal you're impatient about. Define a realistic horizon. Then
 
 **Question:** What BEST captures patience?
 
-- **✅ Consistent effort in the right strategy without demanding immediate results**
-  Exactly. Effort + strategy + absence of impatient quitting = patience that wins.
+- **✅ Consistent effort in the right strategy**
+  Exactly. Effort + right strategy + absence of impatient quitting = patience that wins. Without demanding immediate results.
 - ❌ Passively waiting for things to fix themselves
   That's laziness, not patience. Patience is active, just without immediate reward.
 - ❌ Tolerating unbearable conditions without changing
@@ -169,8 +169,8 @@ Exercise: pick one goal you're impatient about. Define a realistic horizon. Then
 
 **Otázka:** Rok buduješ podnikání a nemáš zákazníka. Je čas vzdát nebo být trpělivý/á?
 
-- **✅ Zanalyzovat, zda strategie dává smysl. Pokud ano, pokračovat. Pokud ne, upravit strategii.**
-  Přesně. Trpělivost není slepá. Je trpělivá v jednom směru, který je testovatelně správný.
+- **✅ Zanalyzovat strategii a upravit ji**
+  Přesně. Trpělivost není slepá — je trpělivá ve směru, který je testovatelně správný.
 - ❌ Vzdát to — rok bez výsledku je důkaz
   Unáhlené. Některé podniky vyžadují roky přípravy. Potřebuješ diagnózu, ne paniku.
 - ❌ Čekat dalších pět let
@@ -180,8 +180,8 @@ Exercise: pick one goal you're impatient about. Define a realistic horizon. Then
 
 **Question:** You've been building a business for a year with no customer. Time to quit or be patient?
 
-- **✅ Analyze whether the strategy makes sense. If yes, continue. If not, adjust the strategy.**
-  Exactly. Patience isn't blind. It's patient in one direction that can be tested as correct.
+- **✅ Analyze the strategy and adjust it**
+  Exactly. Patience isn't blind — it's patient in a direction that can be tested as correct.
 - ❌ Quit — a year without results proves it doesn't work
   Hasty. Some businesses need years of preparation. You need diagnosis, not panic.
 - ❌ Wait another five years
@@ -191,8 +191,8 @@ Exercise: pick one goal you're impatient about. Define a realistic horizon. Then
 
 **Otázka:** Chceš se stát odborníkem. Máš 10 let zkušeností, ale nikdo tě nebere vážně. Hledáš zkratku. Co by ti řekl trpělivý mentor?
 
-- **✅ „Zkratky neexistují. Pokračuj v konzistentní práci a dokumentuj výsledky. Za 5 let budeš jinde."**
-  Přesně. Odbornost se staví z konzistentní práce. Certifikát je značka; odbornost je skutek.
+- **✅ „Zkratky neexistují. Pokračuj a dokumentuj."**
+  Přesně. Za 5 let jsi jinde. Certifikát je značka, odbornost je skutek.
 - ❌ „Vzdej to, pokud se 10 let nic nestalo"
   Nepravda. Mnoho expertů získalo uznání po 15–20 letech.
 - ❌ „Jdi na marketingový kurz a pojmenuj se expertem"
@@ -202,8 +202,8 @@ Exercise: pick one goal you're impatient about. Define a realistic horizon. Then
 
 **Question:** You want to become an expert. You have 10 years of experience but nobody takes you seriously. You're looking for a shortcut. What would a patient mentor say?
 
-- **✅ "There are no shortcuts. Keep doing consistent work and document results. In 5 years you'll be somewhere else."**
-  Exactly. Expertise is built from consistent work. A certificate is a label; expertise is action.
+- **✅ "No shortcuts. Keep working and document it."**
+  Exactly. In 5 years you'll be elsewhere. A certificate is a label, expertise is action.
 - ❌ "Quit, if nothing happened in 10 years, nothing will"
   False. Many experts get recognition after 15–20 years.
 - ❌ "Take a marketing course and call yourself an expert"
