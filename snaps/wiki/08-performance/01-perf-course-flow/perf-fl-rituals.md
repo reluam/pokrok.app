@@ -93,7 +93,7 @@ It takes two minutes. Then you start writing almost immediately. Why? Because yo
 
 **Otázka:** Proč rituál zkracuje rozjezd před výkonem?
 
-- **✅ Mozek si spojí opakovanou sekvenci chování s režimem soustředění a automaticky se přepne**
+- **✅ Spojí sekvenci se soustředěním**
   Přesně. Rituál je spouštěč — opakované signály aktivují stav soustředění bez nutnosti vůle. Je to klasický podmíněný reflex.
 - ❌ Čaj obsahuje kofein, který tě probudí
   Kofein pomáhá, ale není hlavní důvod. Hlavní je opakovaná sekvence, která říká mozku „teď začínáme". Rituál by fungoval i s vodou.
@@ -104,7 +104,7 @@ It takes two minutes. Then you start writing almost immediately. Why? Because yo
 
 **Question:** Why does a ritual shorten warm-up before performance?
 
-- **✅ The brain links the repeated behavior sequence with focus mode and switches automatically**
+- **✅ Links sequence with focus mode**
   Exactly. The ritual is a trigger — repeated signals activate the focus state without willpower. It's a classic conditioned response.
 - ❌ Tea contains caffeine that wakes you up
   Caffeine helps, but it isn't the main reason. The main thing is the repeated sequence that tells the brain "we're starting now." The ritual would work with water too.
@@ -127,7 +127,7 @@ Without a ritual, you often spend 30 minutes "warming up" — checking email, dr
 
 **Otázka:** Co odlišuje rituál od pověry?
 
-- **✅ Rituál je vědomě vybraná, krátká a opakovatelná sekvence s jasným účelem — spustit soustředění**
+- **✅ Krátká sekvence, která spouští soustředění**
   Přesně. Pověra je iracionální víra, že něco „přinese štěstí". Rituál je psychologický nástroj s měřitelným účinkem na soustředění a výkon.
 - ❌ Nic — rituály jsou jen sofistikované pověry
   Výzkum ukazuje, že rituály snižují úzkost, zvyšují soustředění a urychlují vstup do flow. To není magie, to je psychologie.
@@ -138,7 +138,7 @@ Without a ritual, you often spend 30 minutes "warming up" — checking email, dr
 
 **Question:** What distinguishes a ritual from superstition?
 
-- **✅ A ritual is a deliberately chosen, short, repeatable sequence with a clear purpose — to trigger focus**
+- **✅ A short sequence that triggers focus on cue**
   Exactly. Superstition is an irrational belief that something "brings luck." A ritual is a psychological tool with a measurable effect on focus and performance.
 - ❌ Nothing — rituals are just sophisticated superstitions
   Research shows rituals lower anxiety, boost focus, and speed up entry into flow. That's not magic, it's psychology.
@@ -157,7 +157,7 @@ A ritual isn't superstition — it's an **effective psychological technique** th
 
 **Otázka:** Jak dlouhý by měl být účinný rituál?
 
-- **✅ Krátký — 2-5 minut. Rituál má být vstupem do stavu, ne náhradou samotné práce.**
+- **✅ Krátký — 2-5 minut. Jen spouští stav, ne nahrazuje práci.**
   Přesně. Čím kratší a jednodušší, tím větší šance, že ho dodržíš každý den. Rituál je startér, ne motor.
 - ❌ Minimálně 15-20 minut, aby měl čas zapůsobit
   Příliš dlouhý rituál se stává prokrastinací. Účinný rituál je krátký a automatický.
@@ -168,7 +168,7 @@ A ritual isn't superstition — it's an **effective psychological technique** th
 
 **Question:** How long should an effective ritual be?
 
-- **✅ Short — 2-5 minutes. A ritual should be an entry into the state, not a replacement for the work itself.**
+- **✅ Short — 2-5 minutes. It only triggers the state; it doesn't replace work.**
   Exactly. The shorter and simpler, the more likely you are to stick with it every day. A ritual is the starter, not the engine.
 - ❌ At least 15-20 minutes to have time to take effect
   A ritual that's too long becomes procrastination. An effective ritual is short and automatic.
@@ -179,7 +179,7 @@ A ritual isn't superstition — it's an **effective psychological technique** th
 
 **Otázka:** Proč je důležité, aby byl rituál pokaždé stejný?
 
-- **✅ Mozek potřebuje konzistenci, aby vybudoval podmíněný reflex — jiná sekvence = jiný signál**
+- **✅ Konzistence je nutná pro reflex**
   Přesně. Rituál funguje díky opakování. Když ho měníš, mozek si nemůže vybudovat spojení mezi sekvencí a stavem soustředění.
 - ❌ Protože variabilita je špatná
   Variabilita není obecně špatná, ale u rituálů ano. Rituál je záměrně stabilní, protože stabilita je to, co vytváří automatický spouštěč.
@@ -190,7 +190,7 @@ A ritual isn't superstition — it's an **effective psychological technique** th
 
 **Question:** Why is it important for the ritual to be the same every time?
 
-- **✅ The brain needs consistency to build a conditioned response — a different sequence = a different signal**
+- **✅ Consistency is needed for a reflex**
   Exactly. A ritual works through repetition. If you change it, the brain can't build the link between the sequence and the focus state.
 - ❌ Because variability is bad
   Variability isn't generally bad, but with rituals it is. A ritual is deliberately stable because stability is what creates the automatic trigger.
@@ -201,7 +201,7 @@ A ritual isn't superstition — it's an **effective psychological technique** th
 
 **Otázka:** Představ si, že si zavedl rituál: káva, stejné místo, tři hluboké nádechy, otevření souboru. Po týdnu ale rituál nefunguje tak dobře. Proč?
 
-- **✅ Týden je málo — mozek potřebuje 2-3 týdny opakování, než se podmíněný reflex ustálí**
+- **✅ Reflex se tvoří 2-3 týdny, ne za týden**
   Přesně. Rituál není okamžitý zázrak. První týden je to vědomé úsilí, po dvou až třech týdnech se stává automatickým. Vydrž.
 - ❌ Tvůj rituál je špatný — musíš ho změnit
   Neměň ho příliš brzy. Dej mu čas. Většina rituálů začne fungovat po 2-3 týdnech konzistentního opakování.
@@ -212,7 +212,7 @@ A ritual isn't superstition — it's an **effective psychological technique** th
 
 **Question:** Imagine you set up a ritual: coffee, same spot, three deep breaths, opening the file. After a week, the ritual isn't working well. Why?
 
-- **✅ A week isn't enough — the brain needs 2-3 weeks of repetition before the conditioned response solidifies**
+- **✅ The reflex forms in 2-3 weeks, not a week**
   Exactly. A ritual isn't an instant miracle. The first week is conscious effort; after two to three weeks it becomes automatic. Be patient.
 - ❌ Your ritual is bad — you need to change it
   Don't change it too soon. Give it time. Most rituals start working after 2-3 weeks of consistent repetition.
@@ -252,7 +252,7 @@ Rafael Nadal had 15 rituals before every serve — he placed his bottles just so
 
 **Otázka:** Co dával Nadalovi jeho rituál před podáním?
 
-- **✅ Konzistentní přípravný stav — tělo i mysl byly pokaždé připraveny stejně, bez ohledu na stres**
+- **✅ Pokaždé stejný stav, bez ohledu na stres**
   Přesně. Rituál odstraňoval variabilitu přípravy. Ve stresu zápasu to byla kotva, která ho držela v optimálním stavu.
 - ❌ Štěstí — věřil, že rituál přináší výhru
   Nadal sám říká, že nejde o pověru, ale o psychologický nástroj pro soustředění. Funguje mechanicky, ne magicky.
@@ -263,7 +263,7 @@ Rafael Nadal had 15 rituals before every serve — he placed his bottles just so
 
 **Question:** What did Nadal's pre-serve ritual give him?
 
-- **✅ A consistent pre-performance state — body and mind were ready the same way every time, regardless of stress**
+- **✅ The same state every time, regardless of stress**
   Exactly. The ritual removed variability from his preparation. Under match pressure, it was the anchor that kept him in his optimal state.
 - ❌ Luck — he believed the ritual brought him wins
   Nadal himself says it's not superstition but a psychological tool for focus. It works mechanically, not magically.
@@ -286,7 +286,7 @@ The brain loves repetition. Give a ritual time (2-3 weeks) and it becomes a reli
 
 **Otázka:** Proč rituály fungují i bez vědomé víry v ně?
 
-- **✅ Jsou založené na podmíněných reflexech — mozek reaguje na opakovanou sekvenci automaticky**
+- **✅ Jsou to podmíněné reflexy**
   Přesně. Stejně jako Pavlovův pes slinil při zvonku bez „víry" ve zvoneček, tvůj mozek přepíná do soustředění při rituálu bez „víry" v rituál.
 - ❌ Protože je to placebo
   Placebo vyžaduje víru. Rituály fungují díky opakování a podmíněným reflexům — fungují i u skeptiků.
@@ -297,7 +297,7 @@ The brain loves repetition. Give a ritual time (2-3 weeks) and it becomes a reli
 
 **Question:** Why do rituals work even without conscious belief in them?
 
-- **✅ They're based on conditioned responses — the brain responds to the repeated sequence automatically**
+- **✅ They're conditioned reflexes**
   Exactly. Just as Pavlov's dog salivated at the bell without "believing" in the bell, your brain switches into focus during a ritual without "believing" in the ritual.
 - ❌ Because it's a placebo
   Placebo requires belief. Rituals work through repetition and conditioned responses — they work even for skeptics.
@@ -316,7 +316,7 @@ The brain loves repetition. Give a ritual time and it becomes a **reliable perfo
 
 **Otázka:** Jaké tři efekty mají rituály podle výzkumu?
 
-- **✅ Snižují úzkost, zvyšují soustředění a urychlují návrat do optimálního stavu po vyrušení**
+- **✅ Snížení úzkosti, lepší fokus, rychlý návrat**
   Přesně. Tyto tři efekty jsou podložené studiemi ze sportovní psychologie i kognitivní vědy.
 - ❌ Zvyšují motivaci, snižují únavu a zlepšují paměť
   Motivace a paměť nejsou hlavní efekty rituálů. Hlavní efekty jsou snížení úzkosti, zvýšení soustředění a rychlejší návrat po vyrušení.
@@ -327,7 +327,7 @@ The brain loves repetition. Give a ritual time and it becomes a **reliable perfo
 
 **Question:** What three effects do rituals have according to research?
 
-- **✅ They lower anxiety, boost focus, and speed up the return to the optimal state after an interruption**
+- **✅ They lower anxiety, boost focus, speed up recovery**
   Exactly. These three effects are backed by studies from sports psychology and cognitive science.
 - ❌ They increase motivation, reduce fatigue, and improve memory
   Motivation and memory aren't the main effects of rituals. The main effects are lowering anxiety, boosting focus, and faster recovery after interruption.
@@ -338,7 +338,7 @@ The brain loves repetition. Give a ritual time and it becomes a **reliable perfo
 
 **Otázka:** Proč je stabilita rituálu tak důležitá pro výkon?
 
-- **✅ Čím stabilnější rituál, tím spolehlivěji vyvolává stejný stav — variabilita rituálu = variabilní výkon**
+- **✅ Stabilní rituál = stabilní stav**
   Přesně. Rituál je jako spínač. Pokud je spínač pokaždé jiný, mozek neví, na co reagovat. Stabilita = spolehlivost.
 - ❌ Protože změna je vždy špatná
   Změna není obecně špatná, ale u rituálů podkopává jejich účinnost. Rituál funguje díky opakování — ne díky novosti.
@@ -349,7 +349,7 @@ The brain loves repetition. Give a ritual time and it becomes a **reliable perfo
 
 **Question:** Why is ritual stability so important for performance?
 
-- **✅ The more stable the ritual, the more reliably it triggers the same state — ritual variability = variable performance**
+- **✅ A stable ritual means a stable state**
   Exactly. A ritual is like a switch. If the switch is different every time, the brain doesn't know what to respond to. Stability = reliability.
 - ❌ Because change is always bad
   Change isn't generally bad, but with rituals it undermines their effectiveness. A ritual works through repetition — not novelty.
@@ -360,7 +360,7 @@ The brain loves repetition. Give a ritual time and it becomes a **reliable perfo
 
 **Otázka:** Jaký je nejdůležitější vědecký poznatek o rituálech?
 
-- **✅ Rituály jsou měřitelně účinné psychologické nástroje — ne pověry, ne placebo, ale podmíněné reflexy**
+- **✅ Jsou to účinné reflexy, ne pověry**
   Přesně. Výzkum to potvrzuje opakovaně. Rituály fungují mechanicky — mozek reaguje na opakovanou sekvenci automaticky.
 - ❌ Rituály jsou jen pro sportovce
   Rituály fungují pro kohokoliv — od spisovatelů po chirurgy. Principy jsou univerzální.
@@ -371,7 +371,7 @@ The brain loves repetition. Give a ritual time and it becomes a **reliable perfo
 
 **Question:** What's the most important scientific finding about rituals?
 
-- **✅ Rituals are measurably effective psychological tools — not superstitions, not placebos, but conditioned responses**
+- **✅ Proven reflexes, not magic**
   Exactly. Research confirms this repeatedly. Rituals work mechanically — the brain responds to the repeated sequence automatically.
 - ❌ Rituals are only for athletes
   Rituals work for anyone — from writers to surgeons. The principles are universal.
@@ -415,7 +415,7 @@ You want to enter flow faster during your work. You decide to build a ritual. Bu
 
 **Otázka:** Který z těchto rituálů splňuje kritéria účinného rituálu?
 
-- **✅ Stejné místo u okna, rozcvička prstů 2 minuty, tři hluboké nádechy, první stupnice — krátký, konkrétní, opakovatelný**
+- **✅ Stejné místo, rozcvička, tři nádechy, první stupnice — krátké a jasné**
   Přesně. Každý krok je jasný a zopakování trvá pár minut. Čím jednodušší, tím lépe.
 - ❌ 15minutová meditace, pak projít si e-maily, pak si uvařit speciální čaj z obchodu na druhém konci města
   Příliš dlouhý a složitý. Rituál se stává prokrastinací, pokud trvá víc než 5 minut nebo závisí na nedostupných zdrojích.
@@ -426,7 +426,7 @@ You want to enter flow faster during your work. You decide to build a ritual. Bu
 
 **Question:** Which of these rituals meets the criteria of an effective ritual?
 
-- **✅ Same spot by the window, 2-minute finger warm-up, three deep breaths, first scale — short, concrete, repeatable**
+- **✅ Same spot, warm-up, breaths, first scale — short and concrete sequence**
   Exactly. Each step is clear and repetition takes just a few minutes. The simpler, the better.
 - ❌ 15-minute meditation, then go through emails, then brew a special tea from a shop across town
   Too long and complex. A ritual becomes procrastination if it takes more than 5 minutes or depends on unavailable resources.
@@ -449,7 +449,7 @@ That's the power of repetition. The first week it's conscious effort; after two 
 
 **Otázka:** Po kolika týdnech se rituál obvykle stává automatickým?
 
-- **✅ 2-3 týdny konzistentního opakování — mozek potřebuje čas vybudovat podmíněný reflex**
+- **✅ 2-3 týdny — tolik potřebuje mozek na reflex**
   Přesně. Neočekávej výsledky první den. Rituál je investice — první týden platíš úsilím, pak sklízíš automatický spouštěč.
 - ❌ Okamžitě — pokud je rituál správný, funguje hned
   Některé efekty se projeví brzy, ale plná automatizace trvá 2-3 týdny. Trpělivost je klíč.
@@ -460,7 +460,7 @@ That's the power of repetition. The first week it's conscious effort; after two 
 
 **Question:** After how many weeks does a ritual usually become automatic?
 
-- **✅ 2-3 weeks of consistent repetition — the brain needs time to build a conditioned response**
+- **✅ 2-3 weeks — that's how long the brain needs for the reflex**
   Exactly. Don't expect results on day one. A ritual is an investment — the first week you pay with effort, then you reap an automatic trigger.
 - ❌ Immediately — if the ritual is right, it works right away
   Some effects show up early, but full automation takes 2-3 weeks. Patience is key.
@@ -479,7 +479,7 @@ A ritual works because of **repetition**. The first week it takes effort; after 
 
 **Otázka:** Sestavuješ si rituál pro ranní psaní. Který z těchto postupů je nejlepší?
 
-- **✅ Vyber 3-4 jednoduché kroky, zapiš si je a dodržuj přesně 3 týdny bez změny**
+- **✅ Vyber 3-4 kroky a dodržuj je 3 týdny**
   Přesně. Jednoduchost + konzistence = účinnost. Zapiš si kroky, abys nepřemýšlel — a dodržuj je každý den.
 - ❌ Vyber 10 kroků, aby rituál byl důkladný
   Příliš mnoho kroků = příliš složitý rituál = menší šance na dodržení. Jednodušší je lepší.
@@ -490,7 +490,7 @@ A ritual works because of **repetition**. The first week it takes effort; after 
 
 **Question:** You're building a ritual for morning writing. Which approach is best?
 
-- **✅ Pick 3-4 simple steps, write them down, and follow them exactly for 3 weeks without changes**
+- **✅ Pick 3-4 steps and follow them for 3 weeks**
   Exactly. Simplicity + consistency = effectiveness. Write the steps down so you don't have to think — and follow them every day.
 - ❌ Pick 10 steps so the ritual is thorough
   Too many steps = too complex a ritual = less chance of sticking with it. Simpler is better.
@@ -501,7 +501,7 @@ A ritual works because of **repetition**. The first week it takes effort; after 
 
 **Otázka:** Tvůj rituál má 4 kroky: káva, stejné místo, 3 nádechy, otevření souboru. Jednoho dne nemáš kávu. Co uděláš?
 
-- **✅ Nahradíš kávu vodou a uděláš zbytek rituálu stejně — důležitá je sekvence, ne konkrétní nápoj**
+- **✅ Kávu nahradíš vodou — jde o celek**
   Přesně. Rituál je o sekvenci a opakování, ne o specifických předmětech. Voda funguje stejně jako káva — mozek reaguje na sekvenci, ne na kofein.
 - ❌ Přeskočíš rituál — bez kávy nefunguje
   Rituál není závislý na jednom prvku. Sekvence je důležitější než jednotlivý krok. Nedovol jednomu chybějícímu prvku zničit celý rituál.
@@ -512,7 +512,7 @@ A ritual works because of **repetition**. The first week it takes effort; after 
 
 **Question:** Your ritual has 4 steps: coffee, same spot, 3 breaths, open the file. One day you don't have coffee. What do you do?
 
-- **✅ Replace coffee with water and do the rest of the ritual the same way — what matters is the sequence, not the specific drink**
+- **✅ Swap coffee for water — sequence matters**
   Exactly. A ritual is about the sequence and repetition, not specific objects. Water works just as well as coffee — the brain responds to the sequence, not the caffeine.
 - ❌ Skip the ritual — without coffee it doesn't work
   A ritual isn't dependent on one element. The sequence matters more than any single step. Don't let one missing element destroy the whole ritual.
@@ -523,7 +523,7 @@ A ritual works because of **repetition**. The first week it takes effort; after 
 
 **Otázka:** Jaký je nejdůležitější praktický krok pro sestavení rituálu?
 
-- **✅ Vyber 3-4 jednoduché kroky, zapiš je a opakuj každý den na stejném místě ve stejný čas po dobu 3 týdnů**
+- **✅ Opakuj 3-4 kroky denně po 3 týdny**
   Přesně. Jednoduchý + konzistentní + trpělivý = účinný rituál. Nic víc nepotřebuješ.
 - ❌ Najít dokonalou sekvenci, než začneš
   „Dokonalá" sekvence neexistuje. Jakákoli jednoduchá sekvence funguje, pokud ji opakuješ konzistentně. Začni a vyhodnoť po 3 týdnech.
@@ -534,7 +534,7 @@ A ritual works because of **repetition**. The first week it takes effort; after 
 
 **Question:** What's the most important practical step for building a ritual?
 
-- **✅ Pick 3-4 simple steps, write them down, and repeat every day at the same place and time for 3 weeks**
+- **✅ Repeat 3-4 steps daily for 3 weeks**
   Exactly. Simple + consistent + patient = effective ritual. You don't need anything more.
 - ❌ Find the perfect sequence before you start
   The "perfect" sequence doesn't exist. Any simple sequence works if you repeat it consistently. Start and evaluate after 3 weeks.
@@ -574,7 +574,7 @@ At the 2008 Olympics, water leaked into his goggles mid-race — **he couldn't s
 
 **Otázka:** Proč Phelps vyhrál i přesto, že neviděl?
 
-- **✅ Rituál ho dostal do tak hlubokého stavu soustředění, že tělo plavalo automaticky — bez potřeby vizuální zpětné vazby**
+- **✅ Rituál ho hodil na autopilota**
   Přesně. Rituál buduje robustnost. Phelps trénoval se zavřenýma očima tisíce metrů — rituál + trénink = stav, který vydrží i slepotu.
 - ❌ Měl štěstí
   Štěstí nevysvětlí světový rekord bez vidění. Byl to výsledek tisíců hodin tréninku a konzistentního rituálu.
@@ -585,7 +585,7 @@ At the 2008 Olympics, water leaked into his goggles mid-race — **he couldn't s
 
 **Question:** Why did Phelps win even though he couldn't see?
 
-- **✅ The ritual put him in such a deep state of focus that his body swam automatically — without needing visual feedback**
+- **✅ The ritual put him on autopilot**
   Exactly. A ritual builds robustness. Phelps trained thousands of meters with his eyes closed — ritual + training = a state that survives even blindness.
 - ❌ He got lucky
   Luck doesn't explain a world record without sight. It was the result of thousands of hours of training and a consistent ritual.
@@ -608,7 +608,7 @@ The lesson for you: **build your ritual before you need it**. Train it in calm s
 
 **Otázka:** Proč je důležité trénovat rituál v klidu, než ho budeš potřebovat ve stresu?
 
-- **✅ Protože ve stresu nemáš čas budovat nový rituál — potřebuješ, aby byl automatický. A automatizace vyžaduje opakování v klidu.**
+- **✅ Ve stresu už je pozdě — buduj v klidu**
   Přesně. Rituál je jako pojistka — buduješ ji, než ji potřebuješ. Ve stresu je pozdě začínat.
 - ❌ Protože rituál funguje jen v klidu
   Naopak — rituál je nejcennější ve stresu. Ale musí být automatizovaný předem.
@@ -619,7 +619,7 @@ The lesson for you: **build your ritual before you need it**. Train it in calm s
 
 **Question:** Why is it important to train a ritual in calm before you need it under stress?
 
-- **✅ Because under stress you don't have time to build a new ritual — you need it to be automatic. And automation requires repetition in calm.**
+- **✅ Under stress it's late — build in calm**
   Exactly. A ritual is like insurance — you build it before you need it. Under stress, it's too late to start.
 - ❌ Because a ritual only works in calm
   On the contrary — a ritual is most valuable under stress. But it must be automated beforehand.
@@ -638,7 +638,7 @@ Build your ritual **before you need it**. Train it in calm for 3 weeks. When the
 
 **Otázka:** Co ti říká Phelpsův příběh o rituálech?
 
-- **✅ Dobře nastavený rituál tě dostane do stavu, který vydrží i při nepředvídaných potížích**
+- **✅ Dobře nastavený rituál vydrží i nečekané**
   Přesně. Rituál nebuduje jen okamžitý stav, ale robustnost — stav, který vydrží šok, stres a překvapení.
 - ❌ Rituál funguje jen v klidu, ne ve stresu
   Naopak — rituál je nejcennější ve stresu, kdy potřebuješ stabilitu.
@@ -649,7 +649,7 @@ Build your ritual **before you need it**. Train it in calm for 3 weeks. When the
 
 **Question:** What does Phelps's story tell you about rituals?
 
-- **✅ A well-built ritual puts you in a state that holds up even when things go wrong**
+- **✅ A well-built ritual holds up even when things break**
   Exactly. A ritual doesn't just build the state in the moment — it builds robustness, a state that survives shock, stress, and surprise.
 - ❌ Rituals only work in calm situations, not under stress
   On the contrary — rituals are most valuable under stress, when you need stability the most.
@@ -660,7 +660,7 @@ Build your ritual **before you need it**. Train it in calm for 3 weeks. When the
 
 **Otázka:** Představ si, že máš za týden důležitou prezentaci. Jak využiješ rituál?
 
-- **✅ Začni trénovat krátký rituál hned — 3-4 kroky před každým nácvikem. Za týden bude částečně automatizovaný.**
+- **✅ Trénuj krátký rituál hned — 3-4 kroky**
   Přesně. Týden není ideální (3 týdny je lepší), ale i týden konzistentního opakování pomůže. Začni okamžitě.
 - ❌ Počkej na den prezentace a pak improvizuj
   Improvizace pod stresem nefunguje. Rituál potřebuje opakování, aby fungoval. Začni trénovat hned.
@@ -671,7 +671,7 @@ Build your ritual **before you need it**. Train it in calm for 3 weeks. When the
 
 **Question:** Imagine you have an important presentation in a week. How do you use a ritual?
 
-- **✅ Start training a short ritual right away — 3-4 steps before each rehearsal. In a week it will be partially automated.**
+- **✅ Train a short ritual now — 3-4 steps daily**
   Exactly. A week isn't ideal (3 weeks is better), but even a week of consistent repetition helps. Start immediately.
 - ❌ Wait for the presentation day and improvise
   Improvisation under stress doesn't work. A ritual needs repetition to work. Start training now.
@@ -682,7 +682,7 @@ Build your ritual **before you need it**. Train it in calm for 3 weeks. When the
 
 **Otázka:** Jaký je nejdůležitější závěr celého modelu Rituály pro flow?
 
-- **✅ Rituál je krátká, opakovatelná sekvence, která ti spolehlivě zkrátí rozjezd a dostane tě do flow — zvláště když ji trénuješ předem a používáš pod tlakem**
+- **✅ Krátká sekvence zkrátí rozjezd a dostane tě do flow**
   Přesně. Celý model se dá shrnout: vyber 3-4 kroky, opakuj 3 týdny, a máš spolehlivý spouštěč flow, který funguje kdekoliv a kdykoliv — i pod tlakem.
 - ❌ Rituály jsou zajímavé, ale v praxi nepoužitelné
   Naopak — rituály jsou jedním z nejpraktičtějších nástrojů pro flow. Miliony sportovců, umělců a profesionálů je používají denně.

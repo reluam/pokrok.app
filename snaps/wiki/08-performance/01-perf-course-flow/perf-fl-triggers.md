@@ -93,8 +93,8 @@ These are exactly the four triggers Csikszentmihalyi described.
 
 **Otázka:** Které čtyři podmínky jsou hlavními spouštěči flow?
 
-- **✅ Jasný cíl, žádné rušivé vlivy, okamžitá zpětná vazba, přiměřená obtížnost**
-  Přesně. Tyto čtyři spouštěče jsou mechanické — buď je splníš, nebo ne. Nejde o náladu ani motivaci.
+- **✅ Cíl, klid, zpětná vazba, přiměřená obtížnost**
+  Přesně. Tyto čtyři spouštěče jsou mechanické — buď je splníš, nebo ne. Nejde o náladu ani motivaci. Platí pro jakoukoli činnost.
 - ❌ Dobrá káva, hudba, ticho, motivace
   To jsou podpůrné faktory, ne hlavní spouštěče. Samotná káva nestačí — bez jasného cíle flow nevznikne.
 - ❌ Hodně spánku, zdravá strava, cvičení, vitamíny
@@ -104,8 +104,8 @@ These are exactly the four triggers Csikszentmihalyi described.
 
 **Question:** Which four conditions are the main flow triggers?
 
-- **✅ A clear goal, no distractions, immediate feedback, appropriate difficulty**
-  Exactly. These four triggers are mechanical — you either meet them or you don't. It's not about mood or motivation.
+- **✅ Goal, quiet, feedback, appropriate difficulty**
+  Exactly. These four triggers are mechanical — you either meet them or you don't. It's not about mood or motivation. Works for any activity.
 - ❌ Good coffee, music, silence, motivation
   Those are supporting factors, not the main triggers. Coffee alone isn't enough — without a clear goal, flow won't happen.
 - ❌ Plenty of sleep, healthy food, exercise, vitamins
@@ -123,8 +123,8 @@ When you start setting these conditions up deliberately before every work sessio
 
 **Otázka:** Proč je „pracovat na projektu" špatný cíl pro flow?
 
-- **✅ Je příliš vágní — mozek neví, na co přesně se zaměřit, a snadno se rozptýlí**
-  Přesně. „Pracovat na projektu" je nekonečný úkol bez konce. „Doplnit validaci formuláře za 45 minut" dává mozku jasný směr a konec.
+- **✅ Je vágní, mozek neví kam**
+  Přesně. „Pracovat na projektu" je nekonečný úkol bez konce. „Doplnit validaci za 45 minut" dává jasný směr a konec — mozek se snadno ponoří.
 - ❌ Protože projekty jsou nudné
   Nudit se můžeš u čehokoli, pokud nemáš jasný cíl. Problém není obsah, ale formulace cíle.
 
@@ -132,8 +132,8 @@ When you start setting these conditions up deliberately before every work sessio
 
 **Question:** Why is "work on the project" a bad goal for flow?
 
-- **✅ It's too vague — the brain doesn't know exactly what to focus on and gets distracted easily**
-  Exactly. "Work on the project" is an endless task with no end. "Finish form validation in 45 minutes" gives the brain a clear direction and endpoint.
+- **✅ It's vague — no clear focus**
+  Exactly. "Work on the project" is an endless task with no end. "Finish form validation in 45 minutes" gives the brain a clear direction and endpoint, so focus comes easily.
 - ❌ Because projects are boring
   You can get bored with anything if you don't have a clear goal. The problem isn't the content, it's the goal formulation.
 
@@ -149,8 +149,8 @@ Flow doesn't arrive randomly. It has **specific triggers** you can set up yourse
 
 **Otázka:** Co je na spouštěčích flow nejdůležitější?
 
-- **✅ Jsou mechanické — buď je splníš, nebo ne. Nezávisí na náladě ani motivaci.**
-  Přesně. To je klíčový poznatek. Flow není o „chtění" nebo „cítění". Je o nastavení podmínek. I ve špatné náladě můžeš do flow, pokud podmínky platí.
+- **✅ Jsou mechanické — buď je splníš, nebo ne**
+  Přesně. Nezávisí na náladě ani motivaci. Flow není o „chtění" nebo „cítění". Je o nastavení podmínek. I ve špatné náladě můžeš do flow, pokud podmínky platí.
 - ❌ Musíš je všechny splnit najednou, jinak nefungují
   Čím víc jich splníš, tím lépe, ale i dva ze čtyř výrazně zvyšují šanci na flow. Nemusíš mít dokonalé podmínky.
 - ❌ Fungují jen u kreativní práce
@@ -160,8 +160,8 @@ Flow doesn't arrive randomly. It has **specific triggers** you can set up yourse
 
 **Question:** What's the most important thing about flow triggers?
 
-- **✅ They're mechanical — you either meet them or you don't. They don't depend on mood or motivation.**
-  Exactly. That's the key insight. Flow isn't about "wanting" or "feeling." It's about setting conditions. Even in a bad mood you can enter flow if the conditions hold.
+- **✅ They're mechanical — you meet them, or you don't**
+  Exactly. They don't depend on mood or motivation. Flow isn't about "wanting" or "feeling." It's about setting conditions. Even in a bad mood you can enter flow if the conditions hold.
 - ❌ You have to meet all of them at once, otherwise they don't work
   The more you meet, the better, but even two out of four significantly increase your chance of flow. You don't need perfect conditions.
 - ❌ They only work for creative work
@@ -171,8 +171,8 @@ Flow doesn't arrive randomly. It has **specific triggers** you can set up yourse
 
 **Otázka:** Představ si, že máš jasný cíl, přiměřenou obtížnost i zpětnou vazbu — ale každých pět minut ti někdo napíše zprávu. Dostaneš se do flow?
 
-- **✅ Ne — chybí ti „žádné rušivé vlivy", a bez něj ostatní spouštěče nestačí**
-  Přesně. I pětisekundové vyrušení rozbije ponoření a trvá 15+ minut znovu se dostat do stavu. Odstranění rušivých vlivů je základ.
+- **✅ Ne — chybí ti „bez rušení", klíč**
+  Přesně. Bez něj ostatní spouštěče nestačí. I pětisekundové vyrušení rozbije ponoření a trvá 15+ minut znovu se dostat do stavu. Odstranění rušivých vlivů je základ.
 - ❌ Ano — tři ze čtyř podmínek stačí
   Rušivé vlivy jsou zvlášť destruktivní. Bez ticha se flow prakticky nemůže rozvinout, i když ostatní podmínky platí.
 
@@ -180,8 +180,8 @@ Flow doesn't arrive randomly. It has **specific triggers** you can set up yourse
 
 **Question:** Imagine you have a clear goal, appropriate difficulty, and feedback — but every five minutes someone messages you. Will you get into flow?
 
-- **✅ No — you're missing "no distractions," and without it the other triggers aren't enough**
-  Exactly. Even a five-second interruption breaks immersion, and it takes 15+ minutes to get back into the state. Removing distractions is fundamental.
+- **✅ No — "no distractions" is missing from triggers**
+  Exactly. Others can't compensate. Even a five-second interruption breaks immersion, and it takes 15+ minutes to get back into the state. Removing distractions is fundamental.
 - ❌ Yes — three out of four conditions are enough
   Distractions are especially destructive. Without quiet, flow practically can't develop, even if the other conditions hold.
 
@@ -189,8 +189,8 @@ Flow doesn't arrive randomly. It has **specific triggers** you can set up yourse
 
 **Otázka:** Proč je flow otázkou podmínek, ne motivace?
 
-- **✅ Spouštěče jsou mechanické — mozek reaguje na jasný cíl, výzvu a zpětnou vazbu bez ohledu na to, jak se „cítíš"**
-  Přesně. Motivace je nestabilní a závisí na náladě. Podmínky jsou kontrolovatelné. Proto se na flow můžeš spolehnout — na motivaci ne.
+- **✅ Spouštěče jsou mechanické signály**
+  Přesně. Mozek reaguje na jasný cíl, výzvu a zpětnou vazbu bez ohledu na to, jak se „cítíš". Motivace je nestabilní, podmínky jsou kontrolovatelné. Proto se na flow můžeš spolehnout — na motivaci ne.
 - ❌ Protože motivace je iluze
   Motivace není iluze, ale je nespolehlivá. Podmínky pro flow jsou stabilnější a předvídatelnější.
 - ❌ Protože motivace pomáhá jen na začátku
@@ -200,8 +200,8 @@ Flow doesn't arrive randomly. It has **specific triggers** you can set up yourse
 
 **Question:** Why is flow a matter of conditions, not motivation?
 
-- **✅ The triggers are mechanical — the brain responds to a clear goal, challenge, and feedback regardless of how you "feel"**
-  Exactly. Motivation is unstable and depends on mood. Conditions are controllable. That's why you can rely on flow — but not on motivation.
+- **✅ Triggers are mechanical, feelings-independent**
+  Exactly. The brain responds to a clear goal, challenge, and feedback regardless of how you "feel." Motivation is unstable and depends on mood. Conditions are controllable. That's why you can rely on flow — but not on motivation.
 - ❌ Because motivation is an illusion
   Motivation isn't an illusion, but it's unreliable. Flow conditions are more stable and predictable.
 - ❌ Because motivation only helps at the beginning
@@ -256,7 +256,7 @@ The more triggers you meet in a single moment, the more likely flow will come.
 
 **Otázka:** Do které kategorie patří spouštěč „společný cíl v týmu"?
 
-- **✅ Sociální — spouštěče spojené s dynamikou skupiny a komunikací**
+- **✅ Sociální — spouštěče dynamiky skupiny a komunikace**
   Přesně. Když celý tým ví, kam směřuje, a komunikuje otevřeně, flow může nastat i kolektivně — říká se tomu „group flow".
 - ❌ Psychologické — protože cíl je psychologický spouštěč
   Jasný cíl jednotlivce je psychologický spouštěč. Ale společný cíl týmu je sociální spouštěč — jde o dynamiku skupiny.
@@ -290,8 +290,8 @@ Each trigger is a "doorway" into this state. Psychological triggers open one doo
 
 **Otázka:** Proč klesá aktivita prefrontálního kortexu ve flow?
 
-- **✅ Mozek přesměruje zdroje z analýzy a sebekritiky do samotného výkonu — vnitřní kritik mlčí**
-  Přesně. Transientní hypofrontalita znamená, že mozek „ušetří" na sebekritice a investuje do činnosti. Proto je výkon vyšší a zároveň bez pocitu námahy.
+- **✅ Mozek přesměruje zdroje z kritiky do výkonu**
+  Přesně. Vnitřní kritik mlčí. Transientní hypofrontalita znamená, že mozek „ušetří" na sebekritice a investuje do činnosti. Proto je výkon vyšší a zároveň bez pocitu námahy.
 - ❌ Mozek se „vypne" a pracuje na autopilotovi
   Mozek se nevypíná — je extrémně aktivní v jiných oblastech. Jen ta část, která analyzuje a kritizuje, se ztiší.
 
@@ -299,8 +299,8 @@ Each trigger is a "doorway" into this state. Psychological triggers open one doo
 
 **Question:** Why does prefrontal cortex activity drop in flow?
 
-- **✅ The brain redirects resources from analysis and self-criticism into the performance itself — the inner critic goes silent**
-  Exactly. Transient hypofrontality means the brain "saves" on self-criticism and invests in the activity. That's why performance is higher and feels effortless at the same time.
+- **✅ Resources shift from criticism to performance**
+  Exactly. The inner critic goes silent. Transient hypofrontality means the brain "saves" on self-criticism and invests in the activity. That's why performance is higher and feels effortless at the same time.
 - ❌ The brain "switches off" and works on autopilot
   The brain doesn't shut down — it's extremely active in other areas. Only the part that analyzes and criticizes quiets down.
 
@@ -316,8 +316,8 @@ Each trigger is a **"doorway" into flow**. The more you meet during your day, th
 
 **Otázka:** Jaká je nejsilnější strategie pro spuštění flow?
 
-- **✅ Kombinovat spouštěče z více kategorií — např. jasný cíl (psychologický) + nové prostředí (environmentální) + společný cíl (sociální)**
-  Přesně. Každá kategorie otevírá jiné „dveře" do flow. Kombinace je silnější než spoléhání na jednu kategorii.
+- **✅ Kombinovat spouštěče z více různých kategorií naráz**
+  Přesně. Například cíl + nové prostředí + společný cíl. Každá kategorie otevírá jiné „dveře" do flow. Kombinace je silnější než spoléhání na jednu kategorii.
 - ❌ Zaměřit se jen na psychologické spouštěče — ty jsou nejdůležitější
   Psychologické spouštěče jsou základ, ale kombinace s ostatními kategoriemi výrazně zvyšuje šanci na flow.
 - ❌ Splnit co nejvíc spouštěčů z jedné kategorie
@@ -327,8 +327,8 @@ Each trigger is a **"doorway" into flow**. The more you meet during your day, th
 
 **Question:** What's the strongest strategy for triggering flow?
 
-- **✅ Combining triggers from multiple categories — e.g. clear goal (psychological) + new environment (environmental) + shared goal (social)**
-  Exactly. Each category opens a different "doorway" into flow. Combining them is stronger than relying on one category.
+- **✅ Combining triggers from multiple categories at once**
+  Exactly. E.g. clear goal + new environment + shared goal. Each category opens a different "doorway" into flow. Combining them is stronger than relying on one category.
 - ❌ Focus only on psychological triggers — they're the most important
   Psychological triggers are the foundation, but combining them with other categories significantly increases your chance of flow.
 - ❌ Meet as many triggers as possible from one category
@@ -338,8 +338,8 @@ Each trigger is a **"doorway" into flow**. The more you meet during your day, th
 
 **Otázka:** Kreativní spouštěče zahrnují „rozpoznávání vzorců" a „překvapení". Jak to souvisí s flow?
 
-- **✅ Když mozek najde nečekaný vzorec nebo spojení, vyplavuje dopamin — a dopamin je palivo pro flow**
-  Přesně. Kreativní spouštěče fungují přes systém odměny. „Aha moment" tě vtáhne hlouběji do činnosti a posiluje ponoření.
+- **✅ Nový vzorec spustí dopamin — palivo flow**
+  Přesně. Když mozek najde nečekané spojení, vyplavuje dopamin. Kreativní spouštěče fungují přes systém odměny. „Aha moment" tě vtáhne hlouběji do činnosti a posiluje ponoření.
 - ❌ Překvapení tě vyruší a musíš začít znovu
   Překvapení v kontextu úkolu (nový vzorec, nečekané řešení) flow posiluje. Vyrušení zvenčí (notifikace) ho ničí. Je důležité rozlišovat.
 - ❌ Kreativní spouštěče fungují jen u umělců
@@ -349,8 +349,8 @@ Each trigger is a **"doorway" into flow**. The more you meet during your day, th
 
 **Question:** Creative triggers include "pattern recognition" and "surprise." How does that relate to flow?
 
-- **✅ When the brain finds an unexpected pattern or connection, it releases dopamine — and dopamine is fuel for flow**
-  Exactly. Creative triggers work through the reward system. An "aha moment" pulls you deeper into the activity and strengthens immersion.
+- **✅ New patterns release dopamine — fuel for flow**
+  Exactly. When the brain finds an unexpected connection, it releases dopamine. Creative triggers work through the reward system. An "aha moment" pulls you deeper into the activity and strengthens immersion.
 - ❌ Surprise interrupts you and you have to start over
   Surprise in the context of the task (a new pattern, unexpected solution) strengthens flow. External interruption (a notification) destroys it. It's important to distinguish the two.
 - ❌ Creative triggers only work for artists
@@ -360,7 +360,7 @@ Each trigger is a **"doorway" into flow**. The more you meet during your day, th
 
 **Otázka:** Jaký je praktický závěr o kategoriích spouštěčů?
 
-- **✅ Znalost kategorií ti umožňuje záměrně „naskládat" víc spouštěčů do jednoho pracovního bloku**
+- **✅ Kategorie ti umožní „naskládat" víc spouštěčů do bloku**
   Přesně. Místo spoléhání na náhodu můžeš před prací projít checklist: mám jasný cíl? Odstranil jsem rušivé vlivy? Je úkol přiměřeně náročný? Mohu přidat sociální nebo kreativní prvek?
 - ❌ Kategorie jsou zajímavé teoreticky, ale prakticky se nedají použít
   Naopak — kategorie ti dávají strukturu pro přípravu. Bez nich hádáš, s nimi máš systém.
@@ -371,7 +371,7 @@ Each trigger is a **"doorway" into flow**. The more you meet during your day, th
 
 **Question:** What's the practical takeaway about trigger categories?
 
-- **✅ Knowing the categories lets you deliberately "stack" more triggers into a single work session**
+- **✅ Categories let you "stack" more triggers into a session**
   Exactly. Instead of relying on chance, you can run through a checklist before work: do I have a clear goal? Have I removed distractions? Is the task appropriately challenging? Can I add a social or creative element?
 - ❌ The categories are theoretically interesting but can't be used in practice
   On the contrary — categories give you a structure for preparation. Without them you're guessing, with them you have a system.
@@ -411,8 +411,8 @@ Why? Because "learn psychology" is an **endless task** with no clear end. Your b
 
 **Otázka:** Proč „naučit se psychologii" nespouští flow?
 
-- **✅ Je příliš vágní — mozek neví, na co se zaměřit, a snadno se rozptýlí**
-  Přesně. Přeformulovat to na „naučit se tři teorie motivace za 30 minut" dá mozku konkrétní cíl s jasným koncem.
+- **✅ Je vágní — chybí konkrétní zaměření**
+  Přesně. Mozek neví, kam a snadno se rozptýlí. Přeformulovat to na „naučit se tři teorie motivace za 30 minut" dá mozku konkrétní cíl s jasným koncem.
 - ❌ Protože psychologie je nudná
   Nudit se můžeš u čehokoli, pokud nemáš jasný cíl. Problém není obsah, ale formulace.
 - ❌ Protože se učíš sám a chybí ti sociální spouštěč
@@ -422,8 +422,8 @@ Why? Because "learn psychology" is an **endless task** with no clear end. Your b
 
 **Question:** Why doesn't "learn psychology" trigger flow?
 
-- **✅ It's too vague — the brain doesn't know what to focus on and gets distracted easily**
-  Exactly. Rewording it to "learn three theories of motivation in 30 minutes" gives the brain a concrete goal with a clear end.
+- **✅ It's vague — no concrete point of focus**
+  Exactly. The brain wanders. Rewording it to "learn three theories of motivation in 30 minutes" gives the brain a concrete goal with a clear end.
 - ❌ Because psychology is boring
   You can get bored with anything if you don't have a clear goal. The problem isn't the content, it's the formulation.
 - ❌ Because you're studying alone and missing a social trigger
@@ -441,8 +441,8 @@ The solution is simple: break your tasks into **30-minute blocks with a concrete
 
 **Otázka:** Který z těchto přeformulovaných cílů je nejlepší pro flow?
 
-- **✅ „Shrň tři teorie motivace na jednu stranu A4 za 30 minut" — konkrétní výstup, jasný konec, časový rámec**
-  Přesně. Mozek přesně ví, co je „hotovo". Časový rámec přidává urgenci, která je dalším spouštěčem.
+- **✅ „Shrň tři teorie motivace na stranu A4 za 30 minut"**
+  Přesně. Konkrétní výstup, jasný konec, časový rámec. Mozek přesně ví, co je „hotovo". Časový rámec přidává urgenci, která je dalším spouštěčem.
 - ❌ „Přečti si kapitolu o motivaci" — je to konkrétnější
   Lepší než „nauč se psychologii", ale stále chybí jasný výstup. Co je „hotovo"? Přečíst? Pochopit? Zapamatovat si?
 - ❌ „Uč se psychologii hodinu" — alespoň je tam čas
@@ -452,8 +452,8 @@ The solution is simple: break your tasks into **30-minute blocks with a concrete
 
 **Question:** Which of these reworded goals is best for flow?
 
-- **✅ "Summarize three theories of motivation onto one A4 page in 30 minutes" — concrete output, clear end, time frame**
-  Exactly. The brain knows precisely what "done" means. The time frame adds urgency, which is another trigger.
+- **✅ "Summarize three motivation theories onto one A4 in 30 minutes"**
+  Exactly. Concrete output, clear end, time frame. The brain knows precisely what "done" means. The time frame adds urgency, which is another trigger.
 - ❌ "Read the chapter on motivation" — it's more specific
   Better than "learn psychology," but still missing a clear output. What's "done"? Reading it? Understanding it? Memorizing it?
 - ❌ "Study psychology for an hour" — at least there's a time frame
@@ -471,7 +471,7 @@ A vague goal is the **biggest flow killer**. Reword your task so it has a clear 
 
 **Otázka:** Proč časový rámec posiluje flow?
 
-- **✅ Přidává urgenci — mírný tlak je spouštěč, který nutí mozek soustředit se intenzivněji**
+- **✅ Přidává urgenci — mírný tlak zostřuje soustředění**
   Přesně. „Za 30 minut" říká mozku „teď nebo nikdy". Mírný časový tlak je environmentální spouštěč, který výrazně zvyšuje šanci na flow.
 - ❌ Protože tě stresuje a stres je dobrý pro výkon
   Mírný tlak ano, extrémní stres ne. Příliš velký tlak vede k úzkosti, ne k flow. Musíš být v „sweet spotu".
@@ -482,7 +482,7 @@ A vague goal is the **biggest flow killer**. Reword your task so it has a clear 
 
 **Question:** Why does a time frame strengthen flow?
 
-- **✅ It adds urgency — mild pressure is a trigger that forces the brain to focus more intensely**
+- **✅ It adds urgency — mild pressure sharpens focus**
   Exactly. "In 30 minutes" tells the brain "now or never." Mild time pressure is an environmental trigger that significantly increases the chance of flow.
 - ❌ Because it stresses you and stress is good for performance
   Mild pressure yes, extreme stress no. Too much pressure leads to anxiety, not flow. You need to be in the "sweet spot."
@@ -493,8 +493,8 @@ A vague goal is the **biggest flow killer**. Reword your task so it has a clear 
 
 **Otázka:** Představ si, že máš za hodinu odevzdat zprávu. Cíl je jasný, čas tlačí, ale každé tři minuty kontroluješ e-mail. Proč flow nepřichází?
 
-- **✅ Protože sis neodstranil rušivé vlivy — e-mail je notifikace, která rozbíjí ponoření každé tři minuty**
-  Přesně. I s perfektním cílem a časovým tlakem nemůže flow vzniknout, pokud tě stále něco vyrušuje. Zavři e-mail a flow přijde.
+- **✅ E-mail rozbíjí ponoření každé tři minuty**
+  Přesně. Neodstranil sis rušivé vlivy. I s perfektním cílem a časovým tlakem nemůže flow vzniknout, pokud tě stále něco vyrušuje. Zavři e-mail a flow přijde.
 - ❌ Protože zprávy nejsou dost zajímavé na flow
   Zajímavost nezáleží. Flow závisí na podmínkách, ne na obsahu. I nudná zpráva může být ve flow, pokud máš jasný cíl a klid.
 
@@ -502,8 +502,8 @@ A vague goal is the **biggest flow killer**. Reword your task so it has a clear 
 
 **Question:** Imagine you have to submit a report in an hour. The goal is clear, time is pressing, but every three minutes you check your email. Why isn't flow coming?
 
-- **✅ Because you haven't removed distractions — email is a notification that breaks your immersion every three minutes**
-  Exactly. Even with a perfect goal and time pressure, flow can't develop if something keeps interrupting you. Close email and flow will come.
+- **✅ Email notifications break immersion every three minutes**
+  Exactly. You haven't removed distractions. Even with a perfect goal and time pressure, flow can't develop if something keeps interrupting you. Close email and flow will come.
 - ❌ Because reports aren't interesting enough for flow
   "Interesting" doesn't matter. Flow depends on conditions, not content. Even a boring report can be done in flow if you have a clear goal and quiet.
 
@@ -511,8 +511,8 @@ A vague goal is the **biggest flow killer**. Reword your task so it has a clear 
 
 **Otázka:** Jaký je nejrychlejší způsob, jak přeměnit prokrastinaci na flow?
 
-- **✅ Přeformulovat vágní úkol na konkrétní (jasný výstup + časový rámec) a odstranit telefon z dosahu**
-  Přesně. Prokrastinace je často důsledek vágního cíle — mozek neví, co dělat, tak nedělá nic. Jasný cíl + odstranění rušivých vlivů = okamžitý vstup do flow.
+- **✅ Konkrétní cíl + rámec + pryč s telefonem**
+  Přesně. Přeformuluj vágní úkol. Prokrastinace je často důsledek vágního cíle — mozek neví, co dělat, tak nedělá nic. Jasný cíl + odstranění rušivých vlivů = okamžitý vstup do flow.
 - ❌ Počkat na motivaci — přijde sama
   Motivace je nespolehlivá. Podmínky jsou spolehlivé. Nastav je a flow přijde bez motivace.
 - ❌ Dát si odměnu za dokončení — motivace přes odměnu
@@ -522,8 +522,8 @@ A vague goal is the **biggest flow killer**. Reword your task so it has a clear 
 
 **Question:** What's the fastest way to turn procrastination into flow?
 
-- **✅ Reword the vague task into something specific (clear output + time frame) and remove your phone from reach**
-  Exactly. Procrastination is often the result of a vague goal — the brain doesn't know what to do, so it does nothing. Clear goal + removing distractions = immediate entry into flow.
+- **✅ Specific goal + time frame + phone out of reach**
+  Exactly. Reword the vague task. Procrastination is often the result of a vague goal — the brain doesn't know what to do, so it does nothing. Clear goal + removing distractions = immediate entry into flow.
 - ❌ Wait for motivation — it will come on its own
   Motivation is unreliable. Conditions are reliable. Set them and flow comes without motivation.
 - ❌ Give yourself a reward for finishing — motivation through reward
@@ -566,8 +566,8 @@ Imagine you work in an open-plan office. For years you've complained that you on
 
 **Otázka:** Proč jsou sluchátka s bílým šumem prvním krokem, ne posledním?
 
-- **✅ Protože odstranění rušivých vlivů je základ — bez něj ostatní spouštěče nefungují**
-  Přesně. Jasný cíl ti nepomůže, pokud tě každých pět minut někdo vyruší. Nejdřív odstraň překážky, pak buduj.
+- **✅ Odstranění rušivých vlivů je nutný základ flow**
+  Přesně. Bez něj ostatní spouštěče nefungují. Jasný cíl ti nepomůže, pokud tě každých pět minut někdo vyruší. Nejdřív odstraň překážky, pak buduj.
 - ❌ Protože bílý šum je relaxační a pomáhá soustředění
   Bílý šum není o relaxaci — je o maskování rušivých zvuků. Bez něj v open space nemáš šanci na nerušené soustředění.
 
@@ -575,8 +575,8 @@ Imagine you work in an open-plan office. For years you've complained that you on
 
 **Question:** Why are white-noise headphones the first step, not the last?
 
-- **✅ Because removing distractions is the foundation — without it the other triggers don't work**
-  Exactly. A clear goal won't help if someone interrupts you every five minutes. First remove the obstacles, then build.
+- **✅ Removing distractions is the essential foundation**
+  Exactly. Without it the other triggers don't work. A clear goal won't help if someone interrupts you every five minutes. First remove the obstacles, then build.
 - ❌ Because white noise is relaxing and helps focus
   White noise isn't about relaxation — it's about masking distracting sounds. Without it in an open-plan office, you have no chance of uninterrupted focus.
 
@@ -596,8 +596,8 @@ The triggers tune your brain for focus — not the environment itself. That's wh
 
 **Otázka:** Proč spouštěče fungují i v rušném prostředí?
 
-- **✅ Protože nastavují mozek na soustředění, ne prostředí samo — flow je vnitřní stav**
-  Přesně. Prostředí pomáhá, ale klíčové je, že spouštěče dávají mozku silnější signál než okolní ruch.
+- **✅ Nastavují mozek, ne prostředí**
+  Přesně. Flow je vnitřní stav. Prostředí pomáhá, ale klíčové je, že spouštěče dávají mozku silnější signál než okolní ruch.
 - ❌ Protože odstraní všechen hluk
   Žádné sluchátka neodstraní všechen hluk. Spouštěče pomáhají tím, že dávají mozku jiný, silnější signál — jasný cíl a zpětnou vazbu.
 
@@ -605,8 +605,8 @@ The triggers tune your brain for focus — not the environment itself. That's wh
 
 **Question:** Why do triggers work even in a noisy environment?
 
-- **✅ Because they tune your brain for focus, not the environment itself — flow is an internal state**
-  Exactly. The environment helps, but the key is that the triggers give the brain a stronger signal than the surrounding noise.
+- **✅ They tune the brain, not the room**
+  Exactly. Flow is an internal state. The environment helps, but the key is that the triggers give the brain a stronger signal than the surrounding noise.
 - ❌ Because they remove all the noise
   No headphones remove all noise. The triggers work by giving your brain a different, stronger signal — a clear goal and feedback.
 
@@ -622,8 +622,8 @@ Don't wait for ideal conditions — **set up the triggers wherever you are**. Re
 
 **Otázka:** Jaký je nejčastější výmluva, proč lidé nezažívají flow?
 
-- **✅ „Nemám správné podmínky" — ale spouštěče si můžeš nastavit kdekoliv**
-  Přesně. Většina lidí čeká na dokonalé prostředí, místo aby aktivně nastavila spouštěče tam, kde jsou. Sluchátka, jasný cíl a timer — to stačí.
+- **✅ „Nemám podmínky"**
+  Přesně. Ale spouštěče si nastavíš kdekoliv. Většina lidí čeká na dokonalé prostředí, místo aby aktivně nastavila spouštěče tam, kde jsou. Sluchátka, jasný cíl a timer — to stačí.
 - ❌ „Nemám dost talentu"
   Talent s flow nesouvisí. Flow je otázka podmínek, ne talentu. Zažívají ho začátečníci i experti.
 - ❌ „Nemám dost času"
@@ -633,8 +633,8 @@ Don't wait for ideal conditions — **set up the triggers wherever you are**. Re
 
 **Question:** What's the most common excuse for not experiencing flow?
 
-- **✅ "I don't have the right conditions" — but you can set up triggers anywhere**
-  Exactly. Most people wait for the perfect environment instead of actively setting up triggers where they are. Headphones, a clear goal, and a timer — that's enough.
+- **✅ "I don't have conditions"**
+  Exactly. But triggers work anywhere. Most people wait for the perfect environment instead of actively setting up triggers where they are. Headphones, a clear goal, and a timer — that's enough.
 - ❌ "I'm not talented enough"
   Talent has nothing to do with flow. Flow is a matter of conditions, not talent. Beginners and experts both experience it.
 - ❌ "I don't have enough time"
@@ -644,8 +644,8 @@ Don't wait for ideal conditions — **set up the triggers wherever you are**. Re
 
 **Otázka:** Představ si, že pracuješ z domova a děti ti chodí do pokoje. Jak aplikuješ spouštěče?
 
-- **✅ Domluv si s rodinou „nerušit" blok (např. 45 minut), zavři dveře, nasaď sluchátka a nastav jasný cíl — stejné principy jako v kanceláři**
-  Přesně. Prostředí je jiné, ale principy jsou stejné. Klíč je komunikace s okolím a fyzické oddělení.
+- **✅ „Nerušit" blok, dveře, cíl**
+  Přesně. Domluv si s rodinou např. 45 minut a nasaď sluchátka. Prostředí je jiné, ale principy jsou stejné jako v kanceláři. Klíč je komunikace s okolím a fyzické oddělení.
 - ❌ Vzdáš to — doma flow nejde
   Jde. Miliony lidí pracují z domova ve flow. Stačí nastavit hranice a spouštěče.
 
@@ -653,8 +653,8 @@ Don't wait for ideal conditions — **set up the triggers wherever you are**. Re
 
 **Question:** Imagine you work from home and your kids keep coming into your room. How do you apply triggers?
 
-- **✅ Agree on a "do not disturb" block with your family (e.g. 45 minutes), close the door, put on headphones, and set a clear goal — same principles as the office**
-  Exactly. The environment is different, but the principles are the same. The key is communicating with those around you and physical separation.
+- **✅ "Do not disturb" block, door, clear goal**
+  Exactly. Agree e.g. 45 minutes with family, put on headphones. The environment is different, but the principles are the same as in the office. The key is communicating with those around you and physical separation.
 - ❌ Give up — flow doesn't work at home
   It does. Millions of people work from home in flow. You just need to set boundaries and triggers.
 
@@ -662,8 +662,8 @@ Don't wait for ideal conditions — **set up the triggers wherever you are**. Re
 
 **Otázka:** Jaký je nejdůležitější závěr celého modelu Spouštěče flow?
 
-- **✅ Spouštěče jsou mechanické a kontrolovatelné — flow je dovednost, ne náhoda, a funguje kdekoliv**
-  Přesně. Celý model se dá shrnout: jasný cíl + odstranění rušivých vlivů + zpětná vazba + přiměřená obtížnost = flow. Opakuj kdekoliv.
+- **✅ Flow je dovednost, ne náhoda — funguje kdekoliv**
+  Přesně. Spouštěče jsou mechanické a kontrolovatelné. Celý model se dá shrnout: jasný cíl + odstranění rušivých vlivů + zpětná vazba + přiměřená obtížnost = flow. Opakuj kdekoliv.
 - ❌ Flow závisí na prostředí a bez ideálních podmínek nefunguje
   Naopak — spouštěče ti umožňují flow vytvořit i v neideálním prostředí. Prostředí pomáhá, ale není nutné.
 - ❌ Stačí znát teorii a flow přijde samo
@@ -673,8 +673,8 @@ Don't wait for ideal conditions — **set up the triggers wherever you are**. Re
 
 **Question:** What's the most important takeaway from the entire Flow Triggers model?
 
-- **✅ Triggers are mechanical and controllable — flow is a skill, not luck, and it works anywhere**
-  Exactly. The whole model can be summed up: clear goal + removing distractions + feedback + appropriate difficulty = flow. Repeat anywhere.
+- **✅ Flow is a controllable skill, not luck — and it works anywhere**
+  Exactly. Triggers are mechanical. The whole model can be summed up: clear goal + removing distractions + feedback + appropriate difficulty = flow. Repeat anywhere.
 - ❌ Flow depends on the environment and doesn't work without ideal conditions
   On the contrary — triggers let you create flow even in a non-ideal environment. The environment helps, but it's not required.
 - ❌ Knowing the theory is enough and flow will come on its own

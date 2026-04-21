@@ -83,7 +83,7 @@ Csikszentmihalyi drew this as a famous diagram: the X axis is challenge, the Y a
 
 **Otázka:** Proč flow přichází právě na úkolech mírně nad tvým komfortem?
 
-- **✅ Jde o „sweet spot" — rovnováhu výzvy a schopností, kde musíš vydat maximum, ale víš, že to zvládneš**
+- **✅ Rovnováha výzvy a schopností**
   Přesně. Csikszentmihalyi to nakreslil jako graf: flow je v úzkém pásmu uprostřed, kde se výzva a schopnosti setkávají na vysoké úrovni.
 - ❌ Ty úkoly jsou nejzajímavější
   Zajímavost je subjektivní. Flow nezávisí na „zajímavosti", ale na poměru mezi obtížností a tvými schopnostmi.
@@ -94,7 +94,7 @@ Csikszentmihalyi drew this as a famous diagram: the X axis is challenge, the Y a
 
 **Question:** Why does flow arrive on tasks slightly above your comfort zone?
 
-- **✅ It's the "sweet spot" — a balance of challenge and skill, where you have to give your all but know you can pull it off**
+- **✅ A balance of challenge and skill**
   Exactly. Csikszentmihalyi drew this as a graph: flow lives in the narrow band in the middle, where challenge and skill meet at a high level.
 - ❌ Those tasks are the most interesting
   "Interesting" is subjective. Flow doesn't depend on how interesting something is, but on the ratio between difficulty and your skill.
@@ -113,7 +113,7 @@ The key thing to understand is that flow **isn't in comfort**. The comfort zone 
 
 **Otázka:** Co se stane, když je úkol příliš jednoduchý vzhledem k tvým schopnostem?
 
-- **✅ Nudíš se — chybí výzva, takže se mozek neponoří a flow nemá šanci vzniknout**
+- **✅ Nudíš se — chybí výzva a flow nemá šanci**
   Přesně. Nuda je signál, že tvé schopnosti výrazně převyšují obtížnost úkolu. Potřebuješ zvýšit obtížnost.
 - ❌ Zažíváš flow, protože úkol zvládáš snadno
   Snadnost je nepřítel flow. Flow vyžaduje plné nasazení — bez výzvy ho nezažiješ.
@@ -124,7 +124,7 @@ The key thing to understand is that flow **isn't in comfort**. The comfort zone 
 
 **Question:** What happens when a task is too easy relative to your skill?
 
-- **✅ You get bored — the challenge is missing, so the brain doesn't dive in and flow has no chance of arising**
+- **✅ You get bored — challenge is missing, no immersion**
   Exactly. Boredom is a signal that your skill far exceeds the task's difficulty. You need to raise the difficulty.
 - ❌ You experience flow because the task is easy to handle
   Ease is the enemy of flow. Flow requires full engagement — without challenge, you won't experience it.
@@ -143,7 +143,7 @@ Flow isn't in comfort or in panic. It's in the **narrow band** where you have to
 
 **Otázka:** Csikszentmihalyiho diagram má dvě osy — výzvu a schopnosti. Kde přesně se nachází flow?
 
-- **✅ Tam, kde se obě osy setkávají na vysoké úrovni — vysoká výzva a vysoké schopnosti**
+- **✅ Tam, kde obě osy jsou vysoko — výzva i schopnosti**
   Přesně. Flow není na nízké úrovni obou os (to je apatie). Ani na vysoké výzvě s nízkou dovedností (to je úzkost). Je tam, kde obě hodnoty jsou vysoko.
 - ❌ Tam, kde je výzva nulová a schopnosti vysoké
   To je nuda. Bez výzvy nemá mozek důvod se ponořit.
@@ -154,7 +154,7 @@ Flow isn't in comfort or in panic. It's in the **narrow band** where you have to
 
 **Question:** Csikszentmihalyi's diagram has two axes — challenge and skill. Where exactly is flow?
 
-- **✅ Where both axes meet at a high level — high challenge and high skill**
+- **✅ Where both axes meet high — challenge and skill**
   Exactly. Flow isn't at a low level on both axes (that's apathy). Nor at high challenge with low skill (that's anxiety). It's where both values are high.
 - ❌ Where challenge is zero and skill is high
   That's boredom. Without challenge, the brain has no reason to dive in.
@@ -165,7 +165,7 @@ Flow isn't in comfort or in panic. It's in the **narrow band** where you have to
 
 **Otázka:** Představ si, že lezeš a vybereš si cestu o tři stupně nad tvým maximem. Jak se budeš cítit?
 
-- **✅ Úzkostně a frustrovaně — výzva je příliš velká a flow nemá šanci vzniknout**
+- **✅ Úzkostně — výzva je příliš velká**
   Přesně. Přepalování je stejně špatné jako poddimenzování. Cesta o tři stupně nad tvým maximem tě nezlepší — jen tě vyčerpá.
 - ❌ Ve flow — protože výzva je vysoká
   Samotná vysoká výzva nestačí. Musí být v rovnováze se schopnostmi. Příliš vysoká výzva = úzkost, ne flow.
@@ -176,7 +176,7 @@ Flow isn't in comfort or in panic. It's in the **narrow band** where you have to
 
 **Question:** Imagine you're climbing and you pick a route three grades above your max. How will you feel?
 
-- **✅ Anxious and frustrated — the challenge is too high and flow has no chance of arising**
+- **✅ Anxious — the challenge is too high**
   Exactly. Overshooting is just as bad as undershooting. A route three grades above your max won't improve you — it will just exhaust you.
 - ❌ In flow — because the challenge is high
   High challenge alone isn't enough. It must be balanced with skill. Too high a challenge = anxiety, not flow.
@@ -187,7 +187,7 @@ Flow isn't in comfort or in panic. It's in the **narrow band** where you have to
 
 **Otázka:** Jaký je praktický závěr z Csikszentmihalyiho diagramu?
 
-- **✅ Záměrně hledej úkoly mírně nad tvým komfortem — tam je flow i růst**
+- **✅ Hledej úkoly mírně nad komfortem — tam je flow**
   Přesně. Sweet spot není náhoda — je to volba. Pokaždé, když si vybereš úkol, se ptej: „Je to dost náročné, abych se musel snažit, ale ne tak těžké, abych měl úzkost?"
 - ❌ Drž se toho, co umíš — v komfortu jsi nejproduktivnější
   Komfort = nuda = žádné flow = žádný růst. Produktivita v komfortu je iluze.
@@ -198,7 +198,7 @@ Flow isn't in comfort or in panic. It's in the **narrow band** where you have to
 
 **Question:** What's the practical takeaway from Csikszentmihalyi's diagram?
 
-- **✅ Deliberately look for tasks slightly above your comfort zone — that's where flow and growth live**
+- **✅ Pick tasks slightly above comfort — flow lives there**
   Exactly. The sweet spot isn't chance — it's a choice. Every time you pick a task, ask: "Is it hard enough that I have to try, but not so hard that I'll panic?"
 - ❌ Stick with what you know — you're most productive in comfort
   Comfort = boredom = no flow = no growth. Productivity in comfort is an illusion.
@@ -238,7 +238,7 @@ What does that look like in practice? If you can climb a 6a route, try 6a+. If y
 
 **Otázka:** Proč je sweet spot právě kolem 4 % a ne třeba 20 %?
 
-- **✅ Při 4 % musíš zapojit všechny schopnosti, ale výsledek je stále v dosahu — mozek se ponoří, místo aby panikařil**
+- **✅ Musíš zapojit vše, ale cíl je v dosahu**
   Přesně. 20 % nad tvou úrovní je příliš velký skok — mozek přepne do režimu „to nedám" a místo flow zažíváš úzkost.
 - ❌ 4 % je jen orientační číslo — záleží na náladě
   4 % je výzkumem podložený odhad sweet spotu. Samozřejmě se liší podle člověka a situace, ale princip platí: mírná výzva, ne extrémní.
@@ -249,7 +249,7 @@ What does that look like in practice? If you can climb a 6a route, try 6a+. If y
 
 **Question:** Why is the sweet spot around 4% and not, say, 20%?
 
-- **✅ At 4% you have to engage all your skills, but the result is still within reach — the brain dives in instead of panicking**
+- **✅ You engage fully, but the goal stays in reach**
   Exactly. 20% above your level is too big a jump — the brain switches to "I can't do this" mode and instead of flow you get anxiety.
 - ❌ 4% is just a rough number — it depends on mood
   4% is a research-backed estimate of the sweet spot. Of course it varies by person and situation, but the principle holds: mild challenge, not extreme.
@@ -268,7 +268,7 @@ Imagine you teach math and your students fall into three groups — the bored, t
 
 **Otázka:** Proč „stejná úloha pro všechny" nefunguje z pohledu flow?
 
-- **✅ Protože každý má jiné schopnosti — stejná úloha je pro některé příliš lehká (nuda) a pro jiné příliš těžká (úzkost)**
+- **✅ Každý má jiné schopnosti — flow zóna je jiná**
   Přesně. Flow zóna je individuální. Co je sweet spot pro jednoho, je panika pro druhého a nuda pro třetího.
 - ❌ Protože studenti nemají rádi matematiku
   Preference nesouvisí s flow. I „nudný" předmět může být ve flow, pokud je obtížnost přiměřená.
@@ -279,7 +279,7 @@ Imagine you teach math and your students fall into three groups — the bored, t
 
 **Question:** Why doesn't "the same problem for everyone" work from a flow perspective?
 
-- **✅ Because everyone has different skills — the same problem is too easy for some (boredom) and too hard for others (anxiety)**
+- **✅ Different skills mean different zones**
   Exactly. The flow zone is individual. What's a sweet spot for one person is panic for another and boredom for a third.
 - ❌ Because students don't like math
   Preference has nothing to do with flow. Even a "boring" subject can be done in flow if the difficulty is right.
@@ -298,7 +298,7 @@ The flow zone is **small** — about 4% above your current level. When you find 
 
 **Otázka:** Hraješ na kytaru rok. Jednoduché písničky tě nudí, složitá sóla tě frustrují. Co uděláš?
 
-- **✅ Najdeš skladby na hraně svých schopností — náročné, ale zvládnutelné**
+- **✅ Najdeš skladby na hraně — náročné, ale zvládnutelné**
   Přesně. Mezi „umím perfektně" a „nemám šanci" je úzká zóna skladeb, které vyžadují plné nasazení, ale jsou v dosahu. To je flow zóna.
 - ❌ Vydržíš u snadných písní, než je budeš umět perfektně
   Vydržíš jen v nudě. Bez výzvy nebudeš růst ani zažívat flow.
@@ -309,7 +309,7 @@ The flow zone is **small** — about 4% above your current level. When you find 
 
 **Question:** You've been playing guitar for a year. Easy songs bore you, complex solos frustrate you. What do you do?
 
-- **✅ Find songs on the edge of your ability — demanding but doable**
+- **✅ Pick songs on the edge — hard but within reach**
   Exactly. Between "play it perfectly" and "no chance" sits a narrow band of songs that require full engagement but are in reach. That's the flow zone.
 - ❌ Stick with easy songs until you play them perfectly
   You'll only stay bored. Without challenge, you won't grow or experience flow.
@@ -320,7 +320,7 @@ The flow zone is **small** — about 4% above your current level. When you find 
 
 **Otázka:** Jak poznáš, že jsi „v zóně" — tedy na správné úrovni obtížnosti?
 
-- **✅ Musíš se plně soustředit, ale nemáš úzkost — cítíš napětí, ne paniku**
+- **✅ Plné soustředění bez úzkosti**
   Přesně. Sweet spot se pozná podle toho, že tě úkol plně zaměstnává, ale neděsí. Je to „produktivní nepohodlí" — mírný tlak, který tě tlačí vpřed.
 - ❌ Cítíš se uvolněně a v pohodě
   Uvolnění signalizuje, že jsi pod úrovní flow. Potřebuješ zvýšit obtížnost.
@@ -331,7 +331,7 @@ The flow zone is **small** — about 4% above your current level. When you find 
 
 **Question:** How do you know you're "in the zone" — at the right difficulty level?
 
-- **✅ You have to fully concentrate but you're not anxious — you feel tension, not panic**
+- **✅ Full concentration, but no anxiety**
   Exactly. You recognize the sweet spot by the fact that the task fully engages you but doesn't scare you. It's "productive discomfort" — mild pressure that pushes you forward.
 - ❌ You feel relaxed and comfortable
   Relaxation signals you're below the flow level. You need to raise the difficulty.
@@ -342,7 +342,7 @@ The flow zone is **small** — about 4% above your current level. When you find 
 
 **Otázka:** Proč je důležité postupně zvyšovat obtížnost, místo aby ses „hodil do vody"?
 
-- **✅ Postupné zvyšování drží tvé schopnosti v rovnováze s výzvou — a ty zůstáváš ve flow zóně**
+- **✅ Drží schopnosti v rovnováze s výzvou**
   Přesně. Skokem do vody přeskočíš sweet spot a skončíš v úzkosti. Postupné zvyšování znamená, že flow a růst jdou ruku v ruce.
 - ❌ Protože skoky jsou fyzicky nebezpečné
   Nejde o fyzické nebezpečí, ale o psychologickou rovnováhu. Příliš velký skok = úzkost, ne flow.
@@ -353,7 +353,7 @@ The flow zone is **small** — about 4% above your current level. When you find 
 
 **Question:** Why is it important to gradually increase difficulty instead of "jumping in the deep end"?
 
-- **✅ Gradual increases keep your skill in balance with the challenge — and you stay in the flow zone**
+- **✅ It keeps skill balanced with challenge**
   Exactly. Jumping in the deep end skips the sweet spot and lands you in anxiety. Gradual increases mean flow and growth go hand in hand.
 - ❌ Because jumps are physically dangerous
   It's not about physical danger, but psychological balance. Too big a jump = anxiety, not flow.
@@ -393,7 +393,7 @@ The solution: gradually raise the difficulty. Always pick a song that demands yo
 
 **Otázka:** Proč je skákání mezi lehkým a extrémně těžkým špatnou strategií?
 
-- **✅ Protože přeskakuješ flow zónu — na lehkém se nudíš, na extrémním máš úzkost, a nikdy se neponoříš**
+- **✅ Přeskakuješ flow zónu — nikdy se neponoříš**
   Přesně. Flow zóna je úzká. Musíš být v ní, ne nad ní nebo pod ní. Postupné zvyšování tě drží přesně tam.
 - ❌ Protože lehké věci jsou ztráta času
   Lehké věci mají své místo (odpočinek, automatizace), ale pro flow a růst potřebuješ výzvu.
@@ -404,7 +404,7 @@ The solution: gradually raise the difficulty. Always pick a song that demands yo
 
 **Question:** Why is jumping between easy and extremely hard a bad strategy?
 
-- **✅ Because you skip the flow zone — you're bored on easy stuff, anxious on extreme stuff, and you never get immersed**
+- **✅ You skip the flow zone — no immersion**
   Exactly. The flow zone is narrow. You need to be in it, not above or below it. Gradual increases keep you right there.
 - ❌ Because easy things are a waste of time
   Easy things have their place (rest, automation), but for flow and growth you need challenge.
@@ -435,7 +435,7 @@ If you answer "no" to both and felt fully immersed, **you were in the flow zone*
 
 **Otázka:** Po dokončení úkolu si říkáš: „Bylo to náročné, ale zvládl jsem to." Kde jsi byl?
 
-- **✅ Ve flow zóně — náročné, ale zvládnutelné je přesný popis sweet spotu**
+- **✅ Ve flow zóně — přesný popis sweet spotu**
   Přesně. „Náročné, ale zvládl jsem to" je nejlepší signál, že jsi byl ve správném pásmu. Příště mírně zvyš.
 - ❌ V komfortní zóně — zvládl jsi to, takže to bylo lehké
   „Zvládl jsem to" neznamená „bylo to lehké". Sweet spot je náročný — jen ne nemožný.
@@ -446,7 +446,7 @@ If you answer "no" to both and felt fully immersed, **you were in the flow zone*
 
 **Question:** After finishing a task you think: "That was hard, but I managed it." Where were you?
 
-- **✅ In the flow zone — hard but manageable is the exact description of the sweet spot**
+- **✅ In the flow zone — that's the sweet spot**
   Exactly. "Hard but I managed it" is the best signal you were in the right band. Raise slightly next time.
 - ❌ In the comfort zone — you managed it, so it was easy
   "I managed it" doesn't mean "it was easy." The sweet spot is hard — just not impossible.
@@ -465,7 +465,7 @@ Look for tasks **on the edge** — that's where flow and growth live. Comfort zo
 
 **Otázka:** Proč je důležité po každém úkolu vyhodnotit, kde jsi byl?
 
-- **✅ Protože ti to umožní příště kalibrovat obtížnost — a zůstat ve flow zóně**
+- **✅ Umožní ti kalibrovat obtížnost**
   Přesně. Bez reflexe hádáš. S reflexí máš data. „Nudil jsem se?" a „Měl jsem úzkost?" jsou dvě jednoduché otázky, které tě drží v sweet spotu.
 - ❌ Protože je to dobrý zvyk
   Je to víc než zvyk — je to nástroj pro kalibraci obtížnosti. Bez něj nevíš, jestli jsi ve flow zóně.
@@ -476,7 +476,7 @@ Look for tasks **on the edge** — that's where flow and growth live. Comfort zo
 
 **Question:** Why is it important to evaluate where you were after each task?
 
-- **✅ Because it lets you calibrate difficulty next time — and stay in the flow zone**
+- **✅ It lets you calibrate difficulty**
   Exactly. Without reflection, you're guessing. With reflection, you have data. "Was I bored?" and "Was I anxious?" are two simple questions that keep you in the sweet spot.
 - ❌ Because it's a good habit
   It's more than a habit — it's a tool for calibrating difficulty. Without it, you don't know if you're in the flow zone.
@@ -487,7 +487,7 @@ Look for tasks **on the edge** — that's where flow and growth live. Comfort zo
 
 **Otázka:** Tvé schopnosti rostou — úkol, který ti minulý měsíc dělal problém, dnes zvládáš snadno. Co to znamená pro flow?
 
-- **✅ Musíš zvýšit obtížnost — jinak klesneš z flow zóny do nudy**
+- **✅ Musíš zvýšit obtížnost, jinak spadneš do nudy**
   Přesně. Flow zóna se posouvá s tvými schopnostmi. Co bylo sweet spot včera, je komfort dnes. Musíš neustále kalibrovat.
 - ❌ Můžeš zůstat u stejné obtížnosti — flow zůstane
   Flow zůstane jen pokud zůstane výzva. Jakmile úkol zvládáš snadno, flow zmizí a nastoupí nuda.
@@ -498,7 +498,7 @@ Look for tasks **on the edge** — that's where flow and growth live. Comfort zo
 
 **Question:** Your skills are growing — a task that challenged you last month is now easy. What does that mean for flow?
 
-- **✅ You need to raise the difficulty — otherwise you'll drop from the flow zone into boredom**
+- **✅ You need to raise difficulty — or you'll drop into boredom**
   Exactly. The flow zone shifts with your skill. What was the sweet spot yesterday is the comfort zone today. You have to keep calibrating.
 - ❌ You can stay at the same difficulty — flow will remain
   Flow stays only if the challenge remains. Once you handle a task easily, flow vanishes and boredom sets in.
@@ -509,7 +509,7 @@ Look for tasks **on the edge** — that's where flow and growth live. Comfort zo
 
 **Otázka:** Jaký je nejdůležitější praktický závěr modelu Výzva vs schopnosti?
 
-- **✅ Záměrně si vyber úkoly mírně nad tvým komfortem a pravidelně kalibruj — tam je flow, růst i spokojenost**
+- **✅ Vybírej úkoly mírně nad komfortem a kalibruj**
   Přesně. Sweet spot není náhoda — je to volba. Pokaždé se ptej: „Je to dost těžké?" a „Je to zvládnutelné?" Pokud obojí ano, jsi ve flow.
 - ❌ Drž se komfortu a flow přijde samo
   Komfort = nuda = žádné flow. Musíš aktivně hledat výzvu.
@@ -520,7 +520,7 @@ Look for tasks **on the edge** — that's where flow and growth live. Comfort zo
 
 **Question:** What's the most important practical takeaway from the Challenge vs Skill model?
 
-- **✅ Deliberately pick tasks slightly above your comfort zone and calibrate regularly — that's where flow, growth, and satisfaction live**
+- **✅ Pick tasks slightly above comfort and calibrate regularly**
   Exactly. The sweet spot isn't chance — it's a choice. Every time, ask: "Is it hard enough?" and "Is it manageable?" If both answers are yes, you're in flow.
 - ❌ Stay in comfort and flow will come on its own
   Comfort = boredom = no flow. You have to actively seek challenge.
@@ -560,7 +560,7 @@ In a year your Elo rises by 200 points — more than in the previous five years 
 
 **Otázka:** Proč funguje výběr soupeřů o 50-100 ELO silnějších?
 
-- **✅ Jsou přesně v tvé flow zóně — reálná výzva, ale ne nemožná**
+- **✅ Jsou v tvé flow zóně**
   Přesně. Soupeři o 50-100 ELO silnější odpovídají zhruba 4% pravidlu. Porazit je je těžké, ale ne nereálné.
 - ❌ Máš štěstí
   Štěstí nevysvětlí růst o 200 bodů za rok. Záměrný výběr soupeřů v sweet spotu je metoda, ne náhoda.
@@ -571,7 +571,7 @@ In a year your Elo rises by 200 points — more than in the previous five years 
 
 **Question:** Why does choosing opponents 50-100 Elo points stronger work?
 
-- **✅ They're exactly in your flow zone — a real challenge, but not impossible**
+- **✅ They're in your flow zone**
   Exactly. Opponents 50-100 Elo points stronger roughly match the 4% rule. Beating them is hard but not unrealistic.
 - ❌ You got lucky
   Luck doesn't explain a 200-point rise in a year. Deliberately picking opponents in the sweet spot is a method, not chance.
@@ -594,7 +594,7 @@ The principle of deliberately seeking challenges applies everywhere. At work, pi
 
 **Otázka:** Co je praktický závěr záměrného hledání výzev?
 
-- **✅ Záměrně hledej úkoly mírně nad tvým aktuálním zvládnutím — sweet spot je volba, ne náhoda**
+- **✅ Hledej úkoly mírně nad zvládnutím — je to volba**
   Přesně. Můžeš si ji aktivně vytvářet v práci, učení, sportu i vztazích.
 - ❌ Nevybírej si těžší úkoly — prohraješ příliš často
   Prohry v sweet spotu jsou součást růstu. Bez nich stagenuješ.
@@ -603,7 +603,7 @@ The principle of deliberately seeking challenges applies everywhere. At work, pi
 
 **Question:** What's the practical takeaway from deliberately seeking challenges?
 
-- **✅ Deliberately look for tasks slightly above your current level — the sweet spot is a choice, not luck**
+- **✅ Pick tasks above your level — it's a choice**
   Exactly. You can actively create it in work, learning, sports, and relationships.
 - ❌ Don't pick harder tasks — you'll fail too often
   Failures in the sweet spot are part of growth. Without them, you stagnate.
@@ -620,7 +620,7 @@ Pick hard challenges **deliberately**. Flow and growth go hand in hand — and b
 
 **Otázka:** Proč je „trochu nepohodlně" dobrý signál?
 
-- **✅ Mírné nepohodlí signalizuje, že jsi v sweet spotu — na hraně schopností, kde je flow i růst**
+- **✅ Signalizuje, že jsi v sweet spotu**
   Přesně. Komfort = stagnace. Mírné nepohodlí = růstová zóna. Panika = přestřelení. „Trochu nepohodlně" je přesně tam, kde chceš být.
 - ❌ Protože utrpení je nutné pro úspěch
   Utrpení není nutné. Mírné nepohodlí ano. Rozdíl mezi oběma je klíčový.
@@ -631,7 +631,7 @@ Pick hard challenges **deliberately**. Flow and growth go hand in hand — and b
 
 **Question:** Why is "a little uncomfortable" a good signal?
 
-- **✅ Mild discomfort signals you're in the sweet spot — at the edge of your ability, where flow and growth live**
+- **✅ It signals you're in the sweet spot**
   Exactly. Comfort = stagnation. Mild discomfort = growth zone. Panic = overshooting. "A little uncomfortable" is exactly where you want to be.
 - ❌ Because suffering is necessary for success
   Suffering isn't necessary. Mild discomfort is. The difference between the two is crucial.
@@ -642,7 +642,7 @@ Pick hard challenges **deliberately**. Flow and growth go hand in hand — and b
 
 **Otázka:** Představ si, že v práci máš na výběr: projekt A (zvládneš ho v pohodě) a projekt B (bude to náročné, ale zvládnutelné). Který si vybereš pro flow a růst?
 
-- **✅ Projekt B — je v tvé flow zóně a přinese ti víc růstu i spokojenosti**
+- **✅ Projekt B — je ve flow zóně**
   Přesně. Projekt A je komfortní zóna — příjemný, ale bez flow a bez růstu. Projekt B tě posune vpřed.
 - ❌ Projekt A — jistota je důležitější
   Jistota je příjemná, ale vede k stagnaci. Flow a růst vyžadují, abys občas vyšel z komfortu.
@@ -653,7 +653,7 @@ Pick hard challenges **deliberately**. Flow and growth go hand in hand — and b
 
 **Question:** Imagine at work you have a choice: project A (you'll handle it easily) and project B (it'll be hard but manageable). Which do you pick for flow and growth?
 
-- **✅ Project B — it's in your flow zone and will bring more growth and satisfaction**
+- **✅ Project B — it's in flow zone**
   Exactly. Project A is the comfort zone — pleasant but without flow and without growth. Project B moves you forward.
 - ❌ Project A — certainty matters more
   Certainty is pleasant but leads to stagnation. Flow and growth require you to step out of comfort occasionally.
@@ -664,7 +664,7 @@ Pick hard challenges **deliberately**. Flow and growth go hand in hand — and b
 
 **Otázka:** Jaký je nejdůležitější závěr celého modelu Výzva vs schopnosti?
 
-- **✅ Flow a růst jsou na stejném místě — v úzkém pásmu mírně nad tvým komfortem. Sweet spot je záměrná volba, ne náhoda.**
+- **✅ Flow a růst jsou na stejném místě**
   Přesně. Celý model se dá shrnout: najdi svůj sweet spot (4 % nad aktuální úrovní), zůstaň v něm, kalibruj ho s rostoucími schopnostmi a flow i růst budou spolehlivé.
 - ❌ Flow je vzácný stav, který nemůžeš ovlivnit
   Naopak — flow závisí na rovnováze výzvy a schopností, a tu můžeš aktivně nastavit.

@@ -79,7 +79,7 @@ Imagine you're terrified of public speaking. You're waiting until you "feel conf
 
 **Otázka:** Proč mikro-výkony budují sebevědomí lépe než motivační přednášky?
 
-- **✅ Každý zvládnutý krok přidává důkaz, že to dokážeš — mozek věří zkušenostem, ne slovům**
+- **✅ Každý zvládnutý krok přidá důkaz — mozek věří zkušenostem**
   Přesně. Sebevědomí pod tlakem je postavené na reálných zkušenostech s úspěchem. Žádné povzbuzení tomuto mechanismu nekonkuruje.
 - ❌ Motivační přednášky pomáhají stejně — je to jen jiná forma
   Motivace z přednášky vydrží hodiny. Důkaz ze zvládnutého výkonu vydrží roky. Bandura ukázal, že přímá zkušenost je nejsilnější zdroj.
@@ -90,7 +90,7 @@ Imagine you're terrified of public speaking. You're waiting until you "feel conf
 
 **Question:** Why do micro-performances build confidence better than motivational talks?
 
-- **✅ Every successful step adds evidence that you can do it — the brain trusts experience, not words**
+- **✅ Every step adds evidence — the brain trusts experience**
   Exactly. Confidence under pressure is built on real experiences of success. No amount of encouragement can match this mechanism.
 - ❌ Motivational talks help just as much — they're just a different form
   Motivation from a talk lasts hours. Evidence from a mastery experience lasts years. Bandura showed that direct experience is the strongest source.
@@ -117,7 +117,7 @@ Confidence isn't a personality trait. It's a skill you build through mastery exp
 
 **Otázka:** Proč čekání na „správnou náladu" nefunguje jako cesta k sebevědomí?
 
-- **✅ Sebevědomí roste z činů, ne z nálady — bez výkonu není důkaz a bez důkazu není víra**
+- **✅ Sebevědomí roste z činů, ne z nálady**
   Přesně. Nálada přijde a odejde. Důkaz ze zvládnutého výkonu zůstane. Funguje to opačně: nejdřív akce, pak sebevědomí.
 - ❌ Správná nálada přijde, jen to trvá déle
   Nepřijde. Bez akce se sebevědomí nebuduje — žádné čekání ho nevytvoří.
@@ -126,7 +126,7 @@ Confidence isn't a personality trait. It's a skill you build through mastery exp
 
 **Question:** Why doesn't waiting for the "right mood" work as a path to confidence?
 
-- **✅ Confidence grows from action, not from mood — without performance there's no evidence and without evidence there's no belief**
+- **✅ Confidence grows from action, not from mood**
   Exactly. Mood comes and goes. Evidence from a mastery experience stays. It works the other way around: first action, then confidence.
 - ❌ The right mood will come, it just takes longer
   It won't. Without action, confidence doesn't build — no amount of waiting will create it.
@@ -135,7 +135,7 @@ Confidence isn't a personality trait. It's a skill you build through mastery exp
 
 **Otázka:** Představ si, že se chceš naučit veřejně vystupovat. Jaký je nejúčinnější první krok?
 
-- **✅ Krátký projev před malou skupinou — i kdyby to nebylo dokonalé, důkaz se počítá**
+- **✅ Krátký projev před malou skupinou — důkaz se počítá**
   Přesně. Důležité je udělat první krok, ne čekat na dokonalost. Každý zvládnutý výkon, i nedokonalý, buduje self-efficacy.
 - ❌ Přečíst si knihu o veřejném vystupování
   Znalost je užitečná, ale nebuduje self-efficacy. Mozek potřebuje zkušenost, ne teorii.
@@ -146,7 +146,7 @@ Confidence isn't a personality trait. It's a skill you build through mastery exp
 
 **Question:** Imagine you want to learn public speaking. What's the most effective first step?
 
-- **✅ A short talk to a small group — even if it isn't perfect, the evidence counts**
+- **✅ A short talk to a small group — evidence counts**
   Exactly. What matters is taking the first step, not waiting for perfection. Every mastery experience, even imperfect, builds self-efficacy.
 - ❌ Reading a book about public speaking
   Knowledge is useful, but it doesn't build self-efficacy. The brain needs experience, not theory.
@@ -157,7 +157,7 @@ Confidence isn't a personality trait. It's a skill you build through mastery exp
 
 **Otázka:** Co je self-efficacy podle Alberta Bandury?
 
-- **✅ Víra, že zvládneš konkrétní úkol — postavená na reálných zkušenostech, ne na obecném sebevědomí**
+- **✅ Víra, že zvládneš konkrétní úkol — z důkazů**
   Přesně. Self-efficacy je specifická (vázaná na dovednost) a empirická (postavená na důkazech). Není to pocit — je to dovednost.
 - ❌ Obecné sebevědomí — víra, že jsi dobrý člověk
   To je self-esteem, ne self-efficacy. Bandura mluví o víře v konkrétní schopnost, ne o obecném sebehodnocení.
@@ -166,7 +166,7 @@ Confidence isn't a personality trait. It's a skill you build through mastery exp
 
 **Question:** What is self-efficacy according to Albert Bandura?
 
-- **✅ The belief that you can handle a specific task — built on real experience, not general self-confidence**
+- **✅ The belief that you can handle a specific task — built on evidence**
   Exactly. Self-efficacy is specific (tied to a skill) and empirical (built on evidence). It's not a feeling — it's a skill.
 - ❌ General self-confidence — the belief that you're a good person
   That's self-esteem, not self-efficacy. Bandura is talking about belief in a specific ability, not general self-worth.
@@ -214,7 +214,7 @@ Mastery experience is incomparably stronger than the other three combined.
 
 **Otázka:** Připravuješ se na náročnou zkoušku. Co ti nejvíc pomůže vybudovat víru, že to zvládneš?
 
-- **✅ Vyřešit pár podobných úloh úspěšně — přímá zkušenost s úspěchem**
+- **✅ Vyřešit pár podobných úloh úspěšně**
   Přesně. Zvládnutý výkon je nejsilnější zdroj self-efficacy. Žádné povzbuzení mu nekonkuruje.
 - ❌ Poslechnout si motivační přednášku
   Pomůže, ale je to třetí nejslabší zdroj. Bandura ukázal, že vnější povzbuzení je mnohem méně účinné než přímá zkušenost.
@@ -225,7 +225,7 @@ Mastery experience is incomparably stronger than the other three combined.
 
 **Question:** You're preparing for a tough exam. What will help you most to build belief that you can handle it?
 
-- **✅ Solving a few similar problems successfully — direct experience of success**
+- **✅ Solve a few similar problems successfully**
   Exactly. Mastery experience is the strongest source of self-efficacy. No amount of encouragement can match it.
 - ❌ Listening to a motivational talk
   It helps, but it's the third weakest source. Bandura showed that external encouragement is far less effective than direct experience.
@@ -252,8 +252,8 @@ The fastest path to confidence: pull off something small and similar. Evidence b
 
 **Otázka:** Proč je „pozorování podobných lidí" silnější zdroj self-efficacy než „povzbuzení od druhých"?
 
-- **✅ Vidět někoho jako sebe uspět dává mozku konkrétní důkaz, že je to možné — povzbuzení je jen slova**
-  Přesně. Mozek reaguje na konkrétní příklady silněji než na abstraktní podporu. „Vidím, že to šlo" je silnější než „říkají mi, že to půjde".
+- **✅ Vidět podobného uspět je důkaz**
+  Přesně. Vidět někoho jako sebe je konkrétní důkaz — mozek reaguje na příklady silněji než na abstraktní podporu. „Vidím, že to šlo" je silnější než „říkají mi, že to půjde".
 - ❌ Povzbuzení od druhých vůbec nepomáhá
   Pomáhá, ale je slabší. Bandura ho zařadil na třetí místo — funguje jako doplněk, ne jako základ.
 
@@ -261,8 +261,8 @@ The fastest path to confidence: pull off something small and similar. Evidence b
 
 **Question:** Why is "observing similar people" a stronger source of self-efficacy than "encouragement from others"?
 
-- **✅ Seeing someone like you succeed gives the brain concrete evidence that it's possible — encouragement is just words**
-  Exactly. The brain responds to concrete examples more strongly than to abstract support. "I can see it worked" is stronger than "they tell me it'll work."
+- **✅ Seeing someone similar succeed is evidence**
+  Exactly. Watching someone like you is concrete proof — the brain responds to examples more strongly than to abstract support. "I can see it worked" is stronger than "they tell me it'll work."
 - ❌ Encouragement from others doesn't help at all
   It does help, but it's weaker. Bandura ranked it third — it works as a supplement, not a foundation.
 
@@ -270,7 +270,7 @@ The fastest path to confidence: pull off something small and similar. Evidence b
 
 **Otázka:** Představ si, že chceš začít podnikat, ale máš strach. Který z těchto čtyř zdrojů self-efficacy bys měl využít jako první?
 
-- **✅ Zvládnutý výkon — udělej jeden malý krok (první produkt, první zákazník) a získej důkaz**
+- **✅ Zvládnutý výkon — udělej jeden malý krok a získej důkaz**
   Přesně. Nejsilnější zdroj. Jeden reálný krok ti dá víc sebevědomí než sto motivačních knih.
 - ❌ Povzbuzení — najdi si mentora, který ti řekne „ty to zvládneš"
   Mentor pomůže, ale jeho slova jsou třetí nejslabší zdroj. Bez vlastního výkonu se sebevědomí nepostaví.
@@ -279,7 +279,7 @@ The fastest path to confidence: pull off something small and similar. Evidence b
 
 **Question:** Imagine you want to start a business but you're scared. Which of the four self-efficacy sources should you use first?
 
-- **✅ Mastery experience — take one small step (first product, first customer) and get evidence**
+- **✅ Mastery experience — take one small step and get evidence**
   Exactly. The strongest source. One real step gives you more confidence than a hundred motivational books.
 - ❌ Encouragement — find a mentor who'll tell you "you can do this"
   A mentor helps, but their words are the third weakest source. Without your own performance, confidence won't build.
@@ -288,7 +288,7 @@ The fastest path to confidence: pull off something small and similar. Evidence b
 
 **Otázka:** Jaký je hlavní poznatek z Bandurova výzkumu self-efficacy?
 
-- **✅ Sebevědomí se staví na důkazech z vlastních výkonů — ne na pocitech, slovech nebo přáních**
+- **✅ Sebevědomí se staví na důkazech z výkonů**
   Přesně. Self-efficacy je empirická — roste z dat, která sbíráš vlastními činy. Proto „udělej to" porazí „mysli na to pozitivně".
 - ❌ Sebevědomí je hlavně o genetice a výchově
   Bandura ukázal opak. Self-efficacy se dá budovat v jakémkoliv věku — klíč jsou zvládnuté výkony, ne geny.
@@ -297,7 +297,7 @@ The fastest path to confidence: pull off something small and similar. Evidence b
 
 **Question:** What's the main finding from Bandura's self-efficacy research?
 
-- **✅ Confidence is built on evidence from your own performances — not on feelings, words, or wishes**
+- **✅ Confidence is built on evidence from performances**
   Exactly. Self-efficacy is empirical — it grows from data you collect through your own actions. That's why "do it" beats "think positively about it."
 - ❌ Confidence is mainly about genetics and upbringing
   Bandura showed the opposite. Self-efficacy can be built at any age — the key is mastery experiences, not genes.
@@ -331,7 +331,7 @@ Imagine you want to start making videos, but you're scared. You feel like you're
 
 **Otázka:** Proč je „nezveřejněné video" dobrý první krok?
 
-- **✅ Dá ti první zvládnutý výkon bez rizika — základ pro další kroky**
+- **✅ Dá ti první zvládnutý výkon bez rizika**
   Přesně. Bez důkazu, že něco umíš, nemůžeš stavět sebevědomí. První nezveřejněné video je základní cihla.
 - ❌ Je to prokrastinace — měl bys rovnou zveřejnit
   Není to prokrastinace — je to strategický první krok. Prokrastinace je nedělat nic. Tohle je dělat něco malého a reálného.
@@ -340,7 +340,7 @@ Imagine you want to start making videos, but you're scared. You feel like you're
 
 **Question:** Why is an "unpublished video" a good first step?
 
-- **✅ It gives you a first mastery experience without risk — the foundation for the next steps**
+- **✅ It gives you a first mastery experience without risk**
   Exactly. Without evidence that you can do something, you can't build confidence. That first unpublished video is the foundation brick.
 - ❌ It's procrastination — you should publish right away
   It isn't procrastination — it's a strategic first step. Procrastination is doing nothing. This is doing something small and real.
@@ -365,7 +365,7 @@ Build evidence step by step. Every successful micro-performance is another brick
 
 **Otázka:** Představ si, že chceš začít běhat, ale nikdy jsi neběhal. Jak aplikuješ princip self-efficacy?
 
-- **✅ Zaběhneš 500 metrů — i pomalu, i s pauzami — a máš první důkaz, na kterém budeš stavět**
+- **✅ Zaběhneš 500 metrů — i pomalu — a máš první důkaz**
   Přesně. Nesrovnávej se s maratónci. Tvůj první výkon je tvůj základ. Z 500 metrů se stane kilometr, pak pět.
 - ❌ Přihlásíš se na maraton a budeš trénovat pod tlakem
   Příliš velký skok. Riziko selhání je vysoké a neúspěch rozbije sebevědomí místo aby ho postavil.
@@ -374,7 +374,7 @@ Build evidence step by step. Every successful micro-performance is another brick
 
 **Question:** Imagine you want to start running but you've never run. How do you apply the self-efficacy principle?
 
-- **✅ You run 500 meters — even slowly, even with pauses — and you have your first evidence to build on**
+- **✅ Run 500 meters — even slowly — as first evidence**
   Exactly. Don't compare yourself to marathoners. Your first performance is your foundation. 500 meters becomes a kilometer, then five.
 - ❌ You sign up for a marathon and train under pressure
   Too big a jump. The risk of failure is high and failure will crack confidence instead of building it.
@@ -383,7 +383,7 @@ Build evidence step by step. Every successful micro-performance is another brick
 
 **Otázka:** Proč je srovnávání se s nejlepšími škodlivé pro self-efficacy?
 
-- **✅ Self-efficacy roste hlavně z pozorování lidí podobných tobě — srovnání s elitou tě demotivuje místo inspirace**
+- **✅ Roste z pozorování lidí podobných tobě**
   Přesně. Bandura ukázal, že vidět úspěch někoho „jako já" je mnohem silnější než vidět úspěch výjimečného talentu.
 - ❌ Srovnávání s nejlepšími je vždy motivující
   Pro začátečníka je to spíš demotivující. Propast mezi tebou a elitou vypadá nepřekonatelná. Lepší je srovnávat se s lidmi o krok napřed.
@@ -392,7 +392,7 @@ Build evidence step by step. Every successful micro-performance is another brick
 
 **Question:** Why is comparing yourself to the best harmful for self-efficacy?
 
-- **✅ Self-efficacy mainly grows from observing people similar to you — comparing with the elite demotivates instead of inspiring**
+- **✅ It grows from observing people similar to you**
   Exactly. Bandura showed that seeing success in someone "like me" is much stronger than seeing success in an exceptional talent.
 - ❌ Comparing yourself to the best is always motivating
   For a beginner, it's more demotivating. The gap between you and the elite looks insurmountable. Better to compare yourself with people one step ahead.
@@ -401,7 +401,7 @@ Build evidence step by step. Every successful micro-performance is another brick
 
 **Otázka:** Jaký je nejdůležitější princip budování sebevědomí?
 
-- **✅ Začni malým krokem a postupně zvyšuj — důkazy se sbírají jeden po druhém**
+- **✅ Začni malým krokem a postupně zvyšuj — sbírej důkazy**
   Přesně. Sebevědomí je progresivní. Každý krok je větší než předchozí, ale vždy zvládnutelný. To je cesta od nuly k výkonu pod tlakem.
 - ❌ Skoč rovnou do hluboké vody — buď to zvládneš, nebo ne
   Hazard s vysokým rizikem selhání. Neúspěch v příliš velkém kroku rozbije sebevědomí na dlouhou dobu.
@@ -410,7 +410,7 @@ Build evidence step by step. Every successful micro-performance is another brick
 
 **Question:** What's the most important principle of building confidence?
 
-- **✅ Start with a small step and gradually increase — evidence is collected one piece at a time**
+- **✅ Start small and gradually increase — collect evidence piece by piece**
   Exactly. Confidence is progressive. Each step is bigger than the last, but always manageable. That's the path from zero to performing under pressure.
 - ❌ Jump straight into the deep end — you'll either make it or you won't
   A gamble with high failure risk. Failing at too big a step cracks confidence for a long time.
@@ -444,8 +444,8 @@ Imagine a top tennis player who sounds utterly confident in the biggest moments 
 
 **Otázka:** Co to říká o sebevědomí pod tlakem?
 
-- **✅ Je to proces, ne statický stav — i u těch nejlepších se musí neustále obnovovat**
-  Přesně. Každá prohra ho otřese a musí se znovu postavit. To je normální — ne slabost, ale součást procesu.
+- **✅ Proces, ne stav — i elita ho obnovuje**
+  Přesně. Sebevědomí není konstanta — každá prohra ho otřese a musí se znovu postavit. To je normální — ne slabost, ale součást procesu.
 - ❌ Špičkoví sportovci mají vrozené sebevědomí, které se nerozbije
   Opak je pravda. I elita si musí sebevědomí budovat opakovaně. Nikdo ho nemá „nastálo".
 
@@ -453,8 +453,8 @@ Imagine a top tennis player who sounds utterly confident in the biggest moments 
 
 **Question:** What does this tell you about confidence under pressure?
 
-- **✅ It's a process, not a static state — even for the best, it has to be constantly rebuilt**
-  Exactly. Every loss shakes it and it has to be rebuilt. That's normal — not weakness, but part of the process.
+- **✅ A process, not a state — even elites rebuild it**
+  Exactly. Confidence isn't a constant — every loss shakes it and it has to be rebuilt. That's normal — not weakness, but part of the process.
 - ❌ Top athletes have innate confidence that can't be broken
   The opposite is true. Even the elite have to build confidence again and again. Nobody has it "permanently."
 
@@ -478,7 +478,7 @@ Confidence is a muscle you train. Every day, every performance, every small win.
 
 **Otázka:** Představ si, že jsi selhal u důležité prezentace. Jak obnovíš sebevědomí?
 
-- **✅ Analyzuješ, co se dá zlepšit, a uděláš sérii malých úspěšných prezentací — buduj důkazy znovu od malého**
+- **✅ Analyzuj a pak udělej sérii malých úspěšných prezentací**
   Přesně. Neúspěch rozbíjí sebevědomí; jen zvládnuté výkony ho dokáží obnovit. Začni malým krokem a postupně zvyšuj.
 - ❌ Přeskočíš zpátky hned do největší výzvy, abys to „přetlačil"
   Riziko dalšího neúspěchu je příliš vysoké. Dva neúspěchy za sebou rozbijí sebevědomí na mnohem delší dobu.
@@ -487,7 +487,7 @@ Confidence is a muscle you train. Every day, every performance, every small win.
 
 **Question:** Imagine you failed at an important presentation. How do you rebuild confidence?
 
-- **✅ Analyze what can be improved and do a series of small successful presentations — build evidence again from small**
+- **✅ Analyze and do a series of small successful presentations**
   Exactly. Failure cracks confidence; only mastery experiences can rebuild it. Start with a small step and gradually increase.
 - ❌ Jump straight back into the biggest challenge to "push through"
   The risk of another failure is too high. Two failures in a row crack confidence for much longer.
@@ -496,7 +496,7 @@ Confidence is a muscle you train. Every day, every performance, every small win.
 
 **Otázka:** Proč motivační citáty nefungují jako nástroj na obnovu sebevědomí po neúspěchu?
 
-- **✅ Mozek potřebuje důkazy z reálných výkonů, ne slova — po neúspěchu jsou slova bez základu ještě méně přesvědčivá**
+- **✅ Mozek potřebuje důkazy z výkonů, ne slova**
   Přesně. Po neúspěchu má mozek čerstvý důkaz, že to nešlo. Slova ho nepřesvědčí — jen nový zvládnutý výkon.
 - ❌ Motivační citáty fungují, jen je potřeba jich víc
   Víc slov ≠ víc sebevědomí. Bandura ukázal, že slova jsou třetí nejslabší zdroj self-efficacy — po neúspěchu prakticky nefunkční.
@@ -505,7 +505,7 @@ Confidence is a muscle you train. Every day, every performance, every small win.
 
 **Question:** Why don't motivational quotes work as a tool for rebuilding confidence after failure?
 
-- **✅ The brain needs evidence from real performances, not words — after failure, words without foundation are even less convincing**
+- **✅ The brain needs evidence from performances, not words**
   Exactly. After failure, the brain has fresh evidence that it didn't work. Words won't convince it — only a new mastery experience will.
 - ❌ Motivational quotes work, you just need more of them
   More words ≠ more confidence. Bandura showed that words are the third weakest source of self-efficacy — practically non-functional after failure.
@@ -514,7 +514,7 @@ Confidence is a muscle you train. Every day, every performance, every small win.
 
 **Otázka:** Jakou lekci si odnést z celého modelu sebevědomí pod tlakem?
 
-- **✅ Sebevědomí je dovednost — buduješ ho činy, obnovuješ po neúspěchu malými kroky, a trénuješ každý den**
+- **✅ Sebevědomí je dovednost — budovaná činy, trénovaná denně**
   Přesně. Není to talent, charakter ani genetika. Je to sval, který roste z důkazů. Bez činů neexistuje — s činy je nezastavitelný.
 - ❌ Sebevědomí buď máš, nebo nemáš — nedá se natrénovat
   Bandura věnoval kariéru důkazu opaku. Self-efficacy se dá budovat v jakémkoliv věku, od jakéhokoliv startovního bodu.
@@ -523,7 +523,7 @@ Confidence is a muscle you train. Every day, every performance, every small win.
 
 **Question:** What's the lesson to take from the entire confidence-under-pressure model?
 
-- **✅ Confidence is a skill — you build it through action, rebuild it after failure with small steps, and train it every day**
+- **✅ Confidence is a skill — built through action, trained daily**
   Exactly. It's not talent, character, or genetics. It's a muscle that grows from evidence. Without action it doesn't exist — with action it's unstoppable.
 - ❌ You either have confidence or you don't — it can't be trained
   Bandura spent his career proving the opposite. Self-efficacy can be built at any age, from any starting point.

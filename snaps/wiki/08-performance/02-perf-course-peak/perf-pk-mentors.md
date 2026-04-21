@@ -83,8 +83,8 @@ In one year you make more progress than in the previous five. Why?
 
 **Otázka:** Co ti mentor dává, co knihy nemohou?
 
-- **✅ Vidí tvé vzorce a slabiny, které ty sám nevidíš — a dává ti zpětnou vazbu na tvůj konkrétní výkon**
-  Přesně. Kniha ti řekne obecné principy. Mentor vidí, co konkrétně ty děláš špatně — a to je něco, co sám sobě nedokážeš říct. Je to jako mít zrcadlo, které ti ukazuje slepá místa.
+- **✅ Vidí tvé slepá místa**
+  Přesně. Mentor vidí tvé vzorce a slabiny, které ty sám nevidíš — a dává ti zpětnou vazbu na tvůj konkrétní výkon. Kniha ti řekne obecné principy. Mentor vidí, co konkrétně ty děláš špatně — a to je něco, co sám sobě nedokážeš říct. Je to jako mít zrcadlo, které ti ukazuje slepá místa.
 - ❌ Knihy jsou k ničemu
   Knihy jsou užitečné, ale nenahradí osobní zpětnou vazbu. Fungují nejlépe jako doplněk k mentorovi.
 - ❌ Mentor ti dá jednu magickou radu, která vše změní
@@ -94,8 +94,8 @@ In one year you make more progress than in the previous five. Why?
 
 **Question:** What does a mentor give you that books can't?
 
-- **✅ They see your patterns and weaknesses that you can't see — and give you feedback on your specific performance**
-  Exactly. A book tells you general principles. A mentor sees what you specifically do wrong — and that's something you can't tell yourself. It's like having a mirror that shows you your blind spots.
+- **✅ They see your blind spots**
+  Exactly. A mentor sees your patterns and weaknesses that you can't see, and gives feedback on your specific performance. A book tells you general principles. A mentor sees what you specifically do wrong — and that's something you can't tell yourself. It's like having a mirror that shows you your blind spots.
 - ❌ Books are useless
   Books are useful, but they don't replace personal feedback. They work best as a complement to a mentor.
 - ❌ A mentor gives you one magical piece of advice that changes everything
@@ -117,8 +117,8 @@ A good mentor doesn't have to be the best themselves — they have to **know how
 
 **Otázka:** Proč je mentor důležitější na začátku cesty než později?
 
-- **✅ Na začátku děláš základní chyby, které se bez mentora fixují na desítky let — mentor je odstraní za týdny**
-  Přesně. Začátečnické chyby se zakořeňují a stávají se automatickými. Čím dříve je někdo opraví, tím lépe.
+- **✅ Začátečnické chyby se fixují na desítky let**
+  Přesně. Bez mentora se základní chyby zakořeňují a stávají se automatickými. Mentor je odstraní za týdny. Čím dříve je někdo opraví, tím lépe.
 - ❌ Bez mentora se na začátku nic naučit nedá
   Dá, ale mnohem pomaleji. Mentor je akcelerátor, ne nutnost — ale čím dříve ho máš, tím rychleji rosteš.
 
@@ -126,8 +126,8 @@ A good mentor doesn't have to be the best themselves — they have to **know how
 
 **Question:** Why is a mentor more important at the start of the journey than later?
 
-- **✅ Early on you make basic mistakes that without a mentor get baked in for decades — a mentor cleans them up in weeks**
-  Exactly. Beginner mistakes take root and become automatic. The sooner someone corrects them, the better.
+- **✅ Beginner mistakes without a mentor get baked in for decades**
+  Exactly. Without a mentor, basic errors take root and become automatic — a mentor cleans them up in weeks. The sooner someone corrects them, the better.
 - ❌ You can't learn anything at the beginning without a mentor
   You can, just much more slowly. A mentor is an accelerator, not a requirement — but the sooner you have one, the faster you grow.
 
@@ -143,8 +143,8 @@ A good mentor doesn't have to be the best themselves — they have to **know how
 
 **Otázka:** Představ si, že pět let čteš knihy o komunikaci, ale stále se ti nedaří vést obtížné rozhovory. Co chybí?
 
-- **✅ Zpětná vazba na tvůj konkrétní výkon — kniha ti řekne, co dělat, ale nevidí, co ty konkrétně děláš špatně**
-  Přesně. Knihy jsou teorie. Mentor vidí tvé vzorce chování v akci a může ti říct „tady děláš toto" — něco, co sám nikdy neuvidíš.
+- **✅ Chybí ti zpětná vazba na výkon**
+  Přesně. Kniha ti řekne, co dělat, ale nevidí, co ty konkrétně děláš špatně. Knihy jsou teorie. Mentor vidí tvé vzorce chování v akci a může ti říct „tady děláš toto" — něco, co sám nikdy neuvidíš.
 - ❌ Potřebuješ přečíst víc knih
   Víc knih nepomůže, pokud problém je v aplikaci, ne v teorii. Potřebuješ někoho, kdo vidí tvé slepá místa.
 - ❌ Komunikační dovednosti se nedají naučit
@@ -154,8 +154,8 @@ A good mentor doesn't have to be the best themselves — they have to **know how
 
 **Question:** Imagine you've been reading books about communication for five years but still struggle with difficult conversations. What's missing?
 
-- **✅ Feedback on your specific performance — a book tells you what to do, but it can't see what you specifically do wrong**
-  Exactly. Books are theory. A mentor sees your behavioral patterns in action and can tell you "here's what you do" — something you'll never see on your own.
+- **✅ Feedback on your own performance**
+  Exactly. A book tells you what to do, but can't see what you specifically do wrong. Books are theory. A mentor sees your behavioral patterns in action and can tell you "here's what you do" — something you'll never see on your own.
 - ❌ You need to read more books
   More books won't help if the problem is in application, not theory. You need someone who sees your blind spots.
 - ❌ Communication skills can't be learned
@@ -165,8 +165,8 @@ A good mentor doesn't have to be the best themselves — they have to **know how
 
 **Otázka:** Proč nestačí spoléhat jen na vlastní sebereflexi pro profesní růst?
 
-- **✅ Máš slepá místa, která sám nevidíš — a čím déle je ignoruješ, tím víc se zakořeňují**
-  Přesně. Sebereflexe je omezená — nemůžeš vidět to, co nevíš, že nevidíš. Mentor vidí zvenčí a dává ti pohled, který si sám nemůžeš vytvořit.
+- **✅ Máš slepá místa, která se zakořeňují**
+  Přesně. Máš slepá místa, která sám nevidíš — a čím déle je ignoruješ, tím víc se fixují. Sebereflexe je omezená — nemůžeš vidět to, co nevíš, že nevidíš. Mentor vidí zvenčí a dává ti pohled, který si sám nemůžeš vytvořit.
 - ❌ Sebereflexe je zbytečná
   Není zbytečná — je důležitá. Ale sama o sobě nestačí. Potřebuješ i externí pohled.
 - ❌ Protože nejsi dost chytrý na to, abys viděl vlastní chyby
@@ -176,8 +176,8 @@ A good mentor doesn't have to be the best themselves — they have to **know how
 
 **Question:** Why isn't self-reflection alone enough for professional growth?
 
-- **✅ You have blind spots you can't see — and the longer you ignore them, the more deeply rooted they become**
-  Exactly. Self-reflection is limited — you can't see what you don't know you can't see. A mentor sees from the outside and gives you a perspective you can't create yourself.
+- **✅ Blind spots deepen when ignored**
+  Exactly. You have blind spots you can't see — the longer you ignore them, the more rooted they become. Self-reflection is limited — you can't see what you don't know you can't see. A mentor sees from the outside and gives you a perspective you can't create yourself.
 - ❌ Self-reflection is useless
   It's not useless — it's important. But on its own it's not enough. You also need an outside perspective.
 - ❌ Because you're not smart enough to see your own mistakes
@@ -187,8 +187,8 @@ A good mentor doesn't have to be the best themselves — they have to **know how
 
 **Otázka:** Co je nejdůležitější vlastnost dobrého mentora?
 
-- **✅ Schopnost vidět a vysvětlit, co děláš špatně — diagnostické oko a pedagogická dovednost**
-  Přesně. Nejlepší mentor nemusí být nejlepší praktik. Musí umět učit — vidět chyby, pojmenovat je a navrhnout opravu.
+- **✅ Umí vidět a vysvětlit chyby**
+  Přesně. Jde o diagnostické oko a pedagogickou dovednost. Nejlepší mentor nemusí být nejlepší praktik. Musí umět učit — vidět chyby, pojmenovat je a navrhnout opravu.
 - ❌ Nejvyšší dosažená úroveň ve svém oboru
   Vysoká úroveň pomáhá, ale není rozhodující. Někteří skvělí hráči jsou špatní trenéři, protože „to prostě umí" a nevědí, jak to naučit.
 - ❌ Sláva a uznání v oboru
@@ -198,8 +198,8 @@ A good mentor doesn't have to be the best themselves — they have to **know how
 
 **Question:** What is the most important quality of a good mentor?
 
-- **✅ The ability to see and explain what you're doing wrong — a diagnostic eye and teaching skill**
-  Exactly. The best mentor doesn't have to be the best practitioner. They have to know how to teach — see mistakes, name them, and suggest fixes.
+- **✅ Ability to see and explain what you do wrong**
+  Exactly. It's a diagnostic eye and teaching skill. The best mentor doesn't have to be the best practitioner. They have to know how to teach — see mistakes, name them, and suggest fixes.
 - ❌ The highest level they've reached in their field
   A high level helps but isn't decisive. Some great players are bad coaches because they "just do it" and have no idea how to teach it.
 - ❌ Fame and recognition in the field
@@ -238,8 +238,8 @@ Conversely: Ivan Lendl was a great tennis player and became a great coach to And
 
 **Otázka:** Co odlišuje dobrého mentora od špatného?
 
-- **✅ Schopnost vidět a vysvětlit, co ostatní dělají špatně — ne vlastní úroveň**
-  Přesně. Dobrý mentor rozumí procesu učení a umí ho předávat. Jeho vlastní úroveň je vedlejší.
+- **✅ Schopnost učit druhé**
+  Přesně. Dobrý mentor umí vidět a vysvětlit, co ostatní dělají špatně — ne vlastní úroveň. Rozumí procesu učení a umí ho předávat. Jeho vlastní úroveň je vedlejší.
 - ❌ Nejvyšší dosažená úroveň
   Vysoká úroveň pomáhá, ale není rozhodující. Důležitější je pedagogická dovednost a diagnostické oko.
 
@@ -247,8 +247,8 @@ Conversely: Ivan Lendl was a great tennis player and became a great coach to And
 
 **Question:** What sets a good mentor apart from a bad one?
 
-- **✅ The ability to see and explain what others are doing wrong — not their own level**
-  Exactly. A good mentor understands the learning process and can transmit it. Their own level is secondary.
+- **✅ The ability to teach others**
+  Exactly. A good mentor can see and explain what others are doing wrong — not their own level. They understand the learning process and can transmit it. Their own level is secondary.
 - ❌ The highest level they've reached
   A high level helps but isn't decisive. Teaching skill and a diagnostic eye matter more.
 
@@ -268,8 +268,8 @@ People at the absolute top have often forgotten how they started. Their advice i
 
 **Otázka:** Proč může být mentor o pár kroků před tebou lepší než ten na absolutním vrcholu?
 
-- **✅ Pamatuje si, jak se tam dostal, a dokáže ti cestu popsat — expert na vrcholu to už zapomněl**
-  Přesně. Čím víc je dovednost automatická, tím hůř ji dokážeš vysvětlit. Mentor blízko tvé úrovni si pamatuje obtíže a ví, jak je překonat.
+- **✅ Pamatuje si ještě tvou cestu**
+  Přesně. Pamatuje si, jak se tam dostal — expert na vrcholu to už zapomněl. Čím víc je dovednost automatická, tím hůř ji dokážeš vysvětlit. Mentor blízko tvé úrovni si pamatuje obtíže a ví, jak je překonat.
 - ❌ Ti na vrcholu nemají čas
   Čas je praktický faktor, ale ne hlavní důvod. Hlavní důvod je pedagogický — blízkost úrovně pomáhá při učení.
 
@@ -277,8 +277,8 @@ People at the absolute top have often forgotten how they started. Their advice i
 
 **Question:** Why can a mentor a few steps ahead of you be better than one at the very top?
 
-- **✅ They remember how they got there and can describe the path — an expert at the top has already forgotten**
-  Exactly. The more automatic a skill is, the harder it is to explain. A mentor close to your level remembers the difficulties and knows how to overcome them.
+- **✅ Remembers the path**
+  Exactly. They remember how they got there — an expert at the top has already forgotten. The more automatic a skill is, the harder it is to explain. A mentor close to your level remembers the difficulties and knows how to overcome them.
 - ❌ People at the top don't have time
   Time is a practical factor but not the main reason. The main reason is pedagogical — proximity of level helps with teaching.
 
@@ -305,7 +305,7 @@ People at the absolute top have often forgotten how they started. Their advice i
 
 **Question:** Imagine you're looking for a programming mentor. Who will probably help you more?
 
-- **✅ A senior developer who enjoys teaching juniors and can explain step by step**
+- **✅ A senior developer who teaches and explains step by step**
   Exactly. The ability to teach is more important than level. A senior who enjoys teaching sees your mistakes and can name them — that's exactly what you need.
 - ❌ A famous tech company CEO who wrote a bestseller
   A CEO can inspire, but probably won't give you feedback on your specific code. Inspiration ≠ mentoring.
@@ -316,8 +316,8 @@ People at the absolute top have often forgotten how they started. Their advice i
 
 **Otázka:** Mentoring je aktivní, ne pasivní proces. Co to znamená?
 
-- **✅ Mentor funguje jen tehdy, když za ním přicházíš s konkrétními otázkami a aplikuješ rady**
-  Přesně. Pasivní „sedění u mentora" nestačí. Musíš přicházet připravený, s konkrétními situacemi a otázkami. A pak rady skutečně aplikovat.
+- **✅ Funguje, jen když přicházíš s otázkami a aplikuješ rady**
+  Přesně. Mentor funguje jen tehdy, když za ním přicházíš s konkrétními otázkami. Pasivní „sedění u mentora" nestačí. Musíš přicházet připravený, s konkrétními situacemi a otázkami. A pak rady skutečně aplikovat.
 - ❌ Mentor za tebou přijde sám, když uvidí, že pomoc potřebuješ
   Téměř nikdy se to nestane. Mentorství musíš iniciovat a řídit ty.
 
@@ -325,8 +325,8 @@ People at the absolute top have often forgotten how they started. Their advice i
 
 **Question:** Mentoring is an active, not passive process. What does that mean?
 
-- **✅ A mentor only works when you come with concrete questions and apply the advice**
-  Exactly. Passively "sitting with a mentor" isn't enough. You have to come prepared, with specific situations and questions. And then actually apply the advice.
+- **✅ It works only if you bring questions and apply advice**
+  Exactly. A mentor only works when you come with concrete questions. Passively "sitting with a mentor" isn't enough. You have to come prepared, with specific situations and questions. And then actually apply the advice.
 - ❌ A mentor comes to you when they see you need help
   That almost never happens. You have to initiate and drive the mentorship.
 
@@ -334,8 +334,8 @@ People at the absolute top have often forgotten how they started. Their advice i
 
 **Otázka:** Kdy je čas změnit mentora?
 
-- **✅ Když přerostneš jeho úroveň — mentor, který tě neposunuje dál, brzdí**
-  Přesně. Třetí častá chyba v mentorství: držet se jednoho mentora příliš dlouho. Různé fáze růstu vyžadují různé mentory.
+- **✅ Když přerostneš jeho úroveň a neposunuje tě dál**
+  Přesně. Mentor, který tě neposunuje dál, brzdí. Třetí častá chyba v mentorství: držet se jednoho mentora příliš dlouho. Různé fáze růstu vyžadují různé mentory.
 - ❌ Nikdy — jeden mentor na celý život
   Jeden mentor málokdy pokryje celou tvou cestu. Různé fáze vyžadují různé pohledy a různé úrovně zpětné vazby.
 - ❌ Hned, jak cítíš nepohodlí z jeho zpětné vazby
@@ -345,8 +345,8 @@ People at the absolute top have often forgotten how they started. Their advice i
 
 **Question:** When is it time to change mentors?
 
-- **✅ When you've outgrown their level — a mentor who no longer pushes you forward is holding you back**
-  Exactly. The third common mistake in mentorship: sticking with one mentor too long. Different growth phases require different mentors.
+- **✅ When you've outgrown their level**
+  Exactly. A mentor who no longer pushes you forward is holding you back. The third common mistake in mentorship: sticking with one mentor too long. Different growth phases require different mentors.
 - ❌ Never — one mentor for life
   One mentor rarely covers your entire journey. Different phases require different perspectives and different levels of feedback.
 - ❌ As soon as you feel discomfort from their feedback
@@ -385,8 +385,8 @@ Eventually you write a short, specific email to three people you admire: "I saw 
 
 **Otázka:** Co se stane, když pošleš takový e-mail?
 
-- **✅ Většina lidí odpoví pozitivně — konkrétní krátké žádosti jsou snadno zodpověditelné a mentorování je přirozeně odměňující**
-  Přesně. Lidé rádi pomáhají, když nejsi přílišná zátěž. Statistika říká 30–50 % pozitivních odpovědí na konkrétní, respektující žádosti.
+- **✅ Většina odpoví ano**
+  Přesně. Konkrétní krátké žádosti jsou snadno zodpověditelné a mentorování je přirozeně odměňující. Lidé rádi pomáhají, když nejsi přílišná zátěž. Statistika říká 30–50 % pozitivních odpovědí na konkrétní, respektující žádosti.
 - ❌ Všichni tě odmítnou
   Většina lidí ne. Klíč je být konkrétní, krátký a respektující. „Můžete mi být mentorem?" je příliš vágní a zavazující. „Můžete mi dát 30 minut na jednu otázku?" je snadné říct ano.
 
@@ -394,8 +394,8 @@ Eventually you write a short, specific email to three people you admire: "I saw 
 
 **Question:** What happens when you send an email like that?
 
-- **✅ Most people answer positively — short, specific requests are easy to say yes to and mentoring is naturally rewarding**
-  Exactly. People like helping when you aren't a big ask. Statistics say 30–50 % positive responses to specific, respectful requests.
+- **✅ Most answer positively**
+  Exactly. Short, specific requests are easy to say yes to and mentoring is naturally rewarding. People like helping when you aren't a big ask. Statistics say 30–50 % positive responses to specific, respectful requests.
 - ❌ They'll all turn you down
   Most won't. The key is being specific, short, and respectful. "Will you be my mentor?" is too vague and committing. "Can you give me 30 minutes for one question?" is easy to say yes to.
 
@@ -415,8 +415,8 @@ Warren Buffett did something similar in an extreme version: for years he worked 
 
 **Otázka:** Proč Buffett pracoval zadarmo u Grahama?
 
-- **✅ Investice do mentorství přináší exponenciální návratnost — roky učení u experta stojí za jakoukoliv „cenu"**
-  Přesně. Buffett se stal jedním z nejbohatších lidí na světě. Roky zadarmo u Grahama byly nejlepší investice jeho života — nejen finančně, ale v kvalitě myšlení.
+- **✅ Velká návratnost**
+  Přesně. Investice do mentorství přináší dlouhodobou exponenciální návratnost — roky učení u experta stojí za jakoukoliv „cenu". Buffett se stal jedním z nejbohatších lidí na světě. Roky zadarmo u Grahama byly nejlepší investice jeho života — nejen finančně, ale v kvalitě myšlení.
 - ❌ Neměl jinou práci
   Měl nabídky. Vybral si Grahama záměrně, protože věděl, že mentorství je cennější než jakýkoliv plat.
 
@@ -424,8 +424,8 @@ Warren Buffett did something similar in an extreme version: for years he worked 
 
 **Question:** Why did Buffett work for free at Graham's firm?
 
-- **✅ Investing in mentorship brings exponential returns — years of learning from an expert are worth any "price"**
-  Exactly. Buffett became one of the wealthiest people in the world. Years for free at Graham's firm were the best investment of his life — not just financially, but in the quality of his thinking.
+- **✅ Exponential returns**
+  Exactly. Mentorship brings long-term exponential returns — years of learning from an expert are worth any "price". Buffett became one of the wealthiest people in the world. Years for free at Graham's firm were the best investment of his life — not just financially, but in the quality of his thinking.
 - ❌ He had no other job
   He had offers. He chose Graham deliberately because he knew mentorship is more valuable than any salary.
 
@@ -441,8 +441,8 @@ Warren Buffett did something similar in an extreme version: for years he worked 
 
 **Otázka:** Jak najít dobrého mentora?
 
-- **✅ Identifikuj někoho o 3–5 kroků před tebou a aktivně buduj vztah — nepotřebuješ „nejlepšího", potřebuješ někoho, kdo tě posune**
-  Přesně. Potřebuješ někoho dost před tebou, aby tě posunul, ale ne tak moc, aby ti nerozuměl. A hlavně: musíš o mentorství aktivně usilovat.
+- **✅ Najdi někoho pár kroků před sebou**
+  Přesně. Identifikuj někoho o 3–5 kroků před tebou a aktivně buduj vztah — nepotřebuješ „nejlepšího", potřebuješ někoho, kdo tě posune. Potřebuješ někoho dost před tebou, aby tě posunul, ale ne tak moc, aby ti nerozuměl. A hlavně: musíš o mentorství aktivně usilovat.
 - ❌ Čekej, až si tě někdo vybere
   Mentorství téměř nikdy nefunguje pasivně. Musíš o něj aktivně usilovat — napsat e-mail, požádat o schůzku, přijít s otázkou.
 
@@ -450,8 +450,8 @@ Warren Buffett did something similar in an extreme version: for years he worked 
 
 **Question:** How do you find a good mentor?
 
-- **✅ Identify someone 3–5 steps ahead of you and actively build a relationship — you don't need "the best," you need someone who'll move you forward**
-  Exactly. You need someone far enough ahead to pull you forward, but not so far they can't relate. And most importantly: you have to actively pursue the mentorship.
+- **✅ Someone a few steps ahead**
+  Exactly. Identify someone 3–5 steps ahead of you and actively build a relationship — you don't need "the best," you need someone who'll move you forward. You need someone far enough ahead to pull you forward, but not so far they can't relate. And most importantly: you have to actively pursue the mentorship.
 - ❌ Wait until someone picks you
   Mentorship almost never works passively. You have to actively go after it — write an email, ask for a meeting, come with a question.
 
@@ -459,8 +459,8 @@ Warren Buffett did something similar in an extreme version: for years he worked 
 
 **Otázka:** Jaká je nejúčinnější žádost o mentoring?
 
-- **✅ Konkrétní, krátká a respektující: „Snažím se o X, narážím na Y, dal/a byste mi 30 minut?"**
-  Přesně. Tato žádost je snadná na zodpovězení, ukazuje, že jsi připravený, a nezavazuje k dlouhodobému vztahu hned na začátku.
+- **✅ Krátká, konkrétní, respektující žádost o 30 minut**
+  Přesně. Například: „Snažím se o X, narážím na Y, dal/a byste mi 30 minut?" Tato žádost je snadná na zodpovězení, ukazuje, že jsi připravený, a nezavazuje k dlouhodobému vztahu hned na začátku.
 - ❌ „Budete mi mentorem?" bez další specifikace
   Příliš vágní a zavazující. Většina lidí řekne ne, protože neví, co to obnáší. Začni malým, konkrétním požadavkem.
 - ❌ Poslat dlouhý e-mail s celým svým životopisem
@@ -470,8 +470,8 @@ Warren Buffett did something similar in an extreme version: for years he worked 
 
 **Question:** What's the most effective way to ask for mentoring?
 
-- **✅ Specific, short, and respectful: "I'm working on X, hitting Y, could you spare 30 minutes?"**
-  Exactly. This request is easy to say yes to, shows you're prepared, and doesn't commit to a long-term relationship right away.
+- **✅ Short, specific, respectful — asking for 30 minutes**
+  Exactly. For example: "I'm working on X, hitting Y, could you spare 30 minutes?" This request is easy to say yes to, shows you're prepared, and doesn't commit to a long-term relationship right away.
 - ❌ "Will you be my mentor?" without further specifics
   Too vague and committing. Most people say no because they don't know what it entails. Start with a small, specific ask.
 - ❌ Send a long email with your entire resume
@@ -481,8 +481,8 @@ Warren Buffett did something similar in an extreme version: for years he worked 
 
 **Otázka:** Co je největší chyba, kterou lidé v mentorství dělají?
 
-- **✅ Pasivita — přijímají mentora pasivně místo toho, aby přicházeli s konkrétními otázkami a aplikovali rady**
-  Přesně. Mentor funguje jen tehdy, když za ním přicházíš připravený. A rady musíš skutečně aplikovat — jinak je to ztráta času pro oba.
+- **✅ Pasivita místo přípravy**
+  Přesně. Přijímají mentora pasivně místo toho, aby přicházeli s konkrétními otázkami a aplikovali rady. Mentor funguje jen tehdy, když za ním přicházíš připravený. A rady musíš skutečně aplikovat — jinak je to ztráta času pro oba.
 - ❌ Mají mentora
   Mít mentora je skvělé. Chyba je v tom, jak s ním pracuješ — ne v tom, že ho máš.
 - ❌ Ptají se na příliš konkrétní otázky
@@ -492,8 +492,8 @@ Warren Buffett did something similar in an extreme version: for years he worked 
 
 **Question:** What's the biggest mistake people make in mentorship?
 
-- **✅ Passivity — they accept mentoring passively instead of coming with concrete questions and applying the advice**
-  Exactly. A mentor only works when you come prepared. And you have to actually apply the advice — otherwise it's a waste of time for both of you.
+- **✅ Passivity, no preparation**
+  Exactly. They accept mentoring passively instead of coming with concrete questions and applying the advice. A mentor only works when you come prepared. And you have to actually apply the advice — otherwise it's a waste of time for both of you.
 - ❌ Having a mentor
   Having a mentor is great. The mistake is in how you work with them — not in having one.
 - ❌ Asking too specific questions

@@ -79,8 +79,8 @@ Imagine you're standing at the starting line. You feel the surface under your sh
 
 **Otázka:** Proč vizualizace zlepšuje výkon?
 
-- **✅ Aktivuje stejné neurální dráhy jako skutečný pohyb — mozek se učí i bez fyzické akce**
-  Přesně. Neurální dráhy posilované vizualizací jsou stejné jako při reálném výkonu. Mozek nerozliší plně mezi představou a realitou.
+- **✅ Aktivuje stejné okruhy jako skutečný pohyb**
+  Přesně. Neurální dráhy posilované vizualizací jsou stejné jako při reálném výkonu — mozek se učí i bez fyzické akce a nerozliší plně mezi představou a realitou.
 - ❌ Funguje jen jako motivace před výkonem
   Mechanismus je hlubší než motivace — jde o neurální zapojení motorických okruhů, ne jen o pocit odhodlání.
 - ❌ Je to jen placebo efekt, reálně nic nemění
@@ -90,8 +90,8 @@ Imagine you're standing at the starting line. You feel the surface under your sh
 
 **Question:** Why does visualization improve performance?
 
-- **✅ It activates the same neural pathways as real movement — the brain learns even without physical action**
-  Exactly. The neural pathways strengthened by visualization are the same as those used during real performance. The brain doesn't fully distinguish between imagery and reality.
+- **✅ It activates the same circuits as real movement**
+  Exactly. The neural pathways strengthened by visualization are the same as those used during real performance — the brain learns even without physical action and doesn't fully distinguish between imagery and reality.
 - ❌ It only works as motivation before a performance
   The mechanism goes deeper than motivation — it's about neural activation of motor circuits, not just a feeling of determination.
 - ❌ It's just a placebo effect, it doesn't change anything real
@@ -117,8 +117,8 @@ A mental image activates the same circuits as real movement. Visualization is re
 
 **Otázka:** Která vizualizace bude nejúčinnější?
 
-- **✅ Specifická, smyslově bohatá představa celého procesu — včetně zvuků, pocitů a detailů**
-  Přesně. Čím víc smyslů zapojíš a čím detailnější představa, tím silnější neurální aktivace. Vizualizace není snění — je to cílený mentální trénink.
+- **✅ Specifická, smyslově bohatá představa celého procesu**
+  Přesně. Čím víc smyslů zapojíš (zvuky, pocity, detaily) a čím detailnější představa, tím silnější neurální aktivace. Vizualizace není snění — je to cílený mentální trénink.
 - ❌ Představa sebe na stupních vítězů po úspěšném výkonu
   Vizualizace výsledku paradoxně snižuje motivaci. Účinná je vizualizace procesu, ne konečného stavu.
 - ❌ Opakované říkání si „zvládnu to" v hlavě
@@ -128,8 +128,8 @@ A mental image activates the same circuits as real movement. Visualization is re
 
 **Question:** Which visualization will be most effective?
 
-- **✅ A specific, multisensory image of the entire process — including sounds, feelings, and details**
-  Exactly. The more senses you engage and the more detailed the image, the stronger the neural activation. Visualization isn't daydreaming — it's targeted mental training.
+- **✅ A specific, multisensory image of the entire process**
+  Exactly. The more senses you engage (sounds, feelings, details) and the more detailed the image, the stronger the neural activation. Visualization isn't daydreaming — it's targeted mental training.
 - ❌ An image of yourself on the podium after a successful performance
   Visualizing the outcome paradoxically lowers motivation. What works is visualizing the process, not the end state.
 - ❌ Repeatedly telling yourself "I can do it" in your head
@@ -139,8 +139,8 @@ A mental image activates the same circuits as real movement. Visualization is re
 
 **Otázka:** Představ si, že se chystáš na důležitou prezentaci. Jak by měla vypadat tvá vizualizace?
 
-- **✅ Představíš si, jak vstupuješ do místnosti, vidíš tváře, slyšíš svůj hlas, cítíš nervozitu — a zvládáš ji**
-  Přesně. Procesní vizualizace zahrnuje celou cestu, včetně emocí a překážek. Tím se mozek připraví na reálnou situaci.
+- **✅ Představíš si příchod, tváře, hlas i nervozitu**
+  Přesně. Procesní vizualizace zahrnuje celou cestu, včetně emocí, překážek i momentu, kdy nervozitu zvládáš. Tím se mozek připraví na reálnou situaci.
 - ❌ Představíš si, jak ti na konci všichni tleskají
   Vizualizace výsledku dává falešný pocit úspěchu a snižuje ochotu se skutečně připravit.
 - ❌ Snažíš se nemyslet na prezentaci vůbec
@@ -150,8 +150,8 @@ A mental image activates the same circuits as real movement. Visualization is re
 
 **Question:** Imagine you're about to give an important presentation. What should your visualization look like?
 
-- **✅ You picture entering the room, seeing the faces, hearing your voice, feeling the nerves — and handling them**
-  Exactly. Process visualization covers the whole journey, including emotions and obstacles. That's how the brain prepares for the real situation.
+- **✅ You picture arriving, the faces, voice, nerves**
+  Exactly. Process visualization covers the whole journey, including emotions, obstacles and the moment you handle the nerves. That's how the brain prepares for the real situation.
 - ❌ You picture everyone applauding at the end
   Visualizing the outcome gives a false sense of success and lowers your willingness to actually prepare.
 - ❌ You try not to think about the presentation at all
@@ -172,7 +172,7 @@ A mental image activates the same circuits as real movement. Visualization is re
 
 **Question:** Visualization works best when you do it:
 
-- **✅ Regularly and repeatedly — as part of a routine before performance**
+- **✅ Regularly and repeatedly — as a routine before performance**
   Exactly. A one-off image isn't enough. Repeated visualization builds and strengthens neural pathways, just like repeated physical training.
 - ❌ Once before an important event — imagining success once is enough
   One visualization is better than none, but the effect grows with repetition. Once isn't enough to build strong neural pathways.
@@ -208,7 +208,7 @@ Imagine you have an exam in a week. You close your eyes and picture getting an A
 
 **Otázka:** Proč vizualizace výsledku paradoxně snižuje výkon?
 
-- **✅ Mozek si myslí, že cíle už dosáhl — a sníží motivaci k práci**
+- **✅ Mozek si myslí, že cíle už dosáhl — a ztrácí motivaci**
   Přesně. Představa výsledku dává mozku falešný pocit úspěchu. Odměnový systém se aktivuje předčasně a ochota pracovat klesá.
 - ❌ Protože výsledek je nepředvídatelný a mozek to ví
   Problém není v nepředvídatelnosti, ale v předčasné aktivaci odměnového systému. Mozek reaguje na představu jako na realitu.
@@ -217,7 +217,7 @@ Imagine you have an exam in a week. You close your eyes and picture getting an A
 
 **Question:** Why does outcome visualization paradoxically lower performance?
 
-- **✅ The brain thinks the goal has already been reached — and lowers the motivation to work**
+- **✅ The brain thinks the goal is reached — and drops motivation**
   Exactly. Imagining the outcome gives the brain a false sense of success. The reward system activates prematurely and the willingness to work drops.
 - ❌ Because the outcome is unpredictable and the brain knows it
   The problem isn't unpredictability, but premature activation of the reward system. The brain responds to the image as if it were real.
@@ -242,8 +242,8 @@ Visualize the process, not the outcome. Picture the journey step by step — det
 
 **Otázka:** Připravuješ se na pracovní pohovor. Která vizualizace ti nejvíc pomůže?
 
-- **✅ Představíš si, jak vcházíš do místnosti, jak odpovídáš na otázky, jak reaguješ, když nevíš odpověď**
-  Přesně. Procesní vizualizace tě připraví na reálné situace — včetně obtížných momentů. Mozek pak „zná" cestu.
+- **✅ Představíš si příchod, odpovědi i neznámé otázky**
+  Přesně. Procesní vizualizace pokryje celý pohovor včetně otázek, na které neznáš odpověď — jak vcházíš, jak odpovídáš, jak reaguješ. Mozek pak „zná" cestu.
 - ❌ Představíš si, jak ti volají s nabídkou práce
   To je vizualizace výsledku. Dá ti dobrý pocit, ale nesníží nervozitu a nepřipraví tě na otázky.
 - ❌ Představíš si, jak sedíš v čekárně a jsi klidný
@@ -253,8 +253,8 @@ Visualize the process, not the outcome. Picture the journey step by step — det
 
 **Question:** You're preparing for a job interview. Which visualization will help you the most?
 
-- **✅ You picture walking into the room, answering questions, reacting when you don't know the answer**
-  Exactly. Process visualization prepares you for real situations — including the hard moments. The brain then "knows" the path.
+- **✅ You picture walking in, answering, reacting to hard ones**
+  Exactly. Process visualization covers the whole interview including questions you don't know — it prepares you for real situations and hard moments. The brain then "knows" the path.
 - ❌ You picture getting a phone call with a job offer
   That's outcome visualization. It feels good, but it won't lower your nerves or prepare you for the questions.
 - ❌ You picture sitting in the waiting room feeling calm
@@ -264,8 +264,8 @@ Visualize the process, not the outcome. Picture the journey step by step — det
 
 **Otázka:** Představ si, že se chystáš na důležitý sportovní zápas. Co by měla tvá vizualizace zahrnovat?
 
-- **✅ Celý průběh — rozehřátí, první minuty, obtížné momenty, a jak na ně reaguješ**
-  Přesně. Vizualizace včetně obtíží tě připraví na překvapení. Bez ní tě problém vyvede z rovnováhy — s ní máš připravenou odpověď.
+- **✅ Celý průběh — rozehřátí i problémy**
+  Přesně. Vizualizace první minut, obtížných momentů a tvých reakcí tě připraví na překvapení. Bez ní tě problém vyvede z rovnováhy — s ní máš připravenou odpověď.
 - ❌ Jen moment vítězství na konci
   Vizualizace výsledku snižuje motivaci a nepřipravuje na průběh zápasu.
 - ❌ Jen fyzické pocity — bušení srdce, pot
@@ -275,8 +275,8 @@ Visualize the process, not the outcome. Picture the journey step by step — det
 
 **Question:** Imagine you're preparing for an important sports match. What should your visualization include?
 
-- **✅ The entire flow — warm-up, first minutes, difficult moments, and how you respond to them**
-  Exactly. Visualization that includes difficulties prepares you for surprises. Without it, a problem throws you off — with it, you've got a ready response.
+- **✅ The entire flow — warm-up and difficult moments**
+  Exactly. Visualization that covers the first minutes, hard moments and your responses prepares you for surprises. Without it, a problem throws you off — with it, you've got a ready response.
 - ❌ Just the moment of victory at the end
   Outcome visualization lowers motivation and doesn't prepare you for the course of the match.
 - ❌ Just the physical sensations — racing heart, sweat
@@ -286,8 +286,8 @@ Visualize the process, not the outcome. Picture the journey step by step — det
 
 **Otázka:** Co je nejdůležitější vlastnost účinné vizualizace?
 
-- **✅ Specifičnost — konkrétní smyslové detaily procesu, ne vágní představa**
-  Přesně. „Představím si, že to půjde dobře" nestačí. „Představím si, jak dýchám, jak pohybuji tělem, jak reaguji na chybu" — to je vizualizace, která buduje neurální dráhy.
+- **✅ Specifičnost — smyslové detaily procesu**
+  Přesně. Vágní „představím si, že to půjde dobře" nestačí. Konkrétní představa: „jak dýchám, jak pohybuji tělem, jak reaguji na chybu" — to je vizualizace, která buduje neurální dráhy.
 - ❌ Délka — čím delší vizualizace, tím lepší
   Kvalita porazí kvantitu. Pět minut specifické vizualizace je účinnější než třicet minut vágního snění.
 - ❌ Pozitivita — představovat si jen to dobré
@@ -297,8 +297,8 @@ Visualize the process, not the outcome. Picture the journey step by step — det
 
 **Question:** What is the most important quality of effective visualization?
 
-- **✅ Specificity — concrete sensory details of the process, not a vague image**
-  Exactly. "I'll imagine it going well" isn't enough. "I'll imagine how I breathe, how my body moves, how I react to a mistake" — that's the visualization that builds neural pathways.
+- **✅ Specificity — sensory details of the process**
+  Exactly. A vague "I'll imagine it going well" isn't enough. Concrete imagery: "how I breathe, how my body moves, how I react to a mistake" — that's the visualization that builds neural pathways.
 - ❌ Length — the longer the visualization, the better
   Quality beats quantity. Five minutes of specific visualization is more effective than thirty minutes of vague daydreaming.
 - ❌ Positivity — only imagining the good things
@@ -333,8 +333,8 @@ Imagine you have a presentation in front of 200 people. You're nervous. Instead 
 
 **Otázka:** Proč je důležité vizualizovat i problémy, ne jen hladký průběh?
 
-- **✅ Protože pak máš připravenou reakci, když problém skutečně nastane**
-  Přesně. Vizualizace s problémy tě připraví na překvapení. Bez ní tě chyba vyvede z rovnováhy — s ní máš mentální „plán B".
+- **✅ Máš připravenou reakci na problém**
+  Přesně. Vizualizace s problémy tě předem připraví na překvapení — když problém skutečně nastane, víš, co dělat. Bez ní tě chyba vyvede z rovnováhy — s ní máš mentální „plán B".
 - ❌ Aby ses víc bál a byl připravený
   Cílem není větší strach, ale připravenost. Představování řešení problémů dává klid, ne strach.
 
@@ -342,8 +342,8 @@ Imagine you have a presentation in front of 200 people. You're nervous. Instead 
 
 **Question:** Why is it important to visualize problems too, not just a smooth performance?
 
-- **✅ Because then you have a ready response when a problem actually occurs**
-  Exactly. Visualization with problems prepares you for surprises. Without it, a mistake throws you off — with it, you have a mental "plan B."
+- **✅ You've got a ready response to problems**
+  Exactly. Visualization with problems prepares you for surprises — when a problem actually occurs, you know what to do. Without it, a mistake throws you off — with it, you have a mental "plan B."
 - ❌ So you'll be more afraid and ready
   The goal isn't more fear, but readiness. Imagining solutions to problems brings calm, not fear.
 
@@ -367,8 +367,8 @@ Visualize both success and problems. That way you pre-wire responses to whatever
 
 **Otázka:** Představ si, že máš za hodinu důležitý telefonát s klientem. Jak využiješ vizualizaci?
 
-- **✅ Představíš si celý hovor — jak začneš, co řekneš na obtížné otázky, jak ukončíš**
-  Přesně. Procesní vizualizace ti dá pocit, že jsi ten hovor „už absolvoval". Mozek bude reagovat klidněji, protože situaci „zná".
+- **✅ Představíš si celý hovor — otázky i konec**
+  Přesně. Projdi si, jak začneš, co řekneš na obtížné otázky a jak hovor ukončíš — mozek bude reagovat klidněji, protože situaci „zná" a má pocit, že jsi hovor „už absolvoval".
 - ❌ Řekneš si „bude to dobré" a půjdeš na to
   To je afirmace, ne vizualizace. Bez konkrétní mentální představy průběhu tě nic nepřipraví na nečekané otázky.
 
@@ -376,8 +376,8 @@ Visualize both success and problems. That way you pre-wire responses to whatever
 
 **Question:** Imagine you have an important client call in an hour. How do you use visualization?
 
-- **✅ You picture the entire call — how you start, what you say to tough questions, how you wrap up**
-  Exactly. Process visualization gives you the feeling you've "already done" the call. Your brain will react more calmly because it "knows" the situation.
+- **✅ You picture the entire call — questions, wrap up**
+  Exactly. Run through how you start, what you say to tough questions and how you close — your brain will react more calmly because it "knows" the situation and feels you've "already done" the call.
 - ❌ You tell yourself "it'll be fine" and just go for it
   That's an affirmation, not visualization. Without a concrete mental image of the flow, nothing prepares you for unexpected questions.
 
@@ -385,8 +385,8 @@ Visualize both success and problems. That way you pre-wire responses to whatever
 
 **Otázka:** Jak často bys měl vizualizaci používat, aby byla účinná?
 
-- **✅ Pravidelně — jako součást přípravy před každým důležitým výkonem**
-  Přesně. Vizualizace je dovednost, která se zlepšuje opakováním. Čím častěji ji praktikuješ, tím živější a účinnější představy budeš mít.
+- **✅ Pravidelně — součást rutiny před každým výkonem**
+  Přesně. Vizualizace je dovednost, která se zlepšuje opakováním. Zařaď ji před každý důležitý výkon — čím častěji ji praktikuješ, tím živější a účinnější představy budeš mít.
 - ❌ Jednou za čas, když je výkon opravdu důležitý
   Účinná vizualizace vyžaduje praxi. Pokud ji děláš jen výjimečně, nebude dostatečně živá a detailní.
 - ❌ Stačí ji udělat jednou před výkonem, na pár sekund
@@ -396,8 +396,8 @@ Visualize both success and problems. That way you pre-wire responses to whatever
 
 **Question:** How often should you use visualization for it to be effective?
 
-- **✅ Regularly — as part of preparation before every important performance**
-  Exactly. Visualization is a skill that improves with repetition. The more often you practice it, the more vivid and effective your images will be.
+- **✅ Regularly — as part of preparation before every performance**
+  Exactly. Visualization is a skill that improves with repetition. Do it before every important performance — the more often you practice, the more vivid and effective your images will be.
 - ❌ Once in a while, when the performance is really important
   Effective visualization requires practice. If you only do it rarely, it won't be vivid or detailed enough.
 - ❌ It's enough to do it once before the performance, for a few seconds
@@ -407,7 +407,7 @@ Visualize both success and problems. That way you pre-wire responses to whatever
 
 **Otázka:** Představ si, že se učíš vizualizaci a zatím se ti nedaří vytvořit živou představu. Co uděláš?
 
-- **✅ Budeš pokračovat v praxi — vizualizace je dovednost, která se zlepšuje opakováním**
+- **✅ Pokračuješ v praxi — zlepšuje se opakováním**
   Přesně. Jako každá dovednost, i vizualizace vyžaduje trénink. Začni s jednoduchými scénami a postupně přidávej detaily a smysly.
 - ❌ Vzdáš to — vizualizace zřejmě není pro tebe
   Vizualizace je pro každého. Někteří lidé jsou od přírody vizuálnější, ale schopnost se dá trénovat. Začni malými kroky.
@@ -418,7 +418,7 @@ Visualize both success and problems. That way you pre-wire responses to whatever
 
 **Question:** Imagine you're learning visualization and can't create a vivid image yet. What do you do?
 
-- **✅ Keep practicing — visualization is a skill that improves with repetition**
+- **✅ Keep practicing — the skill improves with repetition**
   Exactly. Like any skill, visualization requires training. Start with simple scenes and gradually add details and senses.
 - ❌ Give up — visualization probably isn't for you
   Visualization is for everyone. Some people are naturally more visual, but the ability can be trained. Start with small steps.
@@ -454,8 +454,8 @@ Imagine a swimmer who runs through the entire race in his head before every comp
 
 **Otázka:** Proč je důležité začít s vizualizací co nejdříve?
 
-- **✅ Vizualizace je dovednost, která se zlepšuje praxí — čím dřív začneš, tím silnější bude**
-  Přesně. Účinná vizualizace vyžaduje praxi stejně jako fyzický trénink. Kdo začne brzy, má náskok.
+- **✅ Vizualizace se zlepšuje praxí**
+  Přesně. Účinná vizualizace vyžaduje praxi stejně jako fyzický trénink — čím dřív začneš, tím silnější bude. Kdo začne brzy, má náskok.
 - ❌ Protože funguje jen u mladých lidí
   Vizualizace funguje v každém věku. Ale jako každá dovednost, čím víc let praxe, tím lepší výsledky.
 
@@ -463,8 +463,8 @@ Imagine a swimmer who runs through the entire race in his head before every comp
 
 **Question:** Why is it important to start visualization as early as possible?
 
-- **✅ Visualization is a skill that improves with practice — the earlier you start, the stronger it will be**
-  Exactly. Effective visualization requires practice just like physical training. Whoever starts early has a head start.
+- **✅ Visualization improves with practice**
+  Exactly. Effective visualization requires practice just like physical training — the earlier you start, the stronger it will be. Whoever starts early has a head start.
 - ❌ Because it only works for young people
   Visualization works at any age. But like any skill, the more years of practice, the better the results.
 
@@ -488,8 +488,8 @@ Before every important event, run it through in your head — specifically, mult
 
 **Otázka:** Co je hlavní výhoda vizualizace jako pravidelné rutiny oproti jednorázovému použití?
 
-- **✅ Opakovaná vizualizace buduje silné neurální dráhy, které fungují i pod extrémním tlakem**
-  Přesně. Jednorázová představa pomůže trochu. Ale opakovaná vizualizace vytváří tak silné mentální mapy, že tělo „ví, co dělat" i v krizi.
+- **✅ Opakovaná vizualizace buduje silné neurální dráhy**
+  Přesně. Jednorázová představa pomůže trochu. Ale opakovaná vizualizace vytváří tak silné mentální mapy, že fungují i pod extrémním tlakem — tělo „ví, co dělat" i v krizi.
 - ❌ Jednorázová vizualizace je stejně účinná jako pravidelná
   Není. Výzkumy ukazují, že efekt vizualizace roste s opakováním — podobně jako u fyzického tréninku.
 
@@ -497,8 +497,8 @@ Before every important event, run it through in your head — specifically, mult
 
 **Question:** What is the main advantage of visualization as a regular routine versus one-time use?
 
-- **✅ Repeated visualization builds strong neural pathways that work even under extreme pressure**
-  Exactly. A one-off image helps a little. But repeated visualization creates mental maps so strong that the body "knows what to do" even in a crisis.
+- **✅ Repeated visualization builds strong neural pathways under pressure**
+  Exactly. A one-off image helps a little. But repeated visualization creates mental maps so strong they work even under extreme pressure — the body "knows what to do" even in a crisis.
 - ❌ One-time visualization is just as effective as regular practice
   It isn't. Research shows that the effect of visualization grows with repetition — similar to physical training.
 
@@ -506,8 +506,8 @@ Before every important event, run it through in your head — specifically, mult
 
 **Otázka:** Jak bys měl vizualizaci zařadit do své přípravy na důležitý výkon?
 
-- **✅ Jako pevnou součást rutiny — několik minut specifické vizualizace před každým výkonem**
-  Přesně. Vizualizace by měla být stejně samozřejmá jako rozcvička nebo příprava materiálů. Není to extra — je to základ.
+- **✅ Pevná součást rutiny — pár minut před výkonem**
+  Přesně. Věnuj několik minut specifické vizualizace před každým výkonem. Měla by být stejně samozřejmá jako rozcvička nebo příprava materiálů. Není to extra — je to základ.
 - ❌ Jako záložní plán, když fyzická příprava nestačí
   Vizualizace není „plán B". Je to doplněk fyzické přípravy, který ji zesiluje. Nejlepší výsledky dává kombinace obou.
 - ❌ Jen před výkony, kde máš strach
@@ -517,8 +517,8 @@ Before every important event, run it through in your head — specifically, mult
 
 **Question:** How should you include visualization in your preparation for an important performance?
 
-- **✅ As a fixed part of the routine — a few minutes of specific visualization before every performance**
-  Exactly. Visualization should be as natural as warming up or preparing materials. It's not an extra — it's a foundation.
+- **✅ Fixed routine — minutes before every performance**
+  Exactly. Spend a few minutes on specific visualization before every performance. It should be as natural as warming up or preparing materials. It's not an extra — it's a foundation.
 - ❌ As a backup plan when physical preparation isn't enough
   Visualization isn't "plan B." It's a complement to physical preparation that amplifies it. The best results come from combining both.
 - ❌ Only before performances where you're scared
@@ -528,8 +528,8 @@ Before every important event, run it through in your head — specifically, mult
 
 **Otázka:** Jakou praktickou lekci si odnést z vizualizace?
 
-- **✅ Vizualizuj svou důležitou událost opakovaně, specificky a včetně problémů — zabere minuty, změní výsledek**
-  Přesně. Nejde o talent ani o „typ člověka". Je to dovednost, kterou může trénovat kdokoliv — řečník, student, sportovec, manažer.
+- **✅ Vizualizuj opakovaně, specificky a včetně problémů**
+  Přesně. Pár minut přípravy před událostí změní výsledek. Nejde o talent ani o „typ člověka". Je to dovednost, kterou může trénovat kdokoliv — řečník, student, sportovec, manažer.
 - ❌ Vizualizace je pokročilá technika jen pro profesionály
   Funguje pro kohokoliv. Princip je univerzální — mozek nerozlišuje, jestli jsi profesionál nebo začátečník.
 
@@ -537,7 +537,7 @@ Before every important event, run it through in your head — specifically, mult
 
 **Question:** What's the practical lesson to take from visualization?
 
-- **✅ Visualize your important event repeatedly, specifically, and including problems — it takes minutes and changes the result**
-  Exactly. It's not about talent or "personality type." It's a skill anyone can train — a speaker, a student, an athlete, a manager.
+- **✅ Visualize repeatedly, specifically, and including problems**
+  Exactly. A few minutes before the event changes the result. It's not about talent or "personality type." It's a skill anyone can train — a speaker, a student, an athlete, a manager.
 - ❌ Visualization is an advanced technique only for professionals
   It works for anyone. The principle is universal — the brain doesn't care whether you're a professional or a beginner.

@@ -79,8 +79,8 @@ Imagine you're about to give an important performance. Your heart is pounding, y
 
 **Otázka:** Proč stejné fyzické pocity (bušení srdce, pocení) mohou vést k lepšímu výkonu u jednoho člověka a k paralýze u druhého?
 
-- **✅ Rozhoduje interpretace — kdo vnímá stres jako energii, podává lepší výkon než kdo ho vnímá jako hrozbu**
-  Přesně. Výzkumy Alie Crumové ukázaly, že lidé, kteří vnímají stres jako „pomáhá mi", skutečně podávají pod tlakem lepší výkon.
+- **✅ Interpretace rozhoduje — stres jako energie zlepšuje výkon**
+  Přesně. Výzkumy Alie Crumové ukázaly, že lidé, kteří vnímají stres jako „pomáhá mi", skutečně podávají pod tlakem lepší výkon než ti, kdo ho vidí jako hrozbu.
 - ❌ Někdo má silnější nervy a jiný slabší — je to vrozené
   Není to vrozené. Interpretaci stresu se můžeš naučit. Sportovci nejsou geneticky klidnější — mají natrénované jiné vnímání.
 - ❌ Záleží na tom, jak velký stres je — malý pomáhá, velký škodí
@@ -90,8 +90,8 @@ Imagine you're about to give an important performance. Your heart is pounding, y
 
 **Question:** Why can the same physical sensations (racing heart, sweating) lead to better performance in one person and paralysis in another?
 
-- **✅ Interpretation is what matters — those who see stress as energy perform better than those who see it as a threat**
-  Exactly. Alia Crum's research showed that people who see stress as "it's helping me" really do perform better under pressure.
+- **✅ Interpretation matters — stress as energy boosts performance**
+  Exactly. Alia Crum's research showed that people who see stress as "it's helping me" really do perform better under pressure than those who see it as a threat.
 - ❌ Some people have stronger nerves and others weaker — it's innate
   It's not innate. You can learn to interpret stress differently. Athletes aren't genetically calmer — they've trained a different perception.
 - ❌ It depends on how big the stress is — small helps, big hurts
@@ -117,8 +117,8 @@ Stress isn't an enemy. It's energy you can reframe from a threat into a resource
 
 **Otázka:** Před důležitou prezentací ti buší srdce. Co si řekneš?
 
-- **✅ „Moje tělo mi dává energii na výkon" — přerámování z hrozby na výzvu**
-  Přesně. Tato věta mění fyziologickou reakci. Mozek přepne z režimu „útěk" do režimu „výkon".
+- **✅ „Moje tělo mi dává energii na výkon"**
+  Přesně. Přerámování z hrozby na výzvu mění fyziologickou reakci. Mozek přepne z režimu „útěk" do režimu „výkon".
 - ❌ „Musím se uklidnit" — potlačení stresu
   Potlačování nefunguje. Říkat si „uklidni se" paradoxně zesiluje stres, protože tělo nemůže okamžitě přestat reagovat.
 
@@ -126,8 +126,8 @@ Stress isn't an enemy. It's energy you can reframe from a threat into a resource
 
 **Question:** Your heart is pounding before an important presentation. What do you tell yourself?
 
-- **✅ "My body is giving me energy to perform" — reframing from threat to challenge**
-  Exactly. This sentence changes the physiological response. The brain shifts from "flee" mode to "perform" mode.
+- **✅ "My body is giving me energy to perform"**
+  Exactly. Reframing from threat to challenge changes the physiological response. The brain shifts from "flee" mode to "perform" mode.
 - ❌ "I need to calm down" — suppressing the stress
   Suppression doesn't work. Telling yourself "calm down" paradoxically amplifies stress because the body can't just stop responding.
 
@@ -135,8 +135,8 @@ Stress isn't an enemy. It's energy you can reframe from a threat into a resource
 
 **Otázka:** Co je hlavní rozdíl mezi přerámováním a potlačováním stresu?
 
-- **✅ Přerámování mění význam pocitů (z hrozby na energii), potlačování se snaží pocity odstranit — což nefunguje**
-  Přesně. Přerámování pracuje s tím, co cítíš. Potlačování pracuje proti tomu — a proto selhává.
+- **✅ Přerámování mění význam pocitů, potlačování je chce odstranit**
+  Přesně. Přerámování posouvá stres z hrozby na energii a pracuje s tím, co cítíš. Potlačování pracuje proti tomu — a proto selhává.
 - ❌ Přerámování je jen pozitivní myšlení, potlačování je reálnější přístup
   Přerámování není pozitivní myšlení. Je to vědecky podložená změna interpretace, která mění biologickou reakci.
 
@@ -144,8 +144,8 @@ Stress isn't an enemy. It's energy you can reframe from a threat into a resource
 
 **Question:** What's the main difference between reframing and suppressing stress?
 
-- **✅ Reframing changes the meaning of the sensations (from threat to energy), suppression tries to remove them — which doesn't work**
-  Exactly. Reframing works with what you feel. Suppression works against it — and that's why it fails.
+- **✅ Reframing changes the meaning of sensations, suppression tries to remove them**
+  Exactly. Reframing shifts stress from threat to energy and works with what you feel. Suppression works against it — and that's why it fails.
 - ❌ Reframing is just positive thinking, suppression is a more realistic approach
   Reframing isn't positive thinking. It's a scientifically backed change in interpretation that alters the biological response.
 
@@ -153,8 +153,8 @@ Stress isn't an enemy. It's energy you can reframe from a threat into a resource
 
 **Otázka:** Lidé se pod tlakem snaží stres „zbavit". Proč to nefunguje?
 
-- **✅ Stres je signál, že ti záleží — úplný klid pod velkým tlakem je biologicky nemožný**
-  Přesně. Cílem není nulový stres, ale přeformulovat ho na zdroj energie. Tělo reaguje na důležité situace — a to je normální.
+- **✅ Stres je signál, že ti záleží — úplný klid je nemožný**
+  Přesně. Pod velkým tlakem je nulový stres biologicky nemožný. Cílem není klid, ale přeformulovat stres na zdroj energie. Tělo reaguje na důležité situace — a to je normální.
 - ❌ Protože se dostatečně nesnaží — s větším úsilím by to šlo
   Větší snaha o potlačení = větší stres. Je to bludný kruh. Řešení je přerámování, ne silnější potlačování.
 
@@ -162,8 +162,8 @@ Stress isn't an enemy. It's energy you can reframe from a threat into a resource
 
 **Question:** People try to "get rid of" stress under pressure. Why doesn't it work?
 
-- **✅ Stress is a signal that you care — complete calm under high pressure is biologically impossible**
-  Exactly. The goal isn't zero stress, but reframing it into a source of energy. The body reacts to important situations — and that's normal.
+- **✅ Stress is a signal that you care — total calm is impossible**
+  Exactly. Under high pressure zero stress is biologically impossible. The goal isn't calm, but reframing stress into a source of energy. The body reacts to important situations — and that's normal.
 - ❌ Because they don't try hard enough — with more effort it would work
   More effort to suppress = more stress. It's a vicious cycle. The solution is reframing, not harder suppression.
 
@@ -196,8 +196,8 @@ Alia Crum at Stanford ran a famous experiment: she told one group that stress is
 
 **Otázka:** Co ukázaly výsledky?
 
-- **✅ Skupina, která vnímala stres jako užitečný, měla lepší výkon, nižší kortizol a silnější imunitu**
-  Přesně. Vnímání stresu doslova mění biologickou reakci na stres. Mysl ovlivňuje tělo víc, než si myslíme.
+- **✅ Skupina vnímající stres jako užitečný měla lepší data**
+  Přesně. Lepší výkon, nižší kortizol i silnější imunita. Vnímání stresu doslova mění biologickou reakci. Mysl ovlivňuje tělo víc, než si myslíme.
 - ❌ Všechny skupiny dopadly stejně — stres je stres
   Nedopadly stejně. Objektivní data (hormony, výkon, imunita) se lišily. Interpretace stresu mění fyziologii.
 
@@ -205,8 +205,8 @@ Alia Crum at Stanford ran a famous experiment: she told one group that stress is
 
 **Question:** What did the results show?
 
-- **✅ The group that saw stress as useful had better performance, lower cortisol, and stronger immunity**
-  Exactly. The way you perceive stress literally changes your biological response to it. The mind shapes the body more than we think.
+- **✅ The "stress is useful" group had better data**
+  Exactly. Better performance, lower cortisol, stronger immunity. The way you perceive stress literally changes your biological response. The mind shapes the body more than we think.
 - ❌ All groups did the same — stress is stress
   They didn't. Objective data (hormones, performance, immunity) differed. Interpreting stress differently changes physiology.
 
@@ -230,8 +230,8 @@ Stress you see as helpful really does help. Stress you see as a threat really do
 
 **Otázka:** Proč „musím se uklidnit" pod tlakem nefunguje?
 
-- **✅ Protože požaduješ od těla biologicky nemožnou reakci — stres je přirozená odpověď na důležitou situaci**
-  Přesně. Úplný klid pod velkým tlakem je biologicky nemožný. Cílem není nulový stres, ale změna jeho interpretace.
+- **✅ Požaduješ od těla biologicky nemožnou reakci**
+  Přesně. Stres je přirozená odpověď na důležitou situaci. Úplný klid pod tlakem je biologicky nemožný. Cílem není nulový stres, ale změna jeho interpretace.
 - ❌ Protože se nesoustředíš dostatečně na uklidnění
   Víc soustředění na uklidnění = víc stresu z toho, že se nedaří uklidnit. Je to bludný kruh.
 
@@ -239,8 +239,8 @@ Stress you see as helpful really does help. Stress you see as a threat really do
 
 **Question:** Why doesn't "I need to calm down" work under pressure?
 
-- **✅ Because you're demanding a biologically impossible response — stress is a natural answer to an important situation**
-  Exactly. Complete calm under high pressure is biologically impossible. The goal isn't zero stress, but changing its interpretation.
+- **✅ You're demanding a biologically impossible response**
+  Exactly. Stress is a natural answer to an important situation. Complete calm under pressure is biologically impossible. The goal isn't zero stress, but changing its interpretation.
 - ❌ Because you're not focusing hard enough on calming down
   More focus on calming down = more stress from failing to calm down. It's a vicious cycle.
 
@@ -248,8 +248,8 @@ Stress you see as helpful really does help. Stress you see as a threat really do
 
 **Otázka:** Představ si, že máš za 10 minut důležitou schůzku a cítíš silný stres. Která strategie je nejúčinnější?
 
-- **✅ Řekneš si: „Toto je energie. Pomůže mi se soustředit a reagovat rychle."**
-  Přesně. Přerámování stresu na energii je nejúčinnější strategie. Mění biologickou reakci a chrání výkon.
+- **✅ Řekneš si: „Toto je energie, pomůže mi."**
+  Přesně. Přerámování stresu na energii pomáhá se soustředit a reagovat rychle. Je to nejúčinnější strategie — mění biologickou reakci a chrání výkon.
 - ❌ Zhluboka dýcháš a snažíš se stres potlačit
   Hluboký dech může pomoci, ale snaha potlačit stres je kontraproduktivní. Dech + přerámování je lepší kombinace.
 - ❌ Řekneš si, že na schůzce nezáleží
@@ -259,8 +259,8 @@ Stress you see as helpful really does help. Stress you see as a threat really do
 
 **Question:** Imagine you have an important meeting in 10 minutes and you feel strong stress. Which strategy is most effective?
 
-- **✅ You tell yourself: "This is energy. It'll help me focus and react quickly."**
-  Exactly. Reframing stress as energy is the most effective strategy. It changes the biological response and protects performance.
+- **✅ You tell yourself: "This is energy that will help me."**
+  Exactly. Reframing stress as energy helps you focus and react quickly. It's the most effective strategy — it changes the biological response and protects performance.
 - ❌ You take deep breaths and try to suppress the stress
   Deep breathing can help, but trying to suppress stress is counterproductive. Breathing + reframing is a better combination.
 - ❌ You tell yourself the meeting doesn't matter
@@ -270,8 +270,8 @@ Stress you see as helpful really does help. Stress you see as a threat really do
 
 **Otázka:** Co je hlavní poznatek z výzkumu Alie Crumové?
 
-- **✅ Vnímání stresu doslova mění biologickou reakci — není to jen „v hlavě", ale i v těle**
-  Přesně. Měřená data (kortizol, imunita, výkon) se liší podle toho, jak stres vnímáš. Mysl ovlivňuje tělo přímo.
+- **✅ Vnímání stresu doslova mění biologickou reakci**
+  Přesně. Není to jen „v hlavě", ale i v těle. Měřená data (kortizol, imunita, výkon) se liší podle toho, jak stres vnímáš. Mysl ovlivňuje tělo přímo.
 - ❌ Stres je vždy škodlivý, jen ho můžeš lépe snášet
   To je přesně ten starý model, který Crumová vyvrátila. Stres může být užitečný — záleží na interpretaci.
 
@@ -279,8 +279,8 @@ Stress you see as helpful really does help. Stress you see as a threat really do
 
 **Question:** What's the main finding from Alia Crum's research?
 
-- **✅ Stress perception literally changes the biological response — it's not just "in your head," but in your body too**
-  Exactly. Measured data (cortisol, immunity, performance) differ depending on how you perceive stress. The mind influences the body directly.
+- **✅ Stress perception literally changes the biological response**
+  Exactly. It's not just "in your head" — it's in your body too. Measured data (cortisol, immunity, performance) differ depending on how you perceive stress. The mind influences the body directly.
 - ❌ Stress is always harmful, you can just cope with it better
   That's exactly the old model Crum disproved. Stress can be useful — it depends on interpretation.
 
@@ -313,8 +313,8 @@ Imagine you have an important interview in an hour. Your heart is pounding, you'
 
 **Otázka:** Co se pravděpodobně stane po přerámování?
 
-- **✅ Fyzické pocity zůstanou, ale přestanou tě paralyzovat — stres se stane zdrojem místo bariéry**
-  Přesně. Přerámování neodstraní pocity — změní jejich význam. Bušení srdce není důkaz selhání, je to důkaz zapojení.
+- **✅ Pocity zůstanou, ale přestanou tě paralyzovat**
+  Přesně. Stres se stane zdrojem místo bariéry. Přerámování neodstraní pocity — změní jejich význam. Bušení srdce není důkaz selhání, je to důkaz zapojení.
 - ❌ Přestaneš být nervózní a budeš úplně klidný
   Nervozita nezmizí — a ani by neměla. Tělo potřebuje aktivaci pro výkon. Přerámování mění význam, ne intenzitu.
 
@@ -322,8 +322,8 @@ Imagine you have an important interview in an hour. Your heart is pounding, you'
 
 **Question:** What will most likely happen after reframing?
 
-- **✅ The physical sensations stay, but they stop paralyzing you — stress becomes a resource instead of a barrier**
-  Exactly. Reframing doesn't remove the sensations — it changes their meaning. A pounding heart isn't proof of failure, it's proof of engagement.
+- **✅ The sensations stay, but stop paralyzing you**
+  Exactly. Stress becomes a resource instead of a barrier. Reframing doesn't remove the sensations — it changes their meaning. A pounding heart isn't proof of failure, it's proof of engagement.
 - ❌ You'll stop being nervous and be completely calm
   The nerves won't disappear — and they shouldn't. The body needs activation to perform. Reframing changes the meaning, not the intensity.
 
@@ -347,8 +347,8 @@ Don't suppress stress. Reframe it. "My body is giving me fuel to perform."
 
 **Otázka:** Představ si, že se potíš a třeseš se před důležitou zkouškou. Jak přerámování funguje v praxi?
 
-- **✅ Řekneš si: „Pocení a třes znamenají, že moje tělo se připravuje — využiji tu energii na soustředění"**
-  Přesně. Přijmeš pocity jako signál připravenosti, ne selhání. Tím je přeměníš na zdroj.
+- **✅ Řekneš si: „Tělo se připravuje — využiji tu energii"**
+  Přesně. Pocení a třes přijmeš jako signál připravenosti, ne selhání. Tím je přeměníš na zdroj pro soustředění.
 - ❌ Řekneš si: „Tyto pocity nejsou skutečné, ignoruj je"
   Pocity jsou skutečné — popírat je nefunguje. Přerámování je nepopírá, jen mění jejich interpretaci.
 
@@ -356,8 +356,8 @@ Don't suppress stress. Reframe it. "My body is giving me fuel to perform."
 
 **Question:** Imagine you're sweating and shaking before an important exam. How does reframing work in practice?
 
-- **✅ You tell yourself: "Sweating and shaking mean my body is getting ready — I'll use that energy for focus"**
-  Exactly. You accept the sensations as a signal of readiness, not failure. That transforms them into a resource.
+- **✅ You tell yourself: "My body is getting ready — I'll use that energy"**
+  Exactly. You accept sweating and shaking as a signal of readiness, not failure. That transforms them into a resource for focus.
 - ❌ You tell yourself: "These feelings aren't real, ignore them"
   The feelings are real — denying them doesn't work. Reframing doesn't deny them, it just changes their interpretation.
 
@@ -365,8 +365,8 @@ Don't suppress stress. Reframe it. "My body is giving me fuel to perform."
 
 **Otázka:** Proč je „moje tělo mi dává energii" účinnější než „neboj se"?
 
-- **✅ „Moje tělo mi dává energii" pracuje s tím, co cítíš. „Neboj se" pracuje proti tomu — a proto selhává.**
-  Přesně. Přerámování respektuje fyziologii a mění interpretaci. Potlačování jde proti fyziologii a vytváří konflikt.
+- **✅ Přerámování pracuje s pocity, „neboj se" proti nim**
+  Přesně. „Moje tělo mi dává energii" respektuje fyziologii a mění interpretaci. „Neboj se" jde proti ní a vytváří konflikt — proto selhává.
 - ❌ Oba přístupy fungují stejně — záleží na osobnosti
   Výzkumy ukazují jasný rozdíl. Přerámování funguje konzistentně lépe než potlačování, bez ohledu na osobnost.
 
@@ -374,8 +374,8 @@ Don't suppress stress. Reframe it. "My body is giving me fuel to perform."
 
 **Question:** Why is "my body is giving me energy" more effective than "don't be afraid"?
 
-- **✅ "My body is giving me energy" works with what you feel. "Don't be afraid" works against it — and that's why it fails.**
-  Exactly. Reframing respects physiology and changes interpretation. Suppression goes against physiology and creates conflict.
+- **✅ Reframing works with feelings, "don't be afraid" against them**
+  Exactly. "My body is giving me energy" respects physiology and changes interpretation. "Don't be afraid" works against it and creates conflict — that's why it fails.
 - ❌ Both approaches work the same — it depends on personality
   Research shows a clear difference. Reframing works consistently better than suppression, regardless of personality.
 
@@ -383,7 +383,7 @@ Don't suppress stress. Reframe it. "My body is giving me fuel to perform."
 
 **Otázka:** Představ si, že koučuješ kolegu, který se bojí důležité prezentace. Co mu poradíš?
 
-- **✅ „Nezkoušej se uklidnit. Řekni si: moje tělo mi dává energii na to, abych to zvládl."**
+- **✅ „Neuklidňuj se. Řekni si: tělo mi dává energii to zvládnout."**
   Přesně. Přerámování je praktická technika, kterou může použít kdokoliv. Není to o potlačení, ale o změně příběhu.
 - ❌ „Zhluboka dýchej a snaž se nemyslet na to, co se může pokazit"
   Snaha nemyslet na problémy paradoxně zesílí myšlenky o problémech. Lepší je přerámovat stres na zdroj.
@@ -392,7 +392,7 @@ Don't suppress stress. Reframe it. "My body is giving me fuel to perform."
 
 **Question:** Imagine you're coaching a colleague who's afraid of an important presentation. What do you advise?
 
-- **✅ "Don't try to calm down. Tell yourself: my body is giving me energy to handle this."**
+- **✅ "Don't calm down. Say: my body gives me energy to handle this."**
   Exactly. Reframing is a practical technique anyone can use. It's not about suppression, but about changing the story.
 - ❌ "Take deep breaths and try not to think about what could go wrong"
   Trying not to think about problems paradoxically amplifies thoughts about problems. Better to reframe stress as a resource.
@@ -426,8 +426,8 @@ Researcher Sian Beilock found that people fail under pressure not because they l
 
 **Otázka:** Co se stane, když o automatické činnosti začneš příliš přemýšlet?
 
-- **✅ Rozbiješ ji — vědomí se plete do něčeho, co má běžet automaticky**
-  Přesně. Přílišné přemýšlení rozbíjí automatismus. Automatické činnosti jsou rychlejší a přesnější, když do nich vědomí nezasahuje.
+- **✅ Rozbiješ ji — vědomí se plete do automatismu**
+  Přesně. Přílišné přemýšlení rozbíjí to, co má běžet automaticky. Automatické činnosti jsou rychlejší a přesnější, když do nich vědomí nezasahuje.
 - ❌ Zlepšíš ji — víc přemýšlení = lepší výkon
   Naopak. U nacvičených dovedností platí: čím méně přemýšlíš, tím lépe ti to jde. Vědomé zasahování je rušení, ne vylepšení.
 
@@ -435,8 +435,8 @@ Researcher Sian Beilock found that people fail under pressure not because they l
 
 **Question:** What happens when you start thinking too hard about an automatic skill?
 
-- **✅ You break it — consciousness interferes with something that should run on autopilot**
-  Exactly. Overthinking breaks automaticity. Automatic skills are faster and more precise when consciousness stays out of the way.
+- **✅ You break it — consciousness interferes with autopilot**
+  Exactly. Overthinking breaks what should run automatically. Automatic skills are faster and more precise when consciousness stays out of the way.
 - ❌ You improve it — more thinking = better performance
   The opposite. For practiced skills: the less you think, the better you do. Conscious interference is disruption, not improvement.
 
@@ -460,8 +460,8 @@ Under pressure, point your attention outward — at the target, not yourself. Ex
 
 **Otázka:** Představ si, že máš prezentaci a začneš přemýšlet „jak vypadám, jak stojím, negestikuluji moc?". Co se stane?
 
-- **✅ Interní fokus na sebe rozruší tvůj automatismus a výkon se zhorší**
-  Přesně. Místo plynulého projevu začneš být strnulý a neprirozemý. Řešení: zaměř se na „co potřebuje publikum slyšet?"
+- **✅ Interní fokus rozbije automatismus a výkon se zhorší**
+  Přesně. Sebeanalýza zhorší výkon — místo plynulého projevu začneš být strnulý a neprirozemý. Řešení: zaměř se na „co potřebuje publikum slyšet?"
 - ❌ Lepší sebeuvědomění ti pomůže podat lepší výkon
   Pod tlakem je sebeuvědomění past. U nacvičených dovedností chceš automatismus, ne sebeanalýzu.
 
@@ -469,8 +469,8 @@ Under pressure, point your attention outward — at the target, not yourself. Ex
 
 **Question:** Imagine you're giving a presentation and start thinking "how do I look, how am I standing, am I gesturing too much?" What happens?
 
-- **✅ Internal focus on yourself disrupts your automaticity and performance gets worse**
-  Exactly. Instead of a fluent talk you become stiff and unnatural. Solution: focus on "what does the audience need to hear?"
+- **✅ Internal focus breaks automaticity and worsens performance**
+  Exactly. Self-analysis hurts performance — instead of a fluent talk you become stiff and unnatural. Solution: focus on "what does the audience need to hear?"
 - ❌ Better self-awareness will help you give a better performance
   Under pressure, self-awareness is a trap. With practiced skills, you want automaticity, not self-analysis.
 
@@ -478,8 +478,8 @@ Under pressure, point your attention outward — at the target, not yourself. Ex
 
 **Otázka:** Jaký je rozdíl mezi interním a externím fokusem pod tlakem?
 
-- **✅ Interní fokus (na sebe) rozbíjí automatismus. Externí fokus (na cíl, publikum, úkol) ho chrání.**
-  Přesně. Pod tlakem chceš, aby nacvičené dovednosti běžely automaticky. Externí fokus to umožňuje — interní to sabotuje.
+- **✅ Interní fokus rozbíjí automatismus, externí ho chrání.**
+  Přesně. Interní fokus míří na sebe, externí na cíl, publikum a úkol. Pod tlakem chceš, aby nacvičené dovednosti běžely automaticky — externí fokus to umožňuje, interní to sabotuje.
 - ❌ Interní fokus je lepší, protože se lépe kontroluješ
   Pod tlakem je kontrola iluze. Čím víc se kontroluješ, tím víc se rušíš. Automatismus je tvůj spojenec.
 
@@ -487,8 +487,8 @@ Under pressure, point your attention outward — at the target, not yourself. Ex
 
 **Question:** What's the difference between internal and external focus under pressure?
 
-- **✅ Internal focus (on yourself) breaks automaticity. External focus (on the target, audience, task) protects it.**
-  Exactly. Under pressure, you want practiced skills to run on autopilot. External focus allows that — internal focus sabotages it.
+- **✅ Internal focus breaks automaticity, external focus protects it.**
+  Exactly. Internal focus points at yourself, external at the target, audience, task. Under pressure, you want practiced skills to run on autopilot — external focus allows that, internal sabotages it.
 - ❌ Internal focus is better because you control yourself better
   Under pressure, control is an illusion. The more you try to control, the more you disrupt. Automaticity is your ally.
 
@@ -496,8 +496,8 @@ Under pressure, point your attention outward — at the target, not yourself. Ex
 
 **Otázka:** Jak spojíš přerámování stresu a externí fokus do jedné strategie pro výkon pod tlakem?
 
-- **✅ Přerámuj stres na energii („tělo mi dává palivo") a zaměř pozornost ven na cíl — ne na sebe**
-  Přesně. Přerámování + externí fokus je kompletní strategie. Stres se stane zdrojem a pozornost chrání automatismus.
+- **✅ Přerámuj stres na energii a zaměř pozornost ven na cíl**
+  Přesně. Řekni si „tělo mi dává palivo" — ne na sebe. Přerámování + externí fokus je kompletní strategie. Stres se stane zdrojem a pozornost chrání automatismus.
 - ❌ Potlač stres a soustřeď se na to, co přesně děláš
   Oba tyto přístupy jsou kontraproduktivní pod tlakem. Potlačování zesiluje stres a interní fokus rozbíjí automatismus.
 
@@ -505,7 +505,7 @@ Under pressure, point your attention outward — at the target, not yourself. Ex
 
 **Question:** How do you combine stress reframing and external focus into one strategy for performing under pressure?
 
-- **✅ Reframe stress as energy ("my body is giving me fuel") and point your attention outward at the target — not at yourself**
-  Exactly. Reframing + external focus is a complete strategy. Stress becomes a resource and attention protects automaticity.
+- **✅ Reframe stress as energy and point attention outward at the target**
+  Exactly. Say "my body is giving me fuel" — not at yourself. Reframing + external focus is a complete strategy. Stress becomes a resource and attention protects automaticity.
 - ❌ Suppress the stress and focus on exactly what you're doing
   Both approaches are counterproductive under pressure. Suppression amplifies stress and internal focus breaks automaticity.

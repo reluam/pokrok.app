@@ -83,8 +83,8 @@ The difference isn't talent or the number of hours. The difference is **practice
 
 **Otázka:** Představ si dva lidi, kteří cvičí na kytaru. Jeden hraje každý den hodinu písničky, které umí. Druhý cvičí 30 minut denně přesně ty pasáže, kde chybuje, s metronomem a nahrává se. Kdo se zlepší rychleji?
 
-- **✅ Ten, kdo cvičí 30 minut záměrně — cílí na slabiny se zpětnou vazbou**
-  Přesně. Anders Ericsson ukázal, že rozdíl mezi amatérem a expertem není v hodinách, ale v kvalitě cvičení. Záměrná praxe se zaměřuje na to, co neumíš.
+- **✅ Ten, kdo cvičí 30 minut záměrně se zpětnou vazbou**
+  Přesně. Cílí na slabiny, má zpětnou vazbu a plnou koncentraci. Anders Ericsson ukázal, že rozdíl mezi amatérem a expertem není v hodinách, ale v kvalitě cvičení. Záměrná praxe se zaměřuje na to, co neumíš.
 - ❌ Ten, kdo hraje hodinu denně — víc času = víc pokroku
   Víc času samo o sobě neznamená pokrok. Opakování toho, co už umíš, je příjemné, ale neposunuje tě vpřed.
 - ❌ Oba stejně — záleží hlavně na talentu
@@ -94,8 +94,8 @@ The difference isn't talent or the number of hours. The difference is **practice
 
 **Question:** Imagine two people practicing guitar. One plays songs they already know for an hour every day. The other spends 30 minutes a day drilling the exact passages where they make mistakes, with a metronome, recording themselves. Who will improve faster?
 
-- **✅ The one who practices 30 minutes deliberately — targeting weaknesses with feedback**
-  Exactly. Anders Ericsson showed that the difference between amateur and expert isn't hours but practice quality. Deliberate practice targets what you can't do.
+- **✅ The one who practices 30 minutes deliberately with feedback**
+  Exactly. They target weaknesses, use feedback, and have full focus. Anders Ericsson showed that the difference between amateur and expert isn't hours but practice quality. Deliberate practice targets what you can't do.
 - ❌ The one who plays for an hour a day — more time = more progress
   More time alone doesn't mean progress. Repeating what you already know is pleasant but doesn't move you forward.
 - ❌ Both equally — it mainly depends on talent
@@ -129,8 +129,8 @@ Deliberate practice has **four features**:
 
 **Otázka:** Který z následujících znaků NEPATŘÍ mezi čtyři znaky záměrné praxe?
 
-- **✅ Dlouhé trvání — čím víc hodin, tím lépe**
-  Přesně. Délka není znakem záměrné praxe. Ericsson zjistil, že i špičkoví houslisté cvičí záměrně maximálně 4 hodiny denně, protože mozek se unaví. Kvalita porazí kvantitu.
+- **✅ Co nejdelší trvání cvičení**
+  Přesně. Čím víc hodin, tím lépe — to je mýtus. Délka není znakem záměrné praxe. Ericsson zjistil, že i špičkoví houslisté cvičí záměrně maximálně 4 hodiny denně, protože mozek se unaví. Kvalita porazí kvantitu.
 - ❌ Jasný cíl na konkrétní slabinu
   To je jeden ze čtyř znaků. Bez jasného cíle jen „děláš činnost" bez směru.
 - ❌ Okamžitá zpětná vazba
@@ -140,8 +140,8 @@ Deliberate practice has **four features**:
 
 **Question:** Which of the following does NOT belong among the four features of deliberate practice?
 
-- **✅ Long duration — the more hours, the better**
-  Exactly. Duration isn't a feature of deliberate practice. Ericsson found that even top violinists practice deliberately for at most 4 hours a day, because the brain gets exhausted. Quality beats quantity.
+- **✅ As long a duration as possible**
+  Exactly. "The more hours, the better" is a myth. Duration isn't a feature of deliberate practice. Ericsson found that even top violinists practice deliberately for at most 4 hours a day, because the brain gets exhausted. Quality beats quantity.
 - ❌ A clear goal targeting a specific weakness
   That's one of the four features. Without a clear goal you're just "doing the activity" without direction.
 - ❌ Immediate feedback
@@ -159,8 +159,8 @@ Deliberate practice has **four features**:
 
 **Otázka:** Proč je záměrná praxe nepříjemná?
 
-- **✅ Protože cvičíš přesně to, co neumíš — a to je ze své podstaty frustrující**
-  Přesně. Komfortní zóna je příjemná, ale nevede k růstu. Záměrná praxe tě záměrně drží v nepohodlí, protože tam probíhá učení.
+- **✅ Cvičíš přesně to, co neumíš**
+  Přesně — a to je ze své podstaty frustrující. Komfortní zóna je příjemná, ale nevede k růstu. Záměrná praxe tě záměrně drží v nepohodlí, protože tam probíhá učení.
 - ❌ Protože trenéři jsou přísní
   Trenér není nutnou podmínkou. I sám můžeš záměrně cvičit slabiny — nepříjemnost je dána podstatou práce, ne osobou trenéra.
 - ❌ Protože zabírá hodně času
@@ -170,8 +170,8 @@ Deliberate practice has **four features**:
 
 **Question:** Why is deliberate practice uncomfortable?
 
-- **✅ Because you're drilling exactly what you can't do — and that's inherently frustrating**
-  Exactly. The comfort zone feels nice but doesn't lead to growth. Deliberate practice deliberately keeps you in discomfort, because that's where learning happens.
+- **✅ You drill what you can't do**
+  Exactly — and that's inherently frustrating. The comfort zone feels nice but doesn't lead to growth. Deliberate practice deliberately keeps you in discomfort, because that's where learning happens.
 - ❌ Because coaches are strict
   A coach isn't a requirement. You can deliberately drill weaknesses on your own — the discomfort comes from the nature of the work, not from a coach.
 - ❌ Because it takes a lot of time
@@ -181,8 +181,8 @@ Deliberate practice has **four features**:
 
 **Otázka:** Představ si, že se chceš naučit veřejně mluvit. Která z těchto metod je nejblíž záměrné praxi?
 
-- **✅ Každý den se 5 minut nahráváš, jak mluvíš na dané téma, a pak si nahrávku pustíš a zapíšeš tři věci ke zlepšení**
-  Přesně. Máš jasný cíl (mluvení na téma), zpětnou vazbu (nahrávka), koncentraci (5 minut bez přerušení) a překračuješ komfort (slyšíš vlastní chyby). Tohle jsou všechny čtyři znaky záměrné praxe.
+- **✅ Nahráváš se 5 minut denně a pak hledáš chyby**
+  Přesně. Mluvíš na téma, pustíš si nahrávku a zapíšeš tři věci ke zlepšení. Máš jasný cíl (mluvení na téma), zpětnou vazbu (nahrávka), koncentraci (5 minut bez přerušení) a překračuješ komfort (slyšíš vlastní chyby). Tohle jsou všechny čtyři znaky záměrné praxe.
 - ❌ Přečteš si pět knih o rétorice
   Čtení knih je pasivní. Bez aktivního cvičení a zpětné vazby se nezlepšíš — jen získáš teoretické znalosti.
 - ❌ Každý týden se díváš na TED talky a inspiruješ se
@@ -192,8 +192,8 @@ Deliberate practice has **four features**:
 
 **Question:** Imagine you want to learn public speaking. Which of these methods is closest to deliberate practice?
 
-- **✅ Every day you record yourself for 5 minutes talking about a topic, then play back the recording and write down three things to improve**
-  Exactly. You have a clear goal (talking about a topic), feedback (recording), focus (5 uninterrupted minutes), and you're pushing past comfort (hearing your own mistakes). These are all four features of deliberate practice.
+- **✅ Record yourself 5 min daily, find errors**
+  Exactly. You talk on a topic, then play the recording and write down three things to improve. You have a clear goal (talking about a topic), feedback (recording), focus (5 uninterrupted minutes), and you're pushing past comfort (hearing your own mistakes). These are all four features of deliberate practice.
 - ❌ You read five books on rhetoric
   Reading books is passive. Without active practice and feedback you won't improve — you'll just gain theoretical knowledge.
 - ❌ Every week you watch TED talks for inspiration
@@ -203,8 +203,8 @@ Deliberate practice has **four features**:
 
 **Otázka:** Ericsson zjistil, že špičkoví houslisté necvičili víc hodin než průměrní. V čem se lišili?
 
-- **✅ Cvičili jinak — záměrně, s koncentrací a zaměřením na slabiny, po omezenou dobu**
-  Přesně. Průměrní studenti cvičili „pro zábavu" a opakovali, co uměli. Špičkoví cvičili záměrně a po omezenou dobu — protože víc než 4 hodiny záměrné praxe denně mozek nezvládne.
+- **✅ Cvičili záměrně na slabiny**
+  Přesně. S koncentrací, po omezenou dobu a na slabinách. Průměrní studenti cvičili „pro zábavu" a opakovali, co uměli. Špičkoví cvičili záměrně a po omezenou dobu — protože víc než 4 hodiny záměrné praxe denně mozek nezvládne.
 - ❌ Cvičili víc hodin denně
   Ne. Klíčové zjištění bylo, že špičkoví necvičili víc, ale lépe. Kvalita, ne kvantita.
 - ❌ Měli lepší nástroje a učitele
@@ -214,8 +214,8 @@ Deliberate practice has **four features**:
 
 **Question:** Ericsson found that top violinists didn't practice more hours than average ones. How did they differ?
 
-- **✅ They practiced differently — deliberately, with focus and attention to weaknesses, for a limited time**
-  Exactly. Average students practiced "for fun" and repeated what they already knew. Top students practiced deliberately and for a limited time — because the brain can't handle more than about 4 hours of deliberate practice a day.
+- **✅ Practiced deliberately on weaknesses**
+  Exactly — with focus, for a limited time, on weaknesses. Average students practiced "for fun" and repeated what they already knew. Top students practiced deliberately and for a limited time — because the brain can't handle more than about 4 hours of deliberate practice a day.
 - ❌ They practiced more hours per day
   No. The key finding was that top performers didn't practice more, but better. Quality, not quantity.
 - ❌ They had better instruments and teachers
@@ -263,7 +263,7 @@ Ericsson also found that top violinists practice at most **4 hours a day**, beca
 
 **Question:** Ericsson found that top violinists practice at most 4 hours a day. What does that mean for an average person?
 
-- **✅ Practice quality matters more than quantity — less, but deliberate, is better**
+- **✅ Quality matters more than quantity — less, but deliberate**
   Exactly. People brag about "10 hours of practice," but most of it is mechanical repetition. One hour of deliberate practice beats a whole day of scattered work.
 - ❌ You need to practice at least 4 hours a day to reach expert level
   It depends on the field. For many skills, 30–60 minutes of deliberate practice per day is enough for visible progress. Four hours is the ceiling, not the minimum.
@@ -293,7 +293,7 @@ Gladwell's version created the illusion that you just need to "accumulate hours.
 
 **Question:** Imagine two programmers. Both have 10 years of experience. One has been writing the same type of code in one language for ten years. The other deliberately learns new languages, analyzes code from more experienced colleagues, and solves problems outside their comfort zone. Who's the better programmer?
 
-- **✅ The second one — 10 years of deliberate practice beats 10 years of repetition**
+- **✅ The second one — deliberate practice beats repetition**
   Exactly. "10 years of experience" can mean 10 years of growth, or 1 year repeated ten times. It depends on quality, not length.
 - ❌ They're at the same level — they have the same number of years
   The number of years says nothing about practice quality. A person can stagnate for decades if they don't train deliberately.
@@ -310,8 +310,8 @@ Gladwell's version created the illusion that you just need to "accumulate hours.
 
 **Otázka:** Co je hlavní problém „pravidla 10 000 hodin" v Gladwellově podání?
 
-- **✅ Vytváří iluzi, že stačí nasbírat hodiny — ale Ericsson zdůrazňoval kvalitu praxe, ne kvantitu**
-  Přesně. Gladwell zjednodušil výzkum na „prostě cvič hodně". Ericsson říkal „cvič správně". To je zásadní rozdíl.
+- **✅ Vytváří iluzi, že stačí nasbírat dost hodin**
+  Přesně. Ericsson zdůrazňoval kvalitu praxe, ne kvantitu. Gladwell zjednodušil výzkum na „prostě cvič hodně". Ericsson říkal „cvič správně". To je zásadní rozdíl.
 - ❌ 10 000 hodin je příliš mnoho — stačí 1 000
   Problém není v čísle. Problém je v tom, že číslo samo o sobě nic neříká bez kvality praxe.
 - ❌ Pravidlo platí jen pro hudebníky, ne pro jiné obory
@@ -321,8 +321,8 @@ Gladwell's version created the illusion that you just need to "accumulate hours.
 
 **Question:** What's the main problem with the "10,000-hour rule" as Gladwell presented it?
 
-- **✅ It creates the illusion that accumulating hours is enough — but Ericsson emphasized practice quality, not quantity**
-  Exactly. Gladwell simplified the research to "just practice a lot." Ericsson said "practice right." That's a crucial difference.
+- **✅ It creates the illusion that hours alone are enough**
+  Exactly. Ericsson emphasized practice quality, not quantity. Gladwell simplified the research to "just practice a lot." Ericsson said "practice right." That's a crucial difference.
 - ❌ 10,000 hours is too many — 1,000 is enough
   The problem isn't the number. The problem is that the number alone means nothing without practice quality.
 - ❌ The rule only applies to musicians, not other fields
@@ -332,8 +332,8 @@ Gladwell's version created the illusion that you just need to "accumulate hours.
 
 **Otázka:** Představ si, že chceš zlepšit svou dovednost ve vaření. Která strategie je nejblíž záměrné praxi?
 
-- **✅ Každý týden zkusíš nový recept, který je nad tvou úrovní, a po uvaření si zapíšeš, co se nepovedlo a proč**
-  Přesně. Máš jasný cíl (nový recept), jsi mimo komfortní zónu (obtížnější než co umíš), máš zpětnou vazbu (zápis chyb) a plnou koncentraci (nový postup vyžaduje pozornost).
+- **✅ Zkusíš nový recept nad tvou úrovní a zapíšeš chyby**
+  Přesně. Každý týden nový recept, po uvaření rozbor. Máš jasný cíl (nový recept), jsi mimo komfortní zónu (obtížnější než co umíš), máš zpětnou vazbu (zápis chyb) a plnou koncentraci (nový postup vyžaduje pozornost).
 - ❌ Každý den vaříš své oblíbené jídlo, abys ho zdokonalil
   Opakování toho, co umíš, je komfortní zóna. Zdokonalíš detaily, ale neposunete se v celkové dovednosti.
 - ❌ Díváš se na kuchařské soutěže v televizi
@@ -343,8 +343,8 @@ Gladwell's version created the illusion that you just need to "accumulate hours.
 
 **Question:** Imagine you want to improve your cooking skills. Which strategy is closest to deliberate practice?
 
-- **✅ Every week you try a new recipe above your level, and after cooking you write down what went wrong and why**
-  Exactly. You have a clear goal (new recipe), you're outside your comfort zone (harder than what you know), you have feedback (writing down mistakes), and full focus (a new procedure demands attention).
+- **✅ Try a recipe above your level, note mistakes**
+  Exactly. Every week a new recipe, then review what went wrong. You have a clear goal (new recipe), you're outside your comfort zone (harder than what you know), you have feedback (writing down mistakes), and full focus (a new procedure demands attention).
 - ❌ You cook your favorite dish every day to perfect it
   Repeating what you already know is the comfort zone. You'll refine details but won't advance your overall skill.
 - ❌ You watch cooking competitions on TV
@@ -354,8 +354,8 @@ Gladwell's version created the illusion that you just need to "accumulate hours.
 
 **Otázka:** Proč většina lidí po několika letech v oboru přestane růst?
 
-- **✅ Přestanou záměrně cvičit slabiny a jen opakují to, co umí — „automatický pilotˮ není záměrná praxe**
-  Přesně. Jakmile se dovednost stane automatickou, přestává probíhat učení. Záměrná praxe vyžaduje vědomé úsilí a práci na hranici schopností.
+- **✅ Přestanou cvičit slabiny — autopilot**
+  Přesně. Jen opakují to, co umí — a automatický pilot není záměrná praxe. Jakmile se dovednost stane automatickou, přestává probíhat učení. Záměrná praxe vyžaduje vědomé úsilí a práci na hranici schopností.
 - ❌ Každý má strop daný talentem
   Výzkum ukazuje, že „strop" je téměř vždy stropem metody, ne talentu. Lidé stagnují, protože přestanou trénovat záměrně.
 - ❌ Po určitém věku se mozek přestane učit
@@ -365,8 +365,8 @@ Gladwell's version created the illusion that you just need to "accumulate hours.
 
 **Question:** Why do most people stop growing after several years in their field?
 
-- **✅ They stop deliberately drilling weaknesses and just repeat what they know — "autopilot" isn't deliberate practice**
-  Exactly. Once a skill becomes automatic, learning stops. Deliberate practice requires conscious effort and working at the edge of your abilities.
+- **✅ They stop drilling weaknesses — autopilot**
+  Exactly. They just repeat what they know, and autopilot isn't deliberate practice. Once a skill becomes automatic, learning stops. Deliberate practice requires conscious effort and working at the edge of your abilities.
 - ❌ Everyone has a ceiling set by talent
   Research shows that the "ceiling" is almost always a ceiling of method, not talent. People stagnate because they stop training deliberately.
 - ❌ After a certain age, the brain stops learning
@@ -405,8 +405,8 @@ The problem is clear: **passive exposure to the language isn't deliberate practi
 
 **Otázka:** Rozhodneš se místo pasivního poslouchání každý den 15 minut nahlas popisovat, co jsi dělal během dne, a nahrávat se. Proč je tato metoda záměrná praxe?
 
-- **✅ Zaměřuje se na konkrétní slabinu (plynulé mluvení) a má zpětnou vazbu (nahrávka)**
-  Přesně. Už nespoléháš na pasivní vystavení se jazyku — aktivně cvičíš přesně to, co neumíš, a slyšíš své chyby.
+- **✅ Cílí slabinu s odezvou**
+  Přesně — zaměřuje se na konkrétní slabinu (plynulé mluvení) a má zpětnou vazbu (nahrávka). Už nespoléháš na pasivní vystavení se jazyku — aktivně cvičíš přesně to, co neumíš, a slyšíš své chyby.
 - ❌ Protože mluvíš nahlas
   Jen mluvit nahlas nestačí — záměrná praxe vyžaduje cíl, koncentraci, zpětnou vazbu a překročení komfortu. Nahrávání a analýza chyb to doplňuje.
 
@@ -414,8 +414,8 @@ The problem is clear: **passive exposure to the language isn't deliberate practi
 
 **Question:** You decide that instead of passive listening, you'll spend 15 minutes a day describing out loud what you did during the day and recording yourself. Why does this count as deliberate practice?
 
-- **✅ It targets a specific weakness (fluent speaking) and has feedback (the recording)**
-  Exactly. You're no longer relying on passive exposure — you're actively drilling what you can't do and hearing your own mistakes.
+- **✅ Targets a weakness with feedback**
+  Exactly — a specific weakness (fluent speaking) with feedback (the recording). You're no longer relying on passive exposure — you're actively drilling what you can't do and hearing your own mistakes.
 - ❌ Because you're speaking out loud
   Speaking out loud alone isn't enough — deliberate practice requires a goal, focus, feedback, and stepping out of your comfort zone. Recording and analyzing mistakes adds that.
 
@@ -435,8 +435,8 @@ Franklin became one of the best writers of his era. He was self-taught — no fo
 
 **Otázka:** Proč byla Franklinova metoda tak účinná?
 
-- **✅ Měl jasný cíl, okamžitou zpětnou vazbu a cvičil přesně to, v čem byl slabý**
-  Přesně. Franklin cvičil konkrétně strukturu a styl, měl přímou srovnávací zpětnou vazbu a opakovaně se nutil do uvědomělé analýzy.
+- **✅ Měl cíl, odezvu a slabiny**
+  Přesně — jasný cíl, okamžitou zpětnou vazbu a práci na slabinách. Franklin cvičil konkrétně strukturu a styl, měl přímou srovnávací zpětnou vazbu a opakovaně se nutil do uvědomělé analýzy.
 - ❌ Jen kopíroval dobré texty
   To není kopírování — je to reverzní inženýrství stylu se srovnáním. Mnohem silnější než pouhé opisování.
 - ❌ Měl výjimečný talent na psaní
@@ -446,8 +446,8 @@ Franklin became one of the best writers of his era. He was self-taught — no fo
 
 **Question:** Why was Franklin's method so effective?
 
-- **✅ He had a clear goal, immediate feedback, and drilled exactly what he was weak at**
-  Exactly. Franklin specifically trained structure and style, had direct comparative feedback, and repeatedly forced himself into conscious analysis.
+- **✅ He had a goal, feedback, weaknesses**
+  Exactly — a clear goal, immediate feedback, and drilled what he was weak at. Franklin specifically trained structure and style, had direct comparative feedback, and repeatedly forced himself into conscious analysis.
 - ❌ He just copied good texts
   That's not copying — it's reverse-engineering style with comparison. Much stronger than plain transcription.
 - ❌ He had an exceptional talent for writing
@@ -465,8 +465,8 @@ Franklin became one of the best writers of his era. He was self-taught — no fo
 
 **Otázka:** Co si z Franklinova příběhu vzít?
 
-- **✅ Dobrá metoda praxe je důležitější než talent i lektor**
-  Přesně. Záměrná praxe je osvojitelný systém, který může použít kdokoliv v jakémkoliv oboru.
+- **✅ Metoda praxe je důležitější než talent**
+  Přesně — důležitější než talent i lektor. Záměrná praxe je osvojitelný systém, který může použít kdokoliv v jakémkoliv oboru.
 - ❌ Bez formálního vzdělání nejde být expert
   Franklin dokázal pravý opak. Systém záměrné praxe nahradí formální vzdělání.
 - ❌ Psaní se dá zlepšit jen čtením
@@ -476,8 +476,8 @@ Franklin became one of the best writers of his era. He was self-taught — no fo
 
 **Question:** What should you take from Franklin's story?
 
-- **✅ A good practice method matters more than talent or a teacher**
-  Exactly. Deliberate practice is a learnable system anyone can apply in any field.
+- **✅ Method matters more than talent or teacher**
+  Exactly — a good practice method beats both. Deliberate practice is a learnable system anyone can apply in any field.
 - ❌ You can't become an expert without formal education
   Franklin proved the exact opposite. A deliberate-practice system can replace formal education.
 - ❌ Writing can only be improved by reading
@@ -487,8 +487,8 @@ Franklin became one of the best writers of his era. He was self-taught — no fo
 
 **Otázka:** Představ si, že chceš být lepší v prezentování. Který přístup je nejúčinnější?
 
-- **✅ Každý týden si připravíš krátkou prezentaci, nahraješ se a porovnáš s prezentací, kterou obdivuješ**
-  Přesně. Franklinův princip aplikovaný na prezentace: jasný cíl, vlastní pokus, srovnání s vzorem = záměrná praxe.
+- **✅ Nahraješ prezentaci a porovnáš se vzorem**
+  Přesně. Každý týden si připravíš krátkou prezentaci a srovnáš s tou, kterou obdivuješ. Franklinův princip aplikovaný na prezentace: jasný cíl, vlastní pokus, srovnání s vzorem = záměrná praxe.
 - ❌ Přečteš si knihu o prezentování
   Kniha dá teorii, ale bez aktivního cvičení a zpětné vazby se nezlepšíš. Znalost ≠ dovednost.
 - ❌ Počkáš na příležitost prezentovat na poradě
@@ -498,8 +498,8 @@ Franklin became one of the best writers of his era. He was self-taught — no fo
 
 **Question:** Imagine you want to get better at presenting. Which approach is most effective?
 
-- **✅ Every week you prepare a short presentation, record yourself, and compare it with a presentation you admire**
-  Exactly. Franklin's principle applied to presentations: clear goal, your own attempt, comparison with a model = deliberate practice.
+- **✅ Record a presentation and compare with a model**
+  Exactly. Every week you prepare a short presentation and compare it with one you admire. Franklin's principle applied to presentations: clear goal, your own attempt, comparison with a model = deliberate practice.
 - ❌ You read a book about presenting
   A book gives you theory, but without active practice and feedback you won't improve. Knowledge ≠ skill.
 - ❌ You wait for an opportunity to present at a meeting
@@ -509,8 +509,8 @@ Franklin became one of the best writers of his era. He was self-taught — no fo
 
 **Otázka:** Vymysli si metodu záměrné praxe pro svůj obor. Co musí obsahovat?
 
-- **✅ Cíl, zpětnou vazbu a opakování slabin — ty tři složky stačí**
-  Přesně. Nemusíš vymýšlet složitý systém. Stačí vědět, co neumíš, jak zjistíš, jestli se zlepšuješ, a pak to opakovat.
+- **✅ Cíl, zpětnou vazbu a opakování slabin**
+  Přesně — ty tři složky stačí. Nemusíš vymýšlet složitý systém. Stačí vědět, co neumíš, jak zjistíš, jestli se zlepšuješ, a pak to opakovat.
 - ❌ Trenéra, drahé vybavení a hodně volného času
   Nic z toho není nutné. Franklin nepotřeboval nic víc než papír, pero a dobré články. Záměrná praxe je o metodě, ne o zdrojích.
 - ❌ Hlavně motivaci a disciplínu
@@ -520,8 +520,8 @@ Franklin became one of the best writers of his era. He was self-taught — no fo
 
 **Question:** Design a deliberate-practice method for your own field. What must it contain?
 
-- **✅ Goal, feedback, and repetition of weaknesses — those three ingredients are enough**
-  Exactly. You don't need to invent a complex system. Just know what you can't do, how you'll tell if you're improving, and then repeat.
+- **✅ Goal, feedback, and repetition of weaknesses**
+  Exactly — those three ingredients are enough. You don't need to invent a complex system. Just know what you can't do, how you'll tell if you're improving, and then repeat.
 - ❌ A coach, expensive equipment, and lots of free time
   None of that is necessary. Franklin needed nothing more than paper, a pen, and good articles. Deliberate practice is about method, not resources.
 - ❌ Mainly motivation and discipline

@@ -79,8 +79,8 @@ Imagine you're about to give an important presentation. In your head you hear: "
 
 **Otázka:** Proč je instruktivní self-talk („dýchej, dívej se na publikum, mluv pomalu") účinnější než negativní („nesmím se ztrapnit")?
 
-- **✅ Dává mozku konkrétní akce místo strašidelných scénářů**
-  Přesně. „Nesmím se ztrapnit" vytváří představu ztrapnění v hlavě. „Dýchej" dává akci. Mozek potřebuje pozitivní pokyny, ne negace.
+- **✅ Dává mozku akce místo strašidelných scénářů**
+  Přesně. „Nesmím se ztrapnit" vytváří představu ztrapnění v hlavě. „Dýchej" dává konkrétní akci. Mozek potřebuje pozitivní pokyny, ne negace.
 - ❌ Protože to zní lépe a uklidňuje
   Forma je důsledek, ne příčina. Účinnost je ve struktuře — instrukce místo zákazu. Mozek reaguje na obsah, ne na tón.
 - ❌ Je to jen psychologie, reálně to výkon neovlivní
@@ -90,8 +90,8 @@ Imagine you're about to give an important presentation. In your head you hear: "
 
 **Question:** Why is instructional self-talk ("breathe, look at the audience, speak slowly") more effective than negative ("I mustn't embarrass myself")?
 
-- **✅ It gives the brain concrete actions instead of scary scenarios**
-  Exactly. "I mustn't embarrass myself" paints an image of embarrassment in your head. "Breathe" gives an action. The brain needs positive instructions, not negations.
+- **✅ It gives the brain actions instead of scary scenarios**
+  Exactly. "I mustn't embarrass myself" paints an image of embarrassment in your head. "Breathe" gives a concrete action. The brain needs positive instructions, not negations.
 - ❌ Because it sounds nicer and calms you down
   The tone is a side effect, not the cause. The effectiveness is in the structure — an instruction instead of a prohibition. The brain responds to content, not tone.
 - ❌ It's just psychology, it doesn't really affect performance
@@ -117,8 +117,8 @@ How you talk to yourself is how you act. Change the words — you change your pe
 
 **Otázka:** Před důležitou zkouškou si v hlavě opakuješ „nesmím udělat chybu". Co se pravděpodobně stane?
 
-- **✅ Mozek vytvoří představu chyby a zvýší stres — výkon se zhorší**
-  Přesně. Negace („nesmím") paradoxně vytváří v mozku to, čemu se chceš vyhnout. Lepší je „přečti otázku, rozmysli, pak piš".
+- **✅ Vytvoří představu chyby a výkon se zhorší**
+  Přesně. Negace („nesmím") paradoxně vytváří v mozku to, čemu se chceš vyhnout a zvyšuje stres. Lepší je „přečti otázku, rozmysli, pak piš".
 - ❌ Budeš extra opatrný a uděláš méně chyb
   Výzkumy ukazují opak. Přílišná opatrnost z negací vede k paralýze a horším výsledkům.
 
@@ -126,8 +126,8 @@ How you talk to yourself is how you act. Change the words — you change your pe
 
 **Question:** Before an important exam you keep repeating "I mustn't make a mistake" in your head. What will most likely happen?
 
-- **✅ The brain creates an image of a mistake and raises stress — performance gets worse**
-  Exactly. Negation ("I mustn't") paradoxically creates in the brain the very thing you're trying to avoid. Better: "Read the question, think it through, then write."
+- **✅ It pictures a mistake and performance drops**
+  Exactly. Negation ("I mustn't") paradoxically creates in the brain the very thing you're trying to avoid and raises stress. Better: "Read the question, think it through, then write."
 - ❌ You'll be extra careful and make fewer mistakes
   Research shows the opposite. Excessive caution from negations leads to paralysis and worse results.
 
@@ -157,8 +157,8 @@ How you talk to yourself is how you act. Change the words — you change your pe
 
 **Otázka:** Co je hlavní princip instruktivního self-talku?
 
-- **✅ Říct si konkrétně, co MÁŠ dělat — ne co nemáš**
-  Přesně. Mozek reaguje na pokyny, ne na zákazy. „Sleduj míč" je instrukce, „neztrácej míč" je past.
+- **✅ Říct, co MÁŠ dělat — ne co nemáš**
+  Přesně. Mozek reaguje na konkrétní pokyny, ne na zákazy. „Sleduj míč" je instrukce, „neztrácej míč" je past.
 - ❌ Opakovat si pozitivní afirmace o sobě
   Afirmace o sobě („jsem nejlepší") jsou jiná kategorie než instrukce. Instruktivní self-talk se zaměřuje na akce, ne na identitu.
 - ❌ Potlačit všechny negativní myšlenky
@@ -168,8 +168,8 @@ How you talk to yourself is how you act. Change the words — you change your pe
 
 **Question:** What is the main principle of instructional self-talk?
 
-- **✅ Tell yourself specifically what TO DO — not what not to do**
-  Exactly. The brain responds to instructions, not prohibitions. "Watch the ball" is an instruction, "don't lose the ball" is a trap.
+- **✅ Say what to do — not what not to do**
+  Exactly. The brain responds to specific instructions, not prohibitions. "Watch the ball" is an instruction, "don't lose the ball" is a trap.
 - ❌ Repeat positive affirmations about yourself
   Self-affirmations ("I'm the best") are a different category from instructions. Instructional self-talk focuses on actions, not identity.
 - ❌ Suppress all negative thoughts
@@ -204,7 +204,7 @@ Psychologist Ethan Kross studied something interesting: the difference between t
 
 **Otázka:** Proč distanced self-talk funguje lépe než „zvládnu to"?
 
-- **✅ Vytváří psychologický odstup — mozek zpracovává emoce racionálněji, jako bys radil kamarádovi**
+- **✅ Vytváří odstup, emoce zpracuješ racionálně**
   Přesně. Když k sobě mluvíš jako ke druhému, mozek funguje, jako by ses radil s kamarádem — klidně a jasně. Kross měřil kortizol a skutečně klesá.
 - ❌ Je to jen slovní hra, nemá reálný efekt
   Není. Kross měřil stresový hormon kortizol a skutečně klesá při distanced self-talk. Efekt je biologický, ne jen psychologický.
@@ -213,7 +213,7 @@ Psychologist Ethan Kross studied something interesting: the difference between t
 
 **Question:** Why does distanced self-talk work better than "I can do this"?
 
-- **✅ It creates psychological distance — the brain processes emotions more rationally, as if you were advising a friend**
+- **✅ Creates distance — you process emotions rationally**
   Exactly. When you talk to yourself as if to someone else, your brain acts like it's getting advice from a friend — calmly and clearly. Kross measured cortisol and it really does drop.
 - ❌ It's just a word game, it has no real effect
   It isn't. Kross measured the stress hormone cortisol and it really does drop with distanced self-talk. The effect is biological, not just psychological.
@@ -238,8 +238,8 @@ Talk to yourself the way you'd talk to a friend — in the second person or by n
 
 **Otázka:** Představ si, že jsi těsně před důležitým pracovním meetingem a cítíš paniku. Který self-talk ti nejvíc pomůže?
 
-- **✅ Oslovíš se jménem: „[Tvé jméno], dýchej. Víš, co máš říct. Začni prvním bodem."**
-  Přesně. Kombinace distanced self-talk a konkrétních instrukcí. Odstup + akční plán = nejúčinnější kombinace.
+- **✅ Oslovíš se jménem a přidáš pár konkrétních kroků**
+  Přesně. Například „[Tvé jméno], dýchej. Víš, co máš říct. Začni prvním bodem." Kombinace distanced self-talk a konkrétních instrukcí. Odstup + akční plán = nejúčinnější kombinace.
 - ❌ „Musím se uklidnit, musím se uklidnit, musím se uklidnit."
   Opakování příkazu k uklidnění paradoxně zesiluje paniku. Navíc je to první osoba bez instrukcí.
 - ❌ „Jsem profík, tohle zvládnu levou zadní."
@@ -249,8 +249,8 @@ Talk to yourself the way you'd talk to a friend — in the second person or by n
 
 **Question:** Imagine you're right before an important work meeting and feeling panicked. Which self-talk will help you most?
 
-- **✅ Address yourself by name: "[Your name], breathe. You know what to say. Start with the first point."**
-  Exactly. A combination of distanced self-talk and concrete instructions. Distance + action plan = the most effective combination.
+- **✅ Address yourself by name and give concrete steps**
+  Exactly. For example "[Your name], breathe. You know what to say. Start with the first point." A combination of distanced self-talk and concrete instructions. Distance + action plan = the most effective combination.
 - ❌ "I must calm down, I must calm down, I must calm down."
   Repeating the command to calm down paradoxically amplifies the panic. It's also first person without instructions.
 - ❌ "I'm a pro, I'll handle this with ease."
@@ -260,8 +260,8 @@ Talk to yourself the way you'd talk to a friend — in the second person or by n
 
 **Otázka:** Proč distanced self-talk snižuje kortizol (stresový hormon)?
 
-- **✅ Psychologický odstup aktivuje prefrontální kůru — racionální část mozku přebírá kontrolu nad emoční**
-  Přesně. Když se oslovíš jménem, mozek přepne z emocionálního režimu do racionálního. Amygdala (strach) ztichne, prefrontální kůra (plánování) se aktivuje.
+- **✅ Aktivuje prefrontální kůru — racionální část přebírá kontrolu**
+  Přesně. Když se oslovíš jménem, mozek přepne z emocionálního režimu do racionálního. Amygdala (strach) ztichne, prefrontální kůra (plánování) se aktivuje a přebírá kontrolu nad emoční částí.
 - ❌ Protože mozek si myslí, že mluví někdo jiný, a přestane se bát
   Ne tak docela. Mozek ví, že mluvíš ty. Ale odstup způsobí, že emoce zpracovává jako by šlo o situaci někoho jiného — a to je klidnější.
 
@@ -269,8 +269,8 @@ Talk to yourself the way you'd talk to a friend — in the second person or by n
 
 **Question:** Why does distanced self-talk lower cortisol (the stress hormone)?
 
-- **✅ Psychological distance activates the prefrontal cortex — the rational part of the brain takes control over the emotional part**
-  Exactly. When you address yourself by name, the brain shifts from emotional mode to rational mode. The amygdala (fear) quiets down, the prefrontal cortex (planning) activates.
+- **✅ It activates the prefrontal cortex — the rational part takes over**
+  Exactly. When you address yourself by name, the brain shifts from emotional mode to rational mode. The amygdala (fear) quiets down, the prefrontal cortex (planning) activates and takes control over the emotional part.
 - ❌ Because the brain thinks someone else is talking and stops being afraid
   Not quite. The brain knows it's you talking. But the distance causes it to process emotions as if the situation belonged to someone else — and that's calmer.
 
@@ -278,8 +278,8 @@ Talk to yourself the way you'd talk to a friend — in the second person or by n
 
 **Otázka:** Jaký je rozdíl mezi afirmací a instruktivním self-talkem?
 
-- **✅ Afirmace popisuje identitu („jsem skvělý"), instrukce dává konkrétní akci („dýchej, sleduj cíl")**
-  Přesně. Afirmace fungují jen pokud jim věříš. Instrukce fungují vždy — protože říkají mozku, co dělat, ne kým být.
+- **✅ Afirmace popisuje identitu, instrukce dává akci**
+  Přesně. Afirmace („jsem skvělý") fungují jen pokud jim věříš. Instrukce („dýchej, sleduj cíl") fungují vždy — protože říkají mozku, co dělat, ne kým být.
 - ❌ Žádný rozdíl — obojí jsou pozitivní slova v hlavě
   Zásadní rozdíl. Afirmace bez základu v realitě mozek odmítne. Instrukce zaměřené na proces fungují bez ohledu na to, jak se cítíš.
 
@@ -287,8 +287,8 @@ Talk to yourself the way you'd talk to a friend — in the second person or by n
 
 **Question:** What's the difference between an affirmation and instructional self-talk?
 
-- **✅ An affirmation describes identity ("I'm great"), an instruction gives a concrete action ("breathe, focus on the target")**
-  Exactly. Affirmations only work if you believe them. Instructions always work — because they tell the brain what to do, not who to be.
+- **✅ Affirmation describes identity, instruction gives action**
+  Exactly. Affirmations ("I'm great") only work if you believe them. Instructions ("breathe, focus on the target") always work — because they tell the brain what to do, not who to be.
 - ❌ No difference — both are positive words in your head
   There's a crucial difference. Affirmations with no basis in reality get rejected by the brain. Process-focused instructions work regardless of how you feel.
 
@@ -321,8 +321,8 @@ Imagine you're playing an important match. Your hands are shaking and you're mak
 
 **Otázka:** Jak přeformuluješ „nesmím ten míč pokazit" na instruktivní self-talk?
 
-- **✅ „Sleduj míč, tlač skrz, vydechni" — konkrétní akce místo zákazů**
-  Přesně. Mozek reaguje na to, co má dělat, ne na to, co nemá. Instrukce dávají směr, zákazy vytváří strach.
+- **✅ „Sleduj míč, tlač skrz, vydechni" — konkrétní akce**
+  Přesně. Konkrétní akce místo zákazů. Mozek reaguje na to, co má dělat, ne na to, co nemá. Instrukce dávají směr, zákazy vytváří strach.
 - ❌ „Jsem nejlepší hráč, vyhraju" — pozitivní afirmace
   Afirmace výsledku nefunguje, když jí nevěříš. Instruktivní self-talk funguje i uprostřed nervozity.
 
@@ -330,8 +330,8 @@ Imagine you're playing an important match. Your hands are shaking and you're mak
 
 **Question:** How do you reframe "I mustn't miss this ball" into instructional self-talk?
 
-- **✅ "Watch the ball, push through, exhale" — concrete actions instead of prohibitions**
-  Exactly. The brain responds to what it should do, not what it shouldn't. Instructions give direction, prohibitions create fear.
+- **✅ "Watch the ball, push through, exhale" — concrete actions**
+  Exactly. Concrete actions instead of prohibitions. The brain responds to what it should do, not what it shouldn't. Instructions give direction, prohibitions create fear.
 - ❌ "I'm the best player, I'll win" — positive affirmation
   Outcome affirmations don't work when you don't believe them. Instructional self-talk works even in the middle of nervousness.
 
@@ -355,8 +355,8 @@ Replace "I mustn't" with "do this." Instructions beat prohibitions — every tim
 
 **Otázka:** Představ si, že máš prezentaci a v hlavě ti zní „nesmím zapomenout text". Jak to přeformuluješ?
 
-- **✅ „Podívej se na poznámky, začni prvním bodem, mluv pomalu"**
-  Přesně. Konkrétní kroky, které mozek může vykonat. Místo strachu ze zapomenutí máš plán, co dělat.
+- **✅ „Podívej se na poznámky, mluv pomalu"**
+  Přesně. Konkrétní kroky — například „podívej se na poznámky, začni prvním bodem, mluv pomalu" — které mozek může vykonat. Místo strachu ze zapomenutí máš plán, co dělat.
 - ❌ „Nezapomenu, zvládnu to, bude to super"
   Stále obsahuje skrytou negaci a vágní afirmaci. Mozek potřebuje instrukce, ne sliby.
 
@@ -364,8 +364,8 @@ Replace "I mustn't" with "do this." Instructions beat prohibitions — every tim
 
 **Question:** Imagine you have a presentation and your head says "I mustn't forget the text." How do you reframe it?
 
-- **✅ "Look at your notes, start with the first point, speak slowly"**
-  Exactly. Concrete steps the brain can execute. Instead of fear of forgetting, you have a plan of what to do.
+- **✅ "Look at notes, speak slowly, start point one"**
+  Exactly. Concrete steps — like "look at your notes, start with the first point, speak slowly" — the brain can execute. Instead of fear of forgetting, you have a plan of what to do.
 - ❌ "I won't forget, I'll handle it, it'll be great"
   Still contains a hidden negation and vague affirmation. The brain needs instructions, not promises.
 
@@ -373,8 +373,8 @@ Replace "I mustn't" with "do this." Instructions beat prohibitions — every tim
 
 **Otázka:** Proč je důležité mít instrukce připravené předem, ne je vymýšlet pod tlakem?
 
-- **✅ Pod tlakem je mozek ve stresovém režimu a nedokáže vymyslet nic nového — potřebuje hotový skript**
-  Přesně. Stres zužuje pozornost a zhoršuje kreativní myšlení. Předem připravené instrukce fungují jako automatická odpověď.
+- **✅ Ve stresovém režimu mozek potřebuje připravený skript**
+  Přesně. Pod tlakem mozek nedokáže vymyslet nic nového. Stres zužuje pozornost a zhoršuje kreativní myšlení. Předem připravené instrukce fungují jako automatická odpověď.
 - ❌ Pod tlakem mozek funguje lépe a instrukce si vymyslí sám
   Opak je pravda. Pod tlakem mozek přepíná do režimu přežití a kreativní myšlení se vypíná.
 
@@ -382,7 +382,7 @@ Replace "I mustn't" with "do this." Instructions beat prohibitions — every tim
 
 **Question:** Why is it important to have instructions prepared in advance, not make them up under pressure?
 
-- **✅ Under pressure the brain is in stress mode and can't come up with anything new — it needs a ready script**
+- **✅ Under stress the brain can't create anything new — it needs a ready-made script from before**
   Exactly. Stress narrows attention and impairs creative thinking. Pre-prepared instructions work like an automatic response.
 - ❌ Under pressure the brain works better and will come up with instructions on its own
   The opposite is true. Under pressure the brain switches to survival mode and creative thinking shuts down.
@@ -391,8 +391,8 @@ Replace "I mustn't" with "do this." Instructions beat prohibitions — every tim
 
 **Otázka:** Jaký je nejlepší způsob, jak si vytvořit vlastní systém self-talku?
 
-- **✅ Napiš si 2–3 krátké instrukce pro konkrétní situace a opakovaně je používej**
-  Přesně. Krátké, specifické, opakované. Čím častěji je použiješ, tím automatičtější se stanou — a pod tlakem se spustí samy.
+- **✅ Napiš si 2–3 krátké instrukce a opakuj**
+  Přesně. Krátké, specifické, opakované pro konkrétní situace. Čím častěji je použiješ, tím automatičtější se stanou — a pod tlakem se spustí samy.
 - ❌ Naučit se dlouhý motivační monolog
   Dlouhé monology pod tlakem nefungují. Mozek potřebuje krátké, ostré instrukce — ne eseje.
 
@@ -400,8 +400,8 @@ Replace "I mustn't" with "do this." Instructions beat prohibitions — every tim
 
 **Question:** What's the best way to create your own self-talk system?
 
-- **✅ Write down 2–3 short instructions for specific situations and use them repeatedly**
-  Exactly. Short, specific, repeated. The more often you use them, the more automatic they become — and under pressure they'll fire on their own.
+- **✅ Write 2–3 short instructions and repeat**
+  Exactly. Short, specific, repeated for specific situations. The more often you use them, the more automatic they become — and under pressure they'll fire on their own.
 - ❌ Learn a long motivational monologue
   Long monologues don't work under pressure. The brain needs short, sharp instructions — not essays.
 
@@ -434,8 +434,8 @@ Top athletes have documented self-talk systems. In clutch moments they say pre-p
 
 **Otázka:** Proč je kombinace distanced self-talk + instrukcí tak účinná?
 
-- **✅ Distanced self-talk vytváří odstup od emocí, instrukce dávají mozku akční plán — dvojitý efekt**
-  Přesně. Nejdřív uklidníš emoce (odstup), pak dáš mozku směr (instrukce). Dva výzkumně ověřené nástroje v jednom.
+- **✅ Odstup uklidní emoce, instrukce dá akční plán**
+  Přesně. Distanced self-talk a instrukce v jednom — dvojitý efekt. Nejdřív uklidníš emoce (odstup), pak dáš mozku směr (instrukce). Dva výzkumně ověřené nástroje v jednom.
 - ❌ Je to jen zvyk, funguje cokoliv, co si opakuješ
   Ne cokoliv. „Nesmím prohrát" si taky můžeš opakovat, ale zhorší to výkon. Záleží na obsahu a struktuře.
 
@@ -443,8 +443,8 @@ Top athletes have documented self-talk systems. In clutch moments they say pre-p
 
 **Question:** Why is the combination of distanced self-talk + instructions so effective?
 
-- **✅ Distanced self-talk creates distance from emotions, instructions give the brain an action plan — a double effect**
-  Exactly. First you calm the emotions (distance), then you give the brain direction (instructions). Two research-backed tools in one.
+- **✅ Distance calms emotions, instructions give plan**
+  Exactly. Distanced self-talk and instructions combined — a double effect. First you calm the emotions (distance), then you give the brain direction (instructions). Two research-backed tools in one.
 - ❌ It's just habit, anything you repeat works
   Not anything. You can also repeat "I mustn't lose," but that worsens performance. The content and structure matter.
 
@@ -468,8 +468,8 @@ Self-talk is a choice. Pick the exact words for the exact situations — and you
 
 **Otázka:** Představ si, že jsi před důležitou zkouškou. Jak vypadá ideální self-talk systém?
 
-- **✅ Oslovíš se jménem + dáš si 2–3 konkrétní instrukce: „[Jméno], přečti otázku. Rozmysli. Pak piš."**
-  Přesně. Distanced self-talk pro klid + instrukce pro směr. Krátké, specifické, připravené předem.
+- **✅ Jméno + 2–3 konkrétní, krátké instrukce**
+  Přesně. Například „[Jméno], přečti otázku. Rozmysli. Pak piš." Distanced self-talk pro klid + instrukce pro směr. Krátké, specifické, připravené předem.
 - ❌ „Jsem chytrý, zvládnu to, nebojím se."
   Afirmace bez instrukcí. Pokud se bojíš, „nebojím se" mozek odmítne. Instrukce fungují vždy.
 
@@ -477,8 +477,8 @@ Self-talk is a choice. Pick the exact words for the exact situations — and you
 
 **Question:** Imagine you're before an important exam. What does an ideal self-talk system look like?
 
-- **✅ Address yourself by name + give yourself 2–3 concrete instructions: "[Name], read the question. Think. Then write."**
-  Exactly. Distanced self-talk for calm + instructions for direction. Short, specific, prepared in advance.
+- **✅ Your name plus 2–3 short, concrete instructions**
+  Exactly. For example "[Name], read the question. Think. Then write." Distanced self-talk for calm + instructions for direction. Short, specific, prepared in advance.
 - ❌ "I'm smart, I'll handle it, I'm not scared."
   Affirmations without instructions. If you're scared, "I'm not scared" gets rejected by the brain. Instructions always work.
 
@@ -486,8 +486,8 @@ Self-talk is a choice. Pick the exact words for the exact situations — and you
 
 **Otázka:** Co si z lekce o self-talku odnést jako hlavní pravidlo?
 
-- **✅ Připrav si krátké instrukce pro klíčové momenty a opakovaně je používej — nenech self-talk náhodě**
-  Přesně. Self-talk probíhá v tvé hlavě tak jako tak. Otázka je, jestli ho řídíš ty, nebo on tebe.
+- **✅ Připrav si krátké instrukce — nenech self-talk náhodě**
+  Přesně. Krátké instrukce pro klíčové momenty, opakovaně používané. Self-talk probíhá v tvé hlavě tak jako tak. Otázka je, jestli ho řídíš ty, nebo on tebe.
 - ❌ Self-talk je technika jen pro sportovce a řečníky
   Funguje pro kohokoliv — studenta před zkouškou, rodiče v konfliktu, manažera na poradě. Princip je univerzální.
 
@@ -495,8 +495,8 @@ Self-talk is a choice. Pick the exact words for the exact situations — and you
 
 **Question:** What's the main rule to take from the self-talk lesson?
 
-- **✅ Prepare short instructions for key moments and use them repeatedly — don't leave self-talk to chance**
-  Exactly. Self-talk happens in your head regardless. The question is whether you control it, or it controls you.
+- **✅ Prepare short instructions — don't leave it to chance**
+  Exactly. Short instructions for key moments, used repeatedly. Self-talk happens in your head regardless. The question is whether you control it, or it controls you.
 - ❌ Self-talk is a technique only for athletes and speakers
   It works for anyone — a student before an exam, a parent in a conflict, a manager in a meeting. The principle is universal.
 
@@ -504,7 +504,7 @@ Self-talk is a choice. Pick the exact words for the exact situations — and you
 
 **Otázka:** Jak poznáš, že tvůj self-talk systém funguje?
 
-- **✅ Pod tlakem se instrukce spustí automaticky — nemusíš o nich přemýšlet, prostě přijdou**
-  Přesně. To je cíl: opakováním se instrukce stanou automatické. Jako reflexy — pod tlakem se aktivují bez vědomého úsilí.
+- **✅ Naskočí automaticky, samy**
+  Přesně. Pod tlakem se instrukce spustí samy — nemusíš o nich přemýšlet. To je cíl: opakováním se instrukce stanou automatické. Jako reflexy — pod tlakem se aktivují bez vědomého úsilí.
 - ❌ Přestaneš být nervózní
   Nervozita nezmizí — a nemusí. Funkční self-talk nezruší nervozitu, ale dá ti nástroj, jak s ní pracovat.
