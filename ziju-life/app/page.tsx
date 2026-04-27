@@ -10,9 +10,9 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Koučink pro lidi, co moc přemýšlí | Žiju life — Matěj Mauler",
+  title: "Vnitřní klid v hlučném světě | Žiju life — Matěj Mauler",
   description:
-    "Víš, jak chceš žít, ale nedokážeš začít? Pomůžu ti přestat se točit v kruzích a začít konat. Konzultace zdarma.",
+    "Učím lidi zpomalit a žít vědomě — i uprostřed chaosu.",
 };
 
 interface LatestPost {
@@ -34,22 +34,22 @@ async function getLatestPosts(): Promise<LatestPost[]> {
 const painPoints = [
   {
     emoji: "🌀",
-    text: "Víš, kam chceš — ale nedokážeš se hnout.",
+    text: "Hlava ti běží od rána do večera. Vypnout neumíš.",
     bg: "#dfd8fa",
   },
   {
-    emoji: "💭",
-    text: "Máš tisíc plánů, ráno nevíš, kde začít.",
+    emoji: "📱",
+    text: "Furt online — a stejně nikdy odpočatý.",
     bg: "#c6f1ec",
   },
   {
     emoji: "⏳",
-    text: "Žiješ v budoucnu. Ta mezera tě paralyzuje.",
+    text: "Až bude klid, zpomalím. Klid ale nepřichází.",
     bg: "#fff0c2",
   },
   {
-    emoji: "📚",
-    text: "Další knížka, další app. A pak zas nic.",
+    emoji: "🌫️",
+    text: "Žiješ v autopilotu. A sám si toho všímáš.",
     bg: "#ffe4cc",
   },
 ];
@@ -81,12 +81,14 @@ export default async function Home() {
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-6 md:gap-10 items-center">
             <div className="text-center md:text-left order-2 md:order-1 relative z-10">
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] mb-6 tracking-tight">
-                <span className="block">Hodně přemýšlíš,</span>
-                <span className="underline-sketch inline-block pb-3">málo děláš.</span>
+                <span className="block">
+                  Vnitřní <span className="underline-teal">klid</span>
+                </span>
+                <span className="block">v hlučném světě.</span>
               </h1>
 
               <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-7">
-                Taky jsem to tak měl. Teď pomáhám lidem, kteří se zasekli v hlavě, začít reálně žít.
+                Učím lidi zpomalit a žít vědomě &mdash; i uprostřed chaosu.
               </p>
 
               <div className="flex justify-center md:justify-start">
@@ -160,8 +162,8 @@ export default async function Home() {
                 <path d="M117 29 Q92 20 66 31" />
                 <path d="M113 41 Q92 50 74 48" />
               </svg>
-              Přečetl jsi hromadu knížek &mdash;{" "}
-              <span className="underline-teal">a pořád hledáš</span>?
+              Máš všeho hodně,{" "}
+              <span className="underline-teal">klidu málo</span>?
             </h2>
           </div>
 
@@ -188,8 +190,8 @@ export default async function Home() {
 
           <div className="text-center max-w-2xl mx-auto space-y-6">
             <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
-              Další informace nepotřebuješ. Potřebuješ{" "}
-              <span className="underline-playful font-semibold">něco</span>, co ti pomůže začít konat.
+              Klid si nepřečteš. Potřebuješ{" "}
+              <span className="underline-playful font-semibold">někoho</span>, kdo ti pomůže fakt zpomalit.
             </p>
 
             <Link href="/koucing#rezervace" className="btn-playful" data-shape="2">

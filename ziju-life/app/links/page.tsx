@@ -7,7 +7,7 @@ import HandDrawnIcon from "@/components/HandDrawnIcon";
 export const metadata: Metadata = {
   title: "Žiju life | Rozcestník",
   description:
-    "Manuál pro život v 21. století. Poslední článek, Substack a konzultace zdarma.",
+    "Vnitřní klid v hlučném světě. Poslední článek, Substack a konzultace zdarma.",
 };
 
 const SUBSTACK_URL =
@@ -148,7 +148,7 @@ export default async function LinksPage() {
           />
         </Link>
         <p className="font-display text-foreground/70 text-center mt-2 text-sm sm:text-base max-w-xs leading-relaxed">
-          <span className="underline-playful">Manuál</span> pro život v 21. století.
+          Vnitřní <span className="underline-playful">klid</span> v hlučném světě.
         </p>
 
         {/* Socials */}
