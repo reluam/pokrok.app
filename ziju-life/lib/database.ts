@@ -74,6 +74,16 @@ export async function initializeDatabase() {
       ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP
     `
 
+    // Google Calendar event linking (event id + Meet URL)
+    await sql`
+      ALTER TABLE bookings
+      ADD COLUMN IF NOT EXISTS google_event_id TEXT
+    `
+    await sql`
+      ALTER TABLE bookings
+      ADD COLUMN IF NOT EXISTS google_meet_url TEXT
+    `
+
     // Create principles table
     await sql`
       CREATE TABLE IF NOT EXISTS principles (

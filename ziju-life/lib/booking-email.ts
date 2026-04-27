@@ -184,12 +184,32 @@ function emailWrapper(title: string, content: string): string {
   `.trim();
 }
 
+function renderMeetBlock(meetUrl: string | null | undefined): string {
+  if (!meetUrl) return "";
+  return `
+    <div style="margin-bottom: 24px; padding: 20px; background-color: ${BOX_BG}; border-radius: 8px; border-left: 4px solid ${ACCENT};">
+      <p style="color: ${TEXT_DARK}; font-size: 16px; font-weight: 600; margin: 0 0 8px;">
+        🎥 Online přes Google Meet
+      </p>
+      <p style="color: ${TEXT_MUTED}; font-size: 14px; line-height: 1.6; margin: 0 0 12px;">
+        V čase konzultace se připoj přes tento odkaz:
+      </p>
+      <a href="${meetUrl}" target="_blank" rel="noreferrer" style="display: inline-block; padding: 10px 18px; border-radius: 999px; background-color: ${ACCENT}; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none;">
+        Otevřít Google Meet
+      </a>
+      <p style="color: ${TEXT_MUTED}; font-size: 12px; line-height: 1.5; margin: 12px 0 0; word-break: break-all;">
+        ${escapeHtml(meetUrl)}
+      </p>
+    </div>
+  `;
+}
+
 function renderClientConfirmationHtml(
   name: string,
   slotStr: string,
   durationMinutes: number,
   isPaidMeeting: boolean,
-  options?: { amountCzk?: number | null; stripePaymentLinkUrl?: string | null }
+  options?: { amountCzk?: number | null; stripePaymentLinkUrl?: string | null; meetUrl?: string | null }
 ): string {
   const safeName = escapeHtml(name);
   const amountFromOptions =
@@ -289,6 +309,8 @@ function renderClientConfirmationHtml(
       </p>
     </div>
 
+    ${renderMeetBlock(options?.meetUrl)}
+
     ${paymentBlock}
 
     <div style="height: 1px; background-color: ${BORDER}; margin: 28px 0;"></div>
@@ -310,7 +332,8 @@ function renderAdminConfirmationHtml(
   durationMinutes: number,
   note?: string | null,
   source?: string,
-  monthlyHtml?: string
+  monthlyHtml?: string,
+  meetUrl?: string | null
 ): string {
   const safeName = escapeHtml(clientName);
   const safeNote = note ? escapeHtml(note) : "";
@@ -338,6 +361,8 @@ function renderAdminConfirmationHtml(
       ${source ? `<p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 0 0 8px;"><strong style="color: ${TEXT_DARK};">Zdroj:</strong> ${escapeHtml(source)}</p>` : ""}
       ${safeNote ? `<p style="color: ${TEXT_MUTED}; font-size: 15px; line-height: 1.6; margin: 16px 0 0; padding-top: 16px; border-top: 1px solid ${BORDER};"><strong style="color: ${TEXT_DARK};">Poznámka:</strong><br>${safeNote.replace(/\n/g, "<br>")}</p>` : ""}
     </div>
+
+    ${renderMeetBlock(meetUrl)}
 
     ${monthlyHtml ?? ""}
   `;
@@ -388,6 +413,7 @@ export async function sendBookingConfirmationToClient(params: {
   isPaidMeeting?: boolean;
   amountCzk?: number | null;
   stripePaymentLinkUrl?: string | null;
+  meetUrl?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!process.env.RESEND_API_KEY?.trim()) {
     console.warn("[booking-email] RESEND_API_KEY not set, skipping client confirmation");
@@ -403,12 +429,14 @@ export async function sendBookingConfirmationToClient(params: {
       isPaidMeeting,
       amountCzk,
       stripePaymentLinkUrl,
+      meetUrl,
     } = params;
     const slotStr = formatSlot(slotAt);
     const label = meetingTypeLabel || "Konzultace";
     const html = renderClientConfirmationHtml(name, `${label} – ${slotStr}`, durationMinutes, Boolean(isPaidMeeting), {
       amountCzk,
       stripePaymentLinkUrl,
+      meetUrl,
     });
     const { error } = await resend.emails.send({
       from: fromClient,
@@ -437,12 +465,13 @@ export async function sendBookingConfirmationToAdmin(params: {
   note?: string | null;
   source?: string;
   meetingTypeLabel?: string | null;
+  meetUrl?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   if (!process.env.RESEND_API_KEY?.trim()) {
     return { ok: false, error: "Resend not configured" };
   }
   try {
-    const { clientName, clientEmail, slotAt, durationMinutes, note, source, meetingTypeLabel } =
+    const { clientName, clientEmail, slotAt, durationMinutes, note, source, meetingTypeLabel, meetUrl } =
       params;
     const slotStr = formatSlot(slotAt);
     const label = meetingTypeLabel || "Konzultace";
@@ -456,7 +485,8 @@ export async function sendBookingConfirmationToAdmin(params: {
       durationMinutes,
       note,
       source,
-      monthlyHtml
+      monthlyHtml,
+      meetUrl
     );
     const { error } = await resend.emails.send({
       from: fromAdmin,

@@ -61,3 +61,23 @@ export async function createBooking(
   `;
   return id;
 }
+
+/** Persist Google Calendar event id + Meet URL on a booking. Idempotent column ensure. */
+export async function setBookingGoogleEvent(
+  bookingId: string,
+  eventId: string,
+  meetUrl: string | null
+): Promise<void> {
+  try {
+    await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS google_event_id TEXT`;
+    await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS google_meet_url TEXT`;
+  } catch {
+    // ignore — columns may already exist or schema lock contention
+  }
+  await sql`
+    UPDATE bookings
+    SET google_event_id = ${eventId},
+        google_meet_url = ${meetUrl}
+    WHERE id = ${bookingId}
+  `;
+}

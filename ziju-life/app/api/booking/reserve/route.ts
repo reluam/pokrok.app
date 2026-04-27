@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/database";
-import { getSlotById, isSlotFree, createBooking } from "@/lib/booking-slots-db";
+import {
+  getSlotById,
+  isSlotFree,
+  createBooking,
+  setBookingGoogleEvent,
+} from "@/lib/booking-slots-db";
 import { sendBookingConfirmationToClient, sendBookingConfirmationToAdmin } from "@/lib/booking-email";
+import { getBookingSettings } from "@/lib/booking-settings";
+import { createCalendarEvent } from "@/lib/google-calendar";
 import { getLeadById } from "@/lib/leads-db";
 
 export async function POST(request: NextRequest) {
@@ -154,6 +161,39 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Vytvoř event v Google Kalendáři s Meet linkem (a pošli pozvánku klientovi).
+    // Selhání blokuje ne — rezervace v DB i e-maily proběhnou nezávisle.
+    let meetUrl: string | null = null;
+    try {
+      const { googleCalendarId, googleRefreshToken } = await getBookingSettings();
+      const summary = `${meetingTypeLabel || "Konzultace"} – ${name}`;
+      const descriptionLines = [
+        `Klient: ${name} <${email}>`,
+        meetingTypeLabel ? `Typ: ${meetingTypeLabel}` : null,
+        source ? `Zdroj: ${source}` : null,
+        note ? `\nPoznámka:\n${note}` : null,
+      ].filter(Boolean) as string[];
+      const event = await createCalendarEvent({
+        calendarId: googleCalendarId,
+        refreshToken: googleRefreshToken,
+        start: slot.start_at,
+        durationMinutes: slot.duration_minutes,
+        summary,
+        description: descriptionLines.join("\n"),
+        attendees: [{ email, name }],
+      });
+      if (event) {
+        meetUrl = event.meetUrl;
+        try {
+          await setBookingGoogleEvent(bookingId, event.eventId, event.meetUrl);
+        } catch (e) {
+          console.warn("[reserve] setBookingGoogleEvent:", e);
+        }
+      }
+    } catch (e) {
+      console.warn("[reserve] createCalendarEvent:", e);
+    }
+
     // Potvrzovací e-maily: klient + admin (matej@ziju.life)
     const [clientEmailResult, adminEmailResult] = await Promise.all([
       sendBookingConfirmationToClient({
@@ -165,6 +205,7 @@ export async function POST(request: NextRequest) {
         isPaidMeeting,
         amountCzk: meetingPriceCzk,
         stripePaymentLinkUrl: meetingStripePaymentLinkUrl,
+        meetUrl,
       }),
       sendBookingConfirmationToAdmin({
         clientName: name,
@@ -174,6 +215,7 @@ export async function POST(request: NextRequest) {
         note,
         source,
         meetingTypeLabel,
+        meetUrl,
       }),
     ]);
     if (!clientEmailResult.ok) console.warn("[reserve] E-mail klientovi:", clientEmailResult.error);
