@@ -89,8 +89,9 @@ function getVideoEmbedUrl(url: string): string | null {
 export function TypeBadge({ itemType }: { itemType: string }) {
   const Icon = TYPE_ICON[itemType] || HelpCircle;
   const label = TYPE_LABEL[itemType] || itemType;
+  const colorClass = itemType === "kniha" ? "text-amber-700" : "text-accent";
   return (
-    <span className="inline-flex items-center gap-1.5 text-accent text-xs font-semibold">
+    <span className={`inline-flex items-center gap-1.5 ${colorClass} text-xs font-semibold`}>
       <Icon size={12} />
       {label}
     </span>
@@ -295,14 +296,30 @@ export function FeedCard({ post, featured = false, bento = false }: { post: Cura
 
       <article className="relative h-full flex flex-col pt-5 px-5 pb-8">
         {/* Image area */}
-        <div className={`relative w-full aspect-[4/3] overflow-hidden rounded-xl flex items-center justify-center ${isBook ? "bg-white" : "bg-gray-50"}`}>
+        <div className={`relative w-full aspect-[4/3] overflow-hidden rounded-xl flex items-center justify-center ${
+          isBook
+            ? "bg-gradient-to-b from-amber-50/80 via-orange-50/40 to-amber-100/70"
+            : "bg-gray-50"
+        }`}>
+          {/* Subtle shelf line — only for books */}
+          {isBook && (
+            <div
+              aria-hidden="true"
+              className="absolute left-0 right-0 bottom-[10%] h-px bg-amber-900/15"
+            />
+          )}
+
           {(thumbnail || (videoEmbed && imageUrl)) ? (
             <img
               src={thumbnail || imageUrl || ""}
               alt={post.title}
-              className={`group-hover:scale-105 transition-transform duration-300 ${
-                isBook ? "h-[75%] w-auto object-contain drop-shadow-md" : "w-full h-full object-cover"
+              className={`relative group-hover:scale-105 transition-transform duration-300 ${
+                isBook ? "h-[82%] w-auto object-contain" : "w-full h-full object-cover"
               }`}
+              style={isBook ? {
+                boxShadow:
+                  "3px 0 0 0 #f5e6d3, 4px 0 0 0 #c9a878, 5px 7px 14px -2px rgba(60,40,20,0.35), 1px 2px 4px -1px rgba(60,40,20,0.25)",
+              } : undefined}
             />
           ) : coverKeyword ? (
             <CoverKeyword keyword={coverKeyword} seed={post.id} />
