@@ -119,10 +119,8 @@ function FeedContent() {
 
   const tabs = [
     { value: '', label: 'Vše' },
-    { value: 'kniha', label: 'Knihy' },
-    { value: 'video', label: 'Videa' },
     { value: 'článek', label: 'Články' },
-    { value: 'ostatní', label: 'Ostatní' },
+    { value: 'kniha', label: 'Knihy' },
   ]
 
   // Browse mode
