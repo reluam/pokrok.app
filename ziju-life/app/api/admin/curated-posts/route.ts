@@ -45,7 +45,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const { id } = await request.json()
+    const id = request.nextUrl.searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
     await deleteCuratedPost(id)
     return NextResponse.json({ success: true })
