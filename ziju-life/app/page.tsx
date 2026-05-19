@@ -7,8 +7,7 @@ import HandDrawnCard from "@/components/HandDrawnCard";
 export const dynamic = "force-static";
 export const revalidate = 3600;
 
-const SUBSTACK_URL =
-  "https://zijulife.substack.com/?r=86mho4&utm_campaign=pub-share-checklist";
+const SUBSTACK_URL = "https://reluam.substack.com";
 
 export const metadata: Metadata = {
   title: "Vnitřní klid v hlučném světě | Žiju life — Matěj Mauler",

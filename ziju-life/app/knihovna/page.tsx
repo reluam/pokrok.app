@@ -196,7 +196,7 @@ function FeedContent() {
         </p>
         <div className="pt-2">
           <a
-            href="https://zijulife.substack.com/?r=86mho4&utm_campaign=pub-share-checklist"
+            href="https://reluam.substack.com"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-playful"

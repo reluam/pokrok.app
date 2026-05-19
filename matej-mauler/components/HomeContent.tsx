@@ -3,6 +3,7 @@ import path from "node:path";
 import { Dictionary, Lang } from "@/lib/dictionaries";
 import { getSubstackPosts, formatPostDate } from "@/lib/substack";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { CalButton } from "./CalButton";
 
 const hasAvatar = fs.existsSync(
   path.join(process.cwd(), "public", "matej.jpg"),
@@ -10,57 +11,52 @@ const hasAvatar = fs.existsSync(
 
 /* ─── Icons ─── */
 
-function Icon({
-  name,
-  size = 20,
-  className = "",
-}: {
-  name: string;
-  size?: number;
-  className?: string;
-}) {
+function Icon({ name, size = 16 }: { name: string; size?: number }) {
   const s = { width: size, height: size };
   const stroke = {
     fill: "none" as const,
     stroke: "currentColor",
-    strokeWidth: 2,
+    strokeWidth: 1.75,
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
   };
   switch (name) {
-    case "arrow_right":
+    case "arrow":
       return (
-        <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
+        <svg {...s} viewBox="0 0 24 24" {...stroke}>
           <path d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
-      );
-    case "linkedin":
-      return (
-        <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
-          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-          <rect x="2" y="9" width="4" height="12" />
-          <circle cx="4" cy="4" r="2" />
         </svg>
       );
     case "mail":
       return (
-        <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
+        <svg {...s} viewBox="0 0 24 24" {...stroke}>
           <rect x="2" y="4" width="20" height="16" rx="2" />
           <path d="m22 7-10 5L2 7" />
         </svg>
       );
+    case "calendar":
+      return (
+        <svg {...s} viewBox="0 0 24 24" {...stroke}>
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      );
+    case "rss":
+      return (
+        <svg {...s} viewBox="0 0 24 24" {...stroke}>
+          <path d="M4 11a9 9 0 0 1 9 9" />
+          <path d="M4 4a16 16 0 0 1 16 16" />
+          <circle cx="5" cy="19" r="1" fill="currentColor" stroke="none" />
+        </svg>
+      );
     case "globe":
       return (
-        <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
+        <svg {...s} viewBox="0 0 24 24" {...stroke}>
           <circle cx="12" cy="12" r="10" />
           <line x1="2" y1="12" x2="22" y2="12" />
           <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-        </svg>
-      );
-    case "sparkles":
-      return (
-        <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
-          <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />
         </svg>
       );
     default:
@@ -68,208 +64,273 @@ function Icon({
   }
 }
 
+/* ─── Helpers ─── */
+
+const serif: React.CSSProperties = { fontFamily: "var(--font-serif)" };
+const serifItalic: React.CSSProperties = { fontFamily: "var(--font-serif)", fontStyle: "italic" };
+
 /* ─── Component ─── */
 
-export async function HomeContent({
-  dict,
-  lang,
-}: {
-  dict: Dictionary;
-  lang: Lang;
-}) {
-  const posts = await getSubstackPosts(4);
+export async function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
+  const posts = await getSubstackPosts(3);
 
   return (
-    <main className="flex-1 bg-background overflow-x-hidden">
+    <main className="flex-1 overflow-x-hidden" style={{ background: "var(--bg-page)" }}>
       <LanguageSwitcher lang={lang} labels={dict.switcher} />
 
-      <div className="max-w-3xl mx-auto px-5 md:px-8">
+      <div className="max-w-[680px] mx-auto px-5 md:px-8">
 
         {/* ══════════════════════════════════════
             HERO
         ══════════════════════════════════════ */}
-        <section className="pt-20 md:pt-28 pb-20 md:pb-24 animate-fade-up">
-          <div className="flex flex-col md:flex-row gap-10 items-center md:items-start">
+        <section className="pt-24 md:pt-32 pb-[72px] md:pb-[112px] animate-fade-up">
 
-            {/* Avatar */}
-            <div className="paper-card overflow-hidden shrink-0 w-36 h-36 md:w-44 md:h-44">
-              {hasAvatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src="/matej.jpg"
-                  alt="Matěj Mauler"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-[#ffe4cc] to-[#c6f1ec] flex items-center justify-center">
-                  <span className="font-display text-3xl font-extrabold text-[#ff6b1a]">
-                    MM
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Text */}
-            <div className="text-center md:text-left">
-              <h1 className="font-display text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-4">
-                <span className="underline-playful">{dict.hero.greeting.replace(".", "")}</span>
-                <span className="text-primary">.</span>
-              </h1>
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-2">
-                {dict.hero.tagline}
-              </p>
-            </div>
+          {/* Avatar */}
+          <div
+            className="mb-8 w-16 h-16 md:w-16 md:h-16 rounded-full overflow-hidden flex items-center justify-center shrink-0"
+            style={{ background: "var(--bg-card-elevated)", border: "1px solid var(--border-subtle)" }}
+          >
+            {hasAvatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src="/matej.jpg" alt="Matěj Mauler" className="w-full h-full object-cover" />
+            ) : (
+              <span style={{ ...serif, color: "var(--accent)", fontSize: "1rem", fontWeight: 600 }}>
+                MM
+              </span>
+            )}
           </div>
+
+          {/* H1 */}
+          <h1
+            className="text-[40px] md:text-[56px] leading-[1.2] mb-5 tracking-[-0.02em]"
+            style={serif}
+          >
+            {dict.hero.greeting}
+          </h1>
+
+          {/* Tagline — kurzíva, větší */}
+          <p
+            className="text-[22px] md:text-[28px] leading-[1.3] mb-6"
+            style={{ ...serifItalic, color: "var(--text-primary)" }}
+          >
+            {dict.hero.tagline}
+          </p>
+
+          {/* Bio */}
+          <p
+            className="text-[17px] md:text-[18px] leading-relaxed max-w-[540px]"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {dict.hero.bio}
+          </p>
         </section>
 
         {/* ══════════════════════════════════════
-            PÍŠU / WRITING
+            ČÍM SE TEĎ ZABÝVÁM + PÍŠU (merged)
         ══════════════════════════════════════ */}
         <section
-          id="pisu"
-          className="pb-20 md:pb-24 animate-fade-up"
-          style={{ animationDelay: "80ms" }}
+          className="pb-[72px] md:pb-[112px] animate-fade-up"
+          style={{ animationDelay: "60ms" }}
         >
-          <div className="mb-8">
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold">
-              <span className="underline-teal">{dict.pisuSection.title}</span>
-            </h2>
-          </div>
+          <h2
+            className="text-[26px] md:text-[32px] leading-[1.2] tracking-[-0.01em] mb-3"
+            style={serif}
+          >
+            {dict.pisuSection.title}
+          </h2>
+          <p
+            className="text-[15px] mb-8"
+            style={{ fontFamily: "var(--font-sans)", fontStyle: "italic", color: "var(--text-muted)" }}
+          >
+            {dict.pisuSection.lead}
+          </p>
 
-          {/* Substack posts */}
           {posts.length === 0 ? (
-            <p className="text-muted text-sm">{dict.pisuSection.emptyState}</p>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+              {dict.pisuSection.emptyState}
+            </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <ul className="space-y-5 mb-7">
               {posts.map((post) => (
-                <a
+                <li
                   key={post.link}
-                  href={post.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="paper-card flex flex-col group overflow-hidden"
+                  className="pl-5"
+                  style={{ borderLeft: "2px solid var(--accent)" }}
                 >
-                  {/* Thumbnail */}
-                  <div className="w-full aspect-[16/9] bg-[#f5f1e4] shrink-0">
-                    {post.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={post.image}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl">
-                        ✍️
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Text */}
-                  <div className="flex flex-col flex-1 p-4 gap-2">
+                  <a
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group"
+                  >
                     {post.isoDate && (
-                      <p className="text-[0.68rem] font-display font-bold text-muted uppercase tracking-wide">
+                      <span className="section-label text-[11px] block mb-1">
                         {formatPostDate(post.isoDate, lang)}
-                      </p>
+                      </span>
                     )}
-                    <h3 className="font-display font-extrabold text-[0.97rem] leading-snug group-hover:text-primary transition-colors flex-1">
+                    <p
+                      className="text-[17px] leading-[1.35] group-hover:opacity-70 transition-opacity"
+                      style={{ ...serif, color: "var(--text-primary)" }}
+                    >
                       {post.title}
-                    </h3>
-                    <span className="inline-flex items-center gap-1 text-[#2ba89e] font-display font-bold text-xs mt-1">
-                      {dict.pisuSection.readMore}
-                      <Icon name="arrow_right" size={13} />
-                    </span>
-                  </div>
-                </a>
+                    </p>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
 
           <a
-            href="https://reluam.substack.com"
+            href="https://matejmauler.substack.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-outline text-sm"
+            className="btn-secondary text-[14px] px-5 py-3"
           >
-            {dict.pisuSection.allPosts}
+            {dict.pisuSection.allPosts} →
           </a>
         </section>
 
         {/* ══════════════════════════════════════
-            SPOLUPRACUJI / COLLABORATION
+            CO MĚ FORMUJE / FORMATIVE
         ══════════════════════════════════════ */}
         <section
-          id="spolupracuji"
-          className="pb-20 md:pb-24 animate-fade-up"
-          style={{ animationDelay: "160ms" }}
+          className="pb-[72px] md:pb-[112px] animate-fade-up"
+          style={{ animationDelay: "120ms" }}
         >
-          <div className="mb-8">
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold">
-              <span className="underline-playful">{dict.spolupracujiSection.title}</span>
-            </h2>
+          <h2
+            className="text-[26px] md:text-[32px] leading-[1.2] tracking-[-0.01em] mb-2"
+            style={serif}
+          >
+            {dict.formativeSection.title}
+          </h2>
+          <p
+            className="text-[14px] mb-8"
+            style={{ ...serifItalic, color: "var(--text-muted)" }}
+          >
+            {dict.formativeSection.subtitle}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {dict.formativeSection.items.map((item) => (
+              <div key={item.name} className="card p-7 md:p-9">
+                <p
+                  className="text-[20px] leading-snug mb-3"
+                  style={serif}
+                >
+                  {item.name}
+                </p>
+                <p
+                  className="text-[14px] leading-relaxed"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {item.note}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════
+            MYSLÍME SPOLU / COLLABORATION
+        ══════════════════════════════════════ */}
+        <section
+          className="pb-[72px] md:pb-[112px] animate-fade-up"
+          style={{ animationDelay: "180ms" }}
+        >
+          <h2
+            className="text-[26px] md:text-[32px] leading-[1.2] tracking-[-0.01em] mb-8"
+            style={serif}
+          >
+            {dict.spolupracujiSection.title}
+          </h2>
+
+          <div className="card-elevated p-7 md:p-9 mb-7">
+            <p
+              className="text-[17px] leading-relaxed mb-2"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {dict.spolupracujiSection.mainText}
+            </p>
+            <p
+              className="text-[15px] font-semibold"
+              style={{ color: "var(--accent)" }}
+            >
+              {dict.spolupracujiSection.slotsLabel}
+            </p>
+
+            <div
+              className="mt-6 pt-6"
+              style={{ borderTop: "1px solid var(--border-subtle)" }}
+            >
+              <p className="section-label mb-3">{dict.spolupracujiSection.otherLabel}</p>
+              <ul className="space-y-1.5">
+                {dict.spolupracujiSection.otherItems.map((item, i) => (
+                  <li
+                    key={i}
+                    className="text-[14px] flex gap-2.5"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    <span style={{ color: "var(--text-muted)" }}>–</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
-          <div className="paper-card p-7 md:p-9">
-            <div className="text-foreground/80 leading-relaxed text-[1.02rem] mb-7 space-y-3">
-              {dict.spolupracujiSection.text.split("\n").map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-              <a
-                href="mailto:matej@ziju.life"
-                className="btn-playful"
-              >
-                <Icon name="mail" size={17} />
-                {dict.spolupracujiSection.ctaLabel}
-              </a>
-
-              <div className="flex items-center gap-2 text-sm text-muted">
-                <span>{dict.spolupracujiSection.zijuText}</span>
-                <a
-                  href="https://ziju.life"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-display font-bold text-primary hover:text-primary-dark transition-colors flex items-center gap-1"
-                >
-                  <Icon name="globe" size={14} />
-                  {dict.spolupracujiSection.zijuLabel}
-                </a>
-              </div>
-            </div>
+          {/* CTA trojice */}
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center flex-wrap">
+            <a
+              href="https://matejmauler.substack.com/subscribe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+            >
+              <Icon name="rss" size={14} />
+              {dict.spolupracujiSection.ctaSubstackLabel}
+            </a>
+            <CalButton
+              label={dict.spolupracujiSection.ctaCallLabel}
+              icon={<Icon name="calendar" size={14} />}
+            />
+            <a
+              href="mailto:matej@matejmauler.com"
+              className="inline-flex items-center gap-2 text-[14px]"
+              style={{
+                color: "var(--text-secondary)",
+                textDecoration: "underline",
+                textUnderlineOffset: "4px",
+              }}
+            >
+              <Icon name="mail" size={13} />
+              {dict.spolupracujiSection.ctaEmailLabel}
+            </a>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="py-8 text-center">
-          <div className="flex justify-center gap-4 mb-3">
-            <a
-              href="https://reluam.substack.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted/60 hover:text-foreground transition-colors font-display"
-            >
-              Substack
-            </a>
-            <a
-              href="https://www.linkedin.com/in/matej-mauler/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted/60 hover:text-foreground transition-colors font-display"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://ziju.life"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted/60 hover:text-foreground transition-colors font-display"
-            >
-              Žiju.life
-            </a>
+        <footer
+          className="py-10"
+          style={{ borderTop: "1px solid var(--border-subtle)" }}
+        >
+          <div className="flex gap-5 mb-4">
+            {[
+              { label: "Substack", href: "https://matejmauler.substack.com" },
+              { label: "LinkedIn", href: "https://www.linkedin.com/in/matej-mauler/" },
+              { label: "Žiju.life", href: "https://ziju.life" },
+            ].map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-link"
+              >
+                {l.label}
+              </a>
+            ))}
           </div>
-          <p className="text-xs text-muted/40 font-display">
+          <p className="text-[12px]" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
             &copy; 2026 Matěj Mauler
           </p>
         </footer>

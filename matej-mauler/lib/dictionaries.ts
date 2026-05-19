@@ -15,6 +15,11 @@ export type ExperimentProject = {
   wip?: boolean;
 };
 
+export type FormativeItem = {
+  name: string;
+  note: string;
+};
+
 export type Dictionary = {
   meta: { title: string; description: string };
   switcher: { cs: string; en: string };
@@ -22,39 +27,34 @@ export type Dictionary = {
   hero: {
     greeting: string;
     tagline: string;
-    lines: string[];
+    bio: string;
   };
 
   pisuSection: {
     label: string;
     title: string;
-    intro: string;
-    substackSubtitle: string;
-    linkedinLabel: string;
-    linkedinHandle: string;
-    linkedinDesc: string;
+    lead: string;
     readMore: string;
     allPosts: string;
     emptyState: string;
   };
 
-  spolupracujiSection: {
-    label: string;
+  formativeSection: {
     title: string;
-    intro: string;
-    text: string;
-    ctaLabel: string;
-    zijuText: string;
-    zijuLabel: string;
+    subtitle: string;
+    items: FormativeItem[];
   };
 
-  experimentySection: {
-    label: string;
+  spolupracujiSection: {
     title: string;
-    intro: string;
-    wipLabel: string;
-    visitLabel: string;
-    projects: ExperimentProject[];
+    mainText: string;
+    slotsLabel: string;
+    otherLabel: string;
+    otherItems: string[];
+    ctaCallLabel: string;
+    ctaCallUrl: string;
+    ctaSubstackLabel: string;
+    ctaEmailLabel: string;
   };
 };
 
@@ -63,66 +63,60 @@ export const dictionaries: Record<Lang, Dictionary> = {
     meta: {
       title: "Matěj Mauler",
       description:
-        "Zkoumám, jak žít vědoměji a jak budovat věci, které mají smysl.",
+        "Píšu a přemýšlím o tom, proč chytří lidé jednají proti sobě — a co se s tím dá dělat.",
     },
     switcher: { cs: "CZ", en: "EN" },
 
     hero: {
       greeting: "Jsem Matěj.",
-      tagline:
-        "Zkoumám, jak žít vědoměji a jak budovat věci, které mají smysl.",
-      lines: [],
+      tagline: "Zkoumám, co znamená být člověkem — a co z toho plyne.",
+      bio: "Píšu, přemýšlím a pracuju se zakladateli jako thinking partner.",
     },
 
     pisuSection: {
       label: "Píšu",
-      title: "Občas něco napíšu",
-      intro:
-        "Psaní je pro mě způsob, jak si utřídit myšlenky — a pak je poslat dál. Najdeš tu zápisky ze Substacku: někdy krátká pozorování, někdy delší eseje o věcech, které mě právě zaměstnávají.",
-      substackSubtitle: "Kratší i delší zápisky ze Substacku.",
-      linkedinLabel: "LinkedIn",
-      linkedinHandle: "matej-mauler",
-      linkedinDesc:
-        "Kratší myšlenky, postřehy a poznámky z podnikání a vědomého žití.",
+      title: "Čím se teď zabývám",
+      lead: "Píšu o tom, co mě právě zaměstnává. Většinou jednou týdně.",
       readMore: "Číst",
       allPosts: "Všechny články",
       emptyState: "Momentálně se nepodařilo načíst články.",
     },
 
-    spolupracujiSection: {
-      label: "Spolupracuji",
-      title: "A ještě radši tvořím",
-      intro:
-        "Nejsem k dispozici na vše — ale když mi to dává smysl, do toho jdu naplno. Tady je přehled toho, na co jsem otevřený.",
-      text: "Aktuálně se nejvíc věnuju koučinku na žiju.life, ale jsem otevřený i dalším spolupracím. Nejvíce mě baví dívat se na věci jako na systémy, vymýšlet, jak by měly fungovat, a hledat cestu tam, kde se ostatní zasekli.\nPokud máš nápad nebo otázku, napiš mi.",
-      ctaLabel: "Napsat e-mail",
-      zijuText: "Koučink a vědomé žití:",
-      zijuLabel: "žiju.life →",
-    },
-
-    experimentySection: {
-      label: "Experimentuju",
-      title: "Aktivní projekty",
-      intro:
-        "Věci, které stavím mimo Žiju.life — většinou proto, že mě něco zaujalo natolik, že jsem to prostě musel zkusit postavit.",
-      wipLabel: "Probíhá",
-      visitLabel: "Otevřít",
-      projects: [
+    formativeSection: {
+      title: "Co mě formuje",
+      subtitle:
+        "Není to bibliografie. Je to mapa toho, kde mám kořeny.",
+      items: [
         {
-          name: "Thinkable",
-          description:
-            "Mobilní app pro trénink kritického myšlení. Duolingo pro myšlení.",
-          url: "https://thinkable.website",
-          emoji: "🧠",
+          name: "John Vervaeke",
+          note: "Awakening from the Meaning Crisis. Smysl není věc, ale proces — a jeho ztráta bolí konkrétně.",
         },
         {
-          name: "Interactive: The Changing World Order",
-          description:
-            "Interaktivní vizualizace cyklů moci dle knihy Raye Dalia — kde jsme v historickém cyklu a proč na tom záleží.",
-          emoji: "🌍",
-          wip: true,
+          name: "Ray Dalio",
+          note: "Principy a historické cykly. Jak číst svět skrze vzorce, ne izolované události.",
+        },
+        {
+          name: "Viktor Frankl",
+          note: "Smysl jako základ motivace. Bez toho jdou všechny ostatní rámce do prázdna.",
+        },
+        {
+          name: "Daniel Kahneman",
+          note: "Thinking, Fast and Slow. Mapa toho, jak nás naše myšlení klame — a kdy to nevadí.",
         },
       ],
+    },
+
+    spolupracujiSection: {
+      title: "Myslíme spolu",
+      mainText:
+        "Pracuji s malým počtem zakladatelů jako thinking partner — někdo mimo jejich hlavu, kdo pomáhá vidět systém za problémem. Nejde o koučink. Jde o to myslet společně.",
+      slotsLabel: "Momentálně: 2 sloty k dispozici.",
+      otherLabel: "Jsem otevřený i:",
+      otherItems: ["speakingu na konferencích", "workshopům pro týmy", "partnerstvím, která mají smysl"],
+      ctaCallLabel: "Rezervuj 30 minut",
+      ctaCallUrl: "https://cal.eu/matejmauler/30min",
+      ctaSubstackLabel: "Odebírej na Substacku →",
+      ctaEmailLabel: "matej@matejmauler.com",
     },
   },
 
@@ -130,68 +124,59 @@ export const dictionaries: Record<Lang, Dictionary> = {
     meta: {
       title: "Matěj Mauler",
       description:
-        "Exploring how to live more consciously and how to build things that matter. I write, coach, and experiment.",
+        "I write and think about why smart people work against themselves — and what can be done about it.",
     },
     switcher: { cs: "CZ", en: "EN" },
 
     hero: {
       greeting: "I'm Matěj.",
-      tagline:
-        "Exploring how to live more consciously and how to build things that matter.",
-
-      lines: [],
+      tagline: "I explore what it means to be human — and what follows from that.",
+      bio: "I write, think, and work with founders as a thinking partner.",
     },
 
     pisuSection: {
       label: "Writing",
-      title: "What I'm writing",
-      intro:
-        "Writing is how I make sense of things — and then send them out into the world. Here you'll find notes from Substack: sometimes short observations, sometimes longer essays on whatever's on my mind.",
-      substackSubtitle:
-        "Longer essays and notes from Substack — unfiltered, unhurried.",
-      linkedinLabel: "LinkedIn",
-      linkedinHandle: "matej-mauler",
-      linkedinDesc:
-        "Shorter thoughts, observations, and notes on building and conscious living.",
+      title: "What I'm thinking about now",
+      lead: "I write about what's on my mind. Usually once a week.",
       readMore: "Read",
       allPosts: "All posts",
       emptyState: "Couldn't load posts right now.",
     },
 
-    spolupracujiSection: {
-      label: "Collaboration",
-      title: "How we can work together",
-      intro:
-        "I'm not available for everything — but when something makes sense to me, I'm all in. Here's what I'm open to.",
-      text: "Right now I focus mostly on coaching at žiju.life, but I'm open to other collaborations — speaking, advising founders, partnerships. If you have an idea or a question, write to me.",
-      ctaLabel: "Send an email",
-      zijuText: "Coaching and conscious living:",
-      zijuLabel: "žiju.life →",
-    },
-
-    experimentySection: {
-      label: "Experiments",
-      title: "Active projects",
-      intro:
-        "Things I build outside of Žiju.life — usually because something caught my interest enough that I just had to try building it.",
-      wipLabel: "In progress",
-      visitLabel: "Visit",
-      projects: [
+    formativeSection: {
+      title: "What shapes me",
+      subtitle: "Not a bibliography. A map of where my thinking is rooted.",
+      items: [
         {
-          name: "Thinkable",
-          description:
-            "A mobile app for training critical thinking. Duolingo for the mind.",
-          url: "https://thinkable.website",
-          emoji: "🧠",
+          name: "John Vervaeke",
+          note: "Awakening from the Meaning Crisis. Why meaning isn't a thing but a process — and why its loss hurts.",
         },
         {
-          name: "Interactive: The Changing World Order",
-          description:
-            "An interactive visualisation of power cycles based on Ray Dalio's book — where we are in the historical arc and why it matters.",
-          emoji: "🌍",
-          wip: true,
+          name: "Ray Dalio",
+          note: "Principles and historical cycles. How to read the world through patterns, not isolated events.",
+        },
+        {
+          name: "Viktor Frankl",
+          note: "Meaning as the foundation of motivation. Without it, every other framework collapses.",
+        },
+        {
+          name: "Daniel Kahneman",
+          note: "Thinking, Fast and Slow. A map of how our minds deceive us — and when that's fine.",
         },
       ],
+    },
+
+    spolupracujiSection: {
+      title: "Thinking together",
+      mainText:
+        "I work with a small number of founders as a thinking partner — someone outside their head who helps them see the system behind the problem. It's not coaching. It's thinking together.",
+      slotsLabel: "Currently: 2 slots available.",
+      otherLabel: "I'm also open to:",
+      otherItems: ["speaking at conferences", "workshops for teams", "partnerships that make sense"],
+      ctaCallLabel: "Book 30 minutes",
+      ctaCallUrl: "https://cal.eu/matejmauler/30min",
+      ctaSubstackLabel: "Subscribe on Substack",
+      ctaEmailLabel: "matej@matejmauler.com",
     },
   },
 };

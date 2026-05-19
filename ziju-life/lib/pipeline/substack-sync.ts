@@ -1,7 +1,7 @@
 import Parser from "rss-parser";
 import { sql } from "../database";
 
-const SUBSTACK_FEED_URL = "https://zijulife.substack.com/feed";
+const SUBSTACK_FEED_URL = "https://reluam.substack.com/feed";
 
 type SubstackItem = {
   title?: string;

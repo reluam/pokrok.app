@@ -41,7 +41,7 @@ function stripHtml(html: string): string {
 
 export async function getSubstackPosts(limit = 4): Promise<SubstackPost[]> {
   try {
-    const res = await fetch("https://reluam.substack.com/feed", {
+    const res = await fetch("https://matejmauler.substack.com/feed", {
       next: { revalidate: 3600 },
     });
     if (!res.ok) return [];

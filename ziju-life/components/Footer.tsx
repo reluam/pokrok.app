@@ -68,7 +68,7 @@ export default function Footer() {
                 </svg>
               </a>
               {/* Substack */}
-              <a href="https://zijulife.substack.com/?r=86mho4&utm_campaign=pub-share-checklist" target="_blank" rel="noopener noreferrer" className="p-2 text-muted hover:text-primary transition-colors" aria-label="Substack">
+              <a href="https://reluam.substack.com" target="_blank" rel="noopener noreferrer" className="p-2 text-muted hover:text-primary transition-colors" aria-label="Substack">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24l9.56-5.26L20.539 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
                 </svg>

@@ -10,8 +10,7 @@ export const metadata: Metadata = {
     "Vnitřní klid v hlučném světě. Poslední článek, Substack a konzultace zdarma.",
 };
 
-const SUBSTACK_URL =
-  "https://zijulife.substack.com/?r=86mho4&utm_campaign=pub-share-checklist";
+const SUBSTACK_URL = "https://reluam.substack.com";
 
 const socials = [
   {

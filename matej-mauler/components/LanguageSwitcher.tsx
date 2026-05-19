@@ -14,30 +14,35 @@ export function LanguageSwitcher({
     window.location.href = target === "cs" ? "/" : "/en";
   };
 
-  const base =
-    "font-display font-bold text-xs uppercase tracking-[0.1em] px-2.5 py-1 rounded-full transition-colors";
-  const active = "bg-primary text-white";
-  const inactive = "text-muted hover:text-foreground";
-
   return (
     <div className="fixed top-5 right-5 md:top-6 md:right-8 z-50">
-      <div className="paper-card flex items-center gap-1 px-2 py-1.5">
-        <button
-          type="button"
-          onClick={() => setLang("cs")}
-          className={`${base} ${lang === "cs" ? active : inactive}`}
-          aria-label="Čeština"
-        >
-          {labels.cs}
-        </button>
-        <button
-          type="button"
-          onClick={() => setLang("en")}
-          className={`${base} ${lang === "en" ? active : inactive}`}
-          aria-label="English"
-        >
-          {labels.en}
-        </button>
+      <div
+        className="flex items-center gap-px px-1.5 py-1 rounded"
+        style={{
+          background: "var(--bg-card)",
+          border: "1px solid var(--border-subtle)",
+        }}
+      >
+        {(["cs", "en"] as Lang[]).map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => setLang(l)}
+            className="rounded px-2.5 py-1 transition-colors"
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: "11px",
+              fontWeight: 500,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              background: lang === l ? "var(--accent)" : "transparent",
+              color: lang === l ? "var(--bg-page)" : "var(--text-muted)",
+            }}
+            aria-label={l === "cs" ? "Čeština" : "English"}
+          >
+            {labels[l]}
+          </button>
+        ))}
       </div>
     </div>
   );
