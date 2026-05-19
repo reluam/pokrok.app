@@ -1,17 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Dictionary, Lang } from "@/lib/dictionaries";
+import { getSubstackPosts, formatPostDate } from "@/lib/substack";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const hasAvatar = fs.existsSync(
-  path.join(process.cwd(), "public", "matej.jpg")
+  path.join(process.cwd(), "public", "matej.jpg"),
 );
 
 /* ─── Icons ─── */
 
 function Icon({
   name,
-  size = 24,
+  size = 20,
   className = "",
 }: {
   name: string;
@@ -26,43 +27,26 @@ function Icon({
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
   };
-
   switch (name) {
-    case "arrow_forward":
+    case "arrow_right":
       return (
         <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
           <path d="M5 12h14M12 5l7 7-7 7" />
         </svg>
       );
-    case "instagram":
+    case "linkedin":
       return (
         <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
-          <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+          <rect x="2" y="9" width="4" height="12" />
+          <circle cx="4" cy="4" r="2" />
         </svg>
       );
-    case "youtube":
+    case "mail":
       return (
         <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
-          <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
-          <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" />
-        </svg>
-      );
-    case "facebook":
-      return (
-        <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
-          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-        </svg>
-      );
-    case "article":
-      return (
-        <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <line x1="16" y1="13" x2="8" y2="13" />
-          <line x1="16" y1="17" x2="8" y2="17" />
-          <polyline points="10 9 9 9 8 9" />
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <path d="m22 7-10 5L2 7" />
         </svg>
       );
     case "globe":
@@ -71,13 +55,6 @@ function Icon({
           <circle cx="12" cy="12" r="10" />
           <line x1="2" y1="12" x2="22" y2="12" />
           <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-        </svg>
-      );
-    case "mail":
-      return (
-        <svg {...s} viewBox="0 0 24 24" {...stroke} className={className}>
-          <rect x="2" y="4" width="20" height="16" rx="2" />
-          <path d="m22 7-10 5L2 7" />
         </svg>
       );
     case "sparkles":
@@ -91,56 +68,31 @@ function Icon({
   }
 }
 
-/* ─── Color helpers ─── */
-
-const colorMap = {
-  primary: {
-    bg: "bg-[#fff4eb]",
-    text: "text-[#ff8c42]",
-    border: "border-[#ffb380]",
-    iconBg: "bg-[#ffe4cc]",
-  },
-  teal: {
-    bg: "bg-[#e8faf8]",
-    text: "text-[#2ba89e]",
-    border: "border-[#8be0d8]",
-    iconBg: "bg-[#c6f1ec]",
-  },
-  lavender: {
-    bg: "bg-[#f1eefc]",
-    text: "text-[#7766d8]",
-    border: "border-[#cdc4f5]",
-    iconBg: "bg-[#dfd8fa]",
-  },
-};
-
 /* ─── Component ─── */
 
-export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
+export async function HomeContent({
+  dict,
+  lang,
+}: {
+  dict: Dictionary;
+  lang: Lang;
+}) {
+  const posts = await getSubstackPosts(4);
+
   return (
-    <main className="flex-1 bg-background overflow-x-hidden relative">
+    <main className="flex-1 bg-background overflow-x-hidden">
       <LanguageSwitcher lang={lang} labels={dict.switcher} />
 
-      <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
-        {/* ─── Hero ─── */}
-        <section
-          className="mb-20 md:mb-24 animate-fade-up relative"
-          style={{ animationDelay: "0ms" }}
-        >
-          {/* Floating decorative emoji */}
-          <div className="absolute -top-4 -left-2 text-3xl animate-float opacity-60 hidden md:block">
-            ✨
-          </div>
-          <div
-            className="absolute top-10 -right-4 text-2xl animate-float opacity-50 hidden md:block"
-            style={{ animationDelay: "1.5s" }}
-          >
-            🌿
-          </div>
+      <div className="max-w-3xl mx-auto px-5 md:px-8">
 
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-10 items-start">
+        {/* ══════════════════════════════════════
+            HERO
+        ══════════════════════════════════════ */}
+        <section className="pt-20 md:pt-28 pb-20 md:pb-24 animate-fade-up">
+          <div className="flex flex-col md:flex-row gap-10 items-center md:items-start">
+
             {/* Avatar */}
-            <div className="paper-card overflow-hidden w-56 h-56 md:w-64 md:h-64 shrink-0 mx-auto md:mx-0">
+            <div className="paper-card overflow-hidden shrink-0 w-36 h-36 md:w-44 md:h-44">
               {hasAvatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -150,7 +102,7 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-[#ffe4cc] to-[#c6f1ec] flex items-center justify-center">
-                  <span className="font-display text-5xl font-extrabold text-[#ff6b1a]">
+                  <span className="font-display text-3xl font-extrabold text-[#ff6b1a]">
                     MM
                   </span>
                 </div>
@@ -159,140 +111,165 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
 
             {/* Text */}
             <div className="text-center md:text-left">
-              <h1 className="font-display text-5xl md:text-6xl font-extrabold leading-[1] mb-5 tracking-tight">
-                {dict.hero.greetingPrefix}
-                <span className="underline-playful">{dict.hero.name}</span>
+              <h1 className="font-display text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-4">
+                <span className="underline-playful">{dict.hero.greeting.replace(".", "")}</span>
                 <span className="text-primary">.</span>
               </h1>
-
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-3">
-                {dict.hero.bioBefore}
-                <a
-                  href="https://ziju.life"
-                  className="font-semibold text-primary hover:text-primary-dark transition-colors"
-                >
-                  {dict.hero.bioZijuLink}
-                </a>
-                {dict.hero.bioAfter}
-              </p>
-
-              <p className="text-base text-muted">
-                {dict.hero.rozcestnikBefore}
-                <span className="underline-teal font-semibold">
-                  {dict.hero.rozcestnikWord}
-                </span>
-                {dict.hero.rozcestnikAfter}
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed mb-2">
+                {dict.hero.tagline}
               </p>
             </div>
           </div>
         </section>
 
-        {/* ─── Projekty ─── */}
+        {/* ══════════════════════════════════════
+            PÍŠU / WRITING
+        ══════════════════════════════════════ */}
         <section
-          className="mb-20 md:mb-24 animate-fade-up"
-          style={{ animationDelay: "100ms" }}
+          id="pisu"
+          className="pb-20 md:pb-24 animate-fade-up"
+          style={{ animationDelay: "80ms" }}
         >
-          <div className="text-center mb-10">
-            <p className="font-display text-xs uppercase tracking-[0.18em] text-primary font-bold mb-2">
-              {dict.projectsSection.label}
-            </p>
+          <div className="mb-8">
             <h2 className="font-display text-3xl md:text-4xl font-extrabold">
-              {dict.projectsSection.titleBefore}
-              <span className="underline-playful">
-                {dict.projectsSection.titleHighlight}
-              </span>
+              <span className="underline-teal">{dict.pisuSection.title}</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {dict.projects.map((p) => {
-              const c = colorMap[p.color];
-              return (
-                <div
-                  key={p.name}
-                  className="paper-card p-6 h-full flex flex-col relative"
+          {/* Substack posts */}
+          {posts.length === 0 ? (
+            <p className="text-muted text-sm">{dict.pisuSection.emptyState}</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              {posts.map((post) => (
+                <a
+                  key={post.link}
+                  href={post.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="paper-card flex flex-col group overflow-hidden"
                 >
-                  {p.comingSoon && (
-                    <span className="badge-soon absolute -top-2 -right-2">
-                      <Icon name="sparkles" size={12} />
-                      {dict.comingSoon}
-                    </span>
-                  )}
-
-                  <div
-                    className={`w-12 h-12 rounded-2xl ${c.iconBg} flex items-center justify-center mb-4 text-2xl`}
-                  >
-                    {p.emoji}
+                  {/* Thumbnail */}
+                  <div className="w-full aspect-[16/9] bg-[#f5f1e4] shrink-0">
+                    {post.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={post.image}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-3xl">
+                        ✍️
+                      </div>
+                    )}
                   </div>
 
-                  <p
-                    className={`font-display text-[0.7rem] uppercase tracking-[0.15em] font-bold mb-1 ${c.text}`}
-                  >
-                    {p.tagline}
-                  </p>
-                  <h3 className="font-display text-2xl font-extrabold mb-3">
-                    {p.name}
-                  </h3>
-                  <p className="text-foreground/70 leading-relaxed text-[0.95rem] mb-5 flex-1">
-                    {p.description}
-                  </p>
+                  {/* Text */}
+                  <div className="flex flex-col flex-1 p-4 gap-2">
+                    {post.isoDate && (
+                      <p className="text-[0.68rem] font-display font-bold text-muted uppercase tracking-wide">
+                        {formatPostDate(post.isoDate, lang)}
+                      </p>
+                    )}
+                    <h3 className="font-display font-extrabold text-[0.97rem] leading-snug group-hover:text-primary transition-colors flex-1">
+                      {post.title}
+                    </h3>
+                    <span className="inline-flex items-center gap-1 text-[#2ba89e] font-display font-bold text-xs mt-1">
+                      {dict.pisuSection.readMore}
+                      <Icon name="arrow_right" size={13} />
+                    </span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
 
-                  {p.links.length === 0 ? (
-                    <p className="text-muted text-sm italic">{p.emptyText}</p>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      {p.links.map((l) => (
-                        <a
-                          key={l.name}
-                          href={l.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${c.bg} hover:scale-[1.02] transition-transform`}
-                        >
-                          <span className={c.text}>
-                            <Icon name={l.icon} size={18} />
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <p
-                              className={`font-display font-bold text-sm leading-tight ${c.text}`}
-                            >
-                              {l.name}
-                            </p>
-                            <p className="text-xs text-foreground/50 truncate">
-                              {l.handle}
-                            </p>
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <a
+            href="https://reluam.substack.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline text-sm"
+          >
+            {dict.pisuSection.allPosts}
+          </a>
+        </section>
+
+        {/* ══════════════════════════════════════
+            SPOLUPRACUJI / COLLABORATION
+        ══════════════════════════════════════ */}
+        <section
+          id="spolupracuji"
+          className="pb-20 md:pb-24 animate-fade-up"
+          style={{ animationDelay: "160ms" }}
+        >
+          <div className="mb-8">
+            <h2 className="font-display text-3xl md:text-4xl font-extrabold">
+              <span className="underline-playful">{dict.spolupracujiSection.title}</span>
+            </h2>
+          </div>
+
+          <div className="paper-card p-7 md:p-9">
+            <div className="text-foreground/80 leading-relaxed text-[1.02rem] mb-7 space-y-3">
+              {dict.spolupracujiSection.text.split("\n").map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+              <a
+                href="mailto:matej@ziju.life"
+                className="btn-playful"
+              >
+                <Icon name="mail" size={17} />
+                {dict.spolupracujiSection.ctaLabel}
+              </a>
+
+              <div className="flex items-center gap-2 text-sm text-muted">
+                <span>{dict.spolupracujiSection.zijuText}</span>
+                <a
+                  href="https://ziju.life"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-display font-bold text-primary hover:text-primary-dark transition-colors flex items-center gap-1"
+                >
+                  <Icon name="globe" size={14} />
+                  {dict.spolupracujiSection.zijuLabel}
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ─── Napsat ─── */}
-        <section
-          className="text-center mb-12 animate-fade-up"
-          style={{ animationDelay: "300ms" }}
-        >
-          <div className="paper-card p-8">
-            <p className="text-2xl mb-3">👋</p>
-            <h3 className="font-display text-xl font-extrabold mb-2">
-              {dict.contact.title}
-            </h3>
-            <p className="text-muted text-sm mb-5">{dict.contact.text}</p>
-            <a href="mailto:matej@matejmauler.com" className="btn-playful">
-              <Icon name="mail" size={18} />
-              matej@matejmauler.com
+        {/* Footer */}
+        <footer className="py-8 text-center">
+          <div className="flex justify-center gap-4 mb-3">
+            <a
+              href="https://reluam.substack.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted/60 hover:text-foreground transition-colors font-display"
+            >
+              Substack
+            </a>
+            <a
+              href="https://www.linkedin.com/in/matej-mauler/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted/60 hover:text-foreground transition-colors font-display"
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://ziju.life"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted/60 hover:text-foreground transition-colors font-display"
+            >
+              Žiju.life
             </a>
           </div>
-        </section>
-
-        {/* ─── Footer ─── */}
-        <footer className="text-center pt-6">
-          <p className="text-xs text-muted/60 font-display">
+          <p className="text-xs text-muted/40 font-display">
             &copy; 2026 Matěj Mauler
           </p>
         </footer>

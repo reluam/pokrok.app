@@ -1,81 +1,61 @@
 export type Lang = "cs" | "en";
 
-export type Link = { name: string; handle: string; href: string; icon: string };
-
-export type Project = {
+export type Link = {
   name: string;
-  tagline: string;
+  handle: string;
+  href: string;
+  icon: string;
+};
+
+export type ExperimentProject = {
+  name: string;
   description: string;
-  color: "primary" | "teal" | "lavender";
+  url?: string;
   emoji: string;
-  comingSoon?: boolean;
-  emptyText?: string;
-  links: Link[];
+  wip?: boolean;
 };
 
 export type Dictionary = {
-  meta: {
-    title: string;
-    description: string;
-  };
-  hero: {
-    greetingPrefix: string;
-    name: string;
-    bioBefore: string;
-    bioZijuLink: string;
-    bioAfter: string;
-    rozcestnikBefore: string;
-    rozcestnikWord: string;
-    rozcestnikAfter: string;
-  };
-  projectsSection: {
-    label: string;
-    titleBefore: string;
-    titleHighlight: string;
-  };
-  contact: {
-    title: string;
-    text: string;
-  };
-  switcher: {
-    cs: string;
-    en: string;
-  };
-  comingSoon: string;
-  projects: Project[];
-};
+  meta: { title: string; description: string };
+  switcher: { cs: string; en: string };
 
-const sharedLinks = {
-  zijuWeb: {
-    name: "Web",
-    handle: "ziju.life",
-    href: "https://ziju.life",
-    icon: "globe",
-  },
-  zijuIg: {
-    name: "Instagram",
-    handle: "@zijulife",
-    href: "https://www.instagram.com/zijulife/",
-    icon: "instagram",
-  },
-  zijuYt: {
-    name: "YouTube",
-    handle: "@zijulife",
-    href: "https://www.youtube.com/@zijulife",
-    icon: "youtube",
-  },
-  zijuFb: {
-    name: "Facebook",
-    handle: "Žiju.life",
-    href: "https://www.facebook.com/zijulife",
-    icon: "facebook",
-  },
-  substack: {
-    name: "Substack",
-    handle: "reluam.substack.com",
-    href: "https://reluam.substack.com/",
-    icon: "article",
-  },
+  hero: {
+    greeting: string;
+    tagline: string;
+    lines: string[];
+  };
+
+  pisuSection: {
+    label: string;
+    title: string;
+    intro: string;
+    substackSubtitle: string;
+    linkedinLabel: string;
+    linkedinHandle: string;
+    linkedinDesc: string;
+    readMore: string;
+    allPosts: string;
+    emptyState: string;
+  };
+
+  spolupracujiSection: {
+    label: string;
+    title: string;
+    intro: string;
+    text: string;
+    ctaLabel: string;
+    zijuText: string;
+    zijuLabel: string;
+  };
+
+  experimentySection: {
+    label: string;
+    title: string;
+    intro: string;
+    wipLabel: string;
+    visitLabel: string;
+    projects: ExperimentProject[];
+  };
 };
 
 export const dictionaries: Record<Lang, Dictionary> = {
@@ -83,137 +63,135 @@ export const dictionaries: Record<Lang, Dictionary> = {
     meta: {
       title: "Matěj Mauler",
       description:
-        "Ahoj, jsem Matěj. Tvořím Žiju.life, píšu na Substack a snažím se přijít na to, jak žít vědoměji. Tady najdeš všechno, co dělám.",
+        "Zkoumám, jak žít vědoměji a jak budovat věci, které mají smysl.",
     },
+    switcher: { cs: "CZ", en: "EN" },
+
     hero: {
-      greetingPrefix: "Ahoj, jsem ",
-      name: "Matěj",
-      bioBefore: "Tvořím ",
-      bioZijuLink: "Žiju.life",
-      bioAfter:
-        ", píšu na Substack a dělám pár dalších věcí. Pořád zkouším přijít na to, jak žít vědoměji.",
-      rozcestnikBefore: "Tahle stránka je ",
-      rozcestnikWord: "rozcestník",
-      rozcestnikAfter: " — najdeš tady všechno, co dělám.",
+      greeting: "Jsem Matěj.",
+      tagline:
+        "Zkoumám, jak žít vědoměji a jak budovat věci, které mají smysl.",
+      lines: [],
     },
-    projectsSection: {
-      label: "⚡ Co teď dělám",
-      titleBefore: "Moje ",
-      titleHighlight: "projekty",
+
+    pisuSection: {
+      label: "Píšu",
+      title: "Občas něco napíšu",
+      intro:
+        "Psaní je pro mě způsob, jak si utřídit myšlenky — a pak je poslat dál. Najdeš tu zápisky ze Substacku: někdy krátká pozorování, někdy delší eseje o věcech, které mě právě zaměstnávají.",
+      substackSubtitle: "Kratší i delší zápisky ze Substacku.",
+      linkedinLabel: "LinkedIn",
+      linkedinHandle: "matej-mauler",
+      linkedinDesc:
+        "Kratší myšlenky, postřehy a poznámky z podnikání a vědomého žití.",
+      readMore: "Číst",
+      allPosts: "Všechny články",
+      emptyState: "Momentálně se nepodařilo načíst články.",
     },
-    contact: {
-      title: "Chceš mi napsat?",
-      text: "Nejjednodušší cesta je e-mail.",
+
+    spolupracujiSection: {
+      label: "Spolupracuji",
+      title: "A ještě radši tvořím",
+      intro:
+        "Nejsem k dispozici na vše — ale když mi to dává smysl, do toho jdu naplno. Tady je přehled toho, na co jsem otevřený.",
+      text: "Aktuálně se nejvíc věnuju koučinku na žiju.life, ale jsem otevřený i dalším spolupracím. Nejvíce mě baví dívat se na věci jako na systémy, vymýšlet, jak by měly fungovat, a hledat cestu tam, kde se ostatní zasekli.\nPokud máš nápad nebo otázku, napiš mi.",
+      ctaLabel: "Napsat e-mail",
+      zijuText: "Koučink a vědomé žití:",
+      zijuLabel: "žiju.life →",
     },
-    switcher: {
-      cs: "CZ",
-      en: "EN",
+
+    experimentySection: {
+      label: "Experimentuju",
+      title: "Aktivní projekty",
+      intro:
+        "Věci, které stavím mimo Žiju.life — většinou proto, že mě něco zaujalo natolik, že jsem to prostě musel zkusit postavit.",
+      wipLabel: "Probíhá",
+      visitLabel: "Otevřít",
+      projects: [
+        {
+          name: "Thinkable",
+          description:
+            "Mobilní app pro trénink kritického myšlení. Duolingo pro myšlení.",
+          url: "https://thinkable.website",
+          emoji: "🧠",
+        },
+        {
+          name: "Interactive: The Changing World Order",
+          description:
+            "Interaktivní vizualizace cyklů moci dle knihy Raye Dalia — kde jsme v historickém cyklu a proč na tom záleží.",
+          emoji: "🌍",
+          wip: true,
+        },
+      ],
     },
-    comingSoon: "Coming soon",
-    projects: [
-      {
-        name: "Žiju.life",
-        tagline: "Můj hlavní projekt",
-        description:
-          "Aplikace, web a nástroje pro vědomější každodennost. Buduju to s týmem už nějaký ten rok.",
-        color: "primary",
-        emoji: "🌱",
-        links: [
-          sharedLinks.zijuWeb,
-          sharedLinks.zijuIg,
-          sharedLinks.zijuYt,
-          sharedLinks.zijuFb,
-        ],
-      },
-      {
-        name: "Snaps",
-        tagline: "Něco nového",
-        description:
-          "Pracuju na něčem novém. Brzy se dozvíš víc. Zatím jen tolik — bude to dobré.",
-        color: "lavender",
-        emoji: "📸",
-        comingSoon: true,
-        emptyText: "Až bude něco veřejně, najdeš to tady jako první.",
-        links: [],
-      },
-      {
-        name: "Matějův zápisník",
-        tagline: "Substack",
-        description:
-          "Píšu o věcech, které mě právě teď zajímají — vědomí, žití, drobné objevy. Občas dlouho, občas krátce. Nikdy ne nuceně.",
-        color: "teal",
-        emoji: "✍️",
-        links: [sharedLinks.substack],
-      },
-    ],
   },
 
   en: {
     meta: {
       title: "Matěj Mauler",
       description:
-        "Hi, I'm Matěj. I'm building Žiju.life, writing on Substack, and trying to figure out how to live more consciously. Here's everything I do.",
+        "Exploring how to live more consciously and how to build things that matter. I write, coach, and experiment.",
     },
+    switcher: { cs: "CZ", en: "EN" },
+
     hero: {
-      greetingPrefix: "Hi, I'm ",
-      name: "Matěj",
-      bioBefore: "I'm building ",
-      bioZijuLink: "Žiju.life",
-      bioAfter:
-        ", writing on Substack, and working on a few other things. I'm always trying to figure out how to live more consciously.",
-      rozcestnikBefore: "This page is a ",
-      rozcestnikWord: "hub",
-      rozcestnikAfter: " — you'll find everything I do here.",
+      greeting: "I'm Matěj.",
+      tagline:
+        "Exploring how to live more consciously and how to build things that matter.",
+
+      lines: [],
     },
-    projectsSection: {
-      label: "⚡ What I'm up to",
-      titleBefore: "My ",
-      titleHighlight: "projects",
+
+    pisuSection: {
+      label: "Writing",
+      title: "What I'm writing",
+      intro:
+        "Writing is how I make sense of things — and then send them out into the world. Here you'll find notes from Substack: sometimes short observations, sometimes longer essays on whatever's on my mind.",
+      substackSubtitle:
+        "Longer essays and notes from Substack — unfiltered, unhurried.",
+      linkedinLabel: "LinkedIn",
+      linkedinHandle: "matej-mauler",
+      linkedinDesc:
+        "Shorter thoughts, observations, and notes on building and conscious living.",
+      readMore: "Read",
+      allPosts: "All posts",
+      emptyState: "Couldn't load posts right now.",
     },
-    contact: {
-      title: "Want to reach out?",
-      text: "Email is the easiest way.",
+
+    spolupracujiSection: {
+      label: "Collaboration",
+      title: "How we can work together",
+      intro:
+        "I'm not available for everything — but when something makes sense to me, I'm all in. Here's what I'm open to.",
+      text: "Right now I focus mostly on coaching at žiju.life, but I'm open to other collaborations — speaking, advising founders, partnerships. If you have an idea or a question, write to me.",
+      ctaLabel: "Send an email",
+      zijuText: "Coaching and conscious living:",
+      zijuLabel: "žiju.life →",
     },
-    switcher: {
-      cs: "CZ",
-      en: "EN",
+
+    experimentySection: {
+      label: "Experiments",
+      title: "Active projects",
+      intro:
+        "Things I build outside of Žiju.life — usually because something caught my interest enough that I just had to try building it.",
+      wipLabel: "In progress",
+      visitLabel: "Visit",
+      projects: [
+        {
+          name: "Thinkable",
+          description:
+            "A mobile app for training critical thinking. Duolingo for the mind.",
+          url: "https://thinkable.website",
+          emoji: "🧠",
+        },
+        {
+          name: "Interactive: The Changing World Order",
+          description:
+            "An interactive visualisation of power cycles based on Ray Dalio's book — where we are in the historical arc and why it matters.",
+          emoji: "🌍",
+          wip: true,
+        },
+      ],
     },
-    comingSoon: "Coming soon",
-    projects: [
-      {
-        name: "Žiju.life",
-        tagline: "My main project",
-        description:
-          "App, website, and tools for a more conscious everyday. I've been building it with a team for a while now.",
-        color: "primary",
-        emoji: "🌱",
-        links: [
-          sharedLinks.zijuWeb,
-          sharedLinks.zijuIg,
-          sharedLinks.zijuYt,
-          sharedLinks.zijuFb,
-        ],
-      },
-      {
-        name: "Snaps",
-        tagline: "Something new",
-        description:
-          "I'm working on something new. You'll hear more soon. For now, just this — it'll be good.",
-        color: "lavender",
-        emoji: "📸",
-        comingSoon: true,
-        emptyText: "When there's something public, you'll see it here first.",
-        links: [],
-      },
-      {
-        name: "Matěj's notebook",
-        tagline: "Substack",
-        description:
-          "I write about whatever's on my mind right now — consciousness, living, small discoveries. Sometimes long, sometimes short. Never forced.",
-        color: "teal",
-        emoji: "✍️",
-        links: [sharedLinks.substack],
-      },
-    ],
   },
 };

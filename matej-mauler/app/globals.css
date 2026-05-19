@@ -2,7 +2,6 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Žiju.life inspired palette */
   --color-background: #fdfdf7;
   --color-surface: #ffffff;
   --color-surface-low: #faf8f0;
@@ -13,8 +12,10 @@
 
   --color-primary: #ff8c42;
   --color-primary-dark: #ff6b1a;
-  --color-teal: #4ecdc4;
-  --color-lavender: #b0a7f5;
+  --color-teal: #2ba89e;
+  --color-teal-light: #4ecdc4;
+  --color-lavender: #7766d8;
+  --color-lavender-light: #b0a7f5;
   --color-yellow: #ffd966;
 
   --color-outline: #e8e0d0;
@@ -34,7 +35,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Playful underline highlight ─── */
+/* ─── Playful underline highlights ─── */
 .underline-playful {
   background: linear-gradient(180deg, transparent 60%, rgba(255, 140, 66, 0.35) 60%);
   padding: 0 0.15em;
@@ -47,7 +48,13 @@ body {
   border-radius: 0.2em 0.4em 0.15em 0.45em;
 }
 
-/* ─── Paper card with hand-drawn frame ─── */
+.underline-lavender {
+  background: linear-gradient(180deg, transparent 60%, rgba(176, 167, 245, 0.45) 60%);
+  padding: 0 0.15em;
+  border-radius: 0.2em 0.4em 0.15em 0.45em;
+}
+
+/* ─── Paper card ─── */
 .paper-card {
   background: #ffffff;
   border-radius: 1.25rem;
@@ -64,7 +71,7 @@ body {
     0 16px 32px -8px rgba(23, 23, 23, 0.12);
 }
 
-/* ─── Playful button ─── */
+/* ─── Buttons ─── */
 .btn-playful {
   background: var(--color-primary);
   color: #fff;
@@ -89,16 +96,39 @@ body {
   transform: scale(0.98);
 }
 
+.btn-outline {
+  background: transparent;
+  color: var(--color-foreground);
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid var(--color-outline);
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+/* ─── Section label ─── */
+.section-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
 /* ─── Animations ─── */
 @keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-up {
@@ -112,16 +142,6 @@ body {
 
 .animate-float {
   animation: float-slow 5s ease-in-out infinite;
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-2deg); }
-  75% { transform: rotate(2deg); }
-}
-
-.hover-wiggle:hover {
-  animation: wiggle 0.5s ease-in-out;
 }
 
 /* ─── Coming soon badge ─── */
@@ -139,4 +159,13 @@ body {
   padding: 0.3rem 0.75rem;
   border-radius: 9999px;
   transform: rotate(-2deg);
+}
+
+/* ─── Thought card hover arrow ─── */
+.thought-arrow {
+  transition: transform 0.2s ease;
+}
+
+.group:hover .thought-arrow {
+  transform: translateX(4px);
 }

@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Matěj Mauler",
   description:
-    "Ahoj, jsem Matěj. Tvořím Žiju.life, píšu na Substack a snažím se přijít na to, jak žít vědoměji. Tady najdeš všechno, co dělám.",
+    "Zakladatel Žiju.life. Píšu o vědomém životě, pozornosti a o tom, jak stavět věci, které mají smysl.",
 };
 
 export default function RootLayout({
