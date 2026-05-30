@@ -108,3 +108,9 @@ body {
 .dot-active {
   animation: pulse-glow 2.5s ease-in-out infinite;
 }
+
+/* Universe in-plane background star twinkle */
+@keyframes uv-tw {
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 0.20; }
+}

@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { Area, Chapter } from "@/lib/areas";
 import type { Lang } from "@/lib/i18n";
-import { StarField } from "./StarField";
 
 type Props = { areas: Area[]; lang: Lang; focusSlug?: string };
 
@@ -19,6 +18,8 @@ function seededRng(seed: string) {
     return (s >>> 0) / 0xffffffff;
   };
 }
+
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 // ── Galaxy positions on the 2D plane (golden-angle spiral + seeded jitter) ───
 
@@ -75,6 +76,46 @@ function buildChapterLayout(count: number, seed: string): PlanePos[] {
   });
 }
 
+// ── Background star field (lives ON the plane, pans + zooms with galaxies) ───
+
+type BgStar = { x: number; y: number; r: number; o: number; tw: boolean; dur: string; del: string };
+
+function BackgroundStars({ box }: { box: { x: number; y: number; w: number; h: number } }) {
+  const stars = useMemo<BgStar[]>(() => {
+    const rng = seededRng("uv-background");
+    const count = clamp(Math.round((box.w * box.h) / 11000), 140, 460);
+    return Array.from({ length: count }, () => {
+      const tw = rng() < 0.45;
+      return {
+        x: rng() * box.w,
+        y: rng() * box.h,
+        r: rng() * 1.1 + 0.25,
+        o: rng() * 0.5 + 0.12,
+        tw,
+        dur: (2 + rng() * 3).toFixed(2),
+        del: (rng() * 4).toFixed(2),
+      };
+    });
+  }, [box.w, box.h]);
+
+  return (
+    <svg
+      width={box.w} height={box.h}
+      style={{ position: "absolute", left: box.x, top: box.y, overflow: "visible", pointerEvents: "none" }}
+      aria-hidden="true"
+    >
+      {stars.map((s, i) => (
+        <circle key={i} cx={s.x} cy={s.y} r={s.r}
+          fill="rgba(205,210,255,1)"
+          style={{
+            opacity: s.o,
+            animation: s.tw ? `uv-tw ${s.dur}s ease-in-out ${s.del}s infinite` : undefined,
+          }} />
+      ))}
+    </svg>
+  );
+}
+
 // ── Galaxy ──────────────────────────────────────────────────────────────────
 
 function GalaxySvg({
@@ -123,8 +164,8 @@ function GalaxySvg({
       <g onClick={(e) => { e.stopPropagation(); onClickArea(); }} style={{ cursor: "pointer" }}>
         <ellipse cx={GCX} cy={GCY} rx={42} ry={26} fill="transparent" />
         <text x={GCX} y={GCY + 5} textAnchor="middle" fill="#c9aa78"
-          fontSize={isFocused ? 11 : 8} fontFamily="var(--font-sans)"
-          style={{ textTransform: "uppercase", letterSpacing: "0.14em", pointerEvents: "none", opacity: isFocused ? 1 : 0.7 }}>
+          fontSize={isFocused ? 11 : 9} fontFamily="var(--font-sans)"
+          style={{ textTransform: "uppercase", letterSpacing: "0.14em", pointerEvents: "none", opacity: isFocused ? 1 : 0.78 }}>
           {area[lang].name}
         </text>
       </g>
@@ -161,24 +202,18 @@ function GalaxySvg({
   );
 }
 
-// ── Search modal ────────────────────────────────────────────────────────────
+// ── Inline search (no modal — wide bar with results directly below) ──────────
 
-function SearchModal({
-  areas, lang, onClose, onPick,
+function InlineSearch({
+  areas, lang, onPick, onActiveChange, inputRef,
 }: {
   areas: Area[]; lang: Lang;
-  onClose: () => void;
   onPick: (area: Area, chapter: Chapter) => void;
+  onActiveChange: (active: boolean) => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
   const [query, setQuery] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => { inputRef.current?.focus(); }, []);
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [onClose]);
+  const [open, setOpen] = useState(false);
 
   const results: { area: Area; chapter: Chapter }[] = [];
   if (query.trim().length >= 2) {
@@ -191,36 +226,54 @@ function SearchModal({
       }
     }
   }
+  const showResults = open && query.trim().length >= 2;
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 100,
-      background: "rgba(5,5,26,0.85)", backdropFilter: "blur(12px)",
-      display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "15vh",
-    }} onClick={onClose}>
+    <div style={{ width: "min(620px, 92vw)", pointerEvents: "auto" }}>
       <div style={{
-        background: "rgba(10,10,36,0.96)", border: "1px solid rgba(201,170,120,0.18)",
-        borderRadius: "12px", width: "min(560px, 90vw)", padding: "24px",
-        maxHeight: "60vh", display: "flex", flexDirection: "column", gap: 16,
-      }} onClick={e => e.stopPropagation()}>
-        <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)}
-          placeholder={lang === "cs" ? "Hledat…" : "Search…"}
+        display: "flex", alignItems: "center", gap: "10px",
+        background: "rgba(10,10,36,0.7)", backdropFilter: "blur(10px)",
+        border: "1px solid rgba(201,170,120,0.22)",
+        borderRadius: showResults ? "16px 16px 0 0" : "16px",
+        padding: "10px 18px", transition: "border-radius 150ms",
+      }}>
+        <span style={{ fontSize: "16px", color: "var(--text-muted)" }}>⌕</span>
+        <input
+          ref={inputRef}
+          value={query}
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => { setOpen(true); onActiveChange(true); }}
+          onBlur={() => { onActiveChange(false); }}
+          placeholder={lang === "cs" ? "Hledat ve vesmíru…" : "Search the universe…"}
           style={{
-            background: "rgba(255,255,255,0.05)", border: "1px solid rgba(201,170,120,0.25)",
-            borderRadius: "6px", padding: "10px 14px", fontSize: "15px",
-            color: "var(--text-primary)", fontFamily: "var(--font-sans)", outline: "none", width: "100%",
+            flex: 1, background: "none", border: "none", outline: "none",
+            fontSize: "15px", color: "var(--text-primary)", fontFamily: "var(--font-sans)",
           }} />
-        <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
-          {results.length === 0 && query.trim().length >= 2 && (
-            <p style={{ color: "var(--text-muted)", fontSize: 14, textAlign: "center", padding: "12px 0" }}>
+        {query && (
+          <button onClick={() => { setQuery(""); inputRef.current?.focus(); }}
+            style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: "14px" }}>
+            ✕
+          </button>
+        )}
+      </div>
+
+      {showResults && (
+        <div style={{
+          background: "rgba(10,10,36,0.92)", backdropFilter: "blur(10px)",
+          border: "1px solid rgba(201,170,120,0.22)", borderTop: "none",
+          borderRadius: "0 0 16px 16px", maxHeight: "min(50vh, 420px)", overflowY: "auto",
+        }}>
+          {results.length === 0 ? (
+            <p style={{ color: "var(--text-muted)", fontSize: 14, textAlign: "center", padding: "16px" }}>
               {lang === "cs" ? "Nic nenalezeno" : "No results"}
             </p>
-          )}
-          {results.map(({ area, chapter }) => (
-            <button key={`${area.id}-${chapter.id}`} onClick={() => onPick(area, chapter)}
+          ) : results.map(({ area, chapter }) => (
+            <button key={`${area.id}-${chapter.id}`}
+              onMouseDown={(e) => { e.preventDefault(); onPick(area, chapter); }}
               style={{
-                background: "none", border: "1px solid rgba(201,170,120,0.1)", borderRadius: "6px",
-                padding: "10px 14px", textAlign: "left", cursor: "pointer", transition: "background 200ms",
+                display: "block", width: "100%", textAlign: "left",
+                background: "none", border: "none", borderTop: "1px solid rgba(201,170,120,0.08)",
+                padding: "11px 18px", cursor: "pointer", transition: "background 160ms",
               }}
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(201,170,120,0.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
@@ -233,7 +286,7 @@ function SearchModal({
             </button>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -241,14 +294,26 @@ function SearchModal({
 // ── Camera ───────────────────────────────────────────────────────────────────
 
 type Camera = { cx: number; cy: number; zoom: number };
-const ZOOM_MIN = 0.3, ZOOM_MAX = 2.6, PAN_STEP = 130;
+const ZOOM_MIN = 0.62, ZOOM_MAX = 2.6, PAN_STEP = 130;
 
 export function UniverseView({ areas, lang, focusSlug }: Props) {
   const router = useRouter();
   const sortedAreas = useMemo(() => [...areas].sort((a, b) => a.order - b.order), [areas]);
   const positions   = useMemo(() => buildPlanePositions(sortedAreas), [sortedAreas]);
 
-  // Initial camera: centered on focus area (from zoom-out) or first area
+  // Bounding box that comfortably covers all galaxies — used for the star field
+  const starBox = useMemo(() => {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const a of sortedAreas) {
+      const p = positions[a.id];
+      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+    }
+    if (!isFinite(minX)) { minX = minY = 0; maxX = maxY = 0; }
+    const m = 1200;
+    return { x: minX - m, y: minY - m, w: (maxX - minX) + 2 * m, h: (maxY - minY) + 2 * m };
+  }, [sortedAreas, positions]);
+
   const initialCamera = useMemo<Camera>(() => {
     const focus = sortedAreas.find(a => a.slug === focusSlug) ?? sortedAreas[0];
     const p = focus ? positions[focus.id] : { x: 0, y: 0 };
@@ -256,11 +321,11 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
   }, [sortedAreas, focusSlug, positions]);
 
   const [camera, setCamera] = useState<Camera>(initialCamera);
-  const [transMs, setTransMs] = useState(650);  // animate the initial centering
-  const [showSearch, setShowSearch] = useState(false);
+  const [transMs, setTransMs] = useState(650);
   const [highlight, setHighlight] = useState<{ areaId: string; chapterId: number } | null>(null);
+  const [searchActive, setSearchActive] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Galaxy nearest to the viewport center is the "focused" one
   const focusedAreaId = useMemo(() => {
     let best = sortedAreas[0]?.id ?? "";
     let bestD = Infinity;
@@ -281,25 +346,28 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
     setCamera(c => ({ ...c, cx: p.x, cy: p.y, zoom: Math.max(c.zoom, 1) }));
   }, [positions]);
 
-  // Wheel = zoom
+  // Wheel = zoom (disabled while interacting with search)
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
+      if (searchActive) return;
       e.preventDefault();
       setTransMs(140);
       setCamera(c => {
         const factor = Math.exp(-e.deltaY * 0.0014);
-        return { ...c, zoom: Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, c.zoom * factor)) };
+        return { ...c, zoom: clamp(c.zoom * factor, ZOOM_MIN, ZOOM_MAX) };
       });
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
-  }, []);
+  }, [searchActive]);
 
   // Arrows = pan the plane
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (showSearch) return;
-      if (e.key === "/" || e.key === "f") { e.preventDefault(); setShowSearch(true); return; }
+      if ((e.key === "/" || e.key === "f") && !searchActive) {
+        e.preventDefault(); searchInputRef.current?.focus(); return;
+      }
+      if (searchActive) return;
       const step = PAN_STEP / camera.zoom;
       let dx = 0, dy = 0;
       if (e.key === "ArrowLeft")  dx = -step;
@@ -313,42 +381,19 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [showSearch, camera.zoom]);
+  }, [searchActive, camera.zoom]);
 
   return (
-    <div style={{
-      background: "var(--bg)", height: "100dvh", overflow: "hidden", position: "relative",
-    }}>
-      <StarField />
-
-      {/* Search button — top center */}
-      <div style={{
-        position: "fixed", top: 0, left: 0, right: 0,
-        display: "flex", justifyContent: "center", padding: "24px", zIndex: 20, pointerEvents: "none",
-      }}>
-        <button onClick={() => setShowSearch(true)}
-          style={{
-            pointerEvents: "auto", display: "flex", alignItems: "center", gap: "8px",
-            fontFamily: "var(--font-sans)", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.18em",
-            color: "var(--text-secondary)", background: "rgba(201,170,120,0.05)",
-            border: "1px solid rgba(201,170,120,0.15)", borderRadius: "20px",
-            padding: "8px 20px", cursor: "pointer", opacity: 0.75, transition: "opacity 200ms, border-color 200ms",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.borderColor = "rgba(201,170,120,0.4)"; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.borderColor = "rgba(201,170,120,0.15)"; }}>
-          <span style={{ fontSize: "14px", opacity: 0.8 }}>⌕</span>
-          {lang === "cs" ? "Hledat" : "Search"}
-          <span style={{ fontSize: "10px", opacity: 0.5, marginLeft: 2 }}>/</span>
-        </button>
-      </div>
-
-      {/* The pannable / zoomable plane */}
+    <div style={{ background: "var(--bg)", height: "100dvh", overflow: "hidden", position: "relative" }}>
+      {/* The pannable / zoomable plane — stars AND galaxies live here together */}
       <div style={{
         position: "absolute", left: "50%", top: "50%", transformOrigin: "0 0",
         transform: `scale(${camera.zoom}) translate(${-camera.cx}px, ${-camera.cy}px)`,
         transition: `transform ${transMs}ms cubic-bezier(0.4,0,0.2,1)`,
         willChange: "transform",
       }}>
+        <BackgroundStars box={starBox} />
+
         {sortedAreas.map((area) => {
           const p = positions[area.id];
           const isFocused = area.id === focusedAreaId;
@@ -367,9 +412,24 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
         })}
       </div>
 
-      {/* Focused area name */}
+      {/* Inline search — top center */}
       <div style={{
-        position: "fixed", bottom: "64px", left: 0, right: 0,
+        position: "fixed", top: 0, left: 0, right: 0,
+        display: "flex", justifyContent: "center", padding: "22px", zIndex: 30, pointerEvents: "none",
+      }}>
+        <InlineSearch
+          areas={sortedAreas} lang={lang} inputRef={searchInputRef}
+          onActiveChange={setSearchActive}
+          onPick={(area, chapter) => {
+            setHighlight({ areaId: area.id, chapterId: chapter.id });
+            centerOn(area.id, 650);
+            searchInputRef.current?.blur();
+          }} />
+      </div>
+
+      {/* Focused area name + hint */}
+      <div style={{
+        position: "fixed", bottom: "40px", left: 0, right: 0,
         display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
         zIndex: 20, pointerEvents: "none",
       }}>
@@ -386,16 +446,6 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
           {lang === "cs" ? "scroll = přiblížit · šipky = posun · klik = vstup" : "scroll = zoom · arrows = pan · click = enter"}
         </p>
       </div>
-
-      {showSearch && (
-        <SearchModal areas={sortedAreas} lang={lang}
-          onClose={() => setShowSearch(false)}
-          onPick={(area, chapter) => {
-            setShowSearch(false);
-            setHighlight({ areaId: area.id, chapterId: chapter.id });
-            centerOn(area.id, 650);
-          }} />
-      )}
     </div>
   );
 }
