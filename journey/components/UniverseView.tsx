@@ -1,175 +1,187 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { Area, Chapter } from "@/lib/areas";
 import type { Lang } from "@/lib/i18n";
 import { StarField } from "./StarField";
 
-type Props = {
-  areas: Area[];
-  lang: Lang;
-};
+type Props = { areas: Area[]; lang: Lang };
 
-// Solar system SVG dimensions
-const SVG_W = 320;
-const SVG_H = 320;
-const CX = SVG_W / 2;
-const CY = SVG_H / 2;
-const SUN_R = 32;
-const ORBIT_R = 110;
+// ── Deterministic pseudo-random from string seed ────────────────────────────
 
-function SolarSystem({
-  area,
-  lang,
-  isActive,
-  onClickSun,
-  onClickChapter,
+function seededRng(seed: string) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < seed.length; i++) h ^= seed.charCodeAt(i), h = Math.imul(h, 0x01000193) >>> 0;
+  let s = h;
+  return () => {
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
+// ── Galaxy particle + chapter position generation ───────────────────────────
+
+type Star = { x: number; y: number; r: number; o: number };
+
+function buildGalaxy(seed: string, W: number, H: number, starCount: number): Star[] {
+  const rng = seededRng(seed + "stars");
+  const cx = W / 2, cy = H / 2;
+  return Array.from({ length: starCount }, () => {
+    // Box-Muller for gaussian cluster around center
+    const u1 = rng() + 1e-9, u2 = rng();
+    const mag = Math.sqrt(-2 * Math.log(u1));
+    const angle = 2 * Math.PI * u2;
+    // Galaxy is elongated: spread more on X axis
+    const rx = (0.28 + rng() * 0.18) * W;
+    const ry = rx * (0.4 + rng() * 0.22);
+    return {
+      x: Math.max(2, Math.min(W - 2, cx + mag * rx * Math.cos(angle))),
+      y: Math.max(2, Math.min(H - 2, cy + mag * ry * Math.sin(angle))),
+      r: rng() * 0.9 + 0.25,
+      o: rng() * 0.55 + 0.12,
+    };
+  });
+}
+
+type ChapterPos = { x: number; y: number };
+
+function buildChapterPositions(count: number, seed: string, W: number, H: number): ChapterPos[] {
+  const rng = seededRng(seed + "chapters");
+  const cx = W / 2, cy = H / 2;
+  const rx = W * 0.30, ry = H * 0.30;
+  return Array.from({ length: count }, (_, i) => {
+    const base = (2 * Math.PI * i) / count - Math.PI / 2;
+    const jitter = (rng() - 0.5) * 0.6;
+    const a = base + jitter;
+    const t = 0.75 + rng() * 0.35;
+    return { x: cx + rx * t * Math.cos(a), y: cy + ry * t * Math.sin(a) };
+  });
+}
+
+// ── Galaxy SVG component ────────────────────────────────────────────────────
+
+const GW = 360, GH = 210;
+const GCX = GW / 2, GCY = GH / 2;
+
+function GalaxySvg({
+  area, lang, isActive,
+  onClickSun, onClickChapter,
 }: {
-  area: Area;
-  lang: Lang;
-  isActive: boolean;
+  area: Area; lang: Lang; isActive: boolean;
   onClickSun: () => void;
-  onClickChapter: (chapter: Chapter) => void;
+  onClickChapter: (ch: Chapter) => void;
 }) {
-  const chapters = area.chapters;
-  const areaName = area[lang].name;
+  const stars      = useMemo(() => buildGalaxy(area.id, GW, GH, 90),                    [area.id]);
+  const chapterPos = useMemo(() => buildChapterPositions(area.chapters.length, area.id, GW, GH), [area.chapters.length, area.id]);
+  const filterId   = `glow-${area.id}`;
+  const coreId     = `core-${area.id}`;
+  const glowId     = `outer-${area.id}`;
 
   return (
-    <div
-      style={{
-        width: SVG_W,
-        flexShrink: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 12,
-        transition: "opacity 400ms ease",
-        opacity: isActive ? 1 : 0.45,
-        cursor: "default",
-      }}
+    <svg
+      width={GW} height={GH}
+      style={{ overflow: "visible", cursor: isActive ? "default" : "pointer" }}
+      onClick={!isActive ? onClickSun : undefined}
     >
-      <svg
-        width={SVG_W}
-        height={SVG_H}
-        style={{ overflow: "visible" }}
-        aria-label={`Solar system: ${areaName}`}
-      >
-        {/* Orbit circle */}
-        <circle
-          cx={CX}
-          cy={CY}
-          r={ORBIT_R}
-          fill="none"
-          stroke="rgba(201,170,120,0.12)"
-          strokeWidth={1}
-          strokeDasharray="4 6"
-        />
+      <defs>
+        {/* Soft outer nebula */}
+        <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stopColor="#c9aa78" stopOpacity={isActive ? 0.18 : 0.10} />
+          <stop offset="55%"  stopColor="#6060c0" stopOpacity={isActive ? 0.07 : 0.04} />
+          <stop offset="100%" stopColor="#05051a" stopOpacity="0" />
+        </radialGradient>
+        {/* Bright core */}
+        <radialGradient id={coreId} cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stopColor="#fff8e8" stopOpacity={isActive ? 0.55 : 0.30} />
+          <stop offset="60%" stopColor="#c9aa78" stopOpacity={isActive ? 0.20 : 0.10} />
+          <stop offset="100%" stopColor="#c9aa78" stopOpacity="0" />
+        </radialGradient>
+        {/* Chapter node glow filter */}
+        <filter id={filterId} x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation={isActive ? "2.5" : "1.5"} result="blur" />
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
 
-        {/* Sun */}
-        <circle
-          cx={CX}
-          cy={CY}
-          r={SUN_R}
-          fill={isActive ? "rgba(201,170,120,0.18)" : "rgba(201,170,120,0.08)"}
-          stroke="var(--accent)"
-          strokeWidth={isActive ? 1.5 : 1}
-          style={{
-            filter: isActive ? "drop-shadow(0 0 10px rgba(201,170,120,0.5))" : "none",
-            cursor: "pointer",
-            transition: "filter 300ms ease",
-          }}
-          onClick={onClickSun}
-        />
-        <text
-          x={CX}
-          y={CY + 4}
-          textAnchor="middle"
-          fill="var(--accent)"
-          fontSize={10}
-          fontFamily="var(--font-sans)"
-          letterSpacing="0.08em"
-          style={{ textTransform: "uppercase", cursor: "pointer", pointerEvents: "none" }}
-        >
-          {areaName}
-        </text>
+      {/* Outer nebula glow */}
+      <ellipse cx={GCX} cy={GCY} rx={GW * 0.48} ry={GH * 0.46} fill={`url(#${glowId})`} />
 
-        {/* Chapter planets */}
-        {chapters.map((ch, i) => {
-          const angle = (2 * Math.PI * i) / chapters.length - Math.PI / 2;
-          const px = CX + ORBIT_R * Math.cos(angle);
-          const py = CY + ORBIT_R * Math.sin(angle);
-          const labelAngle = angle * (180 / Math.PI);
-          const isRight = Math.cos(angle) >= 0;
+      {/* Background stars of this galaxy */}
+      {stars.map((s, i) => (
+        <circle key={i} cx={s.x} cy={s.y} r={s.r}
+          fill={`rgba(205,210,255,${s.o})`} />
+      ))}
 
-          return (
-            <g
-              key={ch.id}
-              style={{ cursor: "pointer" }}
-              onClick={() => onClickChapter(ch)}
-              role="button"
-              aria-label={ch[lang].subtitle}
-            >
-              <circle
-                cx={px}
-                cy={py}
-                r={14}
-                fill="transparent"
-              />
-              <circle
-                cx={px}
-                cy={py}
-                r={5}
-                fill="var(--text-secondary)"
-                style={{
-                  transition: "r 200ms ease, fill 200ms ease",
-                }}
-              />
-              {/* Label */}
+      {/* Bright galactic core */}
+      <ellipse cx={GCX} cy={GCY} rx={isActive ? 28 : 18} ry={isActive ? 16 : 10}
+        fill={`url(#${coreId})`} />
+
+      {/* Chapter nodes */}
+      {area.chapters.map((ch, i) => {
+        const p = chapterPos[i];
+        const isRight = p.x >= GCX;
+        return (
+          <g key={ch.id}
+            onClick={(e) => { e.stopPropagation(); onClickChapter(ch); }}
+            style={{ cursor: "pointer" }}>
+            {/* Glow halo */}
+            <circle cx={p.x} cy={p.y} r={isActive ? 8 : 5}
+              fill="rgba(201,170,120,0.12)" filter={`url(#${filterId})`} />
+            {/* Star dot */}
+            <circle cx={p.x} cy={p.y} r={isActive ? 3.5 : 2.5}
+              fill="#c9aa78" opacity={isActive ? 0.9 : 0.7} />
+            {/* Label — only on active galaxy */}
+            {isActive && (
               <text
-                x={px + (isRight ? 12 : -12)}
-                y={py + 4}
+                x={p.x + (isRight ? 10 : -10)} y={p.y + 4}
                 textAnchor={isRight ? "start" : "end"}
-                fill="var(--text-secondary)"
-                fontSize={9}
+                fill="#8880b0" fontSize="8"
                 fontFamily="var(--font-sans)"
-                letterSpacing="0.06em"
-                style={{ textTransform: "uppercase", opacity: 0.7, pointerEvents: "none" }}
+                style={{ textTransform: "uppercase", letterSpacing: "0.07em", pointerEvents: "none" }}
               >
                 {ch[lang].subtitle}
               </text>
-            </g>
-          );
-        })}
-      </svg>
-    </div>
+            )}
+          </g>
+        );
+      })}
+
+      {/* Area name at core */}
+      <text x={GCX} y={GCY + 5}
+        textAnchor="middle"
+        fill="#c9aa78"
+        fontSize={isActive ? 11 : 8}
+        fontFamily="var(--font-sans)"
+        style={{
+          textTransform: "uppercase",
+          letterSpacing: "0.14em",
+          pointerEvents: "none",
+          opacity: isActive ? 1 : 0.7,
+        }}>
+        {area[lang].name}
+      </text>
+    </svg>
   );
 }
 
+// ── Search modal ────────────────────────────────────────────────────────────
+
 function SearchModal({
-  areas,
-  lang,
-  onClose,
-  onNavigate,
+  areas, lang, onClose, onNavigate,
 }: {
-  areas: Area[];
-  lang: Lang;
+  areas: Area[]; lang: Lang;
   onClose: () => void;
   onNavigate: (areaSlug: string, chapterSlug: string) => void;
 }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => { inputRef.current?.focus(); }, []);
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
   const results: { area: Area; chapter: Chapter }[] = [];
@@ -177,61 +189,34 @@ function SearchModal({
     const q = query.toLowerCase();
     for (const area of areas) {
       for (const ch of area.chapters) {
-        const haystack = [
-          area[lang].name,
-          ch[lang].subtitle,
-          ch[lang].title,
-          ...ch.sections.map(s => s[lang]),
-        ].join(" ").toLowerCase();
-        if (haystack.includes(q)) {
-          results.push({ area, chapter: ch });
-        }
+        const hay = [area[lang].name, ch[lang].subtitle, ch[lang].title,
+          ...ch.sections.map(s => s[lang])].join(" ").toLowerCase();
+        if (hay.includes(q)) results.push({ area, chapter: ch });
       }
     }
   }
 
   return (
-    <div
-      style={{
-        position: "fixed", inset: 0, zIndex: 100,
-        background: "rgba(5,5,26,0.85)",
-        backdropFilter: "blur(12px)",
-        display: "flex", alignItems: "flex-start", justifyContent: "center",
-        paddingTop: "15vh",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: "rgba(10,10,36,0.96)",
-          border: "1px solid rgba(201,170,120,0.18)",
-          borderRadius: "12px",
-          width: "min(560px, 90vw)",
-          padding: "24px",
-          maxHeight: "60vh",
-          display: "flex",
-          flexDirection: "column",
-          gap: 16,
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        <input
-          ref={inputRef}
-          value={query}
-          onChange={e => setQuery(e.target.value)}
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 100,
+      background: "rgba(5,5,26,0.85)", backdropFilter: "blur(12px)",
+      display: "flex", alignItems: "flex-start", justifyContent: "center",
+      paddingTop: "15vh",
+    }} onClick={onClose}>
+      <div style={{
+        background: "rgba(10,10,36,0.96)",
+        border: "1px solid rgba(201,170,120,0.18)", borderRadius: "12px",
+        width: "min(560px, 90vw)", padding: "24px",
+        maxHeight: "60vh", display: "flex", flexDirection: "column", gap: 16,
+      }} onClick={e => e.stopPropagation()}>
+        <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)}
           placeholder={lang === "cs" ? "Hledat…" : "Search…"}
           style={{
             background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(201,170,120,0.25)",
-            borderRadius: "6px",
-            padding: "10px 14px",
-            fontSize: "15px",
-            color: "var(--text-primary)",
-            fontFamily: "var(--font-sans)",
-            outline: "none",
-            width: "100%",
-          }}
-        />
+            border: "1px solid rgba(201,170,120,0.25)", borderRadius: "6px",
+            padding: "10px 14px", fontSize: "15px", color: "var(--text-primary)",
+            fontFamily: "var(--font-sans)", outline: "none", width: "100%",
+          }} />
         <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
           {results.length === 0 && query.trim().length >= 2 && (
             <p style={{ color: "var(--text-muted)", fontSize: 14, textAlign: "center", padding: "12px 0" }}>
@@ -239,21 +224,15 @@ function SearchModal({
             </p>
           )}
           {results.map(({ area, chapter }) => (
-            <button
-              key={`${area.id}-${chapter.id}`}
+            <button key={`${area.id}-${chapter.id}`}
               onClick={() => onNavigate(area.slug, chapter.slug)}
               style={{
-                background: "none",
-                border: "1px solid rgba(201,170,120,0.1)",
-                borderRadius: "6px",
-                padding: "10px 14px",
-                textAlign: "left",
-                cursor: "pointer",
-                transition: "background 200ms",
+                background: "none", border: "1px solid rgba(201,170,120,0.1)",
+                borderRadius: "6px", padding: "10px 14px", textAlign: "left",
+                cursor: "pointer", transition: "background 200ms",
               }}
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(201,170,120,0.08)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
-            >
+              onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
               <span style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", fontFamily: "var(--font-sans)" }}>
                 {area[lang].name}
               </span>
@@ -268,93 +247,60 @@ function SearchModal({
   );
 }
 
+// ── Main UniverseView ───────────────────────────────────────────────────────
+
+const SPACING = 520; // px between galaxy centers
+
 export function UniverseView({ areas, lang }: Props) {
   const router = useRouter();
-  const sortedAreas = [...areas].sort((a, b) => a.order - b.order);
+  const sortedAreas = useMemo(() => [...areas].sort((a, b) => a.order - b.order), [areas]);
 
-  const [currentAreaIdx, setCurrentAreaIdx] = useState(0);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
-  const isTransitioning = useRef(false);
 
-  const goLeft = useCallback(() => {
-    if (isTransitioning.current) return;
-    setCurrentAreaIdx(i => Math.max(0, i - 1));
-  }, []);
-
-  const goRight = useCallback(() => {
-    if (isTransitioning.current) return;
-    setCurrentAreaIdx(i => Math.min(sortedAreas.length - 1, i + 1));
-  }, [sortedAreas.length]);
+  const goLeft  = useCallback(() => setCurrentIdx(i => Math.max(0, i - 1)), []);
+  const goRight = useCallback(() => setCurrentIdx(i => Math.min(sortedAreas.length - 1, i + 1)), [sortedAreas.length]);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const h = (e: KeyboardEvent) => {
       if (showSearch) return;
       if (e.key === "ArrowLeft")  { e.preventDefault(); goLeft(); }
       if (e.key === "ArrowRight") { e.preventDefault(); goRight(); }
-      if (e.key === "/" || e.key === "f" || e.key === "F") {
-        e.preventDefault();
-        setShowSearch(true);
-      }
+      if (e.key === "/" || e.key === "f") { e.preventDefault(); setShowSearch(true); }
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   }, [goLeft, goRight, showSearch]);
 
-  const navigateToArea = (area: Area) => {
-    router.push(`/${area.slug}`);
-  };
-
-  const navigateToChapter = (area: Area, chapter: Chapter) => {
-    router.push(`/${area.slug}/${chapter.slug}`);
-  };
-
-  const CAROUSEL_ITEM_W = SVG_W + 80; // gap between solar systems
-  const translateX = -currentAreaIdx * CAROUSEL_ITEM_W;
-
   return (
-    <div
-      style={{
-        background: "var(--bg)",
-        height: "100dvh",
-        overflow: "hidden",
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <div style={{
+      background: "var(--bg)", height: "100dvh",
+      overflow: "hidden", position: "relative",
+      display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
       <StarField />
 
-      {/* Top bar */}
+      {/* Search button — top center */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "24px 32px",
-        zIndex: 20,
+        display: "flex", justifyContent: "center", padding: "24px",
+        zIndex: 20, pointerEvents: "none",
       }}>
-        {/* Search — centered, prominent */}
         <button
           onClick={() => setShowSearch(true)}
           style={{
+            pointerEvents: "auto",
             display: "flex", alignItems: "center", gap: "8px",
             fontFamily: "var(--font-sans)", fontSize: "12px",
             textTransform: "uppercase", letterSpacing: "0.18em",
             color: "var(--text-secondary)",
             background: "rgba(201,170,120,0.05)",
             border: "1px solid rgba(201,170,120,0.15)",
-            borderRadius: "20px",
-            padding: "8px 20px", cursor: "pointer",
-            opacity: 0.75,
-            transition: "opacity 200ms, border-color 200ms",
+            borderRadius: "20px", padding: "8px 20px", cursor: "pointer",
+            opacity: 0.75, transition: "opacity 200ms, border-color 200ms",
           }}
-          onMouseEnter={e => {
-            e.currentTarget.style.opacity = "1";
-            e.currentTarget.style.borderColor = "rgba(201,170,120,0.4)";
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.opacity = "0.75";
-            e.currentTarget.style.borderColor = "rgba(201,170,120,0.15)";
-          }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.borderColor = "rgba(201,170,120,0.4)"; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.borderColor = "rgba(201,170,120,0.15)"; }}
         >
           <span style={{ fontSize: "14px", opacity: 0.8 }}>⌕</span>
           {lang === "cs" ? "Hledat" : "Search"}
@@ -362,126 +308,113 @@ export function UniverseView({ areas, lang }: Props) {
         </button>
       </div>
 
-      {/* Carousel */}
-      <div style={{ position: "relative", width: "100%", overflow: "hidden" }}>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "80px",
-          transform: `translateX(calc(50% - ${CX}px + ${translateX}px))`,
-          transition: "transform 500ms cubic-bezier(0.4,0,0.2,1)",
-          paddingLeft: "0",
-          willChange: "transform",
-        }}>
-          {sortedAreas.map((area, i) => (
-            <SolarSystem
-              key={area.id}
-              area={area}
-              lang={lang}
-              isActive={i === currentAreaIdx}
-              onClickSun={() => navigateToArea(area)}
-              onClickChapter={(ch) => navigateToChapter(area, ch)}
-            />
-          ))}
-        </div>
+      {/* Galaxy field */}
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+        {sortedAreas.map((area, i) => {
+          const offset    = i - currentIdx;
+          const absOffset = Math.abs(offset);
+          // Only render nearby galaxies (performance)
+          if (absOffset > 4) return null;
+
+          const scale   = absOffset === 0 ? 1.0 : Math.max(0.22, 0.52 - absOffset * 0.12);
+          const opacity = absOffset === 0 ? 1.0 : Math.max(0.08, 0.40 - absOffset * 0.12);
+          const tx      = offset * SPACING;
+
+          return (
+            <div key={area.id} style={{
+              position: "absolute",
+              left: "50%", top: "50%",
+              transform: `translate(calc(-50% + ${tx}px), -50%) scale(${scale})`,
+              opacity,
+              transition: "transform 700ms cubic-bezier(0.4,0,0.2,1), opacity 700ms ease",
+              transformOrigin: "center center",
+            }}>
+              <GalaxySvg
+                area={area} lang={lang}
+                isActive={absOffset === 0}
+                onClickSun={() => router.push(`/${area.slug}`)}
+                onClickChapter={(ch) => router.push(`/${area.slug}/${ch.slug}`)}
+              />
+            </div>
+          );
+        })}
       </div>
 
-      {/* Area name label */}
+      {/* Area name + hint below */}
       <div style={{
-        position: "fixed", bottom: "80px", left: 0, right: 0,
+        position: "fixed", bottom: "72px", left: 0, right: 0,
         display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-        zIndex: 20,
+        zIndex: 20, pointerEvents: "none",
       }}>
         <p style={{
-          fontFamily: "var(--font-serif)", fontSize: "28px",
-          color: "var(--text-primary)", letterSpacing: "-0.01em",
-          transition: "opacity 300ms ease",
+          fontFamily: "var(--font-serif)", fontSize: "28px", letterSpacing: "-0.01em",
+          color: "var(--text-primary)", transition: "opacity 400ms",
         }}>
-          {sortedAreas[currentAreaIdx]?.[lang].name}
+          {sortedAreas[currentIdx]?.[lang].name}
         </p>
         <p style={{
           fontFamily: "var(--font-sans)", fontSize: "10px",
-          textTransform: "uppercase", letterSpacing: "0.18em",
+          textTransform: "uppercase", letterSpacing: "0.2em",
           color: "var(--text-muted)",
         }}>
           {lang === "cs" ? "klikni pro vstup" : "click to enter"}
         </p>
       </div>
 
-      {/* Left / Right arrows */}
-      <button
-        onClick={goLeft}
-        disabled={currentAreaIdx === 0}
+      {/* Left arrow */}
+      <button onClick={goLeft} disabled={currentIdx === 0}
         style={{
           position: "fixed", left: "24px", top: "50%", transform: "translateY(-50%)",
-          zIndex: 20, background: "none",
-          border: "1px solid rgba(201,170,120,0.2)", borderRadius: "50%",
-          width: 44, height: 44, cursor: "pointer",
-          color: "var(--accent)", fontSize: "18px",
-          opacity: currentAreaIdx === 0 ? 0.2 : 0.6,
-          transition: "opacity 200ms",
+          zIndex: 20, background: "none", border: "1px solid rgba(201,170,120,0.2)",
+          borderRadius: "50%", width: 44, height: 44, cursor: "pointer",
+          color: "var(--accent)", fontSize: "22px",
+          opacity: currentIdx === 0 ? 0.15 : 0.5, transition: "opacity 200ms",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
-        onMouseEnter={e => { if (currentAreaIdx > 0) e.currentTarget.style.opacity = "1"; }}
-        onMouseLeave={e => { e.currentTarget.style.opacity = currentAreaIdx === 0 ? "0.2" : "0.6"; }}
-        aria-label="Previous area"
-      >
+        onMouseEnter={e => { if (currentIdx > 0) e.currentTarget.style.opacity = "1"; }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = currentIdx === 0 ? "0.15" : "0.5"; }}
+        aria-label="Previous galaxy">
         ‹
       </button>
-      <button
-        onClick={goRight}
-        disabled={currentAreaIdx === sortedAreas.length - 1}
+
+      {/* Right arrow */}
+      <button onClick={goRight} disabled={currentIdx === sortedAreas.length - 1}
         style={{
           position: "fixed", right: "24px", top: "50%", transform: "translateY(-50%)",
-          zIndex: 20, background: "none",
-          border: "1px solid rgba(201,170,120,0.2)", borderRadius: "50%",
-          width: 44, height: 44, cursor: "pointer",
-          color: "var(--accent)", fontSize: "18px",
-          opacity: currentAreaIdx === sortedAreas.length - 1 ? 0.2 : 0.6,
+          zIndex: 20, background: "none", border: "1px solid rgba(201,170,120,0.2)",
+          borderRadius: "50%", width: 44, height: 44, cursor: "pointer",
+          color: "var(--accent)", fontSize: "22px",
+          opacity: currentIdx === sortedAreas.length - 1 ? 0.15 : 0.5,
           transition: "opacity 200ms",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
-        onMouseEnter={e => { if (currentAreaIdx < sortedAreas.length - 1) e.currentTarget.style.opacity = "1"; }}
-        onMouseLeave={e => { e.currentTarget.style.opacity = currentAreaIdx === sortedAreas.length - 1 ? "0.2" : "0.6"; }}
-        aria-label="Next area"
-      >
+        onMouseEnter={e => { if (currentIdx < sortedAreas.length - 1) e.currentTarget.style.opacity = "1"; }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = currentIdx === sortedAreas.length - 1 ? "0.15" : "0.5"; }}
+        aria-label="Next galaxy">
         ›
       </button>
 
-      {/* Dots indicator */}
+      {/* Dot indicators */}
       <div style={{
-        position: "fixed", bottom: "32px", left: 0, right: 0,
-        display: "flex", justifyContent: "center", gap: 8,
-        zIndex: 20,
+        position: "fixed", bottom: "28px", left: 0, right: 0,
+        display: "flex", justifyContent: "center", gap: 8, zIndex: 20,
       }}>
         {sortedAreas.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentAreaIdx(i)}
+          <button key={i} onClick={() => setCurrentIdx(i)}
             style={{
-              width: i === currentAreaIdx ? 20 : 6,
-              height: 6, borderRadius: "3px",
-              background: i === currentAreaIdx ? "var(--accent)" : "var(--dot-future)",
+              width: i === currentIdx ? 20 : 6, height: 6,
+              borderRadius: "3px", padding: 0, cursor: "pointer",
+              background: i === currentIdx ? "var(--accent)" : "var(--dot-future)",
               border: "1px solid rgba(201,170,120,0.2)",
-              cursor: "pointer", padding: 0,
               transition: "width 300ms ease, background 300ms ease",
-            }}
-            aria-label={`Go to area ${i + 1}`}
-          />
+            }} />
         ))}
       </div>
 
-      {/* Search modal */}
       {showSearch && (
-        <SearchModal
-          areas={sortedAreas}
-          lang={lang}
+        <SearchModal areas={sortedAreas} lang={lang}
           onClose={() => setShowSearch(false)}
-          onNavigate={(areaSlug, chapterSlug) => {
-            setShowSearch(false);
-            router.push(`/${areaSlug}/${chapterSlug}`);
-          }}
-        />
+          onNavigate={(a, c) => { setShowSearch(false); router.push(`/${a}/${c}`); }} />
       )}
     </div>
   );
