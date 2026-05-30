@@ -96,8 +96,8 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
   }, [current, area.slug, chapters, router]);
 
   const zoomOut = useCallback(() => {
-    router.push("/universe");
-  }, [router]);
+    router.push(`/universe?from=${area.slug}`);
+  }, [router, area.slug]);
 
   const goTo = useCallback((target: ContentId, ms: number) => {
     isTransitioning.current = true;
