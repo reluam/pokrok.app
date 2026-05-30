@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { Area, Chapter } from "@/lib/areas";
 import type { Lang } from "@/lib/i18n";
+import type { Theme } from "@/lib/theme";
+import { useTheme } from "@/lib/useTheme";
+import { ThemeToggle } from "./ThemeToggle";
+import { LangToggle } from "./LangToggle";
 
 type Props = { areas: Area[]; lang: Lang; focusSlug?: string };
 
@@ -20,6 +24,24 @@ function seededRng(seed: string) {
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+// ── Theme palette for galaxies ───────────────────────────────────────────────
+
+type Palette = {
+  nebula1: string; nebula2: string; arm1: string; arm2: string;
+  coreA: string; coreB: string; coreC: string; star: string; name: string;
+};
+
+function galaxyPalette(theme: Theme): Palette {
+  if (theme === "hhgttg") return {
+    nebula1: "#00e850", nebula2: "#0a7a2a", arm1: "#00e850", arm2: "#00a838",
+    coreA: "#eaffea", coreB: "#9dff9d", coreC: "#00e850", star: "#ffff66", name: "#d6ffd6",
+  };
+  return {
+    nebula1: "#c9aa78", nebula2: "#7a6ad0", arm1: "#d9b98a", arm2: "#8a7ad8",
+    coreA: "#fffaf0", coreB: "#ffe9bf", coreC: "#c9aa78", star: "#ffe9bf", name: "#fff3da",
+  };
+}
 
 // ── Galaxy positions on the 2D plane (golden-angle spiral + seeded jitter) ───
 
@@ -76,7 +98,6 @@ function BackgroundStars({ box }: { box: { x: number; y: number; w: number; h: n
 const GW = 400, GH = 240;
 const GCX = GW / 2, GCY = GH / 2;
 
-// Logarithmic spiral arm path
 function armPath(rot: number): string {
   const steps = 40, turns = 1.15, b = 0.32, base = 7;
   let d = "";
@@ -103,10 +124,10 @@ function buildChapterLayout(count: number, seed: string): PlanePos[] {
 // ── Galaxy ──────────────────────────────────────────────────────────────────
 
 function GalaxySvg({
-  area, lang, isFocused,
+  area, lang, isFocused, pal,
   onClickArea, onClickChapter,
 }: {
-  area: Area; lang: Lang; isFocused: boolean;
+  area: Area; lang: Lang; isFocused: boolean; pal: Palette;
   onClickArea: () => void;
   onClickChapter: (ch: Chapter) => void;
 }) {
@@ -121,15 +142,15 @@ function GalaxySvg({
     <svg width={GW} height={GH} style={{ overflow: "visible" }}>
       <defs>
         <radialGradient id={nebulaId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#c9aa78" stopOpacity={isFocused ? 0.16 : 0.09} />
-          <stop offset="45%"  stopColor="#7a6ad0" stopOpacity={isFocused ? 0.08 : 0.045} />
+          <stop offset="0%"   stopColor={pal.nebula1} stopOpacity={isFocused ? 0.16 : 0.09} />
+          <stop offset="45%"  stopColor={pal.nebula2} stopOpacity={isFocused ? 0.08 : 0.045} />
           <stop offset="100%" stopColor="#05051a" stopOpacity="0" />
         </radialGradient>
         <radialGradient id={coreId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#fffaf0" stopOpacity={isFocused ? 0.95 : 0.6} />
-          <stop offset="35%"  stopColor="#ffe9bf" stopOpacity={isFocused ? 0.55 : 0.32} />
-          <stop offset="70%"  stopColor="#c9aa78" stopOpacity={isFocused ? 0.22 : 0.12} />
-          <stop offset="100%" stopColor="#c9aa78" stopOpacity="0" />
+          <stop offset="0%"   stopColor={pal.coreA} stopOpacity={isFocused ? 0.95 : 0.6} />
+          <stop offset="35%"  stopColor={pal.coreB} stopOpacity={isFocused ? 0.55 : 0.32} />
+          <stop offset="70%"  stopColor={pal.coreC} stopOpacity={isFocused ? 0.22 : 0.12} />
+          <stop offset="100%" stopColor={pal.coreC} stopOpacity="0" />
         </radialGradient>
         <filter id={armBlur} x="-40%" y="-40%" width="180%" height="180%">
           <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
@@ -140,37 +161,30 @@ function GalaxySvg({
         </filter>
       </defs>
 
-      {/* Outer nebula */}
       <ellipse cx={GCX} cy={GCY} rx={GW * 0.5} ry={GH * 0.5} fill={`url(#${nebulaId})`} />
 
-      {/* Spiral arms */}
       <g filter={`url(#${armBlur})`} opacity={isFocused ? 0.7 : 0.42}>
-        <path d={armPath(armRot)}            fill="none" stroke="#d9b98a" strokeWidth={3} strokeLinecap="round" opacity={0.5} />
-        <path d={armPath(armRot + Math.PI)}  fill="none" stroke="#d9b98a" strokeWidth={3} strokeLinecap="round" opacity={0.5} />
-        <path d={armPath(armRot + 0.5)}      fill="none" stroke="#8a7ad8" strokeWidth={2} strokeLinecap="round" opacity={0.28} />
-        <path d={armPath(armRot + Math.PI + 0.5)} fill="none" stroke="#8a7ad8" strokeWidth={2} strokeLinecap="round" opacity={0.28} />
+        <path d={armPath(armRot)}                 fill="none" stroke={pal.arm1} strokeWidth={3} strokeLinecap="round" opacity={0.5} />
+        <path d={armPath(armRot + Math.PI)}       fill="none" stroke={pal.arm1} strokeWidth={3} strokeLinecap="round" opacity={0.5} />
+        <path d={armPath(armRot + 0.5)}           fill="none" stroke={pal.arm2} strokeWidth={2} strokeLinecap="round" opacity={0.28} />
+        <path d={armPath(armRot + Math.PI + 0.5)} fill="none" stroke={pal.arm2} strokeWidth={2} strokeLinecap="round" opacity={0.28} />
       </g>
 
-      {/* Bright core */}
       <ellipse cx={GCX} cy={GCY} rx={isFocused ? 64 : 46} ry={isFocused ? 42 : 30} fill={`url(#${coreId})`} />
-      <circle cx={GCX} cy={GCY} r={isFocused ? 4 : 2.6} fill="#fffaf0" opacity={0.95} />
+      <circle cx={GCX} cy={GCY} r={isFocused ? 4 : 2.6} fill={pal.coreA} opacity={0.95} />
 
-      {/* Chapter stars (the content) */}
       {area.chapters.map((ch, i) => {
         const p = chapterPos[i];
         const isRight = p.x >= GCX;
         return (
           <g key={ch.id} onClick={(e) => { e.stopPropagation(); onClickChapter(ch); }} style={{ cursor: "pointer" }}>
-            {/* hit area */}
             <circle cx={p.x} cy={p.y} r={16} fill="transparent" />
-            {/* glow */}
             <circle cx={p.x} cy={p.y} r={isFocused ? 7 : 5}
-              fill="rgba(201,170,120,0.16)" filter={`url(#${starGlow})`} />
-            {/* star */}
-            <circle cx={p.x} cy={p.y} r={isFocused ? 3.4 : 2.4} fill="#ffe9bf" opacity={0.95} />
+              fill={pal.arm1} fillOpacity={0.16} filter={`url(#${starGlow})`} />
+            <circle cx={p.x} cy={p.y} r={isFocused ? 3.4 : 2.4} fill={pal.star} opacity={0.95} />
             {isFocused && (
               <text x={p.x + (isRight ? 12 : -12)} y={p.y + 3.5} textAnchor={isRight ? "start" : "end"}
-                fill="#9a90c0" fontSize="9" fontFamily="var(--font-sans)"
+                fill="var(--text-secondary)" fontSize="9" fontFamily="var(--font-sans)"
                 style={{ textTransform: "uppercase", letterSpacing: "0.08em", pointerEvents: "none" }}>
                 {ch[lang].subtitle}
               </text>
@@ -179,10 +193,9 @@ function GalaxySvg({
         );
       })}
 
-      {/* Area name */}
       <g onClick={(e) => { e.stopPropagation(); onClickArea(); }} style={{ cursor: "pointer" }}>
         <ellipse cx={GCX} cy={GCY} rx={58} ry={34} fill="transparent" />
-        <text x={GCX} y={GCY + 4} textAnchor="middle" fill="#fff3da"
+        <text x={GCX} y={GCY + 4} textAnchor="middle" fill={pal.name}
           fontSize={isFocused ? 13 : 10} fontFamily="var(--font-serif)"
           style={{ letterSpacing: "0.04em", pointerEvents: "none", opacity: isFocused ? 1 : 0.82 }}>
           {area[lang].name}
@@ -288,10 +301,12 @@ const ZOOM_MIN = 0.62, ZOOM_MAX = 2.6, PAN_STEP = 130;
 
 export function UniverseView({ areas, lang, focusSlug }: Props) {
   const router = useRouter();
+  const [theme, toggleTheme] = useTheme();
+  const pal = galaxyPalette(theme);
+
   const sortedAreas = useMemo(() => [...areas].sort((a, b) => a.order - b.order), [areas]);
   const positions   = useMemo(() => buildPlanePositions(sortedAreas), [sortedAreas]);
 
-  // Bounding box covering all galaxies — used for the background star field
   const starBox = useMemo(() => {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const a of sortedAreas) {
@@ -313,7 +328,13 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
   const [camera, setCamera] = useState<Camera>(initialCamera);
   const [transMs, setTransMs] = useState(650);
   const [searchActive, setSearchActive] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Drag-to-pan
+  const dragRef = useRef<{ sx: number; sy: number; cx: number; cy: number; zoom: number } | null>(null);
+  const movedRef = useRef(false);
+  const justDraggedRef = useRef(false);
 
   const focusedAreaId = useMemo(() => {
     let best = sortedAreas[0]?.id ?? "";
@@ -327,6 +348,8 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
   }, [sortedAreas, positions, camera.cx, camera.cy]);
 
   const focusedArea = sortedAreas.find(a => a.id === focusedAreaId) ?? sortedAreas[0];
+
+  const navIfNotDragged = (fn: () => void) => { if (!justDraggedRef.current) fn(); };
 
   // Wheel = zoom (disabled while interacting with search)
   useEffect(() => {
@@ -365,8 +388,49 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [searchActive, camera.zoom]);
 
+  // Pointer drag handlers
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (searchActive || e.button !== 0) return;
+    // Don't hijack clicks on interactive UI (search input, toggles)
+    if ((e.target as HTMLElement).closest("input, button")) return;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = { sx: e.clientX, sy: e.clientY, cx: camera.cx, cy: camera.cy, zoom: camera.zoom };
+    movedRef.current = false;
+    setDragging(true);
+    setTransMs(0);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const dx = (e.clientX - d.sx) / d.zoom;
+    const dy = (e.clientY - d.sy) / d.zoom;
+    if (Math.abs(e.clientX - d.sx) > 4 || Math.abs(e.clientY - d.sy) > 4) movedRef.current = true;
+    setCamera(c => ({ ...c, cx: d.cx - dx, cy: d.cy - dy }));
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (!dragRef.current) return;
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    dragRef.current = null;
+    setDragging(false);
+    if (movedRef.current) {
+      justDraggedRef.current = true;
+      setTimeout(() => { justDraggedRef.current = false; }, 60);
+    }
+  };
+
   return (
-    <div style={{ background: "var(--bg)", height: "100dvh", overflow: "hidden", position: "relative" }}>
+    <div
+      data-theme={theme}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      style={{
+        background: "var(--bg)", height: "100dvh", overflow: "hidden", position: "relative",
+        cursor: dragging ? "grabbing" : "grab", touchAction: "none",
+      }}
+    >
+      <div className="scanlines" />
+
       {/* The pannable / zoomable plane */}
       <div style={{
         position: "absolute", left: "50%", top: "50%", transformOrigin: "0 0",
@@ -384,14 +448,18 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
               position: "absolute", left: p.x, top: p.y, transform: "translate(-50%, -50%)",
             }}>
               <GalaxySvg
-                area={area} lang={lang} isFocused={isFocused}
-                onClickArea={() => router.push(`/${area.slug}`)}
-                onClickChapter={(ch) => router.push(`/${area.slug}/${ch.slug}`)}
+                area={area} lang={lang} isFocused={isFocused} pal={pal}
+                onClickArea={() => navIfNotDragged(() => router.push(`/${area.slug}`))}
+                onClickChapter={(ch) => navIfNotDragged(() => router.push(`/${area.slug}/${ch.slug}`))}
               />
             </div>
           );
         })}
       </div>
+
+      {/* Toggles */}
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
+      <LangToggle lang={lang} />
 
       {/* Inline search — top center */}
       <div style={{
@@ -420,7 +488,7 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
           fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase",
           letterSpacing: "0.2em", color: "var(--text-muted)",
         }}>
-          {lang === "cs" ? "scroll = přiblížit · šipky = posun · klik = vstup" : "scroll = zoom · arrows = pan · click = enter"}
+          {lang === "cs" ? "scroll = přiblížit · táhni / šipky = posun · klik = vstup" : "scroll = zoom · drag / arrows = pan · click = enter"}
         </p>
       </div>
     </div>

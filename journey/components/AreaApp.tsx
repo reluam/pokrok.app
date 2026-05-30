@@ -4,12 +4,13 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { Area, Chapter } from "@/lib/areas";
 import type { Lang } from "@/lib/i18n";
-import type { Theme } from "@/lib/theme";
+import { useTheme } from "@/lib/useTheme";
 import { StarField } from "./StarField";
 import { ChapterNav } from "./ChapterNav";
 import { IntroScreen } from "./IntroScreen";
 import { StepView } from "./StepView";
 import { ThemeToggle } from "./ThemeToggle";
+import { LangToggle } from "./LangToggle";
 
 type ContentId = "intro" | number;
 
@@ -42,7 +43,7 @@ type Props = {
 
 export function AreaApp({ area, lang, initialChapterSlug }: Props) {
   const router = useRouter();
-  const [theme, setTheme] = useState<Theme>("cosmic");
+  const [theme, toggleTheme] = useTheme();
 
   // Chapters in their natural order (as stored in data)
   const chapters: Chapter[] = area.chapters;
@@ -263,7 +264,8 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
     >
       <StarField theme={theme} />
       <div className="scanlines" />
-      <ThemeToggle theme={theme} onToggle={() => setTheme(t => t === "cosmic" ? "hhgttg" : "cosmic")} />
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
+      <LangToggle lang={lang} />
 
       {/* Zoom out button - top left when no nav, or always visible */}
       {current === "intro" && (

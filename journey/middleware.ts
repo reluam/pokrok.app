@@ -5,12 +5,20 @@ import type { NextRequest } from "next/server";
 const CS_DOMAINS: string[] = [];
 
 export function middleware(request: NextRequest) {
+  const cookieLang = request.cookies.get("lang")?.value;
   const host = request.headers.get("host") ?? "";
-  const lang = CS_DOMAINS.some((d) => host === d || host.startsWith(d + ":")) ? "cs" : "en";
 
-  const response = NextResponse.next();
-  response.headers.set("x-lang", lang);
-  return response;
+  const lang =
+    cookieLang === "cs" || cookieLang === "en"
+      ? cookieLang
+      : CS_DOMAINS.some((d) => host === d || host.startsWith(d + ":"))
+        ? "cs"
+        : "en";
+
+  // Pass lang to server components via a request header
+  const headers = new Headers(request.headers);
+  headers.set("x-lang", lang);
+  return NextResponse.next({ request: { headers } });
 }
 
 export const config = {
