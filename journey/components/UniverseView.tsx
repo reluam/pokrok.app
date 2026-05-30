@@ -70,7 +70,7 @@ type BgStar = { x: number; y: number; r: number; o: number; tw: boolean; dur: st
 function BackgroundStars({ box }: { box: { x: number; y: number; w: number; h: number } }) {
   const stars = useMemo<BgStar[]>(() => {
     const rng = seededRng("uv-background");
-    const count = clamp(Math.round((box.w * box.h) / 11000), 140, 460);
+    const count = clamp(Math.round((box.w * box.h) / 6500), 240, 760);
     return Array.from({ length: count }, () => {
       const tw = rng() < 0.45;
       return {
@@ -195,9 +195,13 @@ function GalaxySvg({
 
       <g onClick={(e) => { e.stopPropagation(); onClickArea(); }} style={{ cursor: "pointer" }}>
         <ellipse cx={GCX} cy={GCY} rx={58} ry={34} fill="transparent" />
-        <text x={GCX} y={GCY + 4} textAnchor="middle" fill={pal.name}
-          fontSize={isFocused ? 13 : 10} fontFamily="var(--font-serif)"
-          style={{ letterSpacing: "0.04em", pointerEvents: "none", opacity: isFocused ? 1 : 0.82 }}>
+        <text x={GCX} y={GCY + 5} textAnchor="middle" fill="#ffffff"
+          fontSize={isFocused ? 17 : 12} fontWeight={600} fontFamily="var(--font-sans)"
+          style={{
+            letterSpacing: "0.12em", textTransform: "uppercase", pointerEvents: "none",
+            opacity: isFocused ? 1 : 0.85,
+            paintOrder: "stroke", stroke: "rgba(4,4,18,0.92)", strokeWidth: 3.5, strokeLinejoin: "round",
+          }}>
           {area[lang].name}
         </text>
       </g>
@@ -351,6 +355,13 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
 
   const navIfNotDragged = (fn: () => void) => { if (!justDraggedRef.current) fn(); };
 
+  const centerOn = (areaId: string) => {
+    const p = positions[areaId];
+    if (!p) return;
+    setTransMs(650);
+    setCamera(c => ({ ...c, cx: p.x, cy: p.y }));
+  };
+
   // Wheel = zoom (disabled while interacting with search)
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
@@ -456,6 +467,47 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
           );
         })}
       </div>
+
+      {/* Left sidebar — all areas */}
+      <nav style={{
+        position: "fixed", left: 0, top: "50%", transform: "translateY(-50%)",
+        zIndex: 25, padding: "0 24px", display: "flex", flexDirection: "column", gap: "2px",
+        maxHeight: "80vh", overflowY: "auto", pointerEvents: "auto",
+      }}>
+        <p style={{
+          fontSize: 10, textTransform: "uppercase", letterSpacing: "0.22em",
+          color: "var(--text-muted)", marginBottom: 12, fontFamily: "var(--font-sans)",
+        }}>
+          {lang === "cs" ? "Oblasti" : "Areas"}
+        </p>
+        {sortedAreas.map((a) => {
+          const active = a.id === focusedAreaId;
+          return (
+            <button key={a.id} onClick={() => centerOn(a.id)}
+              style={{
+                display: "flex", alignItems: "center", gap: 10,
+                background: "none", border: "none", cursor: "pointer",
+                padding: "6px 0", textAlign: "left",
+              }}>
+              <span style={{
+                width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
+                background: active ? "var(--accent)" : "var(--dot-future)",
+                border: active ? "none" : "1px solid rgba(201,170,120,0.25)",
+                boxShadow: active ? "0 0 8px var(--accent-glow)" : "none",
+                transition: "background 250ms, box-shadow 250ms",
+              }} />
+              <span style={{
+                fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: "0.09em",
+                textTransform: "uppercase",
+                color: active ? "var(--accent)" : "var(--text-secondary)",
+                opacity: active ? 1 : 0.7, transition: "color 250ms, opacity 250ms",
+              }}>
+                {a[lang].name}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
 
       {/* Toggles */}
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
