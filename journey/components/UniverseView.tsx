@@ -133,8 +133,8 @@ function GalaxySvg({
 }) {
   // Counter-scale the name by 1/zoom so its on-screen size stays constant
   // (bigger when zoomed out, smaller when zoomed in) — always readable.
-  const nameFont   = (isFocused ? 16 : 12) / zoom;
-  const nameStroke = 3.2 / zoom;
+  const nameFont   = (isFocused ? 26 : 19) / zoom;
+  const nameStroke = 2.4 / zoom;
   const chapterPos = useMemo(() => buildChapterLayout(area.chapters.length, area.id), [area.chapters.length, area.id]);
   const armRot     = useMemo(() => seededRng(area.id + "arm")() * Math.PI, [area.id]);
   const nebulaId = `neb-${area.id}`;
@@ -198,13 +198,12 @@ function GalaxySvg({
       })}
 
       <g onClick={(e) => { e.stopPropagation(); onClickArea(); }} style={{ cursor: "pointer" }}>
-        <ellipse cx={GCX} cy={GCY} rx={58} ry={34} fill="transparent" />
-        <text x={GCX} y={GCY + nameFont * 0.34} textAnchor="middle" fill="#ffffff"
-          fontSize={nameFont} fontWeight={600} fontFamily="var(--font-sans)"
+        <ellipse cx={GCX} cy={GCY} rx={64} ry={36} fill="transparent" />
+        <text x={GCX} y={GCY + nameFont * 0.33} textAnchor="middle" fill="var(--bg)"
+          fontSize={nameFont} fontWeight={600} fontStyle="italic" fontFamily="var(--font-serif)"
           style={{
-            letterSpacing: "0.12em", textTransform: "uppercase", pointerEvents: "none",
-            opacity: isFocused ? 1 : 0.85,
-            paintOrder: "stroke", stroke: "rgba(4,4,18,0.92)", strokeWidth: nameStroke, strokeLinejoin: "round",
+            letterSpacing: "0.01em", pointerEvents: "none", opacity: isFocused ? 1 : 0.9,
+            paintOrder: "stroke", stroke: "rgba(255,240,214,0.65)", strokeWidth: nameStroke, strokeLinejoin: "round",
           }}>
           {area[lang].name}
         </text>
