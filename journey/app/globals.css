@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+:root {
+  --bg:           #05051a;
+  --bg-nav:       rgba(5, 5, 22, 0.88);
+
+  --text-primary:   #e8e5f8;
+  --text-secondary: #8880b0;
+  --text-muted:     #3e3960;
+
+  --accent:       #c9aa78;
+  --accent-glow:  rgba(201, 170, 120, 0.35);
+
+  --dot-active:   #c9aa78;
+  --dot-visited:  #5a5480;
+  --dot-future:   #1c1a30;
+  --nav-line:     #1c1a30;
+
+  --transition: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Hitchhiker's Guide to the Galaxy theme ── */
+[data-theme="hhgttg"] {
+  --bg:             #020702;
+  --bg-nav:         rgba(2, 12, 2, 0.96);
+  --text-primary:   #00e850;
+  --text-secondary: #009932;
+  --text-muted:     #004d1a;
+  --accent:         #ffff00;
+  --accent-glow:    rgba(255, 255, 0, 0.30);
+  --dot-active:     #00e850;
+  --dot-visited:    #006622;
+  --dot-future:     #001a08;
+  --nav-line:       #001a08;
+  --font-serif:     "Courier New", Courier, monospace;
+  --font-sans:      "Courier New", Courier, monospace;
+}
+
+/* CRT scanlines overlay — only visible in HHGTTG theme */
+.scanlines {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.18) 3px,
+    rgba(0, 0, 0, 0.18) 4px
+  );
+  pointer-events: none;
+  z-index: 50;
+}
+[data-theme="hhgttg"] .scanlines { display: block; }
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+body {
+  background:  var(--bg);
+  color:       var(--text-primary);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size:   17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Display swap — intro ↔ journey cross-fade, both screens on same position */
+@keyframes page-exit {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(1.04); }
+}
+@keyframes page-enter {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.page-exit  { animation: page-exit  600ms ease-in-out forwards; pointer-events: none; }
+.page-enter { animation: page-enter 600ms ease-in-out forwards; }
+
+/* Lyrics-view step items are positioned via inline CSS transitions */
+
+/* Breathing gradient edges */
+@keyframes breathe-edge {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.80; }
+}
+
+.breathing-top {
+  animation: breathe-edge 3.2s ease-in-out infinite;
+}
+.breathing-bottom {
+  animation: breathe-edge 2.9s ease-in-out infinite 1.5s;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 6px var(--accent-glow); }
+  50%       { box-shadow: 0 0 18px var(--accent-glow), 0 0 32px var(--accent-glow); }
+}
+
+.dot-active {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
