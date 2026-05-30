@@ -124,13 +124,17 @@ function buildChapterLayout(count: number, seed: string): PlanePos[] {
 // ── Galaxy ──────────────────────────────────────────────────────────────────
 
 function GalaxySvg({
-  area, lang, isFocused, pal,
+  area, lang, isFocused, pal, zoom,
   onClickArea, onClickChapter,
 }: {
-  area: Area; lang: Lang; isFocused: boolean; pal: Palette;
+  area: Area; lang: Lang; isFocused: boolean; pal: Palette; zoom: number;
   onClickArea: () => void;
   onClickChapter: (ch: Chapter) => void;
 }) {
+  // Counter-scale the name by 1/zoom so its on-screen size stays constant
+  // (bigger when zoomed out, smaller when zoomed in) — always readable.
+  const nameFont   = (isFocused ? 16 : 12) / zoom;
+  const nameStroke = 3.2 / zoom;
   const chapterPos = useMemo(() => buildChapterLayout(area.chapters.length, area.id), [area.chapters.length, area.id]);
   const armRot     = useMemo(() => seededRng(area.id + "arm")() * Math.PI, [area.id]);
   const nebulaId = `neb-${area.id}`;
@@ -195,12 +199,12 @@ function GalaxySvg({
 
       <g onClick={(e) => { e.stopPropagation(); onClickArea(); }} style={{ cursor: "pointer" }}>
         <ellipse cx={GCX} cy={GCY} rx={58} ry={34} fill="transparent" />
-        <text x={GCX} y={GCY + 5} textAnchor="middle" fill="#ffffff"
-          fontSize={isFocused ? 17 : 12} fontWeight={600} fontFamily="var(--font-sans)"
+        <text x={GCX} y={GCY + nameFont * 0.34} textAnchor="middle" fill="#ffffff"
+          fontSize={nameFont} fontWeight={600} fontFamily="var(--font-sans)"
           style={{
             letterSpacing: "0.12em", textTransform: "uppercase", pointerEvents: "none",
             opacity: isFocused ? 1 : 0.85,
-            paintOrder: "stroke", stroke: "rgba(4,4,18,0.92)", strokeWidth: 3.5, strokeLinejoin: "round",
+            paintOrder: "stroke", stroke: "rgba(4,4,18,0.92)", strokeWidth: nameStroke, strokeLinejoin: "round",
           }}>
           {area[lang].name}
         </text>
@@ -335,8 +339,9 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
   const [dragging, setDragging] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Drag-to-pan
-  const dragRef = useRef<{ sx: number; sy: number; cx: number; cy: number; zoom: number } | null>(null);
+  // Drag-to-pan (capture is taken lazily, only once movement passes a threshold,
+  // so a plain click still reaches the galaxy and opens it)
+  const dragRef = useRef<{ sx: number; sy: number; cx: number; cy: number; zoom: number; pointerId: number; captured: boolean } | null>(null);
   const movedRef = useRef(false);
   const justDraggedRef = useRef(false);
 
@@ -404,29 +409,37 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
     if (searchActive || e.button !== 0) return;
     // Don't hijack clicks on interactive UI (search input, toggles)
     if ((e.target as HTMLElement).closest("input, button")) return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    dragRef.current = { sx: e.clientX, sy: e.clientY, cx: camera.cx, cy: camera.cy, zoom: camera.zoom };
+    dragRef.current = {
+      sx: e.clientX, sy: e.clientY, cx: camera.cx, cy: camera.cy,
+      zoom: camera.zoom, pointerId: e.pointerId, captured: false,
+    };
     movedRef.current = false;
-    setDragging(true);
-    setTransMs(0);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     const d = dragRef.current;
     if (!d) return;
     const dx = (e.clientX - d.sx) / d.zoom;
     const dy = (e.clientY - d.sy) / d.zoom;
-    if (Math.abs(e.clientX - d.sx) > 4 || Math.abs(e.clientY - d.sy) > 4) movedRef.current = true;
-    setCamera(c => ({ ...c, cx: d.cx - dx, cy: d.cy - dy }));
+    if (!d.captured && (Math.abs(e.clientX - d.sx) > 4 || Math.abs(e.clientY - d.sy) > 4)) {
+      // Movement → become a real drag: now capture the pointer
+      d.captured = true;
+      movedRef.current = true;
+      setDragging(true);
+      setTransMs(0);
+      (e.currentTarget as HTMLElement).setPointerCapture(d.pointerId);
+    }
+    if (d.captured) setCamera(c => ({ ...c, cx: d.cx - dx, cy: d.cy - dy }));
   };
   const onPointerUp = (e: React.PointerEvent) => {
-    if (!dragRef.current) return;
-    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    dragRef.current = null;
-    setDragging(false);
-    if (movedRef.current) {
+    const d = dragRef.current;
+    if (!d) return;
+    if (d.captured) {
+      (e.currentTarget as HTMLElement).releasePointerCapture(d.pointerId);
+      setDragging(false);
       justDraggedRef.current = true;
       setTimeout(() => { justDraggedRef.current = false; }, 60);
     }
+    dragRef.current = null;
   };
 
   return (
@@ -459,7 +472,7 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
               position: "absolute", left: p.x, top: p.y, transform: "translate(-50%, -50%)",
             }}>
               <GalaxySvg
-                area={area} lang={lang} isFocused={isFocused} pal={pal}
+                area={area} lang={lang} isFocused={isFocused} pal={pal} zoom={camera.zoom}
                 onClickArea={() => navIfNotDragged(() => router.push(`/${area.slug}`))}
                 onClickChapter={(ch) => navIfNotDragged(() => router.push(`/${area.slug}/${ch.slug}`))}
               />
