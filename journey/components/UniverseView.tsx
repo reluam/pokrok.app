@@ -41,41 +41,6 @@ function buildPlanePositions(areas: Area[]): Record<string, PlanePos> {
   return out;
 }
 
-// ── Per-galaxy star + chapter layout (deterministic) ────────────────────────
-
-const GW = 360, GH = 210;
-const GCX = GW / 2, GCY = GH / 2;
-
-type GStar = { x: number; y: number; r: number; o: number };
-
-function buildGalaxyStars(seed: string, count: number): GStar[] {
-  const rng = seededRng(seed + "stars");
-  return Array.from({ length: count }, () => {
-    const u1 = rng() + 1e-9, u2 = rng();
-    const mag = Math.sqrt(-2 * Math.log(u1));
-    const angle = 2 * Math.PI * u2;
-    const rx = (0.28 + rng() * 0.18) * GW;
-    const ry = rx * (0.4 + rng() * 0.22);
-    return {
-      x: Math.max(2, Math.min(GW - 2, GCX + mag * rx * Math.cos(angle))),
-      y: Math.max(2, Math.min(GH - 2, GCY + mag * ry * Math.sin(angle))),
-      r: rng() * 0.9 + 0.25,
-      o: rng() * 0.55 + 0.12,
-    };
-  });
-}
-
-function buildChapterLayout(count: number, seed: string): PlanePos[] {
-  const rng = seededRng(seed + "chapters");
-  const rx = GW * 0.30, ry = GH * 0.30;
-  return Array.from({ length: count }, (_, i) => {
-    const base = (2 * Math.PI * i) / count - Math.PI / 2;
-    const a = base + (rng() - 0.5) * 0.6;
-    const t = 0.75 + rng() * 0.35;
-    return { x: GCX + rx * t * Math.cos(a), y: GCY + ry * t * Math.sin(a) };
-  });
-}
-
 // ── Background star field (lives ON the plane, pans + zooms with galaxies) ───
 
 type BgStar = { x: number; y: number; r: number; o: number; tw: boolean; dur: string; del: string };
@@ -87,122 +52,147 @@ function BackgroundStars({ box }: { box: { x: number; y: number; w: number; h: n
     return Array.from({ length: count }, () => {
       const tw = rng() < 0.45;
       return {
-        x: rng() * box.w,
-        y: rng() * box.h,
-        r: rng() * 1.1 + 0.25,
-        o: rng() * 0.5 + 0.12,
-        tw,
-        dur: (2 + rng() * 3).toFixed(2),
-        del: (rng() * 4).toFixed(2),
+        x: rng() * box.w, y: rng() * box.h,
+        r: rng() * 1.1 + 0.25, o: rng() * 0.5 + 0.12,
+        tw, dur: (2 + rng() * 3).toFixed(2), del: (rng() * 4).toFixed(2),
       };
     });
   }, [box.w, box.h]);
 
   return (
-    <svg
-      width={box.w} height={box.h}
+    <svg width={box.w} height={box.h}
       style={{ position: "absolute", left: box.x, top: box.y, overflow: "visible", pointerEvents: "none" }}
-      aria-hidden="true"
-    >
+      aria-hidden="true">
       {stars.map((s, i) => (
-        <circle key={i} cx={s.x} cy={s.y} r={s.r}
-          fill="rgba(205,210,255,1)"
-          style={{
-            opacity: s.o,
-            animation: s.tw ? `uv-tw ${s.dur}s ease-in-out ${s.del}s infinite` : undefined,
-          }} />
+        <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="rgba(205,210,255,1)"
+          style={{ opacity: s.o, animation: s.tw ? `uv-tw ${s.dur}s ease-in-out ${s.del}s infinite` : undefined }} />
       ))}
     </svg>
   );
 }
 
+// ── Galaxy geometry ──────────────────────────────────────────────────────────
+
+const GW = 400, GH = 240;
+const GCX = GW / 2, GCY = GH / 2;
+
+// Logarithmic spiral arm path
+function armPath(rot: number): string {
+  const steps = 40, turns = 1.15, b = 0.32, base = 7;
+  let d = "";
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const theta = t * turns * 2 * Math.PI;
+    const r = base * Math.exp(b * theta);
+    const x = GCX + r * Math.cos(theta + rot);
+    const y = GCY + r * 0.56 * Math.sin(theta + rot);
+    d += (i === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1) + " ";
+  }
+  return d.trim();
+}
+
+function buildChapterLayout(count: number, seed: string): PlanePos[] {
+  const rot0 = seededRng(seed + "rot")() * Math.PI * 2;
+  const rx = GW * 0.30, ry = GH * 0.28;
+  return Array.from({ length: count }, (_, i) => {
+    const a = rot0 + (2 * Math.PI * i) / count;
+    return { x: GCX + rx * Math.cos(a), y: GCY + ry * Math.sin(a) };
+  });
+}
+
 // ── Galaxy ──────────────────────────────────────────────────────────────────
 
 function GalaxySvg({
-  area, lang, isFocused, highlightChapterId,
+  area, lang, isFocused,
   onClickArea, onClickChapter,
 }: {
   area: Area; lang: Lang; isFocused: boolean;
-  highlightChapterId: number | null;
   onClickArea: () => void;
   onClickChapter: (ch: Chapter) => void;
 }) {
-  const stars      = useMemo(() => buildGalaxyStars(area.id, 90), [area.id]);
   const chapterPos = useMemo(() => buildChapterLayout(area.chapters.length, area.id), [area.chapters.length, area.id]);
-  const filterId = `glow-${area.id}`;
+  const armRot     = useMemo(() => seededRng(area.id + "arm")() * Math.PI, [area.id]);
+  const nebulaId = `neb-${area.id}`;
   const coreId   = `core-${area.id}`;
-  const glowId   = `outer-${area.id}`;
+  const armBlur  = `armb-${area.id}`;
+  const starGlow = `sg-${area.id}`;
 
   return (
     <svg width={GW} height={GH} style={{ overflow: "visible" }}>
       <defs>
-        <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#c9aa78" stopOpacity={isFocused ? 0.18 : 0.10} />
-          <stop offset="55%"  stopColor="#6060c0" stopOpacity={isFocused ? 0.07 : 0.04} />
+        <radialGradient id={nebulaId} cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stopColor="#c9aa78" stopOpacity={isFocused ? 0.16 : 0.09} />
+          <stop offset="45%"  stopColor="#7a6ad0" stopOpacity={isFocused ? 0.08 : 0.045} />
           <stop offset="100%" stopColor="#05051a" stopOpacity="0" />
         </radialGradient>
         <radialGradient id={coreId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%"  stopColor="#fff8e8" stopOpacity={isFocused ? 0.55 : 0.32} />
-          <stop offset="60%" stopColor="#c9aa78" stopOpacity={isFocused ? 0.20 : 0.12} />
+          <stop offset="0%"   stopColor="#fffaf0" stopOpacity={isFocused ? 0.95 : 0.6} />
+          <stop offset="35%"  stopColor="#ffe9bf" stopOpacity={isFocused ? 0.55 : 0.32} />
+          <stop offset="70%"  stopColor="#c9aa78" stopOpacity={isFocused ? 0.22 : 0.12} />
           <stop offset="100%" stopColor="#c9aa78" stopOpacity="0" />
         </radialGradient>
-        <filter id={filterId} x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation={isFocused ? "2.5" : "1.5"} result="blur" />
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        <filter id={armBlur} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+        </filter>
+        <filter id={starGlow} x="-150%" y="-150%" width="400%" height="400%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation={isFocused ? "2.4" : "1.6"} result="b" />
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
 
-      <ellipse cx={GCX} cy={GCY} rx={GW * 0.48} ry={GH * 0.46} fill={`url(#${glowId})`} />
+      {/* Outer nebula */}
+      <ellipse cx={GCX} cy={GCY} rx={GW * 0.5} ry={GH * 0.5} fill={`url(#${nebulaId})`} />
 
-      {stars.map((s, i) => (
-        <circle key={i} cx={s.x} cy={s.y} r={s.r} fill={`rgba(205,210,255,${s.o})`} />
-      ))}
-
-      <ellipse cx={GCX} cy={GCY} rx={isFocused ? 28 : 18} ry={isFocused ? 16 : 10} fill={`url(#${coreId})`} />
-
-      {/* Clickable core / area name */}
-      <g onClick={(e) => { e.stopPropagation(); onClickArea(); }} style={{ cursor: "pointer" }}>
-        <ellipse cx={GCX} cy={GCY} rx={42} ry={26} fill="transparent" />
-        <text x={GCX} y={GCY + 5} textAnchor="middle" fill="#c9aa78"
-          fontSize={isFocused ? 11 : 9} fontFamily="var(--font-sans)"
-          style={{ textTransform: "uppercase", letterSpacing: "0.14em", pointerEvents: "none", opacity: isFocused ? 1 : 0.78 }}>
-          {area[lang].name}
-        </text>
+      {/* Spiral arms */}
+      <g filter={`url(#${armBlur})`} opacity={isFocused ? 0.7 : 0.42}>
+        <path d={armPath(armRot)}            fill="none" stroke="#d9b98a" strokeWidth={3} strokeLinecap="round" opacity={0.5} />
+        <path d={armPath(armRot + Math.PI)}  fill="none" stroke="#d9b98a" strokeWidth={3} strokeLinecap="round" opacity={0.5} />
+        <path d={armPath(armRot + 0.5)}      fill="none" stroke="#8a7ad8" strokeWidth={2} strokeLinecap="round" opacity={0.28} />
+        <path d={armPath(armRot + Math.PI + 0.5)} fill="none" stroke="#8a7ad8" strokeWidth={2} strokeLinecap="round" opacity={0.28} />
       </g>
 
-      {/* Chapter stars */}
+      {/* Bright core */}
+      <ellipse cx={GCX} cy={GCY} rx={isFocused ? 64 : 46} ry={isFocused ? 42 : 30} fill={`url(#${coreId})`} />
+      <circle cx={GCX} cy={GCY} r={isFocused ? 4 : 2.6} fill="#fffaf0" opacity={0.95} />
+
+      {/* Chapter stars (the content) */}
       {area.chapters.map((ch, i) => {
         const p = chapterPos[i];
         const isRight = p.x >= GCX;
-        const highlighted = highlightChapterId === ch.id;
         return (
           <g key={ch.id} onClick={(e) => { e.stopPropagation(); onClickChapter(ch); }} style={{ cursor: "pointer" }}>
-            <circle cx={p.x} cy={p.y} r={isFocused ? 8 : 5}
-              fill="rgba(201,170,120,0.12)" filter={`url(#${filterId})`} />
-            <circle cx={p.x} cy={p.y} r={highlighted ? 4.5 : isFocused ? 3.5 : 2.5}
-              fill={highlighted ? "#fff3d0" : "#c9aa78"} opacity={isFocused ? 0.95 : 0.7}>
-              {highlighted && (
-                <>
-                  <animate attributeName="r" values="4;8;4" dur="1.6s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="1;0.5;1" dur="1.6s" repeatCount="indefinite" />
-                </>
-              )}
-            </circle>
-            {(isFocused || highlighted) && (
-              <text x={p.x + (isRight ? 10 : -10)} y={p.y + 4} textAnchor={isRight ? "start" : "end"}
-                fill={highlighted ? "#c9aa78" : "#8880b0"} fontSize="8" fontFamily="var(--font-sans)"
-                style={{ textTransform: "uppercase", letterSpacing: "0.07em", pointerEvents: "none" }}>
+            {/* hit area */}
+            <circle cx={p.x} cy={p.y} r={16} fill="transparent" />
+            {/* glow */}
+            <circle cx={p.x} cy={p.y} r={isFocused ? 7 : 5}
+              fill="rgba(201,170,120,0.16)" filter={`url(#${starGlow})`} />
+            {/* star */}
+            <circle cx={p.x} cy={p.y} r={isFocused ? 3.4 : 2.4} fill="#ffe9bf" opacity={0.95} />
+            {isFocused && (
+              <text x={p.x + (isRight ? 12 : -12)} y={p.y + 3.5} textAnchor={isRight ? "start" : "end"}
+                fill="#9a90c0" fontSize="9" fontFamily="var(--font-sans)"
+                style={{ textTransform: "uppercase", letterSpacing: "0.08em", pointerEvents: "none" }}>
                 {ch[lang].subtitle}
               </text>
             )}
           </g>
         );
       })}
+
+      {/* Area name */}
+      <g onClick={(e) => { e.stopPropagation(); onClickArea(); }} style={{ cursor: "pointer" }}>
+        <ellipse cx={GCX} cy={GCY} rx={58} ry={34} fill="transparent" />
+        <text x={GCX} y={GCY + 4} textAnchor="middle" fill="#fff3da"
+          fontSize={isFocused ? 13 : 10} fontFamily="var(--font-serif)"
+          style={{ letterSpacing: "0.04em", pointerEvents: "none", opacity: isFocused ? 1 : 0.82 }}>
+          {area[lang].name}
+        </text>
+      </g>
     </svg>
   );
 }
 
-// ── Inline search (no modal — wide bar with results directly below) ──────────
+// ── Inline search (wide bar, results directly below — no modal) ──────────────
 
 function InlineSearch({
   areas, lang, onPick, onActiveChange, inputRef,
@@ -301,7 +291,7 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
   const sortedAreas = useMemo(() => [...areas].sort((a, b) => a.order - b.order), [areas]);
   const positions   = useMemo(() => buildPlanePositions(sortedAreas), [sortedAreas]);
 
-  // Bounding box that comfortably covers all galaxies — used for the star field
+  // Bounding box covering all galaxies — used for the background star field
   const starBox = useMemo(() => {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const a of sortedAreas) {
@@ -322,7 +312,6 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
 
   const [camera, setCamera] = useState<Camera>(initialCamera);
   const [transMs, setTransMs] = useState(650);
-  const [highlight, setHighlight] = useState<{ areaId: string; chapterId: number } | null>(null);
   const [searchActive, setSearchActive] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -338,13 +327,6 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
   }, [sortedAreas, positions, camera.cx, camera.cy]);
 
   const focusedArea = sortedAreas.find(a => a.id === focusedAreaId) ?? sortedAreas[0];
-
-  const centerOn = useCallback((areaId: string, ms = 650) => {
-    const p = positions[areaId];
-    if (!p) return;
-    setTransMs(ms);
-    setCamera(c => ({ ...c, cx: p.x, cy: p.y, zoom: Math.max(c.zoom, 1) }));
-  }, [positions]);
 
   // Wheel = zoom (disabled while interacting with search)
   useEffect(() => {
@@ -385,7 +367,7 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
 
   return (
     <div style={{ background: "var(--bg)", height: "100dvh", overflow: "hidden", position: "relative" }}>
-      {/* The pannable / zoomable plane — stars AND galaxies live here together */}
+      {/* The pannable / zoomable plane */}
       <div style={{
         position: "absolute", left: "50%", top: "50%", transformOrigin: "0 0",
         transform: `scale(${camera.zoom}) translate(${-camera.cx}px, ${-camera.cy}px)`,
@@ -397,13 +379,12 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
         {sortedAreas.map((area) => {
           const p = positions[area.id];
           const isFocused = area.id === focusedAreaId;
-          const hl = highlight && highlight.areaId === area.id ? highlight.chapterId : null;
           return (
             <div key={area.id} style={{
               position: "absolute", left: p.x, top: p.y, transform: "translate(-50%, -50%)",
             }}>
               <GalaxySvg
-                area={area} lang={lang} isFocused={isFocused} highlightChapterId={hl}
+                area={area} lang={lang} isFocused={isFocused}
                 onClickArea={() => router.push(`/${area.slug}`)}
                 onClickChapter={(ch) => router.push(`/${area.slug}/${ch.slug}`)}
               />
@@ -420,11 +401,7 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
         <InlineSearch
           areas={sortedAreas} lang={lang} inputRef={searchInputRef}
           onActiveChange={setSearchActive}
-          onPick={(area, chapter) => {
-            setHighlight({ areaId: area.id, chapterId: chapter.id });
-            centerOn(area.id, 650);
-            searchInputRef.current?.blur();
-          }} />
+          onPick={(area, chapter) => router.push(`/${area.slug}/${chapter.slug}`)} />
       </div>
 
       {/* Focused area name + hint */}

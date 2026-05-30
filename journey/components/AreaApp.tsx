@@ -16,6 +16,8 @@ type ContentId = "intro" | number;
 const NORMAL_MS = 550;
 const FAST_MS   = 160;
 
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
 function slotStyle(offset: number, animMs: number): React.CSSProperties {
   const abs  = Math.abs(offset);
   const sign = Math.sign(offset) || 0;
@@ -69,6 +71,11 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
   const wheelTimeRef                  = useRef(0);
   const touchStartY                   = useRef(0);
 
+  // Scroll-to-return progress (shown at end of an area)
+  const returnRef     = useRef(0);
+  const returningRef  = useRef(false);
+  const [returnProgress, setReturnProgress] = useState(0);
+
   const currentNavIdx   = typeof current === "number" ? (current as number) : 0;
   const visitedChapters = typeof current === "number"
     ? new Set(Array.from({ length: (current as number) + 1 }, (_, i) => i))
@@ -98,6 +105,29 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
   const zoomOut = useCallback(() => {
     router.push(`/universe?from=${area.slug}`);
   }, [router, area.slug]);
+
+  const bumpReturn = useCallback((delta: number) => {
+    if (returningRef.current) return;
+    const v = clamp(returnRef.current + delta, 0, 1);
+    returnRef.current = v;
+    setReturnProgress(v);
+    if (v >= 1) { returningRef.current = true; zoomOut(); }
+  }, [zoomOut]);
+
+  const drainReturn = useCallback((delta: number) => {
+    const v = clamp(returnRef.current - delta, 0, 1);
+    returnRef.current = v;
+    setReturnProgress(v);
+  }, []);
+
+  // Reset return progress whenever we leave the last chapter
+  useEffect(() => {
+    const atLast = typeof current === "number" && current === chapters.length - 1;
+    if (!atLast && returnRef.current !== 0) {
+      returnRef.current = 0;
+      setReturnProgress(0);
+    }
+  }, [current, chapters.length]);
 
   const goTo = useCallback((target: ContentId, ms: number) => {
     isTransitioning.current = true;
@@ -144,11 +174,13 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
         return;
       }
       const step = cur as number;
+      const atLast = step === chapters.length - 1;
       if (dir === "down") {
-        if (step < chapters.length - 1) goTo(step + 1, NORMAL_MS);
-        else zoomOut(); // scroll past last chapter → zoom out
+        if (!atLast) goTo(step + 1, NORMAL_MS);
+        else bumpReturn(Math.min(Math.abs(e.deltaY), 60) * 0.0011); // scroll past last → fill return bar
       } else if (dir === "up") {
-        if (step > 0) goTo(step - 1, NORMAL_MS);
+        if (atLast && returnRef.current > 0) drainReturn(Math.min(Math.abs(e.deltaY), 60) * 0.0016);
+        else if (step > 0) goTo(step - 1, NORMAL_MS);
         else if (area.slug === "intro") goTo("intro", NORMAL_MS);
         else zoomOut();
       }
@@ -161,11 +193,13 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
       const cur = currentRef.current;
       if (cur === "intro") { if (dir === "down") goTo(0, NORMAL_MS); return; }
       const step = cur as number;
+      const atLast = step === chapters.length - 1;
       if (dir === "down") {
-        if (step < chapters.length - 1) goTo(step + 1, NORMAL_MS);
-        else zoomOut();
+        if (!atLast) goTo(step + 1, NORMAL_MS);
+        else bumpReturn(0.5);
       } else if (dir === "up") {
-        if (step > 0) goTo(step - 1, NORMAL_MS);
+        if (atLast && returnRef.current > 0) drainReturn(0.5);
+        else if (step > 0) goTo(step - 1, NORMAL_MS);
         else if (area.slug === "intro") goTo("intro", NORMAL_MS);
         else zoomOut();
       }
@@ -178,11 +212,13 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
         if (cur === "intro") { goTo(0, NORMAL_MS); return; }
         const step = cur as number;
         if (step < chapters.length - 1) goTo(step + 1, NORMAL_MS);
-        else zoomOut();
+        else bumpReturn(0.34);
       } else if (e.key === "ArrowUp" || e.key === "PageUp") {
         e.preventDefault();
         if (cur === "intro") return;
         const step = cur as number;
+        const atLast = step === chapters.length - 1;
+        if (atLast && returnRef.current > 0) { drainReturn(0.5); return; }
         if (step > 0) goTo(step - 1, NORMAL_MS);
         else if (area.slug === "intro") goTo("intro", NORMAL_MS);
         else zoomOut();
@@ -198,7 +234,7 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
       window.removeEventListener("touchend",   handleTouchEnd);
       window.removeEventListener("keydown",    handleKeyDown);
     };
-  }, [goTo, zoomOut, chapters.length, area.slug]);
+  }, [goTo, zoomOut, bumpReturn, drainReturn, chapters.length, area.slug]);
 
   const isLastChapter = typeof current === "number" && current === chapters.length - 1;
 
@@ -268,25 +304,40 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
         />
       </div>
 
-      {/* Zoom out button on last chapter */}
+      {/* Scroll-to-return progress on last chapter */}
       {isLastChapter && (
-        <button
-          onClick={zoomOut}
-          style={{
-            position: "fixed", bottom: "40px", left: "50%",
-            transform: "translateX(-50%)", zIndex: 30,
-            fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500,
-            letterSpacing: "0.14em", textTransform: "uppercase",
-            color: "var(--accent)", background: "none",
-            border: "1px solid var(--accent)", borderRadius: "3px",
-            padding: "6px 16px", cursor: "pointer", opacity: 0.7,
-            transition: "opacity 250ms ease",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = "0.7"; }}
-        >
-          {lang === "cs" ? "← Odzoumovat" : "← Zoom out"}
-        </button>
+        <div style={{
+          position: "fixed", bottom: "44px", left: "50%", transform: "translateX(-50%)",
+          zIndex: 30, display: "flex", flexDirection: "column", alignItems: "center", gap: "12px",
+        }}>
+          <button
+            onClick={zoomOut}
+            style={{
+              fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 500,
+              letterSpacing: "0.16em", textTransform: "uppercase",
+              color: "var(--accent)", background: "none", border: "none",
+              cursor: "pointer", opacity: returnProgress > 0.02 ? 1 : 0.6,
+              transition: "opacity 250ms ease",
+            }}
+          >
+            {returnProgress > 0.99
+              ? (lang === "cs" ? "Vracím se…" : "Returning…")
+              : returnProgress > 0.02
+                ? (lang === "cs" ? "Zpět na přehled" : "Back to overview")
+                : (lang === "cs" ? "Scrolluj dál — zpět na přehled" : "Keep scrolling — back to overview")}
+          </button>
+          <div style={{
+            width: "180px", height: "3px", borderRadius: "2px",
+            background: "rgba(201,170,120,0.15)", overflow: "hidden",
+          }}>
+            <div style={{
+              width: `${returnProgress * 100}%`, height: "100%",
+              background: "var(--accent)", borderRadius: "2px",
+              transition: "width 120ms linear",
+              boxShadow: returnProgress > 0 ? "0 0 8px var(--accent-glow)" : "none",
+            }} />
+          </div>
+        </div>
       )}
 
       {exitingItem !== null ? (
