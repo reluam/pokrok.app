@@ -329,33 +329,36 @@ export function UniverseView({ areas, lang }: Props) {
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0,
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "20px 32px",
+        padding: "24px 32px",
         zIndex: 20,
       }}>
-        <p style={{
-          fontFamily: "var(--font-sans)", fontSize: "10px",
-          textTransform: "uppercase", letterSpacing: "0.25em",
-          color: "var(--text-muted)",
-        }}>
-          {lang === "cs" ? "Vesmír" : "Universe"}
-        </p>
-
-        {/* Search button */}
+        {/* Search — centered, prominent */}
         <button
           onClick={() => setShowSearch(true)}
           style={{
-            position: "absolute", right: "32px",
-            fontFamily: "var(--font-sans)", fontSize: "11px",
-            textTransform: "uppercase", letterSpacing: "0.14em",
-            color: "var(--text-muted)", background: "none",
-            border: "1px solid rgba(201,170,120,0.2)", borderRadius: "3px",
-            padding: "4px 10px", cursor: "pointer", opacity: 0.7,
-            transition: "opacity 200ms",
+            display: "flex", alignItems: "center", gap: "8px",
+            fontFamily: "var(--font-sans)", fontSize: "12px",
+            textTransform: "uppercase", letterSpacing: "0.18em",
+            color: "var(--text-secondary)",
+            background: "rgba(201,170,120,0.05)",
+            border: "1px solid rgba(201,170,120,0.15)",
+            borderRadius: "20px",
+            padding: "8px 20px", cursor: "pointer",
+            opacity: 0.75,
+            transition: "opacity 200ms, border-color 200ms",
           }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = "0.7"; }}
+          onMouseEnter={e => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.borderColor = "rgba(201,170,120,0.4)";
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.opacity = "0.75";
+            e.currentTarget.style.borderColor = "rgba(201,170,120,0.15)";
+          }}
         >
-          {lang === "cs" ? "Hledat" : "Search"} /
+          <span style={{ fontSize: "14px", opacity: 0.8 }}>⌕</span>
+          {lang === "cs" ? "Hledat" : "Search"}
+          <span style={{ fontSize: "10px", opacity: 0.5, marginLeft: 2 }}>/</span>
         </button>
       </div>
 
