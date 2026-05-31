@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db";
 import { getLang } from "@/lib/getLang";
+import { ensureVvvSchema } from "@/lib/vvvSchema";
 import { VVVTermDetail } from "@/components/VVVTermDetail";
 
 export const dynamicParams = true;
@@ -19,6 +20,7 @@ export type VVVClarification = {
 async function getData(slug: string) {
   try {
     const sql = getDb();
+    await ensureVvvSchema(sql);
     const [term] = await sql`SELECT * FROM vvv_terms WHERE slug = ${slug}`;
     if (!term) return null;
     const clarifications = await sql`

@@ -1,6 +1,7 @@
 import { VVVApp } from "@/components/VVVApp";
 import { getDb } from "@/lib/db";
 import { getLang } from "@/lib/getLang";
+import { ensureVvvSchema } from "@/lib/vvvSchema";
 
 export const metadata = {
   title: "VVV — Vast Void Vault",
@@ -10,6 +11,7 @@ export const metadata = {
 async function getTerms() {
   try {
     const sql = getDb();
+    await ensureVvvSchema(sql);
     return await sql`
       SELECT id, slug, name, description, source, author_name, votes, created_at
       FROM vvv_terms ORDER BY votes DESC, created_at ASC

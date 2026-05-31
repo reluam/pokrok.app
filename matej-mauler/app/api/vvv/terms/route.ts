@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { ensureVvvSchema } from "@/lib/vvvSchema";
 
 function makeSlug(name: string): string {
   const base = name
@@ -14,6 +15,7 @@ function makeSlug(name: string): string {
 export async function GET() {
   try {
     const sql = getDb();
+    await ensureVvvSchema(sql);
     const rows = await sql`
       SELECT id, slug, name, description, source, author_name, votes, created_at
       FROM vvv_terms
@@ -43,6 +45,7 @@ export async function POST(req: NextRequest) {
     const author = authorName?.trim() || "Neznámý dobrodinec";
 
     const sql = getDb();
+    await ensureVvvSchema(sql);
     const [row] = await sql`
       INSERT INTO vvv_terms (slug, name, description, source, author_name)
       VALUES (${slug}, ${name.trim()}, ${description.trim()}, 'Komunita', ${author})

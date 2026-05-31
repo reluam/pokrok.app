@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { ensureVvvSchema } from "@/lib/vvvSchema";
 
 export async function POST(
   req: NextRequest,
@@ -18,6 +19,7 @@ export async function POST(
 
     const author = authorName?.trim() || "Neznámý dobrodinec";
     const sql = getDb();
+    await ensureVvvSchema(sql);
 
     const [row] = await sql`
       INSERT INTO vvv_clarifications (term_slug, content, author_name)

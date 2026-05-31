@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { ensureVvvSchema } from "@/lib/vvvSchema";
 import crypto from "crypto";
 
 function getIpHash(req: NextRequest): string {
@@ -18,6 +19,7 @@ export async function POST(
     const { slug } = await params;
     const ipHash = getIpHash(req);
     const sql = getDb();
+    await ensureVvvSchema(sql);
 
     // Check for vote in last 24 hours
     const [existing] = await sql`
