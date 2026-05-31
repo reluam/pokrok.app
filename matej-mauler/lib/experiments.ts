@@ -33,4 +33,10 @@ export const experiments: ExperimentMeta[] = [
     color: "#FCE7F3",
     href: "/jak-to-zni",
   },
+  {
+    slug: "foundry",
+    emoji: "🔊",
+    color: "#F3E8FF",
+    href: "/sound-foundry",
+  },
 ];

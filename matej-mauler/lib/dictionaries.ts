@@ -68,6 +68,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Jak to zní?",
         description: "Vlož cokoliv a algoritmus z toho udělá melodii. Každé slovo zní jinak.",
       },
+      {
+        slug: "foundry",
+        title: "Sound Foundry",
+        description: "Napiš zvuk a engine ho vyrobí z oscilátorů a šumu. Laser, výbuch, kapka…",
+      },
     ],
   },
 
@@ -111,6 +116,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "sonify",
         title: "What does it sound like?",
         description: "Type anything and the algorithm turns it into a melody. Every word sounds different.",
+      },
+      {
+        slug: "foundry",
+        title: "Sound Foundry",
+        description: "Type a sound and the engine forges it from oscillators and noise. Laser, explosion, drop…",
       },
     ],
   },
