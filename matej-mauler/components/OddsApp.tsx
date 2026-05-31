@@ -1,26 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { scenarios, pickRandom, oddsUi, contextLine, type Scenario } from "@/lib/odds";
+import { scenarios, pickUnseen, oddsUi, contextLine, type Scenario } from "@/lib/odds";
 import type { Lang } from "@/lib/dictionaries";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
+
+const SEEN_KEY = "odds-seen";
 
 export function OddsApp({ lang }: { lang: Lang }) {
   const t = oddsUi[lang];
   const homeHref = lang === "cs" ? "/cs" : "/";
 
   const [current, setCurrent] = useState<Scenario | null>(null);
+  const [seen, setSeen] = useState<string[]>([]);
   const [animKey, setAnimKey] = useState(0);
 
-  const roll = (exclude?: string) => {
-    setCurrent(pickRandom(exclude));
+  // Načti dříve viděné scénáře (přežije reload)
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SEEN_KEY);
+      if (stored) setSeen(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  const persist = (ids: string[]) => {
+    setSeen(ids);
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids)); } catch {}
+  };
+
+  const markSeen = (id: string) => {
+    // Pokud už byly viděny všechny, začni nové kolo jen s tímto.
+    const allSeen = scenarios.every((s) => seen.includes(s.id));
+    persist(allSeen ? [id] : Array.from(new Set([...seen, id])));
+  };
+
+  const roll = () => {
+    const next = pickUnseen(seen, current?.id);
+    markSeen(next.id);
+    setCurrent(next);
     setAnimKey((k) => k + 1);
   };
 
   const pick = (s: Scenario) => {
+    markSeen(s.id);
     setCurrent(s);
     setAnimKey((k) => k + 1);
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
@@ -83,7 +108,7 @@ export function OddsApp({ lang }: { lang: Lang }) {
         {/* Roll button */}
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
           <button
-            onClick={() => roll(current?.id)}
+            onClick={roll}
             style={{
               background: "var(--text-primary)", color: "var(--bg)",
               border: "2.5px solid var(--text-primary)", borderRadius: "12px",

@@ -600,6 +600,19 @@ export function pickRandom(excludeId?: string): Scenario {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+/**
+ * Vybere náhodný scénář, který návštěvník ještě neviděl (podle seenIds).
+ * Když už viděl všechny, kolo se resetuje — vyloučí se jen ten poslední,
+ * aby se hned neopakoval.
+ */
+export function pickUnseen(seenIds: string[], lastId?: string): Scenario {
+  let pool = scenarios.filter((s) => !seenIds.includes(s.id));
+  if (pool.length === 0) {
+    pool = lastId ? scenarios.filter((s) => s.id !== lastId) : scenarios;
+  }
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 export const oddsUi = {
   cs: {
     back: "← Spaghetti.ltd",
@@ -627,10 +640,187 @@ export const oddsUi = {
   },
 } as const;
 
+type Bucket = { max: number; cs: string[]; en: string[] };
+
+// Od nejmenších šancí (vysoké oneIn) po nejvyšší šance (nízké oneIn).
+const CONTEXT_BUCKETS: Bucket[] = [
+  {
+    max: 3,
+    cs: [
+      "skoro jisté — neboj se",
+      "v podstatě hotová věc",
+      "víc pravděpodobné než ne",
+      "sázka na jistotu",
+      "skoro bys na to vsadil dům",
+    ],
+    en: [
+      "almost certain — don't worry",
+      "basically a done deal",
+      "more likely than not",
+      "a safe bet",
+      "you'd nearly bet the house on it",
+    ],
+  },
+  {
+    max: 10,
+    cs: [
+      "jako hodit kostkou a trefit svoje číslo",
+      "běžnější než deštivý víkend",
+      "stává se to častěji, než si přiznáváš",
+      "zhruba jako vytáhnout eso z balíčku dvakrát",
+      "nic neobvyklého, jen si toho nevšímáš",
+    ],
+    en: [
+      "like rolling a die and hitting your number",
+      "more common than a rainy weekend",
+      "happens more often than you admit",
+      "about like drawing an ace twice",
+      "nothing unusual, you just don't notice",
+    ],
+  },
+  {
+    max: 50,
+    cs: [
+      "jako uhodnout den v měsíci náhodně",
+      "vzácnější než zapomenout, proč jsi přišel do pokoje",
+      "asi jako trefit terč se zavázanýma očima",
+      "míň časté než ztratit jednu ponožku",
+      "jako vytáhnout konkrétní kartu z balíčku",
+    ],
+    en: [
+      "like guessing the day of the month at random",
+      "rarer than forgetting why you walked into a room",
+      "about like hitting a dartboard blindfolded",
+      "less common than losing a single sock",
+      "like drawing one specific card from a deck",
+    ],
+  },
+  {
+    max: 200,
+    cs: [
+      "vzácnější než dobrý film v pátek večer",
+      "asi jako uhodnout dvě kostky najednou",
+      "míň pravděpodobné než dvojče v rodině",
+      "jako narazit na známého v cizím městě",
+      "vzácnější než bezchybný pracovní den",
+    ],
+    en: [
+      "rarer than a good movie on a Friday night",
+      "about like guessing two dice at once",
+      "less likely than a twin in the family",
+      "like running into a friend in a foreign city",
+      "rarer than a flawless workday",
+    ],
+  },
+  {
+    max: 1_000,
+    cs: [
+      "vzácnější než deštivý den v Sahaře",
+      "asi jako trefit blesk fotkou v pravý moment",
+      "míň pravděpodobné než dvojitá duha",
+      "jako najít konkrétní zrnko v misce rýže",
+      "vzácnější než spontánní potlesk v kině",
+    ],
+    en: [
+      "rarer than a rainy day in the Sahara",
+      "about like photographing lightning at the right moment",
+      "less likely than a double rainbow",
+      "like finding one specific grain in a bowl of rice",
+      "rarer than spontaneous applause in a cinema",
+    ],
+  },
+  {
+    max: 20_000,
+    cs: [
+      "méně pravděpodobné než dát hole-in-one",
+      "vzácnější než narodit se 29. února",
+      "asi jako uhodnout cizí čtyřmístný kód",
+      "míň pravděpodobné než hrát s mincí na hranu",
+      "vzácnější než upustit telefon a nerozbít ho",
+    ],
+    en: [
+      "less likely than scoring a hole-in-one",
+      "rarer than being born on February 29th",
+      "about like guessing a stranger's four-digit code",
+      "less likely than landing a coin on its edge",
+      "rarer than dropping your phone and not cracking it",
+    ],
+  },
+  {
+    max: 1_000_000,
+    cs: [
+      "méně pravděpodobné než výhra v drobné loterii",
+      "vzácnější než být zasažen bleskem",
+      "asi jako dostat royal flush v pokeru",
+      "míň pravděpodobné než potkat slavného herce v obchodě",
+      "vzácnější než dvakrát po sobě stejný sen",
+    ],
+    en: [
+      "less likely than winning a small lottery",
+      "rarer than being struck by lightning",
+      "about like being dealt a royal flush",
+      "less likely than meeting a famous actor at the store",
+      "rarer than having the same dream twice in a row",
+    ],
+  },
+  {
+    max: 100_000_000,
+    cs: [
+      "méně pravděpodobné než napadení žralokem",
+      "vzácnější než výhra v loterii a blesk dohromady",
+      "asi jako uhodnout, na co zrovna myslí cizí člověk",
+      "míň pravděpodobné než přežít pád letadla — a ten je vzácný",
+      "vzácnější než najít jehlu v deseti kupkách sena",
+    ],
+    en: [
+      "less likely than a shark attack",
+      "rarer than a lottery win and lightning combined",
+      "about like guessing what a stranger is thinking",
+      "less likely than surviving a plane crash — and those are rare",
+      "rarer than a needle in ten haystacks",
+    ],
+  },
+  {
+    max: 1_000_000_000,
+    cs: [
+      "méně pravděpodobné než vyhrát velký jackpot",
+      "vzácnější než potkat svého dvojníka",
+      "asi jako trefit konkrétní vteřinu v celém roce",
+      "míň pravděpodobné než dvakrát po sobě vyhrát loterii",
+      "vzácnější než najít konkrétní písmeno v knihovně naslepo",
+    ],
+    en: [
+      "less likely than winning a huge jackpot",
+      "rarer than meeting your doppelgänger",
+      "about like hitting one specific second in a whole year",
+      "less likely than winning the lottery twice in a row",
+      "rarer than blindly finding one specific letter in a library",
+    ],
+  },
+  {
+    max: Infinity,
+    cs: [
+      "prakticky nemožné, ale ne úplně nula",
+      "vesmír by se musel hodně snažit",
+      "vzácnější než tvoje vlastní existence — a ta se povedla",
+      "číslo tak velké, že ho mozek odmítá pochopit",
+      "teoreticky možné, prakticky sci-fi",
+    ],
+    en: [
+      "practically impossible, but not quite zero",
+      "the universe would have to try really hard",
+      "rarer than your own existence — and that happened",
+      "a number so big the brain refuses to grasp it",
+      "theoretically possible, practically sci-fi",
+    ],
+  },
+];
+
 export function contextLine(oneIn: number, lang: Lang): string {
-  if (oneIn <= 2) return lang === "cs" ? "skoro jisté" : "almost certain";
-  if (oneIn < 100) return lang === "cs" ? `jako hodit ${Math.round(oneIn)}× kostkou a čekat jedničku` : `like rolling a die ${Math.round(oneIn)} times hoping for a one`;
-  if (oneIn < 1_000_000) return lang === "cs" ? "méně pravděpodobné než výhra v drobné loterii" : "less likely than winning a small lottery";
-  if (oneIn < 1_000_000_000) return lang === "cs" ? "méně pravděpodobné než blesk a výhra v loterii dohromady" : "less likely than lightning and a lottery win combined";
-  return lang === "cs" ? "prakticky nemožné, ale ne úplně nula" : "practically impossible, but not quite zero";
+  const bucket = CONTEXT_BUCKETS.find((b) => oneIn < b.max) ?? CONTEXT_BUCKETS[CONTEXT_BUCKETS.length - 1];
+  const arr = lang === "cs" ? bucket.cs : bucket.en;
+  // Deterministický výběr podle oneIn — stejný scénář má vždy stejný dovětek,
+  // ale sousední scénáře ve stejné kategorii dostanou jiný.
+  const idx = Math.floor(oneIn) % arr.length;
+  return arr[idx];
 }
