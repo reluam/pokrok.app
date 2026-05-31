@@ -108,7 +108,10 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
         </section>
 
         {/* Journey */}
-        <div className="pb-8">
+        <footer
+          className="py-8"
+          style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)" }}
+        >
           <a
             href="https://journey-ruddy-psi.vercel.app"
             target="_blank"
@@ -131,30 +134,6 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
               {dict.journeyCredit.label}
             </span>
           </a>
-        </div>
-
-        {/* Footer */}
-        <footer
-          className="py-8"
-          style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)" }}
-        >
-          <div className="flex gap-5">
-            {[
-              { label: "Substack", href: "https://matejmauler.substack.com" },
-              { label: "LinkedIn", href: "https://www.linkedin.com/in/matej-mauler/" },
-              { label: "matej@matejmauler.com", href: "mailto:matej@matejmauler.com" },
-            ].map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                target={l.href.startsWith("mailto") ? undefined : "_blank"}
-                rel="noopener noreferrer"
-                className="footer-link"
-              >
-                {l.label}
-              </a>
-            ))}
-          </div>
         </footer>
 
       </div>

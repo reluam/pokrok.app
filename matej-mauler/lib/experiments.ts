@@ -22,24 +22,9 @@ export const experiments: ExperimentMeta[] = [
     href: "/vvv",
   },
   {
-    slug: "otazky",
-    emoji: "🔮",
-    color: "#EDE9FE",
-    href: null,
-    wip: true,
-  },
-  {
-    slug: "rozhodnuti",
-    emoji: "🎲",
-    color: "#FFE4CC",
-    href: null,
-    wip: true,
-  },
-  {
-    slug: "nahoda",
-    emoji: "✦",
-    color: "#FCE7F3",
-    href: null,
-    wip: true,
+    slug: "odds",
+    emoji: "🎯",
+    color: "#DBEAFE",
+    href: "/what-are-the-odds",
   },
 ];
