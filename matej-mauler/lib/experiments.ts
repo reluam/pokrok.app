@@ -39,4 +39,10 @@ export const experiments: ExperimentMeta[] = [
     color: "#F3E8FF",
     href: "/sound-foundry",
   },
+  {
+    slug: "musicvote",
+    emoji: "🎼",
+    color: "#DCFCE7",
+    href: "/music",
+  },
 ];
