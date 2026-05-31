@@ -29,22 +29,25 @@ async function ensureSchema() {
   ensured = true;
 }
 
-// Load areas from DB. If the table is empty, seed it from the bundled JSON.
-export async function dbLoadAreas(seed: () => Area[]): Promise<Area[]> {
+// Load areas from DB. Seeds from the bundled JSON when the table is empty OR
+// when the stored content version is older than the app's (structural reseed).
+export async function dbLoadAreas(seed: () => Area[], version: number): Promise<Area[]> {
   if (!sql) throw new Error("No database configured");
   await ensureSchema();
-  const rows = (await sql`SELECT data FROM content WHERE id = 1`) as { data: { areas: Area[] } }[];
-  if (rows.length > 0 && rows[0].data?.areas) return rows[0].data.areas;
+  const rows = (await sql`SELECT data FROM content WHERE id = 1`) as { data: { version?: number; areas: Area[] } }[];
+  if (rows.length > 0 && rows[0].data?.areas && (rows[0].data.version ?? 0) >= version) {
+    return rows[0].data.areas;
+  }
 
   const areas = seed();
-  await dbSaveAreas(areas);
+  await dbSaveAreas(areas, version);
   return areas;
 }
 
-export async function dbSaveAreas(areas: Area[]): Promise<void> {
+export async function dbSaveAreas(areas: Area[], version: number): Promise<void> {
   if (!sql) throw new Error("No database configured");
   await ensureSchema();
-  const json = JSON.stringify({ areas });
+  const json = JSON.stringify({ version, areas });
   await sql`
     INSERT INTO content (id, data, updated_at)
     VALUES (1, ${json}::jsonb, now())
