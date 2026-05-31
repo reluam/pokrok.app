@@ -11,7 +11,7 @@ export function LanguageSwitcher({
 }) {
   const setLang = (target: Lang) => {
     document.cookie = `lang=${target}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
-    window.location.href = target === "cs" ? "/" : "/en";
+    window.location.href = target === "cs" ? "/cs" : "/";
   };
 
   return (
@@ -19,8 +19,9 @@ export function LanguageSwitcher({
       <div
         className="flex items-center gap-px px-1.5 py-1 rounded"
         style={{
-          background: "var(--bg-card)",
-          border: "1px solid var(--border-subtle)",
+          background: "var(--bg)",
+          border: "1.5px solid var(--border)",
+          borderRadius: "8px",
         }}
       >
         {(["cs", "en"] as Lang[]).map((l) => (
@@ -35,8 +36,8 @@ export function LanguageSwitcher({
               fontWeight: 500,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              background: lang === l ? "var(--accent)" : "transparent",
-              color: lang === l ? "var(--bg-page)" : "var(--text-muted)",
+              background: lang === l ? "var(--border)" : "transparent",
+              color: lang === l ? "var(--bg)" : "var(--text-muted)",
             }}
             aria-label={l === "cs" ? "Čeština" : "English"}
           >

@@ -4,13 +4,13 @@ import { dictionaries } from "@/lib/dictionaries";
 
 export const metadata: Metadata = {
   title: "Matěj Mauler",
-  description: dictionaries.cs.meta.description,
+  description: dictionaries.en.meta.description,
   alternates: {
     canonical: "/",
-    languages: { cs: "/", en: "/en" },
+    languages: { en: "/", cs: "/cs" },
   },
 };
 
 export default function Home() {
-  return <HomeContent dict={dictionaries.cs} lang="cs" />;
+  return <HomeContent dict={dictionaries.en} lang="en" />;
 }
