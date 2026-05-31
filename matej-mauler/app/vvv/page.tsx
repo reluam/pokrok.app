@@ -1,9 +1,10 @@
 import { VVVApp } from "@/components/VVVApp";
 import { getDb } from "@/lib/db";
+import { getLang } from "@/lib/getLang";
 
 export const metadata = {
-  title: "VVV — Veškeré vesmírné vědění",
-  description: "Encyklopedie kompletnější, než-li doposud uznáván Stopařův průvodce po galaxii.",
+  title: "VVV — Vast Void Vault",
+  description: "An encyclopedia more complete than the Hitchhiker's Guide to the Galaxy.",
 };
 
 async function getTerms() {
@@ -19,8 +20,8 @@ async function getTerms() {
 }
 
 export default async function VVVPage() {
-  const terms = await getTerms();
-  return <VVVApp initialTerms={terms as VVVTerm[]} />;
+  const [terms, lang] = await Promise.all([getTerms(), getLang()]);
+  return <VVVApp initialTerms={terms as VVVTerm[]} lang={lang} />;
 }
 
 export type VVVTerm = {

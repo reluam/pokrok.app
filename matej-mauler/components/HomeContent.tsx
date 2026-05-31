@@ -126,9 +126,9 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
             className="journey-link"
           >
             <span style={{ fontSize: "16px" }}>🌌</span>
-            <span>{lang === "cs" ? "Pracuji také na projektu" : "I'm also working on"}</span>
+            <span>{dict.journeyCredit.prefix}</span>
             <span style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
-              {lang === "cs" ? "Cesta →" : "Journey →"}
+              {dict.journeyCredit.label}
             </span>
           </a>
         </div>

@@ -18,6 +18,10 @@ export type Dictionary = {
     title: string;
     subtitle: string;
   };
+  journeyCredit: {
+    prefix: string;
+    label: string;
+  };
   wipLabel: string;
   experiments: ExperimentContent[];
 };
@@ -37,6 +41,10 @@ export const dictionaries: Record<Lang, Dictionary> = {
     products: {
       title: "Produkty",
       subtitle: "Každý z nich byl nejlepší nápad v daném okamžiku.",
+    },
+    journeyCredit: {
+      prefix: "Pro vážnější publikum dělám také",
+      label: "Cestu →",
     },
     wipLabel: "Brzy",
     experiments: [
@@ -82,11 +90,15 @@ export const dictionaries: Record<Lang, Dictionary> = {
     hero: {
       name: "Spaghetti.ltd",
       tagline: "We have bad ideas and plenty of AI willpower to build them.",
-      sub: "We build things nobody needed, but now can't live without.",
+      sub: "We build things nobody needed, but nobody wanted as well.",
     },
     products: {
       title: "Products",
       subtitle: "Each of them was the best idea at the time.",
+    },
+    journeyCredit: {
+      prefix: "For more serious folks, I also make the",
+      label: "Journey →",
     },
     wipLabel: "Soon",
     experiments: [

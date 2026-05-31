@@ -2,13 +2,18 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import { questions, Answers } from "@/lib/questions";
+import { getQuestions, calcUi, Answers } from "@/lib/questions";
+import type { Lang } from "@/lib/dictionaries";
 import { Result } from "./Result";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serif: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
 
-export function QuestionFlow() {
+export function QuestionFlow({ lang }: { lang: Lang }) {
+  const questions = getQuestions(lang);
+  const t = calcUi[lang];
+  const homeHref = lang === "cs" ? "/cs" : "/";
+
   const [step, setStep] = useState<"intro" | "questions" | "result">("intro");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
@@ -21,7 +26,7 @@ export function QuestionFlow() {
     } else {
       setCurrentIdx(nextIdx);
     }
-  }, []);
+  }, [questions.length]);
 
   const handleSelect = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -36,7 +41,7 @@ export function QuestionFlow() {
   };
 
   if (step === "result") {
-    return <Result answers={answers} onRestart={restart} />;
+    return <Result answers={answers} onRestart={restart} lang={lang} />;
   }
 
   const q = questions[currentIdx];
@@ -47,7 +52,7 @@ export function QuestionFlow() {
       {/* Back nav */}
       <div style={{ position: "fixed", top: "24px", left: "24px", zIndex: 10 }}>
         <Link
-          href="/"
+          href={homeHref}
           style={{
             fontFamily: "var(--font-sans)",
             fontSize: "12px",
@@ -56,7 +61,7 @@ export function QuestionFlow() {
             textDecoration: "none",
           }}
         >
-          ← matěj.mauler
+          {t.back}
         </Link>
       </div>
 
@@ -81,7 +86,7 @@ export function QuestionFlow() {
             color: "var(--text-muted)",
             marginBottom: "28px",
           }}>
-            Životní kalkulačka
+            {t.eyebrow}
           </p>
 
           <h1 style={{
@@ -93,7 +98,7 @@ export function QuestionFlow() {
             color: "var(--text-primary)",
             marginBottom: "20px",
           }}>
-            Kolik ti zbývá?
+            {t.title}
           </h1>
 
           <p style={{
@@ -104,7 +109,7 @@ export function QuestionFlow() {
             lineHeight: 1.5,
             marginBottom: "56px",
           }}>
-            Pár otázek. Jeden výsledek. Trochu filozofie a trochu absurdity.
+            {t.intro}
           </p>
 
           <button
@@ -132,7 +137,7 @@ export function QuestionFlow() {
               (e.target as HTMLElement).style.boxShadow = "4px 4px 0 var(--text-primary)";
             }}
           >
-            Začít →
+            {t.start}
           </button>
         </div>
       )}

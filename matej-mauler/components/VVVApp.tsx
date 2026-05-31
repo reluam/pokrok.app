@@ -3,14 +3,28 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { MathCaptcha } from "./MathCaptcha";
+import { vvvUi, type VvvUi } from "@/lib/vvvUi";
+import type { Lang } from "@/lib/dictionaries";
 import type { VVVTerm } from "@/app/vvv/page";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
 
+const SOURCE_LABELS: Record<string, { cs: string; en: string }> = {
+  "The Hitchhiker's Guide to the Galaxy": { cs: "Stopařův průvodce", en: "Hitchhiker's Guide" },
+  "Life, the Universe and Everything": { cs: "Život, vesmír...", en: "Life, the Universe..." },
+  "The Restaurant at the End of the Universe": { cs: "Restaurace na konci vesmíru", en: "Restaurant at the End of the Universe" },
+  "Mostly Harmless": { cs: "Převážně neškodná", en: "Mostly Harmless" },
+};
+
+function sourceLabel(source: string, lang: Lang, t: VvvUi): string {
+  if (source === "Komunita") return t.community;
+  return SOURCE_LABELS[source]?.[lang] ?? source.replace("The ", "");
+}
+
 /* ── Entry warning ─────────────────────────────────────────────── */
 
-function EntryWarning({ onEnter }: { onEnter: () => void }) {
+function EntryWarning({ onEnter, t }: { onEnter: () => void; t: VvvUi }) {
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 100,
@@ -33,23 +47,22 @@ function EntryWarning({ onEnter }: { onEnter: () => void }) {
           ...display, fontSize: "28px", fontWeight: 900,
           letterSpacing: "-0.02em", marginBottom: "8px",
         }}>
-          UPOZORNĚNÍ
+          {t.warnHeading}
         </h2>
         <p style={{
           fontFamily: "var(--font-sans)", fontSize: "11px",
           textTransform: "uppercase", letterSpacing: "0.15em",
           color: "var(--text-muted)", marginBottom: "20px",
         }}>
-          Veškeré vesmírné vědění
+          {t.warnSub}
         </p>
         <p style={{
           fontFamily: "var(--font-sans)", fontSize: "14px",
           lineHeight: 1.7, color: "var(--text-secondary)", marginBottom: "28px",
         }}>
-          Tato encyklopedie obsahuje veškeré vesmírné vědění — včetně znalostí
-          přidaných kýmkoliv s přístupem k internetu a minimální zodpovědností.
+          {t.warnBody1}
           <br /><br />
-          Vstupem souhlasíte s tím, že nebudete pohoršeni tím, co uvidíte.
+          {t.warnBody2}
         </p>
         <button onClick={onEnter} style={{
           background: "#1a1614", color: "#FAFAF7",
@@ -59,7 +72,7 @@ function EntryWarning({ onEnter }: { onEnter: () => void }) {
           fontSize: "15px", fontWeight: 700, cursor: "pointer",
           letterSpacing: "0.02em",
         }}>
-          Vstoupit do encyklopedie →
+          {t.enter}
         </button>
       </div>
     </div>
@@ -68,7 +81,7 @@ function EntryWarning({ onEnter }: { onEnter: () => void }) {
 
 /* ── Term card ─────────────────────────────────────────────────── */
 
-function TermCard({ term, onVote }: { term: VVVTerm; onVote: (slug: string) => Promise<{ votes?: number; error?: string }> }) {
+function TermCard({ term, onVote, lang, t }: { term: VVVTerm; onVote: (slug: string) => Promise<{ votes?: number; error?: string }>; lang: Lang; t: VvvUi }) {
   const [votes, setVotes] = useState(term.votes);
   const [voteError, setVoteError] = useState("");
   const [voting, setVoting] = useState(false);
@@ -110,7 +123,7 @@ function TermCard({ term, onVote }: { term: VVVTerm; onVote: (slug: string) => P
                   border: `1px solid ${term.source === "Komunita" ? "#D97706" : "var(--border)"}`,
                   borderRadius: "999px", padding: "2px 8px", whiteSpace: "nowrap",
                 }}>
-                  {term.source === "Komunita" ? "⚠️ komunita" : term.source.replace("The ", "").replace("Life, the Universe and Everything", "Život, vesmír...").replace("The Restaurant at the End of the Universe", "Restaurace na konci vesmíru").replace("Mostly Harmless", "Převážně neškodná")}
+                  {sourceLabel(term.source, lang, t)}
                 </span>
               </div>
               <p style={{
@@ -132,7 +145,7 @@ function TermCard({ term, onVote }: { term: VVVTerm; onVote: (slug: string) => P
             {/* Vote button */}
             <button
               onClick={handleVote}
-              title="Hlasovat (1× za 24 hodin)"
+              title={t.voteTitle}
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
                 gap: "2px", background: "none", border: "2px solid var(--border)",
@@ -164,7 +177,7 @@ function TermCard({ term, onVote }: { term: VVVTerm; onVote: (slug: string) => P
 
 /* ── Add term form ─────────────────────────────────────────────── */
 
-function AddTermForm({ onAdded }: { onAdded: (term: VVVTerm) => void }) {
+function AddTermForm({ onAdded, t }: { onAdded: (term: VVVTerm) => void; t: VvvUi }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -182,14 +195,14 @@ function AddTermForm({ onAdded }: { onAdded: (term: VVVTerm) => void }) {
     const res = await fetch("/api/vvv/terms", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, authorName, captchaA: captcha.a, captchaB: captcha.b, captchaAnswer: captcha.answer }),
+      body: JSON.stringify({ name, description, authorName: authorName.trim() || t.defaultAuthor, captchaA: captcha.a, captchaB: captcha.b, captchaAnswer: captcha.answer }),
     });
     if (res.ok) {
       const term = await res.json();
       onAdded(term);
       setName(""); setDescription(""); setAuthorName(""); setOpen(false);
     } else {
-      setError((await res.json()).error ?? "Chyba.");
+      setError((await res.json()).error ?? "Error.");
     }
     setSubmitting(false);
   };
@@ -204,7 +217,7 @@ function AddTermForm({ onAdded }: { onAdded: (term: VVVTerm) => void }) {
         fontSize: "13px", fontWeight: 600, cursor: "pointer",
         display: "flex", alignItems: "center", gap: "6px",
       }}>
-        + Přidat termín
+        {t.addTerm}
       </button>
     );
   }
@@ -216,12 +229,12 @@ function AddTermForm({ onAdded }: { onAdded: (term: VVVTerm) => void }) {
       padding: "24px",
     }}>
       <p style={{ ...display, fontSize: "18px", fontWeight: 800, marginBottom: "16px" }}>
-        Nový termín
+        {t.newTerm}
       </p>
       {[
-        { val: name, set: setName, ph: "Název termínu", multi: false },
-        { val: description, set: setDescription, ph: "Definice / popis...", multi: true },
-        { val: authorName, set: setAuthorName, ph: "Jméno (nepovinné — výchozí: Neznámý dobrodinec)", multi: false },
+        { val: name, set: setName, ph: t.termName, multi: false },
+        { val: description, set: setDescription, ph: t.termDesc, multi: true },
+        { val: authorName, set: setAuthorName, ph: t.authorPlaceholder, multi: false },
       ].map(({ val, set, ph, multi }) =>
         multi ? (
           <textarea key={ph} value={val} onChange={e => set(e.target.value)} placeholder={ph} rows={3}
@@ -236,11 +249,11 @@ function AddTermForm({ onAdded }: { onAdded: (term: VVVTerm) => void }) {
       <div style={{ display: "flex", gap: "10px" }}>
         <button type="submit" disabled={submitting || !name.trim() || description.trim().length < 10 || !captchaOk}
           style={{ background: "var(--text-primary)", color: "var(--bg)", border: "2px solid var(--text-primary)", borderRadius: "10px", boxShadow: "3px 3px 0 var(--text-primary)", padding: "10px 22px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, cursor: "pointer", opacity: (submitting || !name.trim() || description.trim().length < 10 || !captchaOk) ? 0.4 : 1 }}>
-          {submitting ? "Přidávám..." : "Přidat →"}
+          {submitting ? t.adding : t.add}
         </button>
         <button type="button" onClick={() => setOpen(false)}
           style={{ background: "transparent", color: "var(--text-muted)", border: "2px solid var(--border)", borderRadius: "10px", padding: "10px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", cursor: "pointer" }}>
-          Zrušit
+          {t.cancel}
         </button>
       </div>
     </form>
@@ -249,8 +262,11 @@ function AddTermForm({ onAdded }: { onAdded: (term: VVVTerm) => void }) {
 
 /* ── Main app ──────────────────────────────────────────────────── */
 
-export function VVVApp({ initialTerms }: { initialTerms: VVVTerm[] }) {
-  const [acknowledged, setAcknowledged] = useState(true); // default true, set false after check
+export function VVVApp({ initialTerms, lang }: { initialTerms: VVVTerm[]; lang: Lang }) {
+  const t = vvvUi[lang];
+  const homeHref = lang === "cs" ? "/cs" : "/";
+
+  const [acknowledged, setAcknowledged] = useState(true);
   const [terms, setTerms] = useState<VVVTerm[]>(initialTerms);
   const [query, setQuery] = useState("");
 
@@ -268,7 +284,7 @@ export function VVVApp({ initialTerms }: { initialTerms: VVVTerm[] }) {
     const res = await fetch(`/api/vvv/terms/${slug}/vote`, { method: "POST" });
     const j = await res.json();
     if (res.ok) {
-      setTerms(prev => prev.map(t => t.slug === slug ? { ...t, votes: j.votes } : t));
+      setTerms(prev => prev.map(tm => tm.slug === slug ? { ...tm, votes: j.votes } : tm));
       return { votes: j.votes as number };
     }
     return { error: j.error as string };
@@ -279,15 +295,15 @@ export function VVVApp({ initialTerms }: { initialTerms: VVVTerm[] }) {
   };
 
   const filtered = query
-    ? terms.filter(t =>
-        t.name.toLowerCase().includes(query.toLowerCase()) ||
-        t.description.toLowerCase().includes(query.toLowerCase())
+    ? terms.filter(tm =>
+        tm.name.toLowerCase().includes(query.toLowerCase()) ||
+        tm.description.toLowerCase().includes(query.toLowerCase())
       )
     : terms;
 
   return (
     <>
-      {!acknowledged && <EntryWarning onEnter={enter} />}
+      {!acknowledged && <EntryWarning onEnter={enter} t={t} />}
 
       <div style={{ minHeight: "100dvh", background: "var(--bg)" }}>
         {/* Header stripe */}
@@ -298,8 +314,8 @@ export function VVVApp({ initialTerms }: { initialTerms: VVVTerm[] }) {
 
         {/* Back */}
         <div style={{ padding: "20px 24px 0" }}>
-          <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.04em", color: "var(--text-muted)", textDecoration: "none" }}>
-            ← matěj.mauler
+          <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.04em", color: "var(--text-muted)", textDecoration: "none" }}>
+            {t.back}
           </Link>
         </div>
 
@@ -307,13 +323,13 @@ export function VVVApp({ initialTerms }: { initialTerms: VVVTerm[] }) {
           {/* Title */}
           <div style={{ textAlign: "center", marginBottom: "48px" }}>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--text-muted)", marginBottom: "12px" }}>
-              Vast Void Vault
+              {t.fullName}
             </p>
             <h1 style={{ ...display, fontSize: "clamp(40px, 9vw, 72px)", fontWeight: 900, lineHeight: 1, letterSpacing: "-0.03em", marginBottom: "14px" }}>
               VVV
             </h1>
             <p style={{ ...serifItalic, fontSize: "17px", color: "var(--text-secondary)", lineHeight: 1.5, maxWidth: "500px", margin: "0 auto" }}>
-              Encyklopedie kompletnější, než-li doposud uznáván Stopařův průvodce po galaxii.
+              {t.subtitle}
             </p>
           </div>
 
@@ -322,26 +338,26 @@ export function VVVApp({ initialTerms }: { initialTerms: VVVTerm[] }) {
             <input
               value={query}
               onChange={e => setQuery(e.target.value)}
-              placeholder="Hledat termín..."
+              placeholder={t.search}
               style={{ flex: 1, minWidth: "200px", background: "#fff", border: "2.5px solid var(--border)", borderRadius: "12px", boxShadow: "3px 3px 0 var(--border)", padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-primary)", outline: "none" }}
             />
           </div>
 
           {/* Add form */}
           <div style={{ marginBottom: "24px" }}>
-            <AddTermForm onAdded={handleAdded} />
+            <AddTermForm onAdded={handleAdded} t={t} />
           </div>
 
           {/* Count */}
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginBottom: "16px", letterSpacing: "0.04em" }}>
-            {filtered.length} {filtered.length === 1 ? "termín" : "termínů"}
-            {query ? ` pro „${query}"` : ` z ${terms.length} celkem`}
+            {filtered.length} {filtered.length === 1 ? t.countOne : t.countMany}
+            {" "}{query ? t.forQuery(query) : t.ofTotal(terms.length)}
           </p>
 
           {/* Term list */}
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {filtered.map(term => (
-              <TermCard key={term.slug} term={term} onVote={handleVote} />
+              <TermCard key={term.slug} term={term} onVote={handleVote} lang={lang} t={t} />
             ))}
           </div>
         </div>

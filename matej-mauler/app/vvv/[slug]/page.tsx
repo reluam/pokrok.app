@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db";
+import { getLang } from "@/lib/getLang";
 import { VVVTermDetail } from "@/components/VVVTermDetail";
 
 export const dynamicParams = true;
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function TermPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const data = await getData(slug);
+  const [data, lang] = await Promise.all([getData(slug), getLang()]);
   if (!data) notFound();
-  return <VVVTermDetail term={data.term} initialClarifications={data.clarifications} />;
+  return <VVVTermDetail term={data.term} initialClarifications={data.clarifications} lang={lang} />;
 }

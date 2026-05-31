@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { calculateResult, Answers } from "@/lib/questions";
+import { calculateResult, calcUi, Answers } from "@/lib/questions";
+import type { Lang } from "@/lib/dictionaries";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serif: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
 
-export function Result({ answers, onRestart }: { answers: Answers; onRestart: () => void }) {
-  const { duration, funnyNotes } = calculateResult(answers);
+export function Result({ answers, onRestart, lang }: { answers: Answers; onRestart: () => void; lang: Lang }) {
+  const { duration, funnyNotes } = calculateResult(answers, lang);
+  const t = calcUi[lang];
+  const homeHref = lang === "cs" ? "/cs" : "/";
   const isCountdown = duration.seconds !== undefined;
 
   const [timeLeft, setTimeLeft] = useState<number>(duration.seconds ?? 0);
@@ -24,11 +27,11 @@ export function Result({ answers, onRestart }: { answers: Answers; onRestart: ()
   return (
     <div style={{ minHeight: "100dvh", background: "var(--bg)", padding: "80px 24px" }}>
       <div style={{ position: "fixed", top: "24px", left: "24px" }}>
-        <Link href="/" style={{
+        <Link href={homeHref} style={{
           fontFamily: "var(--font-sans)", fontSize: "12px",
           letterSpacing: "0.04em", color: "var(--text-muted)", textDecoration: "none",
         }}>
-          ← matěj.mauler
+          {t.back}
         </Link>
       </div>
 
@@ -38,7 +41,7 @@ export function Result({ answers, onRestart }: { answers: Answers; onRestart: ()
           fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase",
           letterSpacing: "0.2em", color: "var(--text-muted)", marginBottom: "32px",
         }}>
-          Výsledek výpočtu
+          {t.resultLabel}
         </p>
 
         {/* Main number / display */}
@@ -49,10 +52,10 @@ export function Result({ answers, onRestart }: { answers: Answers; onRestart: ()
               ...display, fontSize: "clamp(28px, 6vw, 44px)", fontWeight: 900,
               lineHeight: 1.1, color: "var(--text-primary)", marginBottom: "12px",
             }}>
-              Čas vypršel.
+              {t.expiredTitle}
             </p>
             <p style={{ ...serif, fontSize: "20px", color: "var(--text-secondary)" }}>
-              A přesto jsi stále tady. Zvláštní.
+              {t.expiredSub}
             </p>
           </div>
         ) : isCountdown ? (
@@ -74,7 +77,7 @@ export function Result({ answers, onRestart }: { answers: Answers; onRestart: ()
               letterSpacing: "0.15em", textTransform: "uppercase",
               color: "var(--text-muted)", display: "block", marginBottom: "12px",
             }}>
-              vteřin
+              {t.seconds}
             </span>
             <p style={{ ...serif, fontSize: "18px", color: "var(--text-secondary)", lineHeight: 1.4 }}>
               {duration.headline}
@@ -115,7 +118,7 @@ export function Result({ answers, onRestart }: { answers: Answers; onRestart: ()
               fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase",
               letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "12px",
             }}>
-              Faktory výpočtu
+              {t.notesLabel}
             </p>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "7px" }}>
               {funnyNotes.map((note, i) => (
@@ -136,7 +139,7 @@ export function Result({ answers, onRestart }: { answers: Answers; onRestart: ()
           ...serif, fontSize: "13px", color: "var(--text-muted)",
           marginBottom: "40px", lineHeight: 1.6, marginTop: expired ? "32px" : "0",
         }}>
-          Výpočet byl proveden s veškerou dostupnou péčí a absolutně žádnou vědeckou přesností.
+          {t.disclaimer}
         </p>
 
         <button
@@ -149,7 +152,7 @@ export function Result({ answers, onRestart }: { answers: Answers; onRestart: ()
             fontSize: "14px", fontWeight: 600, cursor: "pointer",
           }}
         >
-          Zkusit znovu →
+          {t.retry}
         </button>
       </div>
     </div>
