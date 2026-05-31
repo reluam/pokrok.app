@@ -2,7 +2,10 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
-import { buildSound, foundryUi, suggestions, type SoundSpec } from "@/lib/foundry";
+import {
+  buildFromWords, searchWords, getWordById, foundryUi,
+  type SoundSpec, type Word,
+} from "@/lib/foundry";
 import type { Lang } from "@/lib/dictionaries";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
@@ -17,15 +20,12 @@ function makeNoiseBuffer(ctx: AudioContext, color: "white" | "pink", durSec: num
   } else {
     let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
     for (let i = 0; i < len; i++) {
-      const w = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + w * 0.0555179;
-      b1 = 0.99332 * b1 + w * 0.0750759;
-      b2 = 0.969 * b2 + w * 0.153852;
-      b3 = 0.8665 * b3 + w * 0.3104856;
-      b4 = 0.55 * b4 + w * 0.5329522;
-      b5 = -0.7616 * b5 - w * 0.016898;
-      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
-      b6 = w * 0.115926;
+      const wn = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + wn * 0.0555179; b1 = 0.99332 * b1 + wn * 0.0750759;
+      b2 = 0.969 * b2 + wn * 0.153852; b3 = 0.8665 * b3 + wn * 0.3104856;
+      b4 = 0.55 * b4 + wn * 0.5329522; b5 = -0.7616 * b5 - wn * 0.016898;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + wn * 0.5362) * 0.11;
+      b6 = wn * 0.115926;
     }
   }
   return buf;
@@ -35,10 +35,15 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
   const t = foundryUi[lang];
   const homeHref = lang === "cs" ? "/cs" : "/";
 
-  const [input, setInput] = useState("");
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
   const [playing, setPlaying] = useState(false);
 
-  const spec: SoundSpec | null = useMemo(() => buildSound(input, lang), [input, lang]);
+  const spec: SoundSpec | null = useMemo(() => buildFromWords(selected, lang), [selected, lang]);
+
+  const results = useMemo(() => searchWords(query, lang), [query, lang]);
+  const soundResults = results.filter((r) => r.family).slice(0, 40);
+  const modResults = results.filter((r) => r.modifier);
 
   const audioRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -47,32 +52,26 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
   const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const drawIdle = () => {
+    const cv = canvasRef.current; if (!cv) return;
+    const ctx = cv.getContext("2d"); if (!ctx) return;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.strokeStyle = "rgba(26,22,20,0.18)"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, cv.height / 2); ctx.lineTo(cv.width, cv.height / 2); ctx.stroke();
+  };
+
   const stop = () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (stopTimerRef.current) clearTimeout(stopTimerRef.current);
-    rafRef.current = null;
-    stopTimerRef.current = null;
+    rafRef.current = null; stopTimerRef.current = null;
     nodesRef.current.forEach((n) => { try { n.stop(); } catch {} });
     nodesRef.current = [];
     setPlaying(false);
     drawIdle();
   };
 
-  useEffect(() => () => stop(), []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const drawIdle = () => {
-    const cv = canvasRef.current; if (!cv) return;
-    const ctx = cv.getContext("2d"); if (!ctx) return;
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.strokeStyle = "rgba(26,22,20,0.18)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, cv.height / 2);
-    ctx.lineTo(cv.width, cv.height / 2);
-    ctx.stroke();
-  };
-
   useEffect(() => { drawIdle(); }, []);
+  useEffect(() => () => stop(), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const drawScope = () => {
     const cv = canvasRef.current, analyser = analyserRef.current;
@@ -81,9 +80,7 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
     const buf = new Uint8Array(analyser.fftSize);
     analyser.getByteTimeDomainData(buf);
     ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = "#9333EA";
-    ctx.beginPath();
+    ctx.lineWidth = 2.5; ctx.strokeStyle = "#9333EA"; ctx.beginPath();
     const slice = cv.width / buf.length;
     for (let i = 0; i < buf.length; i++) {
       const v = buf[i] / 128 - 1;
@@ -98,29 +95,23 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
   const play = () => {
     if (!spec) return;
     stop();
-
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = audioRef.current ?? new Ctx();
     audioRef.current = ctx;
     if (ctx.state === "suspended") ctx.resume();
 
-    const master = ctx.createGain();
-    master.gain.value = 0.85;
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 2048;
+    const master = ctx.createGain(); master.gain.value = 0.85;
+    const analyser = ctx.createAnalyser(); analyser.fftSize = 2048;
     analyserRef.current = analyser;
-    master.connect(analyser);
-    analyser.connect(ctx.destination);
+    master.connect(analyser); analyser.connect(ctx.destination);
 
     const start = ctx.currentTime + 0.06;
-
     for (const layer of spec.layers) {
       const s = start + layer.startMs / 1000;
-      const d = layer.durMs / 1000;
-
+      const d = Math.max(0.02, layer.durMs / 1000);
       const env = ctx.createGain();
       env.gain.setValueAtTime(0.0001, s);
-      env.gain.linearRampToValueAtTime(layer.gain, s + layer.attackMs / 1000);
+      env.gain.linearRampToValueAtTime(Math.max(0.001, layer.gain), s + layer.attackMs / 1000);
       env.gain.exponentialRampToValueAtTime(0.0008, s + d);
       env.connect(master);
 
@@ -132,19 +123,12 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
           if (layer.sweep === "exp") osc.frequency.exponentialRampToValueAtTime(Math.max(1, layer.freqEnd), s + d);
           else osc.frequency.linearRampToValueAtTime(layer.freqEnd, s + d);
         }
-        osc.connect(env);
-        osc.start(s);
-        osc.stop(s + d + 0.02);
+        osc.connect(env); osc.start(s); osc.stop(s + d + 0.02);
         nodesRef.current.push(osc);
-
         if (layer.vibratoHz && layer.vibratoDepth) {
-          const lfo = ctx.createOscillator();
-          const lfoGain = ctx.createGain();
-          lfo.frequency.value = layer.vibratoHz;
-          lfoGain.gain.value = layer.vibratoDepth;
-          lfo.connect(lfoGain).connect(osc.frequency);
-          lfo.start(s);
-          lfo.stop(s + d + 0.02);
+          const lfo = ctx.createOscillator(); const lfoGain = ctx.createGain();
+          lfo.frequency.value = layer.vibratoHz; lfoGain.gain.value = layer.vibratoDepth;
+          lfo.connect(lfoGain).connect(osc.frequency); lfo.start(s); lfo.stop(s + d + 0.02);
           nodesRef.current.push(lfo);
         }
       } else {
@@ -153,26 +137,41 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
         let node: AudioNode = src;
         if (layer.filterType) {
           const filt = ctx.createBiquadFilter();
-          filt.type = layer.filterType;
-          filt.Q.value = layer.q ?? 1;
-          filt.frequency.setValueAtTime(layer.filterFreqStart ?? 1000, s);
+          filt.type = layer.filterType; filt.Q.value = layer.q ?? 1;
+          filt.frequency.setValueAtTime(Math.max(20, layer.filterFreqStart ?? 1000), s);
           if (layer.filterFreqEnd && layer.filterFreqEnd !== layer.filterFreqStart) {
-            filt.frequency.linearRampToValueAtTime(layer.filterFreqEnd, s + d);
+            filt.frequency.linearRampToValueAtTime(Math.max(20, layer.filterFreqEnd), s + d);
           }
-          src.connect(filt);
-          node = filt;
+          src.connect(filt); node = filt;
         }
-        node.connect(env);
-        src.start(s);
-        src.stop(s + d + 0.02);
+        node.connect(env); src.start(s); src.stop(s + d + 0.02);
         nodesRef.current.push(src);
       }
     }
-
     setPlaying(true);
     rafRef.current = requestAnimationFrame(drawScope);
-    stopTimerRef.current = setTimeout(stop, spec.totalMs + 220);
+    stopTimerRef.current = setTimeout(stop, spec.totalMs + 260);
   };
+
+  const add = (id: string) => { stop(); setSelected((prev) => [...prev, id]); };
+  const removeAt = (idx: number) => { stop(); setSelected((prev) => prev.filter((_, i) => i !== idx)); };
+
+  const chip = (word: Word, onClick: () => void, removable = false) => (
+    <button
+      key={word.id + (removable ? "-sel" : "")}
+      onClick={onClick}
+      style={{
+        background: word.modifier ? "#FEF3C7" : "#fff",
+        border: `2px solid ${word.modifier ? "#D97706" : "var(--border)"}`,
+        borderRadius: "999px", boxShadow: `2px 2px 0 ${word.modifier ? "#D97706" : "var(--border)"}`,
+        padding: "7px 14px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500,
+        color: "var(--text-primary)", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "6px",
+      }}
+    >
+      {lang === "cs" ? word.cs : word.en}
+      {removable && <span style={{ color: "var(--text-muted)", fontWeight: 700 }}>×</span>}
+    </button>
+  );
 
   return (
     <div style={{ minHeight: "100dvh", background: "var(--bg)" }}>
@@ -184,58 +183,52 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
 
       <div style={{ maxWidth: "640px", margin: "0 auto", padding: "32px 24px 80px" }}>
         {/* Title */}
-        <div style={{ textAlign: "center", marginBottom: "36px" }}>
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--text-muted)", marginBottom: "14px" }}>
             {t.eyebrow}
           </p>
           <h1 style={{ ...display, fontSize: "clamp(34px, 7.5vw, 56px)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-0.03em", marginBottom: "14px" }}>
             {t.title}
           </h1>
-          <p style={{ ...serifItalic, fontSize: "17px", color: "var(--text-secondary)", lineHeight: 1.45, maxWidth: "460px", margin: "0 auto" }}>
+          <p style={{ ...serifItalic, fontSize: "16px", color: "var(--text-secondary)", lineHeight: 1.45, maxWidth: "470px", margin: "0 auto" }}>
             {t.intro}
           </p>
         </div>
 
-        {/* Input */}
-        <input
-          value={input}
-          onChange={(e) => { setInput(e.target.value); if (playing) stop(); }}
-          onKeyDown={(e) => { if (e.key === "Enter" && spec) (playing ? stop : play)(); }}
-          placeholder={t.placeholder}
-          maxLength={80}
-          style={{
-            width: "100%", background: "#fff",
-            border: "2.5px solid var(--border)", borderRadius: "14px",
-            boxShadow: "4px 4px 0 var(--border)",
-            padding: "16px 18px", fontFamily: "var(--font-sans)",
-            fontSize: "16px", color: "var(--text-primary)", outline: "none",
-            marginBottom: "20px",
-          }}
-        />
+        {/* Recipe */}
+        <div style={{ marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>{t.selectedLabel}</p>
+            {selected.length > 0 && (
+              <button onClick={() => { stop(); setSelected([]); }} style={{ background: "none", border: "none", fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", cursor: "pointer", textDecoration: "underline" }}>{t.clear}</button>
+            )}
+          </div>
+          <div style={{
+            minHeight: "52px", background: "#fff", border: "2.5px solid var(--border)",
+            borderRadius: "14px", boxShadow: "4px 4px 0 var(--border)", padding: "12px",
+            display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center",
+          }}>
+            {selected.length === 0
+              ? <span style={{ ...serifItalic, fontSize: "14px", color: "var(--text-muted)", paddingLeft: "4px" }}>{t.selectedEmpty}</span>
+              : selected.map((id, i) => { const word = getWordById(id); return word ? chip(word, () => removeAt(i), true) : null; })}
+          </div>
+        </div>
 
         {/* Oscilloscope */}
-        <div style={{
-          background: "#fff", border: "2.5px solid var(--border)",
-          borderRadius: "18px", boxShadow: "5px 5px 0 var(--border)",
-          padding: "16px", marginBottom: "20px",
-        }}>
-          <canvas ref={canvasRef} width={560} height={150} style={{ width: "100%", height: "150px", display: "block" }} />
+        <div style={{ background: "#fff", border: "2.5px solid var(--border)", borderRadius: "18px", boxShadow: "5px 5px 0 var(--border)", padding: "16px", marginBottom: "16px" }}>
+          <canvas ref={canvasRef} width={560} height={130} style={{ width: "100%", height: "130px", display: "block" }} />
         </div>
 
         {/* Play + stats */}
         {spec && (
           <>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-              <button
-                onClick={playing ? stop : play}
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "18px" }}>
+              <button onClick={playing ? stop : play}
                 style={{
-                  background: playing ? "#9333EA" : "var(--text-primary)",
-                  color: "#fff",
-                  border: `2.5px solid ${playing ? "#9333EA" : "var(--text-primary)"}`,
-                  borderRadius: "12px",
+                  background: playing ? "#9333EA" : "var(--text-primary)", color: "#fff",
+                  border: `2.5px solid ${playing ? "#9333EA" : "var(--text-primary)"}`, borderRadius: "12px",
                   boxShadow: `4px 4px 0 ${playing ? "#6b21a8" : "var(--text-primary)"}`,
-                  padding: "14px 36px", fontFamily: "var(--font-sans)",
-                  fontSize: "16px", fontWeight: 700, cursor: "pointer",
+                  padding: "14px 36px", fontFamily: "var(--font-sans)", fontSize: "16px", fontWeight: 700, cursor: "pointer",
                   transition: "transform 140ms ease",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.transform = "translate(-2px,-2px)"; }}
@@ -244,33 +237,14 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
                 {playing ? t.stop : t.play}
               </button>
             </div>
-
-            {/* Detected tags */}
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center", marginBottom: "20px" }}>
-              {spec.tags.map((tag, i) => (
-                <span key={i} style={{
-                  fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600,
-                  background: "#F3E8FF", color: "#7E22CE",
-                  border: "1.5px solid #9333EA", borderRadius: "999px", padding: "4px 12px",
-                }}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "32px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "28px" }}>
               {[
                 { label: t.detected, value: String(spec.tags.length) },
                 { label: t.layers, value: String(spec.layers.length) },
                 { label: t.duration, value: `${(spec.totalMs / 1000).toFixed(1)}s` },
               ].map((st) => (
-                <div key={st.label} style={{
-                  background: "#fff", border: "2px solid var(--border)", borderRadius: "12px",
-                  boxShadow: "3px 3px 0 var(--border)", padding: "12px 10px", textAlign: "center",
-                }}>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "4px" }}>
-                    {st.label}
-                  </p>
+                <div key={st.label} style={{ background: "#fff", border: "2px solid var(--border)", borderRadius: "12px", boxShadow: "3px 3px 0 var(--border)", padding: "12px 10px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "4px" }}>{st.label}</p>
                   <p style={{ ...display, fontSize: "18px", fontWeight: 800, color: "var(--text-primary)" }}>{st.value}</p>
                 </div>
               ))}
@@ -278,34 +252,43 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
           </>
         )}
 
-        {!spec && (
-          <p style={{ ...serifItalic, fontSize: "15px", color: "var(--text-muted)", textAlign: "center", marginBottom: "32px" }}>
-            {t.empty}
-          </p>
+        {/* Search */}
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t.search}
+          style={{
+            width: "100%", background: "#fff", border: "2.5px solid var(--border)", borderRadius: "14px",
+            boxShadow: "4px 4px 0 var(--border)", padding: "14px 16px", fontFamily: "var(--font-sans)",
+            fontSize: "15px", color: "var(--text-primary)", outline: "none", marginBottom: "20px",
+          }}
+        />
+
+        {/* Sound results */}
+        {soundResults.length > 0 && (
+          <>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "10px" }}>{t.soundsLabel}</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "24px" }}>
+              {soundResults.map((word) => chip(word, () => add(word.id)))}
+            </div>
+          </>
         )}
 
-        {/* Suggestions */}
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginBottom: "12px", letterSpacing: "0.04em" }}>
-          {t.suggestionsLabel}
-        </p>
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "32px" }}>
-          {suggestions(lang).map((sug) => (
-            <button
-              key={sug}
-              onClick={() => { stop(); setInput(sug); }}
-              style={{
-                background: "#fff", border: "2px solid var(--border)", borderRadius: "999px",
-                boxShadow: "2px 2px 0 var(--border)", padding: "8px 16px",
-                fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500,
-                color: "var(--text-primary)", cursor: "pointer",
-              }}
-            >
-              {sug}
-            </button>
-          ))}
-        </div>
+        {/* Modifier results */}
+        {modResults.length > 0 && (
+          <>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "10px" }}>{t.modifiersLabel}</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "24px" }}>
+              {modResults.map((word) => chip(word, () => add(word.id)))}
+            </div>
+          </>
+        )}
 
-        <p style={{ ...serifItalic, fontSize: "13px", color: "var(--text-muted)", textAlign: "center", lineHeight: 1.6 }}>
+        {soundResults.length === 0 && modResults.length === 0 && (
+          <p style={{ ...serifItalic, fontSize: "15px", color: "var(--text-muted)", textAlign: "center", marginBottom: "24px" }}>{t.noResults}</p>
+        )}
+
+        <p style={{ ...serifItalic, fontSize: "13px", color: "var(--text-muted)", textAlign: "center", lineHeight: 1.6, marginTop: "12px" }}>
           {t.disclaimer}
         </p>
       </div>
