@@ -376,7 +376,27 @@ export function searchWords(query: string, lang: Lang): Word[] {
   });
 }
 
-export function buildFromWords(selectedIds: string[], lang: Lang): SoundSpec | null {
+/** Jemná náhodná „humanizace" každé vrstvy — drobný detune, timing, délka, hlasitost. */
+function humanize(layer: Layer, jr: R): Layer {
+  const cents = (jr() * 2 - 1) * 30;          // ±30 centů detune
+  const pitchMul = Math.pow(2, cents / 1200);
+  const durMul = 1 + (jr() * 2 - 1) * 0.09;   // ±9 % délka
+  const gainMul = 1 + (jr() * 2 - 1) * 0.12;  // ±12 % hlasitost
+  const startJit = layer.startMs > 0 ? (jr() * 2 - 1) * 14 : 0; // ±14 ms timing
+  const startMs = Math.max(0, layer.startMs + startJit);
+
+  if (layer.kind === "tone") {
+    return { ...layer, startMs, freqStart: layer.freqStart * pitchMul, freqEnd: layer.freqEnd * pitchMul, durMs: layer.durMs * durMul, gain: Math.min(0.5, layer.gain * gainMul) };
+  }
+  const fJit = 1 + (jr() * 2 - 1) * 0.08;     // ±8 % filtr
+  return {
+    ...layer, startMs, durMs: layer.durMs * durMul, gain: Math.min(0.5, layer.gain * gainMul),
+    filterFreqStart: layer.filterFreqStart !== undefined ? layer.filterFreqStart * fJit : undefined,
+    filterFreqEnd: layer.filterFreqEnd !== undefined ? layer.filterFreqEnd * fJit : undefined,
+  };
+}
+
+export function buildFromWords(selectedIds: string[], lang: Lang, variation = 0): SoundSpec | null {
   const selected = selectedIds.map(getWordById).filter(Boolean) as Word[];
   if (selected.length === 0) return null;
 
@@ -386,8 +406,9 @@ export function buildFromWords(selectedIds: string[], lang: Lang): SoundSpec | n
 
   const globalMod = combineMods(modWords.map((mw) => ({ ...NEUTRAL, ...mw.modifier!.adjust })));
 
-  const seed = hash(selectedIds.join("|"));
-  const r = makeRng(seed);
+  const seed = hash(selectedIds.join("|") + "#" + variation);
+  const r = makeRng(seed);                          // řídí variace uvnitř receptů
+  const jr = makeRng((seed ^ 0x9e3779b9) >>> 0);    // řídí humanizaci
 
   const layers: Layer[] = [];
   const tags: string[] = [];
@@ -400,7 +421,7 @@ export function buildFromWords(selectedIds: string[], lang: Lang): SoundSpec | n
     const wordMod = combineMods([globalMod, { ...NEUTRAL, ...sw.mod }]);
     for (const l of base.layers) {
       const m = applyMod({ ...l, startMs: l.startMs + offset }, wordMod);
-      layers.push(m);
+      layers.push(humanize(m, jr));
     }
     offset += base.durMs * wordMod.durMul + 80;
     tags.push(lang === "cs" ? sw.cs : sw.en);
@@ -422,6 +443,7 @@ export const foundryUi = {
     selectedEmpty: "Zatím nic. Přidej zvuky z výsledků hledání.",
     play: "Vyrobit zvuk ♪",
     stop: "Zastavit ■",
+    randomize: "Jiná variace 🎲",
     clear: "Vyčistit",
     detected: "Zvuků",
     layers: "Vrstev",
@@ -441,6 +463,7 @@ export const foundryUi = {
     selectedEmpty: "Nothing yet. Add sounds from the search results.",
     play: "Forge sound ♪",
     stop: "Stop ■",
+    randomize: "Another variation 🎲",
     clear: "Clear",
     detected: "Sounds",
     layers: "Layers",

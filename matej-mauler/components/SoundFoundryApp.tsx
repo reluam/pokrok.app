@@ -38,8 +38,9 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [playing, setPlaying] = useState(false);
+  const [variation, setVariation] = useState(0);
 
-  const spec: SoundSpec | null = useMemo(() => buildFromWords(selected, lang), [selected, lang]);
+  const spec: SoundSpec | null = useMemo(() => buildFromWords(selected, lang, variation), [selected, lang, variation]);
 
   const results = useMemo(() => searchWords(query, lang), [query, lang]);
   const soundResults = results.filter((r) => r.family).slice(0, 40);
@@ -92,8 +93,7 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
     rafRef.current = requestAnimationFrame(drawScope);
   };
 
-  const play = () => {
-    if (!spec) return;
+  const playSpec = (spec: SoundSpec) => {
     stop();
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = audioRef.current ?? new Ctx();
@@ -153,8 +153,20 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
     stopTimerRef.current = setTimeout(stop, spec.totalMs + 260);
   };
 
-  const add = (id: string) => { stop(); setSelected((prev) => [...prev, id]); };
-  const removeAt = (idx: number) => { stop(); setSelected((prev) => prev.filter((_, i) => i !== idx)); };
+  const play = () => { if (spec) playSpec(spec); };
+
+  // Nová náhodná variace → zní trochu jinak (detune, timing, délka).
+  const randomize = () => {
+    const v = Math.floor(Math.random() * 1e9);
+    const s = buildFromWords(selected, lang, v);
+    if (!s) return;
+    setVariation(v);
+    playSpec(s);
+  };
+
+  const freshVariation = () => Math.floor(Math.random() * 1e9);
+  const add = (id: string) => { stop(); setVariation(freshVariation()); setSelected((prev) => [...prev, id]); };
+  const removeAt = (idx: number) => { stop(); setVariation(freshVariation()); setSelected((prev) => prev.filter((_, i) => i !== idx)); };
 
   const chip = (word: Word, onClick: () => void, removable = false) => (
     <button
@@ -222,19 +234,32 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
         {/* Play + stats */}
         {spec && (
           <>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "18px" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap", marginBottom: "18px" }}>
               <button onClick={playing ? stop : play}
                 style={{
                   background: playing ? "#9333EA" : "var(--text-primary)", color: "#fff",
                   border: `2.5px solid ${playing ? "#9333EA" : "var(--text-primary)"}`, borderRadius: "12px",
                   boxShadow: `4px 4px 0 ${playing ? "#6b21a8" : "var(--text-primary)"}`,
-                  padding: "14px 36px", fontFamily: "var(--font-sans)", fontSize: "16px", fontWeight: 700, cursor: "pointer",
+                  padding: "14px 32px", fontFamily: "var(--font-sans)", fontSize: "16px", fontWeight: 700, cursor: "pointer",
                   transition: "transform 140ms ease",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.transform = "translate(-2px,-2px)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.transform = ""; }}
               >
                 {playing ? t.stop : t.play}
+              </button>
+              <button onClick={randomize}
+                style={{
+                  background: "#fff", color: "var(--text-primary)",
+                  border: "2.5px solid var(--text-primary)", borderRadius: "12px",
+                  boxShadow: "4px 4px 0 var(--text-primary)",
+                  padding: "14px 22px", fontFamily: "var(--font-sans)", fontSize: "15px", fontWeight: 600, cursor: "pointer",
+                  transition: "transform 140ms ease",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = "translate(-2px,-2px)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = ""; }}
+              >
+                {t.randomize}
               </button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "28px" }}>
