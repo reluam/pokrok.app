@@ -13,7 +13,7 @@ export const experiments: ExperimentMeta[] = [
     slug: "journey",
     emoji: "🌌",
     color: "#C8DCFF",
-    href: "http://localhost:3002",
+    href: "https://journey-ruddy-psi.vercel.app",
     size: "wide",
     external: true,
   },
