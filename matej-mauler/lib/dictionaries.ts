@@ -63,6 +63,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "What are the odds?",
         description: "Absurdní pravděpodobnosti. Jak likely je, že tě trefí meteor zrovna dnes?",
       },
+      {
+        slug: "sonify",
+        title: "Jak to zní?",
+        description: "Vlož cokoliv a algoritmus z toho udělá melodii. Každé slovo zní jinak.",
+      },
     ],
   },
 
@@ -101,6 +106,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "odds",
         title: "What are the odds?",
         description: "Absurd probabilities. How likely is it that a meteor hits you today?",
+      },
+      {
+        slug: "sonify",
+        title: "What does it sound like?",
+        description: "Type anything and the algorithm turns it into a melody. Every word sounds different.",
       },
     ],
   },

@@ -27,4 +27,10 @@ export const experiments: ExperimentMeta[] = [
     color: "#DBEAFE",
     href: "/what-are-the-odds",
   },
+  {
+    slug: "sonify",
+    emoji: "🎵",
+    color: "#FCE7F3",
+    href: "/jak-to-zni",
+  },
 ];
