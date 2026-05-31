@@ -56,9 +56,9 @@ export const dictionaries: Record<Lang, Dictionary> = {
         description: "Jak vidím svět skrze systémy, vzorce a mentální modely.",
       },
       {
-        slug: "42",
-        title: "42",
-        description: "Encyklopedie Stopařova průvodce. Odpovědi na otázky, které nikdo nezná.",
+        slug: "vvv",
+        title: "VVV",
+        description: "Veškeré vesmírné vědění. Encyklopedie kompletnější než Stopařův průvodce.",
       },
       {
         slug: "nahoda",
@@ -106,9 +106,9 @@ export const dictionaries: Record<Lang, Dictionary> = {
         description: "How I see the world through systems, patterns, and mental models.",
       },
       {
-        slug: "42",
-        title: "42",
-        description: "Encyclopedia of the Hitchhiker's Guide. Answers to questions nobody knows.",
+        slug: "vvv",
+        title: "VVV",
+        description: "Vast Void Vault. An encyclopedia more complete than the Hitchhiker's Guide.",
       },
       {
         slug: "nahoda",

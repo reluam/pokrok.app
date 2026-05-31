@@ -16,10 +16,10 @@ export const experiments: ExperimentMeta[] = [
     href: "/kolik-ti-zbyva",
   },
   {
-    slug: "42",
-    emoji: "☄️",
-    color: "#D1FAE5",
-    href: "/42",
+    slug: "vvv",
+    emoji: "📚",
+    color: "#FEF9C3",
+    href: "/vvv",
   },
   {
     slug: "otazky",
