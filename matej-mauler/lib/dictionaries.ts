@@ -39,7 +39,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       sub: "Stavíme věci, které nikdo nepotřeboval, ale teď neví jak bez nich žít.",
     },
     products: {
-      title: "Produkty",
+      title: "Experimenty",
       subtitle: "Každý z nich byl nejlepší nápad v daném okamžiku.",
     },
     journeyCredit: {
@@ -78,7 +78,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       sub: "We build things nobody needed, but nobody wanted as well.",
     },
     products: {
-      title: "Products",
+      title: "Experiments",
       subtitle: "Each of them was the best idea at the time.",
     },
     journeyCredit: {
