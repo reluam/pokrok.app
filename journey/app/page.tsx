@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function Page() {
   const hdrs = await headers();
   const lang = (hdrs.get("x-lang") as Lang) ?? "en";
-  const areas = loadAreas();
+  const areas = await loadAreas();
   // Root page shows the intro area (order=0)
   const introArea = areas.find(a => a.slug === "intro") ?? areas[0];
   return <AreaApp area={introArea} lang={lang} />;

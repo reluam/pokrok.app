@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
-import { readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import { loadAreas, saveAreas } from "@/lib/loadAreas";
+import type { Area } from "@/lib/areas";
 
-const DATA_PATH = join(process.cwd(), "data", "areas.json");
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const data = readFileSync(DATA_PATH, "utf-8");
-  return NextResponse.json(JSON.parse(data));
+  const areas = await loadAreas();
+  return NextResponse.json({ areas });
 }
 
 export async function PUT(req: Request) {
-  const body = await req.json();
-  writeFileSync(DATA_PATH, JSON.stringify(body, null, 2), "utf-8");
+  const body = (await req.json()) as { areas?: Area[] };
+  if (!body?.areas) {
+    return NextResponse.json({ error: "Missing areas" }, { status: 400 });
+  }
+  await saveAreas(body.areas);
   return NextResponse.json({ ok: true });
 }

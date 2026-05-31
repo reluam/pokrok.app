@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { Area, Chapter } from "@/lib/areas";
+import type { Area } from "@/lib/areas";
 import type { Lang } from "@/lib/i18n";
+import { buildSteps, chapterTitleIndices } from "@/lib/steps";
 import { useTheme } from "@/lib/useTheme";
 import { StarField } from "./StarField";
 import { ChapterNav } from "./ChapterNav";
@@ -24,8 +25,8 @@ function slotStyle(offset: number, animMs: number): React.CSSProperties {
   const sign = Math.sign(offset) || 0;
   const [yVh, scale, opacity] =
     abs === 0 ? [0,          1.00, 1.00] :
-    abs === 1 ? [sign * 40,  0.68, 0.26] :
-                [sign * 64,  0.48, 0.09];
+    abs === 1 ? [sign * 34,  0.74, 0.30] :
+                [sign * 58,  0.55, 0.10];
   return {
     position:     "absolute", inset: 0, zIndex: 10 - abs,
     opacity, transform: `translateY(${yVh}vh) scale(${scale})`,
@@ -45,63 +46,61 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
   const router = useRouter();
   const [theme, toggleTheme] = useTheme();
 
-  // Chapters in their natural order (as stored in data)
-  const chapters: Chapter[] = area.chapters;
+  const steps     = buildSteps(area);
+  const titleIdx  = chapterTitleIndices(area);
+  const chapters  = area.chapters;
 
-  // Determine initial position
   const getInitialContent = (): ContentId => {
     if (initialChapterSlug) {
-      const idx = chapters.findIndex(ch => ch.slug === initialChapterSlug);
-      if (idx !== -1) return idx;
+      const ci = chapters.findIndex(ch => ch.slug === initialChapterSlug);
+      if (ci !== -1) return titleIdx[ci];
     }
-    // intro area shows IntroScreen first; other areas go straight to chapter 0
-    return area.slug === "intro" ? "intro" : 0;
+    return "intro"; // every area opens with its intro screen
   };
 
-  const [current, _setCurrentState]   = useState<ContentId>(getInitialContent);
-  const currentRef                    = useRef<ContentId>(getInitialContent());
+  const introContent = area.intro?.[lang] ?? { eyebrow: "", title: area[lang].name, tagline: "" };
+
+  const [current, _setCurrentState] = useState<ContentId>(getInitialContent);
+  const currentRef = useRef<ContentId>(getInitialContent());
   const setCurrent = useCallback((val: ContentId) => {
     currentRef.current = val;
     _setCurrentState(val);
   }, []);
 
   const [exitingItem, setExitingItem] = useState<ContentId | null>(null);
-  const isTransitioning               = useRef(false);
-  const animMsRef                     = useRef(NORMAL_MS);
-  const wheelDirRef                   = useRef<"down" | "up">("down");
-  const wheelTimeRef                  = useRef(0);
-  const touchStartY                   = useRef(0);
+  const isTransitioning = useRef(false);
+  const animMsRef       = useRef(NORMAL_MS);
+  const wheelDirRef     = useRef<"down" | "up">("down");
+  const wheelTimeRef    = useRef(0);
+  const touchStartY     = useRef(0);
 
-  // Scroll-to-return progress (shown at end of an area)
-  const returnRef     = useRef(0);
-  const returningRef  = useRef(false);
+  // Scroll-to-return progress (shown at the very end of an area)
+  const returnRef    = useRef(0);
+  const returningRef = useRef(false);
   const [returnProgress, setReturnProgress] = useState(0);
 
-  const currentNavIdx   = typeof current === "number" ? (current as number) : 0;
+  const lastStep = steps.length - 1;
+  const currentNavIdx = typeof current === "number" ? steps[current].chapterIdx : 0;
   const visitedChapters = typeof current === "number"
-    ? new Set(Array.from({ length: (current as number) + 1 }, (_, i) => i))
+    ? new Set(steps.slice(0, current + 1).map(s => s.chapterIdx))
     : new Set<number>();
 
   const lyricsItems =
     exitingItem === null && typeof current === "number"
       ? [-2, -1, 0, 1, 2].flatMap((offset) => {
           const idx = (current as number) + offset;
-          if (idx < 0 || idx >= chapters.length) return [];
+          if (idx < 0 || idx >= steps.length) return [];
           return [{ id: idx as ContentId, offset }];
         })
       : [];
 
-  // Update URL when chapter changes
+  // Update the URL bar without a Next navigation (no recompile / refetch)
   useEffect(() => {
-    if (typeof current === "number") {
-      const chapter = chapters[current];
-      if (chapter) {
-        router.push(`/${area.slug}/${chapter.slug}`, { scroll: false });
-      }
-    } else if (current === "intro") {
-      router.push(`/${area.slug}`, { scroll: false });
-    }
-  }, [current, area.slug, chapters, router]);
+    let url: string;
+    if (current === "intro") url = area.slug === "intro" ? "/" : `/${area.slug}`;
+    else url = `/${area.slug}/${steps[current as number].chapter.slug}`;
+    window.history.replaceState(window.history.state, "", url);
+  }, [current, area.slug, steps]);
 
   const zoomOut = useCallback(() => {
     router.push(`/universe?from=${area.slug}`);
@@ -121,14 +120,13 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
     setReturnProgress(v);
   }, []);
 
-  // Reset return progress whenever we leave the last chapter
   useEffect(() => {
-    const atLast = typeof current === "number" && current === chapters.length - 1;
+    const atLast = typeof current === "number" && current === lastStep;
     if (!atLast && returnRef.current !== 0) {
       returnRef.current = 0;
       setReturnProgress(0);
     }
-  }, [current, chapters.length]);
+  }, [current, lastStep]);
 
   const goTo = useCallback((target: ContentId, ms: number) => {
     isTransitioning.current = true;
@@ -150,16 +148,16 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
           const dir    = wheelDirRef.current;
           const newCur = currentRef.current as number;
           let next: ContentId | null = null;
-          if      (dir === "down" && newCur < chapters.length - 1) next = newCur + 1;
-          else if (dir === "up"   && newCur > 0)                    next = newCur - 1;
-          else if (dir === "up"   && newCur === 0 && area.slug === "intro") next = "intro";
+          if      (dir === "down" && newCur < steps.length - 1) next = newCur + 1;
+          else if (dir === "up"   && newCur > 0)                next = newCur - 1;
+          else if (dir === "up"   && newCur === 0)              next = "intro";
           if (next !== null) { goTo(next, FAST_MS); return; }
         }
         isTransitioning.current = false;
         animMsRef.current = NORMAL_MS;
       }, ms);
     }
-  }, [setCurrent, chapters.length, area.slug]);
+  }, [setCurrent, steps.length, area.slug]);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -170,20 +168,16 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
       if (isTransitioning.current) return;
       const cur = currentRef.current;
 
-      if (cur === "intro") {
-        if (dir === "down") goTo(0, NORMAL_MS);
-        return;
-      }
+      if (cur === "intro") { if (dir === "down") goTo(0, NORMAL_MS); return; }
       const step = cur as number;
-      const atLast = step === chapters.length - 1;
+      const atLast = step === lastStep;
       if (dir === "down") {
         if (!atLast) goTo(step + 1, NORMAL_MS);
-        else bumpReturn(Math.min(Math.abs(e.deltaY), 60) * 0.0011); // scroll past last → fill return bar
-      } else if (dir === "up") {
+        else bumpReturn(Math.min(Math.abs(e.deltaY), 60) * 0.0011);
+      } else {
         if (atLast && returnRef.current > 0) drainReturn(Math.min(Math.abs(e.deltaY), 60) * 0.0016);
         else if (step > 0) goTo(step - 1, NORMAL_MS);
-        else if (area.slug === "intro") goTo("intro", NORMAL_MS);
-        else zoomOut();
+        else goTo("intro", NORMAL_MS);
       }
     };
     const handleTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
@@ -194,15 +188,14 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
       const cur = currentRef.current;
       if (cur === "intro") { if (dir === "down") goTo(0, NORMAL_MS); return; }
       const step = cur as number;
-      const atLast = step === chapters.length - 1;
+      const atLast = step === lastStep;
       if (dir === "down") {
         if (!atLast) goTo(step + 1, NORMAL_MS);
         else bumpReturn(0.5);
-      } else if (dir === "up") {
+      } else {
         if (atLast && returnRef.current > 0) drainReturn(0.5);
         else if (step > 0) goTo(step - 1, NORMAL_MS);
-        else if (area.slug === "intro") goTo("intro", NORMAL_MS);
-        else zoomOut();
+        else goTo("intro", NORMAL_MS);
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -212,17 +205,16 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
         e.preventDefault();
         if (cur === "intro") { goTo(0, NORMAL_MS); return; }
         const step = cur as number;
-        if (step < chapters.length - 1) goTo(step + 1, NORMAL_MS);
+        if (step < lastStep) goTo(step + 1, NORMAL_MS);
         else bumpReturn(0.34);
       } else if (e.key === "ArrowUp" || e.key === "PageUp") {
         e.preventDefault();
         if (cur === "intro") return;
         const step = cur as number;
-        const atLast = step === chapters.length - 1;
+        const atLast = step === lastStep;
         if (atLast && returnRef.current > 0) { drainReturn(0.5); return; }
         if (step > 0) goTo(step - 1, NORMAL_MS);
-        else if (area.slug === "intro") goTo("intro", NORMAL_MS);
-        else zoomOut();
+        else goTo("intro", NORMAL_MS);
       }
     };
     window.addEventListener("wheel",      handleWheel,      { passive: true });
@@ -235,27 +227,21 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
       window.removeEventListener("touchend",   handleTouchEnd);
       window.removeEventListener("keydown",    handleKeyDown);
     };
-  }, [goTo, zoomOut, bumpReturn, drainReturn, chapters.length, area.slug]);
+  }, [goTo, zoomOut, bumpReturn, drainReturn, lastStep, steps.length, area.slug]);
 
-  const isLastChapter = typeof current === "number" && current === chapters.length - 1;
+  const isLastStep = typeof current === "number" && current === lastStep;
 
   const renderContent = (id: ContentId) =>
     id === "intro" ? (
-      <IntroScreen lang={lang} onStart={() => goTo(0, NORMAL_MS)} />
+      <IntroScreen lang={lang} onStart={() => goTo(0, NORMAL_MS)}
+        eyebrow={introContent.eyebrow} title={introContent.title} tagline={introContent.tagline} />
     ) : (
-      <StepView
-        chapter={chapters[id as number]}
-        totalChapters={chapters.length}
-        lang={lang}
-        isLast={id === chapters.length - 1}
-        onZoomOut={zoomOut}
-      />
+      <StepView step={steps[id as number]} totalChapters={chapters.length} lang={lang} />
     );
 
   const canGoUp   = current !== "intro" || area.slug !== "intro";
   const canGoDown = current === "intro" ||
-    (typeof current === "number" && current < chapters.length - 1) ||
-    isLastChapter; // always show bottom gradient, zoom out hint
+    (typeof current === "number" && current < lastStep) || isLastStep;
 
   return (
     <div
@@ -267,25 +253,23 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
       <LangToggle lang={lang} />
 
-      {/* Zoom out button - top left when no nav, or always visible */}
-      {current === "intro" && (
-        <button
-          onClick={zoomOut}
-          style={{
-            position: "fixed", top: "18px", left: "24px", zIndex: 30,
-            fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 500,
-            letterSpacing: "0.14em", textTransform: "uppercase",
-            color: "var(--text-muted)", background: "none",
-            border: "1px solid var(--text-muted)", borderRadius: "3px",
-            padding: "4px 9px", cursor: "pointer", opacity: 0.55,
-            transition: "opacity 250ms ease",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = "0.55"; }}
-        >
-          ← Universe
-        </button>
-      )}
+      {/* Overview button — always visible, same style everywhere */}
+      <button
+        onClick={zoomOut}
+        style={{
+          position: "fixed", top: "18px", left: "24px", zIndex: 30,
+          fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 500,
+          letterSpacing: "0.14em", textTransform: "uppercase",
+          color: "var(--text-muted)", background: "none",
+          border: "1px solid var(--text-muted)", borderRadius: "3px",
+          padding: "4px 9px", cursor: "pointer", opacity: 0.55,
+          transition: "opacity 250ms ease",
+        }}
+        onMouseEnter={e => { e.currentTarget.style.opacity = "1"; }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = "0.55"; }}
+      >
+        {lang === "cs" ? "Přehled →" : "Overview →"}
+      </button>
 
       {/* Sidebar nav */}
       <div style={{
@@ -300,14 +284,14 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
           lang={lang}
           onNavigateToChapter={(i) => {
             if (isTransitioning.current || typeof current !== "number") return;
-            if (i !== current) goTo(i, NORMAL_MS);
+            const target = titleIdx[i];
+            if (target !== current) goTo(target, NORMAL_MS);
           }}
-          onBack={zoomOut}
         />
       </div>
 
-      {/* Scroll-to-return progress on last chapter */}
-      {isLastChapter && (
+      {/* Scroll-to-return progress on the last step */}
+      {isLastStep && (
         <div style={{
           position: "fixed", bottom: "44px", left: "50%", transform: "translateX(-50%)",
           zIndex: 30, display: "flex", flexDirection: "column", alignItems: "center", gap: "12px",
@@ -355,7 +339,8 @@ export function AreaApp({ area, lang, initialChapterSlug }: Props) {
         </>
       ) : current === "intro" ? (
         <div style={{ position: "absolute", inset: 0, zIndex: 6 }}>
-          <IntroScreen lang={lang} onStart={() => goTo(0, NORMAL_MS)} />
+          <IntroScreen lang={lang} onStart={() => goTo(0, NORMAL_MS)}
+            eyebrow={introContent.eyebrow} title={introContent.title} tagline={introContent.tagline} />
         </div>
       ) : (
         lyricsItems.map(({ id, offset }) => (

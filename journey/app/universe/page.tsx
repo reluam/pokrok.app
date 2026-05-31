@@ -12,7 +12,7 @@ export default async function UniversePage({
 }) {
   const hdrs = await headers();
   const lang = (hdrs.get("x-lang") as Lang) ?? "en";
-  const areas = loadAreas();
+  const areas = await loadAreas();
   const { from } = await searchParams;
   return <UniverseView areas={areas} lang={lang} focusSlug={from} />;
 }

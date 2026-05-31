@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Area, Chapter, Section, SectionType } from "@/lib/areas";
+import type { Area, AreaIntro, Chapter, Section, SectionType } from "@/lib/areas";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -247,6 +247,12 @@ function AreaEditor({
     setActiveChapterIdx(j);
   };
 
+  const blankIntro = (): AreaIntro => ({ eyebrow: "", title: "", tagline: "" });
+  const updateIntro = (l: "cs" | "en", field: keyof AreaIntro, val: string) => {
+    const base = area.intro ?? { en: blankIntro(), cs: blankIntro() };
+    onChange({ ...area, intro: { ...base, [l]: { ...base[l], [field]: val } } });
+  };
+
   return (
     <div style={{ display: "flex", gap: 0, height: "100%" }}>
       {/* Chapter list sidebar */}
@@ -266,6 +272,16 @@ function AreaEditor({
           <input style={{ ...inp, width: "100%" }} value={area.en.name}
             onChange={e => onChange({ ...area, en: { name: e.target.value } })} placeholder="EN name" />
         </div>
+
+        <button onClick={() => setActiveChapterIdx(-1)} style={{
+          display: "block", width: "100%", textAlign: "left",
+          padding: "8px 9px", marginBottom: 8, fontSize: 12, cursor: "pointer",
+          background: activeChapterIdx === -1 ? "#f0f4ff" : "none",
+          border: "none", borderLeft: activeChapterIdx === -1 ? "3px solid #4f46e5" : "3px solid transparent",
+          color: activeChapterIdx === -1 ? "#4f46e5" : "#333",
+        }}>
+          ✦ Úvod oblasti
+        </button>
 
         <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "#999", padding: "0 12px 6px", margin: 0 }}>
           Kapitoly
@@ -300,11 +316,34 @@ function AreaEditor({
         </button>
       </div>
 
-      {/* Chapter content editor */}
+      {/* Content editor */}
       <div style={{ flex: 1, padding: 24, overflowY: "auto" }}>
-        {activeChapterIdx === null || area.chapters[activeChapterIdx] === undefined ? (
+        {activeChapterIdx === -1 ? (
+          <>
+            <h3 style={{ fontSize: 16, fontWeight: 600, margin: "0 0 6px" }}>Úvod oblasti</h3>
+            <p style={{ fontSize: 12, color: "#888", margin: "0 0 20px" }}>
+              Úvodní obrazovka, která se zobrazí při otevření oblasti (před scrollováním do obsahu).
+            </p>
+            {(["cs", "en"] as const).map((l) => {
+              const v = area.intro?.[l] ?? { eyebrow: "", title: "", tagline: "" };
+              const inp2: React.CSSProperties = { width: "100%", padding: "6px 10px", fontSize: 14, border: "1px solid #ccc", borderRadius: 4, boxSizing: "border-box", marginBottom: 8 };
+              return (
+                <div key={l} style={{ marginBottom: 20 }}>
+                  <p style={{ fontSize: 12, color: "#666", margin: "0 0 6px", fontWeight: 600 }}>{l === "cs" ? "🇨🇿 Čeština" : "🇬🇧 English"}</p>
+                  <input style={inp2} value={v.eyebrow} placeholder={l === "cs" ? "Nadtitulek (např. Životní cesta)" : "Eyebrow (e.g. Life's path)"}
+                    onChange={e => updateIntro(l, "eyebrow", e.target.value)} />
+                  <input style={inp2} value={v.title} placeholder={l === "cs" ? "Velký nadpis (např. Cesta)" : "Big title (e.g. Journey)"}
+                    onChange={e => updateIntro(l, "title", e.target.value)} />
+                  <textarea style={{ ...inp2, minHeight: 60, fontFamily: "inherit", resize: "vertical" }} value={v.tagline}
+                    placeholder={l === "cs" ? "Podtitulek / věta" : "Tagline / sentence"}
+                    onChange={e => updateIntro(l, "tagline", e.target.value)} />
+                </div>
+              );
+            })}
+          </>
+        ) : activeChapterIdx === null || area.chapters[activeChapterIdx] === undefined ? (
           <div style={{ color: "#888", paddingTop: 40, textAlign: "center" }}>
-            ← Vyber kapitolu
+            ← Vyber kapitolu nebo úvod
           </div>
         ) : (
           <>

@@ -4,36 +4,108 @@
       "id": "intro",
       "slug": "intro",
       "order": 0,
-      "en": { "name": "Introduction" },
-      "cs": { "name": "Úvod" },
+      "en": {
+        "name": "Introduction"
+      },
+      "cs": {
+        "name": "Úvod"
+      },
+      "intro": {
+        "en": { "eyebrow": "Life's path", "title": "Journey", "tagline": "Questions of one person about life, meaning, and everything else." },
+        "cs": { "eyebrow": "Životní cesta", "title": "Cesta", "tagline": "Otázky jednoho člověka o životě, smyslu a všem ostatním." }
+      },
       "chapters": [
         {
-          "id": 1, "slug": "what-is-this", "order": 0,
-          "en": { "subtitle": "Welcome", "title": "What is this place?" },
-          "cs": { "subtitle": "Vítej", "title": "Co to je?" },
+          "id": 1,
+          "slug": "what-is-this",
+          "order": 0,
+          "en": {
+            "subtitle": "Welcome",
+            "title": "What is this place?"
+          },
+          "cs": {
+            "subtitle": "Vítej",
+            "title": "Co to je?"
+          },
           "sections": [
-            { "id": "i1-1", "type": "text", "en": "This is an interactive space for exploring the big questions. Organized into areas, each with its own chapters and questions.", "cs": "Toto je interaktivní prostor pro zkoumání velkých otázek. Uspořádaný do oblastí, každá se svými kapitolami a otázkami." },
-            { "id": "i1-2", "type": "text", "en": "You're not here to find answers. You're here to ask better questions.", "cs": "Nejsi tady proto, abys našel odpovědi. Jsi tady proto, abys kladl lepší otázky." },
-            { "id": "i1-3", "type": "quote", "en": "Every map begins with someone who got lost.", "cs": "Každá mapa začíná někým, kdo se ztratil." }
+            {
+              "id": "i1-1",
+              "type": "text",
+              "en": "This is an interactive space for exploring the big questions. Organized into areas, each with its own chapters and questions.",
+              "cs": "Toto je interaktivní prostor pro zkoumání velkých otázek. Uspořádaný do oblastí, každá se svými kapitolami a otázkami."
+            },
+            {
+              "id": "i1-2",
+              "type": "text",
+              "en": "You're not here to find answers. You're here to ask better questions.",
+              "cs": "Nejsi tady proto, abys našel odpovědi. Jsi tady proto, abys kladl lepší otázky."
+            },
+            {
+              "id": "i1-3",
+              "type": "quote",
+              "en": "Every map begins with someone who got lost.",
+              "cs": "Každá mapa začíná někým, kdo se ztratil."
+            }
           ]
         },
         {
-          "id": 2, "slug": "how-to-navigate", "order": 1,
-          "en": { "subtitle": "Navigation", "title": "How do you move through here?" },
-          "cs": { "subtitle": "Navigace", "title": "Jak se tady pohybovat?" },
+          "id": 2,
+          "slug": "how-to-navigate",
+          "order": 1,
+          "en": {
+            "subtitle": "Navigation",
+            "title": "How do you move through here?"
+          },
+          "cs": {
+            "subtitle": "Navigace",
+            "title": "Jak se tady pohybovat?"
+          },
           "sections": [
-            { "id": "i2-1", "type": "text", "en": "Scroll or press Space to move forward. Scroll up to go back. Each area has its own chapters — and each chapter, its own questions.", "cs": "Scrolluj nebo stiskni mezerník pro pohyb vpřed. Scrolluj nahoru pro návrat. Každá oblast má své kapitoly — a každá kapitola své otázky." },
-            { "id": "i2-2", "type": "text", "en": "Zoom out to see the full map. From there, you can move between areas — left and right — and find your own path.", "cs": "Odzoumuj, abys viděl celou mapu. Odtud se můžeš přesouvat mezi oblastmi — doleva a doprava — a najít vlastní cestu." },
-            { "id": "i2-3", "type": "quote", "en": "The fastest reader misses the most.", "cs": "Nejrychlejší čtenář přehlédne nejvíce." }
+            {
+              "id": "i2-1",
+              "type": "text",
+              "en": "Scroll or press Space to move forward. Scroll up to go back. Each area has its own chapters — and each chapter, its own questions.",
+              "cs": "Scrolluj nebo stiskni mezerník pro pohyb vpřed. Scrolluj nahoru pro návrat. Každá oblast má své kapitoly — a každá kapitola své otázky."
+            },
+            {
+              "id": "i2-2",
+              "type": "text",
+              "en": "Zoom out to see the full map. From there, you can move between areas — left and right — and find your own path.",
+              "cs": "Odzoumuj, abys viděl celou mapu. Odtud se můžeš přesouvat mezi oblastmi — doleva a doprava — a najít vlastní cestu."
+            },
+            {
+              "id": "i2-3",
+              "type": "quote",
+              "en": "The fastest reader misses the most.",
+              "cs": "Nejrychlejší čtenář přehlédne nejvíce."
+            }
           ]
         },
         {
-          "id": 3, "slug": "ready", "order": 2,
-          "en": { "subtitle": "Begin", "title": "Ready to explore?" },
-          "cs": { "subtitle": "Začni", "title": "Připraven na cestu?" },
+          "id": 3,
+          "slug": "ready",
+          "order": 2,
+          "en": {
+            "subtitle": "Begin",
+            "title": "Ready to explore?"
+          },
+          "cs": {
+            "subtitle": "Začni",
+            "title": "Připraven na cestu?"
+          },
           "sections": [
-            { "id": "i3-1", "type": "text", "en": "Keep scrolling to enter the first area — or zoom out to see the whole universe and choose where to begin.", "cs": "Pokračuj v scrollování a vstup do první oblasti — nebo odzoumuj a uvidíš celý vesmír, kde si vybereš, kde začít." },
-            { "id": "i3-2", "type": "quote", "en": "There is no wrong door.", "cs": "Neexistují špatné dveře." }
+            {
+              "id": "i3-1",
+              "type": "text",
+              "en": "Keep scrolling to enter the first area — or zoom out to see the whole universe and choose where to begin.",
+              "cs": "Pokračuj v scrollování a vstup do první oblasti — nebo odzoumuj a uvidíš celý vesmír, kde si vybereš, kde začít."
+            },
+            {
+              "id": "i3-2",
+              "type": "quote",
+              "en": "There is no wrong door.",
+              "cs": "Neexistují špatné dveře."
+            }
           ]
         }
       ]
@@ -42,67 +114,247 @@
       "id": "journey",
       "slug": "journey",
       "order": 1,
-      "en": { "name": "Journey" },
-      "cs": { "name": "Cesta" },
+      "en": {
+        "name": "Journey"
+      },
+      "cs": {
+        "name": "Cesta"
+      },
+      "intro": {
+        "en": { "eyebrow": "Area", "title": "Journey", "tagline": "Six questions that lead back to a single, honest one." },
+        "cs": { "eyebrow": "Oblast", "title": "Cesta", "tagline": "Šest otázek, které vedou zpět k jedné jediné — poctivé." }
+      },
       "chapters": [
         {
-          "id": 6, "slug": "present", "order": 0,
-          "en": { "subtitle": "The Present", "title": "And what now?" },
-          "cs": { "subtitle": "Přítomnost", "title": "A co teď?" },
+          "id": 6,
+          "slug": "present",
+          "order": 0,
+          "en": {
+            "subtitle": "The Present",
+            "title": "And what now?"
+          },
+          "cs": {
+            "subtitle": "Přítomnost",
+            "title": "A co teď?"
+          },
           "sections": [
-            { "id": "6-1", "type": "text", "en": "This is where the journey begins. Not at the destination — here. In this moment, with everything you carry.", "cs": "Tady cesta začíná. Ne v cíli — tady. V tomhle okamžiku, se vším, co neseš." },
-            { "id": "6-2", "type": "text", "en": "You don't need to have it figured out. You only need to be willing to look.", "cs": "Nepotřebuješ mít vše vyřešeno. Stačí být ochoten se dívat." },
-            { "id": "6-3", "type": "quote", "en": "Every journey starts with a single, honest question.", "cs": "Každá cesta začíná jednou poctivou otázkou." }
+            {
+              "id": "6-1",
+              "type": "text",
+              "en": "This is where the journey begins. Not at the destination — here. In this moment, with everything you carry.",
+              "cs": "Tady cesta začíná. Ne v cíli — tady. V tomhle okamžiku, se vším, co neseš."
+            },
+            {
+              "id": "6-2",
+              "type": "text",
+              "en": "You don't need to have it figured out. You only need to be willing to look.",
+              "cs": "Nepotřebuješ mít vše vyřešeno. Stačí být ochoten se dívat."
+            },
+            {
+              "id": "6-3",
+              "type": "quote",
+              "en": "Every journey starts with a single, honest question.",
+              "cs": "Každá cesta začíná jednou poctivou otázkou."
+            }
           ]
         },
         {
-          "id": 5, "slug": "world", "order": 1,
-          "en": { "subtitle": "World", "title": "How to read what's happening?" },
-          "cs": { "subtitle": "Svět", "title": "Jak číst to, co se děje?" },
+          "id": 5,
+          "slug": "world",
+          "order": 1,
+          "en": {
+            "subtitle": "World",
+            "title": "How to read what's happening?"
+          },
+          "cs": {
+            "subtitle": "Svět",
+            "title": "Jak číst to, co se děje?"
+          },
           "sections": [
-            { "id": "5-1", "type": "text", "en": "You're standing in the present. Around you, a world in motion. Most people react to it. A few try to read it.", "cs": "Stojíš v přítomnosti. Kolem tebe svět v pohybu. Většina lidí na něj reaguje. Málokdo se ho snaží číst." },
-            { "id": "5-2", "type": "text", "en": "History doesn't repeat itself exactly. But it rhymes. Most things we treat as surprises are just repetitions of what came before us.", "cs": "Svět se neopakuje přesně. Ale rýmuje se. Většina věcí, které považujeme za překvapení, jsou jen opakování toho, co se stalo před námi." },
-            { "id": "5-3", "type": "quote", "en": "Seeing the world through patterns instead of isolated events — that changes everything.", "cs": "Vidět svět skrze vzorce místo izolovaných událostí — to mění vše." }
+            {
+              "id": "5-1",
+              "type": "text",
+              "en": "You're standing in the present. Around you, a world in motion. Most people react to it. A few try to read it.",
+              "cs": "Stojíš v přítomnosti. Kolem tebe svět v pohybu. Většina lidí na něj reaguje. Málokdo se ho snaží číst."
+            },
+            {
+              "id": "5-2",
+              "type": "text",
+              "en": "History doesn't repeat itself exactly. But it rhymes. Most things we treat as surprises are just repetitions of what came before us.",
+              "cs": "Svět se neopakuje přesně. Ale rýmuje se. Většina věcí, které považujeme za překvapení, jsou jen opakování toho, co se stalo před námi."
+            },
+            {
+              "id": "5-3",
+              "type": "quote",
+              "en": "Seeing the world through patterns instead of isolated events — that changes everything.",
+              "cs": "Vidět svět skrze vzorce místo izolovaných událostí — to mění vše."
+            }
           ]
         },
         {
-          "id": 4, "slug": "mind", "order": 2,
-          "en": { "subtitle": "Mind", "title": "Who is actually thinking?" },
-          "cs": { "subtitle": "Mysl", "title": "Kdo vlastně myslí?" },
+          "id": 4,
+          "slug": "mind",
+          "order": 2,
+          "en": {
+            "subtitle": "Mind",
+            "title": "Who is actually thinking?"
+          },
+          "cs": {
+            "subtitle": "Mysl",
+            "title": "Kdo vlastně myslí?"
+          },
           "sections": [
-            { "id": "4-1", "type": "text", "en": "You can't read the world clearly until you understand the instrument you're reading it with.", "cs": "Nemůžeš číst svět jasně, dokud nerozumíš nástroji, kterým ho čteš." },
-            { "id": "4-2", "type": "text", "en": "Most of our decisions don't come from reason. We think fast, emotionally, in shortcuts — and then we rationalize. Afterward. And believe we wanted it that way from the start.", "cs": "Většina našich rozhodnutí nepochází z rozumu. Myslíme rychle, emocionálně, zkratkovitě — a pak to racionalizujeme. Zpětně. A věříme, že jsme to tak chtěli od začátku." },
-            { "id": "4-3", "type": "quote", "en": "Knowing how your own mind works is perhaps the most valuable thing you can learn.", "cs": "Poznat, jak funguje vlastní mysl, je možná nejcennější věc, co se dá naučit." }
+            {
+              "id": "4-1",
+              "type": "text",
+              "en": "You can't read the world clearly until you understand the instrument you're reading it with.",
+              "cs": "Nemůžeš číst svět jasně, dokud nerozumíš nástroji, kterým ho čteš."
+            },
+            {
+              "id": "4-2",
+              "type": "text",
+              "en": "Most of our decisions don't come from reason. We think fast, emotionally, in shortcuts — and then we rationalize. Afterward. And believe we wanted it that way from the start.",
+              "cs": "Většina našich rozhodnutí nepochází z rozumu. Myslíme rychle, emocionálně, zkratkovitě — a pak to racionalizujeme. Zpětně. A věříme, že jsme to tak chtěli od začátku."
+            },
+            {
+              "id": "4-3",
+              "type": "quote",
+              "en": "Knowing how your own mind works is perhaps the most valuable thing you can learn.",
+              "cs": "Poznat, jak funguje vlastní mysl, je možná nejcennější věc, co se dá naučit."
+            }
           ]
         },
         {
-          "id": 3, "slug": "meaning", "order": 3,
-          "en": { "subtitle": "Meaning", "title": "Why get up in the morning at all?" },
-          "cs": { "subtitle": "Smysl", "title": "Proč vůbec vstávat ráno?" },
+          "id": 3,
+          "slug": "meaning",
+          "order": 3,
+          "en": {
+            "subtitle": "Meaning",
+            "title": "Why get up in the morning at all?"
+          },
+          "cs": {
+            "subtitle": "Smysl",
+            "title": "Proč vůbec vstávat ráno?"
+          },
           "sections": [
-            { "id": "3-1", "type": "text", "en": "Before we can ask about time or existence, there's a more immediate question: why bother with any of it?", "cs": "Než se ptáme po čase nebo existenci, je tu bezprostřednější otázka: proč se vůbec obtěžovat čímkoliv z toho?" },
-            { "id": "3-2", "type": "text", "en": "Meaning isn't something we find. It's something we create — every day, with every choice. There was a man who survived hell and proved it.", "cs": "Smysl není něco, co najdeme. Je to něco, co vytváříme — každý den, každým rozhodnutím. Byl jeden člověk, který přežil peklo, a dokázal to." },
-            { "id": "3-3", "type": "quote", "en": "What is your why?", "cs": "Co je tvoje proč?" }
+            {
+              "id": "3-1",
+              "type": "text",
+              "en": "Before we can ask about time or existence, there's a more immediate question: why bother with any of it?",
+              "cs": "Než se ptáme po čase nebo existenci, je tu bezprostřednější otázka: proč se vůbec obtěžovat čímkoliv z toho?"
+            },
+            {
+              "id": "3-2",
+              "type": "text",
+              "en": "Meaning isn't something we find. It's something we create — every day, with every choice. There was a man who survived hell and proved it.",
+              "cs": "Smysl není něco, co najdeme. Je to něco, co vytváříme — každý den, každým rozhodnutím. Byl jeden člověk, který přežil peklo, a dokázal to."
+            },
+            {
+              "id": "3-3",
+              "type": "quote",
+              "en": "What is your why?",
+              "cs": "Co je tvoje proč?"
+            }
           ]
         },
         {
-          "id": 2, "slug": "time", "order": 4,
-          "en": { "subtitle": "Time", "title": "What is time, really?" },
-          "cs": { "subtitle": "Čas", "title": "Co je vlastně čas?" },
+          "id": 2,
+          "slug": "time",
+          "order": 4,
+          "en": {
+            "subtitle": "Time",
+            "title": "What is time, really?"
+          },
+          "cs": {
+            "subtitle": "Čas",
+            "title": "Co je vlastně čas?"
+          },
           "sections": [
-            { "id": "2-1", "type": "text", "en": "Everything you've been thinking about — meaning, mind, the world — happens inside time. And yet we barely notice it.", "cs": "Všechno, o čem přemýšlíš — smysl, mysl, svět — se odehrává v čase. A přesto si ho sotva uvědomujeme." },
-            { "id": "2-2", "type": "text", "en": "We live in moments that vanish before we can fully grasp them. Yet they are the only things we truly own.", "cs": "Žijeme ve chvílích, které mizí dřív, než si je stačíme plně uvědomit. A přesto jsou to jediné věci, které skutečně vlastníme." },
-            { "id": "2-3", "type": "quote", "en": "Time doesn't flow. We flow through time.", "cs": "Čas neplyne. My plyneme časem." }
+            {
+              "id": "2-1",
+              "type": "text",
+              "en": "Everything you've been thinking about — meaning, mind, the world — happens inside time. And yet we barely notice it.",
+              "cs": "Všechno, o čem přemýšlíš — smysl, mysl, svět — se odehrává v čase. A přesto si ho sotva uvědomujeme."
+            },
+            {
+              "id": "2-2",
+              "type": "text",
+              "en": "We live in moments that vanish before we can fully grasp them. Yet they are the only things we truly own.",
+              "cs": "Žijeme ve chvílích, které mizí dřív, než si je stačíme plně uvědomit. A přesto jsou to jediné věci, které skutečně vlastníme."
+            },
+            {
+              "id": "2-3",
+              "type": "quote",
+              "en": "Time doesn't flow. We flow through time.",
+              "cs": "Čas neplyne. My plyneme časem."
+            }
           ]
         },
         {
-          "id": 1, "slug": "beginning", "order": 5,
-          "en": { "subtitle": "Beginning", "title": "Why am I here?" },
-          "cs": { "subtitle": "Začátek", "title": "Proč jsem tady?" },
+          "id": 1,
+          "slug": "beginning",
+          "order": 5,
+          "en": {
+            "subtitle": "Beginning",
+            "title": "Why am I here?"
+          },
+          "cs": {
+            "subtitle": "Začátek",
+            "title": "Proč jsem tady?"
+          },
           "sections": [
-            { "id": "1-1", "type": "text", "en": "You've arrived at the question everything else was circling around.", "cs": "Dospěl jsi k otázce, kolem které se točilo všechno ostatní." },
-            { "id": "1-2", "type": "text", "en": "Not as a puzzle to solve. As a compass to live by.", "cs": "Ne jako hádanka k vyřešení. Jako kompas, podle kterého žít." },
-            { "id": "1-3", "type": "quote", "en": "The question itself is the answer.", "cs": "Samotná otázka je odpovědí." }
+            {
+              "id": "1-1",
+              "type": "text",
+              "en": "You've arrived at the question everything else was circling around.",
+              "cs": "Dospěl jsi k otázce, kolem které se točilo všechno ostatní."
+            },
+            {
+              "id": "1-2",
+              "type": "text",
+              "en": "Not as a puzzle to solve. As a compass to live by.",
+              "cs": "Ne jako hádanka k vyřešení. Jako kompas, podle kterého žít."
+            },
+            {
+              "id": "1-3",
+              "type": "quote",
+              "en": "The question itself is the answer.",
+              "cs": "Samotná otázka je odpovědí."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dcpi846",
+      "slug": "area-w59724q",
+      "order": 2,
+      "en": {
+        "name": "New Area"
+      },
+      "cs": {
+        "name": "Mysl"
+      },
+      "chapters": [
+        {
+          "id": 1,
+          "slug": "chapter-1",
+          "order": 0,
+          "en": {
+            "subtitle": "New Chapter",
+            "title": "New question?"
+          },
+          "cs": {
+            "subtitle": "Identita",
+            "title": "Kdo jsem?"
+          },
+          "sections": [
+            {
+              "id": "4k4d81v",
+              "type": "text",
+              "en": "",
+              "cs": "Text text text"
+            }
           ]
         }
       ]

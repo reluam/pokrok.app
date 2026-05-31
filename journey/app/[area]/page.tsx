@@ -14,7 +14,7 @@ export default async function AreaPage({ params }: Props) {
   const { area: areaSlug } = await params;
   const hdrs = await headers();
   const lang = (hdrs.get("x-lang") as Lang) ?? "en";
-  const areas = loadAreas();
+  const areas = await loadAreas();
   const area = areas.find(a => a.slug === areaSlug);
   if (!area) notFound();
   return <AreaApp area={area} lang={lang} />;

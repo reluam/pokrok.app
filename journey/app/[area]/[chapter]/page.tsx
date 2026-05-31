@@ -14,7 +14,7 @@ export default async function ChapterPage({ params }: Props) {
   const { area: areaSlug, chapter: chapterSlug } = await params;
   const hdrs = await headers();
   const lang = (hdrs.get("x-lang") as Lang) ?? "en";
-  const areas = loadAreas();
+  const areas = await loadAreas();
   const area = areas.find(a => a.slug === areaSlug);
   if (!area) notFound();
   const chapter = area.chapters.find(ch => ch.slug === chapterSlug);

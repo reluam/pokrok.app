@@ -6,6 +6,7 @@ import type { Area, Chapter } from "@/lib/areas";
 import type { Lang } from "@/lib/i18n";
 import type { Theme } from "@/lib/theme";
 import { useTheme } from "@/lib/useTheme";
+import { StarField } from "./StarField";
 import { ThemeToggle } from "./ThemeToggle";
 import { LangToggle } from "./LangToggle";
 
@@ -25,93 +26,61 @@ function seededRng(seed: string) {
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-// ── Theme palette for galaxies ───────────────────────────────────────────────
+// ── Galaxy color sets (varied, like real deep-space galaxies) ────────────────
 
-type Palette = {
-  nebula1: string; nebula2: string; arm1: string; arm2: string;
-  coreA: string; coreB: string; coreC: string; star: string; name: string;
-};
+type GColors = { neb1: string; neb2: string; arm1: string; arm2: string; star: string };
 
-function galaxyPalette(theme: Theme): Palette {
-  if (theme === "hhgttg") return {
-    nebula1: "#00e850", nebula2: "#0a7a2a", arm1: "#00e850", arm2: "#00a838",
-    coreA: "#eaffea", coreB: "#9dff9d", coreC: "#00e850", star: "#ffff66", name: "#d6ffd6",
-  };
-  return {
-    nebula1: "#c9aa78", nebula2: "#7a6ad0", arm1: "#d9b98a", arm2: "#8a7ad8",
-    coreA: "#fffaf0", coreB: "#ffe9bf", coreC: "#c9aa78", star: "#ffe9bf", name: "#fff3da",
-  };
-}
+const COSMIC_COLORS: GColors[] = [
+  { neb1: "#c9aa78", neb2: "#7a6ad0", arm1: "#e8c99a", arm2: "#9a86e0", star: "#ffe9bf" }, // gold · violet
+  { neb1: "#6f9bd8", neb2: "#3f5fb0", arm1: "#9bc0f0", arm2: "#5f7fd0", star: "#dceaff" }, // blue
+  { neb1: "#5fc9c0", neb2: "#3f8f9f", arm1: "#9fe8e0", arm2: "#5fb0c0", star: "#d6fffb" }, // teal
+  { neb1: "#d87a9a", neb2: "#9a5fd0", arm1: "#f0a8c0", arm2: "#c08fe0", star: "#ffe0ec" }, // rose · purple
+  { neb1: "#9a7ad8", neb2: "#5f6ad0", arm1: "#c0a8f0", arm2: "#8f9fe8", star: "#ece0ff" }, // indigo
+  { neb1: "#e0a85f", neb2: "#d0664a", arm1: "#f0c89a", arm2: "#e89a7a", star: "#ffeacf" }, // amber · copper
+  { neb1: "#6fd8a8", neb2: "#3f9f7a", arm1: "#9fe8c8", arm2: "#5fc0a0", star: "#d6ffe8" }, // jade
+];
 
-// ── Galaxy positions on the 2D plane (golden-angle spiral + seeded jitter) ───
+const GREEN_COLORS: GColors = { neb1: "#00e850", neb2: "#0a7a2a", arm1: "#00e850", arm2: "#00a838", star: "#ffff66" };
 
-const GOLDEN = Math.PI * (3 - Math.sqrt(5));
-const SPREAD = 640;
-
-type PlanePos = { x: number; y: number };
-
-function buildPlanePositions(areas: Area[]): Record<string, PlanePos> {
-  const out: Record<string, PlanePos> = {};
-  areas.forEach((area, i) => {
-    const r = SPREAD * Math.sqrt(i);
-    const a = i * GOLDEN;
-    const rng = seededRng(area.id + "pos");
-    const jx = (rng() - 0.5) * SPREAD * 0.55;
-    const jy = (rng() - 0.5) * SPREAD * 0.55;
-    out[area.id] = { x: r * Math.cos(a) + jx, y: r * Math.sin(a) + jy };
-  });
-  return out;
-}
-
-// ── Background star field (lives ON the plane, pans + zooms with galaxies) ───
-
-type BgStar = { x: number; y: number; r: number; o: number; tw: boolean; dur: string; del: string };
-
-function BackgroundStars({ box }: { box: { x: number; y: number; w: number; h: number } }) {
-  const stars = useMemo<BgStar[]>(() => {
-    const rng = seededRng("uv-background");
-    const count = clamp(Math.round((box.w * box.h) / 6500), 240, 760);
-    return Array.from({ length: count }, () => {
-      const tw = rng() < 0.45;
-      return {
-        x: rng() * box.w, y: rng() * box.h,
-        r: rng() * 1.1 + 0.25, o: rng() * 0.5 + 0.12,
-        tw, dur: (2 + rng() * 3).toFixed(2), del: (rng() * 4).toFixed(2),
-      };
-    });
-  }, [box.w, box.h]);
-
-  return (
-    <svg width={box.w} height={box.h}
-      style={{ position: "absolute", left: box.x, top: box.y, overflow: "visible", pointerEvents: "none" }}
-      aria-hidden="true">
-      {stars.map((s, i) => (
-        <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="rgba(205,210,255,1)"
-          style={{ opacity: s.o, animation: s.tw ? `uv-tw ${s.dur}s ease-in-out ${s.del}s infinite` : undefined }} />
-      ))}
-    </svg>
-  );
+function galaxyColors(areaId: string, theme: Theme): GColors {
+  if (theme === "hhgttg") return GREEN_COLORS;
+  const idx = Math.floor(seededRng(areaId + "col")() * 997) % COSMIC_COLORS.length;
+  return COSMIC_COLORS[idx];
 }
 
 // ── Galaxy geometry ──────────────────────────────────────────────────────────
 
-const GW = 400, GH = 240;
+const GW = 420, GH = 260;
 const GCX = GW / 2, GCY = GH / 2;
 
-function armPath(rot: number): string {
-  const steps = 40, turns = 1.15, b = 0.32, base = 7;
+type Shape = { tilt: number; squash: number; turns: number; b: number; arms: number };
+
+function galaxyShape(areaId: string): Shape {
+  const r = seededRng(areaId + "shape");
+  return {
+    tilt:   (r() - 0.5) * 70,           // degrees
+    squash: 0.42 + r() * 0.24,
+    turns:  0.95 + r() * 0.5,
+    b:      0.28 + r() * 0.08,
+    arms:   r() < 0.4 ? 3 : 2,
+  };
+}
+
+function armPath(rot: number, s: Shape): string {
+  const steps = 44, base = 7;
   let d = "";
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
-    const theta = t * turns * 2 * Math.PI;
-    const r = base * Math.exp(b * theta);
-    const x = GCX + r * Math.cos(theta + rot);
-    const y = GCY + r * 0.56 * Math.sin(theta + rot);
+    const theta = t * s.turns * 2 * Math.PI;
+    const rr = base * Math.exp(s.b * theta);
+    const x = GCX + rr * Math.cos(theta + rot);
+    const y = GCY + rr * s.squash * Math.sin(theta + rot);
     d += (i === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1) + " ";
   }
   return d.trim();
 }
 
+type PlanePos = { x: number; y: number };
 function buildChapterLayout(count: number, seed: string): PlanePos[] {
   const rot0 = seededRng(seed + "rot")() * Math.PI * 2;
   const rx = GW * 0.30, ry = GH * 0.28;
@@ -124,37 +93,37 @@ function buildChapterLayout(count: number, seed: string): PlanePos[] {
 // ── Galaxy ──────────────────────────────────────────────────────────────────
 
 function GalaxySvg({
-  area, lang, isFocused, pal, zoom,
+  area, lang, isFocused, colors, shape,
   onClickArea, onClickChapter,
 }: {
-  area: Area; lang: Lang; isFocused: boolean; pal: Palette; zoom: number;
+  area: Area; lang: Lang; isFocused: boolean; colors: GColors; shape: Shape;
   onClickArea: () => void;
   onClickChapter: (ch: Chapter) => void;
 }) {
-  // Counter-scale the name by 1/zoom so its on-screen size stays constant
-  // (bigger when zoomed out, smaller when zoomed in) — always readable.
-  const nameFont   = (isFocused ? 26 : 19) / zoom;
-  const nameStroke = 2.4 / zoom;
   const chapterPos = useMemo(() => buildChapterLayout(area.chapters.length, area.id), [area.chapters.length, area.id]);
   const armRot     = useMemo(() => seededRng(area.id + "arm")() * Math.PI, [area.id]);
-  const nebulaId = `neb-${area.id}`;
-  const coreId   = `core-${area.id}`;
-  const armBlur  = `armb-${area.id}`;
-  const starGlow = `sg-${area.id}`;
+  const nebulaId   = `neb-${area.id}`;
+  const coreId     = `core-${area.id}`;
+  const armBlur    = `armb-${area.id}`;
+  const starGlow   = `sg-${area.id}`;
+  const nameShadow = `nsh-${area.id}`;
+
+  const nameFont = isFocused ? 28 : 19;
+  const armRots = Array.from({ length: shape.arms }, (_, k) => armRot + (k * 2 * Math.PI) / shape.arms);
 
   return (
     <svg width={GW} height={GH} style={{ overflow: "visible" }}>
       <defs>
         <radialGradient id={nebulaId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor={pal.nebula1} stopOpacity={isFocused ? 0.16 : 0.09} />
-          <stop offset="45%"  stopColor={pal.nebula2} stopOpacity={isFocused ? 0.08 : 0.045} />
+          <stop offset="0%"   stopColor={colors.neb1} stopOpacity={isFocused ? 0.20 : 0.12} />
+          <stop offset="45%"  stopColor={colors.neb2} stopOpacity={isFocused ? 0.11 : 0.06} />
           <stop offset="100%" stopColor="#05051a" stopOpacity="0" />
         </radialGradient>
         <radialGradient id={coreId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor={pal.coreA} stopOpacity={isFocused ? 0.95 : 0.6} />
-          <stop offset="35%"  stopColor={pal.coreB} stopOpacity={isFocused ? 0.55 : 0.32} />
-          <stop offset="70%"  stopColor={pal.coreC} stopOpacity={isFocused ? 0.22 : 0.12} />
-          <stop offset="100%" stopColor={pal.coreC} stopOpacity="0" />
+          <stop offset="0%"   stopColor="#fffaf0"    stopOpacity={isFocused ? 0.95 : 0.62} />
+          <stop offset="35%"  stopColor={colors.star} stopOpacity={isFocused ? 0.6 : 0.34} />
+          <stop offset="70%"  stopColor={colors.neb1} stopOpacity={isFocused ? 0.24 : 0.13} />
+          <stop offset="100%" stopColor={colors.neb1} stopOpacity="0" />
         </radialGradient>
         <filter id={armBlur} x="-40%" y="-40%" width="180%" height="180%">
           <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
@@ -163,33 +132,41 @@ function GalaxySvg({
           <feGaussianBlur in="SourceGraphic" stdDeviation={isFocused ? "2.4" : "1.6"} result="b" />
           <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
+        <filter id={nameShadow} x="-60%" y="-60%" width="220%" height="220%">
+          <feDropShadow dx="0" dy="0" stdDeviation={nameFont * 0.07} floodColor="#04040f" floodOpacity="0.95" />
+        </filter>
       </defs>
 
-      <ellipse cx={GCX} cy={GCY} rx={GW * 0.5} ry={GH * 0.5} fill={`url(#${nebulaId})`} />
-
-      <g filter={`url(#${armBlur})`} opacity={isFocused ? 0.7 : 0.42}>
-        <path d={armPath(armRot)}                 fill="none" stroke={pal.arm1} strokeWidth={3} strokeLinecap="round" opacity={0.5} />
-        <path d={armPath(armRot + Math.PI)}       fill="none" stroke={pal.arm1} strokeWidth={3} strokeLinecap="round" opacity={0.5} />
-        <path d={armPath(armRot + 0.5)}           fill="none" stroke={pal.arm2} strokeWidth={2} strokeLinecap="round" opacity={0.28} />
-        <path d={armPath(armRot + Math.PI + 0.5)} fill="none" stroke={pal.arm2} strokeWidth={2} strokeLinecap="round" opacity={0.28} />
+      {/* Nebula + arms (tilted for variety) */}
+      <g transform={`rotate(${shape.tilt} ${GCX} ${GCY})`}>
+        <ellipse cx={GCX} cy={GCY} rx={GW * 0.5} ry={GH * 0.5 * (0.7 + shape.squash * 0.5)} fill={`url(#${nebulaId})`} />
+        <g filter={`url(#${armBlur})`} opacity={isFocused ? 0.72 : 0.44}>
+          {armRots.map((rot, k) => (
+            <path key={k} d={armPath(rot, shape)} fill="none"
+              stroke={k % 2 === 0 ? colors.arm1 : colors.arm2}
+              strokeWidth={k % 2 === 0 ? 3 : 2}
+              strokeLinecap="round" opacity={k % 2 === 0 ? 0.5 : 0.3} />
+          ))}
+        </g>
       </g>
 
-      <ellipse cx={GCX} cy={GCY} rx={isFocused ? 64 : 46} ry={isFocused ? 42 : 30} fill={`url(#${coreId})`} />
-      <circle cx={GCX} cy={GCY} r={isFocused ? 4 : 2.6} fill={pal.coreA} opacity={0.95} />
+      {/* Bright core */}
+      <ellipse cx={GCX} cy={GCY} rx={isFocused ? 66 : 46} ry={isFocused ? 42 : 30} fill={`url(#${coreId})`} />
+      <circle cx={GCX} cy={GCY} r={isFocused ? 4 : 2.6} fill="#fffaf0" opacity={0.95} />
 
+      {/* Chapter stars */}
       {area.chapters.map((ch, i) => {
         const p = chapterPos[i];
         const isRight = p.x >= GCX;
         return (
           <g key={ch.id} onClick={(e) => { e.stopPropagation(); onClickChapter(ch); }} style={{ cursor: "pointer" }}>
             <circle cx={p.x} cy={p.y} r={16} fill="transparent" />
-            <circle cx={p.x} cy={p.y} r={isFocused ? 7 : 5}
-              fill={pal.arm1} fillOpacity={0.16} filter={`url(#${starGlow})`} />
-            <circle cx={p.x} cy={p.y} r={isFocused ? 3.4 : 2.4} fill={pal.star} opacity={0.95} />
+            <circle cx={p.x} cy={p.y} r={isFocused ? 7 : 5} fill={colors.arm1} fillOpacity={0.18} filter={`url(#${starGlow})`} />
+            <circle cx={p.x} cy={p.y} r={isFocused ? 3.4 : 2.4} fill={colors.star} opacity={0.95} />
             {isFocused && (
               <text x={p.x + (isRight ? 12 : -12)} y={p.y + 3.5} textAnchor={isRight ? "start" : "end"}
                 fill="var(--text-secondary)" fontSize="9" fontFamily="var(--font-sans)"
-                style={{ textTransform: "uppercase", letterSpacing: "0.08em", pointerEvents: "none" }}>
+                style={{ textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer" }}>
                 {ch[lang].subtitle}
               </text>
             )}
@@ -197,14 +174,13 @@ function GalaxySvg({
         );
       })}
 
+      {/* Area name */}
       <g onClick={(e) => { e.stopPropagation(); onClickArea(); }} style={{ cursor: "pointer" }}>
-        <ellipse cx={GCX} cy={GCY} rx={64} ry={36} fill="transparent" />
-        <text x={GCX} y={GCY + nameFont * 0.33} textAnchor="middle" fill="var(--bg)"
-          fontSize={nameFont} fontWeight={600} fontStyle="italic" fontFamily="var(--font-serif)"
-          style={{
-            letterSpacing: "0.01em", pointerEvents: "none", opacity: isFocused ? 1 : 0.9,
-            paintOrder: "stroke", stroke: "rgba(255,240,214,0.65)", strokeWidth: nameStroke, strokeLinejoin: "round",
-          }}>
+        <ellipse cx={GCX} cy={GCY} rx={70} ry={38} fill="transparent" />
+        <text x={GCX} y={GCY + nameFont * 0.33} textAnchor="middle"
+          fill="var(--text-primary)" fontSize={nameFont} fontWeight={500} fontFamily="var(--font-serif)"
+          filter={`url(#${nameShadow})`}
+          style={{ letterSpacing: "0.02em", cursor: "pointer", opacity: isFocused ? 1 : 0.9 }}>
           {area[lang].name}
         </text>
       </g>
@@ -212,7 +188,7 @@ function GalaxySvg({
   );
 }
 
-// ── Inline search (wide bar, results directly below — no modal) ──────────────
+// ── Inline search (wide bar, results directly below) ─────────────────────────
 
 function InlineSearch({
   areas, lang, onPick, onActiveChange, inputRef,
@@ -301,179 +277,118 @@ function InlineSearch({
   );
 }
 
-// ── Camera ───────────────────────────────────────────────────────────────────
+// ── Main UniverseView — vertical scroll through stacked galaxies ─────────────
 
-type Camera = { cx: number; cy: number; zoom: number };
-const ZOOM_MIN = 0.62, ZOOM_MAX = 2.6, PAN_STEP = 130;
+const GAP = 340;       // px between galaxy centers
+const STEP_MS = 620;   // transition + debounce
 
 export function UniverseView({ areas, lang, focusSlug }: Props) {
   const router = useRouter();
   const [theme, toggleTheme] = useTheme();
-  const pal = galaxyPalette(theme);
 
   const sortedAreas = useMemo(() => [...areas].sort((a, b) => a.order - b.order), [areas]);
-  const positions   = useMemo(() => buildPlanePositions(sortedAreas), [sortedAreas]);
 
-  const starBox = useMemo(() => {
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const a of sortedAreas) {
-      const p = positions[a.id];
-      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
-    }
-    if (!isFinite(minX)) { minX = minY = 0; maxX = maxY = 0; }
-    const m = 1200;
-    return { x: minX - m, y: minY - m, w: (maxX - minX) + 2 * m, h: (maxY - minY) + 2 * m };
-  }, [sortedAreas, positions]);
+  const initialIdx = useMemo(() => {
+    const i = sortedAreas.findIndex(a => a.slug === focusSlug);
+    return i >= 0 ? i : 0;
+  }, [sortedAreas, focusSlug]);
 
-  const initialCamera = useMemo<Camera>(() => {
-    const focus = sortedAreas.find(a => a.slug === focusSlug) ?? sortedAreas[0];
-    const p = focus ? positions[focus.id] : { x: 0, y: 0 };
-    return { cx: p.x, cy: p.y, zoom: 1 };
-  }, [sortedAreas, focusSlug, positions]);
+  const [currentIdx, _setIdx] = useState(initialIdx);
+  const idxRef = useRef(initialIdx);
+  const setIdx = (i: number) => {
+    const v = clamp(i, 0, sortedAreas.length - 1);
+    idxRef.current = v;
+    _setIdx(v);
+  };
 
-  const [camera, setCamera] = useState<Camera>(initialCamera);
-  const [transMs, setTransMs] = useState(650);
   const [searchActive, setSearchActive] = useState(false);
-  const [dragging, setDragging] = useState(false);
+  const isTransitioning = useRef(false);
+  const touchStartY = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Drag-to-pan (capture is taken lazily, only once movement passes a threshold,
-  // so a plain click still reaches the galaxy and opens it)
-  const dragRef = useRef<{ sx: number; sy: number; cx: number; cy: number; zoom: number; pointerId: number; captured: boolean } | null>(null);
-  const movedRef = useRef(false);
-  const justDraggedRef = useRef(false);
+  // Scale galaxies up on larger displays so the view isn't empty
+  const [viewScale, setViewScale] = useState(1);
+  useEffect(() => {
+    const calc = () => setViewScale(clamp(Math.min(window.innerWidth / 1100, window.innerHeight / 760), 1, 1.9));
+    calc();
+    window.addEventListener("resize", calc);
+    return () => window.removeEventListener("resize", calc);
+  }, []);
 
-  const focusedAreaId = useMemo(() => {
-    let best = sortedAreas[0]?.id ?? "";
-    let bestD = Infinity;
-    for (const a of sortedAreas) {
-      const p = positions[a.id];
-      const d = (p.x - camera.cx) ** 2 + (p.y - camera.cy) ** 2;
-      if (d < bestD) { bestD = d; best = a.id; }
-    }
-    return best;
-  }, [sortedAreas, positions, camera.cx, camera.cy]);
-
-  const focusedArea = sortedAreas.find(a => a.id === focusedAreaId) ?? sortedAreas[0];
-
-  const navIfNotDragged = (fn: () => void) => { if (!justDraggedRef.current) fn(); };
-
-  const centerOn = (areaId: string) => {
-    const p = positions[areaId];
-    if (!p) return;
-    setTransMs(650);
-    setCamera(c => ({ ...c, cx: p.x, cy: p.y }));
+  const step = (dir: "down" | "up") => {
+    if (isTransitioning.current) return;
+    const target = idxRef.current + (dir === "down" ? 1 : -1);
+    if (target < 0 || target > sortedAreas.length - 1) return;
+    isTransitioning.current = true;
+    setIdx(target);
+    setTimeout(() => { isTransitioning.current = false; }, STEP_MS);
   };
 
-  // Wheel = zoom (disabled while interacting with search)
+  const goToIdx = (i: number) => {
+    if (i === idxRef.current) return;
+    isTransitioning.current = true;
+    setIdx(i);
+    setTimeout(() => { isTransitioning.current = false; }, STEP_MS);
+  };
+
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      if (searchActive) return;
-      e.preventDefault();
-      setTransMs(140);
-      setCamera(c => {
-        const factor = Math.exp(-e.deltaY * 0.0014);
-        return { ...c, zoom: clamp(c.zoom * factor, ZOOM_MIN, ZOOM_MAX) };
-      });
+      if (searchActive || Math.abs(e.deltaY) < 10) return;
+      step(e.deltaY > 0 ? "down" : "up");
     };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    return () => window.removeEventListener("wheel", onWheel);
-  }, [searchActive]);
-
-  // Arrows = pan the plane
-  useEffect(() => {
+    const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
+    const onTouchEnd = (e: TouchEvent) => {
+      const d = touchStartY.current - e.changedTouches[0].clientY;
+      if (Math.abs(d) < 50) return;
+      step(d > 0 ? "down" : "up");
+    };
     const onKey = (e: KeyboardEvent) => {
-      if ((e.key === "/" || e.key === "f") && !searchActive) {
-        e.preventDefault(); searchInputRef.current?.focus(); return;
-      }
+      if ((e.key === "/" || e.key === "f") && !searchActive) { e.preventDefault(); searchInputRef.current?.focus(); return; }
       if (searchActive) return;
-      const step = PAN_STEP / camera.zoom;
-      let dx = 0, dy = 0;
-      if (e.key === "ArrowLeft")  dx = -step;
-      else if (e.key === "ArrowRight") dx = step;
-      else if (e.key === "ArrowUp")    dy = -step;
-      else if (e.key === "ArrowDown")  dy = step;
-      else return;
-      e.preventDefault();
-      setTransMs(240);
-      setCamera(c => ({ ...c, cx: c.cx + dx, cy: c.cy + dy }));
+      if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); step("down"); }
+      else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); step("up"); }
     };
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [searchActive, camera.zoom]);
-
-  // Pointer drag handlers
-  const onPointerDown = (e: React.PointerEvent) => {
-    if (searchActive || e.button !== 0) return;
-    // Don't hijack clicks on interactive UI (search input, toggles)
-    if ((e.target as HTMLElement).closest("input, button")) return;
-    dragRef.current = {
-      sx: e.clientX, sy: e.clientY, cx: camera.cx, cy: camera.cy,
-      zoom: camera.zoom, pointerId: e.pointerId, captured: false,
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("keydown", onKey);
     };
-    movedRef.current = false;
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    const d = dragRef.current;
-    if (!d) return;
-    const dx = (e.clientX - d.sx) / d.zoom;
-    const dy = (e.clientY - d.sy) / d.zoom;
-    if (!d.captured && (Math.abs(e.clientX - d.sx) > 4 || Math.abs(e.clientY - d.sy) > 4)) {
-      // Movement → become a real drag: now capture the pointer
-      d.captured = true;
-      movedRef.current = true;
-      setDragging(true);
-      setTransMs(0);
-      (e.currentTarget as HTMLElement).setPointerCapture(d.pointerId);
-    }
-    if (d.captured) setCamera(c => ({ ...c, cx: d.cx - dx, cy: d.cy - dy }));
-  };
-  const onPointerUp = (e: React.PointerEvent) => {
-    const d = dragRef.current;
-    if (!d) return;
-    if (d.captured) {
-      (e.currentTarget as HTMLElement).releasePointerCapture(d.pointerId);
-      setDragging(false);
-      justDraggedRef.current = true;
-      setTimeout(() => { justDraggedRef.current = false; }, 60);
-    }
-    dragRef.current = null;
-  };
+  }, [searchActive, sortedAreas.length]);
+
+  const focusedArea = sortedAreas[currentIdx];
 
   return (
-    <div
-      data-theme={theme}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      style={{
-        background: "var(--bg)", height: "100dvh", overflow: "hidden", position: "relative",
-        cursor: dragging ? "grabbing" : "grab", touchAction: "none",
-      }}
-    >
+    <div data-theme={theme} style={{ background: "var(--bg)", height: "100dvh", overflow: "hidden", position: "relative" }}>
+      <StarField theme={theme} />
       <div className="scanlines" />
 
-      {/* The pannable / zoomable plane */}
-      <div style={{
-        position: "absolute", left: "50%", top: "50%", transformOrigin: "0 0",
-        transform: `scale(${camera.zoom}) translate(${-camera.cx}px, ${-camera.cy}px)`,
-        transition: `transform ${transMs}ms cubic-bezier(0.4,0,0.2,1)`,
-        willChange: "transform",
-      }}>
-        <BackgroundStars box={starBox} />
-
-        {sortedAreas.map((area) => {
-          const p = positions[area.id];
-          const isFocused = area.id === focusedAreaId;
+      {/* Stacked galaxies */}
+      <div style={{ position: "absolute", inset: 0 }}>
+        {sortedAreas.map((area, i) => {
+          const offset = i - currentIdx;
+          const abs = Math.abs(offset);
+          if (abs > 3) return null;
+          const scale   = (abs === 0 ? 1 : Math.max(0.4, 0.62 - abs * 0.1)) * viewScale;
+          const opacity = abs === 0 ? 1 : Math.max(0.08, 0.4 - abs * 0.12);
+          const isFocused = abs === 0;
           return (
             <div key={area.id} style={{
-              position: "absolute", left: p.x, top: p.y, transform: "translate(-50%, -50%)",
+              position: "absolute", left: "50%", top: "50%",
+              transform: `translate(-50%, -50%) translateY(${offset * GAP * viewScale}px) scale(${scale})`,
+              opacity,
+              transition: `transform ${STEP_MS}ms cubic-bezier(0.4,0,0.2,1), opacity ${STEP_MS}ms ease`,
+              zIndex: 10 - abs,
             }}>
               <GalaxySvg
-                area={area} lang={lang} isFocused={isFocused} pal={pal} zoom={camera.zoom}
-                onClickArea={() => navIfNotDragged(() => router.push(`/${area.slug}`))}
-                onClickChapter={(ch) => navIfNotDragged(() => router.push(`/${area.slug}/${ch.slug}`))}
+                area={area} lang={lang} isFocused={isFocused}
+                colors={galaxyColors(area.id, theme)} shape={galaxyShape(area.id)}
+                onClickArea={() => isFocused ? router.push(`/${area.slug}`) : goToIdx(i)}
+                onClickChapter={(ch) => isFocused ? router.push(`/${area.slug}/${ch.slug}`) : goToIdx(i)}
               />
             </div>
           );
@@ -486,21 +401,14 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
         zIndex: 25, padding: "0 24px", display: "flex", flexDirection: "column", gap: "2px",
         maxHeight: "80vh", overflowY: "auto", pointerEvents: "auto",
       }}>
-        <p style={{
-          fontSize: 10, textTransform: "uppercase", letterSpacing: "0.22em",
-          color: "var(--text-muted)", marginBottom: 12, fontFamily: "var(--font-sans)",
-        }}>
+        <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--text-muted)", marginBottom: 12, fontFamily: "var(--font-sans)" }}>
           {lang === "cs" ? "Oblasti" : "Areas"}
         </p>
-        {sortedAreas.map((a) => {
-          const active = a.id === focusedAreaId;
+        {sortedAreas.map((a, i) => {
+          const active = i === currentIdx;
           return (
-            <button key={a.id} onClick={() => centerOn(a.id)}
-              style={{
-                display: "flex", alignItems: "center", gap: 10,
-                background: "none", border: "none", cursor: "pointer",
-                padding: "6px 0", textAlign: "left",
-              }}>
+            <button key={a.id} onClick={() => goToIdx(i)}
+              style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: "6px 0", textAlign: "left" }}>
               <span style={{
                 width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
                 background: active ? "var(--accent)" : "var(--dot-future)",
@@ -509,10 +417,9 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
                 transition: "background 250ms, box-shadow 250ms",
               }} />
               <span style={{
-                fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: "0.09em",
-                textTransform: "uppercase",
-                color: active ? "var(--accent)" : "var(--text-secondary)",
-                opacity: active ? 1 : 0.7, transition: "color 250ms, opacity 250ms",
+                fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: "0.09em", textTransform: "uppercase",
+                color: active ? "var(--accent)" : "var(--text-secondary)", opacity: active ? 1 : 0.7,
+                transition: "color 250ms, opacity 250ms",
               }}>
                 {a[lang].name}
               </span>
@@ -536,23 +443,23 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
           onPick={(area, chapter) => router.push(`/${area.slug}/${chapter.slug}`)} />
       </div>
 
-      {/* Focused area name + hint */}
+      {/* Hint */}
       <div style={{
-        position: "fixed", bottom: "40px", left: 0, right: 0,
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-        zIndex: 20, pointerEvents: "none",
+        position: "fixed", bottom: "32px", left: 0, right: 0,
+        display: "flex", justifyContent: "center", zIndex: 20, pointerEvents: "none",
       }}>
-        <p style={{
-          fontFamily: "var(--font-serif)", fontSize: "26px", letterSpacing: "-0.01em",
-          color: "var(--text-primary)", transition: "opacity 400ms",
-        }}>
-          {focusedArea?.[lang].name}
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--text-muted)" }}>
+          {lang === "cs" ? "scroll = procházet · klik = vstup" : "scroll = browse · click = enter"}
         </p>
-        <p style={{
-          fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase",
-          letterSpacing: "0.2em", color: "var(--text-muted)",
-        }}>
-          {lang === "cs" ? "scroll = přiblížit · táhni / šipky = posun · klik = vstup" : "scroll = zoom · drag / arrows = pan · click = enter"}
+      </div>
+
+      {/* Current area name (bottom) */}
+      <div style={{
+        position: "fixed", bottom: "60px", left: 0, right: 0,
+        display: "flex", justifyContent: "center", zIndex: 20, pointerEvents: "none",
+      }}>
+        <p style={{ fontFamily: "var(--font-serif)", fontSize: "13px", letterSpacing: "0.04em", color: "var(--text-muted)", opacity: 0.7 }}>
+          {focusedArea?.[lang].name}
         </p>
       </div>
     </div>

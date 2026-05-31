@@ -15,7 +15,7 @@ export const ui: Record<Lang, {
     title: "Journey",
     start: "Begin the journey",
     startHint: "↓  (space)",
-    back: "← menu",
+    back: "Overview →",
     end: "The end? Or a new beginning.",
   },
   cs: {
@@ -24,7 +24,7 @@ export const ui: Record<Lang, {
     title: "Cesta",
     start: "Začít cestu",
     startHint: "↓  (mezerník)",
-    back: "← menu",
+    back: "Přehled →",
     end: "Konec? Nebo nový začátek.",
   },
 };

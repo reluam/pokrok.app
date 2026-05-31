@@ -25,11 +25,18 @@ export type AreaMeta = {
   name: string;
 };
 
+export type AreaIntro = {
+  eyebrow: string;
+  title: string;
+  tagline: string;
+};
+
 export type Area = {
   id: string;
   slug: string;
   order: number;
   en: AreaMeta;
   cs: AreaMeta;
+  intro?: { en: AreaIntro; cs: AreaIntro };
   chapters: Chapter[];
 };

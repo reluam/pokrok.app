@@ -5,24 +5,34 @@ import { Lang, ui } from "@/lib/i18n";
 const serif: React.CSSProperties = { fontFamily: "var(--font-serif)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-serif)", fontStyle: "italic" };
 
-export function IntroScreen({ lang, onStart }: { lang: Lang; onStart: () => void }) {
+type Props = {
+  lang: Lang;
+  onStart: () => void;
+  eyebrow: string;
+  title: string;
+  tagline: string;
+};
+
+export function IntroScreen({ lang, onStart, eyebrow, title, tagline }: Props) {
   return (
     <div
       className="flex flex-col items-center justify-center text-center px-8"
       style={{ position: "relative", zIndex: 10, height: "100dvh" }}
     >
-      <p
-        className="mb-10"
-        style={{
-          fontFamily: "var(--font-sans)",
-          fontSize: "10px",
-          textTransform: "uppercase",
-          letterSpacing: "0.25em",
-          color: "var(--text-muted)",
-        }}
-      >
-        {ui[lang].subtitle}
-      </p>
+      {eyebrow && (
+        <p
+          className="mb-10"
+          style={{
+            fontFamily: "var(--font-sans)",
+            fontSize: "10px",
+            textTransform: "uppercase",
+            letterSpacing: "0.25em",
+            color: "var(--text-muted)",
+          }}
+        >
+          {eyebrow}
+        </p>
+      )}
 
       <h1
         style={{
@@ -34,21 +44,23 @@ export function IntroScreen({ lang, onStart }: { lang: Lang; onStart: () => void
           marginBottom: "28px",
         }}
       >
-        {ui[lang].title}
+        {title}
       </h1>
 
-      <p
-        style={{
-          ...serifItalic,
-          fontSize: "clamp(18px, 2.5vw, 24px)",
-          lineHeight: 1.5,
-          color: "var(--text-secondary)",
-          maxWidth: "440px",
-          marginBottom: "72px",
-        }}
-      >
-        {ui[lang].tagline}
-      </p>
+      {tagline && (
+        <p
+          style={{
+            ...serifItalic,
+            fontSize: "clamp(18px, 2.5vw, 24px)",
+            lineHeight: 1.5,
+            color: "var(--text-secondary)",
+            maxWidth: "440px",
+            marginBottom: "72px",
+          }}
+        >
+          {tagline}
+        </p>
+      )}
 
       <button
         onClick={onStart}

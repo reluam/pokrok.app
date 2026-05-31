@@ -1,7 +1,7 @@
 "use client";
 
 import { Chapter } from "@/lib/areas";
-import { Lang, ui } from "@/lib/i18n";
+import { Lang } from "@/lib/i18n";
 
 type Props = {
   chapters: Chapter[];
@@ -9,7 +9,6 @@ type Props = {
   visitedChapters: Set<number>;
   lang: Lang;
   onNavigateToChapter: (chapterIdx: number) => void;
-  onBack: () => void;
 };
 
 export function ChapterNav({
@@ -18,94 +17,42 @@ export function ChapterNav({
   visitedChapters,
   lang,
   onNavigateToChapter,
-  onBack,
 }: Props) {
   return (
-    <nav
-      className="fixed left-0 top-0 h-full flex flex-col justify-center"
-      style={{
-        width: "200px",
-        background: "var(--bg-nav)",
-        backdropFilter: "blur(10px)",
-        zIndex: 20,
-        borderRight: "1px solid rgba(201,170,120,0.06)",
-      }}
-    >
-      <button
-        onClick={onBack}
-        className="absolute top-8 left-7 flex items-center gap-1.5 transition-opacity hover:opacity-100"
-        style={{
-          color: "var(--text-muted)",
-          fontFamily: "var(--font-sans)",
-          fontSize: "11px",
-          letterSpacing: "0.06em",
-          opacity: 0.7,
-        }}
-      >
-        {ui[lang].back}
-      </button>
-
-      <div className="relative px-8">
-        <div
-          className="absolute"
-          style={{
-            left: "calc(32px + 6px)",
-            top: "7px",
-            bottom: "7px",
-            width: "1px",
-            background: "var(--nav-line)",
-          }}
-        />
-
-        <ul className="space-y-7 relative">
-          {chapters.map((ch, i) => {
-            const isActive = i === currentChapterIdx;
-            const isVisited = visitedChapters.has(i) && !isActive;
-
-            return (
-              <li
-                key={ch.id}
-                className="flex items-center gap-4 cursor-pointer"
-                onClick={() => onNavigateToChapter(i)}
-              >
-                <div className="relative w-[13px] h-[13px] flex items-center justify-center shrink-0">
-                  <div
-                    className={`rounded-full transition-all duration-300 ${isActive ? "dot-active" : ""}`}
-                    style={{
-                      width:      isActive ? 13 : 7,
-                      height:     isActive ? 13 : 7,
-                      background: isActive
-                        ? "var(--dot-active)"
-                        : isVisited
-                        ? "var(--dot-visited)"
-                        : "var(--dot-future)",
-                      border: isActive ? "none" : "1px solid rgba(201,170,120,0.2)",
-                    }}
-                  />
-                </div>
-
-                <span
-                  className="transition-all duration-300 leading-tight"
-                  style={{
-                    fontFamily:    "var(--font-sans)",
-                    fontSize:      "10px",
-                    letterSpacing: "0.07em",
-                    textTransform: "uppercase",
-                    color: isActive
-                      ? "var(--accent)"
-                      : isVisited
-                      ? "var(--text-muted)"
-                      : "var(--dot-future)",
-                    opacity: isActive ? 1 : isVisited ? 0.8 : 0.45,
-                  }}
-                >
-                  {ch[lang].subtitle}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+    <nav style={{
+      position: "fixed", left: 0, top: "50%", transform: "translateY(-50%)",
+      zIndex: 20, padding: "0 24px", display: "flex", flexDirection: "column", gap: "2px",
+      maxHeight: "80vh", overflowY: "auto",
+    }}>
+      {chapters.map((ch, i) => {
+        const active = i === currentChapterIdx;
+        const visited = visitedChapters.has(i) && !active;
+        return (
+          <button key={ch.id} onClick={() => onNavigateToChapter(i)}
+            style={{
+              display: "flex", alignItems: "center", gap: 10,
+              background: "none", border: "none", cursor: "pointer",
+              padding: "6px 0", textAlign: "left",
+            }}>
+            <span style={{
+              width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
+              background: active ? "var(--accent)" : visited ? "var(--dot-visited)" : "var(--dot-future)",
+              border: active ? "none" : "1px solid rgba(201,170,120,0.25)",
+              boxShadow: active ? "0 0 8px var(--accent-glow)" : "none",
+              transition: "background 250ms, box-shadow 250ms",
+            }} />
+            <span style={{
+              fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: "0.09em",
+              textTransform: "uppercase",
+              color: active ? "var(--accent)" : visited ? "var(--text-secondary)" : "var(--text-muted)",
+              opacity: active ? 1 : visited ? 0.7 : 0.45,
+              transition: "color 250ms, opacity 250ms",
+            }}>
+              {ch[lang].subtitle}
+            </span>
+          </button>
+        );
+      })}
     </nav>
   );
 }
