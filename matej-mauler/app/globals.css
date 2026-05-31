@@ -93,6 +93,9 @@ body {
   .exp-card--wide   { grid-column: span 1; }
 }
 
+/* ── Journey link ── */
+.journey-link:hover { color: var(--text-secondary) !important; }
+
 /* ── Footer link ── */
 .footer-link {
   color:      var(--text-muted);

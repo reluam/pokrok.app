@@ -80,19 +80,30 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
           })}
         </section>
 
-        {/* Journey credit */}
+        {/* Journey */}
         <div className="pb-8">
-          <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-            {lang === "cs" ? "Tvůrce projektu" : "Creator of"}{" "}
-            <a
-              href="https://ziju.life/cesta"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "var(--text-secondary)", textDecoration: "underline", textUnderlineOffset: "3px" }}
-            >
-              {lang === "cs" ? "Cesta" : "Journey"}
-            </a>
-          </p>
+          <a
+            href="https://journey-ruddy-psi.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              textDecoration: "none",
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-sans)",
+              fontSize: "13px",
+              transition: "color 140ms ease",
+            }}
+            className="journey-link"
+          >
+            <span style={{ fontSize: "16px" }}>🌌</span>
+            <span>{lang === "cs" ? "Pracuji také na projektu" : "I'm also working on"}</span>
+            <span style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
+              {lang === "cs" ? "Cesta →" : "Journey →"}
+            </span>
+          </a>
         </div>
 
         {/* Footer */}

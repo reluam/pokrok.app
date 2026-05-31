@@ -10,14 +10,6 @@ export type ExperimentMeta = {
 
 export const experiments: ExperimentMeta[] = [
   {
-    slug: "journey",
-    emoji: "🌌",
-    color: "#C8DCFF",
-    href: "https://journey-ruddy-psi.vercel.app",
-    size: "wide",
-    external: true,
-  },
-  {
     slug: "cas",
     emoji: "⏳",
     color: "#FEF3C7",
