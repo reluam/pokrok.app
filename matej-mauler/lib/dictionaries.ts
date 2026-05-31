@@ -12,6 +12,11 @@ export type Dictionary = {
   hero: {
     name: string;
     tagline: string;
+    sub: string;
+  };
+  products: {
+    title: string;
+    subtitle: string;
   };
   wipLabel: string;
   experiments: ExperimentContent[];
@@ -20,25 +25,30 @@ export type Dictionary = {
 export const dictionaries: Record<Lang, Dictionary> = {
   cs: {
     meta: {
-      title: "Matěj Mauler",
-      description: "Sbírka pokusů, her a interaktivních věcí.",
+      title: "Spaghetti.ltd",
+      description: "Máme špatné nápady a hromadu AI vůle je uskutečnit.",
     },
     switcher: { cs: "CZ", en: "EN" },
     hero: {
-      name: "matěj.mauler",
-      tagline: "Sbírka pokusů a interaktivních věcí.",
+      name: "Spaghetti.ltd",
+      tagline: "Máme špatné nápady a hromadu AI vůle je uskutečnit.",
+      sub: "Stavíme věci, které nikdo nepotřeboval, ale teď neví jak bez nich žít.",
+    },
+    products: {
+      title: "Produkty",
+      subtitle: "Každý z nich byl nejlepší nápad v daném okamžiku.",
     },
     wipLabel: "Brzy",
     experiments: [
       {
-        slug: "journey",
-        title: "Cesta",
-        description: "Interaktivní průvodce životní cestou. Otázky, které stojí za to si klást.",
-      },
-      {
         slug: "cas",
         title: "Kolik ti zbývá?",
-        description: "Vizualizace tvého času. Kolik týdnů máš ještě před sebou?",
+        description: "Absurdní životní kalkulačka. Výsledky zaručeně nepřesné.",
+      },
+      {
+        slug: "vvv",
+        title: "VVV",
+        description: "Veškeré vesmírné vědění. Encyklopedie kompletnější než Stopařův průvodce.",
       },
       {
         slug: "otazky",
@@ -56,11 +66,6 @@ export const dictionaries: Record<Lang, Dictionary> = {
         description: "Jak vidím svět skrze systémy, vzorce a mentální modely.",
       },
       {
-        slug: "vvv",
-        title: "VVV",
-        description: "Veškeré vesmírné vědění. Encyklopedie kompletnější než Stopařův průvodce.",
-      },
-      {
         slug: "nahoda",
         title: "Náhoda",
         description: "Co kdybys mohl zkusit cokoliv — a nevěděl předem co?",
@@ -70,25 +75,30 @@ export const dictionaries: Record<Lang, Dictionary> = {
 
   en: {
     meta: {
-      title: "Matěj Mauler",
-      description: "A collection of experiments and interactive things.",
+      title: "Spaghetti.ltd",
+      description: "We have bad ideas and plenty of AI willpower to build them.",
     },
     switcher: { cs: "CZ", en: "EN" },
     hero: {
-      name: "matěj.mauler",
-      tagline: "A collection of experiments and interactive things.",
+      name: "Spaghetti.ltd",
+      tagline: "We have bad ideas and plenty of AI willpower to build them.",
+      sub: "We build things nobody needed, but now can't live without.",
+    },
+    products: {
+      title: "Products",
+      subtitle: "Each of them was the best idea at the time.",
     },
     wipLabel: "Soon",
     experiments: [
       {
-        slug: "journey",
-        title: "Journey",
-        description: "An interactive guide through life. Questions worth asking.",
-      },
-      {
         slug: "cas",
         title: "How much time?",
-        description: "A visualization of your time. How many weeks do you have left?",
+        description: "Absurd life calculator. Results guaranteed inaccurate.",
+      },
+      {
+        slug: "vvv",
+        title: "VVV",
+        description: "Vast Void Vault. An encyclopedia more complete than the Hitchhiker's Guide.",
       },
       {
         slug: "otazky",
@@ -104,11 +114,6 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "mapy",
         title: "Mind maps",
         description: "How I see the world through systems, patterns, and mental models.",
-      },
-      {
-        slug: "vvv",
-        title: "VVV",
-        description: "Vast Void Vault. An encyclopedia more complete than the Hitchhiker's Guide.",
       },
       {
         slug: "nahoda",

@@ -17,8 +17,8 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Matěj Mauler",
-  description: "Sbírka pokusů a interaktivních věcí.",
+  title: "Spaghetti.ltd",
+  description: "Máme špatné nápady a hromadu AI vůle je uskutečnit.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

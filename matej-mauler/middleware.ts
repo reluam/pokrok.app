@@ -1,15 +1,26 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const COOKIE_NAME = "lang";
+const ADMIN_COOKIE = "admin_token";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── Admin protection ────────────────────────────────────────────
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    const token = request.cookies.get(ADMIN_COOKIE)?.value;
+    const secret = process.env.ADMIN_SECRET;
+    if (!secret || token !== secret) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // ── Language routing (root only) ───────────────────────────────
   if (pathname !== "/") return NextResponse.next();
 
   const cookieLang = request.cookies.get(COOKIE_NAME)?.value;
 
-  // Explicit cookie preference
   if (cookieLang === "cs") {
     return NextResponse.redirect(new URL("/cs", request.url));
   }
@@ -17,13 +28,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Czech domain → Czech version
   const host = request.headers.get("host") ?? "";
   if (host.endsWith(".cz")) {
     return NextResponse.redirect(new URL("/cs", request.url));
   }
 
-  // CZ/SK geo without explicit preference → Czech
   const country =
     request.headers.get("x-vercel-ip-country") ||
     request.headers.get("cf-ipcountry") ||
@@ -32,10 +41,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/cs", request.url));
   }
 
-  // Default: English at /
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/"],
+  matcher: ["/", "/admin/:path*"],
 };

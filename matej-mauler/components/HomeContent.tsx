@@ -12,23 +12,50 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
       <div className="max-w-[860px] mx-auto px-5 md:px-8">
 
         {/* Header */}
-        <header className="pt-20 pb-12 animate-fade-up">
+        <header className="pt-20 pb-16 animate-fade-up">
+          <span style={{ fontSize: "48px", display: "block", marginBottom: "16px", lineHeight: 1 }}>🍝</span>
           <h1
-            className="text-[32px] md:text-[40px] leading-none mb-3"
-            style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}
+            className="text-[40px] md:text-[56px] leading-none mb-4"
+            style={{ ...display, fontWeight: 900, letterSpacing: "-0.03em" }}
           >
             {dict.hero.name}
           </h1>
           <p
-            className="text-[16px]"
-            style={{ color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}
+            className="text-[18px] md:text-[22px] mb-3 max-w-[560px]"
+            style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.3 }}
           >
             {dict.hero.tagline}
           </p>
+          <p
+            className="text-[14px] max-w-[480px]"
+            style={{ color: "var(--text-muted)", fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
+          >
+            {dict.hero.sub}
+          </p>
         </header>
 
+        {/* Products section header */}
+        <div className="mb-6 animate-fade-up" style={{ animationDelay: "40ms" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "14px", flexWrap: "wrap" }}>
+            <h2
+              className="text-[22px] md:text-[26px] leading-none"
+              style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}
+            >
+              {dict.products.title}
+            </h2>
+            <span
+              style={{
+                fontFamily: "var(--font-sans)", fontSize: "13px",
+                color: "var(--text-muted)", fontStyle: "italic",
+              }}
+            >
+              {dict.products.subtitle}
+            </span>
+          </div>
+        </div>
+
         {/* Experiments grid */}
-        <section className="experiments-grid animate-fade-up pb-20" style={{ animationDelay: "60ms" }}>
+        <section className="experiments-grid animate-fade-up pb-16" style={{ animationDelay: "60ms" }}>
           {experiments.map((meta) => {
             const content = dict.experiments.find((e) => e.slug === meta.slug);
             if (!content) return null;
