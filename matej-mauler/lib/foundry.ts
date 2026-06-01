@@ -412,22 +412,23 @@ export function buildFromWords(selectedIds: string[], lang: Lang, variation = 0)
 
   const layers: Layer[] = [];
   const tags: string[] = [];
-  let offset = 0;
+  let maxDur = 0;
 
+  // Vrstvení: všechny vybrané zvuky začínají naráz (přehrají se současně).
   for (const sw of soundWords) {
     const recipe = FAMILIES[sw.family!];
     if (!recipe) continue;
     const base = recipe(r);
     const wordMod = combineMods([globalMod, { ...NEUTRAL, ...sw.mod }]);
     for (const l of base.layers) {
-      const m = applyMod({ ...l, startMs: l.startMs + offset }, wordMod);
+      const m = applyMod({ ...l }, wordMod);
       layers.push(humanize(m, jr));
     }
-    offset += base.durMs * wordMod.durMul + 80;
+    maxDur = Math.max(maxDur, base.durMs * wordMod.durMul);
     tags.push(lang === "cs" ? sw.cs : sw.en);
   }
 
-  return { layers, totalMs: offset, tags };
+  return { layers, totalMs: maxDur, tags };
 }
 
 /* ── UI texty ──────────────────────────────────────────────────── */
