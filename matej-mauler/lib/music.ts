@@ -2,45 +2,35 @@ import type { Lang } from "./dictionaries";
 
 /* ── Konfigurace ────────────────────────────────────────────────── */
 
-export const STEPS = 16;              // délka každého tracku (dvojnásobek)
+export const STEPS = 16;
 
 export type TrackName = "melody" | "bass" | "pluck" | "drums";
-export type Phase =
-  | "melody_inst" | "bass_inst" | "pluck_inst"
-  | "melody" | "bass" | "pluck" | "drums" | "done";
+export const TRACKS: TrackName[] = ["melody", "bass", "pluck", "drums"];
 
-export type Ev = { track: TrackName; position: number; type: "note" | "rest" | "drum"; midi: number | null; combo: string | null };
+export type PartEvent = { type: "note" | "rest" | "drum"; midi: number | null; combo: string | null };
 
 export type Option = {
   id: string;
   label: { cs: string; en: string };
-  payload: { midi?: number | null; inst?: string; combo?: string };
+  payload: { midi?: number | null; combo?: string };
 };
 
-export type SongState = {
-  id: number;
+export type Assignment = {
+  songId: number;
+  partId: number;
+  track: TrackName;
+  inst: string;
   scaleRoot: number;
   scaleName: string;
   tempo: number;
-  melodyInst: string | null;
-  bassInst: string | null;
-  pluckInst: string | null;
-  tracks: Record<TrackName, Ev[]>;
 };
 
-export type FinishedSong = {
+export type SongPart = { track: TrackName; inst: string; events: PartEvent[]; done: boolean };
+export type SongDetail = {
   id: number; scaleRoot: number; scaleName: string; tempo: number;
-  melodyInst: string; bassInst: string; pluckInst: string;
-  tracks: Record<TrackName, Ev[]>; createdAt: string;
+  complete: boolean; parts: SongPart[];
 };
-
-export type MusicState = {
-  song: SongState;
-  phase: Phase;
-  stepIndex: number;
-  options: Option[];
-  finished: FinishedSong[];
-};
+export type FinishedItem = { id: number; scaleName: string; tempo: number; createdAt: string };
 
 /* ── Hudební teorie ─────────────────────────────────────────────── */
 
@@ -67,14 +57,8 @@ export function scaleMidiNotes(root: number, scaleName: string): number[] {
   return notes;
 }
 
-function makeRng(seed: number): () => number {
-  let s = seed >>> 0 || 1;
-  return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
-}
-function hash(str: string): number {
-  let h = 5381;
-  for (let i = 0; i < str.length; i++) h = (h * 33) ^ str.charCodeAt(i);
-  return h >>> 0;
+export function baseRootForTrack(scaleRoot: number, track: TrackName): number {
+  return track === "bass" ? scaleRoot - 12 : track === "pluck" ? scaleRoot + 12 : scaleRoot;
 }
 
 function arrow(d: number): { cs: string; en: string } {
@@ -85,7 +69,8 @@ function arrow(d: number): { cs: string; en: string } {
   return { cs: "skok ↓", en: "leap ↓" };
 }
 
-export function noteOptions(root: number, scaleName: string, prevMidi: number | null, rng: () => number): Option[] {
+/** Možnosti další noty — hudebně smysluplné, dle předchozí noty. */
+export function noteOptions(root: number, scaleName: string, prevMidi: number | null): Option[] {
   const notes = scaleMidiNotes(root, scaleName);
   const out: Option[] = [];
   if (prevMidi === null) {
@@ -97,7 +82,7 @@ export function noteOptions(root: number, scaleName: string, prevMidi: number | 
   } else {
     const idx = notes.indexOf(prevMidi);
     const base = idx < 0 ? notes.indexOf(root) : idx;
-    const jump = rng() > 0.5 ? 2 : -2;
+    const jump = Math.random() > 0.5 ? 2 : -2;
     for (const d of [-1, 0, 1, base > notes.length - 3 ? -2 : jump]) {
       const i = Math.max(0, Math.min(notes.length - 1, base + d));
       const m = notes[i]; const a = arrow(d);
@@ -110,7 +95,7 @@ export function noteOptions(root: number, scaleName: string, prevMidi: number | 
   return uniq;
 }
 
-/* ── Nástroje (4 na každý track) ───────────────────────────────── */
+/* ── Nástroje ──────────────────────────────────────────────────── */
 
 export type Inst = { id: string; label: { cs: string; en: string }; wave: OscillatorType; gain: number; rel: number; harm?: boolean };
 
@@ -140,8 +125,12 @@ export function findInst(track: TrackName, id: string | null): Inst {
   const list = instsForTrack(track);
   return list.find((i) => i.id === id) ?? list[0];
 }
+export function randomInst(track: TrackName): string {
+  const list = instsForTrack(track);
+  return list[Math.floor(Math.random() * list.length)].id;
+}
 
-/* ── Bicí kombinace ────────────────────────────────────────────── */
+/* ── Bicí ──────────────────────────────────────────────────────── */
 
 export type DrumHit = "kick" | "clap" | "hihat";
 export const DRUM_COMBOS: { id: string; label: { cs: string; en: string }; hits: DrumHit[] }[] = [
@@ -154,39 +143,21 @@ export const DRUM_COMBOS: { id: string; label: { cs: string; en: string }; hits:
   { id: "kick_clap", label: { cs: "kick + clap", en: "kick + clap" }, hits: ["kick", "clap"] },
   { id: "all", label: { cs: "vše", en: "all" }, hits: ["kick", "clap", "hihat"] },
 ];
-export function comboHits(id: string): DrumHit[] {
-  return DRUM_COMBOS.find((c) => c.id === id)?.hits ?? [];
+export function comboHits(id: string): DrumHit[] { return DRUM_COMBOS.find((c) => c.id === id)?.hits ?? []; }
+
+export function drumOptions(): Option[] {
+  return DRUM_COMBOS.map((c) => ({ id: c.id, label: c.label, payload: { combo: c.id } }));
 }
 
-/* ── Fáze, kroky, možnosti ─────────────────────────────────────── */
+/* ── Stavba kroku ──────────────────────────────────────────────── */
 
-export const PHASE_ORDER: Phase[] = ["melody_inst", "bass_inst", "pluck_inst", "melody", "bass", "pluck", "drums"];
-
-export function currentPhase(song: SongState): { phase: Phase; stepIndex: number } {
-  if (!song.melodyInst) return { phase: "melody_inst", stepIndex: 0 };
-  if (!song.bassInst) return { phase: "bass_inst", stepIndex: 0 };
-  if (!song.pluckInst) return { phase: "pluck_inst", stepIndex: 0 };
-  if (song.tracks.melody.length < STEPS) return { phase: "melody", stepIndex: song.tracks.melody.length };
-  if (song.tracks.bass.length < STEPS) return { phase: "bass", stepIndex: song.tracks.bass.length };
-  if (song.tracks.pluck.length < STEPS) return { phase: "pluck", stepIndex: song.tracks.pluck.length };
-  if (song.tracks.drums.length < STEPS) return { phase: "drums", stepIndex: song.tracks.drums.length };
-  return { phase: "done", stepIndex: 0 };
+export function optionsForStep(track: TrackName, scaleRoot: number, scaleName: string, prevMidi: number | null): Option[] {
+  if (track === "drums") return drumOptions();
+  return noteOptions(baseRootForTrack(scaleRoot, track), scaleName, prevMidi);
 }
 
-function lastNote(events: Ev[]): number | null {
-  for (let i = events.length - 1; i >= 0; i--) if (events[i].type === "note" && events[i].midi != null) return events[i].midi;
-  return null;
-}
-
-export function optionsFor(song: SongState, phase: Phase, stepIndex: number): Option[] {
-  if (phase === "melody_inst") return MELODY_INSTS.map((i) => ({ id: i.id, label: i.label, payload: { inst: i.id } }));
-  if (phase === "bass_inst") return BASS_INSTS.map((i) => ({ id: i.id, label: i.label, payload: { inst: i.id } }));
-  if (phase === "pluck_inst") return PLUCK_INSTS.map((i) => ({ id: i.id, label: i.label, payload: { inst: i.id } }));
-  if (phase === "drums") return DRUM_COMBOS.map((c) => ({ id: c.id, label: c.label, payload: { combo: c.id } }));
-
-  const baseRoot = phase === "bass" ? song.scaleRoot - 12 : phase === "pluck" ? song.scaleRoot + 12 : song.scaleRoot;
-  const rng = makeRng(hash(`${song.id}:${phase}:${stepIndex}`));
-  return noteOptions(baseRoot, song.scaleName, lastNote(song.tracks[phase as TrackName]), rng);
+export function emptyTracks(): Record<TrackName, PartEvent[]> {
+  return { melody: [], bass: [], pluck: [], drums: [] };
 }
 
 /* ── UI ────────────────────────────────────────────────────────── */
@@ -194,34 +165,56 @@ export function optionsFor(song: SongState, phase: Phase, stepIndex: number): Op
 export const musicUi = {
   cs: {
     back: "← Spaghetti.ltd",
-    eyebrow: "Společné skládání hudby",
+    eyebrow: "Slepá hudební spolupráce",
     title: "Skládačka hudby",
-    intro: "Kdo první klikne, ten rozhodne o dalším kroku. Sám projdeš celý song, nebo to skládáte společně.",
-    firstClick: "First click first served — kdo klikne první, rozhodne",
-    phase: {
-      melody_inst: "Vyber nástroj melodie", bass_inst: "Vyber nástroj basy", pluck_inst: "Vyber nástroj plucku",
-      melody: "Další nota melodie", bass: "Další nota basy", pluck: "Další nota plucku", drums: "Bicí na další dobu", done: "Hotovo",
-    } as Record<Phase, string>,
+    intro: "Vytvoříš jen jednu část — basu, melodii, pluck nebo bicí. Nevíš, co tvoří ostatní. Až se sejdou všechny 4 části ve stejné stupnici, vznikne společný song.",
+    startBtn: "Vytvořit svou část →",
+    assigning: "Losuji…",
+    yourTask: "Tvůj úkol",
     trackName: { melody: "Melodie", bass: "Basa", pluck: "Pluck", drums: "Bicí" } as Record<TrackName, string>,
-    step: "Krok", of: "z", tempo: "Tempo", scale: "Stupnice",
-    play: "Přehrát ve smyčce ♪", stop: "Zastavit ■",
-    finishedTitle: "Hotové songy", finishedEmpty: "Zatím žádný hotový song. Začni skládat.",
-    disclaimer: "Žádné AI, žádné nahrávky — vše se počítá z čísel. Playback se přehrává ve smyčce.",
+    instrument: "Nástroj", scale: "Stupnice", tempo: "Tempo",
+    step: "Krok", of: "z",
+    pickNote: "Vyber další notu", pickDrum: "Vyber bicí na další dobu",
+    play: "Přehrát svou část ♪", stop: "Zastavit ■",
+    finishTitle: "Hotovo! Tvá část je připravená.",
+    emailLabel: "Zanech e-mail (nepovinné) — až se song doskládá, pošleme ti ho",
+    emailPlaceholder: "tvuj@email.cz",
+    submit: "Odeslat část →",
+    submitting: "Odesílám…",
+    doneTitle: "Tvá část je v hře 🎵",
+    doneWaiting: "Song se ještě skládá — chybí další části od jiných lidí.",
+    doneComplete: "A je hotovo! Song je kompletní:",
+    openSong: "Přehrát výsledný song →",
+    again: "Vytvořit další část",
+    finishedHeading: "Hotové songy",
+    finishedEmpty: "Zatím žádný hotový song. Vytvoř první dílek.",
+    blindNote: "Tvořís naslepo — ostatní části uvidíš, až bude song hotový.",
   },
   en: {
     back: "← Spaghetti.ltd",
-    eyebrow: "Collaborative music making",
+    eyebrow: "Blind musical collaboration",
     title: "Music builder",
-    intro: "Whoever clicks first decides the next step. Build a whole song alone, or together.",
-    firstClick: "First click first served — first to click decides",
-    phase: {
-      melody_inst: "Pick melody instrument", bass_inst: "Pick bass instrument", pluck_inst: "Pick pluck instrument",
-      melody: "Next melody note", bass: "Next bass note", pluck: "Next pluck note", drums: "Drums for next beat", done: "Done",
-    } as Record<Phase, string>,
+    intro: "You create only one part — bass, melody, pluck or drums. You don't know what others are making. When all 4 parts in the same scale come together, a shared song is born.",
+    startBtn: "Create your part →",
+    assigning: "Rolling…",
+    yourTask: "Your task",
     trackName: { melody: "Melody", bass: "Bass", pluck: "Pluck", drums: "Drums" } as Record<TrackName, string>,
-    step: "Step", of: "of", tempo: "Tempo", scale: "Scale",
-    play: "Play in loop ♪", stop: "Stop ■",
-    finishedTitle: "Finished songs", finishedEmpty: "No finished song yet. Start building.",
-    disclaimer: "No AI, no recordings — all computed from numbers. Playback loops continuously.",
+    instrument: "Instrument", scale: "Scale", tempo: "Tempo",
+    step: "Step", of: "of",
+    pickNote: "Pick the next note", pickDrum: "Pick drums for the next beat",
+    play: "Play your part ♪", stop: "Stop ■",
+    finishTitle: "Done! Your part is ready.",
+    emailLabel: "Leave an e-mail (optional) — we'll send you the song when it's assembled",
+    emailPlaceholder: "you@email.com",
+    submit: "Submit part →",
+    submitting: "Submitting…",
+    doneTitle: "Your part is in the game 🎵",
+    doneWaiting: "The song is still assembling — other parts are missing.",
+    doneComplete: "And it's done! The song is complete:",
+    openSong: "Play the finished song →",
+    again: "Create another part",
+    finishedHeading: "Finished songs",
+    finishedEmpty: "No finished song yet. Make the first piece.",
+    blindNote: "You're working blind — you'll see the other parts once the song is finished.",
   },
 } as const;
