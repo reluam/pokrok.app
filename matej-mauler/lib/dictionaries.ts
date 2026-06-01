@@ -103,6 +103,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Spaghetti Radio",
         description: "Nekonečný generativní song, který se každé 4 takty sám promění.",
       },
+      {
+        slug: "anthem",
+        title: "Hymna tvého života",
+        description: "Šest otázek, samé špatné odpovědi. Na konci tvoje osobní hymna.",
+      },
     ],
   },
 
@@ -171,6 +176,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "radio",
         title: "Spaghetti Radio",
         description: "An endless generative song that mutates itself every 4 bars.",
+      },
+      {
+        slug: "anthem",
+        title: "Anthem of Your Life",
+        description: "Six questions, only bad answers. At the end, your personal anthem.",
       },
     ],
   },
