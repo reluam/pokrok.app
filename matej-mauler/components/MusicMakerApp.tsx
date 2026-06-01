@@ -155,10 +155,11 @@ function DrumGrid({ drums, setDrums, lang }: { drums: DrumCell[]; setDrums: (d: 
 
 type Screen = "intro" | "building" | "done";
 
-export function MusicMakerApp({ lang, finished }: { lang: Lang; finished: FinishedItem[] }) {
+export function MusicMakerApp({ lang, finished: initialFinished }: { lang: Lang; finished: FinishedItem[] }) {
   const t = musicUi[lang];
   const homeHref = lang === "cs" ? "/cs" : "/";
 
+  const [finished, setFinished] = useState<FinishedItem[]>(initialFinished);
   const [screen, setScreen] = useState<Screen>("intro");
   const [busy, setBusy] = useState(false);
   const [assignment, setAssignment] = useState<Assignment | null>(null);
@@ -172,6 +173,14 @@ export function MusicMakerApp({ lang, finished }: { lang: Lang; finished: Finish
 
   const stopPlay = () => { if (stopRef.current) stopRef.current(); stopRef.current = null; setPlaying(false); };
   useEffect(() => () => stopPlay(), []);
+
+  // Hotové songy načti na pozadí (neblokuje zobrazení stránky)
+  useEffect(() => {
+    fetch("/api/music/finished", { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : [])
+      .then((d) => Array.isArray(d) && setFinished(d))
+      .catch(() => {});
+  }, []);
 
   const start = async () => {
     setBusy(true);

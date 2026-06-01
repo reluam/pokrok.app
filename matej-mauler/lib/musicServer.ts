@@ -6,26 +6,33 @@ import {
 
 type Sql = ReturnType<typeof getDb>;
 
+// Schéma stačí ověřit jednou za „teplý" běh funkce → šetří round-tripy.
+let schemaReady = false;
+
 async function ensureSchema(sql: Sql) {
-  await sql`CREATE TABLE IF NOT EXISTS mv4_song (
-    id SERIAL PRIMARY KEY,
-    scale_root INT NOT NULL, scale_name TEXT NOT NULL, tempo INT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'building',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  )`;
-  await sql`CREATE TABLE IF NOT EXISTS mv4_part (
-    id SERIAL PRIMARY KEY,
-    song_id INT NOT NULL,
-    track TEXT NOT NULL,
-    inst TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'open',
-    session_token TEXT,
-    email TEXT,
-    events JSONB,
-    claimed_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE(song_id, track)
-  )`;
+  if (schemaReady) return;
+  await sql.transaction([
+    sql`CREATE TABLE IF NOT EXISTS mv4_song (
+      id SERIAL PRIMARY KEY,
+      scale_root INT NOT NULL, scale_name TEXT NOT NULL, tempo INT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'building',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`,
+    sql`CREATE TABLE IF NOT EXISTS mv4_part (
+      id SERIAL PRIMARY KEY,
+      song_id INT NOT NULL,
+      track TEXT NOT NULL,
+      inst TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'open',
+      session_token TEXT,
+      email TEXT,
+      events JSONB,
+      claimed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE(song_id, track)
+    )`,
+  ]);
+  schemaReady = true;
 }
 
 type SongRow = { id: number; scale_root: number; scale_name: string; tempo: number; status: string };
@@ -36,9 +43,10 @@ async function createSong(sql: Sql): Promise<SongRow> {
   const scale = SCALE_NAMES[Math.floor(Math.random() * SCALE_NAMES.length)];
   const tempo = 92 + Math.floor(Math.random() * 28);
   const [song] = await sql`INSERT INTO mv4_song (scale_root, scale_name, tempo) VALUES (${root}, ${scale}, ${tempo}) RETURNING *` as SongRow[];
-  for (const tr of TRACKS) {
-    await sql`INSERT INTO mv4_part (song_id, track, inst) VALUES (${song.id}, ${tr}, ${randomInst(tr)}) ON CONFLICT (song_id, track) DO NOTHING`;
-  }
+  // Všechny 4 sloty jedním round-tripem.
+  await sql.transaction(
+    TRACKS.map((tr) => sql`INSERT INTO mv4_part (song_id, track, inst) VALUES (${song.id}, ${tr}, ${randomInst(tr)}) ON CONFLICT (song_id, track) DO NOTHING`)
+  );
   return song;
 }
 
