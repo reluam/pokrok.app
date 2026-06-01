@@ -1,4 +1,6 @@
-import { STEPS, midiToFreq, type SongTracks, type NoteCell, type DrumCell, type DrumLane, type Inst } from "./music";
+import { STEPS, STEP_BEATS, midiToFreq, type SongTracks, type NoteCell, type DrumCell, type DrumLane, type Inst } from "./music";
+
+export function stepSeconds(tempo: number): number { return (60 / tempo) * STEP_BEATS; }
 
 /* ── Náhled jednoho zvuku při umístění ─────────────────────────── */
 
@@ -48,12 +50,15 @@ export function previewDrum(lane: DrumLane) {
   }
 }
 
-/** Přehraje mix ve smyčce. notes mají start+len (doby). (Pouze klient.) */
-export function startLoop(tracks: SongTracks, insts: { melody: Inst; bass: Inst; pluck: Inst }, tempo: number): () => void {
+/**
+ * Přehraje mix ve smyčce. getTracks() se volá na začátku KAŽDÉ smyčky,
+ * takže změny během přehrávání se projeví v dalším kole. (Pouze klient.)
+ */
+export function startLoop(getTracks: () => SongTracks, insts: { melody: Inst; bass: Inst; pluck: Inst }, tempo: number): () => void {
   const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
   const ctx = new Ctx();
   const master = ctx.createGain(); master.gain.value = 0.8; master.connect(ctx.destination);
-  const beat = 60 / tempo;
+  const beat = stepSeconds(tempo);
   const bar = STEPS * beat;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout>;
@@ -99,6 +104,7 @@ export function startLoop(tracks: SongTracks, insts: { melody: Inst; bass: Inst;
   };
 
   const scheduleBar = (barStart: number) => {
+    const tracks = getTracks(); // čerstvá data každé kolo → živé změny
     (["melody", "bass", "pluck"] as const).forEach((tr) => {
       for (const n of tracks[tr]) noteAt(n, insts[tr], barStart + n.start * beat);
     });

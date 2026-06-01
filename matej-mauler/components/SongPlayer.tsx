@@ -48,7 +48,7 @@ export function SongPlayer({ lang, initial }: { lang: Lang; initial: SongDetail 
     }
     const inst = (tr: TrackName) => findInst(tr, partFor(tr)?.inst ?? null);
     setPlaying(true);
-    stopRef.current = startLoop(tracks, { melody: inst("melody"), bass: inst("bass"), pluck: inst("pluck") }, song.tempo);
+    stopRef.current = startLoop(() => tracks, { melody: inst("melody"), bass: inst("bass"), pluck: inst("pluck") }, song.tempo);
   };
 
   const doneCount = song.parts.filter((p) => p.done).length;

@@ -2,8 +2,8 @@ import type { Lang } from "./dictionaries";
 
 /* ── Konfigurace ────────────────────────────────────────────────── */
 
-export const STEPS = 16;
-export const GRID_SEMIS = 24; // rozsah piano-rollu: 2 oktávy (25 řádků)
+export const STEPS = 32;          // 32 polí = jemnější mřížka (osminové noty)
+export const STEP_BEATS = 0.5;    // jedno pole = osminová nota
 
 export type TrackName = "melody" | "bass" | "pluck" | "drums";
 export const TRACKS: TrackName[] = ["melody", "bass", "pluck", "drums"];

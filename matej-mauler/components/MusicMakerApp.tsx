@@ -14,7 +14,8 @@ import type { Lang } from "@/lib/dictionaries";
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
 const TRACK_COLOR: Record<TrackName, string> = { melody: "#16A34A", bass: "#2563EB", pluck: "#9333EA", drums: "#D97706" };
-const COL_W = 32, ROW_H = 22;
+const ROW_H = 19;
+const pct = (v: number) => `${(v / STEPS) * 100}%`;
 
 function getToken(): string {
   try {
@@ -40,32 +41,31 @@ function PianoRoll({ baseRoot, scaleRoot, scaleName, notes, setNotes, color, pla
   const moved = useRef(false);
   const draftRef = useRef<NoteCell | null>(null);
 
-  const W = STEPS * COL_W;
   const H = rows.length * ROW_H;
   const rowTop = (midi: number) => rows.indexOf(midi);
-  const barSec = (STEPS * 60) / tempo;
+  const barSec = (STEPS * 60) / tempo / 2; // pole = osmina
 
   const locate = (e: React.PointerEvent) => {
-    const el = gridRef.current!; const r = el.getBoundingClientRect();
-    const x = e.clientX - r.left + el.scrollLeft; const y = e.clientY - r.top;
-    const col = Math.max(0, Math.min(STEPS - 1, Math.floor(x / COL_W)));
+    const r = gridRef.current!.getBoundingClientRect();
+    const x = e.clientX - r.left; const y = e.clientY - r.top;
+    const col = Math.max(0, Math.min(STEPS - 1, Math.floor((x / r.width) * STEPS)));
     const ri = Math.max(0, Math.min(rows.length - 1, Math.floor(y / ROW_H)));
-    return { x, col, midi: rows[ri] };
+    return { x, col, midi: rows[ri], width: r.width };
   };
 
   const down = (e: React.PointerEvent) => {
-    const { x, col, midi } = locate(e);
+    const { x, col, midi, width } = locate(e);
     moved.current = false;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const idx = notes.findIndex((n) => n.midi === midi && col >= n.start && col < n.start + n.len);
     if (idx >= 0) {
       const n = notes[idx];
-      const rightPx = (n.start + n.len) * COL_W;
-      if (x >= rightPx - 11) { mode.current = "resize"; idxRef.current = idx; }
+      const rightPx = ((n.start + n.len) / STEPS) * width;
+      if (x >= rightPx - 10) { mode.current = "resize"; idxRef.current = idx; }
       else { mode.current = "del"; idxRef.current = idx; }
     } else {
       mode.current = "draw"; const d = { midi, start: col, len: 1 }; draftRef.current = d; setDraft(d);
-      previewNote(midi, inst); // zahraj tón při umístění
+      previewNote(midi, inst);
     }
   };
   const move = (e: React.PointerEvent) => {
@@ -92,74 +92,56 @@ function PianoRoll({ baseRoot, scaleRoot, scaleName, notes, setNotes, color, pla
   };
 
   return (
-    <div style={{ border: "2px solid var(--border)", borderRadius: "12px", overflow: "hidden", background: "#fff" }}>
-      {/* header beats */}
-      <div style={{ display: "flex", borderBottom: "1px solid var(--border)", background: "#FAFAF7" }}>
-        <div style={{ width: 34, flexShrink: 0 }} />
-        <div style={{ overflow: "hidden", flex: 1 }}>
-          <div style={{ display: "flex", width: W }}>
-            {Array.from({ length: STEPS }).map((_, c) => (
-              <div key={c} style={{ width: COL_W, textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 700, color: c % 4 === 0 ? "var(--text-secondary)" : "var(--text-muted)", padding: "3px 0", borderLeft: c % 4 === 0 ? "1px solid rgba(0,0,0,0.12)" : "none" }}>
-                {c % 4 === 0 ? c / 4 + 1 : ""}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
+    <div style={{ border: "1.5px solid var(--border)", borderRadius: "14px", overflow: "hidden", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
       <div style={{ display: "flex" }}>
         {/* gutter labels */}
-        <div style={{ flexShrink: 0, width: 34, background: "#FAFAF7", borderRight: "1px solid var(--border)" }}>
+        <div style={{ flexShrink: 0, width: 30, background: "linear-gradient(90deg,#F4F1EA,#FAFAF7)", borderRight: "1px solid var(--border)" }}>
           {rows.map((m) => {
             const root = isRoot(m, scaleRoot);
             return (
-              <div key={m} style={{ height: ROW_H, fontSize: 9, lineHeight: `${ROW_H}px`, textAlign: "center", fontFamily: "var(--font-sans)", color: root ? color : "var(--text-secondary)", fontWeight: root ? 800 : 500 }}>
+              <div key={m} style={{ height: ROW_H, fontSize: 8.5, lineHeight: `${ROW_H}px`, textAlign: "center", fontFamily: "var(--font-sans)", color: root ? color : "var(--text-muted)", fontWeight: root ? 800 : 600 }}>
                 {midiToShort(m)}
               </div>
             );
           })}
         </div>
 
-        {/* grid */}
-        <div style={{ overflowX: "auto", flex: 1 }}>
-          <div ref={gridRef} onPointerDown={down} onPointerMove={move} onPointerUp={up}
-            style={{ position: "relative", width: W, height: H, touchAction: "none", cursor: "crosshair" }}>
-            {/* rows */}
-            {rows.map((m, ri) => (
-              <div key={m} style={{ position: "absolute", top: ri * ROW_H, left: 0, width: W, height: ROW_H,
-                background: isRoot(m, scaleRoot) ? "rgba(0,0,0,0.05)" : ri % 2 ? "rgba(0,0,0,0.018)" : "transparent",
-                borderBottom: "1px solid rgba(0,0,0,0.05)" }} />
-            ))}
-            {/* beat columns */}
-            {Array.from({ length: STEPS }).map((_, c) => (
-              <div key={c} style={{ position: "absolute", left: c * COL_W, top: 0, width: COL_W, height: H,
-                background: Math.floor(c / 4) % 2 ? "rgba(0,0,0,0.015)" : "transparent",
-                borderLeft: "1px solid " + (c % 4 === 0 ? "rgba(0,0,0,0.16)" : "rgba(0,0,0,0.05)") }} />
-            ))}
-            {/* notes */}
-            {notes.map((n, i) => rowTop(n.midi) >= 0 && (
-              <div key={i} style={{
-                position: "absolute", left: n.start * COL_W + 2, top: rowTop(n.midi) * ROW_H + 2,
-                width: n.len * COL_W - 4, height: ROW_H - 4, borderRadius: 5,
-                background: `linear-gradient(180deg, ${color}, ${color}cc)`,
-                boxShadow: "0 1px 3px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)",
-                border: "1px solid rgba(0,0,0,0.15)",
-              }}>
-                <div style={{ position: "absolute", right: 0, top: 0, width: 9, height: "100%", cursor: "ew-resize", borderRadius: "0 5px 5px 0", background: "rgba(255,255,255,0.25)" }} />
-              </div>
-            ))}
-            {/* draft */}
-            {draft && rowTop(draft.midi) >= 0 && (
-              <div style={{ position: "absolute", left: draft.start * COL_W + 2, top: rowTop(draft.midi) * ROW_H + 2, width: draft.len * COL_W - 4, height: ROW_H - 4, borderRadius: 5, background: color, opacity: 0.5 }} />
-            )}
-            {/* playhead */}
-            {playing && (
-              <div style={{ position: "absolute", top: 0, left: 0, width: 2, height: H, background: "rgba(0,0,0,0.45)", animation: `phMove ${barSec}s linear infinite`, pointerEvents: "none" }} />
-            )}
-          </div>
+        {/* grid (responsivní šířka, bez scrollu) */}
+        <div ref={gridRef} onPointerDown={down} onPointerMove={move} onPointerUp={up}
+          style={{ position: "relative", flex: 1, height: H, touchAction: "none", cursor: "crosshair" }}>
+          {/* rows */}
+          {rows.map((m, ri) => (
+            <div key={m} style={{ position: "absolute", top: ri * ROW_H, left: 0, right: 0, height: ROW_H,
+              background: isRoot(m, scaleRoot) ? `${color}14` : ri % 2 ? "rgba(0,0,0,0.022)" : "transparent",
+              borderBottom: "1px solid rgba(0,0,0,0.04)" }} />
+          ))}
+          {/* column dividers (bar = 8 polí) */}
+          {Array.from({ length: STEPS + 1 }).map((_, c) => (
+            <div key={c} style={{ position: "absolute", left: pct(c), top: 0, width: 1, height: H,
+              background: c % 8 === 0 ? "rgba(0,0,0,0.22)" : c % 4 === 0 ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0.04)" }} />
+          ))}
+          {/* notes */}
+          {notes.map((n, i) => rowTop(n.midi) >= 0 && (
+            <div key={i} style={{
+              position: "absolute", left: `calc(${pct(n.start)} + 1px)`, top: rowTop(n.midi) * ROW_H + 2,
+              width: `calc(${pct(n.len)} - 2px)`, height: ROW_H - 3, borderRadius: 4,
+              background: `linear-gradient(180deg, ${color}, ${color}cc)`,
+              boxShadow: "0 1px 2px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.4)",
+            }}>
+              <div style={{ position: "absolute", right: 0, top: 0, width: 7, height: "100%", cursor: "ew-resize", borderRadius: "0 4px 4px 0", background: "rgba(255,255,255,0.28)" }} />
+            </div>
+          ))}
+          {/* draft */}
+          {draft && rowTop(draft.midi) >= 0 && (
+            <div style={{ position: "absolute", left: `calc(${pct(draft.start)} + 1px)`, top: rowTop(draft.midi) * ROW_H + 2, width: `calc(${pct(draft.len)} - 2px)`, height: ROW_H - 3, borderRadius: 4, background: color, opacity: 0.5 }} />
+          )}
+          {/* playhead */}
+          {playing && (
+            <div style={{ position: "absolute", top: 0, left: 0, width: 2, height: H, background: "rgba(0,0,0,0.4)", animation: `phMove ${barSec}s linear infinite`, pointerEvents: "none" }} />
+          )}
         </div>
       </div>
-      <style>{`@keyframes phMove { from { transform: translateX(0); } to { transform: translateX(${W}px); } }`}</style>
+      <style>{`@keyframes phMove { from { left: 0; } to { left: 100%; } }`}</style>
     </div>
   );
 }
@@ -174,42 +156,34 @@ function DrumGrid({ drums, setDrums, lang, playing, tempo }: { drums: DrumCell[]
     if (has(lane, step)) setDrums(drums.filter((d) => !(d.lane === lane && d.step === step)));
     else { setDrums([...drums, { lane, step }]); previewDrum(lane); }
   };
-  const barSec = (STEPS * 60) / tempo;
-  const W = STEPS * 30;
+  const barSec = (STEPS * 60) / tempo / 2;
 
   return (
-    <div style={{ border: "2px solid var(--border)", borderRadius: "12px", background: "#fff", padding: "12px", overflowX: "auto" }}>
-      <div style={{ position: "relative", width: W + 52 }}>
-        {/* beat header */}
-        <div style={{ display: "flex", marginLeft: 52, marginBottom: 6 }}>
-          {Array.from({ length: STEPS }).map((_, c) => (
-            <div key={c} style={{ width: 30, textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 700, color: c % 4 === 0 ? "var(--text-secondary)" : "var(--text-muted)" }}>{c % 4 === 0 ? c / 4 + 1 : ""}</div>
-          ))}
-        </div>
-        {DRUM_LANES.map((lane) => (
-          <div key={lane} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-            <span style={{ width: 44, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 4 }}>
-              <span>{DRUM_EMOJI[lane]}</span>{DRUM_LABEL[lane][lang]}
-            </span>
-            <div style={{ display: "flex", gap: 3 }}>
-              {Array.from({ length: STEPS }).map((_, s) => {
-                const on = has(lane, s);
-                return (
-                  <button key={s} onClick={() => toggle(lane, s)}
-                    style={{ width: 27, height: 30, flexShrink: 0, borderRadius: 6, cursor: "pointer",
-                      background: on ? `linear-gradient(180deg, ${TRACK_COLOR.drums}, ${TRACK_COLOR.drums}cc)` : Math.floor(s / 4) % 2 ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.025)",
-                      boxShadow: on ? "0 1px 3px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.35)" : "none",
-                      border: "1px solid " + (on ? "#b45309" : "rgba(0,0,0,0.08)"), transition: "background 100ms" }} />
-                );
-              })}
-            </div>
+    <div style={{ border: "1.5px solid var(--border)", borderRadius: "14px", background: "#fff", padding: "12px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+      {DRUM_LANES.map((lane) => (
+        <div key={lane} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+          <span style={{ width: 50, flexShrink: 0, fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 3 }}>
+            <span>{DRUM_EMOJI[lane]}</span>{DRUM_LABEL[lane][lang]}
+          </span>
+          <div style={{ display: "flex", gap: 2, flex: 1, position: "relative" }}>
+            {Array.from({ length: STEPS }).map((_, s) => {
+              const on = has(lane, s);
+              return (
+                <button key={s} onClick={() => toggle(lane, s)}
+                  style={{ flex: 1, minWidth: 0, height: 26, borderRadius: 4, cursor: "pointer", padding: 0,
+                    background: on ? `linear-gradient(180deg, ${TRACK_COLOR.drums}, ${TRACK_COLOR.drums}cc)` : Math.floor(s / 8) % 2 ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.025)",
+                    boxShadow: on ? "0 1px 2px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.4)" : "none",
+                    border: "1px solid " + (on ? "#b45309" : "rgba(0,0,0,0.07)"), transition: "background 100ms",
+                    marginLeft: s % 8 === 0 && s > 0 ? 4 : 0 }} />
+              );
+            })}
+            {playing && (
+              <div style={{ position: "absolute", top: -2, left: 0, width: 2, height: 30, background: "rgba(0,0,0,0.4)", animation: `phMoveD ${barSec}s linear infinite`, pointerEvents: "none" }} />
+            )}
           </div>
-        ))}
-        {playing && (
-          <div style={{ position: "absolute", top: 22, left: 52, width: 2, bottom: 0, background: "rgba(0,0,0,0.4)", animation: `phMoveD ${barSec}s linear infinite`, pointerEvents: "none" }} />
-        )}
-      </div>
-      <style>{`@keyframes phMoveD { from { transform: translateX(0); } to { transform: translateX(${W}px); } }`}</style>
+        </div>
+      ))}
+      <style>{`@keyframes phMoveD { from { left: 0; } to { left: 100%; } }`}</style>
     </div>
   );
 }
@@ -234,6 +208,10 @@ export function MusicMakerApp({ lang, finished: initialFinished }: { lang: Lang;
   const [playing, setPlaying] = useState(false);
   const stopRef = useRef<(() => void) | null>(null);
 
+  // Živá zrcadla pro přehrávání — smyčka čte aktuální data každé kolo.
+  const notesRef = useRef(notes); useEffect(() => { notesRef.current = notes; }, [notes]);
+  const drumsRef = useRef(drums); useEffect(() => { drumsRef.current = drums; }, [drums]);
+
   const stopPlay = () => { if (stopRef.current) stopRef.current(); stopRef.current = null; setPlaying(false); };
   useEffect(() => () => stopPlay(), []);
 
@@ -257,10 +235,13 @@ export function MusicMakerApp({ lang, finished: initialFinished }: { lang: Lang;
   const playOwn = () => {
     if (!assignment) return;
     stopPlay();
-    const tracks = emptyTracks();
-    if (assignment.track === "drums") tracks.drums = drums; else tracks[assignment.track] = notes;
+    const getTracks = () => {
+      const tr = emptyTracks();
+      if (assignment.track === "drums") tr.drums = drumsRef.current; else tr[assignment.track] = notesRef.current;
+      return tr;
+    };
     setPlaying(true);
-    stopRef.current = startLoop(tracks, {
+    stopRef.current = startLoop(getTracks, {
       melody: findInst("melody", assignment.track === "melody" ? assignment.inst : null),
       bass: findInst("bass", assignment.track === "bass" ? assignment.inst : null),
       pluck: findInst("pluck", assignment.track === "pluck" ? assignment.inst : null),
@@ -353,7 +334,7 @@ export function MusicMakerApp({ lang, finished: initialFinished }: { lang: Lang;
           <button onClick={playing ? stopPlay : playOwn} disabled={!hasContent} style={{ background: playing ? color : "var(--text-primary)", color: "#fff", border: "none", borderRadius: "8px", padding: "6px 14px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, cursor: hasContent ? "pointer" : "default", opacity: hasContent ? 1 : 0.4 }}>{playing ? t.stop : t.play}</button>
         </div>
       </div>
-      <div style={{ maxHeight: "340px", overflowY: "auto" }}>
+      <div>
         {isDrums
           ? <DrumGrid drums={drums} setDrums={setDrums} lang={lang} playing={playing} tempo={assignment.tempo} />
           : <PianoRoll baseRoot={baseRootForTrack(assignment.scaleRoot, assignment.track)} scaleRoot={assignment.scaleRoot} scaleName={assignment.scaleName} notes={notes} setNotes={setNotes} color={color} playing={playing} tempo={assignment.tempo} inst={findInst(assignment.track, assignment.inst)} />}
