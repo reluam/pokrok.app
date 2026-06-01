@@ -3,7 +3,7 @@ import type { Lang } from "./dictionaries";
 /* ── Konfigurace ────────────────────────────────────────────────── */
 
 export const MELODY_STEPS = 8;        // kolik not má melodie
-export const ROUND_SECONDS = 30;      // délka hlasovacího kola (lze zvýšit na 60)
+export const ROUND_SECONDS = 60;      // délka kola — ladí s minutovým Vercel cronem
 
 export type Phase = "note" | "instrument" | "drums" | "done";
 
