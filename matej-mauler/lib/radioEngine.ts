@@ -27,7 +27,7 @@ function makeSaturation(): Float32Array<ArrayBuffer> {
   return c;
 }
 
-export function createRadio(opts: { getState: () => SongState; onBar?: () => void; onHit?: HitFn; startStep?: number }): RadioControl {
+export function createRadio(opts: { getState: () => SongState; onBar?: () => void; onHit?: HitFn; startStep?: number; isMuted?: (layer: LayerId) => boolean }): RadioControl {
   const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
   const ctx = new Ctx();
   if (ctx.state === "suspended") ctx.resume();
@@ -126,11 +126,11 @@ export function createRadio(opts: { getState: () => SongState; onBar?: () => voi
     const sd = stepDur();
     for (const id of DRUM_IDS) {
       const d = state.drums[id];
-      if (!d.muted && d.pattern[st]) { playDrum(id, t); opts.onHit?.(id, null, t); }
+      if (!d.muted && !opts.isMuted?.(id) && d.pattern[st]) { playDrum(id, t); opts.onHit?.(id, null, t); }
     }
     for (const l of MELODIC_IDS) {
       const layer = state[l];
-      if (layer.muted) continue;
+      if (layer.muted || opts.isMuted?.(l)) continue;
       const v = findVoice(l, layer.inst);
       for (const n of layer.notes) if (n.step === st) { playVoice(v, n.midi, n.dur * sd, t); opts.onHit?.(l, n.midi, t); }
     }

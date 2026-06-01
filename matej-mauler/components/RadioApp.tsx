@@ -42,6 +42,11 @@ export function RadioApp({ lang }: { lang: Lang }) {
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [secLeft, setSecLeft] = useState(0);
 
+  const [, forceMute] = useState(0);
+  const mutedRef = useRef<Set<LayerId>>(new Set());
+  const isMuted = (l: LayerId) => mutedRef.current.has(l);
+  const toggleMute = (l: LayerId) => { const s = mutedRef.current; s.has(l) ? s.delete(l) : s.add(l); forceMute((x) => x + 1); };
+
   const ctrlRef = useRef<RadioControl | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ripplesRef = useRef<Ripple[]>([]);
@@ -131,7 +136,7 @@ export function RadioApp({ lang }: { lang: Lang }) {
     ctrlRef.current = createRadio({
       getState: () => serverRef.current.state,
       startStep,
-      onHit,
+      onHit, isMuted,
       onBar: () => {
         serverRef.current.r += 1;
         const nx = serverStateAt(serverRef.current.r);
@@ -146,13 +151,13 @@ export function RadioApp({ lang }: { lang: Lang }) {
     myRef.current = genSong();
     setSong({ ...myRef.current }); setLog([]);
     startRef.current = performance.now();
-    ctrlRef.current = createRadio({ getState: () => myRef.current, onHit });
+    ctrlRef.current = createRadio({ getState: () => myRef.current, onHit, isMuted });
   };
 
   const startShared = () => {
     stopEngine();
     startRef.current = performance.now();
-    ctrlRef.current = createRadio({ getState: () => sharedRef.current, onHit });
+    ctrlRef.current = createRadio({ getState: () => sharedRef.current, onHit, isMuted });
     const poll = async () => {
       try {
         const res = await fetch("/api/radio/state", { cache: "no-store" });
@@ -255,6 +260,22 @@ export function RadioApp({ lang }: { lang: Lang }) {
 
       <div style={{ position: "relative", border: "2.5px solid var(--border)", borderRadius: "16px", boxShadow: "5px 5px 0 var(--border)", overflow: "hidden", background: "#070b18" }}>
         <canvas ref={canvasRef} style={{ width: "100%", height: showEditor ? "30vh" : "46vh", minHeight: "220px", display: "block" }} />
+      </div>
+
+      {/* mute toolbar — každá stopa */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>
+        {([...DRUM_IDS, ...MELODIC_IDS] as LayerId[]).map((id) => {
+          const m = mutedRef.current.has(id);
+          const isDrum = (DRUM_IDS as string[]).includes(id);
+          const label = isDrum ? DRUM_LABEL[id as DrumId][lang] : LAYER_LABEL[id as MelodicId][lang];
+          return (
+            <button key={id} onClick={() => toggleMute(id)} title={m ? t.on : t.muted}
+              style={{ display: "inline-flex", alignItems: "center", gap: "6px", border: `2px solid ${m ? "var(--border)" : LAYER_COLOR[id]}`, background: m ? "rgba(0,0,0,0.04)" : "#fff", borderRadius: "999px", padding: "6px 12px", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: m ? "var(--text-muted)" : "var(--text-primary)", opacity: m ? 0.6 : 1, textDecoration: m ? "line-through" : "none" }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: m ? "var(--text-muted)" : LAYER_COLOR[id] }} />
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       <div style={{ display: "flex", gap: "10px", marginTop: "12px", flexWrap: "wrap" }}>
