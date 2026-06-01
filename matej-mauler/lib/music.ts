@@ -51,16 +51,16 @@ export function baseRootForTrack(scaleRoot: number, track: TrackName): number {
   return track === "bass" ? scaleRoot - 12 : track === "pluck" ? scaleRoot + 12 : scaleRoot;
 }
 
-/** Chromatické řádky piano-rollu (vzestupně, midi). */
-export function chromaticRows(baseRoot: number): number[] {
+/** Řádky piano-rollu jen z tónů stupnice (vzestupně, 2 oktávy). */
+export function scaleRows(baseRoot: number, scaleName: string): number[] {
+  const iv = SCALES[scaleName] ?? SCALES.majorPenta;
   const a: number[] = [];
-  for (let i = 0; i <= GRID_SEMIS; i++) a.push(baseRoot + i);
+  for (let oct = 0; oct < 2; oct++) for (const i of iv) a.push(baseRoot + 12 * oct + i);
+  a.push(baseRoot + 24);
   return a;
 }
-export function isInScale(midi: number, root: number, scaleName: string): boolean {
-  const iv = SCALES[scaleName] ?? SCALES.majorPenta;
-  const pc = (((midi - root) % 12) + 12) % 12;
-  return iv.includes(pc);
+export function isRoot(midi: number, root: number): boolean {
+  return ((((midi - root) % 12) + 12) % 12) === 0;
 }
 
 /* ── Nástroje ──────────────────────────────────────────────────── */
