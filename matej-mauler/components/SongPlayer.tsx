@@ -41,7 +41,11 @@ export function SongPlayer({ lang, initial }: { lang: Lang; initial: SongDetail 
   const play = () => {
     stopPlay();
     const tracks = emptyTracks();
-    for (const p of song.parts) if (p.done) tracks[p.track] = p.events;
+    for (const p of song.parts) {
+      if (!p.done) continue;
+      if (p.track === "drums") tracks.drums = p.data.drums;
+      else tracks[p.track] = p.data.notes;
+    }
     const inst = (tr: TrackName) => findInst(tr, partFor(tr)?.inst ?? null);
     setPlaying(true);
     stopRef.current = startLoop(tracks, { melody: inst("melody"), bass: inst("bass"), pluck: inst("pluck") }, song.tempo);
