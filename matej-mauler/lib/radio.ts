@@ -5,13 +5,13 @@ export { midiToFreq };
 
 /* ── Mřížka ─────────────────────────────────────────────────────── */
 export const BARS = 4;
-export const SPB = 16;             // 16 šestnáctin na takt
-export const TOTAL = BARS * SPB;   // 64 kroků
+export const SPB = 16;
+export const TOTAL = BARS * SPB; // 64
 
-export type DrumId = "kick" | "snare" | "hihat" | "clap";
-export const DRUM_IDS: DrumId[] = ["kick", "snare", "hihat", "clap"];
-export type MelodicId = "bass" | "chord" | "pluck" | "lead";
-export const MELODIC_IDS: MelodicId[] = ["bass", "chord", "pluck", "lead"];
+export type DrumId = "kick" | "clap" | "chat" | "ohat";
+export const DRUM_IDS: DrumId[] = ["kick", "clap", "chat", "ohat"];
+export type MelodicId = "sub" | "pad" | "arp" | "pluck" | "lead";
+export const MELODIC_IDS: MelodicId[] = ["sub", "pad", "arp", "pluck", "lead"];
 export type LayerId = DrumId | MelodicId;
 export const LAYER_IDS: LayerId[] = [...DRUM_IDS, ...MELODIC_IDS];
 
@@ -20,238 +20,233 @@ export type MelLayer = { inst: string; notes: RNote[]; muted: boolean };
 
 export type SongState = {
   tempo: number;
-  root: number;          // midi kořene (např. 48 = C3)
+  root: number;
   scaleName: string;
-  chords: number[];      // 4 stupně (index do stupnice), jeden na takt
+  chords: number[];
   drums: Record<DrumId, { pattern: boolean[]; muted: boolean }>;
-  bass: MelLayer;
-  chord: MelLayer;
-  pluck: MelLayer;
-  lead: MelLayer;
+  sub: MelLayer; pad: MelLayer; arp: MelLayer; pluck: MelLayer; lead: MelLayer;
 };
 
-/* ── Nástroje ───────────────────────────────────────────────────── */
-export type RInst = { id: string; label: { cs: string; en: string }; wave: OscillatorType; attack: number; rel: number; gain: number; harm?: number };
+/* ── Hlasy (moderní syntéza) ───────────────────────────────────── */
+export type Voice = {
+  id: string; label: { cs: string; en: string };
+  osc: OscillatorType; unison: number; detune: number;  // supersaw
+  cutoff: number; cutoffEnv: number; q: number;
+  a: number; d: number; s: number; r: number;           // ADSR (s = sustain 0..1)
+  gain: number; reverb: number; sub?: boolean;
+};
 
-export const INSTS: Record<MelodicId, RInst[]> = {
-  bass: [
-    { id: "fingerbass", label: { cs: "prstová basa", en: "finger bass" }, wave: "triangle", attack: 0.01, rel: 0.5, gain: 0.34 },
-    { id: "subbass", label: { cs: "sub bas", en: "sub bass" }, wave: "sine", attack: 0.01, rel: 0.8, gain: 0.4 },
-    { id: "sawbass", label: { cs: "saw bas", en: "saw bass" }, wave: "sawtooth", attack: 0.005, rel: 0.4, gain: 0.22 },
-    { id: "squarebass", label: { cs: "square bas", en: "square bass" }, wave: "square", attack: 0.005, rel: 0.4, gain: 0.2 },
+export const VOICES: Record<MelodicId, Voice[]> = {
+  sub: [
+    { id: "sub", label: { cs: "sub bas", en: "sub bass" }, osc: "sine", unison: 1, detune: 0, cutoff: 220, cutoffEnv: 0, q: 0.5, a: 0.005, d: 0.1, s: 0.9, r: 0.12, gain: 0.42, reverb: 0, sub: true },
+    { id: "reese", label: { cs: "reese bas", en: "reese bass" }, osc: "sawtooth", unison: 3, detune: 14, cutoff: 380, cutoffEnv: 200, q: 4, a: 0.005, d: 0.15, s: 0.8, r: 0.12, gain: 0.16, reverb: 0 },
+    { id: "fmbass", label: { cs: "FM bas", en: "FM bass" }, osc: "square", unison: 1, detune: 0, cutoff: 600, cutoffEnv: 400, q: 3, a: 0.004, d: 0.12, s: 0.6, r: 0.1, gain: 0.18, reverb: 0, sub: true },
   ],
-  chord: [
-    { id: "pad", label: { cs: "pad", en: "pad" }, wave: "sine", attack: 0.25, rel: 1.0, gain: 0.13 },
-    { id: "organ", label: { cs: "varhany", en: "organ" }, wave: "square", attack: 0.04, rel: 0.6, gain: 0.1 },
-    { id: "strings", label: { cs: "smyčce", en: "strings" }, wave: "sawtooth", attack: 0.2, rel: 0.9, gain: 0.1 },
-    { id: "warmpad", label: { cs: "teplý pad", en: "warm pad" }, wave: "triangle", attack: 0.3, rel: 1.0, gain: 0.14 },
+  pad: [
+    { id: "supersaw", label: { cs: "supersaw pad", en: "supersaw pad" }, osc: "sawtooth", unison: 5, detune: 22, cutoff: 1400, cutoffEnv: 900, q: 2, a: 0.25, d: 0.5, s: 0.8, r: 0.6, gain: 0.075, reverb: 0.45 },
+    { id: "warm", label: { cs: "teplý pad", en: "warm pad" }, osc: "triangle", unison: 3, detune: 10, cutoff: 1100, cutoffEnv: 400, q: 1.5, a: 0.3, d: 0.6, s: 0.85, r: 0.7, gain: 0.1, reverb: 0.5 },
+    { id: "choir", label: { cs: "sbor", en: "choir" }, osc: "sine", unison: 4, detune: 16, cutoff: 2200, cutoffEnv: 300, q: 1, a: 0.35, d: 0.5, s: 0.8, r: 0.8, gain: 0.09, reverb: 0.6 },
+  ],
+  arp: [
+    { id: "plucksynth", label: { cs: "pluck synth", en: "pluck synth" }, osc: "sawtooth", unison: 2, detune: 12, cutoff: 2600, cutoffEnv: 1800, q: 3, a: 0.002, d: 0.16, s: 0.0, r: 0.12, gain: 0.12, reverb: 0.35 },
+    { id: "bell", label: { cs: "zvonkohra", en: "bells" }, osc: "sine", unison: 1, detune: 0, cutoff: 4000, cutoffEnv: 0, q: 1, a: 0.002, d: 0.25, s: 0.0, r: 0.2, gain: 0.16, reverb: 0.5, sub: false },
+    { id: "sqarp", label: { cs: "square arp", en: "square arp" }, osc: "square", unison: 1, detune: 0, cutoff: 3000, cutoffEnv: 1500, q: 2, a: 0.002, d: 0.14, s: 0.0, r: 0.1, gain: 0.1, reverb: 0.3 },
   ],
   pluck: [
-    { id: "piano", label: { cs: "piano", en: "piano" }, wave: "triangle", attack: 0.005, rel: 0.4, gain: 0.2, harm: 0.3 },
-    { id: "epluck", label: { cs: "el. pluck", en: "e-pluck" }, wave: "square", attack: 0.004, rel: 0.25, gain: 0.14 },
-    { id: "xylo", label: { cs: "xylofon", en: "xylophone" }, wave: "sine", attack: 0.002, rel: 0.18, gain: 0.22, harm: 0.5 },
-    { id: "harp", label: { cs: "harfa", en: "harp" }, wave: "triangle", attack: 0.004, rel: 0.6, gain: 0.18 },
+    { id: "piano", label: { cs: "piano", en: "piano" }, osc: "triangle", unison: 1, detune: 0, cutoff: 3200, cutoffEnv: 800, q: 1, a: 0.003, d: 0.4, s: 0.0, r: 0.3, gain: 0.18, reverb: 0.35 },
+    { id: "stab", label: { cs: "synth stab", en: "synth stab" }, osc: "sawtooth", unison: 3, detune: 18, cutoff: 1800, cutoffEnv: 1400, q: 4, a: 0.004, d: 0.22, s: 0.0, r: 0.18, gain: 0.1, reverb: 0.3 },
+    { id: "epiano", label: { cs: "el. piano", en: "e-piano" }, osc: "sine", unison: 2, detune: 8, cutoff: 2600, cutoffEnv: 600, q: 1, a: 0.004, d: 0.45, s: 0.0, r: 0.35, gain: 0.16, reverb: 0.4, sub: true },
   ],
   lead: [
-    { id: "violin", label: { cs: "housle", en: "violin" }, wave: "sawtooth", attack: 0.12, rel: 0.6, gain: 0.13 },
-    { id: "flute", label: { cs: "flétna", en: "flute" }, wave: "sine", attack: 0.05, rel: 0.5, gain: 0.18 },
-    { id: "synthlead", label: { cs: "synth lead", en: "synth lead" }, wave: "square", attack: 0.01, rel: 0.4, gain: 0.12 },
-    { id: "sawlead", label: { cs: "saw lead", en: "saw lead" }, wave: "sawtooth", attack: 0.02, rel: 0.4, gain: 0.12 },
+    { id: "supersawlead", label: { cs: "supersaw lead", en: "supersaw lead" }, osc: "sawtooth", unison: 5, detune: 20, cutoff: 2400, cutoffEnv: 1600, q: 3, a: 0.02, d: 0.3, s: 0.7, r: 0.3, gain: 0.1, reverb: 0.4 },
+    { id: "pluckylead", label: { cs: "pluck lead", en: "pluck lead" }, osc: "square", unison: 2, detune: 10, cutoff: 3000, cutoffEnv: 2000, q: 3, a: 0.003, d: 0.2, s: 0.2, r: 0.2, gain: 0.1, reverb: 0.45 },
+    { id: "sinelead", label: { cs: "sine lead", en: "sine lead" }, osc: "sine", unison: 1, detune: 0, cutoff: 5000, cutoffEnv: 0, q: 1, a: 0.03, d: 0.2, s: 0.7, r: 0.3, gain: 0.16, reverb: 0.5 },
   ],
 };
 
-export function findRInst(layer: MelodicId, id: string): RInst {
-  const list = INSTS[layer];
-  return list.find((i) => i.id === id) ?? list[0];
+export function findVoice(layer: MelodicId, id: string): Voice {
+  const list = VOICES[layer];
+  return list.find((v) => v.id === id) ?? list[0];
 }
 
 export const DRUM_LABEL: Record<DrumId, { cs: string; en: string }> = {
-  kick: { cs: "kopák", en: "kick" }, snare: { cs: "snare", en: "snare" },
-  hihat: { cs: "hihat", en: "hihat" }, clap: { cs: "clap", en: "clap" },
+  kick: { cs: "kick", en: "kick" }, clap: { cs: "clap", en: "clap" },
+  chat: { cs: "hihat", en: "hi-hat" }, ohat: { cs: "open hat", en: "open hat" },
 };
 export const LAYER_LABEL: Record<MelodicId, { cs: string; en: string }> = {
-  bass: { cs: "basa", en: "bass" }, chord: { cs: "akordy", en: "chords" },
-  pluck: { cs: "pluck", en: "pluck" }, lead: { cs: "lead", en: "lead" },
+  sub: { cs: "basa", en: "bass" }, pad: { cs: "akordy", en: "chords" },
+  arp: { cs: "arp", en: "arp" }, pluck: { cs: "pluck", en: "pluck" }, lead: { cs: "lead", en: "lead" },
 };
 
 /* ── Pomocné ───────────────────────────────────────────────────── */
 function rand<T>(a: T[]): T { return a[Math.floor(Math.random() * a.length)]; }
 function chance(p: number): boolean { return Math.random() < p; }
-
 function scaleDeg(root: number, scaleName: string, deg: number): number {
-  const sc = SCALES[scaleName] ?? SCALES.majorPenta;
+  const sc = SCALES[scaleName] ?? SCALES.minorPenta;
   const n = sc.length;
   const oct = Math.floor(deg / n);
   return root + 12 * oct + sc[((deg % n) + n) % n];
 }
-
-const PROGRESSIONS = [[0, 4, 5, 3], [0, 5, 3, 4], [5, 3, 0, 4], [0, 3, 4, 4], [0, 0, 3, 4]];
-
-/* ── Generátory ────────────────────────────────────────────────── */
-
-function genDrums(): SongState["drums"] {
-  const kick = new Array(TOTAL).fill(false);
-  const snare = new Array(TOTAL).fill(false);
-  const hihat = new Array(TOTAL).fill(false);
-  const clap = new Array(TOTAL).fill(false);
-  for (let bar = 0; bar < BARS; bar++) {
-    const b = bar * SPB;
-    kick[b] = true; kick[b + 8] = true;
-    if (chance(0.5)) kick[b + 11] = true;
-    if (chance(0.3)) kick[b + 14] = true;
-    snare[b + 4] = true; snare[b + 12] = true;
-    if (chance(0.4)) clap[b + 12] = true;
-    for (let s = 0; s < SPB; s += 2) if (chance(0.85)) hihat[b + s] = true;
-    if (chance(0.4)) hihat[b + 7] = true;
-  }
-  return {
-    kick: { pattern: kick, muted: false },
-    snare: { pattern: snare, muted: false },
-    hihat: { pattern: hihat, muted: false },
-    clap: { pattern: clap, muted: true },
-  };
-}
-
-function genChords(): number[] { return [...rand(PROGRESSIONS)]; }
+const PROGRESSIONS = [[0, 4, 5, 3], [0, 5, 3, 4], [5, 3, 0, 4], [0, 3, 4, 4], [5, 4, 0, 3], [0, 5, 4, 3]];
 
 function chordTones(root: number, scaleName: string, deg: number, octave: number): number[] {
   return [deg, deg + 2, deg + 4].map((d) => scaleDeg(root, scaleName, d) + 12 * octave);
 }
 
-function genChordLayer(state: Pick<SongState, "root" | "scaleName" | "chords">, inst: string): MelLayer {
-  const notes: RNote[] = [];
-  state.chords.forEach((deg, bar) => {
-    for (const m of chordTones(state.root, state.scaleName, deg, 1)) notes.push({ step: bar * SPB, midi: m, dur: SPB });
-  });
-  return { inst, notes, muted: false };
-}
-
-function genBass(state: Pick<SongState, "root" | "scaleName" | "chords">, inst: string): MelLayer {
-  const notes: RNote[] = [];
-  state.chords.forEach((deg, bar) => {
+/* ── Generátory (house / moderní elektronika) ──────────────────── */
+function genDrums(): SongState["drums"] {
+  const kick = new Array(TOTAL).fill(false);
+  const clap = new Array(TOTAL).fill(false);
+  const chat = new Array(TOTAL).fill(false);
+  const ohat = new Array(TOTAL).fill(false);
+  const fourFloor = chance(0.7);
+  for (let bar = 0; bar < BARS; bar++) {
     const b = bar * SPB;
-    const rootM = scaleDeg(state.root, state.scaleName, deg) - 12;
-    const steps = chance(0.5) ? [0, 6, 8, 14] : [0, 8];
-    for (const s of steps) notes.push({ step: b + s, midi: rootM, dur: 3 });
-    if (chance(0.4)) notes.push({ step: b + 12, midi: scaleDeg(state.root, state.scaleName, deg + 4) - 12, dur: 3 });
-  });
-  return { inst, notes, muted: false };
+    if (fourFloor) { for (let s = 0; s < SPB; s += 4) kick[b + s] = true; }
+    else { kick[b] = true; kick[b + 6] = true; kick[b + 10] = true; }
+    clap[b + 4] = true; clap[b + 12] = true;
+    for (let s = 2; s < SPB; s += 4) ohat[b + s] = true;          // offbeaty
+    for (let s = 0; s < SPB; s += 2) if (!ohat[b + s] && chance(0.9)) chat[b + s] = true;
+    if (chance(0.5)) chat[b + 15] = true;
+  }
+  return {
+    kick: { pattern: kick, muted: false },
+    clap: { pattern: clap, muted: false },
+    chat: { pattern: chat, muted: false },
+    ohat: { pattern: ohat, muted: false },
+  };
 }
+function genChords(): number[] { return [...rand(PROGRESSIONS)]; }
 
-function genPluck(state: Pick<SongState, "root" | "scaleName" | "chords">, inst: string): MelLayer {
+function genSub(base: { root: number; scaleName: string; chords: number[] }, inst: string): MelLayer {
   const notes: RNote[] = [];
-  state.chords.forEach((deg, bar) => {
-    const tones = chordTones(state.root, state.scaleName, deg, 1);
-    for (let s = 0; s < SPB; s += 2) {
-      if (chance(0.7)) notes.push({ step: bar * SPB + s, midi: tones[(s / 2) % tones.length], dur: 2 });
-    }
-  });
-  return { inst, notes, muted: false };
-}
-
-function genLead(state: Pick<SongState, "root" | "scaleName" | "chords">, inst: string): MelLayer {
-  const notes: RNote[] = [];
-  state.chords.forEach((deg, bar) => {
+  base.chords.forEach((deg, bar) => {
     const b = bar * SPB;
-    let pos = 0;
+    const m = scaleDeg(base.root, base.scaleName, deg) - 12;
+    for (let s = 0; s < SPB; s += 4) notes.push({ step: b + s, midi: m, dur: 3 }); // pumpující basa po dobách
+  });
+  return { inst, notes, muted: false };
+}
+function genPad(base: { root: number; scaleName: string; chords: number[] }, inst: string): MelLayer {
+  const notes: RNote[] = [];
+  base.chords.forEach((deg, bar) => {
+    for (const m of chordTones(base.root, base.scaleName, deg, 0)) notes.push({ step: bar * SPB, midi: m, dur: SPB });
+  });
+  return { inst, notes, muted: false };
+}
+function genArp(base: { root: number; scaleName: string; chords: number[] }, inst: string): MelLayer {
+  const notes: RNote[] = [];
+  const dir = chance(0.5);
+  base.chords.forEach((deg, bar) => {
+    const tones = chordTones(base.root, base.scaleName, deg, 1);
+    const seq = dir ? [...tones, tones[1]] : [tones[2], tones[1], tones[0], tones[1]];
+    for (let s = 0; s < SPB; s += 2) notes.push({ step: bar * SPB + s, midi: seq[(s / 2) % seq.length], dur: 2 });
+  });
+  return { inst, notes, muted: chance(0.4) };
+}
+function genPluck(base: { root: number; scaleName: string; chords: number[] }, inst: string): MelLayer {
+  const notes: RNote[] = [];
+  base.chords.forEach((deg, bar) => {
+    const tones = chordTones(base.root, base.scaleName, deg, 1);
+    for (const s of [2, 6, 10, 14]) if (chance(0.7)) for (const m of tones) notes.push({ step: bar * SPB + s, midi: m, dur: 2 });
+  });
+  return { inst, notes, muted: chance(0.5) };
+}
+function genLead(base: { root: number; scaleName: string; chords: number[] }, inst: string): MelLayer {
+  const notes: RNote[] = [];
+  base.chords.forEach((deg, bar) => {
+    const b = bar * SPB; let pos = 0;
     while (pos < SPB) {
-      const dur = rand([2, 2, 4, 4, 6]);
-      if (chance(0.7)) {
-        const d = deg + rand([0, 2, 4, 1, 3, 5, -1]);
-        notes.push({ step: b + pos, midi: scaleDeg(state.root, state.scaleName, d) + 12, dur });
-      }
+      const dur = rand([2, 4, 4, 6]);
+      if (chance(0.65)) notes.push({ step: b + pos, midi: scaleDeg(base.root, base.scaleName, deg + rand([0, 2, 4, 1, 5, 7])) + 12, dur });
       pos += dur;
     }
   });
-  return { inst, notes, muted: false };
+  return { inst, notes, muted: chance(0.45) };
 }
 
 export function genSong(): SongState {
-  const tempo = 96 + Math.floor(Math.random() * 40);
+  const tempo = rand([120, 122, 124, 126, 128, 124, 128, 100, 110, 174]);
   const root = 48 + Math.floor(Math.random() * 5);
-  const scaleName = rand(["majorPenta", "minorPenta", "major", "dorian"]);
+  const scaleName = rand(["minorPenta", "minorPenta", "dorian", "major", "majorPenta"]);
   const chords = genChords();
   const base = { root, scaleName, chords };
   return {
     tempo, root, scaleName, chords,
     drums: genDrums(),
-    bass: genBass(base, rand(INSTS.bass).id),
-    chord: genChordLayer(base, rand(INSTS.chord).id),
-    pluck: genPluck(base, rand(INSTS.pluck).id),
-    lead: genLead(base, rand(INSTS.lead).id),
+    sub: genSub(base, rand(VOICES.sub).id),
+    pad: genPad(base, rand(VOICES.pad).id),
+    arp: genArp(base, rand(VOICES.arp).id),
+    pluck: genPluck(base, rand(VOICES.pluck).id),
+    lead: genLead(base, rand(VOICES.lead).id),
   };
 }
 
 /* ── Mutace ────────────────────────────────────────────────────── */
-
 export type Mutation = { state: SongState; label: { cs: string; en: string } };
-
-function transpose(layer: MelLayer, d: number): MelLayer {
-  return { ...layer, notes: layer.notes.map((n) => ({ ...n, midi: n.midi + d })) };
-}
+function transpose(layer: MelLayer, d: number): MelLayer { return { ...layer, notes: layer.notes.map((n) => ({ ...n, midi: n.midi + d })) }; }
 
 export function randomMutate(prev: SongState): Mutation {
   const s: SongState = JSON.parse(JSON.stringify(prev));
-  const kind = rand(["tempo", "key", "inst", "remelody", "chords", "toggle", "toggle"]);
   const base = { root: s.root, scaleName: s.scaleName, chords: s.chords };
+  const kind = rand(["tempo", "key", "inst", "remelody", "chords", "toggle", "toggle", "drumfill"]);
 
   if (kind === "tempo") {
-    const d = rand([-6, -4, 4, 6]);
-    s.tempo = Math.max(60, Math.min(200, s.tempo + d));
+    s.tempo = Math.max(60, Math.min(200, s.tempo + rand([-4, -2, 2, 4])));
     return { state: s, label: { cs: `Tempo → ${s.tempo}`, en: `Tempo → ${s.tempo}` } };
   }
   if (kind === "key") {
-    const d = rand([-2, -1, 1, 2]);
-    s.root += d;
-    (["bass", "chord", "pluck", "lead"] as MelodicId[]).forEach((l) => { s[l] = transpose(s[l], d); });
+    const d = rand([-2, -1, 1, 2]); s.root += d;
+    MELODIC_IDS.forEach((l) => { s[l] = transpose(s[l], d); });
     return { state: s, label: { cs: `Tónina ${d > 0 ? "+" : ""}${d}`, en: `Key ${d > 0 ? "+" : ""}${d}` } };
   }
   if (kind === "inst") {
-    const l = rand(MELODIC_IDS);
-    const opt = rand(INSTS[l]);
-    s[l].inst = opt.id;
-    return { state: s, label: { cs: `${LAYER_LABEL[l].cs}: ${opt.label.cs}`, en: `${LAYER_LABEL[l].en}: ${opt.label.en}` } };
+    const l = rand(MELODIC_IDS); const v = rand(VOICES[l]); s[l].inst = v.id; s[l].muted = false;
+    return { state: s, label: { cs: `${LAYER_LABEL[l].cs}: ${v.label.cs}`, en: `${LAYER_LABEL[l].en}: ${v.label.en}` } };
   }
   if (kind === "remelody") {
-    const l = rand(["pluck", "lead", "bass"] as MelodicId[]);
-    const gen = l === "bass" ? genBass : l === "pluck" ? genPluck : genLead;
-    s[l] = { ...gen(base, s[l].inst), muted: s[l].muted };
-    return { state: s, label: { cs: `Nová melodie: ${LAYER_LABEL[l].cs}`, en: `New melody: ${LAYER_LABEL[l].en}` } };
+    const l = rand(["arp", "pluck", "lead", "sub"] as MelodicId[]);
+    const gen = l === "sub" ? genSub : l === "arp" ? genArp : l === "pluck" ? genPluck : genLead;
+    s[l] = { ...gen(base, s[l].inst), muted: false };
+    return { state: s, label: { cs: `Nová linka: ${LAYER_LABEL[l].cs}`, en: `New line: ${LAYER_LABEL[l].en}` } };
   }
   if (kind === "chords") {
-    s.chords = genChords();
-    const nb = { root: s.root, scaleName: s.scaleName, chords: s.chords };
-    s.bass = { ...genBass(nb, s.bass.inst), muted: s.bass.muted };
-    s.chord = { ...genChordLayer(nb, s.chord.inst), muted: s.chord.muted };
+    s.chords = genChords(); const nb = { root: s.root, scaleName: s.scaleName, chords: s.chords };
+    s.sub = { ...genSub(nb, s.sub.inst), muted: s.sub.muted };
+    s.pad = { ...genPad(nb, s.pad.inst), muted: s.pad.muted };
+    s.arp = { ...genArp(nb, s.arp.inst), muted: s.arp.muted };
     s.pluck = { ...genPluck(nb, s.pluck.inst), muted: s.pluck.muted };
     s.lead = { ...genLead(nb, s.lead.inst), muted: s.lead.muted };
     return { state: s, label: { cs: "Nová harmonie", en: "New harmony" } };
   }
-  // toggle mute (drums i melodic)
+  if (kind === "drumfill") {
+    s.drums = genDrums();
+    return { state: s, label: { cs: "Nový beat", en: "New beat" } };
+  }
   const id = rand(LAYER_IDS);
-  if (DRUM_IDS.includes(id as DrumId)) {
+  if ((DRUM_IDS as string[]).includes(id)) {
     const d = id as DrumId; s.drums[d].muted = !s.drums[d].muted;
-    return { state: s, label: { cs: `${s.drums[d].muted ? "Ztlumeno" : "Zapnuto"}: ${DRUM_LABEL[d].cs}`, en: `${s.drums[d].muted ? "Muted" : "On"}: ${DRUM_LABEL[d].en}` } };
+    return { state: s, label: { cs: `${s.drums[d].muted ? "Ztlumeno" : "Zpět"}: ${DRUM_LABEL[d].cs}`, en: `${s.drums[d].muted ? "Muted" : "On"}: ${DRUM_LABEL[d].en}` } };
   }
   const m = id as MelodicId; s[m].muted = !s[m].muted;
-  return { state: s, label: { cs: `${s[m].muted ? "Ztlumeno" : "Zapnuto"}: ${LAYER_LABEL[m].cs}`, en: `${s[m].muted ? "Muted" : "On"}: ${LAYER_LABEL[m].en}` } };
+  return { state: s, label: { cs: `${s[m].muted ? "Ztlumeno" : "Zpět"}: ${LAYER_LABEL[m].cs}`, en: `${s[m].muted ? "Muted" : "On"}: ${LAYER_LABEL[m].en}` } };
 }
 
-/* ── UI texty ──────────────────────────────────────────────────── */
+/* ── UI ────────────────────────────────────────────────────────── */
 export const radioUi = {
   cs: {
     back: "← Spaghetti.ltd", eyebrow: "Nekonečné generativní rádio", title: "Spaghetti Radio",
-    intro: "Song, který hraje pořád dokola a každé 4 takty se sám náhodně promění. Vlevo to vidíš, vpravo to poslouchá.",
+    intro: "Nekonečný elektronický set, který se každé 4 takty sám promění. Vlevo to vidíš, vpravo to žije.",
     start: "Spustit rádio ♪", stop: "Zastavit ■",
-    tempo: "Tempo", key: "Tónina", lastChange: "Poslední změna", layers: "Vrstvy",
-    muted: "ztlumeno", on: "hraje", hint: "Každý loop = jedna náhodná změna (tempo, tónina, nástroj, melodie, harmonie…).",
+    tempo: "Tempo", key: "Tónina", playtime: "Hraje", lastChange: "Poslední změna", changelog: "Historie změn", layers: "Vrstvy",
+    muted: "ztlumeno", on: "hraje", hint: "Každý loop = jedna náhodná změna.",
   },
   en: {
     back: "← Spaghetti.ltd", eyebrow: "Endless generative radio", title: "Spaghetti Radio",
-    intro: "A song that loops forever and randomly mutates every 4 bars. You watch it on the left, it plays on the right.",
+    intro: "An endless electronic set that mutates itself every 4 bars. You watch it on the left, it lives on the right.",
     start: "Start radio ♪", stop: "Stop ■",
-    tempo: "Tempo", key: "Key", lastChange: "Last change", layers: "Layers",
-    muted: "muted", on: "playing", hint: "Each loop = one random change (tempo, key, instrument, melody, harmony…).",
+    tempo: "Tempo", key: "Key", playtime: "Playing", lastChange: "Last change", changelog: "Change log", layers: "Layers",
+    muted: "muted", on: "playing", hint: "Each loop = one random change.",
   },
 } as const;
 

@@ -1,6 +1,6 @@
 import {
-  TOTAL, DRUM_IDS, MELODIC_IDS, midiToFreq, findRInst, randomMutate, genSong,
-  type SongState, type DrumId, type LayerId, type RInst,
+  TOTAL, DRUM_IDS, MELODIC_IDS, midiToFreq, findVoice, randomMutate, genSong,
+  type SongState, type DrumId, type LayerId, type Voice,
 } from "./radio";
 
 export type HitFn = (layer: LayerId, midi: number | null, whenSec: number) => void;
@@ -9,76 +9,120 @@ export type ChangeFn = (state: SongState, label: { cs: string; en: string }) => 
 export type RadioControl = {
   stop: () => void;
   getState: () => SongState;
-  getProgress: () => number; // 0..1 v rámci loopu
+  getProgress: () => number;
   analyser: AnalyserNode;
   audioTime: () => number;
 };
+
+function makeReverbIR(ctx: AudioContext, seconds: number): AudioBuffer {
+  const len = Math.ceil(ctx.sampleRate * seconds);
+  const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+  }
+  return buf;
+}
+function makeSaturation(): Float32Array<ArrayBuffer> {
+  const n = 1024, c = new Float32Array(new ArrayBuffer(n * 4)), k = 2.2;
+  for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.tanh(k * x) / Math.tanh(k); }
+  return c;
+}
 
 export function createRadio(opts: { initial?: SongState; mutate?: (s: SongState) => { state: SongState; label: { cs: string; en: string } }; onHit?: HitFn; onChange?: ChangeFn }): RadioControl {
   const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
   const ctx = new Ctx();
   if (ctx.state === "suspended") ctx.resume();
 
-  const master = ctx.createGain(); master.gain.value = 0.85;
-  const analyser = ctx.createAnalyser(); analyser.fftSize = 1024;
-  master.connect(analyser); analyser.connect(ctx.destination);
+  // master chain: ... → saturace → limiter → analyser → out
+  const analyser = ctx.createAnalyser(); analyser.fftSize = 2048;
+  const limiter = ctx.createDynamicsCompressor();
+  limiter.threshold.value = -8; limiter.knee.value = 6; limiter.ratio.value = 14; limiter.attack.value = 0.003; limiter.release.value = 0.18;
+  const sat = ctx.createWaveShaper(); sat.curve = makeSaturation(); sat.oversample = "2x";
+  const preMaster = ctx.createGain(); preMaster.gain.value = 0.9;
+  preMaster.connect(sat); sat.connect(limiter); limiter.connect(analyser); analyser.connect(ctx.destination);
+
+  // reverb
+  const reverb = ctx.createConvolver(); reverb.buffer = makeReverbIR(ctx, 1.8);
+  const reverbReturn = ctx.createGain(); reverbReturn.gain.value = 0.9;
+  reverb.connect(reverbReturn); reverbReturn.connect(preMaster);
+
+  // sidechain bus (melodika) + drumbus (bicí mimo duck)
+  const musicBus = ctx.createGain(); musicBus.gain.value = 1; musicBus.connect(preMaster);
+  const drumBus = ctx.createGain(); drumBus.gain.value = 1; drumBus.connect(preMaster);
 
   let state = opts.initial ?? genSong();
   const mutate = opts.mutate ?? randomMutate;
   let step = 0;
-  let nextTime = ctx.currentTime + 0.12;
+  let nextTime = ctx.currentTime + 0.15;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout>;
+  const stepDur = () => (60 / state.tempo) / 4;
 
-  const stepDur = () => (60 / state.tempo) / 4; // šestnáctina
-
-  const env = (gain: number, attack: number, rel: number, t: number, dur: number) => {
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.linearRampToValueAtTime(gain, t + attack);
-    g.gain.exponentialRampToValueAtTime(0.0008, t + Math.max(attack + 0.02, dur * rel + 0.05));
-    return g;
+  const duck = (t: number) => {
+    const g = musicBus.gain; const dt = stepDur() * 3.4;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(0.32, t);
+    g.linearRampToValueAtTime(1, t + dt);
   };
 
-  const playNote = (inst: RInst, midi: number, durSec: number, t: number) => {
-    const g = env(inst.gain, inst.attack, inst.rel, t, durSec);
-    const o = ctx.createOscillator();
-    o.type = inst.wave; o.frequency.value = midiToFreq(midi);
-    o.connect(g).connect(master);
-    o.start(t); o.stop(t + durSec * inst.rel + 0.1);
-    if (inst.harm) {
-      const g2 = env(inst.gain * inst.harm, inst.attack, inst.rel * 0.7, t, durSec);
-      const o2 = ctx.createOscillator(); o2.type = inst.wave; o2.frequency.value = midiToFreq(midi + 12);
-      o2.connect(g2).connect(master); o2.start(t); o2.stop(t + durSec * inst.rel + 0.1);
+  const playVoice = (v: Voice, midi: number, durSec: number, t: number) => {
+    const amp = ctx.createGain();
+    const peak = v.gain;
+    const sus = peak * v.s;
+    const end = t + durSec;
+    amp.gain.setValueAtTime(0.0001, t);
+    amp.gain.linearRampToValueAtTime(peak, t + v.a);
+    amp.gain.linearRampToValueAtTime(Math.max(0.0002, sus), t + v.a + v.d);
+    const relStart = Math.max(t + v.a + v.d, end);
+    amp.gain.setValueAtTime(Math.max(0.0002, v.s > 0 ? sus : 0.0002), relStart);
+    amp.gain.exponentialRampToValueAtTime(0.0008, relStart + v.r);
+
+    const filt = ctx.createBiquadFilter();
+    filt.type = "lowpass"; filt.Q.value = v.q;
+    filt.frequency.setValueAtTime(v.cutoff, t);
+    if (v.cutoffEnv > 0) {
+      filt.frequency.linearRampToValueAtTime(v.cutoff + v.cutoffEnv, t + v.a + 0.005);
+      filt.frequency.exponentialRampToValueAtTime(Math.max(80, v.cutoff), t + v.a + v.d + 0.05);
     }
+
+    amp.connect(filt);
+    filt.connect(musicBus);
+    if (v.reverb > 0) { const send = ctx.createGain(); send.gain.value = v.reverb; filt.connect(send); send.connect(reverb); }
+
+    const freq = midiToFreq(midi);
+    const stopT = relStart + v.r + 0.05;
+    for (let i = 0; i < v.unison; i++) {
+      const o = ctx.createOscillator(); o.type = v.osc; o.frequency.value = freq;
+      if (v.unison > 1) o.detune.value = ((i / (v.unison - 1)) - 0.5) * v.detune * 2;
+      o.connect(amp); o.start(t); o.stop(stopT);
+    }
+    if (v.sub) { const o = ctx.createOscillator(); o.type = "sine"; o.frequency.value = freq / 2; const sg = ctx.createGain(); sg.gain.value = 0.6; o.connect(sg); sg.connect(amp); o.start(t); o.stop(stopT); }
   };
 
   const playDrum = (id: DrumId, t: number) => {
     if (id === "kick") {
+      duck(t);
       const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.type = "sine"; o.frequency.setValueAtTime(155, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.13);
-      g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.0008, t + 0.16);
-      o.connect(g).connect(master); o.start(t); o.stop(t + 0.18);
+      o.type = "sine"; o.frequency.setValueAtTime(165, t); o.frequency.exponentialRampToValueAtTime(46, t + 0.11);
+      g.gain.setValueAtTime(0.95, t); g.gain.exponentialRampToValueAtTime(0.0008, t + 0.2);
+      o.connect(g).connect(drumBus); o.start(t); o.stop(t + 0.22);
+      const cl = ctx.createOscillator(); const cg = ctx.createGain();
+      cl.type = "square"; cl.frequency.value = 1400; cg.gain.setValueAtTime(0.25, t); cg.gain.exponentialRampToValueAtTime(0.0008, t + 0.02);
+      cl.connect(cg).connect(drumBus); cl.start(t); cl.stop(t + 0.03);
       return;
     }
-    const dur = id === "snare" ? 0.16 : id === "clap" ? 0.13 : 0.05;
+    const dur = id === "clap" ? 0.16 : id === "ohat" ? 0.2 : 0.04;
     const len = Math.ceil(ctx.sampleRate * dur);
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const data = buf.getChannelData(0);
-    for (let k = 0; k < len; k++) data[k] = Math.random() * 2 - 1;
+    for (let k = 0; k < len; k++) data[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, id === "clap" ? 1.2 : 2.5);
     const src = ctx.createBufferSource(); src.buffer = buf;
     const filt = ctx.createBiquadFilter();
-    filt.type = "highpass"; filt.frequency.value = id === "hihat" ? 8000 : id === "clap" ? 1100 : 1800;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(id === "hihat" ? 0.16 : 0.28, t);
-    g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
-    src.connect(filt).connect(g).connect(master); src.start(t); src.stop(t + dur + 0.02);
-    if (id === "snare") {
-      const o = ctx.createOscillator(); const g2 = ctx.createGain();
-      o.type = "triangle"; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(160, t + 0.1);
-      g2.gain.setValueAtTime(0.14, t); g2.gain.exponentialRampToValueAtTime(0.0008, t + 0.12);
-      o.connect(g2).connect(master); o.start(t); o.stop(t + 0.13);
-    }
+    filt.type = "highpass"; filt.frequency.value = id === "clap" ? 1100 : id === "ohat" ? 7000 : 9000; filt.Q.value = id === "clap" ? 1.2 : 0.7;
+    const g = ctx.createGain(); g.gain.value = id === "clap" ? 0.5 : id === "ohat" ? 0.22 : 0.2;
+    src.connect(filt).connect(g).connect(drumBus); src.start(t); src.stop(t + dur + 0.02);
+    if (id === "clap") { const send = ctx.createGain(); send.gain.value = 0.25; g.connect(send); send.connect(reverb); }
   };
 
   const scheduleStep = (st: number, t: number) => {
@@ -90,24 +134,18 @@ export function createRadio(opts: { initial?: SongState; mutate?: (s: SongState)
     for (const l of MELODIC_IDS) {
       const layer = state[l];
       if (layer.muted) continue;
-      const inst = findRInst(l, layer.inst);
-      for (const n of layer.notes) {
-        if (n.step === st) { playNote(inst, n.midi, n.dur * sd, t); opts.onHit?.(l, n.midi, t); }
-      }
+      const v = findVoice(l, layer.inst);
+      for (const n of layer.notes) if (n.step === st) { playVoice(v, n.midi, n.dur * sd, t); opts.onHit?.(l, n.midi, t); }
     }
   };
 
   const loop = () => {
     if (stopped) return;
-    while (nextTime < ctx.currentTime + 0.14) {
+    while (nextTime < ctx.currentTime + 0.16) {
       scheduleStep(step, nextTime);
       nextTime += stepDur();
       step = (step + 1) % TOTAL;
-      if (step === 0) {
-        const m = mutate(state);
-        state = m.state;
-        opts.onChange?.(state, m.label);
-      }
+      if (step === 0) { const m = mutate(state); state = m.state; opts.onChange?.(state, m.label); }
     }
     timer = setTimeout(loop, 25);
   };
