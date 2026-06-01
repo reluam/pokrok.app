@@ -78,6 +78,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Skládačka hudby",
         description: "Vytvoříš naslepo jednu část. Z dílků různých lidí vznikne společný song.",
       },
+      {
+        slug: "radio",
+        title: "Spaghetti Radio",
+        description: "Nekonečný generativní song, který se každé 4 takty sám promění.",
+      },
     ],
   },
 
@@ -131,6 +136,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "musicvote",
         title: "Music builder",
         description: "You blindly make one part. A shared song emerges from many people's pieces.",
+      },
+      {
+        slug: "radio",
+        title: "Spaghetti Radio",
+        description: "An endless generative song that mutates itself every 4 bars.",
       },
     ],
   },
