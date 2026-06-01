@@ -1,14 +1,12 @@
 import {
-  TOTAL, DRUM_IDS, MELODIC_IDS, midiToFreq, findVoice, randomMutate, genSong,
+  TOTAL, DRUM_IDS, MELODIC_IDS, midiToFreq, findVoice,
   type SongState, type DrumId, type LayerId, type Voice,
 } from "./radio";
 
 export type HitFn = (layer: LayerId, midi: number | null, whenSec: number) => void;
-export type ChangeFn = (state: SongState, label: { cs: string; en: string }) => void;
 
 export type RadioControl = {
   stop: () => void;
-  getState: () => SongState;
   getProgress: () => number;
   analyser: AnalyserNode;
   audioTime: () => number;
@@ -29,7 +27,7 @@ function makeSaturation(): Float32Array<ArrayBuffer> {
   return c;
 }
 
-export function createRadio(opts: { initial?: SongState; mutate?: (s: SongState) => { state: SongState; label: { cs: string; en: string } }; onHit?: HitFn; onChange?: ChangeFn }): RadioControl {
+export function createRadio(opts: { getState: () => SongState; onBar?: () => void; onHit?: HitFn; startStep?: number }): RadioControl {
   const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
   const ctx = new Ctx();
   if (ctx.state === "suspended") ctx.resume();
@@ -51,13 +49,11 @@ export function createRadio(opts: { initial?: SongState; mutate?: (s: SongState)
   const musicBus = ctx.createGain(); musicBus.gain.value = 1; musicBus.connect(preMaster);
   const drumBus = ctx.createGain(); drumBus.gain.value = 1; drumBus.connect(preMaster);
 
-  let state = opts.initial ?? genSong();
-  const mutate = opts.mutate ?? randomMutate;
-  let step = 0;
+  let step = opts.startStep ?? 0;
   let nextTime = ctx.currentTime + 0.15;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout>;
-  const stepDur = () => (60 / state.tempo) / 4;
+  const stepDur = () => (60 / opts.getState().tempo) / 4;
 
   const duck = (t: number) => {
     const g = musicBus.gain; const dt = stepDur() * 3.4;
@@ -126,6 +122,7 @@ export function createRadio(opts: { initial?: SongState; mutate?: (s: SongState)
   };
 
   const scheduleStep = (st: number, t: number) => {
+    const state = opts.getState();
     const sd = stepDur();
     for (const id of DRUM_IDS) {
       const d = state.drums[id];
@@ -145,7 +142,7 @@ export function createRadio(opts: { initial?: SongState; mutate?: (s: SongState)
       scheduleStep(step, nextTime);
       nextTime += stepDur();
       step = (step + 1) % TOTAL;
-      if (step === 0) { const m = mutate(state); state = m.state; opts.onChange?.(state, m.label); }
+      if (step === 0) opts.onBar?.();
     }
     timer = setTimeout(loop, 25);
   };
@@ -153,7 +150,6 @@ export function createRadio(opts: { initial?: SongState; mutate?: (s: SongState)
 
   return {
     stop: () => { stopped = true; clearTimeout(timer); try { ctx.close(); } catch {} },
-    getState: () => state,
     getProgress: () => step / TOTAL,
     analyser,
     audioTime: () => ctx.currentTime,

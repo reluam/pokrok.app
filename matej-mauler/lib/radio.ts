@@ -78,9 +78,17 @@ export const LAYER_LABEL: Record<MelodicId, { cs: string; en: string }> = {
   arp: { cs: "arp", en: "arp" }, pluck: { cs: "pluck", en: "pluck" }, lead: { cs: "lead", en: "lead" },
 };
 
-/* ── Pomocné ───────────────────────────────────────────────────── */
-function rand<T>(a: T[]): T { return a[Math.floor(Math.random() * a.length)]; }
-function chance(p: number): boolean { return Math.random() < p; }
+/* ── Pomocné (seedovatelné RNG kvůli serverovému sync) ─────────── */
+let RNG: () => number = Math.random;
+function rand<T>(a: T[]): T { return a[Math.floor(RNG() * a.length)]; }
+function chance(p: number): boolean { return RNG() < p; }
+function seededRng(seed: number): () => number {
+  let s = (seed >>> 0) || 1;
+  return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+}
+function withRng<T>(rng: () => number, fn: () => T): T {
+  const prev = RNG; RNG = rng; try { return fn(); } finally { RNG = prev; }
+}
 function scaleDeg(root: number, scaleName: string, deg: number): number {
   const sc = SCALES[scaleName] ?? SCALES.minorPenta;
   const n = sc.length;
@@ -167,7 +175,7 @@ function genLead(base: { root: number; scaleName: string; chords: number[] }, in
 
 export function genSong(): SongState {
   const tempo = rand([120, 122, 124, 126, 128, 124, 128, 100, 110, 174]);
-  const root = 48 + Math.floor(Math.random() * 5);
+  const root = 48 + Math.floor(RNG() * 5);
   const scaleName = rand(["minorPenta", "minorPenta", "dorian", "major", "majorPenta"]);
   const chords = genChords();
   const base = { root, scaleName, chords };
@@ -232,21 +240,82 @@ export function randomMutate(prev: SongState): Mutation {
   return { state: s, label: { cs: `${s[m].muted ? "Ztlumeno" : "Zpět"}: ${LAYER_LABEL[m].cs}`, en: `${s[m].muted ? "Muted" : "On"}: ${LAYER_LABEL[m].en}` } };
 }
 
+/* ── Deterministický server stream ─────────────────────────────── */
+export const SERVER_SEED = 0x5af3107a;
+export const SERVER_TEMPO = 124;
+export const BLOCK = 48; // po kolika kolech se base přegeneruje
+
+export function serverRoundSec(): number { return TOTAL * ((60 / SERVER_TEMPO) / 4); }
+
+export function genSongSeeded(seed: number): SongState {
+  return withRng(seededRng(seed), () => { const s = genSong(); s.tempo = SERVER_TEMPO; return s; });
+}
+export function mutateSeeded(state: SongState, seed: number): SongState {
+  return withRng(seededRng(seed), () => { const m = randomMutate(state); if (m.state.tempo !== SERVER_TEMPO) m.state.tempo = SERVER_TEMPO; return m.state; });
+}
+
+/** Deterministický stav serverového rádia pro kolo r (stejný pro všechny). */
+export function serverStateAt(r: number): { state: SongState; label: { cs: string; en: string } } {
+  const block = Math.floor(r / BLOCK);
+  let s = genSongSeeded((SERVER_SEED ^ (block * 0x9e3779b9)) >>> 0);
+  let label = { cs: "Start", en: "Start" };
+  const within = r % BLOCK;
+  for (let i = 0; i < within; i++) {
+    withRng(seededRng(((SERVER_SEED ^ block) + i * 2654435761) >>> 0), () => {
+      const m = randomMutate(s); if (m.state.tempo !== SERVER_TEMPO) m.state.tempo = SERVER_TEMPO;
+      s = m.state; label = m.label;
+    });
+  }
+  return { state: s, label };
+}
+
+/* ── Editor / mutace stavu ─────────────────────────────────────── */
+export function scaleRowsFor(root: number, scaleName: string): number[] {
+  const sc = SCALES[scaleName] ?? SCALES.minorPenta;
+  const a: number[] = [];
+  for (let oct = 0; oct < 2; oct++) for (const i of sc) a.push(root + 12 * oct + i);
+  a.push(root + 24);
+  return a;
+}
+export function midiToShort(m: number): string {
+  return ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][((m % 12) + 12) % 12];
+}
+export function toggleNote(notes: RNote[], step: number, midi: number): RNote[] {
+  const i = notes.findIndex((n) => n.step === step && n.midi === midi);
+  if (i >= 0) return notes.filter((_, j) => j !== i);
+  return [...notes, { step, midi, dur: 2 }];
+}
+export function toggleDrumCell(pattern: boolean[], step: number): boolean[] {
+  const p = [...pattern]; p[step] = !p[step]; return p;
+}
+
 /* ── UI ────────────────────────────────────────────────────────── */
 export const radioUi = {
   cs: {
     back: "← Spaghetti.ltd", eyebrow: "Nekonečné generativní rádio", title: "Spaghetti Radio",
-    intro: "Nekonečný elektronický set, který se každé 4 takty sám promění. Vlevo to vidíš, vpravo to žije.",
-    start: "Spustit rádio ♪", stop: "Zastavit ■",
+    intro: "Nekonečný elektronický set. Vyber si stanici.",
+    start: "Spustit ♪", stop: "Zastavit ■", enter: "Vstoupit →",
     tempo: "Tempo", key: "Tónina", playtime: "Hraje", lastChange: "Poslední změna", changelog: "Historie změn", layers: "Vrstvy",
-    muted: "ztlumeno", on: "hraje", hint: "Každý loop = jedna náhodná změna.",
+    muted: "ztlumeno", on: "hraje", hint: "Klikni do mřížky a vytvoř tón. Klik na existující = smazat.",
+    nextIn: "Změna za", votes: "hlasů", yourVote: "tvůj hlas",
+    modes: {
+      server: { title: "Radio na serveru", desc: "Běží nonstop a všichni slyší totéž. Nedá se měnit — jen posloucháš společný proud." },
+      my: { title: "My Radio", desc: "Náhodný song jen pro tebe. Uprav si ho, jak chceš — nikdo jiný to neslyší ani nemění." },
+      shared: { title: "Shared Radio", desc: "Společný song, který upravují všichni naráz hlasováním. Každé kolo vyhraje nejvíc naklikané a změní se." },
+    },
   },
   en: {
     back: "← Spaghetti.ltd", eyebrow: "Endless generative radio", title: "Spaghetti Radio",
-    intro: "An endless electronic set that mutates itself every 4 bars. You watch it on the left, it lives on the right.",
-    start: "Start radio ♪", stop: "Stop ■",
+    intro: "An endless electronic set. Pick a station.",
+    start: "Start ♪", stop: "Stop ■", enter: "Enter →",
     tempo: "Tempo", key: "Key", playtime: "Playing", lastChange: "Last change", changelog: "Change log", layers: "Layers",
-    muted: "muted", on: "playing", hint: "Each loop = one random change.",
+    muted: "muted", on: "playing", hint: "Click the grid to make a tone. Click an existing one to remove it.",
+    nextIn: "Change in", votes: "votes", yourVote: "your vote",
+    modes: {
+      server: { title: "Server Radio", desc: "Runs nonstop, everyone hears the same. Can't be edited — you just listen to the shared stream." },
+      my: { title: "My Radio", desc: "A random song just for you. Edit it however you like — nobody else hears or changes it." },
+      shared: { title: "Shared Radio", desc: "A shared song everyone edits at once by voting. Each round the most-clicked change wins and applies." },
+    },
   },
 } as const;
 
