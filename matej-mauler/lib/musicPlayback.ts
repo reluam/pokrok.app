@@ -1,4 +1,52 @@
-import { STEPS, midiToFreq, type SongTracks, type NoteCell, type DrumCell, type Inst } from "./music";
+import { STEPS, midiToFreq, type SongTracks, type NoteCell, type DrumCell, type DrumLane, type Inst } from "./music";
+
+/* ── Náhled jednoho zvuku při umístění ─────────────────────────── */
+
+let previewCtx: AudioContext | null = null;
+function getCtx(): AudioContext {
+  if (!previewCtx) {
+    const C = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    previewCtx = new C();
+  }
+  if (previewCtx.state === "suspended") previewCtx.resume();
+  return previewCtx;
+}
+
+export function previewNote(midi: number, inst: Inst) {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const d = 0.4;
+  const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.type = inst.wave; o.frequency.value = midiToFreq(midi);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(Math.min(0.3, inst.gain * 1.3), t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0008, t + d);
+  o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + d + 0.02);
+}
+
+export function previewDrum(lane: DrumLane) {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  if (lane === "kick") {
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.15);
+    g.gain.setValueAtTime(0.45, t); g.gain.exponentialRampToValueAtTime(0.0008, t + 0.17);
+    o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + 0.19);
+  } else {
+    const len = Math.ceil(ctx.sampleRate * 0.12);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let k = 0; k < len; k++) data[k] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const filt = ctx.createBiquadFilter();
+    filt.type = "highpass"; filt.frequency.value = lane === "clap" ? 1200 : 7000;
+    const g = ctx.createGain();
+    const dur = lane === "clap" ? 0.13 : 0.05;
+    g.gain.setValueAtTime(lane === "clap" ? 0.28 : 0.18, t);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    src.connect(filt).connect(g).connect(ctx.destination); src.start(t); src.stop(t + dur + 0.02);
+  }
+}
 
 /** Přehraje mix ve smyčce. notes mají start+len (doby). (Pouze klient.) */
 export function startLoop(tracks: SongTracks, insts: { melody: Inst; bass: Inst; pluck: Inst }, tempo: number): () => void {

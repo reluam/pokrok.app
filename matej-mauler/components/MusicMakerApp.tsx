@@ -7,7 +7,8 @@ import {
   emptyTracks, SCALE_LABEL, STEPS, DRUM_LANES, DRUM_LABEL,
   type Assignment, type NoteCell, type DrumCell, type DrumLane, type TrackName, type FinishedItem,
 } from "@/lib/music";
-import { startLoop } from "@/lib/musicPlayback";
+import { startLoop, previewNote, previewDrum } from "@/lib/musicPlayback";
+import type { Inst } from "@/lib/music";
 import type { Lang } from "@/lib/dictionaries";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
@@ -26,10 +27,10 @@ function getToken(): string {
 
 /* ── Piano roll ────────────────────────────────────────────────── */
 
-function PianoRoll({ baseRoot, scaleRoot, scaleName, notes, setNotes, color, playing, tempo }: {
+function PianoRoll({ baseRoot, scaleRoot, scaleName, notes, setNotes, color, playing, tempo, inst }: {
   baseRoot: number; scaleRoot: number; scaleName: string;
   notes: NoteCell[]; setNotes: (n: NoteCell[]) => void; color: string;
-  playing: boolean; tempo: number;
+  playing: boolean; tempo: number; inst: Inst;
 }) {
   const rows = [...scaleRows(baseRoot, scaleName)].reverse(); // shora nejvyšší
   const gridRef = useRef<HTMLDivElement>(null);
@@ -64,6 +65,7 @@ function PianoRoll({ baseRoot, scaleRoot, scaleName, notes, setNotes, color, pla
       else { mode.current = "del"; idxRef.current = idx; }
     } else {
       mode.current = "draw"; const d = { midi, start: col, len: 1 }; draftRef.current = d; setDraft(d);
+      previewNote(midi, inst); // zahraj tón při umístění
     }
   };
   const move = (e: React.PointerEvent) => {
@@ -170,7 +172,7 @@ function DrumGrid({ drums, setDrums, lang, playing, tempo }: { drums: DrumCell[]
   const has = (lane: DrumLane, step: number) => drums.some((d) => d.lane === lane && d.step === step);
   const toggle = (lane: DrumLane, step: number) => {
     if (has(lane, step)) setDrums(drums.filter((d) => !(d.lane === lane && d.step === step)));
-    else setDrums([...drums, { lane, step }]);
+    else { setDrums([...drums, { lane, step }]); previewDrum(lane); }
   };
   const barSec = (STEPS * 60) / tempo;
   const W = STEPS * 30;
@@ -354,7 +356,7 @@ export function MusicMakerApp({ lang, finished: initialFinished }: { lang: Lang;
       <div style={{ maxHeight: "340px", overflowY: "auto" }}>
         {isDrums
           ? <DrumGrid drums={drums} setDrums={setDrums} lang={lang} playing={playing} tempo={assignment.tempo} />
-          : <PianoRoll baseRoot={baseRootForTrack(assignment.scaleRoot, assignment.track)} scaleRoot={assignment.scaleRoot} scaleName={assignment.scaleName} notes={notes} setNotes={setNotes} color={color} playing={playing} tempo={assignment.tempo} />}
+          : <PianoRoll baseRoot={baseRootForTrack(assignment.scaleRoot, assignment.track)} scaleRoot={assignment.scaleRoot} scaleName={assignment.scaleName} notes={notes} setNotes={setNotes} color={color} playing={playing} tempo={assignment.tempo} inst={findInst(assignment.track, assignment.inst)} />}
       </div>
     </div>
 
