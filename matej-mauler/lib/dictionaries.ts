@@ -75,8 +75,8 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "musicvote",
-        title: "Hlasování o hudbě",
-        description: "Společně hlasujeme o každé další notě. Z hlasů vzniká song.",
+        title: "Skládačka hudby",
+        description: "Kdo klikne první, určí další krok. Melodie, basa, pluck i bicí.",
       },
     ],
   },
@@ -129,8 +129,8 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "musicvote",
-        title: "Vote the music",
-        description: "We vote together on every next note. A song emerges from the votes.",
+        title: "Music builder",
+        description: "First click decides the next step. Melody, bass, pluck and drums.",
       },
     ],
   },
