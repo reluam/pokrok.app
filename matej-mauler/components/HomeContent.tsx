@@ -79,14 +79,6 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
                   <span className="wip-badge">{dict.wipLabel}</span>
                 )}
 
-                {/* Emoji */}
-                <span
-                  style={{ fontSize: "44px", lineHeight: 1, display: "block" }}
-                  aria-hidden="true"
-                >
-                  {meta.emoji}
-                </span>
-
                 {/* Text */}
                 <div>
                   <h2
