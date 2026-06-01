@@ -277,76 +277,84 @@ function InlineSearch({
   );
 }
 
-// ── Main UniverseView — vertical scroll through stacked galaxies ─────────────
-
-const GAP = 340;       // px between galaxy centers
-const STEP_MS = 620;   // transition + debounce
+// ── Main UniverseView — galaxies on an ellipse, scroll rotates the carousel ──
 
 export function UniverseView({ areas, lang, focusSlug }: Props) {
   const router = useRouter();
   const [theme, toggleTheme] = useTheme();
 
   const sortedAreas = useMemo(() => [...areas].sort((a, b) => a.order - b.order), [areas]);
+  const n = sortedAreas.length;
+  const step = n > 0 ? (2 * Math.PI) / n : 0;
 
   const initialIdx = useMemo(() => {
     const i = sortedAreas.findIndex(a => a.slug === focusSlug);
     return i >= 0 ? i : 0;
   }, [sortedAreas, focusSlug]);
 
-  const [currentIdx, _setIdx] = useState(initialIdx);
-  const idxRef = useRef(initialIdx);
-  const setIdx = (i: number) => {
-    const v = clamp(i, 0, sortedAreas.length - 1);
-    idxRef.current = v;
-    _setIdx(v);
-  };
-
   const [searchActive, setSearchActive] = useState(false);
-  const isTransitioning = useRef(false);
-  const touchStartY = useRef(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const touchStartY = useRef(0);
+  const lastStep = useRef(0);
 
-  // Scale galaxies up on larger displays so the view isn't empty
-  const [viewScale, setViewScale] = useState(1);
+  // Viewport size (drives ellipse dimensions + scale)
+  const [size, setSize] = useState({ w: 1200, h: 800 });
   useEffect(() => {
-    const calc = () => setViewScale(clamp(Math.min(window.innerWidth / 1100, window.innerHeight / 760), 1, 1.9));
+    const calc = () => setSize({ w: window.innerWidth, h: window.innerHeight });
     calc();
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);
   }, []);
 
-  const step = (dir: "down" | "up") => {
-    if (isTransitioning.current) return;
-    const target = idxRef.current + (dir === "down" ? 1 : -1);
-    if (target < 0 || target > sortedAreas.length - 1) return;
-    isTransitioning.current = true;
-    setIdx(target);
-    setTimeout(() => { isTransitioning.current = false; }, STEP_MS);
-  };
+  // Continuous rotation (in "index" units) eased toward a target via rAF
+  const [rotation, setRotation] = useState(initialIdx);
+  const targetRef = useRef(initialIdx);
+  useEffect(() => {
+    let raf = 0;
+    const loop = () => {
+      setRotation(prev => {
+        const diff = targetRef.current - prev;
+        return Math.abs(diff) < 0.0015 ? targetRef.current : prev + diff * 0.16;
+      });
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
-  const goToIdx = (i: number) => {
-    if (i === idxRef.current) return;
-    isTransitioning.current = true;
-    setIdx(i);
-    setTimeout(() => { isTransitioning.current = false; }, STEP_MS);
+  const rotateBy = (dir: 1 | -1) => { targetRef.current += dir; };
+  const rotateTo = (i: number) => {
+    if (n === 0) return;
+    const cur = targetRef.current;
+    const curMod = ((cur % n) + n) % n;
+    let delta = i - curMod;
+    if (delta >  n / 2) delta -= n;
+    if (delta < -n / 2) delta += n;
+    targetRef.current = cur + delta;
   };
 
   useEffect(() => {
+    const tick = (dir: 1 | -1) => {
+      const now = Date.now();
+      if (now - lastStep.current < 90) return;
+      lastStep.current = now;
+      rotateBy(dir);
+    };
     const onWheel = (e: WheelEvent) => {
-      if (searchActive || Math.abs(e.deltaY) < 10) return;
-      step(e.deltaY > 0 ? "down" : "up");
+      if (searchActive || Math.abs(e.deltaY) < 8) return;
+      tick(e.deltaY > 0 ? 1 : -1);
     };
     const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
     const onTouchEnd = (e: TouchEvent) => {
       const d = touchStartY.current - e.changedTouches[0].clientY;
       if (Math.abs(d) < 50) return;
-      step(d > 0 ? "down" : "up");
+      tick(d > 0 ? 1 : -1);
     };
     const onKey = (e: KeyboardEvent) => {
       if ((e.key === "/" || e.key === "f") && !searchActive) { e.preventDefault(); searchInputRef.current?.focus(); return; }
       if (searchActive) return;
-      if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); step("down"); }
-      else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); step("up"); }
+      if (e.key === "ArrowDown" || e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); tick(1); }
+      else if (e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); tick(-1); }
     };
     window.addEventListener("wheel", onWheel, { passive: true });
     window.addEventListener("touchstart", onTouchStart, { passive: true });
@@ -358,37 +366,46 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
       window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("keydown", onKey);
     };
-  }, [searchActive, sortedAreas.length]);
+  }, [searchActive, n]);
 
-  const focusedArea = sortedAreas[currentIdx];
+  // Ellipse geometry
+  const cx = size.w / 2;
+  const cy = size.h * 0.45;
+  const A  = size.w * 0.34;
+  const B  = size.h * 0.30;
+  const sMax = clamp(Math.min(size.w / 1150, size.h / 820), 0.8, 1.7);
+  const sMin = sMax * 0.32;
+
+  const focusedIdx = n > 0 ? ((Math.round(rotation) % n) + n) % n : 0;
+  const focusedArea = sortedAreas[focusedIdx];
 
   return (
     <div data-theme={theme} style={{ background: "var(--bg)", height: "100dvh", overflow: "hidden", position: "relative" }}>
       <StarField theme={theme} />
       <div className="scanlines" />
 
-      {/* Stacked galaxies */}
+      {/* Galaxies on the rotating ellipse */}
       <div style={{ position: "absolute", inset: 0 }}>
         {sortedAreas.map((area, i) => {
-          const offset = i - currentIdx;
-          const abs = Math.abs(offset);
-          if (abs > 3) return null;
-          const scale   = (abs === 0 ? 1 : Math.max(0.4, 0.62 - abs * 0.1)) * viewScale;
-          const opacity = abs === 0 ? 1 : Math.max(0.08, 0.4 - abs * 0.12);
-          const isFocused = abs === 0;
+          const theta = (i - rotation) * step;          // 0 = front (bottom)
+          const depth = (Math.cos(theta) + 1) / 2;        // 1 = front, 0 = back
+          const x = cx + A * Math.sin(theta);
+          const y = cy + B * Math.cos(theta);
+          const scale = sMin + (sMax - sMin) * depth;
+          const opacity = 0.12 + 0.88 * depth;
+          const isFocused = i === focusedIdx;
           return (
             <div key={area.id} style={{
-              position: "absolute", left: "50%", top: "50%",
-              transform: `translate(-50%, -50%) translateY(${offset * GAP * viewScale}px) scale(${scale})`,
+              position: "absolute", left: 0, top: 0,
+              transform: `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${scale})`,
               opacity,
-              transition: `transform ${STEP_MS}ms cubic-bezier(0.4,0,0.2,1), opacity ${STEP_MS}ms ease`,
-              zIndex: 10 - abs,
+              zIndex: Math.round(depth * 100),
             }}>
               <GalaxySvg
                 area={area} lang={lang} isFocused={isFocused}
                 colors={galaxyColors(area.id, theme)} shape={galaxyShape(area.id)}
-                onClickArea={() => isFocused ? router.push(`/${area.slug}`) : goToIdx(i)}
-                onClickChapter={(ch) => isFocused ? router.push(`/${area.slug}/${ch.slug}`) : goToIdx(i)}
+                onClickArea={() => isFocused ? router.push(`/${area.slug}`) : rotateTo(i)}
+                onClickChapter={(ch) => isFocused ? router.push(`/${area.slug}/${ch.slug}`) : rotateTo(i)}
               />
             </div>
           );
@@ -405,9 +422,9 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
           {lang === "cs" ? "Oblasti" : "Areas"}
         </p>
         {sortedAreas.map((a, i) => {
-          const active = i === currentIdx;
+          const active = i === focusedIdx;
           return (
-            <button key={a.id} onClick={() => goToIdx(i)}
+            <button key={a.id} onClick={() => rotateTo(i)}
               style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: "6px 0", textAlign: "left" }}>
               <span style={{
                 width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
@@ -449,7 +466,7 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
         display: "flex", justifyContent: "center", zIndex: 20, pointerEvents: "none",
       }}>
         <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--text-muted)" }}>
-          {lang === "cs" ? "scroll = procházet · klik = vstup" : "scroll = browse · click = enter"}
+          {lang === "cs" ? "scroll = otáčet · klik = vstup" : "scroll = rotate · click = enter"}
         </p>
       </div>
 
