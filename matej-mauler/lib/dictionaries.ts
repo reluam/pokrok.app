@@ -22,6 +22,16 @@ export type Dictionary = {
     prefix: string;
     label: string;
   };
+  about: {
+    heading: string;
+    p1: string;
+    p2: string;
+    p3a: string;
+    writeMe: string;
+    p3b: string;
+    rewardA: string;
+    rewardLink: string;
+  };
   wipLabel: string;
   experiments: ExperimentContent[];
 };
@@ -45,6 +55,16 @@ export const dictionaries: Record<Lang, Dictionary> = {
     journeyCredit: {
       prefix: "Pro vážnější publikum dělám také",
       label: "Cestu →",
+    },
+    about: {
+      heading: "O projektu",
+      p1: "Ahoj, jsem Matěj. Tvůrce projektu Spaghetti.ltd. Mám rád zkoumání nových věcí a následné experimentování s nově nabytými znalostmi. Protože jsem za celý svůj život u žádného projektu nevydržel déle než 3 měsíce, rozhodl jsem se udělat tuto stránku, kde u žádného experimentu nemusím vydržet déle než týden.",
+      p2: "Ve zkratce — můj život je mess. A špagety to pěkně vyjadřují.",
+      p3a: "Pokud tě některý z mých experimentů zaujme nebo tě dokonce nedejbože osloví, můžeš mi ",
+      writeMe: "napsat",
+      p3b: " a rád vymyslím nějaký speciální experiment ušitý přímo tobě na míru.",
+      rewardA: "Díky, žes to dočetl až sem, a za odměnu se můžeš kouknout, ",
+      rewardLink: "co tě v životě nejspíš nepotká.",
     },
     wipLabel: "Brzy",
     experiments: [
@@ -104,6 +124,16 @@ export const dictionaries: Record<Lang, Dictionary> = {
     journeyCredit: {
       prefix: "For more serious folks, I also make the",
       label: "Journey →",
+    },
+    about: {
+      heading: "About",
+      p1: "Hi, I'm Matěj — the maker of Spaghetti.ltd. I love exploring new things and then experimenting with what I've just learned. Because in my whole life I've never stuck with a single project longer than 3 months, I decided to build this site, where I don't have to stick with any experiment longer than a week.",
+      p2: "In short — my life is a mess. And spaghetti captures it nicely.",
+      p3a: "If one of my experiments catches your eye, or god forbid even speaks to you, you can ",
+      writeMe: "write to me",
+      p3b: " and I'll happily cook up a special experiment tailored just for you.",
+      rewardA: "Thanks for reading this far — as a reward, you can check out ",
+      rewardLink: "what probably won't happen to you in life.",
     },
     wipLabel: "Soon",
     experiments: [

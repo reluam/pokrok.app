@@ -107,6 +107,39 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
           })}
         </section>
 
+        {/* O projektu */}
+        <section
+          className="py-10"
+          style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)" }}
+        >
+          <h2
+            className="text-[20px] md:text-[24px] mb-4"
+            style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}
+          >
+            {dict.about.heading}
+          </h2>
+          <div
+            className="max-w-[620px]"
+            style={{ color: "var(--text-secondary)", fontFamily: "var(--font-sans)", fontSize: "15px", lineHeight: 1.7 }}
+          >
+            <p className="mb-4">{dict.about.p1}</p>
+            <p className="mb-4" style={{ fontWeight: 600, color: "var(--text-primary)" }}>{dict.about.p2}</p>
+            <p className="mb-4">
+              {dict.about.p3a}
+              <a href="mailto:matej@matejmauler.com" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: "3px", fontWeight: 600 }}>
+                {dict.about.writeMe}
+              </a>
+              {dict.about.p3b}
+            </p>
+            <p>
+              {dict.about.rewardA}
+              <a href="/what-are-the-odds" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: "3px", fontWeight: 600 }}>
+                {dict.about.rewardLink}
+              </a>
+            </p>
+          </div>
+        </section>
+
         {/* Journey */}
         <footer
           className="py-8"
