@@ -30,13 +30,13 @@ export const dictionaries: Record<Lang, Dictionary> = {
   cs: {
     meta: {
       title: "Spaghetti.ltd",
-      description: "Máme špatné nápady a hromadu AI vůle je uskutečnit.",
+      description: "Máme blbé nápady a hromadu umělé vůle je uskutečnit.",
     },
     switcher: { cs: "CZ", en: "EN" },
     hero: {
       name: "Spaghetti.ltd",
-      tagline: "Máme špatné nápady a hromadu AI vůle je uskutečnit.",
-      sub: "Stavíme věci, které nikdo nepotřeboval, ale teď neví jak bez nich žít.",
+      tagline: "Máme blbé nápady a hromadu umělé vůle je uskutečnit.",
+      sub: "Tvoříme věci, které nikdo nepotřeboval, ale taky je nikdo nechtěl.",
     },
     products: {
       title: "Experimenty",
@@ -84,12 +84,12 @@ export const dictionaries: Record<Lang, Dictionary> = {
   en: {
     meta: {
       title: "Spaghetti.ltd",
-      description: "We have bad ideas and plenty of AI willpower to build them.",
+      description: "We have bad ideas and plenty of artificial willpower to build them.",
     },
     switcher: { cs: "CZ", en: "EN" },
     hero: {
       name: "Spaghetti.ltd",
-      tagline: "We have bad ideas and plenty of AI willpower to build them.",
+      tagline: "We have bad ideas and plenty of artificial willpower to build them.",
       sub: "We build things nobody needed, but nobody wanted as well.",
     },
     products: {
