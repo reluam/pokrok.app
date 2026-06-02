@@ -4,12 +4,15 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { Area, Chapter } from "@/lib/areas";
 import type { Lang } from "@/lib/i18n";
+import type { Theme } from "@/lib/theme";
 import { useTheme } from "@/lib/useTheme";
 import { StarField } from "./StarField";
 import { ThemeToggle } from "./ThemeToggle";
 import { LangToggle } from "./LangToggle";
+import { CosmicView } from "./CosmicView";
 
 type Props = { areas: Area[]; lang: Lang; focusSlug?: string };
+type SceneProps = Props & { theme: Theme; toggleTheme: () => void };
 
 function seededRng(seed: string) {
   let h = 0x811c9dc5;
@@ -177,9 +180,8 @@ function InlineSearch({ areas, lang, onPick, onActiveChange, inputRef }: {
 
 // ── Main view — a journey path with stops ────────────────────────────────────
 
-export function UniverseView({ areas, lang, focusSlug }: Props) {
+function JourneyView({ areas, lang, focusSlug, theme, toggleTheme }: SceneProps) {
   const router = useRouter();
-  const [theme, toggleTheme] = useTheme();
   const sortedAreas = useMemo(() => [...areas].sort((a, b) => a.order - b.order), [areas]);
   const n = sortedAreas.length;
 
@@ -355,4 +357,13 @@ export function UniverseView({ areas, lang, focusSlug }: Props) {
       </div>
     </div>
   );
+}
+
+// Picks the scene by theme: light "Journey" path (default) or the cosmic
+// galaxy universe (kept for the 42 / Hitchhiker's theme).
+export function UniverseView(props: Props) {
+  const [theme, toggleTheme] = useTheme();
+  return theme === "hhgttg"
+    ? <CosmicView {...props} theme={theme} toggleTheme={toggleTheme} />
+    : <JourneyView {...props} theme={theme} toggleTheme={toggleTheme} />;
 }
