@@ -86,9 +86,10 @@ export function StarField({ theme = "cosmic" }: { theme?: Theme }) {
 
         ctx.beginPath();
         ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+        // journey (default) = warm dust motes on a light sky; hhgttg = green stars
         ctx.fillStyle = themeRef.current === "hhgttg"
           ? `rgba(0, 230, 80, ${opacity})`
-          : `rgba(205, 210, 255, ${opacity})`;
+          : `rgba(176, 122, 66, ${opacity * 0.45})`;
         ctx.fill();
       }
 

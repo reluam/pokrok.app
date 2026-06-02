@@ -32,7 +32,7 @@ export function ThemeToggle({ theme, onToggle }: { theme: Theme; onToggle: () =>
       onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
       onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.55"; }}
     >
-      {isHHGTTG ? "✦ cosmic" : "42"}
+      {isHHGTTG ? "☀ journey" : "42"}
     </button>
   );
 }

@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
+/* ── Journey theme — warm, light, sunlit (default) ── */
 :root {
-  --bg:           #05051a;
-  --bg-nav:       rgba(5, 5, 22, 0.88);
+  --bg:           #f4e3c4;
+  --bg-soft:      #efd6ad;
+  --bg-nav:       rgba(244, 227, 196, 0.85);
 
-  --text-primary:   #e8e5f8;
-  --text-secondary: #8880b0;
-  --text-muted:     #3e3960;
+  --text-primary:   #4a3520;
+  --text-secondary: #8a6b46;
+  --text-muted:     #b8966a;
 
-  --accent:       #c9aa78;
-  --accent-glow:  rgba(201, 170, 120, 0.35);
+  --accent:       #c0612e;
+  --accent-glow:  rgba(192, 97, 46, 0.35);
 
-  --dot-active:   #c9aa78;
-  --dot-visited:  #5a5480;
-  --dot-future:   #1c1a30;
-  --nav-line:     #1c1a30;
+  --dot-active:   #c0612e;
+  --dot-visited:  #c9a06a;
+  --dot-future:   #e3c79b;
+  --nav-line:     #e0c699;
 
   --transition: 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -113,4 +115,14 @@ body {
 @keyframes uv-tw {
   0%, 100% { opacity: 0.85; }
   50%      { opacity: 0.20; }
+}
+
+/* Journey traveller — gentle floating */
+@keyframes traveller-bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-8px) rotate(1deg); }
+}
+@keyframes traveller-glow {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.9; }
 }
