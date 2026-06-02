@@ -11,7 +11,7 @@ const FILE_PATH = join(process.cwd(), "data", "areas.json");
 // Bump this whenever data/areas.json is changed in the repo and the change
 // must be force-applied to the production DB (overwrites stored content on the
 // next load). Normal admin edits keep the current version and are preserved.
-export const CONTENT_VERSION = 2;
+export const CONTENT_VERSION = 3;
 
 function readFile(): Area[] {
   const raw = readFileSync(FILE_PATH, "utf-8");

@@ -7,8 +7,10 @@ import type { Step } from "@/lib/steps";
 const serif: React.CSSProperties       = { fontFamily: "var(--font-serif)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-serif)", fontStyle: "italic" };
 
-// Parses **bold** and [label](url) inline markdown
-function parseContent(raw: string): React.ReactNode {
+// Parses **bold** and [label](url) inline markdown.
+// {rok} / {year} are replaced with the current calendar year.
+function parseContent(input: string): React.ReactNode {
+  const raw = input.replace(/\{rok\}|\{year\}/g, String(new Date().getFullYear()));
   const parts = raw.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g);
   return (
     <Fragment>
@@ -61,7 +63,7 @@ export function StepView({ step, totalChapters, lang }: Props) {
               fontSize: "clamp(36px, 5vw, 54px)", lineHeight: 1.15,
               letterSpacing: "-0.02em", color: "var(--text-primary)",
             }}>
-              {meta.title}
+              {meta.title.replace(/\{rok\}|\{year\}/g, String(new Date().getFullYear()))}
             </h2>
           </>
         ) : step.section.type === "quote" ? (
