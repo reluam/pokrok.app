@@ -110,8 +110,13 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "journey",
-        title: "Cesta",
-        description: "Interaktivní knížka o životě a smyslu. Otázky, které stojí za to si klást.",
+        title: "Cesta životem",
+        description: "Od první buňky po poslední dech. Scrolluj a projdi celý lidský život.",
+      },
+      {
+        slug: "space",
+        title: "Space",
+        description: "Interaktivní mapa naší galaxie. Klikni a zjisti, kde to vlastně jsme.",
       },
     ],
   },
@@ -189,8 +194,13 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "journey",
-        title: "Journey",
-        description: "An interactive book about life and meaning. Questions worth asking.",
+        title: "A Human Life",
+        description: "From the first cell to the last breath. Scroll through an entire human life.",
+      },
+      {
+        slug: "space",
+        title: "Space",
+        description: "An interactive map of our galaxy. Click to learn where we actually are.",
       },
     ],
   },

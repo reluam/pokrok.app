@@ -19,7 +19,7 @@ export const metadata = { title: "Cesta — Spaghetti.ltd" };
 
 export default function JourneyLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`${serif.variable} ${sans.variable} journey-scope`} style={{ minHeight: "100dvh", background: "var(--bg)" }}>
+    <div className={`${serif.variable} ${sans.variable} journey-scope`} style={{ minHeight: "100dvh", background: "#04060f" }}>
       {children}
     </div>
   );

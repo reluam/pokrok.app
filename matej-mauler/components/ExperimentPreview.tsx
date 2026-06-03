@@ -2,8 +2,8 @@
 
 const MOTIF: Record<string, "bars" | "wave" | "stars" | "grid" | "rings"> = {
   radio: "bars", musicvote: "bars", anthem: "bars",
-  sonify: "wave", foundry: "wave",
-  vvv: "stars", journey: "stars",
+  sonify: "wave", foundry: "wave", journey: "wave",
+  vvv: "stars", space: "stars",
   cas: "grid", odds: "rings",
 };
 

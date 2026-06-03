@@ -59,9 +59,15 @@ export const experiments: ExperimentMeta[] = [
   },
   {
     slug: "journey",
-    emoji: "🌌",
-    color: "#F5E6C8",
+    emoji: "🌱",
+    color: "#FDE68A",
     href: "/journey",
     size: "wide",
+  },
+  {
+    slug: "space",
+    emoji: "🌌",
+    color: "#C7D2FE",
+    href: "/space",
   },
 ];
