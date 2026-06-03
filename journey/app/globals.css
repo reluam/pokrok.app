@@ -126,3 +126,11 @@ body {
   0%, 100% { opacity: 0.55; }
   50%      { opacity: 0.9; }
 }
+@keyframes cloud-drift {
+  from { transform: translateX(-12vw); }
+  to   { transform: translateX(112vw); }
+}
+@keyframes sun-pulse {
+  0%, 100% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); }
+  50%      { opacity: 1;    transform: translate(-50%,-50%) scale(1.04); }
+}

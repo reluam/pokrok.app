@@ -36,34 +36,47 @@ function StopMarker({ area, lang, color, isFocused, near }: {
   area: Area; lang: Lang; color: string; isFocused: boolean; near: boolean;
 }) {
   const haloId = `halo-${area.id}`;
+  const lampId = `lamp-${area.id}`;
+  const mx = SW / 2;
   return (
     <svg width={SW} height={SH} style={{ overflow: "visible", display: "block" }}>
       <defs>
         <radialGradient id={haloId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%"  stopColor={color} stopOpacity={isFocused ? 0.55 : 0.35} />
-          <stop offset="60%" stopColor={color} stopOpacity={0.12} />
+          <stop offset="0%"  stopColor={color} stopOpacity={isFocused ? 0.5 : 0.3} />
+          <stop offset="55%" stopColor={color} stopOpacity={0.12} />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={lampId} cx="50%" cy="38%" r="62%">
+          <stop offset="0%"  stopColor="#fff7e6" />
+          <stop offset="45%" stopColor={color} />
+          <stop offset="100%" stopColor={color} stopOpacity="0.7" />
         </radialGradient>
       </defs>
 
-      {/* shadow on the sand */}
-      <ellipse cx={SW / 2} cy={SH - 8} rx={26} ry={7} fill="rgba(120,80,40,0.18)" />
+      {/* shadow */}
+      <ellipse cx={mx} cy={SH - 6} rx={22} ry={6} fill="rgba(120,80,40,0.16)" />
 
-      {/* stone waymarker / cairn */}
-      <rect x={SW / 2 - 9} y={70} width={18} height={SH - 86} rx={7}
-        fill="rgba(120,84,52,0.5)" />
-      <rect x={SW / 2 - 13} y={96} width={26} height={9} rx={4} fill="rgba(120,84,52,0.4)" />
+      {/* slim wooden post */}
+      <rect x={mx - 3} y={64} width={6} height={SH - 78} rx={3} fill="#b98a5a" />
+      {/* little hook */}
+      <path d={`M${mx} 64 q 10 0 10 10`} fill="none" stroke="#b98a5a" strokeWidth={4} strokeLinecap="round" />
 
-      {/* glow + beacon orb */}
-      <circle cx={SW / 2} cy={52} r={isFocused ? 40 : 30} fill={`url(#${haloId})`} />
-      <circle cx={SW / 2} cy={52} r={isFocused ? 13 : 10} fill={color}>
-        {isFocused && <animate attributeName="opacity" values="1;0.7;1" dur="2.4s" repeatCount="indefinite" />}
-      </circle>
-      <circle cx={SW / 2} cy={52} r={isFocused ? 5 : 4} fill="#fff6e6" opacity={0.92} />
+      {/* glow */}
+      <circle cx={mx + 10} cy={86} r={isFocused ? 46 : 34} fill={`url(#${haloId})`} />
+
+      {/* hanging lantern */}
+      <g style={{ animation: "traveller-bob 5s ease-in-out infinite", transformOrigin: `${mx + 10}px 74px` }}>
+        <line x1={mx} y1={70} x2={mx + 10} y2={78} stroke="#b98a5a" strokeWidth={2} />
+        <ellipse cx={mx + 10} cy={92} rx={isFocused ? 17 : 13} ry={isFocused ? 21 : 16} fill={`url(#${lampId})`} stroke="#fff2d8" strokeWidth={1} />
+        <rect x={mx + 6} y={70} width={8} height={6} rx={2} fill="#b98a5a" />
+        <circle cx={mx + 10} cy={90} r={isFocused ? 5 : 4} fill="#fff7e6" opacity={0.9}>
+          {isFocused && <animate attributeName="opacity" values="0.7;1;0.7" dur="2.6s" repeatCount="indefinite" />}
+        </circle>
+      </g>
 
       {/* name */}
       {near && (
-        <text x={SW / 2} y={SH + 4} textAnchor="middle"
+        <text x={mx + 10} y={SH + 6} textAnchor="middle"
           fill="var(--text-primary)" fontFamily="var(--font-serif)"
           fontSize={isFocused ? 22 : 15} fontWeight={500}
           style={{ letterSpacing: "0.01em" }}>
@@ -78,40 +91,54 @@ function StopMarker({ area, lang, color, isFocused, near }: {
 
 function Traveller() {
   return (
-    <svg width={110} height={150} style={{ overflow: "visible" }}>
+    <svg width={120} height={140} style={{ overflow: "visible" }}>
       <defs>
-        <radialGradient id="trav-halo" cx="50%" cy="42%" r="55%">
-          <stop offset="0%"  stopColor="#fff4dc" stopOpacity="0.85" />
-          <stop offset="55%" stopColor="#f3c98a" stopOpacity="0.30" />
-          <stop offset="100%" stopColor="#f3c98a" stopOpacity="0" />
+        <radialGradient id="trav-halo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stopColor="#fff1cf" stopOpacity="0.8" />
+          <stop offset="60%" stopColor="#ffd9a0" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#ffd9a0" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="trav-robe" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stopColor="#fff8ec" />
-          <stop offset="100%" stopColor="#e9c79a" />
-        </linearGradient>
+        <radialGradient id="trav-body" cx="42%" cy="34%" r="72%">
+          <stop offset="0%"  stopColor="#fff7ea" />
+          <stop offset="55%" stopColor="#ffe0b3" />
+          <stop offset="100%" stopColor="#f0b277" />
+        </radialGradient>
       </defs>
 
-      {/* aura */}
-      <circle cx={55} cy={62} r={64} fill="url(#trav-halo)"
-        style={{ animation: "traveller-glow 3.4s ease-in-out infinite" }} />
+      {/* soft aura */}
+      <circle cx={60} cy={70} r={58} fill="url(#trav-halo)"
+        style={{ animation: "traveller-glow 3.6s ease-in-out infinite" }} />
 
       {/* shadow */}
-      <ellipse cx={55} cy={142} rx={22} ry={6} fill="rgba(120,80,40,0.22)" />
+      <ellipse cx={60} cy={128} rx={24} ry={6} fill="rgba(120,80,40,0.20)" />
 
-      {/* robed figure (bobbing) */}
-      <g style={{ animation: "traveller-bob 4s ease-in-out infinite", transformOrigin: "55px 90px" }}>
-        {/* robe */}
-        <path d="M55 44 C 34 52, 28 96, 33 132 C 44 138, 66 138, 77 132 C 82 96, 76 52, 55 44 Z"
-          fill="url(#trav-robe)" opacity={0.96} />
-        {/* trailing scarf */}
-        <path d="M55 58 C 84 60, 96 44, 104 30" fill="none" stroke="#e88a4a" strokeWidth={4}
-          strokeLinecap="round" opacity={0.85} />
-        {/* head */}
-        <circle cx={55} cy={38} r={11} fill="#fff8ec" />
-        {/* glowing core (otherworldly) */}
-        <circle cx={55} cy={96} r={6} fill="#ffdca0" opacity={0.95}>
-          <animate attributeName="opacity" values="0.6;1;0.6" dur="2.6s" repeatCount="indefinite" />
+      {/* the little being (bobbing) */}
+      <g style={{ animation: "traveller-bob 3.8s ease-in-out infinite", transformOrigin: "60px 80px" }}>
+        {/* antenna */}
+        <path d="M60 40 Q 64 26 70 22" fill="none" stroke="#e89a55" strokeWidth={3} strokeLinecap="round" />
+        <circle cx={71} cy={21} r={4.5} fill="#ffdf9c">
+          <animate attributeName="opacity" values="0.6;1;0.6" dur="2.4s" repeatCount="indefinite" />
         </circle>
+
+        {/* round body */}
+        <ellipse cx={60} cy={84} rx={34} ry={38} fill="url(#trav-body)" stroke="#e7b27d" strokeWidth={1.5} />
+
+        {/* little feet */}
+        <ellipse cx={48} cy={120} rx={8} ry={5} fill="#f0b277" />
+        <ellipse cx={72} cy={120} rx={8} ry={5} fill="#f0b277" />
+
+        {/* cheeks */}
+        <circle cx={44} cy={92} r={6} fill="#ff9d77" opacity={0.5} />
+        <circle cx={76} cy={92} r={6} fill="#ff9d77" opacity={0.5} />
+
+        {/* big friendly eyes */}
+        <ellipse cx={50} cy={80} rx={8} ry={10} fill="#3a2c1a" />
+        <ellipse cx={70} cy={80} rx={8} ry={10} fill="#3a2c1a" />
+        <circle cx={52.5} cy={76} r={2.6} fill="#fff" />
+        <circle cx={72.5} cy={76} r={2.6} fill="#fff" />
+
+        {/* tiny smile */}
+        <path d="M53 96 Q 60 102 67 96" fill="none" stroke="#3a2c1a" strokeWidth={2} strokeLinecap="round" />
       </g>
     </svg>
   );
@@ -260,34 +287,69 @@ function JourneyView({ areas, lang, focusSlug, theme, toggleTheme }: SceneProps)
   return (
     <div data-theme={theme} style={{
       height: "100dvh", overflow: "hidden", position: "relative",
-      background: "linear-gradient(to bottom, var(--bg-soft) 0%, var(--bg) 48%, #ecd2a4 100%)",
+      background: "linear-gradient(to bottom, #ffd0a6 0%, #ffe6cc 20%, #fbe7cd 38%, var(--bg) 60%, #e7c489 100%)",
     }}>
+      {/* Sun with soft rays */}
+      <div style={{
+        position: "absolute", left: "50%", top: horizonY - 20, transform: "translate(-50%,-50%)",
+        width: 160, height: 160, borderRadius: "50%", pointerEvents: "none", zIndex: 1,
+        background: "radial-gradient(circle, #fff6e0 0%, #ffe6ad 46%, rgba(255,224,150,0.55) 60%, rgba(255,224,150,0) 72%)",
+        boxShadow: "0 0 120px 60px rgba(255,226,160,0.45)",
+        animation: "sun-pulse 6s ease-in-out infinite",
+      }} />
+
+      {/* Drifting clouds */}
+      {[
+        { top: "12%", w: 180, h: 42, op: 0.7, dur: 70, delay: 0 },
+        { top: "20%", w: 130, h: 32, op: 0.55, dur: 95, delay: -30 },
+        { top: "8%",  w: 100, h: 26, op: 0.5, dur: 110, delay: -60 },
+      ].map((c, i) => (
+        <div key={i} style={{
+          position: "absolute", top: c.top, left: 0, width: c.w, height: c.h,
+          borderRadius: "50%", background: "rgba(255,252,245,0.9)", filter: "blur(6px)",
+          opacity: c.op, pointerEvents: "none", zIndex: 1,
+          animation: `cloud-drift ${c.dur}s linear ${c.delay}s infinite`,
+        }} />
+      ))}
+
+      {/* Distant birds */}
+      <svg viewBox="0 0 100 20" style={{ position: "absolute", top: "26%", left: "58%", width: 80, opacity: 0.4, zIndex: 1, pointerEvents: "none" }}>
+        <path d="M10 10 Q 14 5 18 10 Q 22 5 26 10" fill="none" stroke="#7a5a38" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M34 13 Q 37 9 40 13 Q 43 9 46 13" fill="none" stroke="#7a5a38" strokeWidth="1" strokeLinecap="round" />
+      </svg>
+
       <StarField theme={theme} />
       <div className="scanlines" />
 
-      {/* Sun glow near the horizon */}
-      <div style={{
-        position: "absolute", left: "50%", top: horizonY, transform: "translate(-50%,-50%)",
-        width: 420, height: 420, borderRadius: "50%", pointerEvents: "none",
-        background: "radial-gradient(circle, rgba(255,236,200,0.9) 0%, rgba(255,224,170,0.35) 35%, rgba(255,224,170,0) 70%)",
-      }} />
+      {/* The path / trail leading to the horizon */}
+      <svg viewBox="0 0 1440 800" preserveAspectRatio="none" aria-hidden="true"
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 2 }}>
+        <defs>
+          <linearGradient id="trail" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f3ddb4" stopOpacity="0" />
+            <stop offset="35%" stopColor="#f0d6a6" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#eccf98" stopOpacity="0.95" />
+          </linearGradient>
+        </defs>
+        <path d={`M720 ${horizonY / H * 800} L 900 800 L 540 800 Z`} fill="url(#trail)" />
+      </svg>
 
       {/* Dunes */}
       <svg viewBox="0 0 1440 400" preserveAspectRatio="none" aria-hidden="true"
-        style={{ position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "46%", pointerEvents: "none" }}>
-        <path d="M0,200 C300,120 600,260 900,180 C1140,120 1320,200 1440,170 L1440,400 L0,400 Z" fill="#e7c693" opacity="0.7" />
-        <path d="M0,280 C320,210 620,320 920,260 C1180,210 1340,280 1440,250 L1440,400 L0,400 Z" fill="#dcb478" opacity="0.85" />
-        <path d="M0,340 C360,300 700,360 1040,330 C1240,312 1360,340 1440,330 L1440,400 L0,400 Z" fill="#cfa063" opacity="1" />
+        style={{ position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "44%", pointerEvents: "none", zIndex: 3 }}>
+        <path d="M0,210 C300,140 600,250 900,185 C1140,135 1320,205 1440,180 L1440,400 L0,400 Z" fill="#ecd09a" opacity="0.85" />
+        <path d="M0,285 C320,225 620,320 920,265 C1180,222 1340,285 1440,258 L1440,400 L0,400 Z" fill="#e0bd80" opacity="0.92" />
+        <path d="M0,345 C360,308 700,362 1040,332 C1240,314 1360,344 1440,332 L1440,400 L0,400 Z" fill="#d2ac6c" opacity="1" />
       </svg>
 
-      {/* The path with stops */}
-      <div style={{ position: "absolute", inset: 0 }}>
+      {/* The stops */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 4 }}>
         {sortedAreas.map((area, i) => {
           const o = i - progress;
           if (o < -0.9 || o > 7) return null;
           const persp = 1 / (1 + Math.max(o, -0.4) * 0.5);
           const y = horizonY + (frontY - horizonY) * Math.min(persp, 1.25);
-          const x = cx + W * 0.17 * Math.sin(o * 0.75) * Math.min(persp, 1);
+          const x = cx + W * 0.10 * Math.sin(o * 0.7) * Math.min(persp, 1);
           const scale = clamp(persp, 0.12, 1.2) * sMax;
           const opacity = o < -0.05 ? clamp(1 + o * 1.4, 0, 1) : clamp(0.18 + persp, 0, 1);
           const isFocused = i === focusedIdx;

@@ -39,10 +39,8 @@ const COSMIC_COLORS: GColors[] = [
   { neb1: "#6fd8a8", neb2: "#3f9f7a", arm1: "#9fe8c8", arm2: "#5fc0a0", star: "#d6ffe8" }, // jade
 ];
 
-const GREEN_COLORS: GColors = { neb1: "#00e850", neb2: "#0a7a2a", arm1: "#00e850", arm2: "#00a838", star: "#ffff66" };
-
-function galaxyColors(areaId: string, theme: Theme): GColors {
-  if (theme === "hhgttg") return GREEN_COLORS;
+// Each galaxy gets its own colour (varied in every theme).
+function galaxyColors(areaId: string): GColors {
   const idx = Math.floor(seededRng(areaId + "col")() * 997) % COSMIC_COLORS.length;
   return COSMIC_COLORS[idx];
 }
@@ -52,17 +50,20 @@ function galaxyColors(areaId: string, theme: Theme): GColors {
 const GW = 420, GH = 260;
 const GCX = GW / 2, GCY = GH / 2;
 
-type Shape = { tilt: number; squash: number; turns: number; b: number; arms: number };
+type GalaxyType = "spiral" | "barred" | "elliptical" | "ring";
+type Shape = { tilt: number; squash: number; turns: number; b: number; arms: number; type: GalaxyType };
+
+const GALAXY_TYPES: GalaxyType[] = ["spiral", "spiral", "barred", "elliptical", "ring"];
 
 function galaxyShape(areaId: string): Shape {
   const r = seededRng(areaId + "shape");
-  return {
-    tilt:   (r() - 0.5) * 70,           // degrees
-    squash: 0.42 + r() * 0.24,
-    turns:  0.95 + r() * 0.5,
-    b:      0.28 + r() * 0.08,
-    arms:   r() < 0.4 ? 3 : 2,
-  };
+  const tilt = (r() - 0.5) * 70;
+  const squash = 0.42 + r() * 0.24;
+  const turns = 0.95 + r() * 0.5;
+  const b = 0.28 + r() * 0.08;
+  const arms = r() < 0.4 ? 3 : 2;
+  const type = GALAXY_TYPES[Math.floor(r() * GALAXY_TYPES.length)];
+  return { tilt, squash, turns, b, arms, type };
 }
 
 function armPath(rot: number, s: Shape): string {
@@ -136,17 +137,34 @@ function GalaxySvg({
         </filter>
       </defs>
 
-      {/* Nebula + arms (tilted for variety) */}
+      {/* Nebula + structure (tilted; shape varies by galaxy type) */}
       <g transform={`rotate(${shape.tilt} ${GCX} ${GCY})`}>
         <ellipse cx={GCX} cy={GCY} rx={GW * 0.5} ry={GH * 0.5 * (0.7 + shape.squash * 0.5)} fill={`url(#${nebulaId})`} />
-        <g filter={`url(#${armBlur})`} opacity={isFocused ? 0.72 : 0.44}>
-          {armRots.map((rot, k) => (
-            <path key={k} d={armPath(rot, shape)} fill="none"
-              stroke={k % 2 === 0 ? colors.arm1 : colors.arm2}
-              strokeWidth={k % 2 === 0 ? 3 : 2}
-              strokeLinecap="round" opacity={k % 2 === 0 ? 0.5 : 0.3} />
-          ))}
-        </g>
+
+        {shape.type === "elliptical" ? (
+          <ellipse cx={GCX} cy={GCY} rx={GW * 0.32} ry={GH * 0.32 * (0.55 + shape.squash * 0.4)}
+            fill={`url(#${nebulaId})`} opacity={0.7} filter={`url(#${armBlur})`} />
+        ) : shape.type === "ring" ? (
+          <g filter={`url(#${armBlur})`} opacity={isFocused ? 0.72 : 0.46}>
+            <ellipse cx={GCX} cy={GCY} rx={GW * 0.30} ry={GH * 0.30 * (0.7 + shape.squash * 0.4)}
+              fill="none" stroke={colors.arm1} strokeWidth={4} opacity={0.55} />
+            <ellipse cx={GCX} cy={GCY} rx={GW * 0.22} ry={GH * 0.22 * (0.7 + shape.squash * 0.4)}
+              fill="none" stroke={colors.arm2} strokeWidth={2} opacity={0.3} />
+          </g>
+        ) : (
+          <g filter={`url(#${armBlur})`} opacity={isFocused ? 0.72 : 0.44}>
+            {shape.type === "barred" && (
+              <rect x={GCX - GW * 0.17} y={GCY - 5} width={GW * 0.34} height={10} rx={5}
+                fill={colors.arm1} opacity={0.4} />
+            )}
+            {armRots.map((rot, k) => (
+              <path key={k} d={armPath(rot, shape)} fill="none"
+                stroke={k % 2 === 0 ? colors.arm1 : colors.arm2}
+                strokeWidth={k % 2 === 0 ? 3 : 2}
+                strokeLinecap="round" opacity={k % 2 === 0 ? 0.5 : 0.3} />
+            ))}
+          </g>
+        )}
       </g>
 
       {/* Bright core */}
@@ -401,7 +419,7 @@ export function CosmicView({ areas, lang, focusSlug, theme, toggleTheme }: Props
             }}>
               <GalaxySvg
                 area={area} lang={lang} isFocused={isFocused}
-                colors={galaxyColors(area.id, theme)} shape={galaxyShape(area.id)}
+                colors={galaxyColors(area.id)} shape={galaxyShape(area.id)}
                 onClickArea={() => isFocused ? router.push(`/${area.slug}`) : rotateTo(i)}
                 onClickChapter={(ch) => isFocused ? router.push(`/${area.slug}/${ch.slug}`) : rotateTo(i)}
               />
