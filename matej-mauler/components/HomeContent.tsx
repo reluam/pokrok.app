@@ -1,10 +1,10 @@
 import { Dictionary, Lang } from "@/lib/dictionaries";
-import { experiments } from "@/lib/experiments";
+import type { PublicExperiment } from "@/lib/experimentsDb";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 
-export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
+export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lang; items: PublicExperiment[] }) {
   return (
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <LanguageSwitcher lang={lang} labels={dict.switcher} />
@@ -56,47 +56,24 @@ export function HomeContent({ dict, lang }: { dict: Dictionary; lang: Lang }) {
 
         {/* Experiments grid */}
         <section className="experiments-grid animate-fade-up pb-16" style={{ animationDelay: "60ms" }}>
-          {experiments.map((meta) => {
-            const content = dict.experiments.find((e) => e.slug === meta.slug);
-            if (!content) return null;
-
-            const CardTag = (meta.href && !meta.wip) ? "a" : "div";
-            const cardProps = (meta.href && !meta.wip)
-              ? {
-                  href: meta.href,
-                  ...(meta.external ? { target: "_blank", rel: "noopener noreferrer" } : {}),
-                }
-              : {};
-
-            return (
-              <CardTag
-                key={meta.slug}
-                {...(cardProps as object)}
-                className={`exp-card${meta.size === "wide" ? " exp-card--wide" : ""}${meta.wip ? " exp-card--wip" : ""}`}
-                style={{ "--card-color": meta.color } as React.CSSProperties}
-              >
-                {meta.wip && (
-                  <span className="wip-badge">{dict.wipLabel}</span>
-                )}
-
-                {/* Text */}
-                <div>
-                  <h2
-                    className="text-[22px] leading-tight mb-1.5"
-                    style={{ ...display, fontWeight: 800 }}
-                  >
-                    {content.title}
-                  </h2>
-                  <p
-                    className="text-[14px] leading-snug"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {content.description}
-                  </p>
-                </div>
-              </CardTag>
-            );
-          })}
+          {items.map((item) => (
+            <a
+              key={item.slug}
+              href={item.href}
+              {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className="exp-card"
+              style={{ "--card-color": item.color } as React.CSSProperties}
+            >
+              <div>
+                <h2 className="text-[22px] leading-tight mb-1.5" style={{ ...display, fontWeight: 800 }}>
+                  {item.title}
+                </h2>
+                <p className="text-[14px] leading-snug" style={{ color: "var(--text-secondary)" }}>
+                  {item.description}
+                </p>
+              </div>
+            </a>
+          ))}
         </section>
 
         {/* O projektu */}

@@ -2,6 +2,9 @@ import { VVVApp } from "@/components/VVVApp";
 import { getDb } from "@/lib/db";
 import { getLang } from "@/lib/getLang";
 import { ensureVvvSchema } from "@/lib/vvvSchema";
+import { guardExperiment } from "@/lib/experimentsDb";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "VVV — Vast Void Vault",
@@ -22,6 +25,7 @@ async function getTerms() {
 }
 
 export default async function VVVPage() {
+  await guardExperiment("vvv");
   const [terms, lang] = await Promise.all([getTerms(), getLang()]);
   return <VVVApp initialTerms={terms as VVVTerm[]} lang={lang} />;
 }

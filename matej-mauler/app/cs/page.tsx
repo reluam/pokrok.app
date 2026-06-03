@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { HomeContent } from "@/components/HomeContent";
 import { dictionaries } from "@/lib/dictionaries";
+import { getPublicExperiments } from "@/lib/experimentsDb";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Matěj Mauler",
+  title: "Spaghetti.ltd",
   description: dictionaries.cs.meta.description,
   alternates: {
     canonical: "/cs",
@@ -11,6 +14,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomeCs() {
-  return <HomeContent dict={dictionaries.cs} lang="cs" />;
+export default async function HomeCs() {
+  const items = await getPublicExperiments("cs");
+  return <HomeContent dict={dictionaries.cs} lang="cs" items={items} />;
 }
