@@ -108,6 +108,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Hymna tvého života",
         description: "Šest otázek, samé špatné odpovědi. Na konci tvoje osobní hymna.",
       },
+      {
+        slug: "journey",
+        title: "Cesta",
+        description: "Interaktivní knížka o životě a smyslu. Otázky, které stojí za to si klást.",
+      },
     ],
   },
 
@@ -181,6 +186,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "anthem",
         title: "Anthem of Your Life",
         description: "Six questions, only bad answers. At the end, your personal anthem.",
+      },
+      {
+        slug: "journey",
+        title: "Journey",
+        description: "An interactive book about life and meaning. Questions worth asking.",
       },
     ],
   },

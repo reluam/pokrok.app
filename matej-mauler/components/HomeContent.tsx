@@ -109,33 +109,8 @@ export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lan
           </div>
         </section>
 
-        {/* Journey */}
-        <footer
-          className="py-8"
-          style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)" }}
-        >
-          <a
-            href="https://journey-ruddy-psi.vercel.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "10px",
-              textDecoration: "none",
-              color: "var(--text-muted)",
-              fontFamily: "var(--font-sans)",
-              fontSize: "13px",
-              transition: "color 140ms ease",
-            }}
-            className="journey-link"
-          >
-            <span style={{ fontSize: "16px" }}>🌌</span>
-            <span>{dict.journeyCredit.prefix}</span>
-            <span style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
-              {dict.journeyCredit.label}
-            </span>
-          </a>
+        <footer className="py-8" style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)", color: "var(--text-muted)", fontFamily: "var(--font-sans)", fontSize: "12px" }}>
+          © {new Date().getFullYear()} Spaghetti.ltd
         </footer>
 
       </div>
