@@ -27,7 +27,7 @@ export const experiments: ExperimentMeta[] = [
     slug: "cas",
     emoji: "⏳",
     color: "#FEF3C7",
-    href: "/kolik-ti-zbyva",
+    href: "/time-remaining",
   },
   {
     slug: "vvv",

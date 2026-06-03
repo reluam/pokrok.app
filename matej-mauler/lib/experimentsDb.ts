@@ -39,6 +39,8 @@ async function ensure(sql: Sql) {
       VALUES (${m.slug}, ${cs.title}, ${en.title}, ${cs.description}, ${en.description}, ${m.color}, ${m.href}, ${!!m.external}, ${i}, ${!m.wip})
       ON CONFLICT (slug) DO NOTHING`;
   }
+  // korekce přejmenovaných routes (idempotentní)
+  await sql`UPDATE experiments SET href = '/time-remaining' WHERE slug = 'cas' AND href = '/kolik-ti-zbyva'`;
   ready = true;
 }
 

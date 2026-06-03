@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getQuestions, calcUi, Answers } from "@/lib/questions";
 import type { Lang } from "@/lib/dictionaries";
 import { Result } from "./Result";
+import { PixelIcon } from "./PixelIcon";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serif: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -270,7 +271,7 @@ export function QuestionFlow({ lang }: { lang: Lang }) {
                       el.style.boxShadow = "4px 4px 0 var(--border)";
                     }}
                   >
-                    <span style={{ fontSize: "clamp(28px,4vw,44px)", lineHeight: 1, flexShrink: 0, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))" }}>{opt.emoji}</span>
+                    <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}><PixelIcon optionId={opt.id} size={48} /></span>
                     <span style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
                       <span style={{
                         fontFamily: "var(--font-sans)",

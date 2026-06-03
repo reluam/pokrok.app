@@ -4,10 +4,10 @@ import { guardExperiment } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Kolik ti zbývá? — Spaghetti.ltd",
+  title: "Time Remaining — Spaghetti.ltd",
 };
 
-export default async function KolikTiZbyvaPage() {
+export default async function TimeRemainingPage() {
   await guardExperiment("cas");
   const lang = await getLang();
   return <QuestionFlow lang={lang} />;
