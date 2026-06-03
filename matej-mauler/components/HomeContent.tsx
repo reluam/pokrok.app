@@ -21,7 +21,8 @@ export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lan
 
         {/* Header */}
         <header className="pt-20 pb-16 animate-fade-up">
-          <span style={{ fontSize: "48px", display: "block", marginBottom: "16px", lineHeight: 1 }}>🍝</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Spaghetti.ltd" width={76} height={76} style={{ display: "block", marginBottom: "16px" }} />
           <h1
             className="text-[40px] md:text-[56px] leading-none mb-4"
             style={{ ...display, fontWeight: 900, letterSpacing: "-0.03em" }}
@@ -79,7 +80,8 @@ export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lan
                   <span>{fmtDate(item.date, lang)}</span>
                 </div>
                 <h3 className="exp-title">{item.title}</h3>
-                <p className="exp-desc">{item.description}</p>
+                {/* A/B: popisky ve feedu = Space Grotesk */}
+                <p className="exp-desc" style={{ fontFamily: "var(--font-grotesk)" }}>{item.description}</p>
               </div>
             </a>
           ))}

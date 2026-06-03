@@ -1,31 +1,42 @@
 import type { Metadata } from "next";
-import { Nunito, Inter } from "next/font/google";
+import { Space_Grotesk, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
-const display = Nunito({
+// Headline font – Space Grotesk
+const display = Space_Grotesk({
   subsets: ["latin", "latin-ext"],
-  weight: ["700", "800", "900"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-display",
   display: "swap",
 });
 
+// Body font – Inter
 const sans = Inter({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
+  display: "swap",
+});
+
+// Space Grotesk i jako varianta pro běžný text (A/B na hlavní stránce)
+const grotesk = Space_Grotesk({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500"],
+  variable: "--font-grotesk",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Spaghetti.ltd",
   description: "Máme špatné nápady a hromadu AI vůle je uskutečnit.",
+  icons: { icon: "/logo.svg" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="cs" className={`${display.variable} ${sans.variable} h-full`}>
+    <html lang="cs" className={`${display.variable} ${sans.variable} ${grotesk.variable} h-full`}>
       <body className="min-h-full">
         {children}
         <Analytics />
