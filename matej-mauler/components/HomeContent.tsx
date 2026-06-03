@@ -1,5 +1,6 @@
 import { Dictionary, Lang } from "@/lib/dictionaries";
 import type { PublicExperiment } from "@/lib/experimentsDb";
+import { CATEGORIES } from "@/lib/experiments";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
 
@@ -75,9 +76,10 @@ export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lan
               <ExperimentPreview slug={item.slug} color={item.color} />
               <div className="exp-body">
                 <div className="exp-meta">
-                  <span>Nº {String(item.number).padStart(2, "0")}</span>
+                  <span>#{String(item.number).padStart(2, "0")}</span>
                   <span className="dot" />
                   <span>{fmtDate(item.date, lang)}</span>
+                  {CATEGORIES[item.slug] && <span className="exp-cat">{CATEGORIES[item.slug]}</span>}
                 </div>
                 <h3 className="exp-title">{item.title}</h3>
                 {/* A/B: popisky ve feedu = Space Grotesk */}

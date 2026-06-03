@@ -8,6 +8,20 @@ export type ExperimentMeta = {
   external?: boolean;
 };
 
+// Kategorie pro tag na kartě (jazykově neutrální, krátké)
+export const CATEGORIES: Record<string, string> = {
+  cas: "quiz",
+  odds: "quiz",
+  vvv: "blog",
+  sonify: "audio",
+  foundry: "audio",
+  musicvote: "audio",
+  radio: "audio",
+  anthem: "audio",
+  journey: "story",
+  space: "map",
+};
+
 export const experiments: ExperimentMeta[] = [
   {
     slug: "cas",
