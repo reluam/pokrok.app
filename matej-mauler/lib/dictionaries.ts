@@ -110,7 +110,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "journey",
-        title: "Human Journey",
+        title: "The Journey",
         description: "Od první buňky po poslední dech. Scrolluj a projdi celý lidský život.",
       },
       {
@@ -194,7 +194,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "journey",
-        title: "Human Journey",
+        title: "The Journey",
         description: "From the first cell to the last breath. Scroll through an entire human life.",
       },
       {

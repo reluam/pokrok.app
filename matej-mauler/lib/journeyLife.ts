@@ -105,14 +105,14 @@ export const stages: Stage[] = [
 export const journeyUi = {
   cs: {
     back: "← Spaghetti.ltd",
-    title: "Human Journey",
+    title: "The Journey",
     intro: "Od první buňky až po poslední dech.",
     scrollHint: "Scrolluj →",
     of: "z",
   },
   en: {
     back: "← Spaghetti.ltd",
-    title: "Human Journey",
+    title: "The Journey",
     intro: "From the first cell to the last breath.",
     scrollHint: "Scroll →",
     of: "of",

@@ -6,9 +6,21 @@ const CRATERS: [number, number, number][] = [
 ];
 const SUNSPOTS: [number, number, number][] = [[40, 55, 0.1], [62, 38, 0.08], [50, 66, 0.07]];
 const PROTOSTARS: [number, number][] = [[42, 40], [58, 52], [50, 64], [36, 56], [64, 38]];
+const CLUSTER_STARS: [number, number, number][] = [
+  [50, 36, 1], [38, 48, 0.8], [62, 46, 0.85], [44, 62, 0.7], [58, 64, 0.75],
+  [50, 52, 1.1], [33, 38, 0.55], [68, 58, 0.6], [70, 34, 0.5], [30, 60, 0.55],
+];
+
+function shade(hex: string, amt: number): string {
+  const h = hex.replace("#", "");
+  const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
+  const clamp = (v: number) => Math.max(0, Math.min(255, v));
+  const r = clamp((n >> 16) + amt), g = clamp(((n >> 8) & 255) + amt), b = clamp((n & 255) + amt);
+  return `rgb(${r},${g},${b})`;
+}
 
 /* Vykreslené vesmírné objekty (žádné emoji). detail = po přiblížení. */
-export function SpaceBody({ kind, px, detail = false }: { kind: SpaceKind; px: number; detail?: boolean }) {
+export function SpaceBody({ kind, px, detail = false, tint = "#b08a6a" }: { kind: SpaceKind; px: number; detail?: boolean; tint?: string }) {
   const s = px;
   const circle: CSSProperties = { width: s, height: s, borderRadius: "50%", position: "relative" };
   const stage: CSSProperties = { position: "relative", width: s, height: s, display: "grid", placeItems: "center" };
@@ -148,6 +160,52 @@ export function SpaceBody({ kind, px, detail = false }: { kind: SpaceKind; px: n
           </g>
           {detail && <circle cx="40" cy="60" r="6" fill="#ffcf5a" stroke="#a8801f" strokeWidth="1.5" />}
         </svg>
+      );
+
+    case "superearth":
+      return (
+        <div style={stage}>
+          <div style={{ ...circle, background: "radial-gradient(circle at 35% 30%, #e6fff0, #6fd0a0 40%, #2f9f7a 72%, #134d52 100%)", boxShadow: `0 0 ${s * 0.34}px ${s * 0.13}px rgba(110,210,170,0.6), inset -${s * 0.12}px -${s * 0.12}px ${s * 0.18}px rgba(0,20,20,0.5)`, overflow: "hidden" }}>
+            <span style={{ position: "absolute", left: "18%", top: "26%", width: "40%", height: "30%", borderRadius: "50%", background: "rgba(60,140,90,0.85)", filter: "blur(1px)" }} />
+            <span style={{ position: "absolute", left: "52%", top: "54%", width: "34%", height: "34%", borderRadius: "50%", background: "rgba(70,150,100,0.8)", filter: "blur(1px)" }} />
+            <span style={{ position: "absolute", left: "58%", top: "20%", width: "20%", height: "16%", borderRadius: "50%", background: "rgba(230,240,255,0.5)", filter: "blur(2px)" }} />
+          </div>
+          {detail && <div style={{ position: "absolute", width: s * 1.18, height: s * 1.18, borderRadius: "50%", border: "1px solid rgba(150,255,200,0.4)", boxShadow: `0 0 ${s * 0.18}px ${s * 0.05}px rgba(120,255,190,0.5)` }} />}
+        </div>
+      );
+
+    case "rocky":
+      return (
+        <div style={{ ...circle, background: `radial-gradient(circle at 38% 32%, ${shade(tint, 55)}, ${tint} 52%, ${shade(tint, -70)} 100%)`, boxShadow: `0 0 ${s * 0.16}px ${s * 0.05}px ${tint}66, inset -${s * 0.1}px -${s * 0.1}px ${s * 0.16}px rgba(0,0,0,0.45)`, overflow: "hidden" }}>
+          {CRATERS.slice(0, 4).map(([x, y, r], i) => (
+            <span key={i} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, width: s * r * 0.7, height: s * r * 0.7, borderRadius: "50%", background: "rgba(0,0,0,0.18)", transform: "translate(-50%,-50%)" }} />
+          ))}
+        </div>
+      );
+
+    case "gasgiant":
+      return (
+        <div style={{ ...circle, background: "linear-gradient(180deg, #e8c7a0 0%, #cf9f6c 16%, #b97a44 30%, #e3c096 44%, #a86a38 58%, #d8ab78 74%, #bf8a55 88%, #9c6638 100%)", boxShadow: `0 0 ${s * 0.2}px ${s * 0.06}px rgba(220,170,110,0.5), inset -${s * 0.12}px -${s * 0.12}px ${s * 0.2}px rgba(40,20,0,0.5)`, overflow: "hidden" }}>
+          <span style={{ position: "absolute", left: "62%", top: "58%", width: "22%", height: "13%", borderRadius: "50%", background: "rgba(190,70,45,0.8)", filter: "blur(0.5px)" }} />
+        </div>
+      );
+
+    case "ringed":
+      return (
+        <div style={stage}>
+          <div style={{ position: "absolute", width: s * 1.95, height: s * 0.62, borderRadius: "50%", border: `${Math.max(2, s * 0.06)}px solid rgba(225,205,160,0.55)`, transform: "rotate(-20deg)", boxShadow: "0 0 6px rgba(225,205,160,0.3)" }} />
+          <div style={{ ...circle, background: "linear-gradient(180deg, #f3e3bd 0%, #e3c78e 28%, #cea869 52%, #e8d4a4 72%, #c9a25e 100%)", boxShadow: `inset -${s * 0.1}px -${s * 0.1}px ${s * 0.18}px rgba(60,40,0,0.45)`, overflow: "hidden" }} />
+          <div style={{ position: "absolute", width: s * 1.95, height: s * 0.62, borderRadius: "50%", border: `${Math.max(2, s * 0.06)}px solid rgba(225,205,160,0.55)`, borderBottomColor: "transparent", borderLeftColor: "transparent", transform: "rotate(-20deg)", clipPath: "inset(50% 0 0 0)" }} />
+        </div>
+      );
+
+    case "cluster":
+      return (
+        <div style={{ position: "relative", width: s, height: s }}>
+          {CLUSTER_STARS.map(([x, y, r], i) => (
+            <span key={i} style={{ position: "absolute", left: `${x}%`, top: `${y}%`, width: s * 0.07 * r, height: s * 0.07 * r, borderRadius: "50%", background: "#dbe6ff", boxShadow: `0 0 ${s * 0.08}px ${s * 0.03}px rgba(170,200,255,0.8)`, transform: "translate(-50%,-50%)", animation: `spaceTwinkle ${2 + (i % 3) * 0.5}s ease-in-out ${i * 0.2}s infinite` }} />
+          ))}
+        </div>
       );
   }
 }

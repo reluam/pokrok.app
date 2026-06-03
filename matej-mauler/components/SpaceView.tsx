@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { objects, spaceUi } from "@/lib/space";
+import { SCENES, SCENE_PARENT, OBJECTS, spaceUi, type SceneId } from "@/lib/space";
 import { SpaceBody } from "./SpaceBody";
 import type { Lang } from "@/lib/dictionaries";
 
@@ -10,6 +10,7 @@ export function SpaceView({ lang }: { lang: Lang }) {
   const t = spaceUi[lang];
   const homeHref = lang === "cs" ? "/cs" : "/";
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [scene, setScene] = useState<SceneId>("cosmos");
   const [sel, setSel] = useState<string | null>(null);
   const [detailPx, setDetailPx] = useState(300);
 
@@ -45,14 +46,20 @@ export function SpaceView({ lang }: { lang: Lang }) {
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
   }, []);
 
-  // v detailu: scroll dolů / swipe nahoru / Esc → zpět na přehled
+  const parent = SCENE_PARENT[scene];
+  const goUp = () => {
+    if (sel) { setSel(null); return; }
+    if (parent) setScene(parent);
+  };
+
+  // scroll dolů / swipe nahoru / Esc → o úroveň zpět
   useEffect(() => {
-    if (!sel) return;
-    const onWheel = (e: WheelEvent) => { if (e.deltaY > 8) setSel(null); };
+    if (!sel && !parent) return;
+    const onWheel = (e: WheelEvent) => { if (e.deltaY > 8) goUp(); };
     let startY = 0;
     const onTS = (e: TouchEvent) => { startY = e.touches[0].clientY; };
-    const onTM = (e: TouchEvent) => { if (startY - e.touches[0].clientY > 40) setSel(null); };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSel(null); };
+    const onTM = (e: TouchEvent) => { if (startY - e.touches[0].clientY > 40) goUp(); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") goUp(); };
     window.addEventListener("wheel", onWheel, { passive: true });
     window.addEventListener("touchstart", onTS, { passive: true });
     window.addEventListener("touchmove", onTM, { passive: true });
@@ -61,23 +68,39 @@ export function SpaceView({ lang }: { lang: Lang }) {
       window.removeEventListener("wheel", onWheel); window.removeEventListener("touchstart", onTS);
       window.removeEventListener("touchmove", onTM); window.removeEventListener("keydown", onKey);
     };
-  }, [sel]);
+  }, [sel, parent, scene]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const obj = objects.find((o) => o.id === sel) ?? null;
+  const sc = SCENES[scene];
+  const obj = sel ? OBJECTS[sel] : null;
+
+  const clickBody = (p: { id: string; zoomTo?: SceneId }) => {
+    if (p.zoomTo) { setSel(null); setScene(p.zoomTo); }
+    else setSel(p.id);
+  };
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "radial-gradient(120% 100% at 35% 30%, #0b1026, #04060f 75%)", overflow: "hidden" }}>
       <canvas ref={canvasRef} style={{ position: "absolute", inset: 0 }} />
 
-      {/* PŘEHLED */}
-      <div style={{ position: "absolute", inset: 0, transition: "opacity 300ms ease, filter 300ms ease", opacity: sel ? 0 : 1, filter: sel ? "blur(7px)" : "none", pointerEvents: sel ? "none" : "auto" }}>
-        {objects.map((o) => (
-          <button key={o.id} onClick={() => setSel(o.id)} title={o.name[lang]}
-            style={{ position: "absolute", left: `${o.x}%`, top: `${o.y}%`, transform: "translate(-50%,-50%)", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", animation: `spaceFloat ${4 + (o.size % 5)}s ease-in-out infinite` }}>
-            <SpaceBody kind={o.kind} px={o.size} />
-            <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "rgba(255,255,255,0.8)", letterSpacing: "0.04em", whiteSpace: "nowrap", textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}>{o.name[lang]}</span>
-          </button>
-        ))}
+      {/* SCÉNA / přehled */}
+      <div key={scene} style={{ position: "absolute", inset: 0, transition: "opacity 300ms ease, filter 300ms ease", opacity: sel ? 0 : 1, filter: sel ? "blur(7px)" : "none", pointerEvents: sel ? "none" : "auto", animation: "spaceZoom 420ms cubic-bezier(0.22,1,0.36,1)" }}>
+        {sc.bodies.map((p) => {
+          const def = OBJECTS[p.id];
+          return (
+            <button key={p.id} onClick={() => clickBody(p)} title={def.name[lang]}
+              style={{ position: "absolute", left: `${p.x}%`, top: `${p.y}%`, transform: "translate(-50%,-50%)", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", animation: `spaceFloat ${4 + (p.size % 5)}s ease-in-out infinite` }}>
+              <SpaceBody kind={def.kind} px={p.size} tint={def.tint} />
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "rgba(255,255,255,0.8)", letterSpacing: "0.04em", whiteSpace: "nowrap", textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}>
+                {def.name[lang]}
+              </span>
+              {p.zoomTo && (
+                <span style={{ fontFamily: "var(--font-sans)", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", marginTop: "-4px" }}>
+                  {lang === "cs" ? "klikni pro přiblížení" : "click to zoom in"}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* header */}
@@ -86,22 +109,27 @@ export function SpaceView({ lang }: { lang: Lang }) {
         <span style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.22em", color: "rgba(255,255,255,0.5)" }}>{t.eyebrow}</span>
       </div>
 
+      {/* titulek scény + intro */}
       {!sel && (
         <>
-          <div style={{ position: "absolute", top: "44px", left: "20px", zIndex: 5 }}>
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px,6vw,44px)", fontWeight: 700, color: "#fff", letterSpacing: "-0.03em" }}>{t.title}</h1>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "rgba(255,255,255,0.6)", maxWidth: "320px", marginTop: "4px" }}>{t.intro}</p>
+          <div style={{ position: "absolute", top: "44px", left: "20px", zIndex: 5, maxWidth: "340px" }}>
+            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(26px,5.5vw,42px)", fontWeight: 700, color: "#fff", letterSpacing: "-0.03em" }}>{sc.info.name[lang]}</h1>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "rgba(255,255,255,0.6)", marginTop: "4px", lineHeight: 1.5 }}>{sc.info.intro[lang]}</p>
+            {parent && (
+              <button onClick={() => setScene(parent)} style={{ marginTop: "12px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "999px", padding: "6px 14px", color: "rgba(255,255,255,0.85)", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, cursor: "pointer", backdropFilter: "blur(6px)" }}>
+                ↑ {t.up} {SCENES[parent].info.name[lang]}
+              </button>
+            )}
           </div>
           <div style={{ position: "absolute", bottom: "4vh", left: "50%", transform: "translateX(-50%)", zIndex: 5, fontFamily: "var(--font-sans)", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>{t.tapHint}</div>
         </>
       )}
 
-      {/* DETAIL / přiblížení */}
+      {/* DETAIL / přiblížení objektu */}
       {obj && (
         <div style={{ position: "absolute", inset: 0, zIndex: 15, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "70px 20px 40px", animation: "spaceZoom 380ms cubic-bezier(0.22,1,0.36,1)" }}>
-          {/* objekt + features kolem */}
           <div style={{ position: "relative", width: detailPx, height: detailPx, display: "grid", placeItems: "center", marginBottom: "26px" }}>
-            <SpaceBody kind={obj.kind} px={detailPx} detail />
+            <SpaceBody kind={obj.kind} px={detailPx} tint={obj.tint} detail />
             {obj.features.map((f, i) => {
               const n = obj.features.length;
               const ang = (-90 + (i - (n - 1) / 2) * 58) * (Math.PI / 180);
@@ -123,7 +151,6 @@ export function SpaceView({ lang }: { lang: Lang }) {
             })}
           </div>
 
-          {/* text */}
           <div style={{ maxWidth: "560px", textAlign: "center", animation: "spaceRise 500ms ease 0.15s both" }}>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(24px,5vw,34px)", fontWeight: 700, color: "#fff", letterSpacing: "-0.02em", marginBottom: "12px" }}>{obj.name[lang]}</h2>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "15px", lineHeight: 1.7, color: "rgba(255,255,255,0.85)" }}>{obj.fact[lang]}</p>
