@@ -17,7 +17,7 @@ export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lan
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <LanguageSwitcher lang={lang} labels={dict.switcher} />
 
-      <div className="max-w-[860px] mx-auto px-5 md:px-8">
+      <div className="max-w-[1100px] mx-auto px-5 md:px-8">
 
         {/* Header */}
         <header className="pt-20 pb-16 animate-fade-up">

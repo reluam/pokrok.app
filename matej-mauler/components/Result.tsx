@@ -35,7 +35,7 @@ export function Result({ answers, onRestart, lang }: { answers: Answers; onResta
         </Link>
       </div>
 
-      <div style={{ maxWidth: "560px", margin: "0 auto", textAlign: "center" }}>
+      <div style={{ maxWidth: "760px", margin: "0 auto", textAlign: "center" }}>
 
         <p style={{
           fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase",

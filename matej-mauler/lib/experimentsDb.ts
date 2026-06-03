@@ -49,15 +49,17 @@ function staticFallback(lang: "cs" | "en"): PublicExperiment[] {
   return STATIC.filter((m) => m.href && !m.wip).map((m, i) => {
     const c = dictionaries[lang].experiments.find((e) => e.slug === m.slug)!;
     return { slug: m.slug, title: c.title, description: c.description, color: m.color, href: m.href!, external: !!m.external, date: todayISO(), number: i + 1 };
-  });
+  }).reverse();
 }
 
 export async function getPublicExperiments(lang: "cs" | "en"): Promise<PublicExperiment[]> {
   try {
     const sql = getDb();
     await ensure(sql);
-    const rows = await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE ORDER BY sort_order ASC` as (ExperimentRow & { eff_date: string })[];
-    return rows.map((r, i) => ({ slug: r.slug, title: lang === "cs" ? r.title_cs : r.title_en, description: lang === "cs" ? r.desc_cs : r.desc_en, color: r.color, href: r.href, external: r.external, date: r.eff_date, number: i + 1 }));
+    // Chronologicky (nejstarší první) kvůli číslování, pak otočíme → nejnovější nahoře.
+    const rows = await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC` as (ExperimentRow & { eff_date: string })[];
+    const numbered = rows.map((r, i) => ({ slug: r.slug, title: lang === "cs" ? r.title_cs : r.title_en, description: lang === "cs" ? r.desc_cs : r.desc_en, color: r.color, href: r.href, external: r.external, date: r.eff_date, number: i + 1 }));
+    return numbered.reverse();
   } catch {
     return staticFallback(lang);
   }

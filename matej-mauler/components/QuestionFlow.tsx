@@ -167,9 +167,9 @@ export function QuestionFlow({ lang }: { lang: Lang }) {
           <div
             key={animKey}
             style={{
-              maxWidth: "640px",
+              maxWidth: "920px",
               margin: "0 auto",
-              padding: "48px 24px 80px",
+              padding: "clamp(32px,6vw,64px) clamp(16px,4vw,40px) 80px",
               animation: "slideIn 0.4s cubic-bezier(0.22,1,0.36,1) both",
             }}
           >

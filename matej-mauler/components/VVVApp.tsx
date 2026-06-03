@@ -319,7 +319,7 @@ export function VVVApp({ initialTerms, lang }: { initialTerms: VVVTerm[]; lang: 
           </Link>
         </div>
 
-        <div style={{ maxWidth: "720px", margin: "0 auto", padding: "40px 24px 80px" }}>
+        <div style={{ maxWidth: "1040px", margin: "0 auto", padding: "clamp(28px,5vw,48px) clamp(16px,4vw,40px) 80px" }}>
           {/* Title */}
           <div style={{ textAlign: "center", marginBottom: "48px" }}>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--text-muted)", marginBottom: "12px" }}>

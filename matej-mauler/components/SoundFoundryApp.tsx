@@ -193,7 +193,7 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
         </Link>
       </div>
 
-      <div style={{ maxWidth: "640px", margin: "0 auto", padding: "32px 24px 80px" }}>
+      <div style={{ maxWidth: "1040px", margin: "0 auto", padding: "clamp(24px,5vw,48px) clamp(16px,4vw,40px) 80px" }}>
         {/* Title */}
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--text-muted)", marginBottom: "14px" }}>

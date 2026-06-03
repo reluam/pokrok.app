@@ -264,10 +264,10 @@ export function MusicMakerApp({ lang, finished: initialFinished }: { lang: Lang;
 
   const reset = () => { stopPlay(); setAssignment(null); setNotes([]); setDrums([]); setResult(null); setScreen("intro"); };
 
-  const wrap = (children: React.ReactNode, maxW = "600px") => (
+  const wrap = (children: React.ReactNode, maxW = "920px") => (
     <div style={{ minHeight: "100dvh", background: "var(--bg)" }}>
       <div style={{ padding: "20px 24px 0" }}><Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.04em", color: "var(--text-muted)", textDecoration: "none" }}>{t.back}</Link></div>
-      <div style={{ maxWidth: maxW, margin: "0 auto", padding: "32px 24px 80px" }}>{children}</div>
+      <div style={{ maxWidth: maxW, margin: "0 auto", padding: "clamp(24px,5vw,48px) clamp(16px,4vw,40px) 80px" }}>{children}</div>
     </div>
   );
 
