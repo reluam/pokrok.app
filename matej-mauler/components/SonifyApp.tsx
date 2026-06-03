@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { sonify, sonifyUi, presets, waveLabel } from "@/lib/sonify";
 import type { Lang } from "@/lib/dictionaries";
+import { AudioNotice } from "./AudioNotice";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -90,6 +91,7 @@ export function SonifyApp({ lang }: { lang: Lang }) {
       </div>
 
       <div style={{ maxWidth: "920px", margin: "0 auto", padding: "clamp(24px,5vw,48px) clamp(16px,4vw,40px) 80px" }}>
+        <AudioNotice lang={lang} />
         {/* Title */}
         <div style={{ textAlign: "center", marginBottom: "36px" }}>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--text-muted)", marginBottom: "14px" }}>

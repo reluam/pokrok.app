@@ -7,6 +7,7 @@ import {
   type SoundSpec, type Word,
 } from "@/lib/foundry";
 import type { Lang } from "@/lib/dictionaries";
+import { AudioNotice } from "./AudioNotice";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -194,6 +195,7 @@ export function SoundFoundryApp({ lang }: { lang: Lang }) {
       </div>
 
       <div style={{ maxWidth: "1040px", margin: "0 auto", padding: "clamp(24px,5vw,48px) clamp(16px,4vw,40px) 80px" }}>
+        <AudioNotice lang={lang} />
         {/* Title */}
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--text-muted)", marginBottom: "14px" }}>

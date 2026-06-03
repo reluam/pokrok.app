@@ -9,6 +9,23 @@ import { Result } from "./Result";
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serif: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
 
+/* Pestrá paleta pro dlaždice + jemná „pixelová" mřížka přes pozadí */
+const PALETTE: [string, string][] = [
+  ["#ff6b6b", "#c0392b"], ["#4ecdc4", "#1a9e94"], ["#ffd93d", "#f0a500"],
+  ["#6c5ce7", "#4834d4"], ["#ff9ff3", "#e84393"], ["#54a0ff", "#2e86de"],
+  ["#1dd1a1", "#10ac84"], ["#feca57", "#ff9f43"], ["#a29bfe", "#6c5ce7"],
+];
+function tileBg(i: number): React.CSSProperties {
+  const [a, b] = PALETTE[i % PALETTE.length];
+  return {
+    backgroundColor: a,
+    backgroundImage:
+      "repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 7px, transparent 7px 14px)," +
+      "repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 7px, transparent 7px 14px)," +
+      `linear-gradient(135deg, ${a}, ${b})`,
+  };
+}
+
 export function QuestionFlow({ lang }: { lang: Lang }) {
   const questions = getQuestions(lang);
   const t = calcUi[lang];
@@ -167,9 +184,7 @@ export function QuestionFlow({ lang }: { lang: Lang }) {
           <div
             key={animKey}
             style={{
-              maxWidth: "920px",
-              margin: "0 auto",
-              padding: "clamp(32px,6vw,64px) clamp(16px,4vw,40px) 80px",
+              padding: "clamp(28px,5vw,56px) clamp(14px,4vw,40px) 80px",
               animation: "slideIn 0.4s cubic-bezier(0.22,1,0.36,1) both",
             }}
           >
@@ -193,7 +208,9 @@ export function QuestionFlow({ lang }: { lang: Lang }) {
               letterSpacing: "-0.02em",
               color: "var(--text-primary)",
               textAlign: "center",
-              marginBottom: q.subtext ? "8px" : "36px",
+              maxWidth: "820px",
+              margin: "0 auto",
+              marginBottom: q.subtext ? "8px" : "0",
             }}>
               {q.text}
             </h2>
@@ -204,70 +221,79 @@ export function QuestionFlow({ lang }: { lang: Lang }) {
                 fontSize: "15px",
                 color: "var(--text-muted)",
                 textAlign: "center",
-                marginBottom: "36px",
+                maxWidth: "640px",
+                margin: "0 auto",
               }}>
                 {q.subtext}
               </p>
             )}
 
-            {/* Select options */}
+            {/* Full-width pixel tiles – jedna možnost = jedna dlaždice */}
             {q.options && (
               <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                gap: "10px",
+                maxWidth: "1100px",
+                margin: "clamp(28px,4vw,44px) auto 0",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
               }}>
-                {q.options.map((opt) => (
+                {q.options.map((opt, i) => (
                   <button
                     key={opt.id}
                     onClick={() => handleSelect(q.id, opt.id)}
                     style={{
-                      background: "#fff",
-                      border: "2px solid var(--border)",
-                      borderRadius: "14px",
-                      boxShadow: "3px 3px 0 var(--border)",
-                      padding: "16px 18px",
+                      position: "relative",
+                      width: "100%",
+                      minHeight: "clamp(74px, 12vh, 124px)",
+                      border: "3px solid var(--border)",
+                      borderRadius: "16px",
+                      boxShadow: "4px 4px 0 var(--border)",
                       cursor: "pointer",
+                      overflow: "hidden",
                       display: "flex",
                       alignItems: "center",
-                      gap: "14px",
-                      textAlign: "left",
+                      justifyContent: "center",
+                      gap: "16px",
+                      padding: "16px 24px",
+                      color: "#fff",
+                      ...tileBg(i),
                       transition: "transform 140ms ease, box-shadow 140ms ease",
                     }}
                     onMouseEnter={(e) => {
                       const el = e.currentTarget;
                       el.style.transform = "translate(-2px,-2px)";
-                      el.style.boxShadow = "5px 5px 0 var(--border)";
+                      el.style.boxShadow = "7px 7px 0 var(--border)";
                     }}
                     onMouseLeave={(e) => {
                       const el = e.currentTarget;
                       el.style.transform = "";
-                      el.style.boxShadow = "3px 3px 0 var(--border)";
+                      el.style.boxShadow = "4px 4px 0 var(--border)";
                     }}
                   >
-                    <span style={{ fontSize: "28px", lineHeight: 1, flexShrink: 0 }}>{opt.emoji}</span>
-                    <div>
+                    <span style={{ fontSize: "clamp(28px,4vw,44px)", lineHeight: 1, flexShrink: 0, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))" }}>{opt.emoji}</span>
+                    <span style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
                       <span style={{
                         fontFamily: "var(--font-sans)",
-                        fontSize: "14px",
-                        fontWeight: 500,
-                        color: "var(--text-primary)",
-                        display: "block",
+                        fontSize: "clamp(16px,2.4vw,22px)",
+                        fontWeight: 800,
+                        letterSpacing: "0.01em",
+                        textShadow: "0 2px 4px rgba(0,0,0,0.45)",
                       }}>
                         {opt.label}
                       </span>
                       {opt.note && (
                         <span style={{
                           fontFamily: "var(--font-sans)",
-                          fontSize: "11px",
-                          color: "var(--text-muted)",
-                          display: "block",
-                          marginTop: "2px",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          opacity: 0.92,
+                          marginTop: "3px",
+                          textShadow: "0 1px 3px rgba(0,0,0,0.5)",
                         }}>
                           {opt.note}
                         </span>
                       )}
-                    </div>
+                    </span>
                   </button>
                 ))}
               </div>

@@ -10,6 +10,7 @@ import {
 import { startLoop, previewNote, previewDrum } from "@/lib/musicPlayback";
 import type { Inst } from "@/lib/music";
 import type { Lang } from "@/lib/dictionaries";
+import { AudioNotice } from "./AudioNotice";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -267,7 +268,7 @@ export function MusicMakerApp({ lang, finished: initialFinished }: { lang: Lang;
   const wrap = (children: React.ReactNode, maxW = "920px") => (
     <div style={{ minHeight: "100dvh", background: "var(--bg)" }}>
       <div style={{ padding: "20px 24px 0" }}><Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.04em", color: "var(--text-muted)", textDecoration: "none" }}>{t.back}</Link></div>
-      <div style={{ maxWidth: maxW, margin: "0 auto", padding: "clamp(24px,5vw,48px) clamp(16px,4vw,40px) 80px" }}>{children}</div>
+      <div style={{ maxWidth: maxW, margin: "0 auto", padding: "clamp(24px,5vw,48px) clamp(16px,4vw,40px) 80px" }}><AudioNotice lang={lang} />{children}</div>
     </div>
   );
 

@@ -105,16 +105,16 @@ export const stages: Stage[] = [
 export const journeyUi = {
   cs: {
     back: "← Spaghetti.ltd",
-    title: "Cesta životem",
-    intro: "Od první buňky až po poslední dech. Scrolluj a projdi celý lidský život.",
-    scrollHint: "Scrolluj ↓",
+    title: "Human Journey",
+    intro: "Od první buňky až po poslední dech.",
+    scrollHint: "Scrolluj →",
     of: "z",
   },
   en: {
     back: "← Spaghetti.ltd",
-    title: "A Human Life",
-    intro: "From the first cell to the last breath. Scroll to travel through an entire human life.",
-    scrollHint: "Scroll ↓",
+    title: "Human Journey",
+    intro: "From the first cell to the last breath.",
+    scrollHint: "Scroll →",
     of: "of",
   },
 } as const;

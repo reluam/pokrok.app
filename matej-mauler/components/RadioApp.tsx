@@ -10,6 +10,7 @@ import {
 import { createRadio, type RadioControl } from "@/lib/radioEngine";
 import { RadioEditor } from "./RadioEditor";
 import type { Lang } from "@/lib/dictionaries";
+import { AudioNotice } from "./AudioNotice";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -217,7 +218,8 @@ export function RadioApp({ lang }: { lang: Lang }) {
       <Shell t={t} homeHref={homeHref}>
         <div style={{ textAlign: "center", paddingTop: "60px" }}>
           <h1 style={{ ...display, fontSize: "clamp(36px, 8vw, 64px)", fontWeight: 900, letterSpacing: "-0.03em", marginBottom: "12px" }}>{t.title}</h1>
-          <p style={{ ...serifItalic, fontSize: "17px", color: "var(--text-secondary)", marginBottom: "32px" }}>{t.intro}</p>
+          <p style={{ ...serifItalic, fontSize: "17px", color: "var(--text-secondary)", marginBottom: "20px" }}>{t.intro}</p>
+          <AudioNotice lang={lang} />
           <button onClick={enterGate} style={{ background: "var(--text-primary)", color: "var(--bg)", border: "2.5px solid var(--text-primary)", borderRadius: "12px", boxShadow: "5px 5px 0 var(--text-primary)", padding: "16px 38px", fontFamily: "var(--font-sans)", fontSize: "17px", fontWeight: 800, cursor: "pointer" }}>{t.start}</button>
         </div>
       </Shell>
