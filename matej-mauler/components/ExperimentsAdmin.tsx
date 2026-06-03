@@ -87,6 +87,10 @@ export function ExperimentsAdmin({ initial }: { initial: ExperimentRow[] }) {
                       <input type="checkbox" checked={!!draft.external} onChange={(e) => setDraft({ ...draft, external: e.target.checked })} /> ext
                     </label>
                   </div>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "8px" }}>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)" }}>Datum publikace:</span>
+                    <input type="date" style={{ ...inputS, width: "170px", marginBottom: 0 }} value={(draft.published_at ?? "").slice(0, 10)} onChange={(e) => setDraft({ ...draft, published_at: e.target.value })} />
+                  </div>
                   <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
                     <button onClick={saveEdit} style={btn("var(--text-primary)")}>Uložit</button>
                     <button onClick={() => setEditing(null)} style={btn("transparent", "var(--text-muted)")}>Zrušit</button>

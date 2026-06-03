@@ -12,8 +12,9 @@ export type ExperimentRow = {
   desc_cs: string; desc_en: string;
   color: string; href: string; external: boolean;
   sort_order: number; published: boolean;
+  published_at: string | null; created_at?: string;
 };
-export type PublicExperiment = { slug: string; title: string; description: string; color: string; href: string; external: boolean };
+export type PublicExperiment = { slug: string; title: string; description: string; color: string; href: string; external: boolean; date: string; number: number };
 
 let ready = false;
 
@@ -27,6 +28,7 @@ async function ensure(sql: Sql) {
     sort_order INT NOT NULL DEFAULT 0, published BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`;
+  await sql`ALTER TABLE experiments ADD COLUMN IF NOT EXISTS published_at DATE`;
   // seed z kódu (jen co ještě není)
   for (let i = 0; i < STATIC.length; i++) {
     const m = STATIC[i];
@@ -41,10 +43,12 @@ async function ensure(sql: Sql) {
 }
 
 /* ── Veřejné čtení (s fallbackem na kód při výpadku DB) ─────────── */
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
 function staticFallback(lang: "cs" | "en"): PublicExperiment[] {
-  return STATIC.filter((m) => m.href && !m.wip).map((m) => {
+  return STATIC.filter((m) => m.href && !m.wip).map((m, i) => {
     const c = dictionaries[lang].experiments.find((e) => e.slug === m.slug)!;
-    return { slug: m.slug, title: c.title, description: c.description, color: m.color, href: m.href!, external: !!m.external };
+    return { slug: m.slug, title: c.title, description: c.description, color: m.color, href: m.href!, external: !!m.external, date: todayISO(), number: i + 1 };
   });
 }
 
@@ -52,8 +56,8 @@ export async function getPublicExperiments(lang: "cs" | "en"): Promise<PublicExp
   try {
     const sql = getDb();
     await ensure(sql);
-    const rows = await sql`SELECT * FROM experiments WHERE published = TRUE ORDER BY sort_order ASC` as ExperimentRow[];
-    return rows.map((r) => ({ slug: r.slug, title: lang === "cs" ? r.title_cs : r.title_en, description: lang === "cs" ? r.desc_cs : r.desc_en, color: r.color, href: r.href, external: r.external }));
+    const rows = await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE ORDER BY sort_order ASC` as (ExperimentRow & { eff_date: string })[];
+    return rows.map((r, i) => ({ slug: r.slug, title: lang === "cs" ? r.title_cs : r.title_en, description: lang === "cs" ? r.desc_cs : r.desc_en, color: r.color, href: r.href, external: r.external, date: r.eff_date, number: i + 1 }));
   } catch {
     return staticFallback(lang);
   }
@@ -90,10 +94,10 @@ export async function patchExperiment(slug: string, f: Partial<ExperimentRow>): 
   const [cur] = await sql`SELECT * FROM experiments WHERE slug = ${slug}` as ExperimentRow[];
   if (!cur) return;
   const n = { ...cur, ...f };
-  await sql`UPDATE experiments SET title_cs=${n.title_cs}, title_en=${n.title_en}, desc_cs=${n.desc_cs}, desc_en=${n.desc_en}, color=${n.color}, href=${n.href}, external=${n.external}, published=${n.published} WHERE slug=${slug}`;
+  await sql`UPDATE experiments SET title_cs=${n.title_cs}, title_en=${n.title_en}, desc_cs=${n.desc_cs}, desc_en=${n.desc_en}, color=${n.color}, href=${n.href}, external=${n.external}, published=${n.published}, published_at=${n.published_at || null} WHERE slug=${slug}`;
 }
 
-export async function createExperiment(r: Omit<ExperimentRow, "sort_order">): Promise<void> {
+export async function createExperiment(r: Omit<ExperimentRow, "sort_order" | "published_at" | "created_at">): Promise<void> {
   const sql = getDb();
   await ensure(sql);
   const [{ max }] = await sql`SELECT COALESCE(MAX(sort_order), -1) AS max FROM experiments` as { max: number }[];

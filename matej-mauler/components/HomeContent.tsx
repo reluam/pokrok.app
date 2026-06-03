@@ -1,8 +1,16 @@
 import { Dictionary, Lang } from "@/lib/dictionaries";
 import type { PublicExperiment } from "@/lib/experimentsDb";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { ExperimentPreview } from "./ExperimentPreview";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
+
+function fmtDate(iso: string, lang: Lang): string {
+  const d = new Date(iso + "T00:00:00");
+  return lang === "cs"
+    ? d.toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" })
+    : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
 
 export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lang; items: PublicExperiment[] }) {
   return (
@@ -54,23 +62,24 @@ export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lan
           </div>
         </div>
 
-        {/* Experiments grid */}
-        <section className="experiments-grid animate-fade-up pb-16" style={{ animationDelay: "60ms" }}>
+        {/* Experiments feed (pudding-style) */}
+        <section className="experiments-feed animate-fade-up pb-16" style={{ animationDelay: "60ms" }}>
           {items.map((item) => (
             <a
               key={item.slug}
               href={item.href}
               {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className="exp-card"
-              style={{ "--card-color": item.color } as React.CSSProperties}
+              className="exp-article"
             >
-              <div>
-                <h2 className="text-[22px] leading-tight mb-1.5" style={{ ...display, fontWeight: 800 }}>
-                  {item.title}
-                </h2>
-                <p className="text-[14px] leading-snug" style={{ color: "var(--text-secondary)" }}>
-                  {item.description}
-                </p>
+              <ExperimentPreview slug={item.slug} color={item.color} />
+              <div className="exp-body">
+                <div className="exp-meta">
+                  <span>Nº {String(item.number).padStart(2, "0")}</span>
+                  <span className="dot" />
+                  <span>{fmtDate(item.date, lang)}</span>
+                </div>
+                <h3 className="exp-title">{item.title}</h3>
+                <p className="exp-desc">{item.description}</p>
               </div>
             </a>
           ))}
