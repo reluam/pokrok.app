@@ -95,20 +95,34 @@ export function SpaceBody({ kind, px, detail = false }: { kind: SpaceKind; px: n
 
     case "galaxy":
       return (
-        <div style={{ ...stage, animation: "spaceSpin 26s linear infinite" }}>
-          <svg viewBox="0 0 100 100" width={s} height={s} style={{ filter: "blur(0.6px)" }}>
+        <div style={{ ...stage, animation: "spaceSpin 48s linear infinite" }}>
+          <svg viewBox="0 0 100 100" width={s} height={s} style={{ overflow: "visible", filter: "blur(0.4px)" }}>
             <defs>
+              <radialGradient id="galHaze" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#fff7e6" stopOpacity="0.95" />
+                <stop offset="16%" stopColor="#ffe6b8" stopOpacity="0.7" />
+                <stop offset="44%" stopColor="#b9a0ff" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#6a5ac8" stopOpacity="0" />
+              </radialGradient>
               <radialGradient id="galCore" cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="35%" stopColor="#ffe8b0" />
-                <stop offset="100%" stopColor="transparent" />
+                <stop offset="55%" stopColor="#fff1c8" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#ffcf7a" stopOpacity="0" />
               </radialGradient>
             </defs>
-            <ellipse cx="50" cy="50" rx="46" ry="20" fill="rgba(185,160,255,0.12)" transform="rotate(25 50 50)" />
-            {[0, 120, 240].map((a) => (
-              <path key={a} d="M50 50 C 64 44, 82 50, 88 66" fill="none" stroke="rgba(200,190,255,0.6)" strokeWidth="3.2" strokeLinecap="round" transform={`rotate(${a} 50 50)`} />
-            ))}
-            <circle cx="50" cy="50" r="26" fill="url(#galCore)" />
+            {/* naklopený a zploštělý disk */}
+            <g transform="rotate(-26 50 50)">
+              <g transform="translate(50 50) scale(1 0.46) translate(-50 -50)">
+                <circle cx="50" cy="50" r="46" fill="url(#galHaze)" />
+                <g fill="none" strokeLinecap="round">
+                  <path d="M61 50 C 61 37, 47 29, 35 35 C 24 41, 22 56, 33 65 C 41 71, 53 71, 61 64" stroke="rgba(214,208,255,0.55)" strokeWidth="2.6" />
+                  <path d="M61 50 C 61 37, 47 29, 35 35 C 24 41, 22 56, 33 65 C 41 71, 53 71, 61 64" stroke="rgba(214,208,255,0.55)" strokeWidth="2.6" transform="rotate(180 50 50)" />
+                  <path d="M58 50 C 58 41, 49 36, 41 39 C 33 43, 32 53, 39 60" stroke="rgba(190,210,255,0.4)" strokeWidth="1.8" transform="rotate(90 50 50)" />
+                  <path d="M58 50 C 58 41, 49 36, 41 39 C 33 43, 32 53, 39 60" stroke="rgba(190,210,255,0.4)" strokeWidth="1.8" transform="rotate(270 50 50)" />
+                </g>
+                <circle cx="50" cy="50" r="13" fill="url(#galCore)" />
+              </g>
+            </g>
           </svg>
         </div>
       );
