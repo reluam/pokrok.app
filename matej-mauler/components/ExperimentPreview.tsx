@@ -1,6 +1,6 @@
 // Lehké CSS/SVG mini-vizualizace pro karty experimentů (deterministické → bez hydration mismatch).
 
-type Motif = "bars" | "eq" | "wave" | "stars" | "digits" | "book" | "path" | "rings";
+type Motif = "bars" | "eq" | "wave" | "stars" | "digits" | "book" | "path" | "rings" | "dice";
 
 const MOTIF: Record<string, Motif> = {
   radio: "eq", musicvote: "bars", anthem: "bars",
@@ -9,8 +9,11 @@ const MOTIF: Record<string, Motif> = {
   vvv: "book",
   space: "stars",
   cas: "digits",
-  odds: "rings",
+  odds: "dice",
 };
+
+// Pozice ok pip podle role (a/b/c/d), prázdné = bez pip
+const DICE_CELLS = ["a", "", "b", "c", "d", "c", "b", "", "a"];
 
 const STAR_POS = [
   [12, 30], [22, 65], [34, 22], [44, 50], [55, 72], [64, 32],
@@ -99,6 +102,15 @@ export function ExperimentPreview({ slug, color }: { slug: string; color: string
             <rect className="chk" x={FLAG[0] + 16.5} y={FLAG[1] - 18.5} width="5.5" height="7.5" />
           </g>
         </svg>
+      )}
+
+      {/* odds – kostka, co cyklí čísla 1–6 */}
+      {motif === "dice" && (
+        <div className="m-dice">
+          {DICE_CELLS.map((cls, i) => (
+            <span key={i} className={cls || undefined} />
+          ))}
+        </div>
       )}
 
       {motif === "rings" && (

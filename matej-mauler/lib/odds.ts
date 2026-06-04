@@ -9,7 +9,7 @@ export type Scenario = {
   explanation: { cs: string; en: string };
 };
 
-export const scenarios: Scenario[] = [
+const allScenarios: Scenario[] = [
   {
     id: "meteor",
     emoji: "☄️",
@@ -594,6 +594,9 @@ export const scenarios: Scenario[] = [
     },
   },
 ];
+
+// Jen odds vzácnější než 1 : 1000 (oneIn > 1000).
+export const scenarios: Scenario[] = allScenarios.filter((s) => s.oneIn > 1000);
 
 export function pickRandom(excludeId?: string): Scenario {
   const pool = excludeId ? scenarios.filter((s) => s.id !== excludeId) : scenarios;
