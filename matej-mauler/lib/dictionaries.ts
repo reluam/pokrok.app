@@ -130,11 +130,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
     hero: {
       name: "Spaghetti.ltd",
       tagline: "I have bad ideas and plenty of artificial willpower to build them.",
-      sub: "I build things nobody needed, but nobody wanted either.",
+      sub: "9 out of 10 experiments are a waste of time. This is all of them.",
     },
     products: {
       title: "Experiments",
-      subtitle: "Each of them was the best idea at the time.",
+      subtitle: "Each one seemed like a great idea. Most still do. That's the problem.",
     },
     journeyCredit: {
       prefix: "For more serious folks, I also make the",
@@ -142,11 +142,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
     },
     about: {
       heading: "About",
-      p1: "Hi, I'm Matěj — the maker of Spaghetti.ltd. I love exploring new things and then experimenting with what I've just learned. Because in my whole life I've never stuck with a single project longer than 3 months, I decided to build this site, where I don't have to stick with any experiment longer than a week.",
-      p2: "In short — my life is a mess. And spaghetti captures it nicely.",
-      p3a: "If one of my experiments catches your eye, or god forbid even speaks to you, you can ",
+      p1: "Hi, I'm Matěj. I get obsessed with things, build something, and move on. Every time I'm convinced it's the best idea I've ever had. Usually it isn't.",
+      p2: "Spaghetti is where those ideas live. Some are useful. Most are just interesting. A few are neither.",
+      p3a: "If something here catches your eye — or you need someone to come up with 9 bad ideas so you can find the one good one — ",
       writeMe: "write to me",
-      p3b: " and I'll happily cook up a special experiment tailored just for you.",
+      p3b: ".",
       rewardA: "Thanks for reading this far — as a reward, you can check out ",
       rewardLink: "what probably won't happen to you in life.",
     },
