@@ -46,11 +46,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
     hero: {
       name: "Spaghetti.ltd",
       tagline: "Mám blbé nápady a hromadu umělé vůle je uskutečnit.",
-      sub: "Tvořím věci, které nikdo nepotřeboval, ale taky je nikdo nechtěl.",
+      sub: "9 z 10 experimentů je ztráta času. Tady jsou všechny.",
     },
     products: {
       title: "Experimenty",
-      subtitle: "Každý z nich byl nejlepší nápad v daném okamžiku.",
+      subtitle: "Každý vypadal jako skvělý nápad. Většina pořád vypadá. To je ten problém.",
     },
     journeyCredit: {
       prefix: "Pro vážnější publikum dělám také",
@@ -58,11 +58,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
     },
     about: {
       heading: "O projektu",
-      p1: "Ahoj, jsem Matěj. Tvůrce projektu Spaghetti.ltd. Mám rád zkoumání nových věcí a následné experimentování s nově nabytými znalostmi. Protože jsem za celý svůj život u žádného projektu nevydržel déle než 3 měsíce, rozhodl jsem se udělat tuto stránku, kde u žádného experimentu nemusím vydržet déle než týden.",
-      p2: "Ve zkratce — můj život je mess. A špagety to pěkně vyjadřují.",
-      p3a: "Pokud tě některý z mých experimentů zaujme nebo tě dokonce nedejbože osloví, můžeš mi ",
-      writeMe: "napsat",
-      p3b: " a rád vymyslím nějaký speciální experiment ušitý přímo tobě na míru.",
+      p1: "Ahoj, jsem Matěj. Posedne mě nějaká věc, něco postavím a jdu dál. Pokaždé jsem přesvědčený, že je to ten nejlepší nápad, co jsem kdy měl. Většinou není.",
+      p2: "Spaghetti je místo, kde ty nápady žijí. Některé jsou užitečné. Většina je jen zajímavá. Pár není ani jedno.",
+      p3a: "Jestli tě tu něco zaujme — nebo potřebuješ někoho, kdo vymyslí 9 špatných nápadů, abys našel ten jeden dobrý — ",
+      writeMe: "napiš mi",
+      p3b: ".",
       rewardA: "Díky, žes to dočetl až sem, a za odměnu se můžeš kouknout, ",
       rewardLink: "co tě v životě nejspíš nepotká.",
     },
