@@ -184,17 +184,9 @@ body {
 .m-flag rect { stroke: #1a1614; stroke-width: 1.5; fill: none; }
 .m-flag .chk { fill: #1a1614; stroke: none; }
 
-/* odds – házecí kostka */
-.m-dice { width: 64px; height: 64px; background: #fff; border: 2.5px solid #1a1614; border-radius: 13px; box-shadow: 3px 3px 0 #1a1614; display: grid; grid-template-columns: repeat(3, 1fr); padding: 9px; gap: 1px; animation: dice-bounce 3s ease-in-out infinite; }
-.m-dice span { place-self: center; width: 10px; height: 10px; border-radius: 50%; background: #1a1614; opacity: 0; }
-.m-dice span.a { animation: dpA 3s linear infinite; }
-.m-dice span.b { animation: dpB 3s linear infinite; }
-.m-dice span.c { animation: dpC 3s linear infinite; }
-.m-dice span.d { animation: dpD 3s linear infinite; }
-@keyframes dice-bounce { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-4px) rotate(4deg); } }
-@keyframes dpA { 0%,16.6% { opacity: 0; } 16.7%,100% { opacity: 1; } }
-@keyframes dpB { 0%,50% { opacity: 0; } 50.1%,100% { opacity: 1; } }
-@keyframes dpC { 0%,83.3% { opacity: 0; } 83.4%,100% { opacity: 1; } }
-@keyframes dpD { 0%,16.6% { opacity: 1; } 16.7%,33.3% { opacity: 0; } 33.4%,50% { opacity: 1; } 50.1%,66.6% { opacity: 0; } 66.7%,83.3% { opacity: 1; } 83.4%,100% { opacity: 0; } }
+/* odds – náhodná pravděpodobnost přímo v kartě */
+.m-odds { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 0 18px; text-align: center; }
+.m-odds-q { font-family: var(--font-sans); font-size: 11.5px; line-height: 1.35; color: rgba(26,22,20,0.72); max-width: 250px; }
+.m-odds-v { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 4.5vw, 30px); letter-spacing: -0.01em; color: #1a1614; white-space: nowrap; }
 
 @media (max-width: 480px) { .experiments-feed { grid-template-columns: 1fr; } }

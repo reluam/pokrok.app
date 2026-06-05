@@ -1,6 +1,9 @@
-// Lehké CSS/SVG mini-vizualizace pro karty experimentů (deterministické → bez hydration mismatch).
+// Lehké CSS/SVG mini-vizualizace pro karty experimentů.
+// Pozn.: odds motiv je server-rendered náhoda (stránka je force-dynamic) → nové číslo při každém načtení.
 
-type Motif = "bars" | "eq" | "wave" | "stars" | "digits" | "book" | "path" | "rings" | "dice";
+import { scenarios } from "@/lib/odds";
+
+type Motif = "bars" | "eq" | "wave" | "stars" | "digits" | "book" | "path" | "rings" | "odds";
 
 const MOTIF: Record<string, Motif> = {
   radio: "eq", musicvote: "bars", anthem: "bars",
@@ -9,11 +12,8 @@ const MOTIF: Record<string, Motif> = {
   vvv: "book",
   space: "stars",
   cas: "digits",
-  odds: "dice",
+  odds: "odds",
 };
-
-// Pozice ok pip podle role (a/b/c/d), prázdné = bez pip
-const DICE_CELLS = ["a", "", "b", "c", "d", "c", "b", "", "a"];
 
 const STAR_POS = [
   [12, 30], [22, 65], [34, 22], [44, 50], [55, 72], [64, 32],
@@ -24,8 +24,9 @@ const STAR_POS = [
 const PATH_PTS: [number, number][] = [[16, 64], [48, 38], [80, 62], [112, 34], [144, 58]];
 const FLAG: [number, number] = [174, 40];
 
-export function ExperimentPreview({ slug, color }: { slug: string; color: string }) {
+export function ExperimentPreview({ slug, color, lang = "cs" }: { slug: string; color: string; lang?: "cs" | "en" }) {
   const motif = MOTIF[slug] ?? "bars";
+  const oddsScenario = motif === "odds" ? scenarios[Math.floor(Math.random() * scenarios.length)] : null;
   return (
     <div className="exp-visual" style={{ background: color }}>
       {motif === "bars" && (
@@ -104,12 +105,11 @@ export function ExperimentPreview({ slug, color }: { slug: string; color: string
         </svg>
       )}
 
-      {/* odds – kostka, co cyklí čísla 1–6 */}
-      {motif === "dice" && (
-        <div className="m-dice">
-          {DICE_CELLS.map((cls, i) => (
-            <span key={i} className={cls || undefined} />
-          ))}
+      {/* odds – náhodná pravděpodobnost přímo v kartě (nové číslo při každém načtení) */}
+      {motif === "odds" && oddsScenario && (
+        <div className="m-odds">
+          <span className="m-odds-q">{lang === "en" ? oddsScenario.question.en : oddsScenario.question.cs}</span>
+          <span className="m-odds-v">{oddsScenario.odds}</span>
         </div>
       )}
 

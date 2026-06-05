@@ -73,7 +73,7 @@ export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lan
               {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="exp-article"
             >
-              <ExperimentPreview slug={item.slug} color={item.color} />
+              <ExperimentPreview slug={item.slug} color={item.color} lang={lang} />
               <div className="exp-body">
                 <div className="exp-meta">
                   <span>#{String(item.number).padStart(2, "0")}</span>
