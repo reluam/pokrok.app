@@ -64,7 +64,14 @@ export async function getPublicSongs(lang: "cs" | "en", limit?: number): Promise
 export async function getAllSongs(): Promise<SongRow[]> {
   const sql = getDb();
   await ensure(sql);
-  return await sql`SELECT * FROM songs WHERE deleted = FALSE ORDER BY COALESCE(released_at, created_at::date) DESC, created_at DESC` as SongRow[];
+  // released_at/created_at přetypovat na text — Neon je jinak vrací jako Date (nelze renderovat).
+  return await sql`
+    SELECT slug, title, note_cs, note_en, audio_url, cover_url,
+           released_at::text AS released_at, published, deleted, sort_order,
+           created_at::text AS created_at
+    FROM songs WHERE deleted = FALSE
+    ORDER BY COALESCE(released_at, created_at::date) DESC, created_at DESC
+  ` as SongRow[];
 }
 
 export async function createSong(r: { slug: string; title: string; note_cs: string; note_en: string; audio_url: string; cover_url: string | null; released_at: string | null }): Promise<void> {
