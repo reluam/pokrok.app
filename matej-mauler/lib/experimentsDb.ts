@@ -29,6 +29,7 @@ async function ensure(sql: Sql) {
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`;
   await sql`ALTER TABLE experiments ADD COLUMN IF NOT EXISTS published_at DATE`;
+  await sql`ALTER TABLE experiments ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE`;
   // seed z kódu (jen co ještě není)
   for (let i = 0; i < STATIC.length; i++) {
     const m = STATIC[i];
@@ -59,7 +60,7 @@ export async function getPublicExperiments(lang: "cs" | "en"): Promise<PublicExp
     const sql = getDb();
     await ensure(sql);
     // Chronologicky (nejstarší první) kvůli číslování, pak otočíme → nejnovější nahoře.
-    const rows = await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC` as (ExperimentRow & { eff_date: string })[];
+    const rows = await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE AND deleted = FALSE ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC` as (ExperimentRow & { eff_date: string })[];
     const numbered = rows.map((r, i) => ({ slug: r.slug, title: lang === "cs" ? r.title_cs : r.title_en, description: lang === "cs" ? r.desc_cs : r.desc_en, color: r.color, href: r.href, external: r.external, date: r.eff_date, number: i + 1 }));
     return numbered.reverse();
   } catch {
@@ -71,11 +72,23 @@ export async function isPublished(slug: string): Promise<boolean> {
   try {
     const sql = getDb();
     await ensure(sql);
-    const [row] = await sql`SELECT published FROM experiments WHERE slug = ${slug}` as { published: boolean }[];
+    const [row] = await sql`SELECT published, deleted FROM experiments WHERE slug = ${slug}` as { published: boolean; deleted: boolean }[];
     if (!row) return true; // neznámý slug → nech projít (fail open)
-    return row.published;
+    return row.published && !row.deleted; // draft i smazané → zavřít
   } catch {
     return true; // DB výpadek → nech projít
+  }
+}
+
+/** Hrefy smazaných experimentů — pro middleware (410 Gone). */
+export async function getDeletedHrefs(): Promise<string[]> {
+  try {
+    const sql = getDb();
+    await ensure(sql);
+    const rows = await sql`SELECT href FROM experiments WHERE deleted = TRUE` as { href: string }[];
+    return rows.map((r) => r.href);
+  } catch {
+    return [];
   }
 }
 
@@ -89,7 +102,7 @@ export async function guardExperiment(slug: string): Promise<void> {
 export async function getAllExperiments(): Promise<ExperimentRow[]> {
   const sql = getDb();
   await ensure(sql);
-  return await sql`SELECT * FROM experiments ORDER BY sort_order ASC` as ExperimentRow[];
+  return await sql`SELECT * FROM experiments WHERE deleted = FALSE ORDER BY sort_order ASC` as ExperimentRow[];
 }
 
 export async function patchExperiment(slug: string, f: Partial<ExperimentRow>): Promise<void> {
@@ -110,10 +123,12 @@ export async function createExperiment(r: Omit<ExperimentRow, "sort_order" | "pu
     ON CONFLICT (slug) DO NOTHING`;
 }
 
+// Soft-delete: ponecháme řádek jako náhrobek (tombstone) → nereseeduje se z kódu,
+// zmizí z homepage/adminu/sitemapy a middleware podle něj vrátí 410 na routě.
 export async function deleteExperiment(slug: string): Promise<void> {
   const sql = getDb();
   await ensure(sql);
-  await sql`DELETE FROM experiments WHERE slug = ${slug}`;
+  await sql`UPDATE experiments SET deleted = TRUE, published = FALSE WHERE slug = ${slug}`;
 }
 
 export async function reorderExperiments(order: string[]): Promise<void> {
