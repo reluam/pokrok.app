@@ -1,8 +1,10 @@
 import { Dictionary, Lang } from "@/lib/dictionaries";
 import type { PublicExperiment } from "@/lib/experimentsDb";
+import { type PublicSong, songsUi } from "@/lib/songsDb";
 import { CATEGORIES } from "@/lib/experiments";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
+import { TrackPlayer } from "./TrackPlayer";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 
@@ -13,7 +15,8 @@ function fmtDate(iso: string, lang: Lang): string {
     : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lang; items: PublicExperiment[] }) {
+export function HomeContent({ dict, lang, items, songs = [] }: { dict: Dictionary; lang: Lang; items: PublicExperiment[]; songs?: PublicSong[] }) {
+  const su = songsUi[lang];
   return (
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <LanguageSwitcher lang={lang} labels={dict.switcher} />
@@ -88,6 +91,20 @@ export function HomeContent({ dict, lang, items }: { dict: Dictionary; lang: Lan
             </a>
           ))}
         </section>
+
+        {/* Songs */}
+        {songs.length > 0 && (
+          <section className="py-10" style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "14px", flexWrap: "wrap", marginBottom: "18px" }}>
+              <h2 className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{su.title}</h2>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)", fontStyle: "italic" }}>{su.subtitle}</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {songs.map((s) => <TrackPlayer key={s.slug} song={s} lang={lang} />)}
+            </div>
+            <a href="/songs" style={{ display: "inline-block", marginTop: "16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: "3px" }}>{su.all}</a>
+          </section>
+        )}
 
         {/* O projektu */}
         <section

@@ -99,6 +99,9 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
           <Link href="/admin/experiments" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
             Experimenty →
           </Link>
+          <Link href="/admin/songs" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
+            Songs →
+          </Link>
           <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>
             ← Spaghetti.ltd
           </Link>
