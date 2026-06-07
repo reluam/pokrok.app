@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Fdtd, MATERIALS, LEVELS, suUi, type Level } from "@/lib/soundUniverse";
+import { Fdtd, MATERIALS, LEVELS, M_PER_CELL, suUi, type Level } from "@/lib/soundUniverse";
 import type { Lang } from "@/lib/dictionaries";
 
 const GW = 300, GH = 120;
@@ -144,6 +144,14 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       ctx.fillStyle = "#ff6fae"; ctx.beginPath(); ctx.arc(sx, g2sy(stage.current.y), 9, 0, 7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = "#fff"; ctx.stroke();
       ctx.fillStyle = "rgba(255,150,210,0.9)"; ctx.fillText(t.stage, sx, syG + 16);
 
+      // kóta vzdálenosti stage → město
+      const sxC = g2sx(level.cityX); const dM = Math.round(Math.abs(stage.current.x - level.cityX) * M_PER_CELL);
+      const ly = Math.min(cssH - 6, syG + 30);
+      ctx.strokeStyle = "rgba(255,255,255,0.3)"; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(sx, ly); ctx.lineTo(sxC, ly); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "700 11px var(--font-sans, system-ui)";
+      ctx.fillText(`${dM} m`, (sx + sxC) / 2, ly - 4);
+
       // měření u města → audio + výhra
       let e = 0; for (let k = -3; k <= 3; k++) e += f.energyAt((level.cityX + k * 3) | 0, city.current.y | 0, 2); e /= 7;
       const dx = stage.current.x - level.cityX, dy = stage.current.y - city.current.y;
@@ -246,6 +254,7 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
 
   const over = level.limit;
   const cityPct = Math.round(meters.city * 100);
+  const distM = Math.round(Math.abs(level.stageX - level.cityX) * M_PER_CELL);
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "#04060f", color: "#fff", display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -262,6 +271,7 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
         {started && (
           <div style={{ position: "absolute", top: "12px", right: "14px", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "12px", padding: "10px 12px", backdropFilter: "blur(6px)", minWidth: "180px" }}>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", marginBottom: "2px" }}>{t.level} · {level.name[lang]}</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "rgba(255,255,255,0.6)", marginBottom: "6px" }}>{t.distance}: {distM} m</p>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "rgba(255,255,255,0.85)", marginBottom: "8px" }}>{t.cityHears}: <strong style={{ color: meters.warming ? "rgba(255,255,255,0.6)" : meters.city <= over ? "#5ec46a" : "#ff6b6b" }}>{meters.warming ? t.propagating : `${cityPct}%`}</strong></p>
             <div style={{ height: 10, background: "rgba(255,255,255,0.14)", borderRadius: "999px", position: "relative", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${cityPct}%`, background: meters.city <= over ? "#5ec46a" : "#ff6b6b" }} />

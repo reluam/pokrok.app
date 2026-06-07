@@ -1,5 +1,8 @@
 import type { Lang } from "./dictionaries";
 
+// měřítko: kolik metrů reality = 1 buňka mřížky
+export const M_PER_CELL = 1.5;
+
 /* ── Materiály překážek ────────────────────────────────────────────
    c2f = podíl rychlosti² oproti médiu (nižší = tvrdší/odrazivější bariéra)
    damp = pohlcení (vyšší = víc absorbuje energii)                       */
@@ -158,17 +161,17 @@ export type Level = {
 
 // pozn.: y roste dolů, zem je kolem y≈113 (GH=120, groundY=H-7)
 export const LEVELS: Level[] = [
-  { id: "louka-1", name: { cs: "Louka", en: "Meadow" }, env: "meadow", loudness: 1.0, limit: 0.36, budget: 1500, stageX: 46, cityX: 256, cityW: 34 },
-  { id: "louka-2", name: { cs: "Hlučná kapela", en: "Loud band" }, env: "meadow", loudness: 1.55, limit: 0.24, budget: 1900, stageX: 46, cityX: 256, cityW: 34 },
+  { id: "louka-1", name: { cs: "Louka", en: "Meadow" }, env: "meadow", loudness: 2.2, limit: 0.35, budget: 1500, stageX: 46, cityX: 230, cityW: 34 },
+  { id: "louka-2", name: { cs: "Hlučná kapela", en: "Loud band" }, env: "meadow", loudness: 3.0, limit: 0.28, budget: 1900, stageX: 46, cityX: 256, cityW: 34 },
   {
-    id: "mesto-1", name: { cs: "Ve městě", en: "In the city" }, env: "city", loudness: 1.2, limit: 0.30, budget: 1500, stageX: 40, cityX: 262, cityW: 30,
+    id: "mesto-1", name: { cs: "Ve městě", en: "In the city" }, env: "city", loudness: 2.6, limit: 0.30, budget: 1500, stageX: 40, cityX: 262, cityW: 30,
     prebuilt: [
       { x0: 118, x1: 138, top: 82, mat: 2 },
       { x0: 168, x1: 186, top: 90, mat: 2 },
       { x0: 206, x1: 224, top: 78, mat: 2 },
     ],
   },
-  { id: "festival", name: { cs: "Velký festival", en: "Big festival" }, env: "meadow", loudness: 1.9, limit: 0.20, budget: 2400, stageX: 44, cityX: 258, cityW: 38 },
+  { id: "festival", name: { cs: "Velký festival", en: "Big festival" }, env: "meadow", loudness: 3.6, limit: 0.22, budget: 2400, stageX: 44, cityX: 268, cityW: 38 },
 ];
 
 export const suUi = {
@@ -178,7 +181,7 @@ export const suUi = {
     title: "Festival",
     intro: "Na stagi hraje kapela a tvým úkolem je, aby se hudba nedostala do města. Postav odhlučnění a ztiš město pod limit.",
     start: "Spustit festival 🔊",
-    level: "Level", stage: "Stage", city: "Město",
+    level: "Level", stage: "Stage", city: "Město", distance: "Vzdálenost",
     cityHears: "Co slyší město", limitLbl: "Limit",
     budget: "Odhlučnění", used: "použito",
     won: "Hotovo! Město má klid. 🎉", next: "Další level →", retry: "Zkusit znovu",
@@ -195,7 +198,7 @@ export const suUi = {
     title: "Festival",
     intro: "A band is playing on the stage and your job is to keep the music out of the city. Build soundproofing and get the city below the limit.",
     start: "Start the festival 🔊",
-    level: "Level", stage: "Stage", city: "City",
+    level: "Level", stage: "Stage", city: "City", distance: "Distance",
     cityHears: "What the city hears", limitLbl: "Limit",
     budget: "Soundproofing", used: "used",
     won: "Done! The city has peace. 🎉", next: "Next level →", retry: "Try again",
