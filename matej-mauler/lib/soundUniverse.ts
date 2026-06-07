@@ -187,6 +187,7 @@ export const suUi = {
     audioNote: "Audio experiment — zapni si zvuk.",
     noSong: "(nemáš nahraný žádný song, hraje náhradní tón — nahraj si v /admin)",
     overBudget: "Došlo odhlučnění!",
+    propagating: "zvuk se šíří…",
   },
   en: {
     back: "← Spaghetti.ltd",
@@ -203,6 +204,7 @@ export const suUi = {
     audioNote: "Audio experiment — turn your sound on.",
     noSong: "(no uploaded song, playing a fallback tone — upload one in /admin)",
     overBudget: "Out of soundproofing!",
+    propagating: "sound is travelling…",
   },
 } as const;
 
