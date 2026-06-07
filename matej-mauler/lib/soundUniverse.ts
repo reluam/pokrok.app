@@ -12,15 +12,16 @@ export type Material = {
   color: string;
   c2f: number;
   damp: number;
+  cost: number; // cena za buňku (čerpá z budgetu)
 };
 
 export const MATERIALS: Material[] = [
-  { id: 1, name: { cs: "Cihla", en: "Brick" }, color: "#b5562f", c2f: 0.14, damp: 0.010 },
-  { id: 2, name: { cs: "Beton", en: "Concrete" }, color: "#8b8d92", c2f: 0.05, damp: 0.004 },
-  { id: 3, name: { cs: "Sklo", en: "Glass" }, color: "#7fd3e0", c2f: 0.07, damp: 0.003 },
-  { id: 4, name: { cs: "Zemina / val", en: "Soil / berm" }, color: "#6b4f32", c2f: 0.22, damp: 0.045 },
-  { id: 5, name: { cs: "Písek", en: "Sand" }, color: "#e3c779", c2f: 0.30, damp: 0.060 },
-  { id: 6, name: { cs: "Stromy / plot", en: "Trees / hedge" }, color: "#3f8a4a", c2f: 0.55, damp: 0.030 },
+  { id: 1, name: { cs: "Cihla", en: "Brick" }, color: "#b5562f", c2f: 0.14, damp: 0.010, cost: 2 },
+  { id: 2, name: { cs: "Beton", en: "Concrete" }, color: "#8b8d92", c2f: 0.05, damp: 0.004, cost: 3 },
+  { id: 3, name: { cs: "Sklo", en: "Glass" }, color: "#7fd3e0", c2f: 0.07, damp: 0.003, cost: 3 },
+  { id: 4, name: { cs: "Zemina / val", en: "Soil / berm" }, color: "#6b4f32", c2f: 0.22, damp: 0.045, cost: 1 },
+  { id: 5, name: { cs: "Písek", en: "Sand" }, color: "#e3c779", c2f: 0.30, damp: 0.060, cost: 1 },
+  { id: 6, name: { cs: "Stromy / plot", en: "Trees / hedge" }, color: "#3f8a4a", c2f: 0.55, damp: 0.030, cost: 1 },
 ];
 export const materialById = (id: number) => MATERIALS.find((m) => m.id === id) ?? null;
 
@@ -152,8 +153,9 @@ export type Level = {
   env: LevelEnv;
   loudness: number; // amplituda zdroje
   limit: number;    // max přípustná hlasitost u města (0..1)
-  budget: number;   // max počet postavených buněk (odhlučnění)
-  stageX: number;   // x pozice stage (u země)
+  budget: number;   // rozpočet na odhlučnění (cena buněk dle materiálu)
+  stageX: number;   // x pozice stage
+  stageH?: number;  // výška zdroje nad zemí (vyvýšené pódium)
   cityX: number;    // střed města
   cityW: number;    // šířka města
   prebuilt?: Prebuilt[]; // budovy / terén už ve scéně
@@ -161,17 +163,18 @@ export type Level = {
 
 // pozn.: y roste dolů, zem je kolem y≈113 (GH=120, groundY=H-7)
 export const LEVELS: Level[] = [
-  { id: "louka-1", name: { cs: "Louka", en: "Meadow" }, env: "meadow", loudness: 2.2, limit: 0.35, budget: 1500, stageX: 46, cityX: 230, cityW: 34 },
-  { id: "louka-2", name: { cs: "Hlučná kapela", en: "Loud band" }, env: "meadow", loudness: 3.0, limit: 0.28, budget: 1900, stageX: 46, cityX: 256, cityW: 34 },
+  { id: "louka-1", name: { cs: "Louka", en: "Meadow" }, env: "meadow", loudness: 2.2, limit: 0.36, budget: 520, stageX: 46, cityX: 230, cityW: 34 },
+  { id: "louka-2", name: { cs: "Hlučná kapela", en: "Loud band" }, env: "meadow", loudness: 3.0, limit: 0.28, budget: 700, stageX: 46, cityX: 256, cityW: 34 },
+  { id: "podium", name: { cs: "Vyvýšené pódium", en: "Raised stage" }, env: "meadow", loudness: 2.8, limit: 0.30, budget: 760, stageX: 48, stageH: 38, cityX: 256, cityW: 34 },
   {
-    id: "mesto-1", name: { cs: "Ve městě", en: "In the city" }, env: "city", loudness: 2.6, limit: 0.30, budget: 1500, stageX: 40, cityX: 262, cityW: 30,
+    id: "mesto-1", name: { cs: "Ve městě", en: "In the city" }, env: "city", loudness: 2.6, limit: 0.32, budget: 640, stageX: 40, cityX: 262, cityW: 30,
     prebuilt: [
       { x0: 118, x1: 138, top: 82, mat: 2 },
       { x0: 168, x1: 186, top: 90, mat: 2 },
       { x0: 206, x1: 224, top: 78, mat: 2 },
     ],
   },
-  { id: "festival", name: { cs: "Velký festival", en: "Big festival" }, env: "meadow", loudness: 3.6, limit: 0.22, budget: 2400, stageX: 44, cityX: 268, cityW: 38 },
+  { id: "festival", name: { cs: "Velký festival", en: "Big festival" }, env: "meadow", loudness: 3.6, limit: 0.22, budget: 1000, stageX: 44, stageH: 24, cityX: 268, cityW: 38 },
 ];
 
 export const suUi = {
