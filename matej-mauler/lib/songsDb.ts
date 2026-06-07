@@ -10,12 +10,15 @@ export type SongRow = {
   released_at: string | null;
   published: boolean; deleted: boolean;
   sort_order: number; created_at?: string;
+  likes?: number;
 };
 
 export type PublicSong = {
   slug: string; title: string; note: string;
-  audioUrl: string; coverUrl: string | null; date: string;
+  audioUrl: string; coverUrl: string | null; date: string; likes: number;
 };
+
+export type SongComment = { id: number; author: string; content: string; created_at: string };
 
 let ready = false;
 
@@ -32,6 +35,14 @@ async function ensure(sql: Sql) {
     published BOOLEAN NOT NULL DEFAULT FALSE,
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     sort_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`;
+  await sql`ALTER TABLE songs ADD COLUMN IF NOT EXISTS likes INT NOT NULL DEFAULT 0`;
+  await sql`CREATE TABLE IF NOT EXISTS song_comments (
+    id SERIAL PRIMARY KEY,
+    song_slug TEXT NOT NULL,
+    author TEXT NOT NULL DEFAULT '',
+    content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`;
   ready = true;
@@ -53,11 +64,56 @@ export async function getPublicSongs(lang: "cs" | "en", limit?: number): Promise
       slug: r.slug, title: r.title,
       note: lang === "cs" ? r.note_cs : r.note_en,
       audioUrl: r.audio_url, coverUrl: r.cover_url, date: r.eff_date,
+      likes: r.likes ?? 0,
     }));
     return limit ? mapped.slice(0, limit) : mapped;
   } catch {
     return [];
   }
+}
+
+/* ── Lajky a komentáře (veřejné) ───────────────────────────────── */
+export async function likeSong(slug: string, delta: number): Promise<number> {
+  const sql = getDb();
+  await ensure(sql);
+  const d = delta >= 0 ? 1 : -1;
+  const [row] = await sql`
+    UPDATE songs SET likes = GREATEST(0, likes + ${d})
+    WHERE slug = ${slug} AND published = TRUE AND deleted = FALSE
+    RETURNING likes
+  ` as { likes: number }[];
+  return row?.likes ?? 0;
+}
+
+export async function listComments(slug: string): Promise<SongComment[]> {
+  try {
+    const sql = getDb();
+    await ensure(sql);
+    return await sql`
+      SELECT id, author, content, created_at::text AS created_at
+      FROM song_comments WHERE song_slug = ${slug}
+      ORDER BY created_at DESC LIMIT 200
+    ` as SongComment[];
+  } catch {
+    return [];
+  }
+}
+
+export async function addComment(slug: string, author: string, content: string): Promise<SongComment | null> {
+  const sql = getDb();
+  await ensure(sql);
+  // jen pro existující publikovaný song
+  const [song] = await sql`SELECT 1 FROM songs WHERE slug = ${slug} AND published = TRUE AND deleted = FALSE` as { "?column?": number }[];
+  if (!song) return null;
+  const a = author.trim().slice(0, 40);
+  const c = content.trim().slice(0, 1000);
+  if (!c) return null;
+  const [row] = await sql`
+    INSERT INTO song_comments (song_slug, author, content)
+    VALUES (${slug}, ${a}, ${c})
+    RETURNING id, author, content, created_at::text AS created_at
+  ` as SongComment[];
+  return row ?? null;
 }
 
 /* ── Admin operace ─────────────────────────────────────────────── */
@@ -107,6 +163,10 @@ export const songsUi = {
     all: "Všechny songy →",
     empty: "Zatím ticho. Brzy tu něco zahraje.",
     play: "Přehrát", pause: "Pauza",
+    prev: "Novější", next: "Starší", volume: "Hlasitost",
+    comments: "Komentáře", noComments: "Zatím bez komentářů. Buď první.",
+    namePh: "Jméno (nepovinné)", commentPh: "Napiš komentář…", send: "Odeslat",
+    of: "z",
   },
   en: {
     back: "← Spaghetti.ltd",
@@ -116,5 +176,9 @@ export const songsUi = {
     all: "All songs →",
     empty: "Silence for now. Something will play here soon.",
     play: "Play", pause: "Pause",
+    prev: "Newer", next: "Older", volume: "Volume",
+    comments: "Comments", noComments: "No comments yet. Be the first.",
+    namePh: "Name (optional)", commentPh: "Write a comment…", send: "Send",
+    of: "of",
   },
 } as const;

@@ -4,7 +4,7 @@ import { type PublicSong, songsUi } from "@/lib/songsDb";
 import { CATEGORIES } from "@/lib/experiments";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
-import { TrackPlayer } from "./TrackPlayer";
+import { SongsPlayer } from "./SongsPlayer";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 
@@ -99,9 +99,7 @@ export function HomeContent({ dict, lang, items, songs = [] }: { dict: Dictionar
               <h2 className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{su.title}</h2>
               <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)", fontStyle: "italic" }}>{su.subtitle}</span>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {songs.map((s) => <TrackPlayer key={s.slug} song={s} lang={lang} />)}
-            </div>
+            <SongsPlayer songs={songs} lang={lang} compact />
             <a href="/songs" style={{ display: "inline-block", marginTop: "16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: "3px" }}>{su.all}</a>
           </section>
         )}

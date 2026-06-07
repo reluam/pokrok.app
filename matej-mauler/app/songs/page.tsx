@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getLang } from "@/lib/getLang";
 import { getPublicSongs, songsUi } from "@/lib/songsDb";
-import { TrackPlayer } from "@/components/TrackPlayer";
+import { SongsPlayer } from "@/components/SongsPlayer";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Songs — Spaghetti.ltd" };
@@ -28,9 +28,7 @@ export default async function SongsPage() {
         {songs.length === 0 ? (
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "15px", color: "var(--text-muted)" }}>{t.empty}</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            {songs.map((s) => <TrackPlayer key={s.slug} song={s} lang={lang} />)}
-          </div>
+          <SongsPlayer songs={songs} lang={lang} />
         )}
       </div>
     </main>
