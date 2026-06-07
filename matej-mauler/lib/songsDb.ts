@@ -18,7 +18,7 @@ export type PublicSong = {
   audioUrl: string; coverUrl: string | null; date: string; likes: number;
 };
 
-export type SongComment = { id: number; author: string; content: string; created_at: string };
+export type SongMessage = { id: number; author: string; content: string; created_at: string };
 
 let ready = false;
 
@@ -72,7 +72,7 @@ export async function getPublicSongs(lang: "cs" | "en", limit?: number): Promise
   }
 }
 
-/* ── Lajky a komentáře (veřejné) ───────────────────────────────── */
+/* ── Lajky (veřejné) ───────────────────────────────────────────── */
 export async function likeSong(slug: string, delta: number): Promise<number> {
   const sql = getDb();
   await ensure(sql);
@@ -85,35 +85,36 @@ export async function likeSong(slug: string, delta: number): Promise<number> {
   return row?.likes ?? 0;
 }
 
-export async function listComments(slug: string): Promise<SongComment[]> {
-  try {
-    const sql = getDb();
-    await ensure(sql);
-    return await sql`
-      SELECT id, author, content, created_at::text AS created_at
-      FROM song_comments WHERE song_slug = ${slug}
-      ORDER BY created_at DESC LIMIT 200
-    ` as SongComment[];
-  } catch {
-    return [];
-  }
-}
-
-export async function addComment(slug: string, author: string, content: string): Promise<SongComment | null> {
+/* ── Soukromé zprávy autorovi (NEzobrazují se veřejně) ──────────── */
+export async function addMessage(slug: string, author: string, content: string): Promise<boolean> {
   const sql = getDb();
   await ensure(sql);
-  // jen pro existující publikovaný song
   const [song] = await sql`SELECT 1 FROM songs WHERE slug = ${slug} AND published = TRUE AND deleted = FALSE` as { "?column?": number }[];
-  if (!song) return null;
+  if (!song) return false;
   const a = author.trim().slice(0, 40);
-  const c = content.trim().slice(0, 1000);
-  if (!c) return null;
-  const [row] = await sql`
-    INSERT INTO song_comments (song_slug, author, content)
-    VALUES (${slug}, ${a}, ${c})
-    RETURNING id, author, content, created_at::text AS created_at
-  ` as SongComment[];
-  return row ?? null;
+  const c = content.trim().slice(0, 2000);
+  if (!c) return false;
+  await sql`INSERT INTO song_comments (song_slug, author, content) VALUES (${slug}, ${a}, ${c})`;
+  return true;
+}
+
+// admin: všechny zprávy napříč songy
+export async function getAllMessages(): Promise<(SongMessage & { song_slug: string; song_title: string })[]> {
+  const sql = getDb();
+  await ensure(sql);
+  return await sql`
+    SELECT m.id, m.author, m.content, m.created_at::text AS created_at,
+           m.song_slug, COALESCE(s.title, m.song_slug) AS song_title
+    FROM song_comments m
+    LEFT JOIN songs s ON s.slug = m.song_slug
+    ORDER BY m.created_at DESC LIMIT 500
+  ` as (SongMessage & { song_slug: string; song_title: string })[];
+}
+
+export async function deleteMessage(id: number): Promise<void> {
+  const sql = getDb();
+  await ensure(sql);
+  await sql`DELETE FROM song_comments WHERE id = ${id}`;
 }
 
 /* ── Admin operace ─────────────────────────────────────────────── */
@@ -164,8 +165,10 @@ export const songsUi = {
     empty: "Zatím ticho. Brzy tu něco zahraje.",
     play: "Přehrát", pause: "Pauza",
     prev: "Novější", next: "Starší", volume: "Hlasitost",
-    comments: "Komentáře", noComments: "Zatím bez komentářů. Buď první.",
-    namePh: "Jméno (nepovinné)", commentPh: "Napiš komentář…", send: "Odeslat",
+    feedbackTitle: "Napiš svůj názor autorovi",
+    feedbackHint: "Uvidím to jen já. Veřejně se to nezobrazí.",
+    namePh: "Jméno (nepovinné)", commentPh: "Co na to říkáš?…", send: "Odeslat",
+    sent: "Díky, dorazilo to ke mně. 🍝",
     of: "z",
   },
   en: {
@@ -177,8 +180,10 @@ export const songsUi = {
     empty: "Silence for now. Something will play here soon.",
     play: "Play", pause: "Pause",
     prev: "Newer", next: "Older", volume: "Volume",
-    comments: "Comments", noComments: "No comments yet. Be the first.",
-    namePh: "Name (optional)", commentPh: "Write a comment…", send: "Send",
+    feedbackTitle: "Send your thoughts to the author",
+    feedbackHint: "Only I will see this. It won't be shown publicly.",
+    namePh: "Name (optional)", commentPh: "What do you think?…", send: "Send",
+    sent: "Thanks, it reached me. 🍝",
     of: "of",
   },
 } as const;

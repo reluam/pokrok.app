@@ -9,9 +9,20 @@ const inputS: React.CSSProperties = { width: "100%", background: "var(--bg)", bo
 const btn = (bg: string, color = "#fff"): React.CSSProperties => ({ background: bg, color, border: "none", borderRadius: "8px", padding: "7px 12px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, cursor: "pointer" });
 
 type Draft = Partial<SongRow>;
+export type AdminMessage = { id: number; author: string; content: string; created_at: string; song_slug: string; song_title: string };
 
-export function SongsAdmin({ initial }: { initial: SongRow[] }) {
+function fmtMsgDate(iso: string) {
+  return new Date(iso).toLocaleDateString("cs-CZ", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow[]; initialMessages?: AdminMessage[] }) {
   const [rows, setRows] = useState<SongRow[]>(initial);
+  const [messages, setMessages] = useState<AdminMessage[]>(initialMessages);
+  const delMessage = async (id: number) => {
+    if (!confirm("Smazat zprávu?")) return;
+    setMessages((m) => m.filter((x) => x.id !== id));
+    await fetch(`/api/admin/songs/messages/${id}`, { method: "DELETE" });
+  };
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>({});
   const [adding, setAdding] = useState(false);
@@ -111,6 +122,29 @@ export function SongsAdmin({ initial }: { initial: SongRow[] }) {
               )}
             </div>
           ))}
+        </div>
+
+        {/* Zprávy od posluchačů (soukromé) */}
+        <div style={{ marginTop: "32px", paddingTop: "20px", borderTop: "2px solid var(--border)" }}>
+          <h2 style={{ ...display, fontSize: "18px", fontWeight: 900, marginBottom: "4px" }}>Zprávy od posluchačů</h2>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginBottom: "14px" }}>Soukromé — vidíš je jen ty. {messages.length} celkem.</p>
+          {messages.length === 0 ? (
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)" }}>Zatím žádné zprávy.</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {messages.map((m) => (
+                <div key={m.id} style={{ background: "#fff", border: "2px solid var(--border)", borderRadius: "12px", padding: "12px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "10px", marginBottom: "6px" }}>
+                    <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)" }}>
+                      <strong style={{ color: "var(--text-secondary)", fontWeight: 700 }}>{m.author?.trim() || "Anonym"}</strong> · {m.song_title} · {fmtMsgDate(m.created_at)}
+                    </p>
+                    <button onClick={() => delMessage(m.id)} style={btn("#FEF2F2", "#b91c1c")}>×</button>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-primary)", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{m.content}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

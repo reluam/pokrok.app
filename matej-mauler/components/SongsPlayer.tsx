@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { type PublicSong, type SongComment, songsUi } from "@/lib/songsDb";
+import { useEffect, useRef, useState } from "react";
+import { type PublicSong, songsUi } from "@/lib/songsDb";
 import type { Lang } from "@/lib/dictionaries";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
@@ -17,11 +17,6 @@ function fmtDate(iso: string, lang: Lang): string {
     ? d.toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" })
     : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
-function fmtCommentDate(iso: string, lang: Lang): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
 const LIKED_KEY = "spaghetti-liked-songs";
 const NAME_KEY = "spaghetti-comment-name";
 
@@ -39,11 +34,10 @@ export function SongsPlayer({ songs, lang, compact = false }: { songs: PublicSon
   const [likes, setLikes] = useState<Record<string, number>>(() => Object.fromEntries(songs.map((s) => [s.slug, s.likes])));
   const [liked, setLiked] = useState<Set<string>>(new Set());
 
-  const [comments, setComments] = useState<SongComment[]>([]);
-  const [loadingC, setLoadingC] = useState(false);
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const song = songs[idx];
 
@@ -60,27 +54,13 @@ export function SongsPlayer({ songs, lang, compact = false }: { songs: PublicSon
   // hlasitost
   useEffect(() => { if (audioRef.current) audioRef.current.volume = volume; }, [volume, idx]);
 
-  // přepnutí songu → reload + případně autoplay
+  // přepnutí songu → reload + případně autoplay; reset formuláře zprávy
   useEffect(() => {
+    setSent(false); setText("");
     const a = audioRef.current; if (!a) return;
     a.load(); setCur(0); setDur(0);
     if (autoplay.current) { a.play().catch(() => {}); autoplay.current = false; }
   }, [idx]);
-
-  // načti komentáře (jen plná verze)
-  const loadComments = useCallback(async (slug: string) => {
-    setLoadingC(true);
-    try {
-      const res = await fetch(`/api/songs/${slug}/comments`, { cache: "no-store" });
-      setComments(res.ok ? await res.json() : []);
-    } catch { setComments([]); }
-    setLoadingC(false);
-  }, []);
-
-  useEffect(() => {
-    if (compact || !song) return;
-    loadComments(song.slug);
-  }, [idx, compact, song, loadComments]);
 
   if (!song) return null;
 
@@ -117,13 +97,13 @@ export function SongsPlayer({ songs, lang, compact = false }: { songs: PublicSon
     } catch {}
   };
 
-  const submitComment = async () => {
+  const submitFeedback = async () => {
     if (!text.trim() || sending) return;
     setSending(true);
     try { localStorage.setItem(NAME_KEY, name); } catch {}
     try {
-      const res = await fetch(`/api/songs/${song.slug}/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ author: name, content: text }) });
-      if (res.ok) { const c = await res.json(); setComments((cs) => [c, ...cs]); setText(""); }
+      const res = await fetch(`/api/songs/${song.slug}/feedback`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ author: name, content: text }) });
+      if (res.ok) { setText(""); setSent(true); }
     } catch {}
     setSending(false);
   };
@@ -189,31 +169,21 @@ export function SongsPlayer({ songs, lang, compact = false }: { songs: PublicSon
         </button>
       </div>
 
-      {/* komentáře (plná verze) */}
+      {/* soukromá zpráva autorovi (plná verze) */}
       {!compact && (
         <div style={{ marginTop: "22px", paddingTop: "18px", borderTop: "1.5px solid rgba(26,22,20,0.1)" }}>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: "12px" }}>{t.comments} · {comments.length}</p>
+          <p style={{ ...display, fontSize: "16px", fontWeight: 700, marginBottom: "2px" }}>{t.feedbackTitle}</p>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginBottom: "12px" }}>{t.feedbackHint}</p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "14px" }}>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t.namePh} maxLength={40}
-              style={{ background: "var(--bg)", border: "2px solid var(--border)", borderRadius: "8px", padding: "8px 10px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-primary)", outline: "none" }} />
-            <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.commentPh} maxLength={1000} rows={2}
-              style={{ background: "var(--bg)", border: "2px solid var(--border)", borderRadius: "8px", padding: "8px 10px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-primary)", outline: "none", resize: "vertical" }} />
-            <button onClick={submitComment} disabled={sending || !text.trim()} style={{ alignSelf: "flex-start", background: "var(--text-primary)", color: "var(--bg)", border: "none", borderRadius: "10px", padding: "9px 18px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, cursor: text.trim() ? "pointer" : "default", opacity: text.trim() && !sending ? 1 : 0.5 }}>{t.send}</button>
-          </div>
-
-          {loadingC ? null : comments.length === 0 ? (
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)" }}>{t.noComments}</p>
+          {sent ? (
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-primary)", fontWeight: 600 }}>{t.sent}</p>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {comments.map((c) => (
-                <div key={c.id} style={{ borderLeft: "2px solid rgba(26,22,20,0.12)", paddingLeft: "12px" }}>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginBottom: "2px" }}>
-                    <strong style={{ color: "var(--text-secondary)", fontWeight: 700 }}>{c.author?.trim() || (lang === "cs" ? "Anonym" : "Anonymous")}</strong> · {fmtCommentDate(c.created_at, lang)}
-                  </p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-primary)", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{c.content}</p>
-                </div>
-              ))}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t.namePh} maxLength={40}
+                style={{ background: "var(--bg)", border: "2px solid var(--border)", borderRadius: "8px", padding: "8px 10px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-primary)", outline: "none" }} />
+              <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.commentPh} maxLength={2000} rows={3}
+                style={{ background: "var(--bg)", border: "2px solid var(--border)", borderRadius: "8px", padding: "8px 10px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-primary)", outline: "none", resize: "vertical" }} />
+              <button onClick={submitFeedback} disabled={sending || !text.trim()} style={{ alignSelf: "flex-start", background: "var(--text-primary)", color: "var(--bg)", border: "none", borderRadius: "10px", padding: "9px 18px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, cursor: text.trim() ? "pointer" : "default", opacity: text.trim() && !sending ? 1 : 0.5 }}>{t.send}</button>
             </div>
           )}
         </div>

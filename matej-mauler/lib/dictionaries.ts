@@ -58,7 +58,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
     },
     about: {
       heading: "O projektu",
-      p1: "Ahoj, jsem Matěj. Posedne mě nějaká věc, něco postavím a jdu dál. Pokaždé jsem přesvědčený, že je to ten nejlepší nápad, co jsem kdy měl. Většinou není.",
+      p1: "Ahoj, jsem Matěj. Posednou mě věci — občas dokonce stihnu udělat prototyp, než mě začne lákat další lesklá věc. Pokaždé jsem přesvědčený, že je to ten nejlepší nápad, co jsem kdy měl. Většinou není.",
       p2: "Spaghetti je místo, kde ty nápady žijí. Některé jsou užitečné. Některé jsou jen zajímavé. Většina není ani jedno.",
       p3a: "Jestli tě tu něco zaujme — nebo potřebuješ někoho, kdo vymyslí 9 špatných nápadů, abys našel ten jeden dobrý — ",
       writeMe: "napiš mi",
@@ -142,7 +142,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
     },
     about: {
       heading: "About",
-      p1: "Hi, I'm Matěj. I get obsessed with things, build something, and move on. Every time I'm convinced it's the best idea I've ever had. Usually it isn't.",
+      p1: "Hi, I'm Matěj. I get obsessed with things — sometimes even making a prototype before moving on to the next shiny thing. Every time I'm convinced it's the best idea I've ever had. Usually it isn't.",
       p2: "Spaghetti is where those ideas live. Some are useful. Some are just interesting. Most are neither.",
       p3a: "If something here catches your eye — or you need someone to come up with 9 bad ideas so you can find the one good one — ",
       writeMe: "write to me",
