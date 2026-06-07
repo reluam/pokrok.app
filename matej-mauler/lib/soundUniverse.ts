@@ -50,6 +50,7 @@ export const emitterById = (id: EmitterId) => EMITTERS.find((e) => e.id === id) 
 /* ── FDTD 2D akustická vlnová simulace ─────────────────────────────── */
 export class Fdtd {
   W: number; H: number; N: number;
+  groundY: number; // řádek, od kterého dolů je zem (odrazivá)
   p: Float32Array; p1: Float32Array; pnew: Float32Array;
   c2: Float32Array; damp: Float32Array;
   mat: Uint8Array; // id materiálu (0 = médium)
@@ -58,6 +59,7 @@ export class Fdtd {
 
   constructor(W: number, H: number) {
     this.W = W; this.H = H; this.N = W * H;
+    this.groundY = H - 7;
     this.p = new Float32Array(this.N);
     this.p1 = new Float32Array(this.N);
     this.pnew = new Float32Array(this.N);
@@ -71,21 +73,25 @@ export class Fdtd {
 
   setMedium(courant: number, damp: number) { this.baseCourant = courant; this.baseDamp = damp; this.rebuild(); }
 
-  // přepočítá c2/damp z mapy materiálů + média (+ absorpční okraj)
+  // přepočítá c2/damp z mapy materiálů + média; zem = odrazivá, okraje (kromě země) pohlcují
   rebuild() {
-    const { W, H } = this;
+    const { W, H, groundY } = this;
     const c2base = this.baseCourant * this.baseCourant;
     const edge = 10;
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const i = y * W + x;
-        const m = this.mat[i];
         let c2 = c2base, d = this.baseDamp;
-        if (m) { const mm = materialById(m); if (mm) { c2 = c2base * mm.c2f; d = mm.damp; } }
-        // absorpční rámeček, aby se vlny neodrážely od okraje plátna
-        const dx = Math.min(x, W - 1 - x), dy = Math.min(y, H - 1 - y);
-        const e = Math.min(dx, dy);
-        if (e < edge) d += 0.06 * (1 - e / edge);
+        if (y >= groundY) {
+          // zem / hlína pod povrchem — tvrdá, odrazivá
+          c2 = c2base * 0.03; d = 0.002;
+        } else {
+          const m = this.mat[i];
+          if (m) { const mm = materialById(m); if (mm) { c2 = c2base * mm.c2f; d = mm.damp; } }
+          // absorpční rámeček nahoře a po stranách (obloha = otevřený prostor), ne dole
+          const e = Math.min(x, W - 1 - x, y);
+          if (e < edge) d += 0.06 * (1 - e / edge);
+        }
         this.c2[i] = c2; this.damp[i] = d;
       }
     }
@@ -149,7 +155,7 @@ export const suUi = {
     reset: "Vyčistit",
     youHear: "Co slyšíš",
     loudness: "Hlasitost", muffle: "Zatlumení výšek",
-    tip: "Tip: postav stěnu mezi zdroj a ucho. Když ji dáš jen vedle, zvuk se odrazem zesílí.",
+    tip: "Stavěj tažením od země nahoru — výška překážky rozhoduje. Nízkou zvuk přeskočí, vysokou hůř. Zem i tvrdé stěny zvuk odrážejí.",
     audioNote: "Audio experiment — zapni si zvuk.",
   },
   en: {
@@ -166,7 +172,7 @@ export const suUi = {
     reset: "Clear",
     youHear: "What you hear",
     loudness: "Loudness", muffle: "High-end damping",
-    tip: "Tip: build a wall between the source and the ear. Put it only beside you and reflections make it louder.",
+    tip: "Build by dragging up from the ground — the barrier's height matters. Sound hops over a low wall, not a tall one. Ground and hard walls reflect.",
     audioNote: "Audio experiment — turn your sound on.",
   },
 } as const;
