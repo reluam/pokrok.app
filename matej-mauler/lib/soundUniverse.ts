@@ -77,7 +77,7 @@ export class Fdtd {
   rebuild() {
     const { W, H, groundY } = this;
     const c2base = this.baseCourant * this.baseCourant;
-    const edge = 10;
+    const sponge = 30; // široká pohlcující vrstva = otevřený prostor za okrajem (žádný odraz)
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const i = y * W + x;
@@ -88,9 +88,9 @@ export class Fdtd {
         } else {
           const m = this.mat[i];
           if (m) { const mm = materialById(m); if (mm) { c2 = c2base * mm.c2f; d = mm.damp; } }
-          // absorpční rámeček nahoře a po stranách (obloha = otevřený prostor), ne dole
+          // pohlcující vrstva nahoře a po stranách (obloha / volný prostor), ne dole (zem)
           const e = Math.min(x, W - 1 - x, y);
-          if (e < edge) d += 0.06 * (1 - e / edge);
+          if (e < sponge) { const k = 1 - e / sponge; d += 0.22 * k * k; }
         }
         this.c2[i] = c2; this.damp[i] = d;
       }
@@ -140,40 +140,69 @@ export class Fdtd {
   }
 }
 
+/* ── Levely hry „nepusť festival do města" ─────────────────────── */
+export type LevelEnv = "meadow" | "city";
+export type Prebuilt = { x0: number; x1: number; top: number; mat: number };
+export type Level = {
+  id: string;
+  name: { cs: string; en: string };
+  env: LevelEnv;
+  loudness: number; // amplituda zdroje
+  limit: number;    // max přípustná hlasitost u města (0..1)
+  budget: number;   // max počet postavených buněk (odhlučnění)
+  stageX: number;   // x pozice stage (u země)
+  cityX: number;    // střed města
+  cityW: number;    // šířka města
+  prebuilt?: Prebuilt[]; // budovy / terén už ve scéně
+};
+
+// pozn.: y roste dolů, zem je kolem y≈113 (GH=120, groundY=H-7)
+export const LEVELS: Level[] = [
+  { id: "louka-1", name: { cs: "Louka", en: "Meadow" }, env: "meadow", loudness: 1.0, limit: 0.36, budget: 1500, stageX: 46, cityX: 256, cityW: 34 },
+  { id: "louka-2", name: { cs: "Hlučná kapela", en: "Loud band" }, env: "meadow", loudness: 1.55, limit: 0.24, budget: 1900, stageX: 46, cityX: 256, cityW: 34 },
+  {
+    id: "mesto-1", name: { cs: "Ve městě", en: "In the city" }, env: "city", loudness: 1.2, limit: 0.30, budget: 1500, stageX: 40, cityX: 262, cityW: 30,
+    prebuilt: [
+      { x0: 118, x1: 138, top: 82, mat: 2 },
+      { x0: 168, x1: 186, top: 90, mat: 2 },
+      { x0: 206, x1: 224, top: 78, mat: 2 },
+    ],
+  },
+  { id: "festival", name: { cs: "Velký festival", en: "Big festival" }, env: "meadow", loudness: 1.9, limit: 0.20, budget: 2400, stageX: 44, cityX: 258, cityW: 38 },
+];
+
 export const suUi = {
   cs: {
     back: "← Spaghetti.ltd",
     eyebrow: "Sound Universe",
-    title: "Sound Universe",
-    intro: "Postav svět mezi zdrojem zvuku a svýma ušima. Uslyšíš a uvidíš, jak se zvuk šíří.",
-    start: "Spustit zvuk 🔊",
-    emitter: "Zdroj zvuku",
-    medium: "Prostředí",
-    material: "Materiál překážky",
-    tools: "Nástroje",
-    move: "Posun zdroje", ear: "Posun ucha", paint: "Stavět", erase: "Bourat",
-    reset: "Vyčistit",
-    youHear: "Co slyšíš",
-    loudness: "Hlasitost", muffle: "Zatlumení výšek",
-    tip: "Stavěj tažením od země nahoru — výška překážky rozhoduje. Nízkou zvuk přeskočí, vysokou hůř. Zem i tvrdé stěny zvuk odrážejí.",
+    title: "Festival",
+    intro: "Na stagi hraje kapela a tvým úkolem je, aby se hudba nedostala do města. Postav odhlučnění a ztiš město pod limit.",
+    start: "Spustit festival 🔊",
+    level: "Level", stage: "Stage", city: "Město",
+    cityHears: "Co slyší město", limitLbl: "Limit",
+    budget: "Odhlučnění", used: "použito",
+    won: "Hotovo! Město má klid. 🎉", next: "Další level →", retry: "Zkusit znovu",
+    tools: "Nástroje", material: "Materiál", paint: "Stavět", erase: "Bourat", reset: "Vyčistit",
+    tip: "Postav stěnu mezi stage a město. Výška i materiál rozhodují — zvuk se ohýbá přes vršek a odráží od tvrdých ploch i budov.",
     audioNote: "Audio experiment — zapni si zvuk.",
+    noSong: "(nemáš nahraný žádný song, hraje náhradní tón — nahraj si v /admin)",
+    overBudget: "Došlo odhlučnění!",
   },
   en: {
     back: "← Spaghetti.ltd",
     eyebrow: "Sound Universe",
-    title: "Sound Universe",
-    intro: "Build the world between a sound source and your ears. Hear and see how sound travels.",
-    start: "Start sound 🔊",
-    emitter: "Sound source",
-    medium: "Medium",
-    material: "Obstacle material",
-    tools: "Tools",
-    move: "Move source", ear: "Move ear", paint: "Build", erase: "Demolish",
-    reset: "Clear",
-    youHear: "What you hear",
-    loudness: "Loudness", muffle: "High-end damping",
-    tip: "Build by dragging up from the ground — the barrier's height matters. Sound hops over a low wall, not a tall one. Ground and hard walls reflect.",
+    title: "Festival",
+    intro: "A band is playing on the stage and your job is to keep the music out of the city. Build soundproofing and get the city below the limit.",
+    start: "Start the festival 🔊",
+    level: "Level", stage: "Stage", city: "City",
+    cityHears: "What the city hears", limitLbl: "Limit",
+    budget: "Soundproofing", used: "used",
+    won: "Done! The city has peace. 🎉", next: "Next level →", retry: "Try again",
+    tools: "Tools", material: "Material", paint: "Build", erase: "Demolish", reset: "Clear",
+    tip: "Build a wall between the stage and the city. Height and material both matter — sound bends over the top and reflects off hard surfaces and buildings.",
     audioNote: "Audio experiment — turn your sound on.",
+    noSong: "(no uploaded song, playing a fallback tone — upload one in /admin)",
+    overBudget: "Out of soundproofing!",
   },
 } as const;
 
