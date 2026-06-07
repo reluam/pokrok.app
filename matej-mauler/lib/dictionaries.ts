@@ -118,6 +118,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Space",
         description: "Interaktivní mapa naší galaxie. Klikni a zjisti, kde to vlastně jsme.",
       },
+      {
+        slug: "soundverse",
+        title: "Sound Universe",
+        description: "Postav svět mezi zdrojem zvuku a svýma ušima a poslouchej, jak se šíří.",
+      },
     ],
   },
 
@@ -201,6 +206,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "space",
         title: "Space",
         description: "An interactive map of our galaxy. Click to learn where we actually are.",
+      },
+      {
+        slug: "soundverse",
+        title: "Sound Universe",
+        description: "Build the world between a sound source and your ears, and hear how it travels.",
       },
     ],
   },
