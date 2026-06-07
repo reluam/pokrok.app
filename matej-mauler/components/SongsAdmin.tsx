@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { upload } from "@vercel/blob/client";
 import type { SongRow } from "@/lib/songsDb";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
@@ -28,6 +29,19 @@ export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow
   const [adding, setAdding] = useState(false);
   const [neu, setNeu] = useState<Draft>({});
   const [busy, setBusy] = useState(false);
+  const [upA, setUpA] = useState(false);
+  const [upC, setUpC] = useState(false);
+
+  const uploadTo = async (file: File, key: "audio_url" | "cover_url", setBusyFlag: (b: boolean) => void) => {
+    setBusyFlag(true);
+    try {
+      const blob = await upload(`songs/${Date.now()}-${file.name}`, file, { access: "public", handleUploadUrl: "/api/admin/songs/upload" });
+      setNeu((n) => ({ ...n, [key]: blob.url }));
+    } catch (e) {
+      alert("Upload selhal: " + (e as Error).message);
+    }
+    setBusyFlag(false);
+  };
 
   const patch = async (slug: string, f: Draft) => {
     setRows((r) => r.map((x) => x.slug === slug ? { ...x, ...f } : x));
@@ -77,8 +91,16 @@ export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow
         {adding && (
           <div style={{ background: "#fff", border: "2px solid var(--border)", borderRadius: "12px", padding: "16px", marginBottom: "18px" }}>
             {field("Název", "title", neu, setNeu, "Půlnoční špagety")}
-            {field("Odkaz na audio (.mp3)", "audio_url", neu, setNeu, "https://… .mp3")}
-            {field("Obrázek / cover (URL, nepovinné)", "cover_url", neu, setNeu, "https://… .jpg")}
+            {field("Odkaz na audio (.mp3)", "audio_url", neu, setNeu, "https://… .mp3 (nebo nahraj níže)")}
+            <label style={{ display: "block", marginBottom: "10px" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", display: "block", marginBottom: "3px" }}>↑ Nebo nahraj audio do Blobu {upA && "· nahrávám…"}</span>
+              <input type="file" accept="audio/*" disabled={upA} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTo(f, "audio_url", setUpA); }} style={{ fontFamily: "var(--font-sans)", fontSize: "12px" }} />
+            </label>
+            {field("Obrázek / cover (URL, nepovinné)", "cover_url", neu, setNeu, "https://… .jpg (nebo nahraj níže)")}
+            <label style={{ display: "block", marginBottom: "10px" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", display: "block", marginBottom: "3px" }}>↑ Nebo nahraj cover do Blobu {upC && "· nahrávám…"}</span>
+              <input type="file" accept="image/*" disabled={upC} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTo(f, "cover_url", setUpC); }} style={{ fontFamily: "var(--font-sans)", fontSize: "12px" }} />
+            </label>
             {field("Datum vydání", "released_at", neu, setNeu, "", "date")}
             {field("Poznámka CS", "note_cs", neu, setNeu, "O čem to je…")}
             {field("Note EN", "note_en", neu, setNeu, "What it's about…")}

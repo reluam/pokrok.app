@@ -121,24 +121,27 @@ export function SongCard({ song, lang }: { song: PublicSong; lang: Lang }) {
         </div>
       </div>
 
-      {/* seek */}
-      <div onClick={seek} style={{ height: 8, background: "rgba(26,22,20,0.12)", borderRadius: "999px", cursor: "pointer", position: "relative", marginBottom: "6px" }}>
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${pct}%`, background: "var(--text-primary)", borderRadius: "999px" }} />
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", fontVariantNumeric: "tabular-nums", marginBottom: "12px" }}>
-        <span>{fmt(cur)}</span><span>{fmt(dur)}</span>
-      </div>
-
-      {/* ovládání */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-        <button onClick={toggle} aria-label={playing ? t.pause : t.play} style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--text-primary)", color: "var(--bg)", border: "none", cursor: "pointer", fontSize: "15px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      {/* ovládání — jedna řada přes celou šířku, responzivně se zalomí */}
+      <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
+        <button onClick={toggle} aria-label={playing ? t.pause : t.play} style={{ width: 46, height: 46, borderRadius: "50%", background: "var(--text-primary)", color: "var(--bg)", border: "none", cursor: "pointer", fontSize: "15px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           {playing ? "❚❚" : "▶"}
         </button>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, minWidth: "110px" }}>
+
+        {/* seek + čas — bere zbytek šířky */}
+        <div style={{ flex: "1 1 260px", minWidth: "190px", display: "flex", alignItems: "center", gap: "12px" }}>
+          <div onClick={seek} style={{ flex: 1, height: 8, background: "rgba(26,22,20,0.12)", borderRadius: "999px", cursor: "pointer", position: "relative" }}>
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${pct}%`, background: "var(--text-primary)", borderRadius: "999px" }} />
+          </div>
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", flexShrink: 0 }}>{fmt(cur)} / {fmt(dur)}</span>
+        </div>
+
+        {/* hlasitost */}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: "0 1 180px", minWidth: "130px" }}>
           <span style={{ fontSize: "13px", color: "var(--text-muted)" }} aria-hidden>🔊</span>
           <input type="range" min={0} max={1} step={0.01} value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} aria-label={t.volume} style={{ flex: 1, accentColor: "var(--text-primary)", cursor: "pointer" }} />
         </div>
-        <button onClick={toggleLike} aria-label="like" style={{ display: "flex", alignItems: "center", gap: "6px", background: liked ? "var(--text-primary)" : "#fff", color: liked ? "var(--bg)" : "var(--text-primary)", border: "2px solid var(--border)", borderRadius: "999px", padding: "7px 14px", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>
+
+        <button onClick={toggleLike} aria-label="like" style={{ display: "flex", alignItems: "center", gap: "6px", background: liked ? "var(--text-primary)" : "#fff", color: liked ? "var(--bg)" : "var(--text-primary)", border: "2px solid var(--border)", borderRadius: "999px", padding: "8px 15px", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 700, flexShrink: 0 }}>
           <span>{liked ? "♥" : "♡"}</span>{likeCount}
         </button>
       </div>
