@@ -9,6 +9,8 @@ import type { Lang } from "@/lib/dictionaries";
 
 const GW = 300, GH = 120, INK = "#1a1614", BG = "#FAFAF7";
 const TS = 5, TW = 60, TH = 24, GROUND_TILE = 22, GROUND_Y = 110; // dlaždice 5 buněk
+const SUBSTEPS = 4;       // víc kroků/snímek = rychlejší šíření i ustálení
+const COURANT = 0.62;     // rychlost vln (stabilní < 0.707)
 const distMeters = (lv: Level) => Math.round(Math.abs(lv.stageX - lv.cityX) * M_PER_CELL);
 const openFieldDb = (lv: Level) => lv.sourceDb - 20 * Math.log10(Math.max(1, distMeters(lv) / 10));
 type Tool = "paint" | "erase";
@@ -117,11 +119,11 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
     city.current = { x: lv.cityX, y: GROUND_Y - 13 };
     driveAmp.current = DRIVE_AMP;
     const d = Math.hypot(stage.current.x - city.current.x, stage.current.y - city.current.y);
-    warmup.current = Math.round(2 * d + 300); simStep.current = 0;
+    warmup.current = Math.round(d / COURANT + 180); simStep.current = 0;
     setBudgetUsed(0); setWon(false); wonRef.current = false; belowSince.current = 0;
   };
 
-  useEffect(() => { const f = new Fdtd(GW, GH); f.groundY = GROUND_Y; f.rebuild(); fdtdRef.current = f; loadLevel(LEVELS[0]); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const f = new Fdtd(GW, GH); f.groundY = GROUND_Y; f.setMedium(COURANT, 0.0009); fdtdRef.current = f; loadLevel(LEVELS[0]); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { loadLevel(level); }, [levelIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── simulace + tile render ────────────────────────────────────── */
@@ -148,8 +150,8 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
     const frame = () => {
       const f = fdtdRef.current!; const env = level.env;
       const si = f.idx(stage.current.x | 0, stage.current.y | 0);
-      for (let s = 0; s < 2; s++) { tStep++; const drive = started ? Math.sin(tStep * 0.23 * level.driveHz) * driveAmp.current : 0; f.step(si, drive); }
-      if (started) simStep.current += 2;
+      for (let s = 0; s < SUBSTEPS; s++) { tStep++; const drive = started ? Math.sin(tStep * 0.16 * level.driveHz) * driveAmp.current : 0; f.step(si, drive); }
+      if (started) simStep.current += SUBSTEPS;
       const warming = started && simStep.current <= warmup.current;
 
       // měření u cíle → dB + audio + výhra
