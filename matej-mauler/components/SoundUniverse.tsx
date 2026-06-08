@@ -5,13 +5,48 @@ import Link from "next/link";
 import { Fdtd, MATERIALS, LEVELS, M_PER_CELL, suUi, type Level } from "@/lib/soundUniverse";
 import type { Lang } from "@/lib/dictionaries";
 
-const GW = 300, GH = 120;
-const INK = "#1a1614", BG = "#FAFAF7";
+const GW = 300, GH = 120, INK = "#1a1614", BG = "#FAFAF7";
+const TS = 5, TW = 60, TH = 24, GROUND_TILE = 22, GROUND_Y = 110; // dlaždice 5 buněk
 type Tool = "paint" | "erase";
 type SongLite = { url: string; title: string };
 
 const costOf = (id: number) => MATERIALS.find((m) => m.id === id)?.cost ?? 0;
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
+
+const MAT_KIND: Record<number, string> = { 1: "brick", 2: "concrete", 3: "glass", 4: "soil", 5: "sand", 6: "hedge" };
+function tileColors(kind: string): [string, string, string] {
+  switch (kind) {
+    case "brick": return ["#b5562f", "#8f3f1f", "#cf6e46"];
+    case "concrete": return ["#9a9ca1", "#74767b", "#b6b8bd"];
+    case "glass": return ["#bfe9f2", "#8fcdd9", "#ffffff"];
+    case "soil": case "dirt": case "grass": return ["#7a5230", "#5c3d22", "#8e6238"];
+    case "sand": return ["#e3c779", "#c9a857", "#efd896"];
+    case "hedge": return ["#43914f", "#2c6936", "#5cb267"];
+    case "stone": return ["#6f6a63", "#524e48", "#857f76"];
+    default: return ["#999", "#666", "#bbb"];
+  }
+}
+const hsh = (a: number, b: number) => { let h = (a * 92837 + b * 689287) >>> 0; h ^= h >>> 13; return h >>> 0; };
+function drawTile(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, kind: string, seed: number) {
+  const [base, dark, light] = tileColors(kind);
+  if (kind === "glass") ctx.globalAlpha = 0.68;
+  ctx.fillStyle = base; ctx.fillRect(x, y, w + 0.6, h + 0.6);
+  ctx.fillStyle = light; ctx.fillRect(x, y, w, 1.3); ctx.fillRect(x, y, 1.3, h);
+  ctx.fillStyle = dark; ctx.fillRect(x, y + h - 1.3, w, 1.3); ctx.fillRect(x + w - 1.3, y, 1.3, h);
+  if (kind === "brick") {
+    ctx.strokeStyle = dark; ctx.lineWidth = 1; const my = y + h / 2;
+    ctx.beginPath(); ctx.moveTo(x, my); ctx.lineTo(x + w, my);
+    const o = (seed & 1) ? w / 2 : 0; ctx.moveTo(x + o, y); ctx.lineTo(x + o, my); ctx.moveTo(x + w / 2, my); ctx.lineTo(x + w / 2, y + h); ctx.stroke();
+  } else if (kind === "glass") {
+    ctx.strokeStyle = "rgba(255,255,255,0.75)"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x + w * 0.22, y + h * 0.8); ctx.lineTo(x + w * 0.8, y + h * 0.22); ctx.stroke();
+  } else {
+    ctx.fillStyle = dark; const r = hsh(seed, 3); const iw = Math.max(1, (w - 4) | 0), ih = Math.max(1, (h - 4) | 0);
+    for (let m = 0; m < 3; m++) ctx.fillRect(x + 2 + ((r >> (m * 6)) % iw), y + 2 + ((r >> (m * 6 + 3)) % ih), 1.6, 1.6);
+  }
+  if (kind === "grass") { ctx.fillStyle = "#62c46a"; const gh = Math.max(2, h * 0.36); ctx.fillRect(x, y, w, gh); ctx.fillStyle = "#3f8a4a"; ctx.fillRect(x, y + gh - 1, w, 1.4); }
+  ctx.globalAlpha = 1;
+}
 
 export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }) {
   const t = suUi[lang];
@@ -19,8 +54,8 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const fdtdRef = useRef<Fdtd | null>(null);
-  const builtRef = useRef<Uint8Array>(new Uint8Array(GW * GH));
-  const lockedRef = useRef<Uint8Array>(new Uint8Array(GW * GH));
+  const tileMat = useRef<Uint8Array>(new Uint8Array(TW * TH));
+  const tileLocked = useRef<Uint8Array>(new Uint8Array(TW * TH));
   const stage = useRef({ x: 46, y: 100 });
   const city = useRef({ x: 256, y: 100 });
   const driveAmp = useRef(1.1);
@@ -47,25 +82,35 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   const procStop = useRef<(() => void) | null>(null);
   const targetRef = useRef({ gain: 0, cut: 8000 });
 
+  const syncTiles = (f: Fdtd) => {
+    f.mat.fill(0); const tm = tileMat.current;
+    for (let ty = 0; ty < GROUND_TILE; ty++) for (let tx = 0; tx < TW; tx++) {
+      const m = tm[ty * TW + tx]; if (!m) continue;
+      for (let yy = ty * TS; yy < ty * TS + TS; yy++) for (let xx = tx * TS; xx < tx * TS + TS; xx++) f.mat[yy * GW + xx] = m;
+    }
+    f.rebuild();
+  };
+
   const loadLevel = (lv: Level) => {
     const f = fdtdRef.current; if (!f) return;
-    f.clearMaterials(); f.clearField();
-    builtRef.current.fill(0); lockedRef.current.fill(0);
-    const gy0 = f.groundY;
-    if (lv.prebuilt) for (const b of lv.prebuilt) for (let x = b.x0; x <= b.x1; x++) for (let y = b.top; y < gy0; y++) { const i = y * GW + x; f.mat[i] = b.mat; lockedRef.current[i] = 1; }
-    f.rebuild();
-    stage.current = { x: lv.stageX, y: gy0 - (lv.stageH ?? 5) };
-    city.current = { x: lv.cityX, y: gy0 - 13 };
+    tileMat.current.fill(0); tileLocked.current.fill(0);
+    if (lv.prebuilt) for (const b of lv.prebuilt) {
+      const tx0 = Math.floor(b.x0 / TS), tx1 = Math.floor(b.x1 / TS), tty = Math.floor(b.top / TS);
+      for (let tx = tx0; tx <= tx1; tx++) for (let ty = tty; ty < GROUND_TILE; ty++) { const ti = ty * TW + tx; tileMat.current[ti] = b.mat; tileLocked.current[ti] = 1; }
+    }
+    f.clearField(); syncTiles(f);
+    stage.current = { x: lv.stageX, y: GROUND_Y - (lv.stageH ?? 5) };
+    city.current = { x: lv.cityX, y: GROUND_Y - 13 };
     driveAmp.current = lv.loudness * 1.1;
     const d = Math.hypot(stage.current.x - city.current.x, stage.current.y - city.current.y);
     warmup.current = Math.round(2 * d + 300); simStep.current = 0;
     setBudgetUsed(0); setWon(false); wonRef.current = false; belowSince.current = 0;
   };
 
-  useEffect(() => { const f = new Fdtd(GW, GH); fdtdRef.current = f; loadLevel(LEVELS[0]); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const f = new Fdtd(GW, GH); f.groundY = GROUND_Y; f.rebuild(); fdtdRef.current = f; loadLevel(LEVELS[0]); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { loadLevel(level); }, [levelIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── simulace + render (světlá brand scéna) ────────────────────── */
+  /* ── simulace + tile render ────────────────────────────────────── */
   useEffect(() => {
     const cv = canvasRef.current; if (!cv) return;
     const ctx = cv.getContext("2d"); if (!ctx) return;
@@ -87,67 +132,68 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
 
     let raf = 0, tStep = 0;
     const frame = () => {
-      const f = fdtdRef.current!; const gy0 = f.groundY; const env = level.env;
+      const f = fdtdRef.current!; const env = level.env;
       const si = f.idx(stage.current.x | 0, stage.current.y | 0);
       for (let s = 0; s < 2; s++) { tStep++; const drive = started ? Math.sin(tStep * 0.23) * driveAmp.current : 0; f.step(si, drive); }
       if (started) simStep.current += 2;
       const warming = started && simStep.current <= warmup.current;
 
+      // obloha + vlny (jen pásmo nad zemí)
       const p = f.p;
-      const gTop = env === "city" ? [150, 148, 142] : [120, 170, 80];
-      const gBot = env === "city" ? [86, 84, 80] : [70, 110, 50];
-      for (let y = 0; y < GH; y++) {
-        const sf = y / gy0;
-        const bR = 196 + sf * 34, bG = 210 + sf * 26, bB = 242 + sf * 8; // pastelová obloha
+      for (let y = 0; y < GROUND_Y; y++) {
+        const sf = y / GROUND_Y; const bR = 196 + sf * 36, bG = 212 + sf * 26, bB = 244 + sf * 6;
         for (let x = 0; x < GW; x++) {
-          const i = y * GW + x; const j = i * 4; const mt = f.mat[i];
-          let r: number, g: number, b: number;
-          if (y >= gy0) { const k = (y - gy0) / (GH - gy0); r = gTop[0] + (gBot[0] - gTop[0]) * k; g = gTop[1] + (gBot[1] - gTop[1]) * k; b = gTop[2] + (gBot[2] - gTop[2]) * k; }
-          else if (mt) { const c = MATERIALS.find((q) => q.id === mt)!.color; r = parseInt(c.slice(1, 3), 16); g = parseInt(c.slice(3, 5), 16); b = parseInt(c.slice(5, 7), 16); }
-          else { const a = Math.max(-1, Math.min(1, p[i] * 24)); r = bR + a * 120; g = bG - Math.abs(a) * 34; b = bB - a * 120; }
-          data[j] = r; data[j + 1] = g; data[j + 2] = b; data[j + 3] = 255;
+          const i = y * GW + x; const j = i * 4; const a = Math.max(-1, Math.min(1, p[i] * 24));
+          data[j] = bR + a * 120; data[j + 1] = bG - Math.abs(a) * 34; data[j + 2] = bB - a * 120; data[j + 3] = 255;
         }
       }
       octx.putImageData(img, 0, 0);
-      ctx.clearRect(0, 0, cssW, cssH); ctx.imageSmoothingEnabled = false; ctx.drawImage(off, 0, 0, cssW, sliceH);
+      ctx.clearRect(0, 0, cssW, cssH); ctx.imageSmoothingEnabled = false;
+      const skyH = (GROUND_Y / GH) * sliceH;
+      ctx.drawImage(off, 0, 0, GW, GROUND_Y, 0, 0, cssW, skyH);
 
-      const groundScreenY = g2sy(gy0);
-      // perspektivní podlaha
+      const tw = cssW / TW, th = sliceH / TH;
+      // materiály (dlaždice)
+      const tm = tileMat.current;
+      for (let ty = 0; ty < GROUND_TILE; ty++) for (let tx = 0; tx < TW; tx++) {
+        const m = tm[ty * TW + tx]; if (!m) continue;
+        drawTile(ctx, tx * tw, ty * th, tw, th, MAT_KIND[m] ?? "concrete", hsh(tx, ty));
+      }
+      // zem (tráva + hlína)
+      for (let ty = GROUND_TILE; ty < TH; ty++) for (let tx = 0; tx < TW; tx++) {
+        const kind = ty === GROUND_TILE ? (env === "city" ? "stone" : "grass") : "dirt";
+        drawTile(ctx, tx * tw, ty * th, tw, th, kind, hsh(tx, ty + 99));
+      }
+      // perspektivní podlaha pod řezem
       const grd = ctx.createLinearGradient(0, sliceH, 0, cssH);
-      grd.addColorStop(0, env === "city" ? "#6b6a64" : `rgb(${gBot[0]},${gBot[1]},${gBot[2]})`); grd.addColorStop(1, "#3a3528");
+      grd.addColorStop(0, "#5c3d22"); grd.addColorStop(1, "#3a2716");
       ctx.fillStyle = grd; ctx.fillRect(0, sliceH, cssW, cssH - sliceH);
-      ctx.strokeStyle = "rgba(26,22,20,0.12)"; ctx.lineWidth = 1; const vpX = cssW / 2;
+      ctx.strokeStyle = "rgba(0,0,0,0.18)"; ctx.lineWidth = 1; const vpX = cssW / 2;
       for (let g = 0; g <= 10; g++) { const x0 = (g / 10) * cssW; ctx.beginPath(); ctx.moveTo(x0, sliceH); ctx.lineTo(vpX + (x0 - vpX) * 2.4, cssH); ctx.stroke(); }
-      // inková linka země
-      ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, groundScreenY); ctx.lineTo(cssW, groundScreenY); ctx.stroke();
 
-      // inkové čepičky na vrškách překážek
-      ctx.fillStyle = "rgba(26,22,20,0.55)";
-      for (let x = 0; x < GW; x++) { let topY = -1; for (let y = 0; y < gy0; y++) { if (f.mat[y * GW + x]) { topY = y; break; } } if (topY >= 0) ctx.fillRect(g2sx(x), g2sy(topY) - 2, cssW / GW + 1, 2.5); }
-
+      const groundScreenY = g2sy(GROUND_Y);
       // město
       const cx0 = g2sx(level.cityX - level.cityW / 2), cx1 = g2sx(level.cityX + level.cityW / 2);
-      ctx.fillStyle = "rgba(26,22,20,0.05)"; ctx.fillRect(cx0, 0, cx1 - cx0, sliceH);
       ctx.fillStyle = "#fff"; ctx.strokeStyle = INK; ctx.lineWidth = 2;
       for (let h = 0; h < 4; h++) { const hw = (cx1 - cx0) / 5; const hx = cx0 + hw * (h + 0.3); const hh = 16 + (h % 2) * 9; ctx.fillRect(hx, groundScreenY - hh, hw * 0.7, hh); ctx.strokeRect(hx, groundScreenY - hh, hw * 0.7, hh); }
       ctx.fillStyle = INK; ctx.font = "700 12px system-ui"; ctx.textAlign = "center"; ctx.fillText(t.city, (cx0 + cx1) / 2, 18);
 
       // stage
-      const sx = g2sx(stage.current.x), syG = groundScreenY;
-      ctx.fillStyle = INK; ctx.fillRect(sx - 16, syG - 8, 32, 8);
+      const sx = g2sx(stage.current.x);
+      ctx.fillStyle = INK; ctx.fillRect(sx - 16, groundScreenY - 8, 32, 8);
       const syE = g2sy(stage.current.y);
-      ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, syE); ctx.lineTo(sx, syG); ctx.stroke();
+      ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, syE); ctx.lineTo(sx, groundScreenY); ctx.stroke();
       ctx.beginPath(); ctx.arc(sx, syE, 10, 0, 7); ctx.fillStyle = "#ff6fae"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = INK; ctx.stroke();
-      ctx.fillStyle = INK; ctx.fillText(t.stage, sx, syG + 16);
+      ctx.fillStyle = INK; ctx.fillText(t.stage, sx, groundScreenY + 16);
 
-      // kóta vzdálenosti
+      // kóta
       const sxC = g2sx(level.cityX); const dM = Math.round(Math.abs(stage.current.x - level.cityX) * M_PER_CELL);
-      const ly = Math.min(cssH - 6, syG + 30);
-      ctx.strokeStyle = "rgba(26,22,20,0.5)"; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+      const ly = Math.min(cssH - 6, groundScreenY + 30);
+      ctx.strokeStyle = "rgba(255,255,255,0.7)"; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(sx, ly); ctx.lineTo(sxC, ly); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = INK; ctx.font = "700 11px system-ui"; ctx.fillText(`${dM} m`, (sx + sxC) / 2, ly - 4);
+      ctx.fillStyle = "#fff"; ctx.font = "700 11px system-ui"; ctx.fillText(`${dM} m`, (sx + sxC) / 2, ly - 4);
 
-      // měření u města → audio + výhra
+      // měření u města
       let e = 0; for (let k = -3; k <= 3; k++) e += f.energyAt((level.cityX + k * 3) | 0, city.current.y | 0, 2); e /= 7;
       const dx = stage.current.x - level.cityX, dy = stage.current.y - city.current.y;
       const dist = Math.max(8, Math.hypot(dx, dy)); const baseline = 9 / dist;
@@ -195,39 +241,30 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
     else startProcFallback(ac, input);
     simStep.current = 0; belowSince.current = 0; setStarted(true);
   };
-
   useEffect(() => () => { procStop.current?.(); try { audioElRef.current?.pause(); } catch {} try { acRef.current?.close(); } catch {} }, []);
 
-  /* ── stavění s rozpočtem dle ceny materiálu ────────────────────── */
+  /* ── stavění po dlaždicích s rozpočtem ─────────────────────────── */
   const painting = useRef(false);
   const applyAt = (sxp: number, syp: number) => {
     const cv = canvasRef.current as (HTMLCanvasElement & { _s2g?: (a: number, b: number) => [number, number] }) | null;
     const f = fdtdRef.current; if (!cv?._s2g || !f) return;
-    const [gx, gy] = cv._s2g(sxp, syp); const x = Math.round(gx); const gy0 = f.groundY;
-    if (x < 1 || x >= GW - 1) return;
-    const top = Math.max(1, Math.min(gy0 - 1, Math.round(gy)));
-    const built = builtRef.current, locked = lockedRef.current; const bw = 2; const mc = costOf(material);
-    let changed = false, used = budgetUsed;
-    for (let k = -bw; k <= bw; k++) {
-      const xx = x + k; if (xx < 1 || xx >= GW - 1) continue;
-      for (let yy = top; yy < gy0; yy++) {
-        const i = yy * GW + xx; if (locked[i]) continue;
-        if (tool === "paint") {
-          const cur = f.mat[i];
-          if (cur === material) continue;
-          if (built[i]) { const refund = costOf(cur); if (used - refund + mc <= level.budget) { f.mat[i] = material; used += mc - refund; changed = true; } }
-          else if (used + mc <= level.budget) { f.mat[i] = material; built[i] = 1; used += mc; changed = true; }
-        } else if (built[i]) { used -= costOf(f.mat[i]); f.mat[i] = 0; built[i] = 0; changed = true; }
-      }
-    }
-    if (changed) { f.rebuild(); setBudgetUsed(used); }
+    const [gx, gy] = cv._s2g(sxp, syp); const tx = Math.floor(gx / TS), ty = Math.floor(gy / TS);
+    if (tx < 0 || tx >= TW || ty < 0 || ty >= GROUND_TILE) return;
+    const ti = ty * TW + tx; if (tileLocked.current[ti]) return;
+    const tm = tileMat.current; let used = budgetUsed, changed = false; const mc = costOf(material);
+    if (tool === "paint") {
+      const cur = tm[ti];
+      if (cur === material) return;
+      if (cur > 0) { const refund = costOf(cur); if (used - refund + mc <= level.budget) { tm[ti] = material; used += mc - refund; changed = true; } }
+      else if (used + mc <= level.budget) { tm[ti] = material; used += mc; changed = true; }
+    } else if (tm[ti] > 0) { used -= costOf(tm[ti]); tm[ti] = 0; changed = true; }
+    if (changed) { syncTiles(f); setBudgetUsed(used); }
   };
   const onDown = (e: React.PointerEvent) => { painting.current = true; const r = e.currentTarget.getBoundingClientRect(); applyAt(e.clientX - r.left, e.clientY - r.top); };
   const onMove = (e: React.PointerEvent) => { if (!painting.current) return; const r = e.currentTarget.getBoundingClientRect(); applyAt(e.clientX - r.left, e.clientY - r.top); };
   const onUp = () => { painting.current = false; };
-  const resetBuild = () => { const f = fdtdRef.current; if (!f) return; const built = builtRef.current; for (let i = 0; i < f.N; i++) if (built[i]) { f.mat[i] = 0; built[i] = 0; } f.rebuild(); setBudgetUsed(0); belowSince.current = 0; };
+  const resetBuild = () => { const f = fdtdRef.current; if (!f) return; const tm = tileMat.current, lk = tileLocked.current; for (let i = 0; i < tm.length; i++) if (!lk[i]) tm[i] = 0; syncTiles(f); setBudgetUsed(0); belowSince.current = 0; };
 
-  // ── styly (brand: cartoon) ──
   const chip = (active: boolean): React.CSSProperties => ({
     padding: "7px 13px", borderRadius: "999px", border: `2px solid ${INK}`,
     background: active ? INK : "#fff", color: active ? "#fff" : INK,

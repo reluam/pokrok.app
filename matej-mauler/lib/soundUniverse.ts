@@ -162,19 +162,20 @@ export type Level = {
 };
 
 // pozn.: y roste dolů, zem je kolem y≈113 (GH=120, groundY=H-7)
+// budget = cena v dlaždicích (cena materiálu × počet bloků)
 export const LEVELS: Level[] = [
-  { id: "louka-1", name: { cs: "Louka", en: "Meadow" }, env: "meadow", loudness: 2.2, limit: 0.36, budget: 520, stageX: 46, cityX: 230, cityW: 34 },
-  { id: "louka-2", name: { cs: "Hlučná kapela", en: "Loud band" }, env: "meadow", loudness: 3.0, limit: 0.28, budget: 700, stageX: 46, cityX: 256, cityW: 34 },
-  { id: "podium", name: { cs: "Vyvýšené pódium", en: "Raised stage" }, env: "meadow", loudness: 2.8, limit: 0.30, budget: 760, stageX: 48, stageH: 38, cityX: 256, cityW: 34 },
+  { id: "louka-1", name: { cs: "Louka", en: "Meadow" }, env: "meadow", loudness: 2.2, limit: 0.36, budget: 60, stageX: 46, cityX: 230, cityW: 34 },
+  { id: "louka-2", name: { cs: "Hlučná kapela", en: "Loud band" }, env: "meadow", loudness: 3.0, limit: 0.28, budget: 85, stageX: 46, cityX: 256, cityW: 34 },
+  { id: "podium", name: { cs: "Vyvýšené pódium", en: "Raised stage" }, env: "meadow", loudness: 2.8, limit: 0.30, budget: 95, stageX: 48, stageH: 38, cityX: 256, cityW: 34 },
   {
-    id: "mesto-1", name: { cs: "Ve městě", en: "In the city" }, env: "city", loudness: 2.6, limit: 0.32, budget: 640, stageX: 40, cityX: 262, cityW: 30,
+    id: "mesto-1", name: { cs: "Ve městě", en: "In the city" }, env: "city", loudness: 2.6, limit: 0.32, budget: 80, stageX: 40, cityX: 262, cityW: 30,
     prebuilt: [
       { x0: 118, x1: 138, top: 82, mat: 2 },
       { x0: 168, x1: 186, top: 90, mat: 2 },
       { x0: 206, x1: 224, top: 78, mat: 2 },
     ],
   },
-  { id: "festival", name: { cs: "Velký festival", en: "Big festival" }, env: "meadow", loudness: 3.6, limit: 0.22, budget: 1000, stageX: 44, stageH: 24, cityX: 268, cityW: 38 },
+  { id: "festival", name: { cs: "Velký festival", en: "Big festival" }, env: "meadow", loudness: 3.6, limit: 0.22, budget: 130, stageX: 44, stageH: 24, cityX: 268, cityW: 38 },
 ];
 
 export const suUi = {
