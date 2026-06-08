@@ -13,6 +13,7 @@ const SUBSTEPS = 4;       // víc kroků/snímek = rychlejší šíření i ust�
 const COURANT = 0.62;     // rychlost vln (stabilní < 0.707)
 const distMeters = (lv: Level) => Math.round(Math.abs(lv.stageX - lv.cityX) * M_PER_CELL);
 const openFieldDb = (lv: Level) => lv.sourceDb - 20 * Math.log10(Math.max(1, distMeters(lv) / 10));
+const dbAt = (sourceDb: number, distM: number, lvl: number) => sourceDb - 20 * Math.log10(Math.max(1, distM / 10)) + 20 * Math.log10(Math.max(0.004, Math.min(1, lvl)) / OPEN_REF);
 type Tool = "paint" | "erase";
 type SongLite = { url: string; title: string };
 
@@ -70,7 +71,7 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   const [started, setStarted] = useState(false);
   const [material, setMaterial] = useState(2);
   const [tool, setTool] = useState<Tool>("paint");
-  const [meters, setMeters] = useState({ cityDb: 0, warming: false });
+  const [meters, setMeters] = useState({ cityDb: 0, audienceDb: 999, warming: false });
   const [budgetUsed, setBudgetUsed] = useState(0);
   const [won, setWon] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -125,6 +126,7 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
 
   useEffect(() => { const f = new Fdtd(GW, GH); f.groundY = GROUND_Y; f.setMedium(COURANT, 0.0009); fdtdRef.current = f; loadLevel(LEVELS[0]); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { loadLevel(level); }, [levelIdx]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const ids = level.materials ?? MATERIALS.map((m) => m.id); if (!ids.includes(material)) setMaterial(ids[0]); }, [levelIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── simulace + tile render ────────────────────────────────────── */
   useEffect(() => {
@@ -159,11 +161,18 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       const dxm = stage.current.x - level.cityX, dym = stage.current.y - city.current.y;
       const distC = Math.max(8, Math.hypot(dxm, dym)); const trans = Math.max(0, Math.min(1.6, eSum / (9 / distC)));
       const cityLevel = Math.min(1, trans);
-      const cityDb = openFieldDb(level) + 20 * Math.log10(Math.max(0.004, cityLevel) / OPEN_REF);
+      const cityDb = dbAt(level.sourceDb, distMeters(level), cityLevel);
+      let audienceDb = 999;
+      if (level.audienceX != null) {
+        let ea = 0; for (let k = -2; k <= 2; k++) ea += f.energyAt((level.audienceX + k * 2) | 0, city.current.y | 0, 2); ea /= 5;
+        const ad = Math.max(8, Math.abs(stage.current.x - level.audienceX)); const at = Math.max(0, Math.min(1.6, ea / (9 / ad)));
+        audienceDb = dbAt(level.sourceDb, Math.abs(stage.current.x - level.audienceX) * M_PER_CELL, at);
+      }
+      const audOk = level.audienceX == null || audienceDb >= (level.audienceMinDb ?? 0);
       targetRef.current = { gain: cityLevel, cut: 300 * Math.pow(16000 / 300, Math.max(0.04, Math.min(1, trans))) };
-      if (tStep % 8 === 0) setMeters({ cityDb, warming });
+      if (tStep % 8 === 0) setMeters({ cityDb, audienceDb, warming });
       if (started && !wonRef.current && !warming) {
-        if (cityDb <= level.limitDb) { if (!belowSince.current) belowSince.current = performance.now(); else if (performance.now() - belowSince.current > 1400) { wonRef.current = true; setWon(true); } }
+        if (cityDb <= level.limitDb && audOk) { if (!belowSince.current) belowSince.current = performance.now(); else if (performance.now() - belowSince.current > 1400) { wonRef.current = true; setWon(true); } }
         else belowSince.current = 0;
       } else belowSince.current = 0;
 
@@ -208,6 +217,18 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       ctx.fillStyle = INK; ctx.font = "700 12px system-ui"; ctx.textAlign = "center"; ctx.fillText(level.target[lang], (cx0 + cx1) / 2, 18);
       ctx.fillStyle = cityDb <= level.limitDb ? "#16A34A" : "#dc2626"; ctx.font = "800 14px system-ui"; ctx.fillText(warming ? "…" : `${Math.round(cityDb)} dB`, (cx0 + cx1) / 2, 35);
       ctx.fillStyle = "rgba(26,22,20,0.55)"; ctx.font = "600 10px system-ui"; ctx.fillText(`${t.limitWord} ${level.limitDb}`, (cx0 + cx1) / 2, 48);
+
+      // zóna návštěvníků (festival/stadion) — musí slyšet
+      if (level.audienceX != null) {
+        const aw = level.audienceW ?? 30; const ax0 = g2sx(level.audienceX - aw / 2), ax1 = g2sx(level.audienceX + aw / 2);
+        ctx.fillStyle = "rgba(94,196,106,0.14)"; ctx.fillRect(ax0, 0, ax1 - ax0, sliceH);
+        ctx.strokeStyle = "#16A34A"; ctx.lineWidth = 1.5; ctx.strokeRect(ax0, 0, ax1 - ax0, sliceH);
+        ctx.fillStyle = INK; for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.arc(ax0 + ((i + 0.5) / 6) * (ax1 - ax0), groundScreenY - 4, 3, 0, 7); ctx.fill(); }
+        const aOk2 = audienceDb >= (level.audienceMinDb ?? 0);
+        ctx.textAlign = "center"; ctx.fillStyle = INK; ctx.font = "700 11px system-ui"; ctx.fillText(t.audienceLbl, (ax0 + ax1) / 2, 18);
+        ctx.fillStyle = aOk2 ? "#16A34A" : "#dc2626"; ctx.font = "800 13px system-ui"; ctx.fillText(warming ? "…" : `${Math.round(audienceDb)} dB`, (ax0 + ax1) / 2, 33);
+        ctx.fillStyle = "rgba(26,22,20,0.55)"; ctx.font = "600 10px system-ui"; ctx.fillText(`${t.minWord} ${level.audienceMinDb}`, (ax0 + ax1) / 2, 45);
+      }
 
       // zdroj hluku — sprite podle levelu
       const sx = g2sx(stage.current.x); const syE = g2sy(stage.current.y);
@@ -303,6 +324,8 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   const limPct = cl((level.limitDb - loDb) / (sDb - loDb)) * 100;
   const okDb = meters.cityDb <= level.limitDb;
   const reduction = openFieldDb(level) - meters.cityDb;
+  const mats = (level.materials ?? MATERIALS.map((m) => m.id)).map((id) => MATERIALS.find((m) => m.id === id)!).filter(Boolean);
+  const audOkUI = level.audienceX == null || meters.audienceDb >= (level.audienceMinDb ?? 0);
   const overlayBg = "rgba(250,250,247,0.82)";
 
   return (
@@ -313,86 +336,93 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
         <span style={{ width: 70 }} />
       </div>
 
-      <div style={{ flex: 1, position: "relative", minHeight: 0, ...card, overflow: "hidden", padding: 0 }}>
-        <canvas ref={canvasRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}
-          style={{ width: "100%", height: "100%", display: "block", touchAction: "none", cursor: "crosshair" }} />
+      <div style={{ flex: 1, display: "flex", gap: "10px", minHeight: 0 }}>
+        {/* scéna */}
+        <div style={{ flex: 1, position: "relative", minHeight: 0, ...card, overflow: "hidden", padding: 0 }}>
+          <canvas ref={canvasRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}
+            style={{ width: "100%", height: "100%", display: "block", touchAction: "none", cursor: "crosshair" }} />
 
-        <div style={{ position: "absolute", top: 12, left: 12, display: "flex", gap: 8, alignItems: "stretch" }}>
-          <button onClick={toggleMute} aria-label={muted ? t.unmute : t.mute} title={muted ? t.unmute : t.mute}
-            style={{ width: 40, borderRadius: 12, border: `2.5px solid ${INK}`, background: "#fff", boxShadow: `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16, lineHeight: 1 }}>{muted ? "🔇" : "🔊"}</button>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#fff", border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}`, borderRadius: 12, padding: "4px 6px" }}>
-            <button onClick={() => setLevelIdx((i) => Math.max(0, i - 1))} disabled={levelIdx === 0} style={{ width: 24, height: 24, borderRadius: 7, border: "none", background: levelIdx === 0 ? "rgba(0,0,0,0.06)" : INK, color: levelIdx === 0 ? "var(--text-muted)" : "#fff", cursor: levelIdx === 0 ? "default" : "pointer", fontSize: 14 }}>‹</button>
-            <div style={{ minWidth: 124, textAlign: "center" }}>
-              <div style={{ ...display, fontWeight: 700, fontSize: 13, lineHeight: 1.1, color: INK }}>{level.name[lang]}</div>
-              <div style={{ fontFamily: "var(--font-sans)", fontSize: 9, color: "var(--text-muted)" }}>{levelIdx + 1} / {LEVELS.length} · {level.source[lang]}</div>
+          <div style={{ position: "absolute", top: 12, left: 12, display: "flex", gap: 8, alignItems: "stretch" }}>
+            <button onClick={toggleMute} aria-label={muted ? t.unmute : t.mute} title={muted ? t.unmute : t.mute}
+              style={{ width: 40, borderRadius: 12, border: `2.5px solid ${INK}`, background: "#fff", boxShadow: `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16, lineHeight: 1 }}>{muted ? "🔇" : "🔊"}</button>
+            <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#fff", border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}`, borderRadius: 12, padding: "4px 6px" }}>
+              <button onClick={() => setLevelIdx((i) => Math.max(0, i - 1))} disabled={levelIdx === 0} style={{ width: 24, height: 24, borderRadius: 7, border: "none", background: levelIdx === 0 ? "rgba(0,0,0,0.06)" : INK, color: levelIdx === 0 ? "var(--text-muted)" : "#fff", cursor: levelIdx === 0 ? "default" : "pointer", fontSize: 14 }}>‹</button>
+              <div style={{ minWidth: 124, textAlign: "center" }}>
+                <div style={{ ...display, fontWeight: 700, fontSize: 13, lineHeight: 1.1, color: INK }}>{level.name[lang]}</div>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: 9, color: "var(--text-muted)" }}>{levelIdx + 1} / {LEVELS.length} · {level.source[lang]}</div>
+              </div>
+              <button onClick={() => setLevelIdx((i) => Math.min(LEVELS.length - 1, i + 1))} disabled={levelIdx === LEVELS.length - 1} style={{ width: 24, height: 24, borderRadius: 7, border: "none", background: levelIdx === LEVELS.length - 1 ? "rgba(0,0,0,0.06)" : INK, color: levelIdx === LEVELS.length - 1 ? "var(--text-muted)" : "#fff", cursor: levelIdx === LEVELS.length - 1 ? "default" : "pointer", fontSize: 14 }}>›</button>
             </div>
-            <button onClick={() => setLevelIdx((i) => Math.min(LEVELS.length - 1, i + 1))} disabled={levelIdx === LEVELS.length - 1} style={{ width: 24, height: 24, borderRadius: 7, border: "none", background: levelIdx === LEVELS.length - 1 ? "rgba(0,0,0,0.06)" : INK, color: levelIdx === LEVELS.length - 1 ? "var(--text-muted)" : "#fff", cursor: levelIdx === LEVELS.length - 1 ? "default" : "pointer", fontSize: 14 }}>›</button>
           </div>
+
+          {!started && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: overlayBg, padding: "24px" }}>
+              <div style={{ ...card, padding: "28px 30px", maxWidth: "480px", textAlign: "center" }}>
+                <h1 style={{ ...display, fontSize: "clamp(28px,6vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: "10px" }}>{t.title}</h1>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "20px" }}>{t.intro}</p>
+                <button onClick={start} style={primaryBtn}>{t.start}</button>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", marginTop: "14px" }}>{t.audioNote}{songs.length === 0 ? ` ${t.noSong}` : ""}</p>
+              </div>
+            </div>
+          )}
+
+          {won && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: overlayBg, padding: "24px" }}>
+              <div style={{ ...card, padding: "28px 30px", textAlign: "center" }}>
+                <h2 style={{ ...display, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, marginBottom: "18px" }}>{t.won}</h2>
+                <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+                  {levelIdx < LEVELS.length - 1 && <button onClick={() => setLevelIdx((i) => i + 1)} style={primaryBtn}>{t.next}</button>}
+                  <button onClick={() => loadLevel(level)} style={ghostBtn}>{t.retry}</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {started && (
-          <div style={{ position: "absolute", top: "12px", right: "12px", ...card, padding: "10px 12px", minWidth: "184px" }}>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "3px" }}>{t.level} · {level.name[lang]}</p>
+        {/* pravý panel: shrnutí levelu + nástroje */}
+        <div style={{ width: 290, flexShrink: 0, display: "flex", flexDirection: "column", gap: "10px", minHeight: 0 }}>
+          <div style={{ ...card, padding: "12px 14px" }}>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "4px" }}>{t.level} · {level.name[lang]}</p>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-secondary)", marginBottom: "2px" }}>{t.sourceLbl}: {level.source[lang]} · <strong>{level.sourceDb} dB</strong></p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-secondary)", marginBottom: "8px" }}>{t.distance}: {Math.round(Math.abs(level.stageX - level.cityX) * M_PER_CELL)} m</p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", marginBottom: "6px" }}>{t.inTarget}: <strong style={{ color: meters.warming ? "var(--text-muted)" : okDb ? "#16A34A" : "#dc2626" }}>{meters.warming ? t.propagating : `${Math.round(meters.cityDb)} dB`}</strong> <span style={{ color: "var(--text-muted)" }}>/ {t.limitWord} {level.limitDb}</span></p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-secondary)", marginBottom: "8px" }}>{t.distance}: {distMeters(level)} m</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", marginBottom: "6px" }}>{t.inTarget} ({level.target[lang]}): <strong style={{ color: meters.warming ? "var(--text-muted)" : okDb ? "#16A34A" : "#dc2626" }}>{meters.warming ? "…" : `${Math.round(meters.cityDb)} dB`}</strong> <span style={{ color: "var(--text-muted)" }}>/ {t.limitWord} {level.limitDb}</span></p>
             <div style={{ height: 10, background: "rgba(26,22,20,0.1)", border: `1.5px solid ${INK}`, borderRadius: "999px", position: "relative", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${cityPct}%`, background: okDb ? "#16A34A" : "#dc2626" }} />
               <div style={{ position: "absolute", top: -2, bottom: -2, left: `${limPct}%`, width: 2.5, background: INK }} />
             </div>
+            {level.audienceX != null && (
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", marginTop: "8px" }}>{t.audienceLbl}: <strong style={{ color: meters.warming ? "var(--text-muted)" : audOkUI ? "#16A34A" : "#dc2626" }}>{meters.warming ? "…" : `${Math.round(meters.audienceDb)} dB`}</strong> <span style={{ color: "var(--text-muted)" }}>/ {t.minWord} {level.audienceMinDb}</span></p>
+            )}
             {started && !meters.warming && (
               <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", marginTop: "6px" }}>{t.barrier}: <strong style={{ color: reduction >= 0 ? "#16A34A" : "#dc2626" }}>{reduction >= 0 ? "−" : "+"}{Math.abs(Math.round(reduction))} dB</strong></p>
             )}
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--text-muted)", marginTop: "4px" }}>{t.budget}: {budgetUsed}/{level.budget}{budgetUsed >= level.budget ? ` · ${t.overBudget}` : ""}</p>
           </div>
-        )}
 
-        {!started && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: overlayBg, padding: "24px" }}>
-            <div style={{ ...card, padding: "28px 30px", maxWidth: "480px", textAlign: "center" }}>
-              <h1 style={{ ...display, fontSize: "clamp(28px,6vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: "10px" }}>{t.title}</h1>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "20px" }}>{t.intro}</p>
-              <button onClick={start} style={primaryBtn}>{t.start}</button>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", marginTop: "14px" }}>{t.audioNote}{songs.length === 0 ? ` ${t.noSong}` : ""}</p>
-            </div>
-          </div>
-        )}
-
-        {won && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: overlayBg, padding: "24px" }}>
-            <div style={{ ...card, padding: "28px 30px", textAlign: "center" }}>
-              <h2 style={{ ...display, fontSize: "clamp(24px,5vw,38px)", fontWeight: 700, marginBottom: "18px" }}>{t.won}</h2>
-              <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                {levelIdx < LEVELS.length - 1 && <button onClick={() => setLevelIdx((i) => i + 1)} style={primaryBtn}>{t.next}</button>}
-                <button onClick={() => loadLevel(level)} style={ghostBtn}>{t.retry}</button>
+          <div style={{ ...card, padding: "12px 14px", display: "flex", flexDirection: "column", gap: "10px", overflowY: "auto", minHeight: 0 }}>
+            <div>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "6px" }}>{t.tools}</p>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                <button onClick={() => setTool("paint")} style={chip(tool === "paint")}>{t.paint}</button>
+                <button onClick={() => setTool("erase")} style={chip(tool === "erase")}>{t.erase}</button>
+                <button onClick={resetBuild} style={chip(false)}>{t.reset}</button>
               </div>
             </div>
+            <div>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "6px" }}>{t.material}</p>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                {mats.map((m) => (
+                  <button key={m.id} onClick={() => { setMaterial(m.id); setTool("paint"); }} style={{ ...chip(material === m.id), display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ width: 11, height: 11, borderRadius: 3, background: m.color, border: `1px solid ${INK}` }} />{m.name[lang]} <strong>−{m.db} dB/m³</strong> <span style={{ opacity: 0.55 }}>·{m.cost}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", lineHeight: 1.5 }}>{t.tip}</p>
           </div>
-        )}
-      </div>
-
-      <div style={{ flexShrink: 0, ...card, marginTop: "10px", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "9px", maxHeight: "38vh", overflowY: "auto" }}>
-        <Row label={t.tools}>
-          <button onClick={() => setTool("paint")} style={chip(tool === "paint")}>{t.paint}</button>
-          <button onClick={() => setTool("erase")} style={chip(tool === "erase")}>{t.erase}</button>
-          <button onClick={resetBuild} style={chip(false)}>{t.reset}</button>
-        </Row>
-        <Row label={t.material}>{MATERIALS.map((m) => (
-          <button key={m.id} onClick={() => { setMaterial(m.id); setTool("paint"); }} style={{ ...chip(material === m.id), display: "inline-flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ width: 11, height: 11, borderRadius: 3, background: m.color, border: `1px solid ${INK}` }} />{m.name[lang]} <strong>−{m.iso} dB</strong> <span style={{ opacity: 0.55 }}>·{m.cost}</span>
-          </button>
-        ))}</Row>
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", lineHeight: 1.5 }}>{t.tip}</p>
+        </div>
       </div>
     </div>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-      <span style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", width: "84px", flexShrink: 0 }}>{label}</span>
-      {children}
-    </div>
-  );
-}

@@ -10,19 +10,27 @@ export type Material = {
   id: number;
   name: { cs: string; en: string };
   color: string;
-  c2f: number;
-  damp: number;
-  cost: number; // cena za buňku (čerpá z budgetu)
-  iso: number;  // orientační útlum (dB) pro typickou stěnu — jen pro hráče
+  c2f: number;  // podíl rychlosti² (nižší = tvrdší, vyšší útlum prostupu)
+  damp: number; // pohlcení (vyšší = víc absorbuje)
+  cost: number; // cena za blok
+  db: number;   // orientační útlum v dB na m³ materiálu (podle hustoty/typu)
 };
 
+// Řazení dle fyziky: těžké/tvrdé (vysoká hustota → nízké c2f) blokují prostup,
+// porézní (vysoký damp) pohlcují odrazy. db ~ účinnost na m³.
 export const MATERIALS: Material[] = [
-  { id: 1, name: { cs: "Cihla", en: "Brick" }, color: "#b5562f", c2f: 0.14, damp: 0.010, cost: 2, iso: 18 },
-  { id: 2, name: { cs: "Beton", en: "Concrete" }, color: "#8b8d92", c2f: 0.05, damp: 0.004, cost: 3, iso: 24 },
-  { id: 3, name: { cs: "Sklo", en: "Glass" }, color: "#7fd3e0", c2f: 0.07, damp: 0.003, cost: 3, iso: 14 },
-  { id: 4, name: { cs: "Zemina / val", en: "Soil / berm" }, color: "#6b4f32", c2f: 0.22, damp: 0.045, cost: 1, iso: 16 },
-  { id: 5, name: { cs: "Písek", en: "Sand" }, color: "#e3c779", c2f: 0.30, damp: 0.060, cost: 1, iso: 11 },
-  { id: 6, name: { cs: "Stromy / plot", en: "Trees / hedge" }, color: "#3f8a4a", c2f: 0.55, damp: 0.030, cost: 1, iso: 6 },
+  { id: 1, name: { cs: "Cihla", en: "Brick" }, color: "#b5562f", c2f: 0.12, damp: 0.012, cost: 2, db: 18 },
+  { id: 2, name: { cs: "Beton", en: "Concrete" }, color: "#8b8d92", c2f: 0.05, damp: 0.006, cost: 3, db: 22 },
+  { id: 3, name: { cs: "Sklo", en: "Glass" }, color: "#7fd3e0", c2f: 0.08, damp: 0.004, cost: 3, db: 16 },
+  { id: 4, name: { cs: "Zemní val", en: "Earth berm" }, color: "#6b4f32", c2f: 0.20, damp: 0.050, cost: 1, db: 15 },
+  { id: 5, name: { cs: "Písek", en: "Sand" }, color: "#e3c779", c2f: 0.26, damp: 0.060, cost: 1, db: 12 },
+  { id: 6, name: { cs: "Stromy / plot", en: "Trees / hedge" }, color: "#3f8a4a", c2f: 0.55, damp: 0.030, cost: 1, db: 5 },
+  { id: 7, name: { cs: "Protihluková stěna", en: "Acoustic barrier" }, color: "#6f8a9a", c2f: 0.06, damp: 0.045, cost: 2, db: 20 },
+  { id: 8, name: { cs: "Gabion", en: "Gabion" }, color: "#9a8a6a", c2f: 0.10, damp: 0.030, cost: 2, db: 18 },
+  { id: 9, name: { cs: "Minerální vata", en: "Mineral wool" }, color: "#e3d06a", c2f: 0.58, damp: 0.100, cost: 1, db: 9 },
+  { id: 10, name: { cs: "Akustická pěna", en: "Acoustic foam" }, color: "#d98aa6", c2f: 0.72, damp: 0.130, cost: 1, db: 7 },
+  { id: 11, name: { cs: "Těžká fólie", en: "Mass-loaded vinyl" }, color: "#4a4a52", c2f: 0.03, damp: 0.020, cost: 4, db: 27 },
+  { id: 12, name: { cs: "Sádrokarton", en: "Drywall" }, color: "#ded9cf", c2f: 0.32, damp: 0.020, cost: 1, db: 10 },
 ];
 export const materialById = (id: number) => MATERIALS.find((m) => m.id === id) ?? null;
 
@@ -167,6 +175,10 @@ export type Level = {
   stageH?: number;  // výška zdroje
   cityX: number;
   cityW: number;
+  materials?: number[];   // dostupné materiály (id); jinak všechny
+  audienceX?: number;     // zóna posluchačů (festival/stadion) — musí dobře slyšet
+  audienceW?: number;
+  audienceMinDb?: number; // minimální hladina, kterou návštěvníci musí slyšet
   prebuilt?: Prebuilt[];
   enclosure?: boolean; // vnitřní prostor (klub, zkušebna) — kolem zdroje stěny s mezerou
 };
@@ -177,22 +189,22 @@ export const OPEN_REF = 0.7;    // referenční přenos ve volném poli
 export const SRC_REF_M = 10;    // hladina zdroje měřena v 10 m
 
 export const LEVELS: Level[] = [
-  { id: "highway", name: { cs: "Dálnice", en: "Highway" }, kind: "cars", env: "meadow", source: { cs: "Dálnice", en: "Highway" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 85, limitDb: 50, driveHz: 0.7, budget: 60, stageX: 46, stageH: 3, cityX: 244, cityW: 32 },
-  { id: "railway", name: { cs: "Železnice", en: "Railway" }, kind: "train", env: "meadow", source: { cs: "Vlak", en: "Train" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 95, limitDb: 55, driveHz: 0.8, budget: 72, stageX: 44, stageH: 4, cityX: 250, cityW: 32 },
-  { id: "construction", name: { cs: "Stavba", en: "Construction" }, kind: "machinery", env: "city", source: { cs: "Stavba", en: "Construction" }, target: { cs: "Byty", en: "Flats" }, sourceDb: 100, limitDb: 60, driveHz: 1.1, budget: 80, stageX: 44, stageH: 6, cityX: 244, cityW: 30, prebuilt: [{ x0: 150, x1: 168, top: 86, mat: 2 }, { x0: 195, x1: 214, top: 80, mat: 2 }] },
-  { id: "festival", name: { cs: "Festival", en: "Festival" }, kind: "stage", env: "meadow", source: { cs: "Pódium", en: "Stage" }, target: { cs: "Město", en: "Town" }, sourceDb: 105, limitDb: 55, driveHz: 1.0, budget: 95, stageX: 46, stageH: 22, cityX: 258, cityW: 36 },
-  { id: "factory", name: { cs: "Továrna", en: "Factory" }, kind: "factory", env: "city", source: { cs: "Stroje", en: "Machinery" }, target: { cs: "Sídliště", en: "Residential" }, sourceDb: 92, limitDb: 50, driveHz: 0.85, budget: 85, stageX: 42, stageH: 8, cityX: 256, cityW: 30 },
-  { id: "stadium", name: { cs: "Stadion", en: "Stadium" }, kind: "crowd", env: "city", source: { cs: "Dav", en: "Crowd" }, target: { cs: "Čtvrť", en: "Neighborhood" }, sourceDb: 100, limitDb: 55, driveHz: 1.0, budget: 95, stageX: 46, stageH: 30, cityX: 258, cityW: 34 },
-  { id: "racetrack", name: { cs: "Závodní okruh", en: "Race track" }, kind: "engine", env: "meadow", source: { cs: "Motory", en: "Engines" }, target: { cs: "Kemp", en: "Campsite" }, sourceDb: 105, limitDb: 55, driveHz: 1.2, budget: 100, stageX: 44, stageH: 5, cityX: 260, cityW: 32 },
-  { id: "kennel", name: { cs: "Psí útulek", en: "Dog kennel" }, kind: "dog", env: "city", source: { cs: "Štěkot", en: "Barking" }, target: { cs: "Sousedé", en: "Neighbors" }, sourceDb: 90, limitDb: 45, driveHz: 1.3, budget: 72, stageX: 52, stageH: 4, cityX: 226, cityW: 28 },
-  { id: "bells", name: { cs: "Kostelní zvony", en: "Church bells" }, kind: "bell", env: "city", source: { cs: "Zvony", en: "Bells" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 100, limitDb: 58, driveHz: 1.2, budget: 88, stageX: 48, stageH: 52, cityX: 256, cityW: 32 },
-  { id: "heatpump", name: { cs: "Tepelné čerpadlo", en: "Heat pump" }, kind: "unit", env: "city", source: { cs: "Venkovní jednotka", en: "Outdoor unit" }, target: { cs: "Ložnice souseda", en: "Neighbor's bedroom" }, sourceDb: 68, limitDb: 35, driveHz: 0.7, budget: 55, stageX: 78, stageH: 4, cityX: 178, cityW: 22 },
-  { id: "windturbine", name: { cs: "Větrná elektrárna", en: "Wind turbine" }, kind: "turbine", env: "meadow", source: { cs: "Turbína", en: "Turbine" }, target: { cs: "Statek", en: "Farmhouse" }, sourceDb: 95, limitDb: 42, driveHz: 0.5, budget: 105, stageX: 46, stageH: 70, cityX: 262, cityW: 30 },
-  { id: "nightclub", name: { cs: "Noční klub", en: "Nightclub" }, kind: "club", env: "indoor", source: { cs: "Klub", en: "Club" }, target: { cs: "Ulice v noci", en: "Night street" }, sourceDb: 100, limitDb: 45, driveHz: 0.9, budget: 95, stageX: 62, stageH: 12, cityX: 250, cityW: 30, enclosure: true },
-  { id: "rehearsal", name: { cs: "Zkušebna", en: "Rehearsal room" }, kind: "band", env: "indoor", source: { cs: "Kapela", en: "Band" }, target: { cs: "Soused za zdí", en: "Neighbor next door" }, sourceDb: 105, limitDb: 40, driveHz: 1.0, budget: 100, stageX: 60, stageH: 12, cityX: 236, cityW: 26, enclosure: true },
-  { id: "heliport", name: { cs: "Heliport", en: "Heliport" }, kind: "heli", env: "city", source: { cs: "Vrtulník", en: "Helicopter" }, target: { cs: "Nemocnice", en: "Hospital" }, sourceDb: 115, limitDb: 50, driveHz: 0.9, budget: 115, stageX: 46, stageH: 70, cityX: 262, cityW: 32 },
-  { id: "shooting", name: { cs: "Střelnice", en: "Shooting range" }, kind: "gun", env: "meadow", source: { cs: "Výstřely", en: "Gunfire" }, target: { cs: "Vesnice", en: "Village" }, sourceDb: 130, limitDb: 60, driveHz: 1.1, budget: 150, stageX: 44, stageH: 4, cityX: 268, cityW: 34 },
-  { id: "airport", name: { cs: "Letiště", en: "Airport" }, kind: "plane", env: "meadow", source: { cs: "Letadla", en: "Aircraft" }, target: { cs: "Obec pod dráhou", en: "Village under flightpath" }, sourceDb: 120, limitDb: 60, driveHz: 1.0, budget: 140, stageX: 44, stageH: 60, cityX: 268, cityW: 36 },
+  { id: "highway", name: { cs: "Dálnice", en: "Highway" }, kind: "cars", env: "meadow", source: { cs: "Dálnice", en: "Highway" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 85, limitDb: 50, driveHz: 0.7, budget: 60, stageX: 46, stageH: 3, cityX: 244, cityW: 32, materials: [4, 7, 3, 2] },
+  { id: "railway", name: { cs: "Železnice", en: "Railway" }, kind: "train", env: "meadow", source: { cs: "Vlak", en: "Train" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 95, limitDb: 55, driveHz: 0.8, budget: 72, stageX: 44, stageH: 4, cityX: 250, cityW: 32, materials: [4, 7, 8, 2] },
+  { id: "construction", name: { cs: "Stavba", en: "Construction" }, kind: "machinery", env: "city", source: { cs: "Stavba", en: "Construction" }, target: { cs: "Byty", en: "Flats" }, sourceDb: 100, limitDb: 60, driveHz: 1.1, budget: 80, stageX: 44, stageH: 6, cityX: 244, cityW: 30, prebuilt: [{ x0: 150, x1: 168, top: 86, mat: 2 }, { x0: 195, x1: 214, top: 80, mat: 2 }], materials: [2, 9, 12, 7] },
+  { id: "festival", name: { cs: "Festival", en: "Festival" }, kind: "stage", env: "meadow", source: { cs: "Pódium", en: "Stage" }, target: { cs: "Město", en: "Town" }, sourceDb: 105, limitDb: 55, driveHz: 1.0, budget: 95, stageX: 46, stageH: 22, cityX: 258, cityW: 36, materials: [2, 7, 8], audienceX: 110, audienceW: 44, audienceMinDb: 70 },
+  { id: "factory", name: { cs: "Továrna", en: "Factory" }, kind: "factory", env: "city", source: { cs: "Stroje", en: "Machinery" }, target: { cs: "Sídliště", en: "Residential" }, sourceDb: 92, limitDb: 50, driveHz: 0.85, budget: 85, stageX: 42, stageH: 8, cityX: 256, cityW: 30, materials: [2, 9, 10, 12] },
+  { id: "stadium", name: { cs: "Stadion", en: "Stadium" }, kind: "crowd", env: "city", source: { cs: "Dav", en: "Crowd" }, target: { cs: "Čtvrť", en: "Neighborhood" }, sourceDb: 100, limitDb: 55, driveHz: 1.0, budget: 95, stageX: 46, stageH: 30, cityX: 258, cityW: 34, materials: [2, 7, 4], audienceX: 112, audienceW: 46, audienceMinDb: 62 },
+  { id: "racetrack", name: { cs: "Závodní okruh", en: "Race track" }, kind: "engine", env: "meadow", source: { cs: "Motory", en: "Engines" }, target: { cs: "Kemp", en: "Campsite" }, sourceDb: 105, limitDb: 55, driveHz: 1.2, budget: 100, stageX: 44, stageH: 5, cityX: 260, cityW: 32, materials: [4, 7, 2] },
+  { id: "kennel", name: { cs: "Psí útulek", en: "Dog kennel" }, kind: "dog", env: "city", source: { cs: "Štěkot", en: "Barking" }, target: { cs: "Sousedé", en: "Neighbors" }, sourceDb: 90, limitDb: 45, driveHz: 1.3, budget: 72, stageX: 52, stageH: 4, cityX: 226, cityW: 28, materials: [1, 6, 7] },
+  { id: "bells", name: { cs: "Kostelní zvony", en: "Church bells" }, kind: "bell", env: "city", source: { cs: "Zvony", en: "Bells" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 100, limitDb: 58, driveHz: 1.2, budget: 88, stageX: 48, stageH: 52, cityX: 256, cityW: 32, materials: [2, 1, 3] },
+  { id: "heatpump", name: { cs: "Tepelné čerpadlo", en: "Heat pump" }, kind: "unit", env: "city", source: { cs: "Venkovní jednotka", en: "Outdoor unit" }, target: { cs: "Ložnice souseda", en: "Neighbor's bedroom" }, sourceDb: 68, limitDb: 35, driveHz: 0.7, budget: 55, stageX: 78, stageH: 4, cityX: 178, cityW: 22, materials: [7, 9, 2] },
+  { id: "windturbine", name: { cs: "Větrná elektrárna", en: "Wind turbine" }, kind: "turbine", env: "meadow", source: { cs: "Turbína", en: "Turbine" }, target: { cs: "Statek", en: "Farmhouse" }, sourceDb: 95, limitDb: 42, driveHz: 0.5, budget: 105, stageX: 46, stageH: 70, cityX: 262, cityW: 30, materials: [4, 2, 7, 11] },
+  { id: "nightclub", name: { cs: "Noční klub", en: "Nightclub" }, kind: "club", env: "indoor", source: { cs: "Klub", en: "Club" }, target: { cs: "Ulice v noci", en: "Night street" }, sourceDb: 100, limitDb: 45, driveHz: 0.9, budget: 95, stageX: 62, stageH: 12, cityX: 250, cityW: 30, enclosure: true, materials: [2, 9, 10, 11] },
+  { id: "rehearsal", name: { cs: "Zkušebna", en: "Rehearsal room" }, kind: "band", env: "indoor", source: { cs: "Kapela", en: "Band" }, target: { cs: "Soused za zdí", en: "Neighbor next door" }, sourceDb: 105, limitDb: 40, driveHz: 1.0, budget: 100, stageX: 60, stageH: 12, cityX: 236, cityW: 26, enclosure: true, materials: [2, 9, 10, 11] },
+  { id: "heliport", name: { cs: "Heliport", en: "Heliport" }, kind: "heli", env: "city", source: { cs: "Vrtulník", en: "Helicopter" }, target: { cs: "Nemocnice", en: "Hospital" }, sourceDb: 115, limitDb: 50, driveHz: 0.9, budget: 115, stageX: 46, stageH: 70, cityX: 262, cityW: 32, materials: [2, 7, 4] },
+  { id: "shooting", name: { cs: "Střelnice", en: "Shooting range" }, kind: "gun", env: "meadow", source: { cs: "Výstřely", en: "Gunfire" }, target: { cs: "Vesnice", en: "Village" }, sourceDb: 130, limitDb: 60, driveHz: 1.1, budget: 150, stageX: 44, stageH: 4, cityX: 268, cityW: 34, materials: [4, 2, 8] },
+  { id: "airport", name: { cs: "Letiště", en: "Airport" }, kind: "plane", env: "meadow", source: { cs: "Letadla", en: "Aircraft" }, target: { cs: "Obec pod dráhou", en: "Village under flightpath" }, sourceDb: 120, limitDb: 60, driveHz: 1.0, budget: 140, stageX: 44, stageH: 60, cityX: 268, cityW: 36, materials: [4, 2, 7, 11] },
 ];
 
 export const suUi = {
@@ -204,7 +216,7 @@ export const suUi = {
     start: "Spustit festival 🔊",
     level: "Level", stage: "Zdroj", city: "Cíl", distance: "Vzdálenost",
     sourceLbl: "Zdroj", targetLbl: "Cíl", inTarget: "V cíli", limitWord: "limit",
-    barrier: "Tvá bariéra", mute: "Ztlumit", unmute: "Zapnout zvuk",
+    barrier: "Tvá bariéra", mute: "Ztlumit", unmute: "Zapnout zvuk", audienceLbl: "Návštěvníci", minWord: "min",
     cityHears: "Co slyší město", limitLbl: "Limit",
     budget: "Odhlučnění", used: "použito",
     won: "Hotovo! Město má klid. 🎉", next: "Další level →", retry: "Zkusit znovu",
@@ -223,7 +235,7 @@ export const suUi = {
     start: "Start the festival 🔊",
     level: "Level", stage: "Source", city: "Target", distance: "Distance",
     sourceLbl: "Source", targetLbl: "Target", inTarget: "At target", limitWord: "limit",
-    barrier: "Your barrier", mute: "Mute", unmute: "Unmute",
+    barrier: "Your barrier", mute: "Mute", unmute: "Unmute", audienceLbl: "Audience", minWord: "min",
     cityHears: "What the city hears", limitLbl: "Limit",
     budget: "Soundproofing", used: "used",
     won: "Done! The city has peace. 🎉", next: "Next level →", retry: "Try again",
