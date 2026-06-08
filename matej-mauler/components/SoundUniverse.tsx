@@ -20,7 +20,8 @@ type SongLite = { url: string; title: string };
 const costOf = (id: number) => MATERIALS.find((m) => m.id === id)?.cost ?? 0;
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 
-const MAT_KIND: Record<number, string> = { 1: "brick", 2: "concrete", 3: "glass", 4: "soil", 5: "sand", 6: "hedge" };
+const MAT_KIND: Record<number, string> = { 1: "brick", 2: "concrete", 3: "glass", 4: "soil", 5: "sand", 6: "hedge", 7: "panel", 8: "gabion", 9: "wool", 10: "foam", 11: "vinyl", 12: "drywall" };
+const MAT_DB: Record<number, number> = Object.fromEntries(MATERIALS.map((m) => [m.id, m.db]));
 function tileColors(kind: string): [string, string, string] {
   switch (kind) {
     case "brick": return ["#b5562f", "#8f3f1f", "#cf6e46"];
@@ -30,6 +31,12 @@ function tileColors(kind: string): [string, string, string] {
     case "sand": return ["#e3c779", "#c9a857", "#efd896"];
     case "hedge": return ["#43914f", "#2c6936", "#5cb267"];
     case "stone": return ["#6f6a63", "#524e48", "#857f76"];
+    case "panel": return ["#6f8a9a", "#52707f", "#86a0ae"];
+    case "gabion": return ["#9a8a6a", "#776a50", "#b0a07e"];
+    case "wool": return ["#e3d06a", "#c4b150", "#efe08a"];
+    case "foam": return ["#d98aa6", "#bf6e8a", "#e8a6bd"];
+    case "vinyl": return ["#4a4a52", "#33333a", "#63636c"];
+    case "drywall": return ["#ded9cf", "#c2bdb1", "#efebe3"];
     default: return ["#999", "#666", "#bbb"];
   }
 }
@@ -191,11 +198,22 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       ctx.drawImage(off, 0, 0, GW, GROUND_Y, 0, 0, cssW, skyH);
 
       const tw = cssW / TW, th = sliceH / TH;
-      // materiály (dlaždice)
+      // materiály (dlaždice) + útlum dB na každém bloku
       const tm = tileMat.current;
+      const showDb = tw >= 11; const fs = Math.min(10, th * 0.5);
       for (let ty = 0; ty < GROUND_TILE; ty++) for (let tx = 0; tx < TW; tx++) {
         const m = tm[ty * TW + tx]; if (!m) continue;
         drawTile(ctx, tx * tw, ty * th, tw, th, MAT_KIND[m] ?? "concrete", hsh(tx, ty));
+      }
+      if (showDb) {
+        ctx.font = `700 ${fs}px system-ui`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineWidth = 2.4; ctx.lineJoin = "round";
+        for (let ty = 0; ty < GROUND_TILE; ty++) for (let tx = 0; tx < TW; tx++) {
+          const m = tm[ty * TW + tx]; if (!m) continue;
+          const lx = tx * tw + tw / 2, ly = ty * th + th / 2; const txt = `−${MAT_DB[m]}`;
+          ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.strokeText(txt, lx, ly);
+          ctx.fillStyle = "#1a1614"; ctx.fillText(txt, lx, ly);
+        }
+        ctx.textBaseline = "alphabetic";
       }
       // zem (tráva + hlína)
       for (let ty = GROUND_TILE; ty < TH; ty++) for (let tx = 0; tx < TW; tx++) {
