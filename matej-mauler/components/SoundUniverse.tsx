@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Fdtd, MATERIALS, LEVELS, M_PER_CELL, DRIVE_AMP, OPEN_REF, suUi, type Level } from "@/lib/soundUniverse";
+import { buildSource } from "@/lib/suAudio";
+import { drawSource } from "@/lib/suSprites";
 import type { Lang } from "@/lib/dictionaries";
 
 const GW = 300, GH = 120, INK = "#1a1614", BG = "#FAFAF7";
@@ -205,14 +207,12 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       ctx.fillStyle = cityDb <= level.limitDb ? "#16A34A" : "#dc2626"; ctx.font = "800 14px system-ui"; ctx.fillText(warming ? "…" : `${Math.round(cityDb)} dB`, (cx0 + cx1) / 2, 35);
       ctx.fillStyle = "rgba(26,22,20,0.55)"; ctx.font = "600 10px system-ui"; ctx.fillText(`${t.limitWord} ${level.limitDb}`, (cx0 + cx1) / 2, 48);
 
-      // stage
-      const sx = g2sx(stage.current.x);
-      ctx.fillStyle = INK; ctx.fillRect(sx - 16, groundScreenY - 8, 32, 8);
-      const syE = g2sy(stage.current.y);
-      ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, syE); ctx.lineTo(sx, groundScreenY); ctx.stroke();
-      ctx.beginPath(); ctx.arc(sx, syE, 10, 0, 7); ctx.fillStyle = "#ff6fae"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = INK; ctx.stroke();
-      ctx.fillStyle = INK; ctx.font = "700 11px system-ui"; ctx.fillText(level.source[lang], sx, groundScreenY + 16);
-      ctx.fillStyle = "rgba(26,22,20,0.75)"; ctx.font = "800 12px system-ui"; ctx.fillText(`${level.sourceDb} dB`, sx, syE - 16);
+      // zdroj hluku — sprite podle levelu
+      const sx = g2sx(stage.current.x); const syE = g2sy(stage.current.y);
+      const u = (cssW / TW) * 0.85;
+      drawSource(ctx, level.kind, sx, groundScreenY, syE, u);
+      ctx.textAlign = "center"; ctx.fillStyle = INK; ctx.font = "700 11px system-ui"; ctx.fillText(level.source[lang], sx, groundScreenY + 16);
+      ctx.fillStyle = "rgba(26,22,20,0.78)"; ctx.font = "800 12px system-ui"; ctx.fillText(`${level.sourceDb} dB`, sx, Math.min(syE, groundScreenY) - 18);
 
       // kóta
       const sxC = g2sx(level.cityX); const dM = Math.round(Math.abs(stage.current.x - level.cityX) * M_PER_CELL);
@@ -233,16 +233,16 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
     tick(); return () => cancelAnimationFrame(raf);
   }, [started]);
 
-  const startProcFallback = (ac: AudioContext, into: AudioNode) => {
-    const notes = [0, 4, 7, 12, 7, 4]; const root = 220; let step = 0;
-    const timer = setInterval(() => {
-      const o = ac.createOscillator(); o.type = "sawtooth"; o.frequency.value = root * Math.pow(2, notes[step % notes.length] / 12);
-      const g = ac.createGain(); g.gain.value = 0.0001; const fl = ac.createBiquadFilter(); fl.type = "lowpass"; fl.frequency.value = 2200;
-      o.connect(fl).connect(g).connect(into); const tn = ac.currentTime;
-      g.gain.setValueAtTime(0.0001, tn); g.gain.exponentialRampToValueAtTime(0.5, tn + 0.02); g.gain.exponentialRampToValueAtTime(0.0008, tn + 0.32);
-      o.start(tn); o.stop(tn + 0.36); step++;
-    }, 300);
-    procStop.current = () => clearInterval(timer);
+  // zdroj zvuku podle levelu (festival = nahraný song, jinak procedurální)
+  const buildLevelSource = async (lv: Level) => {
+    const ac = acRef.current, input = inGain.current; if (!ac || !input) return;
+    procStop.current?.(); procStop.current = null;
+    try { audioElRef.current?.pause(); } catch {}
+    if (lv.kind === "stage" && songs[0]) {
+      const a = new Audio(); a.crossOrigin = "anonymous"; a.loop = true; a.src = songs[0].url; audioElRef.current = a;
+      try { const node = ac.createMediaElementSource(a); node.connect(input); await a.play(); procStop.current = () => { try { a.pause(); } catch {} try { node.disconnect(); } catch {} }; }
+      catch { procStop.current = buildSource(ac, input, "stage"); }
+    } else procStop.current = buildSource(ac, input, lv.kind);
   };
 
   const start = async () => {
@@ -254,11 +254,11 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
     const comp = ac.createDynamicsCompressor();
     const master = ac.createGain(); master.gain.value = muted ? 0 : 1; masterRef.current = master;
     input.connect(lp).connect(sg).connect(comp).connect(master).connect(ac.destination);
-    const song = songs[0];
-    if (song) { const a = new Audio(); a.crossOrigin = "anonymous"; a.loop = true; a.src = song.url; audioElRef.current = a; try { ac.createMediaElementSource(a).connect(input); await a.play(); } catch { startProcFallback(ac, input); } }
-    else startProcFallback(ac, input);
+    await buildLevelSource(level);
     simStep.current = 0; belowSince.current = 0; setStarted(true);
   };
+  // přepnutí levelu = jiný zvuk
+  useEffect(() => { if (acRef.current && inGain.current) buildLevelSource(LEVELS[levelIdx]); }, [levelIdx]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => { procStop.current?.(); try { audioElRef.current?.pause(); } catch {} try { acRef.current?.close(); } catch {} }, []);
 
   const toggleMute = () => setMuted((m) => { const nm = !m; const ac = acRef.current; if (masterRef.current && ac) masterRef.current.gain.setTargetAtTime(nm ? 0 : 1, ac.currentTime, 0.02); return nm; });
@@ -315,8 +315,18 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
         <canvas ref={canvasRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}
           style={{ width: "100%", height: "100%", display: "block", touchAction: "none", cursor: "crosshair" }} />
 
-        <button onClick={toggleMute} aria-label={muted ? t.unmute : t.mute} title={muted ? t.unmute : t.mute}
-          style={{ position: "absolute", top: 12, left: 12, width: 40, height: 40, borderRadius: 12, border: `2.5px solid ${INK}`, background: "#fff", boxShadow: `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16, lineHeight: 1 }}>{muted ? "🔇" : "🔊"}</button>
+        <div style={{ position: "absolute", top: 12, left: 12, display: "flex", gap: 8, alignItems: "stretch" }}>
+          <button onClick={toggleMute} aria-label={muted ? t.unmute : t.mute} title={muted ? t.unmute : t.mute}
+            style={{ width: 40, borderRadius: 12, border: `2.5px solid ${INK}`, background: "#fff", boxShadow: `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16, lineHeight: 1 }}>{muted ? "🔇" : "🔊"}</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#fff", border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}`, borderRadius: 12, padding: "4px 6px" }}>
+            <button onClick={() => setLevelIdx((i) => Math.max(0, i - 1))} disabled={levelIdx === 0} style={{ width: 24, height: 24, borderRadius: 7, border: "none", background: levelIdx === 0 ? "rgba(0,0,0,0.06)" : INK, color: levelIdx === 0 ? "var(--text-muted)" : "#fff", cursor: levelIdx === 0 ? "default" : "pointer", fontSize: 14 }}>‹</button>
+            <div style={{ minWidth: 124, textAlign: "center" }}>
+              <div style={{ ...display, fontWeight: 700, fontSize: 13, lineHeight: 1.1, color: INK }}>{level.name[lang]}</div>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 9, color: "var(--text-muted)" }}>{levelIdx + 1} / {LEVELS.length} · {level.source[lang]}</div>
+            </div>
+            <button onClick={() => setLevelIdx((i) => Math.min(LEVELS.length - 1, i + 1))} disabled={levelIdx === LEVELS.length - 1} style={{ width: 24, height: 24, borderRadius: 7, border: "none", background: levelIdx === LEVELS.length - 1 ? "rgba(0,0,0,0.06)" : INK, color: levelIdx === LEVELS.length - 1 ? "var(--text-muted)" : "#fff", cursor: levelIdx === LEVELS.length - 1 ? "default" : "pointer", fontSize: 14 }}>›</button>
+          </div>
+        </div>
 
         {started && (
           <div style={{ position: "absolute", top: "12px", right: "12px", ...card, padding: "10px 12px", minWidth: "184px" }}>
@@ -360,7 +370,6 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       </div>
 
       <div style={{ flexShrink: 0, ...card, marginTop: "10px", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "9px", maxHeight: "38vh", overflowY: "auto" }}>
-        <Row label={t.level}>{LEVELS.map((lv, i) => <button key={lv.id} onClick={() => setLevelIdx(i)} style={chip(levelIdx === i)}>{lv.name[lang]}</button>)}</Row>
         <Row label={t.tools}>
           <button onClick={() => setTool("paint")} style={chip(tool === "paint")}>{t.paint}</button>
           <button onClick={() => setTool("erase")} style={chip(tool === "erase")}>{t.erase}</button>
