@@ -69,6 +69,8 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   const [meters, setMeters] = useState({ cityDb: 0, warming: false });
   const [budgetUsed, setBudgetUsed] = useState(0);
   const [won, setWon] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const masterRef = useRef<GainNode | null>(null);
   const wonRef = useRef(false);
   const belowSince = useRef(0);
   const simStep = useRef(0);
@@ -250,13 +252,16 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
     const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 8000; lpRef.current = lp;
     const sg = ac.createGain(); sg.gain.value = 0; sceneGain.current = sg;
     const comp = ac.createDynamicsCompressor();
-    input.connect(lp).connect(sg).connect(comp).connect(ac.destination);
+    const master = ac.createGain(); master.gain.value = muted ? 0 : 1; masterRef.current = master;
+    input.connect(lp).connect(sg).connect(comp).connect(master).connect(ac.destination);
     const song = songs[0];
     if (song) { const a = new Audio(); a.crossOrigin = "anonymous"; a.loop = true; a.src = song.url; audioElRef.current = a; try { ac.createMediaElementSource(a).connect(input); await a.play(); } catch { startProcFallback(ac, input); } }
     else startProcFallback(ac, input);
     simStep.current = 0; belowSince.current = 0; setStarted(true);
   };
   useEffect(() => () => { procStop.current?.(); try { audioElRef.current?.pause(); } catch {} try { acRef.current?.close(); } catch {} }, []);
+
+  const toggleMute = () => setMuted((m) => { const nm = !m; const ac = acRef.current; if (masterRef.current && ac) masterRef.current.gain.setTargetAtTime(nm ? 0 : 1, ac.currentTime, 0.02); return nm; });
 
   /* ── stavění po dlaždicích s rozpočtem ─────────────────────────── */
   const painting = useRef(false);
@@ -295,6 +300,7 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   const cityPct = cl((meters.cityDb - loDb) / (sDb - loDb)) * 100;
   const limPct = cl((level.limitDb - loDb) / (sDb - loDb)) * 100;
   const okDb = meters.cityDb <= level.limitDb;
+  const reduction = openFieldDb(level) - meters.cityDb;
   const overlayBg = "rgba(250,250,247,0.82)";
 
   return (
@@ -309,6 +315,9 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
         <canvas ref={canvasRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}
           style={{ width: "100%", height: "100%", display: "block", touchAction: "none", cursor: "crosshair" }} />
 
+        <button onClick={toggleMute} aria-label={muted ? t.unmute : t.mute} title={muted ? t.unmute : t.mute}
+          style={{ position: "absolute", top: 12, left: 12, width: 40, height: 40, borderRadius: 12, border: `2.5px solid ${INK}`, background: "#fff", boxShadow: `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16, lineHeight: 1 }}>{muted ? "🔇" : "🔊"}</button>
+
         {started && (
           <div style={{ position: "absolute", top: "12px", right: "12px", ...card, padding: "10px 12px", minWidth: "184px" }}>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "3px" }}>{t.level} · {level.name[lang]}</p>
@@ -319,7 +328,10 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
               <div style={{ height: "100%", width: `${cityPct}%`, background: okDb ? "#16A34A" : "#dc2626" }} />
               <div style={{ position: "absolute", top: -2, bottom: -2, left: `${limPct}%`, width: 2.5, background: INK }} />
             </div>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--text-muted)", marginTop: "6px" }}>{t.budget}: {budgetUsed}/{level.budget}{budgetUsed >= level.budget ? ` · ${t.overBudget}` : ""}</p>
+            {started && !meters.warming && (
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", marginTop: "6px" }}>{t.barrier}: <strong style={{ color: reduction >= 0 ? "#16A34A" : "#dc2626" }}>{reduction >= 0 ? "−" : "+"}{Math.abs(Math.round(reduction))} dB</strong></p>
+            )}
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--text-muted)", marginTop: "4px" }}>{t.budget}: {budgetUsed}/{level.budget}{budgetUsed >= level.budget ? ` · ${t.overBudget}` : ""}</p>
           </div>
         )}
 
@@ -356,7 +368,7 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
         </Row>
         <Row label={t.material}>{MATERIALS.map((m) => (
           <button key={m.id} onClick={() => { setMaterial(m.id); setTool("paint"); }} style={{ ...chip(material === m.id), display: "inline-flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ width: 11, height: 11, borderRadius: 3, background: m.color, border: `1px solid ${INK}` }} />{m.name[lang]} <span style={{ opacity: 0.6 }}>·{m.cost}</span>
+            <span style={{ width: 11, height: 11, borderRadius: 3, background: m.color, border: `1px solid ${INK}` }} />{m.name[lang]} <strong>−{m.iso} dB</strong> <span style={{ opacity: 0.55 }}>·{m.cost}</span>
           </button>
         ))}</Row>
         <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", lineHeight: 1.5 }}>{t.tip}</p>

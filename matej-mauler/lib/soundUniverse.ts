@@ -13,15 +13,16 @@ export type Material = {
   c2f: number;
   damp: number;
   cost: number; // cena za buňku (čerpá z budgetu)
+  iso: number;  // orientační útlum (dB) pro typickou stěnu — jen pro hráče
 };
 
 export const MATERIALS: Material[] = [
-  { id: 1, name: { cs: "Cihla", en: "Brick" }, color: "#b5562f", c2f: 0.14, damp: 0.010, cost: 2 },
-  { id: 2, name: { cs: "Beton", en: "Concrete" }, color: "#8b8d92", c2f: 0.05, damp: 0.004, cost: 3 },
-  { id: 3, name: { cs: "Sklo", en: "Glass" }, color: "#7fd3e0", c2f: 0.07, damp: 0.003, cost: 3 },
-  { id: 4, name: { cs: "Zemina / val", en: "Soil / berm" }, color: "#6b4f32", c2f: 0.22, damp: 0.045, cost: 1 },
-  { id: 5, name: { cs: "Písek", en: "Sand" }, color: "#e3c779", c2f: 0.30, damp: 0.060, cost: 1 },
-  { id: 6, name: { cs: "Stromy / plot", en: "Trees / hedge" }, color: "#3f8a4a", c2f: 0.55, damp: 0.030, cost: 1 },
+  { id: 1, name: { cs: "Cihla", en: "Brick" }, color: "#b5562f", c2f: 0.14, damp: 0.010, cost: 2, iso: 18 },
+  { id: 2, name: { cs: "Beton", en: "Concrete" }, color: "#8b8d92", c2f: 0.05, damp: 0.004, cost: 3, iso: 24 },
+  { id: 3, name: { cs: "Sklo", en: "Glass" }, color: "#7fd3e0", c2f: 0.07, damp: 0.003, cost: 3, iso: 14 },
+  { id: 4, name: { cs: "Zemina / val", en: "Soil / berm" }, color: "#6b4f32", c2f: 0.22, damp: 0.045, cost: 1, iso: 16 },
+  { id: 5, name: { cs: "Písek", en: "Sand" }, color: "#e3c779", c2f: 0.30, damp: 0.060, cost: 1, iso: 11 },
+  { id: 6, name: { cs: "Stromy / plot", en: "Trees / hedge" }, color: "#3f8a4a", c2f: 0.55, damp: 0.030, cost: 1, iso: 6 },
 ];
 export const materialById = (id: number) => MATERIALS.find((m) => m.id === id) ?? null;
 
@@ -199,6 +200,7 @@ export const suUi = {
     start: "Spustit festival 🔊",
     level: "Level", stage: "Zdroj", city: "Cíl", distance: "Vzdálenost",
     sourceLbl: "Zdroj", targetLbl: "Cíl", inTarget: "V cíli", limitWord: "limit",
+    barrier: "Tvá bariéra", mute: "Ztlumit", unmute: "Zapnout zvuk",
     cityHears: "Co slyší město", limitLbl: "Limit",
     budget: "Odhlučnění", used: "použito",
     won: "Hotovo! Město má klid. 🎉", next: "Další level →", retry: "Zkusit znovu",
@@ -217,6 +219,7 @@ export const suUi = {
     start: "Start the festival 🔊",
     level: "Level", stage: "Source", city: "Target", distance: "Distance",
     sourceLbl: "Source", targetLbl: "Target", inTarget: "At target", limitWord: "limit",
+    barrier: "Your barrier", mute: "Mute", unmute: "Unmute",
     cityHears: "What the city hears", limitLbl: "Limit",
     budget: "Soundproofing", used: "used",
     won: "Done! The city has peace. 🎉", next: "Next level →", retry: "Try again",
