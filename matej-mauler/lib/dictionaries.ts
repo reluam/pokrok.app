@@ -120,7 +120,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "soundverse",
-        title: "Sound Universe",
+        title: "Sound Blaster",
         description: "Postav svět mezi zdrojem zvuku a svýma ušima a poslouchej, jak se šíří.",
       },
     ],
@@ -209,7 +209,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "soundverse",
-        title: "Sound Universe",
+        title: "Sound Blaster",
         description: "Build the world between a sound source and your ears, and hear how it travels.",
       },
     ],

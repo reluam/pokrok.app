@@ -210,8 +210,8 @@ export const LEVELS: Level[] = [
 export const suUi = {
   cs: {
     back: "← Spaghetti.ltd",
-    eyebrow: "Sound Universe",
-    title: "Festival",
+    eyebrow: "Sound Blaster",
+    title: "Hřiště",
     intro: "Na stagi hraje kapela a tvým úkolem je, aby se hudba nedostala do města. Postav odhlučnění a ztiš město pod limit.",
     start: "Spustit festival 🔊",
     level: "Level", stage: "Zdroj", city: "Cíl", distance: "Vzdálenost",
@@ -229,8 +229,8 @@ export const suUi = {
   },
   en: {
     back: "← Spaghetti.ltd",
-    eyebrow: "Sound Universe",
-    title: "Festival",
+    eyebrow: "Sound Blaster",
+    title: "Playground",
     intro: "A band is playing on the stage and your job is to keep the music out of the city. Build soundproofing and get the city below the limit.",
     start: "Start the festival 🔊",
     level: "Level", stage: "Source", city: "Target", distance: "Distance",

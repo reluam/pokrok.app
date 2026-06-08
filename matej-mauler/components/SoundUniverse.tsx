@@ -62,7 +62,7 @@ function drawTile(ctx: CanvasRenderingContext2D, x: number, y: number, w: number
   ctx.globalAlpha = 1;
 }
 
-export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }) {
+export function SoundUniverse({ lang, songs, onExit }: { lang: Lang; songs: SongLite[]; onExit?: () => void }) {
   const t = suUi[lang];
   const homeHref = lang === "cs" ? "/cs" : "/";
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -349,7 +349,9 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   return (
     <div style={{ position: "fixed", inset: 0, background: BG, color: INK, display: "flex", flexDirection: "column", overflow: "hidden", padding: "10px 12px 12px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 4px 10px", flexShrink: 0 }}>
-        <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>{t.back}</Link>
+        {onExit
+          ? <button onClick={onExit} style={{ background: "none", border: "none", fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", cursor: "pointer", padding: 0 }}>← {lang === "cs" ? "Zpět do knížky" : "Back to the book"}</button>
+          : <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>{t.back}</Link>}
         <span style={{ ...display, fontSize: "16px", fontWeight: 700, letterSpacing: "-0.01em" }}>{t.title}</span>
         <span style={{ width: 70 }} />
       </div>
