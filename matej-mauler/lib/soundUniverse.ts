@@ -144,38 +144,50 @@ export class Fdtd {
   }
 }
 
-/* ── Levely hry „nepusť festival do města" ─────────────────────── */
-export type LevelEnv = "meadow" | "city";
+/* ── Levely: reálné scénáře odhlučnění ─────────────────────────── */
+export type LevelEnv = "meadow" | "city" | "indoor";
 export type Prebuilt = { x0: number; x1: number; top: number; mat: number };
+export type BL = { cs: string; en: string };
 export type Level = {
   id: string;
-  name: { cs: string; en: string };
+  name: BL;
   env: LevelEnv;
-  loudness: number; // amplituda zdroje
-  limit: number;    // max přípustná hlasitost u města (0..1)
-  budget: number;   // rozpočet na odhlučnění (cena buněk dle materiálu)
-  stageX: number;   // x pozice stage
-  stageH?: number;  // výška zdroje nad zemí (vyvýšené pódium)
-  cityX: number;    // střed města
-  cityW: number;    // šířka města
-  prebuilt?: Prebuilt[]; // budovy / terén už ve scéně
+  source: BL;       // co dělá hluk
+  target: BL;       // co chráníme
+  sourceDb: number; // hladina u zdroje
+  limitDb: number;  // max přípustná hladina v cíli
+  driveHz: number;  // charakter zvuku (nízká = basový rachot → hůř se blokuje)
+  budget: number;   // rozpočet na odhlučnění (cena bloků)
+  stageX: number;
+  stageH?: number;  // výška zdroje
+  cityX: number;
+  cityW: number;
+  prebuilt?: Prebuilt[];
+  enclosure?: boolean; // vnitřní prostor (klub, zkušebna) — kolem zdroje stěny s mezerou
 };
 
-// pozn.: y roste dolů, zem je kolem y≈113 (GH=120, groundY=H-7)
-// budget = cena v dlaždicích (cena materiálu × počet bloků)
+// konstanty modelu (kalibrace dB; viz komponenta)
+export const DRIVE_AMP = 2.6;   // amplituda buzení (konstantní pro všechny levely)
+export const OPEN_REF = 0.7;    // referenční přenos ve volném poli
+export const SRC_REF_M = 10;    // hladina zdroje měřena v 10 m
+
 export const LEVELS: Level[] = [
-  { id: "louka-1", name: { cs: "Louka", en: "Meadow" }, env: "meadow", loudness: 2.2, limit: 0.36, budget: 60, stageX: 46, cityX: 230, cityW: 34 },
-  { id: "louka-2", name: { cs: "Hlučná kapela", en: "Loud band" }, env: "meadow", loudness: 3.0, limit: 0.28, budget: 85, stageX: 46, cityX: 256, cityW: 34 },
-  { id: "podium", name: { cs: "Vyvýšené pódium", en: "Raised stage" }, env: "meadow", loudness: 2.8, limit: 0.30, budget: 95, stageX: 48, stageH: 38, cityX: 256, cityW: 34 },
-  {
-    id: "mesto-1", name: { cs: "Ve městě", en: "In the city" }, env: "city", loudness: 2.6, limit: 0.32, budget: 80, stageX: 40, cityX: 262, cityW: 30,
-    prebuilt: [
-      { x0: 118, x1: 138, top: 82, mat: 2 },
-      { x0: 168, x1: 186, top: 90, mat: 2 },
-      { x0: 206, x1: 224, top: 78, mat: 2 },
-    ],
-  },
-  { id: "festival", name: { cs: "Velký festival", en: "Big festival" }, env: "meadow", loudness: 3.6, limit: 0.22, budget: 130, stageX: 44, stageH: 24, cityX: 268, cityW: 38 },
+  { id: "highway", name: { cs: "Dálnice", en: "Highway" }, env: "meadow", source: { cs: "Dálnice", en: "Highway" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 85, limitDb: 50, driveHz: 0.7, budget: 60, stageX: 46, stageH: 3, cityX: 244, cityW: 32 },
+  { id: "railway", name: { cs: "Železnice", en: "Railway" }, env: "meadow", source: { cs: "Vlak", en: "Train" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 95, limitDb: 55, driveHz: 0.8, budget: 72, stageX: 44, stageH: 4, cityX: 250, cityW: 32 },
+  { id: "construction", name: { cs: "Stavba", en: "Construction" }, env: "city", source: { cs: "Stavba", en: "Construction" }, target: { cs: "Byty", en: "Flats" }, sourceDb: 100, limitDb: 60, driveHz: 1.1, budget: 80, stageX: 44, stageH: 6, cityX: 244, cityW: 30, prebuilt: [{ x0: 150, x1: 168, top: 86, mat: 2 }, { x0: 195, x1: 214, top: 80, mat: 2 }] },
+  { id: "festival", name: { cs: "Festival", en: "Festival" }, env: "meadow", source: { cs: "Pódium", en: "Stage" }, target: { cs: "Město", en: "Town" }, sourceDb: 105, limitDb: 55, driveHz: 1.0, budget: 95, stageX: 46, stageH: 22, cityX: 258, cityW: 36 },
+  { id: "factory", name: { cs: "Továrna", en: "Factory" }, env: "city", source: { cs: "Stroje", en: "Machinery" }, target: { cs: "Sídliště", en: "Residential" }, sourceDb: 92, limitDb: 50, driveHz: 0.85, budget: 85, stageX: 42, stageH: 8, cityX: 256, cityW: 30 },
+  { id: "stadium", name: { cs: "Stadion", en: "Stadium" }, env: "city", source: { cs: "Dav", en: "Crowd" }, target: { cs: "Čtvrť", en: "Neighborhood" }, sourceDb: 100, limitDb: 55, driveHz: 1.0, budget: 95, stageX: 46, stageH: 30, cityX: 258, cityW: 34 },
+  { id: "racetrack", name: { cs: "Závodní okruh", en: "Race track" }, env: "meadow", source: { cs: "Motory", en: "Engines" }, target: { cs: "Kemp", en: "Campsite" }, sourceDb: 105, limitDb: 55, driveHz: 1.2, budget: 100, stageX: 44, stageH: 5, cityX: 260, cityW: 32 },
+  { id: "kennel", name: { cs: "Psí útulek", en: "Dog kennel" }, env: "city", source: { cs: "Štěkot", en: "Barking" }, target: { cs: "Sousedé", en: "Neighbors" }, sourceDb: 90, limitDb: 45, driveHz: 1.3, budget: 72, stageX: 52, stageH: 4, cityX: 226, cityW: 28 },
+  { id: "bells", name: { cs: "Kostelní zvony", en: "Church bells" }, env: "city", source: { cs: "Zvony", en: "Bells" }, target: { cs: "Domy", en: "Houses" }, sourceDb: 100, limitDb: 58, driveHz: 1.2, budget: 88, stageX: 48, stageH: 52, cityX: 256, cityW: 32 },
+  { id: "heatpump", name: { cs: "Tepelné čerpadlo", en: "Heat pump" }, env: "city", source: { cs: "Venkovní jednotka", en: "Outdoor unit" }, target: { cs: "Ložnice souseda", en: "Neighbor's bedroom" }, sourceDb: 68, limitDb: 35, driveHz: 0.7, budget: 55, stageX: 78, stageH: 4, cityX: 178, cityW: 22 },
+  { id: "windturbine", name: { cs: "Větrná elektrárna", en: "Wind turbine" }, env: "meadow", source: { cs: "Turbína", en: "Turbine" }, target: { cs: "Statek", en: "Farmhouse" }, sourceDb: 95, limitDb: 42, driveHz: 0.5, budget: 105, stageX: 46, stageH: 70, cityX: 262, cityW: 30 },
+  { id: "nightclub", name: { cs: "Noční klub", en: "Nightclub" }, env: "indoor", source: { cs: "Klub", en: "Club" }, target: { cs: "Ulice v noci", en: "Night street" }, sourceDb: 100, limitDb: 45, driveHz: 0.9, budget: 95, stageX: 62, stageH: 12, cityX: 250, cityW: 30, enclosure: true },
+  { id: "rehearsal", name: { cs: "Zkušebna", en: "Rehearsal room" }, env: "indoor", source: { cs: "Kapela", en: "Band" }, target: { cs: "Soused za zdí", en: "Neighbor next door" }, sourceDb: 105, limitDb: 40, driveHz: 1.0, budget: 100, stageX: 60, stageH: 12, cityX: 236, cityW: 26, enclosure: true },
+  { id: "heliport", name: { cs: "Heliport", en: "Heliport" }, env: "city", source: { cs: "Vrtulník", en: "Helicopter" }, target: { cs: "Nemocnice", en: "Hospital" }, sourceDb: 115, limitDb: 50, driveHz: 0.9, budget: 115, stageX: 46, stageH: 70, cityX: 262, cityW: 32 },
+  { id: "shooting", name: { cs: "Střelnice", en: "Shooting range" }, env: "meadow", source: { cs: "Výstřely", en: "Gunfire" }, target: { cs: "Vesnice", en: "Village" }, sourceDb: 130, limitDb: 60, driveHz: 1.1, budget: 150, stageX: 44, stageH: 4, cityX: 268, cityW: 34 },
+  { id: "airport", name: { cs: "Letiště", en: "Airport" }, env: "meadow", source: { cs: "Letadla", en: "Aircraft" }, target: { cs: "Obec pod dráhou", en: "Village under flightpath" }, sourceDb: 120, limitDb: 60, driveHz: 1.0, budget: 140, stageX: 44, stageH: 60, cityX: 268, cityW: 36 },
 ];
 
 export const suUi = {
@@ -185,7 +197,8 @@ export const suUi = {
     title: "Festival",
     intro: "Na stagi hraje kapela a tvým úkolem je, aby se hudba nedostala do města. Postav odhlučnění a ztiš město pod limit.",
     start: "Spustit festival 🔊",
-    level: "Level", stage: "Stage", city: "Město", distance: "Vzdálenost",
+    level: "Level", stage: "Zdroj", city: "Cíl", distance: "Vzdálenost",
+    sourceLbl: "Zdroj", targetLbl: "Cíl", inTarget: "V cíli", limitWord: "limit",
     cityHears: "Co slyší město", limitLbl: "Limit",
     budget: "Odhlučnění", used: "použito",
     won: "Hotovo! Město má klid. 🎉", next: "Další level →", retry: "Zkusit znovu",
@@ -202,7 +215,8 @@ export const suUi = {
     title: "Festival",
     intro: "A band is playing on the stage and your job is to keep the music out of the city. Build soundproofing and get the city below the limit.",
     start: "Start the festival 🔊",
-    level: "Level", stage: "Stage", city: "City", distance: "Distance",
+    level: "Level", stage: "Source", city: "Target", distance: "Distance",
+    sourceLbl: "Source", targetLbl: "Target", inTarget: "At target", limitWord: "limit",
     cityHears: "What the city hears", limitLbl: "Limit",
     budget: "Soundproofing", used: "used",
     won: "Done! The city has peace. 🎉", next: "Next level →", retry: "Try again",

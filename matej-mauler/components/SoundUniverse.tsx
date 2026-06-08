@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Fdtd, MATERIALS, LEVELS, M_PER_CELL, suUi, type Level } from "@/lib/soundUniverse";
+import { Fdtd, MATERIALS, LEVELS, M_PER_CELL, DRIVE_AMP, OPEN_REF, suUi, type Level } from "@/lib/soundUniverse";
 import type { Lang } from "@/lib/dictionaries";
 
 const GW = 300, GH = 120, INK = "#1a1614", BG = "#FAFAF7";
 const TS = 5, TW = 60, TH = 24, GROUND_TILE = 22, GROUND_Y = 110; // dlaždice 5 buněk
+const distMeters = (lv: Level) => Math.round(Math.abs(lv.stageX - lv.cityX) * M_PER_CELL);
+const openFieldDb = (lv: Level) => lv.sourceDb - 20 * Math.log10(Math.max(1, distMeters(lv) / 10));
 type Tool = "paint" | "erase";
 type SongLite = { url: string; title: string };
 
@@ -64,7 +66,7 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   const [started, setStarted] = useState(false);
   const [material, setMaterial] = useState(2);
   const [tool, setTool] = useState<Tool>("paint");
-  const [meters, setMeters] = useState({ city: 0, warming: false });
+  const [meters, setMeters] = useState({ cityDb: 0, warming: false });
   const [budgetUsed, setBudgetUsed] = useState(0);
   const [won, setWon] = useState(false);
   const wonRef = useRef(false);
@@ -98,10 +100,18 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       const tx0 = Math.floor(b.x0 / TS), tx1 = Math.floor(b.x1 / TS), tty = Math.floor(b.top / TS);
       for (let tx = tx0; tx <= tx1; tx++) for (let ty = tty; ty < GROUND_TILE; ty++) { const ti = ty * TW + tx; tileMat.current[ti] = b.mat; tileLocked.current[ti] = 1; }
     }
+    // vnitřní prostor (klub/zkušebna): betonová místnost kolem zdroje s mezerou (dveřmi) k cíli
+    if (lv.enclosure) {
+      const stx = Math.floor(lv.stageX / TS), left = stx - 4, right = stx + 4, roomTop = GROUND_TILE - 9;
+      const set = (tx: number, ty: number) => { if (tx < 0 || tx >= TW || ty < 0 || ty >= GROUND_TILE) return; const ti = ty * TW + tx; tileMat.current[ti] = 2; tileLocked.current[ti] = 1; };
+      for (let ty = roomTop; ty < GROUND_TILE; ty++) { set(left, ty); set(right, ty); }
+      for (let tx = left; tx <= right; tx++) set(tx, roomTop);
+      for (const ty of [GROUND_TILE - 1, GROUND_TILE - 2]) { const ti = ty * TW + right; tileMat.current[ti] = 0; tileLocked.current[ti] = 0; } // dveře
+    }
     f.clearField(); syncTiles(f);
     stage.current = { x: lv.stageX, y: GROUND_Y - (lv.stageH ?? 5) };
     city.current = { x: lv.cityX, y: GROUND_Y - 13 };
-    driveAmp.current = lv.loudness * 1.1;
+    driveAmp.current = DRIVE_AMP;
     const d = Math.hypot(stage.current.x - city.current.x, stage.current.y - city.current.y);
     warmup.current = Math.round(2 * d + 300); simStep.current = 0;
     setBudgetUsed(0); setWon(false); wonRef.current = false; belowSince.current = 0;
@@ -134,9 +144,22 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
     const frame = () => {
       const f = fdtdRef.current!; const env = level.env;
       const si = f.idx(stage.current.x | 0, stage.current.y | 0);
-      for (let s = 0; s < 2; s++) { tStep++; const drive = started ? Math.sin(tStep * 0.23) * driveAmp.current : 0; f.step(si, drive); }
+      for (let s = 0; s < 2; s++) { tStep++; const drive = started ? Math.sin(tStep * 0.23 * level.driveHz) * driveAmp.current : 0; f.step(si, drive); }
       if (started) simStep.current += 2;
       const warming = started && simStep.current <= warmup.current;
+
+      // měření u cíle → dB + audio + výhra
+      let eSum = 0; for (let k = -3; k <= 3; k++) eSum += f.energyAt((level.cityX + k * 3) | 0, city.current.y | 0, 2); eSum /= 7;
+      const dxm = stage.current.x - level.cityX, dym = stage.current.y - city.current.y;
+      const distC = Math.max(8, Math.hypot(dxm, dym)); const trans = Math.max(0, Math.min(1.6, eSum / (9 / distC)));
+      const cityLevel = Math.min(1, trans);
+      const cityDb = openFieldDb(level) + 20 * Math.log10(Math.max(0.004, cityLevel) / OPEN_REF);
+      targetRef.current = { gain: cityLevel, cut: 300 * Math.pow(16000 / 300, Math.max(0.04, Math.min(1, trans))) };
+      if (tStep % 8 === 0) setMeters({ cityDb, warming });
+      if (started && !wonRef.current && !warming) {
+        if (cityDb <= level.limitDb) { if (!belowSince.current) belowSince.current = performance.now(); else if (performance.now() - belowSince.current > 1400) { wonRef.current = true; setWon(true); } }
+        else belowSince.current = 0;
+      } else belowSince.current = 0;
 
       // obloha + vlny (jen pásmo nad zemí)
       const p = f.p;
@@ -176,7 +199,9 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       const cx0 = g2sx(level.cityX - level.cityW / 2), cx1 = g2sx(level.cityX + level.cityW / 2);
       ctx.fillStyle = "#fff"; ctx.strokeStyle = INK; ctx.lineWidth = 2;
       for (let h = 0; h < 4; h++) { const hw = (cx1 - cx0) / 5; const hx = cx0 + hw * (h + 0.3); const hh = 16 + (h % 2) * 9; ctx.fillRect(hx, groundScreenY - hh, hw * 0.7, hh); ctx.strokeRect(hx, groundScreenY - hh, hw * 0.7, hh); }
-      ctx.fillStyle = INK; ctx.font = "700 12px system-ui"; ctx.textAlign = "center"; ctx.fillText(t.city, (cx0 + cx1) / 2, 18);
+      ctx.fillStyle = INK; ctx.font = "700 12px system-ui"; ctx.textAlign = "center"; ctx.fillText(level.target[lang], (cx0 + cx1) / 2, 18);
+      ctx.fillStyle = cityDb <= level.limitDb ? "#16A34A" : "#dc2626"; ctx.font = "800 14px system-ui"; ctx.fillText(warming ? "…" : `${Math.round(cityDb)} dB`, (cx0 + cx1) / 2, 35);
+      ctx.fillStyle = "rgba(26,22,20,0.55)"; ctx.font = "600 10px system-ui"; ctx.fillText(`${t.limitWord} ${level.limitDb}`, (cx0 + cx1) / 2, 48);
 
       // stage
       const sx = g2sx(stage.current.x);
@@ -184,7 +209,8 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       const syE = g2sy(stage.current.y);
       ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, syE); ctx.lineTo(sx, groundScreenY); ctx.stroke();
       ctx.beginPath(); ctx.arc(sx, syE, 10, 0, 7); ctx.fillStyle = "#ff6fae"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = INK; ctx.stroke();
-      ctx.fillStyle = INK; ctx.fillText(t.stage, sx, groundScreenY + 16);
+      ctx.fillStyle = INK; ctx.font = "700 11px system-ui"; ctx.fillText(level.source[lang], sx, groundScreenY + 16);
+      ctx.fillStyle = "rgba(26,22,20,0.75)"; ctx.font = "800 12px system-ui"; ctx.fillText(`${level.sourceDb} dB`, sx, syE - 16);
 
       // kóta
       const sxC = g2sx(level.cityX); const dM = Math.round(Math.abs(stage.current.x - level.cityX) * M_PER_CELL);
@@ -193,17 +219,6 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
       ctx.beginPath(); ctx.moveTo(sx, ly); ctx.lineTo(sxC, ly); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle = "#fff"; ctx.font = "700 11px system-ui"; ctx.fillText(`${dM} m`, (sx + sxC) / 2, ly - 4);
 
-      // měření u města
-      let e = 0; for (let k = -3; k <= 3; k++) e += f.energyAt((level.cityX + k * 3) | 0, city.current.y | 0, 2); e /= 7;
-      const dx = stage.current.x - level.cityX, dy = stage.current.y - city.current.y;
-      const dist = Math.max(8, Math.hypot(dx, dy)); const baseline = 9 / dist;
-      const trans = Math.max(0, Math.min(1.6, e / baseline)); const cityLevel = Math.min(1, trans);
-      targetRef.current = { gain: cityLevel, cut: 300 * Math.pow(16000 / 300, Math.max(0.04, Math.min(1, trans))) };
-      if (tStep % 8 === 0) setMeters({ city: cityLevel, warming });
-      if (started && !wonRef.current && !warming) {
-        if (cityLevel <= level.limit) { if (!belowSince.current) belowSince.current = performance.now(); else if (performance.now() - belowSince.current > 1400) { wonRef.current = true; setWon(true); } }
-        else belowSince.current = 0;
-      } else belowSince.current = 0;
       raf = requestAnimationFrame(frame);
     };
     frame();
@@ -275,7 +290,11 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
   const ghostBtn: React.CSSProperties = { background: "#fff", color: INK, border: `2.5px solid ${INK}`, borderRadius: "12px", boxShadow: `4px 4px 0 ${INK}`, padding: "13px 24px", fontFamily: "var(--font-sans)", fontSize: "15px", fontWeight: 700, cursor: "pointer" };
   const card: React.CSSProperties = { background: "#fff", border: `2.5px solid ${INK}`, borderRadius: "16px", boxShadow: `5px 5px 0 ${INK}` };
 
-  const over = level.limit; const cityPct = Math.round(meters.city * 100);
+  const loDb = 30, sDb = level.sourceDb;
+  const cl = (v: number) => Math.max(0, Math.min(1, v));
+  const cityPct = cl((meters.cityDb - loDb) / (sDb - loDb)) * 100;
+  const limPct = cl((level.limitDb - loDb) / (sDb - loDb)) * 100;
+  const okDb = meters.cityDb <= level.limitDb;
   const overlayBg = "rgba(250,250,247,0.82)";
 
   return (
@@ -292,12 +311,13 @@ export function SoundUniverse({ lang, songs }: { lang: Lang; songs: SongLite[] }
 
         {started && (
           <div style={{ position: "absolute", top: "12px", right: "12px", ...card, padding: "10px 12px", minWidth: "184px" }}>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "2px" }}>{t.level} · {level.name[lang]}</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)", marginBottom: "3px" }}>{t.level} · {level.name[lang]}</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-secondary)", marginBottom: "2px" }}>{t.sourceLbl}: {level.source[lang]} · <strong>{level.sourceDb} dB</strong></p>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-secondary)", marginBottom: "8px" }}>{t.distance}: {Math.round(Math.abs(level.stageX - level.cityX) * M_PER_CELL)} m</p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", marginBottom: "6px" }}>{t.cityHears}: <strong style={{ color: meters.warming ? "var(--text-muted)" : meters.city <= over ? "#16A34A" : "#dc2626" }}>{meters.warming ? t.propagating : `${cityPct}%`}</strong></p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", marginBottom: "6px" }}>{t.inTarget}: <strong style={{ color: meters.warming ? "var(--text-muted)" : okDb ? "#16A34A" : "#dc2626" }}>{meters.warming ? t.propagating : `${Math.round(meters.cityDb)} dB`}</strong> <span style={{ color: "var(--text-muted)" }}>/ {t.limitWord} {level.limitDb}</span></p>
             <div style={{ height: 10, background: "rgba(26,22,20,0.1)", border: `1.5px solid ${INK}`, borderRadius: "999px", position: "relative", overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${cityPct}%`, background: meters.city <= over ? "#16A34A" : "#dc2626" }} />
-              <div style={{ position: "absolute", top: -2, bottom: -2, left: `${Math.round(over * 100)}%`, width: 2.5, background: INK }} />
+              <div style={{ height: "100%", width: `${cityPct}%`, background: okDb ? "#16A34A" : "#dc2626" }} />
+              <div style={{ position: "absolute", top: -2, bottom: -2, left: `${limPct}%`, width: 2.5, background: INK }} />
             </div>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--text-muted)", marginTop: "6px" }}>{t.budget}: {budgetUsed}/{level.budget}{budgetUsed >= level.budget ? ` · ${t.overBudget}` : ""}</p>
           </div>
