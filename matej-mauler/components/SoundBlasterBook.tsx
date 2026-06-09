@@ -51,8 +51,8 @@ const SECTIONS: Sec[] = [
 ];
 
 const UI = {
-  cs: { back: "← Spaghetti.ltd", eyebrow: "Zvuková experience", title: "Cesta po zvukové vlně", start: "Start ▶", audio: "🔊 Zapni si zvuk. Tip: najeď myší na vlnu a naruš ji.", scroll: "scrolluj dolů", low: "basa", high: "výška", quiet: "tiše", loud: "nahlas", mute: "Ztlumit", unmute: "Zvuk", toMusic: "Pokračovat: jak vzniká hudba →", media: { air: "vzduch", water: "voda", solid: "železo" } },
-  en: { back: "← Spaghetti.ltd", eyebrow: "A sound experience", title: "A journey along a sound wave", start: "Start ▶", audio: "🔊 Turn your sound on. Tip: hover the wave to disturb it.", scroll: "scroll down", low: "bass", high: "treble", quiet: "soft", loud: "loud", mute: "Mute", unmute: "Sound", toMusic: "Next: how music is made →", media: { air: "air", water: "water", solid: "iron" } },
+  cs: { back: "← Spaghetti.ltd", eyebrow: "Zvuková experience", title: "Cesta po zvukové vlně", start: "Start ▶", audio: "🔊 Zapni si zvuk. Tip: dej myš do cesty vlně a přeruš ji.", scroll: "scrolluj dolů", low: "basa", high: "výška", quiet: "tiše", loud: "nahlas", mute: "Ztlumit", unmute: "Zvuk", toMusic: "Pokračovat: jak vzniká hudba →", media: { air: "vzduch", water: "voda", solid: "železo" } },
+  en: { back: "← Spaghetti.ltd", eyebrow: "A sound experience", title: "A journey along a sound wave", start: "Start ▶", audio: "🔊 Turn your sound on. Tip: put your cursor in the wave's path to block it.", scroll: "scroll down", low: "bass", high: "treble", quiet: "soft", loud: "loud", mute: "Mute", unmute: "Sound", toMusic: "Next: how music is made →", media: { air: "air", water: "water", solid: "iron" } },
 } as const;
 
 export function SoundBlasterBook({ lang }: { lang: Lang }) {
@@ -74,9 +74,6 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
   const filt = useRef<BiquadFilterNode | null>(null);
   const master = useRef<GainNode | null>(null);
   const pointer = useRef({ x: 0, y: 0, active: false });
-  const curMed = useRef<Medium>("air");
-  const lastDist = useRef(0);
-  const ripples = useRef<{ x: number; y: number; t: number }[]>([]);
 
   const applyVoice = (id: string) => { const o = osc.current, a = ac.current; if (!o || !a) return; const v = voiceOf(id); if (v?.h) { const imag = new Float32Array(v.h.length + 1), real = new Float32Array(v.h.length + 1); v.h.forEach((x, k) => (imag[k + 1] = x)); o.setPeriodicWave(a.createPeriodicWave(real, imag)); } else o.type = (id === "saw" ? "sawtooth" : id) as OscillatorType; };
 
@@ -104,19 +101,11 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
     const resize = () => { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
     resize(); addEventListener("resize", resize);
 
-    const onMove = (e: PointerEvent) => {
-      pointer.current = { x: e.clientX, y: e.clientY, active: true };
-      const now = performance.now() / 1000;
-      if (now - lastDist.current > 0.09) {
-        lastDist.current = now;
-        ripples.current.push({ x: e.clientX, y: e.clientY, t: now }); if (ripples.current.length > 14) ripples.current.shift();
-        if (started && ac.current && master.current) playDisturb(ac.current, master.current, curMed.current, ac.current.currentTime);
-      }
-    };
+    const onMove = (e: PointerEvent) => { pointer.current = { x: e.clientX, y: e.clientY, active: true }; };
     const onLeave = () => { pointer.current.active = false; };
     cv.addEventListener("pointermove", onMove); cv.addEventListener("pointerleave", onLeave);
 
-    const cur = { freq: 132, level: 0, filter: 18000, rows: 1, top: [...MED.air.top], bot: [...MED.air.bot], dot: [...MED.air.dot], speedF: 1, space: 0 };
+    const cur = { freq: 132, level: 0, filter: 18000, rows: 1, top: [...MED.air.top], bot: [...MED.air.bot], dot: [...MED.air.dot], speedF: 1, space: 0, block: 0 };
     let phase = 0, raf = 0, lastStep = 0;
     const stars = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.3 + 0.3 }));
     const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
@@ -130,15 +119,24 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       const idx = Math.min(N - 1, Math.round(p * (N - 1)));
       if (idx !== lastStep) { lastStep = idx; setStep(idx); }
       const s = SECTIONS[idx]; const mode: Mode = s.mode ?? "flow"; const trans = s.axis === "trans";
-      const effMed: Medium = s.interactive === "medium" ? userMedium.current : s.medium; const med = MED[effMed]; curMed.current = effMed;
+      const effMed: Medium = s.interactive === "medium" ? userMedium.current : s.medium; const med = MED[effMed];
       const filterT = s.interactive === "medium" ? med.filt : s.filter;
       cur.freq = lerp(cur.freq, userFreq.current * s.freqMul, 0.08);
-      cur.level = lerp(cur.level, started ? userGain.current * s.gainMul : 0, 0.06);
       cur.filter = lerp(cur.filter, filterT, 0.06);
       cur.rows = lerp(cur.rows, s.rows, 0.1);
       lerpArr(cur.top, med.top, 0.06); lerpArr(cur.bot, med.bot, 0.06); lerpArr(cur.dot, med.dot, 0.06);
       cur.speedF = lerp(cur.speedF, med.speed, 0.06);
       cur.space = lerp(cur.space, effMed === "space" ? 1 : 0, 0.05);
+
+      const w = innerWidth, h = innerHeight, mid = h * 0.46;
+      const rowsN = Math.max(1, Math.round(cur.rows));
+      const rowGapN = Math.min(34, (h * 0.34) / rowsN);
+      const halfN = rowGapN * rowsN * 0.6 + 16;
+      // kurzor jako překážka v toku → blokuje a ztiší
+      const pt0 = pointer.current;
+      const Btarget = (pt0.active && Math.abs(pt0.y - mid) < halfN && pt0.x > w * 0.05 && pt0.x < w * 0.95) ? Math.max(0, 1 - Math.abs(pt0.y - mid) / halfN) : 0;
+      cur.block = lerp(cur.block, Btarget, 0.12);
+      cur.level = lerp(cur.level, started ? userGain.current * s.gainMul * (1 - cur.block * 0.95) : 0, 0.08);
 
       if (osc.current && level.current && filt.current && ac.current) {
         const now = ac.current.currentTime;
@@ -147,7 +145,6 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
         filt.current.frequency.setTargetAtTime(cur.filter, now, 0.08);
       }
 
-      const w = innerWidth, h = innerHeight, mid = h * 0.46;
       const g = ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, `rgb(${cur.top.map(Math.round).join(",")})`); g.addColorStop(1, `rgb(${cur.bot.map(Math.round).join(",")})`);
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
@@ -192,6 +189,8 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
             const bx = (i + 0.5) * spacing; let val: number;
             if (mode === "reflect") val = bx < wallX ? (wv((bx / w) * K - phase) + wv(((2 * wallX - bx) / w) * K - phase)) * 0.5 : 0;
             else val = wv((bx / w) * K - phase);
+            // za překážkou (vpravo od kurzoru) vlna nedorazí → utlumí se
+            if (pt0.active && bx > pt0.x) val *= 1 - cur.block;
             let x = trans ? bx : bx + A * val, y = trans ? y0 + A * val : y0;
             const [ddx, ddy] = dist(x, y); x += ddx; y += ddy; xs[i] = x; ys[i] = y;
           }
@@ -206,11 +205,14 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
         ctx.globalAlpha = 1;
       }
 
-      // kurzorové vlnky
-      const nowS = performance.now() / 1000;
-      ripples.current = ripples.current.filter((rp) => nowS - rp.t < 0.8);
-      for (const rp of ripples.current) { const age = nowS - rp.t; ctx.globalAlpha = (1 - age / 0.8) * 0.4; ctx.strokeStyle = effMed === "water" ? "#3b82d6" : effMed === "solid" ? "#8a5a1e" : INK; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(rp.x, rp.y, age * 200, 0, 7); ctx.stroke(); }
-      ctx.globalAlpha = 1;
+      // kurzor jako překážka — kroužek, sytější čím víc blokuje
+      if (pt0.active) {
+        ctx.globalAlpha = 0.12 + cur.block * 0.3; ctx.fillStyle = INK;
+        ctx.beginPath(); ctx.arc(pt0.x, pt0.y, 26, 0, 7); ctx.fill();
+        ctx.globalAlpha = 0.5 + cur.block * 0.4; ctx.lineWidth = 2; ctx.strokeStyle = INK;
+        ctx.beginPath(); ctx.arc(pt0.x, pt0.y, 26, 0, 7); ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
 
       if (cur.space > 0.4) { ctx.fillStyle = `rgba(255,255,255,${cur.space * 0.6})`; ctx.font = "700 14px system-ui"; ctx.textAlign = "center"; ctx.fillText("— ticho —", w / 2, mid - half - 12); }
       raf = requestAnimationFrame(loop);
@@ -289,23 +291,6 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
         @keyframes sb-in { from{ opacity:0; transform: translateY(14px);} to{opacity:1; transform:none;} }`}</style>
     </>
   );
-}
-
-function playDisturb(a: AudioContext, dest: AudioNode, med: Medium, t: number) {
-  if (med === "water") {
-    const len = (a.sampleRate * 0.18) | 0; const b = a.createBuffer(1, len, a.sampleRate); const d = b.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
-    const s = a.createBufferSource(); s.buffer = b; const f = a.createBiquadFilter(); f.type = "lowpass"; f.frequency.setValueAtTime(1100, t); f.frequency.exponentialRampToValueAtTime(280, t + 0.16);
-    const g = a.createGain(); g.gain.setValueAtTime(0.22, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-    s.connect(f).connect(g).connect(dest); s.start(t); s.stop(t + 0.2); return;
-  }
-  if (med === "solid") {
-    [1500, 2300].forEach((fr) => { const o = a.createOscillator(); o.type = "square"; o.frequency.value = fr; const g = a.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.1, t + 0.004); g.gain.exponentialRampToValueAtTime(0.001, t + 0.1); o.connect(g).connect(dest); o.start(t); o.stop(t + 0.12); });
-    return;
-  }
-  const o = a.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(760, t); o.frequency.exponentialRampToValueAtTime(420, t + 0.1);
-  const g = a.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-  o.connect(g).connect(dest); o.start(t); o.stop(t + 0.14);
 }
 
 function waveVal(voiceId: string, t: number): number {
