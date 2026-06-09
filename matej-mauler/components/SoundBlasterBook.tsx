@@ -20,7 +20,15 @@ const VOICES: Voice[] = [
   { id: "pad", cs: "pad", en: "pad", h: [1, 0, 0.5, 0, 0.25, 0, 0.12] },
 ];
 const voiceOf = (id: string) => VOICES.find((v) => v.id === id);
-const ZONE_VOICES = ["sine", "triangle", "flute", "violin", "piano"]; // pásma v „Barvě zvuku"
+// Pásma v „Barvě zvuku": tóny (drone) + reálné údery (hit)
+const COLOR: { id: string; cs: string; en: string; hit: boolean }[] = [
+  { id: "sine", cs: "čistý", en: "pure", hit: false },
+  { id: "triangle", cs: "jemný", en: "soft", hit: false },
+  { id: "piano", cs: "klavír", en: "piano", hit: true },
+  { id: "knock", cs: "šťouchnutí", en: "knock", hit: true },
+  { id: "stone", cs: "kámen", en: "stone", hit: true },
+];
+const HIT_IDS = new Set(["piano", "knock", "stone"]);
 
 const MED: Record<Medium, { top: number[]; bot: number[]; speed: number; dot: number[]; filt: number; ms: string }> = {
   air: { top: [250, 250, 247], bot: [238, 243, 251], speed: 1, dot: [26, 22, 20], filt: 18000, ms: "~340 m/s" },
@@ -81,6 +89,8 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
   const lastVoice = useRef("sine");
   const pointer = useRef({ x: 0, y: 0, active: false });
   const everOn = useRef(false);
+  const hitTimer = useRef(0);
+  const hitEnv = useRef(0);
 
   const applyVoice = (id: string) => { const o = osc.current, a = ac.current; if (!o || !a) return; const v = voiceOf(id); if (v?.h) { const imag = new Float32Array(v.h.length + 1), real = new Float32Array(v.h.length + 1); v.h.forEach((x, k) => (imag[k + 1] = x)); o.setPeriodicWave(a.createPeriodicWave(real, imag)); } else o.type = (id === "saw" ? "sawtooth" : id) as OscillatorType; };
 
@@ -119,7 +129,7 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
     type Zone = { x0: number; x1: number; voice: string; medium: Medium; label: string; sub: string };
     const zonesFor = (s: Sec, x0p: number, ww: number): Zone[] => {
       if (s.interactive === "medium") { const ms = ["air", "water", "solid"] as const; return ms.map((m, i) => ({ x0: x0p + (i * ww) / 3, x1: x0p + ((i + 1) * ww) / 3, voice: userVoice.current, medium: m, label: u.media[m], sub: MED[m].ms })); }
-      if (s.interactive === "wave") { const n = ZONE_VOICES.length; return ZONE_VOICES.map((id, i) => ({ x0: x0p + (i * ww) / n, x1: x0p + ((i + 1) * ww) / n, voice: id, medium: s.medium, label: voiceOf(id)![lang], sub: "" })); }
+      if (s.interactive === "wave") { const n = COLOR.length; return COLOR.map((c, i) => ({ x0: x0p + (i * ww) / n, x1: x0p + ((i + 1) * ww) / n, voice: c.id, medium: s.medium, label: c[lang], sub: "" })); }
       return [{ x0: x0p, x1: x0p + ww, voice: userVoice.current, medium: s.medium, label: "", sub: "" }];
     };
 
@@ -149,15 +159,16 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       const onBand = started && pt.active && (mode === "disk" ? Math.hypot(pt.x - w / 2, pt.y - mid) < R : (Math.abs(pt.y - mid) < half + 22 && pt.x >= fieldX0 - 8 && pt.x <= fieldX1 + 8));
       if (onBand && !everOn.current) { everOn.current = true; setCoachDone(true); }
       const az: Zone | null = onBand ? (zones.find((z) => pt.x >= z.x0 && pt.x < z.x1) ?? lastZone) : null;
-      const voiceEff = az ? az.voice : userVoice.current;
-      if (az && s.interactive === "wave") userVoice.current = az.voice;
+      const azHit = s.interactive === "wave" && !!az && HIT_IDS.has(az.voice);
+      const voiceEff = az && !HIT_IDS.has(az.voice) ? az.voice : userVoice.current;
+      if (az && s.interactive === "wave" && !azHit) userVoice.current = az.voice; // jen tóny se nesou dál
 
       // výška podle X
       if (s.interactive === "freq" && onBand && !coarse) userFreq.current = clamp(80 * Math.pow(10, (pt.x - fieldX0) / FW), 60, 900);
       // hlasitost podle blízkosti ke středu pásma
       let loud = userGain.current;
       if (s.interactive === "amp") { if (onBand && !coarse) { loud = 0.05 + clamp(1 - Math.abs(pt.y - mid) / half, 0, 1) * 0.95; userGain.current = loud; } else loud = userGain.current; }
-      const gainBase = s.interactive === "amp" ? loud : userGain.current;
+      const gainBase = s.interactive === "amp" ? loud : s.interactive === "wave" ? 0.5 : userGain.current; // barva: hlasitost na normál
       const filterEff = multi && az ? MED[az.medium].filt : s.filter;
       const tintMed: Medium = multi ? "air" : s.medium;
 
@@ -168,7 +179,7 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       lerpArr(cur.top, MED[tintMed].top, 0.06); lerpArr(cur.bot, MED[tintMed].bot, 0.06);
       cur.speedF = lerp(cur.speedF, MED[tintMed].speed, 0.06);
       cur.space = lerp(cur.space, tintMed === "space" ? 1 : 0, 0.05);
-      cur.level = lerp(cur.level, onBand ? gainBase * s.gainMul : 0, 0.14);
+      cur.level = lerp(cur.level, azHit ? 0 : (onBand ? gainBase * s.gainMul : 0), 0.14); // u úderů drone ztiš
 
       if (osc.current && level.current && filt.current && ac.current) {
         const now = ac.current.currentTime;
@@ -178,6 +189,10 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
         echoSend.current?.gain.setTargetAtTime(mode === "reflect" ? 0.55 : 0, now, 0.12);
         if (voiceEff !== lastVoice.current) { applyVoice(voiceEff); lastVoice.current = voiceEff; }
       }
+      // reálné údery (piano/šťouchnutí/kámen) — opakovaně, dokud je ucho na pásmu
+      if (azHit && onBand && ac.current && master.current) { const now = ac.current.currentTime; const iv = az!.voice === "piano" ? 0.8 : 0.62; if (now >= hitTimer.current) { triggerHit(ac.current, master.current, az!.voice, userFreq.current, now); hitTimer.current = now + iv; hitEnv.current = 1; } }
+      else if (ac.current) hitTimer.current = ac.current.currentTime;
+      hitEnv.current *= 0.86;
 
       const g = ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, `rgb(${cur.top.map(Math.round).join(",")})`); g.addColorStop(1, `rgb(${cur.bot.map(Math.round).join(",")})`);
@@ -232,7 +247,9 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
             let val: number;
             if (mode === "reflect") val = bx < wallX ? (wv(z.voice, nx * K - phase) + wv(z.voice, ((2 * wallX - bx - fieldX0) / FW) * K - phase)) * 0.5 : 0;
             else val = wv(z.voice, nx * K - phase);
-            xs[i] = trans ? bx : bx + A * val; ys[i] = trans ? y0 + A * val : y0;
+            let aCol = A;
+            if (s.interactive === "wave") { const active = z === az; const zHit = HIT_IDS.has(z.voice); aCol = spacing * 0.95 * (active ? (zHit ? 0.2 + hitEnv.current * 1.6 : 1) : 0.5); }
+            xs[i] = trans ? bx : bx + aCol * val; ys[i] = trans ? y0 + aCol * val : y0;
           }
           for (let i = 0; i < M; i++) {
             const comp = !trans && i > 0 ? clamp(1 - (xs[i] - xs[i - 1]) / spacing, 0, 1) : 0;
@@ -380,11 +397,33 @@ function drawSpeaker(ctx: CanvasRenderingContext2D, x: number, mid: number, bh: 
 }
 
 function waveVal(voiceId: string, t: number): number {
+  const x = ((t % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  if (voiceId === "knock") return Math.exp(-Math.pow((x / (Math.PI * 2) - 0.5) * 6, 2)) * 2 - 0.35; // krátký pulz = ťuknutí
+  if (voiceId === "stone") return (Math.sin(t) * Math.sin(t * 2.27 + 1) + Math.sin(t * 5.1) * 0.5) * 0.7; // nepravidelný klepot
   const v = voiceOf(voiceId);
   if (v?.h) { let s = 0, n = 0; for (let k = 0; k < v.h.length; k++) { s += v.h[k] * Math.sin((k + 1) * t); n += v.h[k]; } return s / (n || 1); }
-  const x = ((t % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
   if (voiceId === "square") return Math.sin(t) >= 0 ? 1 : -1;
   if (voiceId === "saw") return x / Math.PI - 1;
   if (voiceId === "triangle") return x < Math.PI ? (x / Math.PI) * 2 - 1 : 3 - (x / Math.PI) * 2;
   return Math.sin(t);
+}
+
+function hitNoise(a: AudioContext, sec: number) { const L = (a.sampleRate * sec) | 0; const b = a.createBuffer(1, L, a.sampleRate); const d = b.getChannelData(0); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, 1.5); return b; }
+function triggerHit(a: AudioContext, out: AudioNode, id: string, freq: number, t: number) { if (id === "piano") playPiano(a, out, freq, t); else if (id === "knock") playKnock(a, out, t); else playStone(a, out, t); }
+function playPiano(a: AudioContext, out: AudioNode, freq: number, t: number) {
+  const h = [1, 0.55, 0.32, 0.2, 0.13, 0.08, 0.05, 0.03]; const im = new Float32Array(h.length + 1), re = new Float32Array(h.length + 1); h.forEach((x, k) => (im[k + 1] = x));
+  const o = a.createOscillator(); o.setPeriodicWave(a.createPeriodicWave(re, im)); o.frequency.value = freq;
+  const lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.setValueAtTime(5200, t); lp.frequency.exponentialRampToValueAtTime(1100, t + 0.9);
+  const g = a.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.005); g.gain.exponentialRampToValueAtTime(0.001, t + 1.4);
+  o.connect(lp).connect(g).connect(out); o.start(t); o.stop(t + 1.5);
+  const s = a.createBufferSource(); s.buffer = hitNoise(a, 0.03); const hp = a.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 2200; const ng = a.createGain(); ng.gain.setValueAtTime(0.14, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.03); s.connect(hp).connect(ng).connect(out); s.start(t); s.stop(t + 0.04);
+}
+function playKnock(a: AudioContext, out: AudioNode, t: number) {
+  const o = a.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(50, t + 0.08);
+  const g = a.createGain(); g.gain.setValueAtTime(0.8, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.22); o.connect(g).connect(out); o.start(t); o.stop(t + 0.24);
+  const s = a.createBufferSource(); s.buffer = hitNoise(a, 0.05); const lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 480; const ng = a.createGain(); ng.gain.setValueAtTime(0.4, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.05); s.connect(lp).connect(ng).connect(out); s.start(t); s.stop(t + 0.06);
+}
+function playStone(a: AudioContext, out: AudioNode, t: number) {
+  const s = a.createBufferSource(); s.buffer = hitNoise(a, 0.05); const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2500; bp.Q.value = 1.3; const ng = a.createGain(); ng.gain.setValueAtTime(0.5, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.06); s.connect(bp).connect(ng).connect(out); s.start(t); s.stop(t + 0.07);
+  [1150, 1950, 3100].forEach((fr, i) => { const o = a.createOscillator(); o.type = "sine"; o.frequency.value = fr; const g = a.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12 / (i + 1), t + 0.004); g.gain.exponentialRampToValueAtTime(0.001, t + 0.13); o.connect(g).connect(out); o.start(t); o.stop(t + 0.15); });
 }
