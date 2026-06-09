@@ -159,6 +159,7 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       g.addColorStop(0, `rgb(${cur.top.map(Math.round).join(",")})`); g.addColorStop(1, `rgb(${cur.bot.map(Math.round).join(",")})`);
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
       if (cur.space > 0.02) { ctx.fillStyle = "#fff"; for (const st of stars) { ctx.globalAlpha = cur.space * (0.35 + 0.5 * Math.sin(phase * 0.6 + st.x * 9)); ctx.beginPath(); ctx.arc(st.x * w, st.y * h, st.r, 0, 7); ctx.fill(); } ctx.globalAlpha = 1; }
+      if (!started) { raf = requestAnimationFrame(loop); return; } // v intru jen jemný gradient, vlnu nese hero
 
       phase += (0.018 + cur.freq / 6500) * cur.speedF;
       const M = 70, spacing = w / M, A = spacing * 1.3 * cur.level, K = Math.max(1.2, Math.min(20, cur.freq / 45)) * Math.PI * 2;
@@ -282,11 +283,12 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
 
       {!started && (
         <div style={{ position: "fixed", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 24 }}>
-          <div>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.24em", color: "var(--text-muted)", marginBottom: 16 }}>{u.eyebrow}</p>
-            <h1 style={{ ...display, fontSize: "clamp(34px,8vw,60px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 24, maxWidth: 600 }}>{u.title}</h1>
-            <button onClick={start} style={{ background: INK, color: "#fff", border: `2.5px solid ${INK}`, borderRadius: 14, boxShadow: `5px 5px 0 ${INK}`, padding: "16px 38px", fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 700, cursor: "pointer" }}>{u.start}</button>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--text-muted)", marginTop: 18, maxWidth: 380 }}>{u.audio}</p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 640, width: "100%" }}>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: "var(--text-muted)", marginBottom: 26 }}>{u.eyebrow}</p>
+            <IntroWave />
+            <h1 style={{ ...display, fontSize: "clamp(36px,8.5vw,68px)", fontWeight: 700, letterSpacing: "-0.035em", lineHeight: 1.02, margin: "26px 0 28px" }}>{u.title}</h1>
+            <button onClick={start} className="sb-start" style={{ background: INK, color: "#fff", border: `2.5px solid ${INK}`, borderRadius: 16, boxShadow: `5px 5px 0 ${INK}`, padding: "16px 42px", fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 700, cursor: "pointer" }}>{u.start}</button>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 12.5, lineHeight: 1.5, color: "var(--text-muted)", marginTop: 22, maxWidth: 360 }}>{u.audio}</p>
           </div>
         </div>
       )}
@@ -295,9 +297,51 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
 
       <style>{`@keyframes sb-bob { 0%,100%{ transform:translateX(-50%) translateY(0);} 50%{ transform:translateX(-50%) translateY(6px);} }
         .sb-card { animation: sb-in .5s cubic-bezier(.22,1,.36,1); }
-        @keyframes sb-in { from{ opacity:0; transform: translateY(14px);} to{opacity:1; transform:none;} }`}</style>
+        @keyframes sb-in { from{ opacity:0; transform: translateY(14px);} to{opacity:1; transform:none;} }
+        .sb-start { transition: transform .12s ease, box-shadow .12s ease; }
+        .sb-start:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 ${INK}; }
+        .sb-start:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 ${INK}; }`}</style>
     </>
   );
+}
+
+// Animovaná hero vlna nad nadpisem v intru — podélná komprese částic.
+function IntroWave() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const cv = ref.current; if (!cv) return; const ctx = cv.getContext("2d"); if (!ctx) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1); const CH = 104;
+    let w = 0;
+    const fit = () => { w = Math.min(560, (cv.parentElement?.clientWidth || 560)); cv.style.width = w + "px"; cv.style.height = CH + "px"; cv.width = w * dpr; cv.height = CH * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+    fit(); const onR = () => fit(); addEventListener("resize", onR);
+    let phase = 0, raf = 0;
+    const ROWS = [-1, 0, 1];
+    const loop = () => {
+      ctx.clearRect(0, 0, w, CH);
+      const mid = CH / 2, M = 46, spacing = w / M, breath = 0.62 + 0.38 * Math.sin(phase * 0.7), A = spacing * 1.25 * breath, cyc = 3, K = cyc * Math.PI * 2;
+      const src = spacing * 0.5;
+      for (const rr of ROWS) {
+        const y = mid + rr * 17; const rowA = rr === 0 ? 1 : 0.42;
+        let prevX = 0;
+        for (let i = 0; i < M; i++) {
+          const bx = (i + 0.5) * spacing; const val = Math.sin((bx / w) * K - phase + rr * 0.5); const x = bx + A * val;
+          const comp = i > 0 ? Math.max(0, Math.min(1, 1 - (x - prevX) / spacing)) : 0; prevX = x;
+          const ef = Math.max(0, Math.min(1, Math.min(bx, w - bx) / (w * 0.14)));
+          ctx.globalAlpha = rowA * ef * (0.4 + comp * 0.55);
+          ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x, y, 2.1 + comp * 1.9, 0, 7); ctx.fill();
+        }
+      }
+      // zdroj vlevo — pulzující červený bod
+      const pulse = 0.5 + 0.5 * Math.sin(phase * 1.6);
+      ctx.globalAlpha = 0.25 + pulse * 0.3; ctx.fillStyle = "#e23b3b"; ctx.beginPath(); ctx.arc(src, mid, 9 + pulse * 3, 0, 7); ctx.fill();
+      ctx.globalAlpha = 0.95; ctx.beginPath(); ctx.arc(src, mid, 4.5, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+      phase += 0.045; raf = requestAnimationFrame(loop);
+    };
+    loop();
+    return () => { cancelAnimationFrame(raf); removeEventListener("resize", onR); };
+  }, []);
+  return <canvas ref={ref} style={{ display: "block", margin: "0 auto", width: "100%", maxWidth: 560 }} />;
 }
 
 function waveVal(voiceId: string, t: number): number {
