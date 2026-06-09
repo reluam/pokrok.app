@@ -123,6 +123,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Sound Blaster",
         description: "Postav svět mezi zdrojem zvuku a svýma ušima a poslouchej, jak se šíří.",
       },
+      {
+        slug: "musicblaster",
+        title: "Jak vzniká hudba",
+        description: "Navazuje na zvuk: scrolluj a poskládej z rytmu, basy, akordů a melodie celou skladbu.",
+      },
     ],
   },
 
@@ -211,6 +216,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "soundverse",
         title: "Sound Blaster",
         description: "Build the world between a sound source and your ears, and hear how it travels.",
+      },
+      {
+        slug: "musicblaster",
+        title: "How music is made",
+        description: "Following on from sound: scroll and stack rhythm, bass, chords and melody into a whole track.",
       },
     ],
   },

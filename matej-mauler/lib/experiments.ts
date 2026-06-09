@@ -21,6 +21,7 @@ export const CATEGORIES: Record<string, string> = {
   journey: "story",
   space: "map",
   soundverse: "sim",
+  musicblaster: "sim",
 };
 
 export const experiments: ExperimentMeta[] = [
@@ -84,6 +85,13 @@ export const experiments: ExperimentMeta[] = [
     emoji: "🔊",
     color: "#0b1026",
     href: "/sound-blaster",
+    wip: true,
+  },
+  {
+    slug: "musicblaster",
+    emoji: "🎶",
+    color: "#efe9fb",
+    href: "/music-blaster",
     wip: true,
   },
   {
