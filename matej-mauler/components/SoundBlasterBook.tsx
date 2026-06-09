@@ -117,10 +117,10 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
     cv.addEventListener("pointermove", onMove); cv.addEventListener("pointerleave", onLeave);
 
     type Zone = { x0: number; x1: number; voice: string; medium: Medium; label: string; sub: string };
-    const zonesFor = (s: Sec, w: number): Zone[] => {
-      if (s.interactive === "medium") { const ms = ["air", "water", "solid"] as const; return ms.map((m, i) => ({ x0: (i * w) / 3, x1: ((i + 1) * w) / 3, voice: userVoice.current, medium: m, label: u.media[m], sub: MED[m].ms })); }
-      if (s.interactive === "wave") { const n = ZONE_VOICES.length; return ZONE_VOICES.map((id, i) => ({ x0: (i * w) / n, x1: ((i + 1) * w) / n, voice: id, medium: s.medium, label: voiceOf(id)![lang], sub: "" })); }
-      return [{ x0: 0, x1: w, voice: userVoice.current, medium: s.medium, label: "", sub: "" }];
+    const zonesFor = (s: Sec, x0p: number, ww: number): Zone[] => {
+      if (s.interactive === "medium") { const ms = ["air", "water", "solid"] as const; return ms.map((m, i) => ({ x0: x0p + (i * ww) / 3, x1: x0p + ((i + 1) * ww) / 3, voice: userVoice.current, medium: m, label: u.media[m], sub: MED[m].ms })); }
+      if (s.interactive === "wave") { const n = ZONE_VOICES.length; return ZONE_VOICES.map((id, i) => ({ x0: x0p + (i * ww) / n, x1: x0p + ((i + 1) * ww) / n, voice: id, medium: s.medium, label: voiceOf(id)![lang], sub: "" })); }
+      return [{ x0: x0p, x1: x0p + ww, voice: userVoice.current, medium: s.medium, label: "", sub: "" }];
     };
 
     const cur = { freq: 132, level: 0, filter: 18000, rows: 1, top: [...MED.air.top], bot: [...MED.air.bot], speedF: 1, space: 0, fade: 0 };
@@ -142,17 +142,18 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       const rowGap = Math.min(34, (h * 0.34) / rowsN);
       const half = rowGap * rowsN * 0.6 + 16;
       const R = Math.min(w, h) * 0.42;
-      const zones = zonesFor(s, w); const multi = zones.length > 1; const lastZone = zones[zones.length - 1];
+      const padX = Math.max(64, w * 0.06), spkX = padX, fieldX0 = padX + 46, fieldX1 = w - padX, FW = Math.max(80, fieldX1 - fieldX0);
+      const zones = zonesFor(s, fieldX0, FW); const multi = zones.length > 1; const lastZone = zones[zones.length - 1];
 
       const pt = coarse ? { x: w / 2, y: mid, active: started } : pointer.current;
-      const onBand = started && pt.active && (mode === "disk" ? Math.hypot(pt.x - w / 2, pt.y - mid) < R : Math.abs(pt.y - mid) < half + 22);
+      const onBand = started && pt.active && (mode === "disk" ? Math.hypot(pt.x - w / 2, pt.y - mid) < R : (Math.abs(pt.y - mid) < half + 22 && pt.x >= fieldX0 - 8 && pt.x <= fieldX1 + 8));
       if (onBand && !everOn.current) { everOn.current = true; setCoachDone(true); }
       const az: Zone | null = onBand ? (zones.find((z) => pt.x >= z.x0 && pt.x < z.x1) ?? lastZone) : null;
       const voiceEff = az ? az.voice : userVoice.current;
       if (az && s.interactive === "wave") userVoice.current = az.voice;
 
       // výška podle X
-      if (s.interactive === "freq" && onBand && !coarse) userFreq.current = clamp(80 * Math.pow(10, pt.x / w), 60, 900);
+      if (s.interactive === "freq" && onBand && !coarse) userFreq.current = clamp(80 * Math.pow(10, (pt.x - fieldX0) / FW), 60, 900);
       // hlasitost podle blízkosti ke středu pásma
       let loud = userGain.current;
       if (s.interactive === "amp") { if (onBand && !coarse) { loud = 0.05 + clamp(1 - Math.abs(pt.y - mid) / half, 0, 1) * 0.95; userGain.current = loud; } else loud = userGain.current; }
@@ -185,13 +186,13 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       if (!started) { raf = requestAnimationFrame(loop); return; }
 
       phase += (0.018 + cur.freq / 6500) * cur.speedF;
-      const M = 70, spacing = w / M, A = spacing * 1.3 * cur.level, K = clamp(cur.freq / 45, 1.2, 20) * Math.PI * 2;
-      const emX = w * 0.05, wallX = w * 0.84;
+      const M = 70, spacing = FW / M, A = spacing * 1.3 * cur.level, K = clamp(cur.freq / 45, 1.2, 20) * Math.PI * 2;
+      const wallX = fieldX0 + FW * 0.84;
       const pAlpha = (1 - cur.space) * cur.fade;
       const wv = (vid: string, t: number) => waveVal(vid, t);
 
       // vodítko, kde vlna „bydlí"
-      if (mode !== "disk" && cur.space < 0.3) { ctx.globalAlpha = (onBand ? 0.05 : 0.09) * cur.fade; ctx.fillStyle = INK; roundRect(ctx, 0, mid - half, w, half * 2, half); ctx.fill(); ctx.globalAlpha = 1; }
+      if (mode !== "disk" && cur.space < 0.3) { ctx.globalAlpha = (onBand ? 0.05 : 0.09) * cur.fade; ctx.fillStyle = INK; roundRect(ctx, fieldX0, mid - half, FW, half * 2, half); ctx.fill(); ctx.globalAlpha = 1; }
 
       if (multi) {
         ctx.textAlign = "center";
@@ -214,9 +215,9 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
           ctx.globalAlpha = pAlpha * (0.35 + comp * 0.5) * (1 - (r / R) * 0.5); ctx.fillStyle = `rgb(${MED.air.dot.join(",")})`;
           ctx.beginPath(); ctx.arc(gx + Math.cos(ang) * disp, gy + Math.sin(ang) * disp, 2 + comp * 1.7, 0, 7); ctx.fill();
         }
-        ctx.globalAlpha = pAlpha * 0.9; ctx.fillStyle = "#e23b3b"; ctx.beginPath(); ctx.arc(cxp, cyp, 7, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
+        ctx.globalAlpha = pAlpha * 0.9; ctx.fillStyle = "#e23b3b"; const pr = 7 + (0.5 + 0.5 * Math.sin(phase * 2)) * (2 + cur.level * 6); ctx.beginPath(); ctx.arc(cxp, cyp, pr, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
       } else {
-        if (cur.space < 0.5) { ctx.globalAlpha = pAlpha * 0.85; ctx.strokeStyle = "#e23b3b"; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(emX, mid - half); ctx.lineTo(emX, mid + half); ctx.stroke(); }
+        if (cur.space < 0.5) { ctx.globalAlpha = pAlpha; drawSpeaker(ctx, spkX, mid, half * 0.82, phase, cur.level); ctx.globalAlpha = 1; }
         if (mode === "reflect") { ctx.globalAlpha = cur.fade * 0.9; ctx.strokeStyle = INK; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(wallX, mid - half); ctx.lineTo(wallX, mid + half); ctx.stroke(); }
         ctx.globalAlpha = 1;
 
@@ -225,12 +226,12 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
           const y0 = mid + (r - (rowsN - 1) / 2) * rowGap;
           const xs: number[] = new Array(M), dc: string[] = new Array(M); const ys: number[] = new Array(M);
           for (let i = 0; i < M; i++) {
-            const bx = (i + 0.5) * spacing;
+            const bx = fieldX0 + (i + 0.5) * spacing; const nx = (bx - fieldX0) / FW;
             const z = multi ? (zones.find((zz) => bx >= zz.x0 && bx < zz.x1) ?? lastZone) : zones[0];
             dc[i] = `rgb(${MED[z.medium].dot.join(",")})`;
             let val: number;
-            if (mode === "reflect") val = bx < wallX ? (wv(z.voice, (bx / w) * K - phase) + wv(z.voice, ((2 * wallX - bx) / w) * K - phase)) * 0.5 : 0;
-            else val = wv(z.voice, (bx / w) * K - phase);
+            if (mode === "reflect") val = bx < wallX ? (wv(z.voice, nx * K - phase) + wv(z.voice, ((2 * wallX - bx - fieldX0) / FW) * K - phase)) * 0.5 : 0;
+            else val = wv(z.voice, nx * K - phase);
             xs[i] = trans ? bx : bx + A * val; ys[i] = trans ? y0 + A * val : y0;
           }
           for (let i = 0; i < M; i++) {
@@ -295,10 +296,14 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
 
       {started && (
         <div style={{ position: "fixed", left: 0, right: 0, bottom: "7vh", zIndex: 5, display: "flex", justifyContent: "center", padding: "0 22px", pointerEvents: "none" }}>
-          <div key={step} className="sb-card" style={{ maxWidth: 560, textAlign: "center", background: dark ? "rgba(8,10,24,0.6)" : "rgba(255,255,255,0.82)", border: `2.5px solid ${dark ? "rgba(255,255,255,0.3)" : INK}`, borderRadius: 18, boxShadow: dark ? "none" : `5px 5px 0 ${INK}`, padding: "20px 24px", color: ctrlColor, backdropFilter: "blur(6px)" }}>
-            <p style={{ ...display, fontSize: "clamp(22px,5vw,32px)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 8 }}>{txt.t}</p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 15.5, lineHeight: 1.55, color: dark ? "rgba(255,255,255,0.85)" : "var(--text-secondary)" }}>{txt.p}</p>
-            {hint && <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "var(--text-muted)", marginTop: 12 }}>{hint}</p>}
+          <div key={step} className="sb-card" style={{ maxWidth: 520, textAlign: "center", background: dark ? "rgba(10,12,28,0.5)" : "rgba(255,255,255,0.66)", border: `1px solid ${dark ? "rgba(255,255,255,0.16)" : "rgba(26,22,20,0.1)"}`, borderRadius: 22, boxShadow: dark ? "0 14px 44px rgba(0,0,0,0.4)" : "0 16px 44px rgba(26,22,20,0.12)", padding: "16px 30px 22px", color: ctrlColor, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#e23b3b", display: "inline-block" }} />
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.24em", color: dark ? "rgba(255,255,255,0.55)" : "var(--text-muted)" }}>{String(step + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}</span>
+            </div>
+            <p style={{ ...display, fontSize: "clamp(21px,4.6vw,30px)", fontWeight: 700, letterSpacing: "-0.025em", marginBottom: 8 }}>{txt.t}</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, lineHeight: 1.55, color: dark ? "rgba(255,255,255,0.85)" : "var(--text-secondary)" }}>{txt.p}</p>
+            {hint && <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: dark ? "rgba(255,255,255,0.6)" : "var(--text-muted)", marginTop: 12 }}>{hint}</p>}
             {step === N - 1 && <Link href="/music-blaster" style={{ display: "inline-block", marginTop: 16, fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: ctrlColor, textDecoration: "underline", textUnderlineOffset: 3, pointerEvents: "auto" }}>{u.toMusic}</Link>}
           </div>
         </div>
@@ -362,6 +367,17 @@ function IntroWave() {
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) { const rr = Math.min(r, h / 2, w / 2); ctx.beginPath(); ctx.moveTo(x + rr, y); ctx.arcTo(x + w, y, x + w, y + h, rr); ctx.arcTo(x + w, y + h, x, y + h, rr); ctx.arcTo(x, y + h, x, y, rr); ctx.arcTo(x, y, x + w, y, rr); ctx.closePath(); }
+
+// Animovaný zaoblený reproduktor = zdroj. Membrána pulzuje a tělo lehce vibruje.
+function drawSpeaker(ctx: CanvasRenderingContext2D, x: number, mid: number, bh: number, t: number, amp: number) {
+  const wob = Math.sin(t * 2) * (0.8 + amp * 3);
+  const bulge = 5 + (0.5 + 0.5 * Math.sin(t * 2)) * (4 + amp * 14);
+  ctx.save(); ctx.translate(x + wob, mid);
+  ctx.fillStyle = "rgba(226,59,59,0.32)"; ctx.beginPath(); ctx.moveTo(6, -bh * 0.62); ctx.quadraticCurveTo(6 + bulge, 0, 6, bh * 0.62); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "#e23b3b"; roundRect(ctx, -8, -bh, 16, bh * 2, 8); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.35)"; roundRect(ctx, -4, -bh + 5, 4, bh * 2 - 10, 3); ctx.fill();
+  ctx.restore();
+}
 
 function waveVal(voiceId: string, t: number): number {
   const v = voiceOf(voiceId);
