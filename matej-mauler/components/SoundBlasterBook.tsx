@@ -146,7 +146,7 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       if (idx !== lastStep) { lastStep = idx; setStep(idx); cur.fade = 0; }
       const s = SECTIONS[idx]; const mode: Mode = s.mode ?? "flow"; const trans = s.axis === "trans";
 
-      const w = innerWidth, h = innerHeight, mid = h * 0.46;
+      const w = innerWidth, h = innerHeight, mid = h * 0.6;
       const rowsN = Math.max(1, Math.round(cur.rows));
       const rowGap = Math.min(34, (h * 0.34) / rowsN);
       const half = rowGap * rowsN * 0.6 + 16;
@@ -308,11 +308,11 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       )}
 
       {started && !coachDone && (
-        <div style={{ position: "fixed", left: 0, right: 0, top: "calc(46% + 60px)", zIndex: 6, textAlign: "center", pointerEvents: "none", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: "var(--text-secondary)", animation: "sb-bob 1.6s ease-in-out infinite" }}>↑ {u.coach}</div>
+        <div style={{ position: "fixed", left: 0, right: 0, top: "calc(60% + 110px)", zIndex: 6, textAlign: "center", pointerEvents: "none", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: "var(--text-secondary)", animation: "sb-bob 1.6s ease-in-out infinite" }}>↑ {u.coach}</div>
       )}
 
       {started && (
-        <div style={{ position: "fixed", left: 0, right: 0, bottom: "7vh", zIndex: 5, display: "flex", justifyContent: "center", padding: "0 22px", pointerEvents: "none" }}>
+        <div style={{ position: "fixed", left: 0, right: 0, top: "26%", transform: "translateY(-50%)", zIndex: 5, display: "flex", justifyContent: "center", padding: "0 22px", pointerEvents: "none" }}>
           <div key={step} className="sb-card" style={{ maxWidth: 520, textAlign: "center", background: dark ? "rgba(10,12,28,0.5)" : "rgba(255,255,255,0.66)", border: `1px solid ${dark ? "rgba(255,255,255,0.16)" : "rgba(26,22,20,0.1)"}`, borderRadius: 22, boxShadow: dark ? "0 14px 44px rgba(0,0,0,0.4)" : "0 16px 44px rgba(26,22,20,0.12)", padding: "16px 30px 22px", color: ctrlColor, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#e23b3b", display: "inline-block" }} />
