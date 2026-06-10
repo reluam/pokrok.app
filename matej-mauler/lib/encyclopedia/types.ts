@@ -2,7 +2,7 @@ import type { Bilingual } from "@/lib/space";
 
 export type { Bilingual };
 
-export type RealmId = "space" | "sound" | "music";
+export type RealmId = "space" | "sound" | "music" | "plain";
 
 /** Klikatelná synapse umístěná kolem subjektu. Cíl může být existující heslo i červený odkaz. */
 export type Satellite = {
@@ -41,6 +41,7 @@ export type NodeDef = {
   subject?: { object: string; size?: number }; // centrální vizuál (space)
   sound?: SoundSceneDef; // konfigurace zvukové scény (sound)
   music?: MusicSceneDef; // konfigurace hudební scény (music)
+  plain?: { glyph?: string; accent?: string }; // plain realm: znak/emoji uprostřed talíře (citáty mají vlastní stage)
   satellites?: Satellite[];
   features?: Bilingual[]; // neklikatelné zajímavosti (řádek pod textem)
   links?: { href: string; label: Bilingual }[]; // obyčejné odkazy pod textem (mapa, archiv…)

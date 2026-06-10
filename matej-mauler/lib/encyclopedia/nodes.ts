@@ -1,6 +1,7 @@
 import type { Bilingual, NodeDef } from "./types";
 import { SOUND_NODES } from "./sound-nodes";
 import { MUSIC_NODES } from "./music-nodes";
+import { PLAIN_NODES } from "./plain-nodes";
 
 /* ── Zásobník: témata, která zatím neexistují (červené odkazy) ──────
    Synapse na ně smí vést — dostanou placeholder a počítadlo přání. */
@@ -22,6 +23,10 @@ export const SEEDS: Record<string, Bilingual> = {
   decibel: { cs: "Decibel", en: "Decibel" },
   "hudebni-nastroje": { cs: "Hudební nástroje", en: "Musical instruments" },
   tonina: { cs: "Tónina", en: "Key" },
+  jazyk: { cs: "Jazyk", en: "Language" },
+  poezie: { cs: "Poezie", en: "Poetry" },
+  pravda: { cs: "Pravda", en: "Truth" },
+  delfini: { cs: "Delfíni", en: "Dolphins" },
 };
 
 /* ── Hesla ──────────────────────────────────────────────────────────
@@ -32,8 +37,8 @@ const N: NodeDef[] = [
     slug: "brana", realm: "space",
     title: { cs: "Spaghetti.ltd", en: "Spaghetti.ltd" },
     guide: {
-      cs: "Spaghetti.ltd je interaktivní encyklopedie. Každé heslo je hřiště: scrolluj dolů a noř se z obecného do konkrétního, klikej a odbočuj. Vlákna kolem tebe jsou celá síť — klikni kamkoliv a jdi. Každý týden přibude nové téma. Po vzoru BBC: informovat, edukovat, bavit. Převážně neškodná.",
-      en: "Spaghetti.ltd is an interactive encyclopedia. Every entry is a playground: scroll down to dive from the general to the specific, click around and take detours. The threads around you are the whole network — click anywhere and go. A new topic lands every week. In the BBC's footsteps: inform, educate, entertain. Mostly harmless.",
+      cs: "Život je zamotaný. Jako špagety. Zamotej se do našich nudlí poznání.",
+      en: "Life is a mess. Like spaghetti. Get entangled in our messy knowledge noodles.",
     },
     next: "vesmir",
   },
@@ -323,4 +328,4 @@ const N: NodeDef[] = [
   },
 ];
 
-export const NODES: Record<string, NodeDef> = Object.fromEntries([...N, ...SOUND_NODES, ...MUSIC_NODES].map((n) => [n.slug, n]));
+export const NODES: Record<string, NodeDef> = Object.fromEntries([...N, ...SOUND_NODES, ...MUSIC_NODES, ...PLAIN_NODES].map((n) => [n.slug, n]));

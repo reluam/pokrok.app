@@ -7,6 +7,7 @@ import { SpaceRealm, type NavDir } from "./SpaceRealm";
 import { SoundRealm } from "./SoundRealm";
 import { MusicRealm } from "./MusicRealm";
 import { GateMap } from "./GateMap";
+import { PlainRealm } from "./PlainRealm";
 import { Strands } from "./Strands";
 import type { Lang } from "@/lib/dictionaries";
 
@@ -151,7 +152,8 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         isGate ? <GateMap lang={lang} theme={theme} onNavigate={dive} />
         : node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} theme={theme} />
         : node.realm === "sound" ? <SoundRealm node={node} lang={lang} theme={theme} onNavigate={dive} />
-        : <MusicRealm node={node} lang={lang} theme={theme} onNavigate={dive} />
+        : node.realm === "music" ? <MusicRealm node={node} lang={lang} theme={theme} onNavigate={dive} />
+        : <PlainRealm node={node} lang={lang} theme={theme} />
       ) : (
         <RedLink slug={slug} lang={lang} dark={theme === "dark"} />
       )}

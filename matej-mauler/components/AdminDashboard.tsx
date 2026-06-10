@@ -96,6 +96,9 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
           </div>
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <Link href="/admin" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
+            ← Encyklopedie
+          </Link>
           <Link href="/admin/experiments" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
             Experimenty →
           </Link>
