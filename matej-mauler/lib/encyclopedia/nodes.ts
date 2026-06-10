@@ -36,10 +36,6 @@ const N: NodeDef[] = [
       en: "Spaghetti.ltd is an interactive encyclopedia. Every entry is a playground: scroll down to dive from the general to the specific, click around and take detours. The threads around you are the whole network — click anywhere and go. A new topic lands every week. In the BBC's footsteps: inform, educate, entertain. Mostly harmless.",
     },
     next: "vesmir",
-    links: [
-      { href: "/mapa", label: { cs: "🗺 Mapa všeho", en: "🗺 Map of everything" } },
-      { href: "/archiv", label: { cs: "🧪 Laboratoř", en: "🧪 The lab" } },
-    ],
   },
   {
     slug: "vesmir", realm: "space", up: "brana",

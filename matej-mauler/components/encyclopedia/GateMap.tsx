@@ -56,8 +56,9 @@ export function GateMap({ lang, onNavigate }: { lang: Lang; onNavigate: (slug: s
 
     const ring = (d: number) => {
       const t = g.maxDepth > 1 ? Math.pow((d - 1) / (g.maxDepth - 1), 0.72) : 0;
-      const bx = Math.min(w * 0.27, 330), by = Math.min(h * 0.24, 215);
-      return { rx: bx + (w / 2 - 64 - bx) * t, ry: by + (h / 2 - 64 - by) * t };
+      // vnitřní prstenec musí obejít středový blok (logo + search + text)
+      const bx = Math.min(w * 0.34, 375), by = Math.min(h * 0.3, 262);
+      return { rx: bx + Math.max(0, w / 2 - 60 - bx) * t, ry: by + Math.max(0, h / 2 - 60 - by) * t };
     };
 
     let hovered: GNode | null = null;

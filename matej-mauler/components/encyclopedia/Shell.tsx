@@ -145,13 +145,22 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "8vh 22px 0" : "0 22px", pointerEvents: "none" }}>
           <div key={slug} style={{ position: "relative", maxWidth: topText ? "min(620px, calc(100vw - 240px))" : 620, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
-            <div style={{ position: "relative", textAlign: "center", pointerEvents: "auto" }}>
+            {/* text nesmí blokovat klikání na síť pod ním — interaktivní jsou jen search a odkazy */}
+            <div style={{ position: "relative", textAlign: "center", pointerEvents: "none" }}>
               {slug === "brana" && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src="/logo.svg" alt="" width={58} height={58} style={{ display: "block", margin: "0 auto 12px", filter: "invert(1)", opacity: 0.95 }} />
               )}
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: C.faint, marginBottom: 10 }}>{u.eyebrow}</p>
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,44px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
+              {slug === "brana" && (
+                <button onClick={() => setSearchOpen(true)}
+                  style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 9, width: "min(380px, 100%)", margin: "2px auto 14px", background: "rgba(255,255,255,0.09)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "11px 18px", color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans)", fontSize: 14, cursor: "pointer", textAlign: "left" }}>
+                  <span aria-hidden>🔍</span>
+                  <span style={{ flex: 1 }}>{u.searchPh}</span>
+                  <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.45)" }}>⌘K</kbd>
+                </button>
+              )}
               <p style={{ fontFamily: "var(--font-sans)", fontSize: topText ? 14 : 15, lineHeight: 1.65, color: C.body }}>{node.guide[lang]}</p>
               {node.features && node.features.length > 0 && (
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, letterSpacing: "0.04em", color: C.muted, marginTop: 12 }}>
@@ -159,7 +168,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
                 </p>
               )}
               {node.links && node.links.length > 0 && (
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, marginTop: 14, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
+                <p style={{ pointerEvents: "auto", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, marginTop: 14, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
                   {node.links.map((l) => (
                     <Link key={l.href} href={l.href} style={{ color: C.text, textDecoration: "underline", textUnderlineOffset: 3 }}>{l.label[lang]}</Link>
                   ))}
@@ -187,11 +196,13 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         </button>
       </div>
 
-      <button onClick={() => setSearchOpen(true)}
-        style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 8, background: C.pillBg, border: `1px solid ${C.pillBorder}`, borderRadius: 999, padding: "7px 16px", color: C.pillText, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
-        <span aria-hidden>🔍</span> {u.search}
-        <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${C.kbdBorder}`, color: C.kbdText }}>⌘K</kbd>
-      </button>
+      {slug !== "brana" && (
+        <button onClick={() => setSearchOpen(true)}
+          style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 8, background: C.pillBg, border: `1px solid ${C.pillBorder}`, borderRadius: 999, padding: "7px 16px", color: C.pillText, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          <span aria-hidden>🔍</span> {u.search}
+          <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${C.kbdBorder}`, color: C.kbdText }}>⌘K</kbd>
+        </button>
+      )}
 
       {/* výš (obecněji) */}
       {upTarget && (
