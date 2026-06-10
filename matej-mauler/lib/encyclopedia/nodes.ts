@@ -1,4 +1,5 @@
 import type { Bilingual, NodeDef } from "./types";
+import { SOUND_NODES } from "./sound-nodes";
 
 /* ── Zásobník: témata, která zatím neexistují (červené odkazy) ──────
    Synapse na ně smí vést — dostanou placeholder a počítadlo přání. */
@@ -13,7 +14,13 @@ export const SEEDS: Record<string, Bilingual> = {
   "sklenikovy-efekt": { cs: "Skleníkový efekt", en: "Greenhouse effect" },
   voda: { cs: "Voda", en: "Water" },
   "cerna-dira": { cs: "Černá díra", en: "Black hole" },
-  zvuk: { cs: "Zvuk", en: "Sound" },
+  vzduch: { cs: "Vzduch", en: "Air" },
+  zelezo: { cs: "Železo", en: "Iron" },
+  vlneni: { cs: "Vlnění", en: "Waves" },
+  ton: { cs: "Tón", en: "Tone" },
+  decibel: { cs: "Decibel", en: "Decibel" },
+  "hudebni-nastroje": { cs: "Hudební nástroje", en: "Musical instruments" },
+  hudba: { cs: "Hudba", en: "Music" },
 };
 
 /* ── Hesla ──────────────────────────────────────────────────────────
@@ -306,4 +313,4 @@ const N: NodeDef[] = [
   },
 ];
 
-export const NODES: Record<string, NodeDef> = Object.fromEntries(N.map((n) => [n.slug, n]));
+export const NODES: Record<string, NodeDef> = Object.fromEntries([...N, ...SOUND_NODES].map((n) => [n.slug, n]));

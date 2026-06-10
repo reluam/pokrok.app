@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/lib/encyclopedia/graph";
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
+import { SoundRealm } from "./SoundRealm";
 import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
@@ -23,6 +24,21 @@ const UI = {
   },
 } as const;
 
+const THEMES = {
+  dark: {
+    text: "#fff", body: "rgba(255,255,255,0.88)", muted: "rgba(255,255,255,0.55)", faint: "rgba(255,255,255,0.45)",
+    blur: "rgba(4,6,15,0.5)", pillBg: "rgba(255,255,255,0.08)", pillBorder: "rgba(255,255,255,0.18)",
+    pillText: "rgba(255,255,255,0.8)", kbdBorder: "rgba(255,255,255,0.25)", kbdText: "rgba(255,255,255,0.5)",
+    hint: "rgba(255,255,255,0.65)", end: "rgba(255,255,255,0.4)", home: "rgba(255,255,255,0.7)",
+  },
+  light: {
+    text: "#1a1614", body: "rgba(26,22,20,0.85)", muted: "rgba(26,22,20,0.55)", faint: "rgba(26,22,20,0.45)",
+    blur: "rgba(255,255,255,0.55)", pillBg: "rgba(255,255,255,0.6)", pillBorder: "rgba(26,22,20,0.2)",
+    pillText: "rgba(26,22,20,0.75)", kbdBorder: "rgba(26,22,20,0.25)", kbdText: "rgba(26,22,20,0.5)",
+    hint: "rgba(26,22,20,0.6)", end: "rgba(26,22,20,0.45)", home: "rgba(26,22,20,0.65)",
+  },
+} as const;
+
 export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; lang: Lang }) {
   const u = UI[lang];
   const homeHref = lang === "cs" ? "/cs" : "/";
@@ -31,6 +47,8 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   const [trail, setTrail] = useState<string[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const node = getNode(slug);
+  const C = THEMES[node?.theme ?? "dark"];
+  const topText = node?.textPos === "top";
 
   const go = useCallback((to: string, d: NavDir) => {
     setDir(d); setSlug(to); setSearchOpen(false);
@@ -102,22 +120,24 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     <>
       {/* realm (pozadí + interaktivní obsah) */}
       {node ? (
-        <SpaceRealm node={node} lang={lang} dir={dir} onNavigate={dive} />
+        node.realm === "space"
+          ? <SpaceRealm node={node} lang={lang} dir={dir} onNavigate={dive} />
+          : <SoundRealm node={node} lang={lang} onNavigate={dive} />
       ) : (
         <RedLink slug={slug} lang={lang} />
       )}
 
       {/* text přes subjekt — bez boxu, jen rozmazané pozadí; nic klikatelného pod ním */}
       {node && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "grid", placeItems: "center", padding: "0 22px", pointerEvents: "none" }}>
-          <div key={slug} style={{ position: "relative", maxWidth: 620, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
-            <div aria-hidden style={{ position: "absolute", inset: "-38px -54px", background: "rgba(4,6,15,0.5)", backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
+        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "8vh 22px 0" : "0 22px", pointerEvents: "none" }}>
+          <div key={slug} style={{ position: "relative", maxWidth: topText ? "min(620px, calc(100vw - 240px))" : 620, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
+            <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "auto" }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>{u.eyebrow}</p>
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px,6vw,44px)", fontWeight: 700, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)" }}>{node.guide[lang]}</p>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: C.faint, marginBottom: 10 }}>{u.eyebrow}</p>
+              <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,44px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: topText ? 14 : 15, lineHeight: 1.65, color: C.body }}>{node.guide[lang]}</p>
               {node.features && node.features.length > 0 && (
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, letterSpacing: "0.04em", color: "rgba(255,255,255,0.5)", marginTop: 12 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, letterSpacing: "0.04em", color: C.muted, marginTop: 12 }}>
                   ✦ {node.features.map((f) => f[lang]).join(" · ")}
                 </p>
               )}
@@ -128,19 +148,19 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
       {/* chrome */}
       <div style={{ position: "fixed", top: 16, left: 20, zIndex: 20 }}>
-        <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{u.home}</Link>
+        <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: C.home, textDecoration: "none" }}>{u.home}</Link>
       </div>
 
       <button onClick={() => setSearchOpen(true)}
-        style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 999, padding: "7px 16px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+        style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 8, background: C.pillBg, border: `1px solid ${C.pillBorder}`, borderRadius: 999, padding: "7px 16px", color: C.pillText, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
         <span aria-hidden>🔍</span> {u.search}
-        <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.5)" }}>⌘K</kbd>
+        <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${C.kbdBorder}`, color: C.kbdText }}>⌘K</kbd>
       </button>
 
       {/* výš (obecněji) */}
       {upTarget && (
         <button onClick={goUp}
-          style={{ position: "fixed", top: 56, left: "50%", transform: "translateX(-50%)", zIndex: 20, background: "none", border: "none", color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 6 }}>
+          style={{ position: "fixed", top: 56, left: "50%", transform: "translateX(-50%)", zIndex: 20, background: "none", border: "none", color: C.muted, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 6 }}>
           ↑ {titleOf(upTarget, lang)}
         </button>
       )}
@@ -149,11 +169,11 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
       <div style={{ position: "fixed", bottom: "3vh", left: "50%", transform: "translateX(-50%)", zIndex: 20, textAlign: "center" }}>
         {node?.next ? (
           <button onClick={goNext}
-            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.65)", fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: 6, animation: "encyBob 2s ease-in-out infinite" }}>
+            style={{ background: "none", border: "none", color: C.hint, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: 6, animation: "encyBob 2s ease-in-out infinite" }}>
             ↓ {titleOf(node.next, lang)}
           </button>
         ) : node ? (
-          <span style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-sans)", fontSize: 11.5 }}>{u.endHint}</span>
+          <span style={{ color: C.end, fontFamily: "var(--font-sans)", fontSize: 11.5 }}>{u.endHint}</span>
         ) : null}
       </div>
 

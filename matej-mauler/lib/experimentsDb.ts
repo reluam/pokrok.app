@@ -44,6 +44,8 @@ async function ensure(sql: Sql) {
   await sql`UPDATE experiments SET href = '/time-remaining' WHERE slug = 'cas' AND href = '/kolik-ti-zbyva'`;
   await sql`UPDATE experiments SET href = '/sound-blaster' WHERE slug = 'soundverse' AND href = '/sound-universe'`;
   await sql`UPDATE experiments SET href = '/vesmir' WHERE slug = 'space' AND href = '/space'`;
+  await sql`UPDATE experiments SET href = '/zvuk' WHERE slug = 'soundverse' AND href = '/sound-blaster'`;
+  await sql`UPDATE experiments SET title_cs = 'Sound Basics', title_en = 'Sound Basics' WHERE slug = 'soundverse' AND title_cs = 'Sound Blaster'`;
   ready = true;
 }
 

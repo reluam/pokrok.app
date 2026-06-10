@@ -1,12 +1,8 @@
-import { SoundBlasterBook } from "@/components/SoundBlasterBook";
-import { getLang } from "@/lib/getLang";
-import { guardExperiment } from "@/lib/experimentsDb";
+import { permanentRedirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Sound Blaster — Spaghetti.ltd" };
 
-export default async function SoundBlasterPage() {
-  await guardExperiment("soundverse");
-  const lang = await getLang();
-  return <SoundBlasterBook lang={lang} />;
+// Sound Blaster se stal trasou encyklopedie (Sound Basics) → /zvuk
+export default function SoundBlasterPage() {
+  permanentRedirect("/zvuk");
 }

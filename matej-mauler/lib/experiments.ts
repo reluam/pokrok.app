@@ -84,7 +84,7 @@ export const experiments: ExperimentMeta[] = [
     slug: "soundverse",
     emoji: "🔊",
     color: "#0b1026",
-    href: "/sound-blaster",
+    href: "/zvuk",
     wip: true,
   },
   {
