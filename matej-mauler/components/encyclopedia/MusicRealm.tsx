@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { getNode, titleOf } from "@/lib/encyclopedia/graph";
+import type { MusicSceneDef, NodeDef } from "@/lib/encyclopedia/types";
 import type { Lang } from "@/lib/dictionaries";
 
 const INK = "#1a1614";
 const sans = "var(--font-sans)";
-const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 type DrumLane = "kick" | "snare" | "hat" | "open";
 const DRUM_LANES: DrumLane[] = ["kick", "snare", "hat", "open"];
 const DRUM_COL: Record<DrumLane, string> = { kick: "#e8556d", snare: "#f4a259", hat: "#4eb4cf", open: "#56c596" };
@@ -40,30 +40,18 @@ const degMidi = (scale: number[], key: number, deg: number, oct: number) => key 
 const chordTones = (scale: number[], key: number, deg: number) => [0, 2, 4, 6].map((s) => degMidi(scale, key, deg + s, 0));
 const BASS_OCT = -2, MEL_OCT = 1;
 
-type SecInt = "rhythm" | "bass" | "chords" | "melody" | "mix" | "studio";
-const SECTIONS: { cs: { t: string; p: string }; en: { t: string; p: string }; interactive?: SecInt; ed?: Editor }[] = [
-  { cs: { t: "Co je hudba?", p: "Zvuk je jen chvění vzduchu. Hudba je zvuk, který někdo uspořádal — do času a do výšek. Pojďme jednu skladbu poskládat po vrstvách." }, en: { t: "What is music?", p: "Sound is just shaking air. Music is sound someone organized — in time and pitch. Let's build a track layer by layer." } },
-  { cs: { t: "Rytmus = tep", p: "Nejdřív styl a tep. Vyber vibe, nalaď tempo a swing — a klikej do mřížky, ze čtyř bicích vrstev si poskládej beat." }, en: { t: "Rhythm = pulse", p: "First the style and the pulse. Pick a vibe, set tempo and swing — and click the grid to build a beat from four drum lanes." }, interactive: "rhythm", ed: "drums" },
-  { cs: { t: "Basa drží spodek", p: "Basa dává skladbě pevnou půdu. Klikej do piano rollu — určuješ, kdy hraje i jak je vysoká. Tóny jsou z tóniny, takže to vždy ladí." }, en: { t: "Bass holds the bottom", p: "Bass gives the track solid ground. Click the piano roll — you set when it plays and how high. Notes come from the key, so it always fits." }, interactive: "bass", ed: "bass" },
-  { cs: { t: "Akordy = nálada", p: "Víc tónů naráz je akord. Skládej je v piano rollu z diatonických možností. Tóninu a dur/moll měň nahoře kdykoliv — vše se přeladí." }, en: { t: "Chords = mood", p: "Several notes at once make a chord. Place them in the roll from diatonic options. Change key and major/minor up top anytime — it all re-tunes." }, interactive: "chords", ed: "chords" },
-  { cs: { t: "Melodie = příběh", p: "Melodie je jeden hlas, co si zpívá nahoru a dolů. Naklikej si vlastní v piano rollu — drží se tóniny, takže to ladí." }, en: { t: "Melody = the story", p: "Melody is a single voice singing up and down. Click your own in the roll — it stays in the key, so it fits." }, interactive: "melody", ed: "melody" },
-  { cs: { t: "Mix = fadery", p: "Skladba je vrstvy hrající spolu. Jako v DAW jim dole nastav hlasitost faderem a vypínej je tlačítkem mute." }, en: { t: "Mix = faders", p: "A track is layers playing together. Like in a DAW, set each one's volume with the fader below and silence it with mute." }, interactive: "mix", ed: "drums" },
-  { cs: { t: "Studio — tvoř", p: "Teď jsi u kniplů. Všechny čtyři mřížky najednou, dole fader, mute a efekt (jeho účinek) u každé. Akordy i basa drží v ladění samy." }, en: { t: "Studio — make it", p: "Now you're at the controls. All four grids at once, with a fader, mute and effect (its amount) for each below. Chords and bass stay in tune by themselves." }, interactive: "studio" },
-  { cs: { t: "Teď to umíš", p: "Hudba je chytře poskládaný zvuk — tep, spodek, nálada a příběh, sladěné do času. A ty teď víš jak na to." }, en: { t: "Now you get it", p: "Music is cleverly arranged sound — pulse, bottom, mood and story, locked in time. And now you know how." } },
-];
-
 const UI = {
-  cs: { back: "← Spaghetti.ltd", eyebrow: "Hudební experience", title: "Jak vzniká hudba", start: "Start ▶", audio: "🔊 Zapni si zvuk a poskládej skladbu.", scroll: "scrolluj dolů", mute: "Ztlumit", unmute: "Zvuk", style: "styl", tempo: "tempo", swing: "swing", major: "dur", minor: "moll", drums: { kick: "kop", snare: "snare", hat: "hi-hat", open: "open" }, layers: { drums: "bicí", bass: "basa", chord: "akordy", mel: "melodie" }, fx: { room: "room", drive: "drive", reverb: "reverb", delay: "delay" }, on: "zap", off: "mute", hint: "👆 klikej do mřížky" },
-  en: { back: "← Spaghetti.ltd", eyebrow: "A music experience", title: "How music is made", start: "Start ▶", audio: "🔊 Turn your sound on and build a track.", scroll: "scroll down", mute: "Mute", unmute: "Sound", style: "style", tempo: "tempo", swing: "swing", major: "major", minor: "minor", drums: { kick: "kick", snare: "snare", hat: "hi-hat", open: "open" }, layers: { drums: "drums", bass: "bass", chord: "chords", mel: "melody" }, fx: { room: "room", drive: "drive", reverb: "reverb", delay: "delay" }, on: "on", off: "mute", hint: "👆 click the grid" },
+  cs: { audio: "🔊 Zapnout zvuk", mute: "Ztlumit", unmute: "Zvuk", style: "styl", tempo: "tempo", swing: "swing", major: "dur", minor: "moll", drums: { kick: "kop", snare: "snare", hat: "hi-hat", open: "open" }, layers: { drums: "bicí", bass: "basa", chord: "akordy", mel: "melodie" }, fx: { room: "room", drive: "drive", reverb: "reverb", delay: "delay" }, on: "zap", off: "mute", hint: "👆 klikej do mřížky" },
+  en: { audio: "🔊 Turn sound on", mute: "Mute", unmute: "Sound", style: "style", tempo: "tempo", swing: "swing", major: "major", minor: "minor", drums: { kick: "kick", snare: "snare", hat: "hi-hat", open: "open" }, layers: { drums: "drums", bass: "bass", chord: "chords", mel: "melody" }, fx: { room: "room", drive: "drive", reverb: "reverb", delay: "delay" }, on: "on", off: "mute", hint: "👆 click the grid" },
 } as const;
 
-export function MusicBlasterBook({ lang }: { lang: Lang }) {
-  const u = UI[lang]; const homeHref = lang === "cs" ? "/cs" : "/"; const N = SECTIONS.length;
-  const trackRef = useRef<HTMLDivElement>(null);
+/** Hudební realm: sdílený sekvencer + WebAudio přes všechna hudební hesla.
+    Vrstvy se po trase sčítají — co si naklikáš, hraje s tebou dál. */
+export function MusicRealm({ node, lang, onNavigate }: { node: NodeDef; lang: Lang; onNavigate: (slug: string) => void }) {
+  const u = UI[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [started, setStarted] = useState(false);
+  const [audioOn, setAudioOn] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [step, setStep] = useState(0);
 
   const bpm = useRef(76); const [bpmUI, setBpmUI] = useState(76);
   const swing = useRef(0.2); const [swingUI, setSwingUI] = useState(20);
@@ -83,6 +71,10 @@ export function MusicBlasterBook({ lang }: { lang: Lang }) {
   const pending = useRef<{ step: number; time: number }[]>([]); const curStep = useRef(0);
   const grids = useRef<{ editor: Editor; gx: number; gy: number; cw: number; rh: number; gap: number; rows: number }[]>([]); const timer = useRef(0);
 
+  // aktuální scéna pro smyčku (komponenta drží engine přes všechna hesla)
+  const muRef = useRef<MusicSceneDef>(node.music!);
+  useEffect(() => { muRef.current = node.music!; }, [node]);
+
   const fxNode = (k: "room" | "drive" | "reverb" | "delay") => k === "room" ? nDrumRoom.current : k === "drive" ? nBassPre.current : k === "reverb" ? nChordRev.current : nMelSend.current;
   const applyVibe = (v: Vibe) => { vibe.current = v; setVibeUI(v.id); bpm.current = v.bpm; setBpmUI(v.bpm); swing.current = v.swing; setSwingUI(Math.round(v.swing * 100)); rolls.current = v.rolls(); fx.current.reverb = v.rev; setFxUI((f) => ({ ...f, reverb: Math.round((v.rev / FXR.reverb[1]) * 100) })); if (nChordRev.current && ac.current) nChordRev.current.gain.setTargetAtTime(v.rev, ac.current.currentTime, 0.1); if (dly.current) dly.current.delayTime.value = (60 / v.bpm / 4) * 3; };
   const setVol = (k: Layer, pct: number) => { vol.current[k] = pct / 100; setVolUI((s) => ({ ...s, [k]: pct })); };
@@ -93,9 +85,8 @@ export function MusicBlasterBook({ lang }: { lang: Lang }) {
     const a = new AC(); ac.current = a;
     const comp = a.createDynamicsCompressor(); comp.threshold.value = -15; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.25; comp.connect(a.destination);
     const ms = a.createGain(); ms.gain.value = muted ? 0 : 0.9; ms.connect(comp); master.current = ms;
-    const conv = a.createConvolver(); const L = (a.sampleRate * 2.8) | 0; const b = a.createBuffer(2, L, a.sampleRate);
-    for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, 2.6); }
-    conv.buffer = b; const rRet = a.createGain(); rRet.gain.value = 0.9; conv.connect(rRet).connect(ms);
+    const conv = a.createConvolver(); conv.buffer = impulse(a, 2.8, 2.6);
+    const rRet = a.createGain(); rRet.gain.value = 0.9; conv.connect(rRet).connect(ms);
     const dl = a.createDelay(0.9); dl.delayTime.value = (60 / bpm.current / 4) * 3; const fb = a.createGain(); fb.gain.value = 0.34; const dOut = a.createGain(); dOut.gain.value = 0.45; const dSend = a.createGain(); dSend.gain.value = fx.current.delay; dSend.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(dOut).connect(ms); dly.current = dl; nMelSend.current = dSend;
     // bicí: bus -> shaper -> master ; send do reverbu (room)
     const drumBus = a.createGain(); const drumShaper = a.createWaveShaper(); drumShaper.curve = shaperCurve(2.2); drumShaper.oversample = "2x"; drumBus.connect(drumShaper).connect(ms); const drumRoom = a.createGain(); drumRoom.gain.value = fx.current.room; drumBus.connect(drumRoom).connect(conv); bus.current.drums = drumBus; nDrumRoom.current = drumRoom;
@@ -110,7 +101,7 @@ export function MusicBlasterBook({ lang }: { lang: Lang }) {
     let s = 0; let nextT = a.currentTime + 0.12; const sec16 = () => 60 / bpm.current / 4;
     const schedule = () => { const aa = ac.current; if (!aa) return; while (nextT < aa.currentTime + 0.13) { const st = s % 16; const sw = st % 2 === 1 ? swing.current * sec16() * 0.66 : 0; const t = nextT + sw; playStep(st, t); pending.current.push({ step: st, time: t }); nextT += sec16(); s = (s + 1) % 16; } };
     timer.current = window.setInterval(schedule, 25);
-    setStarted(true);
+    setAudioOn(true);
   };
 
   const playStep = (st: number, t: number) => {
@@ -132,6 +123,7 @@ export function MusicBlasterBook({ lang }: { lang: Lang }) {
 
   useEffect(() => {
     const cv = canvasRef.current; if (!cv) return; const ctx = cv.getContext("2d"); if (!ctx) return;
+    const uu = UI[lang];
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const resize = () => { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
     resize(); addEventListener("resize", resize);
@@ -140,28 +132,33 @@ export function MusicBlasterBook({ lang }: { lang: Lang }) {
     };
     cv.addEventListener("pointerdown", onDown);
 
-    let raf = 0, last = -1;
+    let raf = 0, t0 = 0;
     const rowsOf = (e: Editor) => (e === "drums" ? 4 : e === "chords" ? 7 : 8);
     const loop = () => {
-      const tr = trackRef.current; let p = 0; if (tr) { const dd = tr.offsetHeight - innerHeight; p = dd > 0 ? Math.min(1, Math.max(0, -tr.getBoundingClientRect().top / dd)) : 0; }
-      const idx = Math.min(N - 1, Math.round(p * (N - 1)));
-      if (idx !== last) { last = idx; setStep(idx); }
-      const reach = { drums: idx >= 1, bass: idx >= 2, chord: idx >= 3, mel: idx >= 4 };
-      (["drums", "bass", "chord", "mel"] as Layer[]).forEach((k) => (enable.current[k] = started && reach[k] && !mute.current[k]));
+      const mu = muRef.current;
+      const reach = { drums: mu.rank >= 1, bass: mu.rank >= 2, chord: mu.rank >= 3, mel: mu.rank >= 4 };
+      (["drums", "bass", "chord", "mel"] as Layer[]).forEach((k) => (enable.current[k] = !!ac.current && reach[k] && !mute.current[k]));
       if (ac.current) { const now = ac.current.currentTime; (["drums", "bass", "chord", "mel"] as Layer[]).forEach((k) => bus.current[k]?.gain.setTargetAtTime(enable.current[k] ? vol.current[k] : 0, now, 0.12)); while (pending.current.length && pending.current[0].time <= now) curStep.current = pending.current.shift()!.step; if (pending.current.length > 40) pending.current.splice(0, pending.current.length - 40); }
 
       const scale = minor.current ? SCALES.minor : SCALES.major;
       const w = innerWidth, h = innerHeight; ctx.clearRect(0, 0, w, h);
       const grd = ctx.createLinearGradient(0, 0, 0, h); grd.addColorStop(0, "#FAFAF7"); grd.addColorStop(1, "#efe9fb"); ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
       grids.current = [];
-      if (!started || idx < 1) { raf = requestAnimationFrame(loop); return; }
+
+      if (mu.view === "intro") {
+        // ekvalizérové sloupce — subjekt hesla „hudba"
+        const bw2 = Math.min(560, w * 0.7), bx = (w - bw2) / 2, n = 22, cw2 = bw2 / n, base = h * 0.66; const cols = ["#e8556d", "#f4a259", "#4eb4cf", "#7b6cf6"];
+        for (let i = 0; i < n; i++) { const hgt = (0.2 + 0.8 * Math.abs(Math.sin(t0 * 1.6 + i * 0.6) * Math.cos(t0 * 0.7 + i))) * h * 0.2; ctx.globalAlpha = 0.85; ctx.fillStyle = cols[i % 4]; roundRect(ctx, bx + i * cw2 + cw2 * 0.2, base - hgt, cw2 * 0.6, hgt, 3); ctx.fill(); }
+        ctx.globalAlpha = 1; t0 += 0.03;
+        raf = requestAnimationFrame(loop); return;
+      }
 
       const cs = curStep.current;
       const paint = (editor: Editor, gx: number, gy: number, cw: number, rh: number, gap: number, rows: number, active: boolean) => {
         const baseCol = editor === "bass" ? BASS_COL : editor === "chords" ? CHORD_COL : editor === "melody" ? MEL_COL : "";
         for (let r = 0; r < rows; r++) {
           const y = gy + r * (rh + gap); const deg = rows - 1 - r; const r2 = rolls.current; let label = ""; let col = baseCol;
-          if (editor === "drums") { label = u.drums[DRUM_LANES[r]]; col = DRUM_COL[DRUM_LANES[r]]; }
+          if (editor === "drums") { label = uu.drums[DRUM_LANES[r]]; col = DRUM_COL[DRUM_LANES[r]]; }
           else if (editor === "chords") label = ROMAN[deg];
           else label = NOTE[degMidi(scale, keyM.current, deg, editor === "bass" ? BASS_OCT : MEL_OCT) % 12];
           for (let c = 0; c < 16; c++) {
@@ -177,34 +174,54 @@ export function MusicBlasterBook({ lang }: { lang: Lang }) {
       };
 
       const gw = Math.min(620, w * 0.82), gx = (w - gw) / 2, cw = gw / 16;
-      if (idx === 6) {
+      if (mu.view === "studio") {
         const eds: Editor[] = ["drums", "bass", "chords", "melody"]; const rh = 9, gap = 2, groupGap = 13;
         const totalH = eds.reduce((sm, e) => sm + rowsOf(e) * (rh + gap) - gap + groupGap, 0) - groupGap;
         let yy = h * 0.56 - totalH / 2;
         for (const e of eds) { const rows = rowsOf(e); paint(e, gx, yy, cw, rh, gap, rows, !mute.current[ED_LAYER[e]]); grids.current.push({ editor: e, gx, gy: yy, cw, rh, gap, rows }); yy += rows * (rh + gap) - gap + groupGap; }
       } else {
-        const editor = (SECTIONS[idx].ed ?? "drums"); const rows = rowsOf(editor); const rh = editor === "drums" ? 36 : 24, gap = editor === "drums" ? 10 : 6;
+        const editor = mu.editor ?? "drums"; const rows = rowsOf(editor); const rh = editor === "drums" ? 36 : 24, gap = editor === "drums" ? 10 : 6;
         const totalH = rows * (rh + gap) - gap, gy = h * 0.58 - totalH / 2;
-        paint(editor, gx, gy, cw, rh, gap, rows, enable.current[ED_LAYER[editor]]); grids.current.push({ editor, gx, gy, cw, rh, gap, rows });
+        paint(editor, gx, gy, cw, rh, gap, rows, enable.current[ED_LAYER[editor]] || !ac.current); grids.current.push({ editor, gx, gy, cw, rh, gap, rows });
       }
       raf = requestAnimationFrame(loop);
     };
     loop();
     return () => { cancelAnimationFrame(raf); removeEventListener("resize", resize); cv.removeEventListener("pointerdown", onDown); };
-  }, [started, N, u]);
+  }, [lang]);
 
-  const sec = SECTIONS[step]; const txt = sec[lang];
-  const showMixer = started && (sec.interactive === "mix" || sec.interactive === "studio"); const showFx = sec.interactive === "studio";
+  const mu = node.music!;
+  const showMixer = mu.view === "mix" || mu.view === "studio"; const showFx = mu.view === "studio";
+  const showVibe = node.slug === "rytmus" || mu.view === "studio";
+  const showKeys = mu.rank >= 2;
+  const showHint = !!mu.editor && !showMixer && !showVibe;
 
   return (
-    <>
-      <div style={{ position: "fixed", inset: 0, zIndex: 0 }}><canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} /></div>
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+      <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
 
-      <div style={{ position: "fixed", top: 16, left: 18, zIndex: 6 }}><Link href={homeHref} style={{ fontFamily: sans, fontSize: 12, color: "var(--text-muted)", textDecoration: "none" }}>{u.back}</Link></div>
-      {started && <button onClick={toggleMute} aria-label={muted ? u.unmute : u.mute} style={{ position: "fixed", top: 14, right: 16, zIndex: 7, width: 42, height: 42, borderRadius: 12, border: `2.5px solid ${INK}`, background: "#fff", color: INK, boxShadow: `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16 }}>{muted ? "🔇" : "🔊"}</button>}
+      {/* satelity — synapse kolem hřiště */}
+      <div key={node.slug} style={{ position: "absolute", inset: 0, pointerEvents: "none", animation: "encyMusIn 480ms ease" }}>
+        {(node.satellites ?? []).map((s, i) => {
+          const red = !getNode(s.to);
+          const label = s.label?.[lang] ?? titleOf(s.to, lang);
+          return (
+            <button key={`${s.to}-${i}`} onClick={() => onNavigate(s.to)} title={label}
+              style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%,-50%)", pointerEvents: "auto", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 7, padding: 6, animation: `encyMusFloat ${4 + (i % 4)}s ease-in-out infinite`, opacity: red ? 0.8 : 1 }}>
+              {red ? (
+                <span style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px dashed rgba(26,22,20,0.45)", display: "grid", placeItems: "center", color: "rgba(26,22,20,0.65)", fontFamily: sans, fontSize: 14, fontWeight: 700, background: "rgba(255,255,255,0.6)" }}>?</span>
+              ) : (
+                <span style={{ width: 13, height: 13, borderRadius: "50%", background: INK, boxShadow: "0 0 0 4px rgba(26,22,20,0.12)" }} />
+              )}
+              <span style={{ fontFamily: sans, fontSize: 11, fontWeight: 600, color: "rgba(26,22,20,0.8)", letterSpacing: "0.04em", whiteSpace: "nowrap", maxWidth: 170, overflow: "hidden", textOverflow: "ellipsis" }}>{label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-      {started && (
-        <div style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 7, display: "flex", gap: 6, alignItems: "center", background: "rgba(255,255,255,0.7)", border: `1px solid rgba(26,22,20,0.12)`, borderRadius: 999, padding: "5px 8px", backdropFilter: "blur(10px)" }}>
+      {/* tónina + dur/moll — od basy dál */}
+      {showKeys && (
+        <div style={{ position: "fixed", top: 12, right: 16, zIndex: 21, display: "flex", gap: 6, alignItems: "center", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(26,22,20,0.12)", borderRadius: 999, padding: "5px 8px", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
           {KEYS.map((k) => <button key={k.m} onClick={() => { keyM.current = k.m; setKeyUI(k.m); }} style={mini(keyUI === k.m)}>{k.n}</button>)}
           <span style={{ width: 1, height: 16, background: "rgba(26,22,20,0.15)" }} />
           <button onClick={() => { minor.current = false; setMinorUI(false); }} style={mini(!minorUI)}>{u.major}</button>
@@ -212,37 +229,25 @@ export function MusicBlasterBook({ lang }: { lang: Lang }) {
         </div>
       )}
 
-      {started && (
-        <div style={{ position: "fixed", right: 16, top: "50%", transform: "translateY(-50%)", zIndex: 6, display: "flex", flexDirection: "column", gap: 7 }}>
-          {SECTIONS.map((_, i) => <div key={i} style={{ width: i === step ? 9 : 6, height: i === step ? 9 : 6, borderRadius: "50%", background: i <= step ? INK : "rgba(26,22,20,0.25)", transition: "all .2s" }} />)}
-        </div>
-      )}
-
-      {started && (
-        <div style={{ position: "fixed", left: 0, right: 0, top: "23%", transform: "translateY(-50%)", zIndex: 5, display: "flex", justifyContent: "center", padding: "0 22px", pointerEvents: "none" }}>
-          <div key={step} className="mb-card" style={{ maxWidth: 540, width: "100%", textAlign: "center", background: "rgba(255,255,255,0.72)", border: `1px solid rgba(26,22,20,0.1)`, borderRadius: 22, boxShadow: "0 16px 44px rgba(26,22,20,0.12)", padding: "15px 28px 16px", color: INK, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", pointerEvents: "auto" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 5 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#7b6cf6" }} />
-              <span style={{ fontFamily: sans, fontSize: 11, fontWeight: 700, letterSpacing: "0.24em", color: "var(--text-muted)" }}>{String(step + 1).padStart(2, "0")} / {String(N).padStart(2, "0")}</span>
-            </div>
-            <p style={{ ...display, fontSize: "clamp(20px,4.4vw,28px)", fontWeight: 700, letterSpacing: "-0.025em", marginBottom: 5 }}>{txt.t}</p>
-            <p style={{ fontFamily: sans, fontSize: 14, lineHeight: 1.48, color: "var(--text-secondary)" }}>{txt.p}</p>
-
-            {(sec.interactive === "rhythm" || sec.interactive === "studio") && (<div style={{ marginTop: 11, display: "flex", flexDirection: "column", gap: 7 }}>
-              <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>{VIBES.map((v) => <button key={v.id} onClick={() => applyVibe(v)} style={pill(vibeUI === v.id)}>{v[lang]}</button>)}</div>
-              <Row label={`${u.tempo} · ${bpmUI} BPM`}><input type="range" min={60} max={150} value={bpmUI} onChange={(e) => { const v = +e.target.value; bpm.current = v; setBpmUI(v); if (dly.current) dly.current.delayTime.value = (60 / v / 4) * 3; }} style={{ width: "100%", accentColor: INK }} /></Row>
-              <Row label={`${u.swing} · ${swingUI}%`}><input type="range" min={0} max={60} value={swingUI} onChange={(e) => { const v = +e.target.value; swing.current = v / 100; setSwingUI(v); }} style={{ width: "100%", accentColor: INK }} /></Row>
-            </div>)}
-            {sec.ed && sec.interactive !== "mix" && sec.interactive !== "studio" && <p style={{ fontFamily: sans, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", marginTop: 10 }}>{u.hint}</p>}
-            {step === N - 1 && <Link href={homeHref} style={{ display: "inline-block", marginTop: 10, fontFamily: sans, fontSize: 14, fontWeight: 700, color: INK, textDecoration: "underline", textUnderlineOffset: 3 }}>← Spaghetti.ltd</Link>}
-          </div>
+      {/* styl + tempo + swing — na rytmu a ve studiu */}
+      {showVibe && (
+        <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: showMixer ? "calc(8vh + 150px)" : "9vh", zIndex: 21, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", justifyContent: "center", background: "rgba(255,255,255,0.78)", border: "1px solid rgba(26,22,20,0.12)", borderRadius: 16, padding: "9px 14px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", maxWidth: "calc(100vw - 32px)" }}>
+          <div style={{ display: "flex", gap: 6 }}>{VIBES.map((v) => <button key={v.id} onClick={() => applyVibe(v)} style={pill(vibeUI === v.id)}>{v[lang]}</button>)}</div>
+          <label style={{ fontFamily: sans, fontSize: 10.5, fontWeight: 700, color: "var(--text-muted)", display: "flex", flexDirection: "column", gap: 2 }}>
+            {u.tempo} · {bpmUI} BPM
+            <input type="range" min={60} max={150} value={bpmUI} onChange={(e) => { const v = +e.target.value; bpm.current = v; setBpmUI(v); if (dly.current) dly.current.delayTime.value = (60 / v / 4) * 3; }} style={{ width: 120, accentColor: INK }} />
+          </label>
+          <label style={{ fontFamily: sans, fontSize: 10.5, fontWeight: 700, color: "var(--text-muted)", display: "flex", flexDirection: "column", gap: 2 }}>
+            {u.swing} · {swingUI}%
+            <input type="range" min={0} max={60} value={swingUI} onChange={(e) => { const v = +e.target.value; swing.current = v / 100; setSwingUI(v); }} style={{ width: 100, accentColor: INK }} />
+          </label>
         </div>
       )}
 
       {/* DAW mixer */}
       {showMixer && (
-        <div style={{ position: "fixed", left: 0, right: 0, bottom: "8vh", zIndex: 6, display: "flex", justifyContent: "center", padding: "0 16px" }}>
-          <div style={{ display: "flex", gap: 10, background: "rgba(255,255,255,0.78)", border: `1px solid rgba(26,22,20,0.12)`, borderRadius: 16, boxShadow: "0 10px 30px rgba(26,22,20,0.1)", padding: "10px 14px", backdropFilter: "blur(12px)" }}>
+        <div style={{ position: "fixed", left: 0, right: 0, bottom: "8vh", zIndex: 21, display: "flex", justifyContent: "center", padding: "0 16px" }}>
+          <div style={{ display: "flex", gap: 10, background: "rgba(255,255,255,0.78)", border: "1px solid rgba(26,22,20,0.12)", borderRadius: 16, boxShadow: "0 10px 30px rgba(26,22,20,0.1)", padding: "10px 14px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
             {(["drums", "bass", "chord", "mel"] as Layer[]).map((k) => (
               <Strip key={k} label={u.layers[k]} color={LAYER_COL[k]} vol={volUI[k]} onVol={(v) => setVol(k, v)} muted={muteUI[k]} onMute={() => toggleLayer(k)} on={u.on} off={u.off}
                 fx={showFx ? { label: u.fx[FX_KEY[k]], pct: fxUI[FX_KEY[k]], on: (v: number) => setFx(FX_KEY[k], v) } : undefined} />
@@ -251,30 +256,30 @@ export function MusicBlasterBook({ lang }: { lang: Lang }) {
         </div>
       )}
 
-      {started && step < N - 1 && !showMixer && <div style={{ position: "fixed", bottom: "2vh", left: "50%", transform: "translateX(-50%)", zIndex: 6, fontFamily: sans, fontSize: 12, color: "var(--text-muted)", animation: "mb-bob 2s ease-in-out infinite" }}>{u.scroll} ↓</div>}
-
-      {!started && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 24 }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 640, width: "100%" }}>
-            <p style={{ fontFamily: sans, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: "var(--text-muted)", marginBottom: 26 }}>{u.eyebrow}</p>
-            <MusicHero />
-            <h1 style={{ ...display, fontSize: "clamp(36px,8.5vw,68px)", fontWeight: 700, letterSpacing: "-0.035em", lineHeight: 1.02, margin: "26px 0 28px" }}>{u.title}</h1>
-            <button onClick={start} className="mb-start" style={{ background: INK, color: "#fff", border: `2.5px solid ${INK}`, borderRadius: 16, boxShadow: `5px 5px 0 ${INK}`, padding: "16px 42px", fontFamily: sans, fontSize: 18, fontWeight: 700, cursor: "pointer" }}>{u.start}</button>
-            <p style={{ fontFamily: sans, fontSize: 12.5, lineHeight: 1.5, color: "var(--text-muted)", marginTop: 22, maxWidth: 360 }}>{u.audio}</p>
-          </div>
-        </div>
+      {/* nápověda pod mřížkou */}
+      {showHint && (
+        <div style={{ position: "fixed", left: 0, right: 0, bottom: "10vh", zIndex: 6, textAlign: "center", pointerEvents: "none", fontFamily: sans, fontSize: 12.5, fontWeight: 700, color: "var(--text-muted)" }}>{u.hint}</div>
       )}
 
-      <div ref={trackRef} style={{ height: started ? `${N * 100}vh` : "100vh" }} />
-      <style>{`@keyframes mb-bob { 0%,100%{ transform:translateX(-50%) translateY(0);} 50%{ transform:translateX(-50%) translateY(6px);} } .mb-card{ animation: mb-in .5s cubic-bezier(.22,1,.36,1);} @keyframes mb-in{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;} }
-        .mb-start{ transition: transform .12s ease, box-shadow .12s ease; } .mb-start:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 ${INK}; } .mb-start:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 ${INK}; }`}</style>
-    </>
+      {/* zapnutí zvuku / mute */}
+      {!audioOn ? (
+        <button onClick={start}
+          style={{ position: "fixed", bottom: 18, left: 18, zIndex: 22, background: INK, color: "#fff", border: "none", borderRadius: 999, padding: "10px 20px", fontFamily: sans, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,0.18)", animation: "encyMusFloat 3s ease-in-out infinite" }}>
+          {u.audio}
+        </button>
+      ) : (
+        <button onClick={toggleMute} aria-label={muted ? u.unmute : u.mute} title={muted ? u.unmute : u.mute}
+          style={{ position: "fixed", bottom: 18, left: 18, zIndex: 22, width: 42, height: 42, borderRadius: 12, border: `2.5px solid ${INK}`, background: "#fff", color: INK, boxShadow: `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16 }}>{muted ? "🔇" : "🔊"}</button>
+      )}
+
+      <style>{`
+        @keyframes encyMusFloat { 0%,100% { margin-top: -2px; } 50% { margin-top: 2px; } }
+        @keyframes encyMusIn { from { opacity: 0; } to { opacity: 1; } }
+      `}</style>
+    </div>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div><div style={{ fontFamily: sans, fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 3, textAlign: "left" }}>{label}</div>{children}</div>;
-}
 function Strip({ label, color, vol, onVol, muted, onMute, on, off, fx }: { label: string; color: string; vol: number; onVol: (v: number) => void; muted: boolean; onMute: () => void; on: string; off: string; fx?: { label: string; pct: number; on: (v: number) => void } }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, width: 92 }}>
@@ -285,29 +290,12 @@ function Strip({ label, color, vol, onVol, muted, onMute, on, off, fx }: { label
     </div>
   );
 }
-const pill = (active: boolean): React.CSSProperties => ({ padding: "7px 14px", borderRadius: 999, border: `2px solid ${INK}`, background: active ? INK : "transparent", color: active ? "#fff" : INK, fontFamily: sans, fontSize: 12, fontWeight: 700, cursor: "pointer" });
+const pill = (active: boolean): React.CSSProperties => ({ padding: "6px 12px", borderRadius: 999, border: `2px solid ${INK}`, background: active ? INK : "transparent", color: active ? "#fff" : INK, fontFamily: sans, fontSize: 12, fontWeight: 700, cursor: "pointer" });
 const mini = (active: boolean): React.CSSProperties => ({ padding: "4px 9px", borderRadius: 999, border: "none", background: active ? INK : "transparent", color: active ? "#fff" : INK, fontFamily: sans, fontSize: 12, fontWeight: 700, cursor: "pointer" });
-
-function MusicHero() {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const cv = ref.current; if (!cv) return; const ctx = cv.getContext("2d"); if (!ctx) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1); const CH = 104; let w = 0;
-    const fit = () => { w = Math.min(560, cv.parentElement?.clientWidth || 560); cv.style.width = w + "px"; cv.style.height = CH + "px"; cv.width = w * dpr; cv.height = CH * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
-    fit(); const onR = () => fit(); addEventListener("resize", onR);
-    let t = 0, raf = 0; const cols = ["#e8556d", "#f4a259", "#4eb4cf", "#7b6cf6"];
-    const loop = () => {
-      ctx.clearRect(0, 0, w, CH); const n = 22, bw = w / n, base = CH * 0.9;
-      for (let i = 0; i < n; i++) { const hgt = (0.2 + 0.8 * Math.abs(Math.sin(t * 1.6 + i * 0.6) * Math.cos(t * 0.7 + i))) * CH * 0.7; ctx.globalAlpha = 0.85; ctx.fillStyle = cols[i % 4]; roundRect(ctx, i * bw + bw * 0.2, base - hgt, bw * 0.6, hgt, 3); ctx.fill(); }
-      ctx.globalAlpha = 1; t += 0.03; raf = requestAnimationFrame(loop);
-    };
-    loop(); return () => { cancelAnimationFrame(raf); removeEventListener("resize", onR); };
-  }, []);
-  return <canvas ref={ref} style={{ display: "block", margin: "0 auto", width: "100%", maxWidth: 560 }} />;
-}
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) { const rr = Math.min(r, h / 2, w / 2); ctx.beginPath(); ctx.moveTo(x + rr, y); ctx.arcTo(x + w, y, x + w, y + h, rr); ctx.arcTo(x + w, y + h, x, y + h, rr); ctx.arcTo(x, y + h, x, y, rr); ctx.arcTo(x, y, x + w, y, rr); ctx.closePath(); }
 function shaperCurve(amount: number) { const n = 1024, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.tanh(x * amount) / Math.tanh(amount); } return c; }
+function impulse(a: AudioContext, sec: number, decay: number) { const L = (a.sampleRate * sec) | 0; const b = a.createBuffer(2, L, a.sampleRate); for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, decay); } return b; }
 function noise(a: AudioContext, sec: number) { const L = (a.sampleRate * sec) | 0; const b = a.createBuffer(1, L, a.sampleRate); const d = b.getChannelData(0); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, 1.5); return b; }
 function kick(a: AudioContext, out: AudioNode, t: number) {
   const o = a.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(46, t + 0.1);

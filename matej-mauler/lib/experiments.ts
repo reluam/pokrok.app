@@ -91,7 +91,7 @@ export const experiments: ExperimentMeta[] = [
     slug: "musicblaster",
     emoji: "🎶",
     color: "#efe9fb",
-    href: "/music-blaster",
+    href: "/hudba",
     wip: true,
   },
   {

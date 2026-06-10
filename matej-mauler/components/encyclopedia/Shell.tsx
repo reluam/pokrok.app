@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/lib/encyclopedia/graph";
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
 import { SoundRealm } from "./SoundRealm";
+import { MusicRealm } from "./MusicRealm";
 import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
@@ -120,9 +121,9 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     <>
       {/* realm (pozadí + interaktivní obsah) */}
       {node ? (
-        node.realm === "space"
-          ? <SpaceRealm node={node} lang={lang} dir={dir} onNavigate={dive} />
-          : <SoundRealm node={node} lang={lang} onNavigate={dive} />
+        node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} onNavigate={dive} />
+        : node.realm === "sound" ? <SoundRealm node={node} lang={lang} onNavigate={dive} />
+        : <MusicRealm node={node} lang={lang} onNavigate={dive} />
       ) : (
         <RedLink slug={slug} lang={lang} />
       )}

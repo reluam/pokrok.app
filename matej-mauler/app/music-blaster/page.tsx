@@ -1,12 +1,8 @@
-import { MusicBlasterBook } from "@/components/MusicBlasterBook";
-import { getLang } from "@/lib/getLang";
-import { guardExperiment } from "@/lib/experimentsDb";
+import { permanentRedirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Jak vzniká hudba — Spaghetti.ltd" };
 
-export default async function MusicBlasterPage() {
-  await guardExperiment("musicblaster");
-  const lang = await getLang();
-  return <MusicBlasterBook lang={lang} />;
+// Music Blaster se stal trasou encyklopedie → /hudba
+export default function MusicBlasterPage() {
+  permanentRedirect("/hudba");
 }
