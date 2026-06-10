@@ -32,12 +32,12 @@ const HIT_IDS = new Set(["piano", "knock", "stone"]);
 
 const MED: Record<Medium, { top: number[]; bot: number[]; speed: number; dot: number[]; filt: number; ms: string }> = {
   air: { top: [250, 250, 247], bot: [238, 243, 251], speed: 1, dot: [26, 22, 20], filt: 18000, ms: "~340 m/s" },
-  water: { top: [207, 230, 255], bot: [127, 182, 224], speed: 1.5, dot: [13, 59, 102], filt: 600, ms: "~1480 m/s" },
-  solid: { top: [239, 231, 218], bot: [203, 184, 154], speed: 2.6, dot: [70, 48, 22], filt: 4500, ms: "~5100 m/s" },
+  water: { top: [201, 227, 255], bot: [86, 158, 214], speed: 2.4, dot: [11, 71, 130], filt: 340, ms: "~1480 m/s" },
+  solid: { top: [240, 228, 206], bot: [191, 162, 116], speed: 4.6, dot: [92, 58, 16], filt: 7000, ms: "~5100 m/s" },
   space: { top: [5, 6, 15], bot: [5, 6, 15], speed: 0, dot: [200, 205, 230], filt: 8000, ms: "" },
 };
 
-type Mode = "flow" | "disk" | "reflect";
+type Mode = "flow" | "disk" | "reflect" | "compare";
 type Sec = {
   cs: { t: string; p: string }; en: { t: string; p: string };
   freqMul: number; gainMul: number; filter: number; rows: number;
@@ -50,17 +50,17 @@ const SECTIONS: Sec[] = [
   { cs: { t: "Jde všemi směry", p: "Ze zdroje se zvuk šíří na všechny strany zároveň — kulové vlny, co pořád dokola hustí a řídnou vzduch kolem." }, en: { t: "It goes everywhere", p: "From the source, sound spreads in every direction at once — spheres of squeeze and spread, over and over." }, freqMul: 0.9, gainMul: 0.9, filter: 18000, rows: 7, medium: "air", mode: "disk" },
   { cs: { t: "Potřebuje médium", p: "Aby se vlna nesla, musí mít co strkat — vzduch, vodu, zeď. V dokonale prázdném prostoru není co rozhýbat." }, en: { t: "It needs a medium", p: "To travel, the wave needs something to push — air, water, a wall. In truly empty space there's nothing to move." }, freqMul: 0.9, gainMul: 0.9, filter: 18000, rows: 3, medium: "air" },
   { cs: { t: "Zkus různá prostředí", p: "Vzduch, voda, železo vedle sebe. Výška zůstává stejná — to dělá zdroj. Ale v hutnějším prostředí letí zvuk rychleji a vlna se roztáhne: komprese jsou od sebe dál." }, en: { t: "Try different media", p: "Air, water, iron side by side. The pitch stays the same — that's set by the source. But in a denser medium sound travels faster and the wave stretches: the squeezes spread further apart." }, freqMul: 1, gainMul: 0.95, filter: 18000, rows: 5, medium: "air", interactive: "medium" },
+  { cs: { t: "Jak se kreslí vs. jak se chová", p: "Zvuk se nejčastěji kreslí jako vlnka nahoru a dolů (nahoře). Ale doopravdy se vzduch jen hustí a řídne podél směru (dole). Obě křivky říkají totéž — jen ta dolní je pravdivá." }, en: { t: "How it's drawn vs. how it behaves", p: "Sound is most often drawn as a wiggle up and down (top). But really the air just squeezes and spreads along the direction (bottom). Both say the same thing — the lower one is the true picture." }, freqMul: 0.8, gainMul: 0.9, filter: 18000, rows: 1, medium: "air", mode: "compare" },
   { cs: { t: "Výška = frekvence", p: "Jak hustě jdou komprese za sebou, taková je výška. Posuň ucho vlevo (basa) ↔ vpravo (výška). Co naladíš, to si neseš dál." }, en: { t: "Pitch = frequency", p: "How tightly the squeezes follow each other sets the pitch. Move your ear left (bass) ↔ right (treble). Whatever you tune stays with you." }, freqMul: 1, gainMul: 0.9, filter: 18000, rows: 5, medium: "air", interactive: "freq" },
   { cs: { t: "Hlasitost = amplituda", p: "Jak daleko částice z místa vyrazí, tak je to hlasité. Blíž ke středu vlny = hlasitěji, k okraji = tišeji." }, en: { t: "Loudness = amplitude", p: "How far the particles dart from their spot is how loud it is. Closer to the wave's center = louder, near the edge = softer." }, freqMul: 1, gainMul: 1, filter: 18000, rows: 5, medium: "air", interactive: "amp" },
   { cs: { t: "Barva zvuku", p: "Každé pásmo je jiný nástroj — od čistého tónu po housle a klavír. Přejížděj uchem a poslouchej, čím se liší. Co posloucháš naposled, to si neseš dál." }, en: { t: "The color of sound", p: "Each band is a different instrument — from a pure tone to violin and piano. Glide your ear across and hear how they differ. Whatever you hear last, you carry on." }, freqMul: 1, gainMul: 0.9, filter: 18000, rows: 7, medium: "air", interactive: "wave" },
   { cs: { t: "Odraz a ozvěna", p: "Vyber si zvuk a poslouchej, jak se odrazí od zdi a vrací se zpět — znova a znova, jak doznívá. To je ozvěna." }, en: { t: "Reflection and echo", p: "Pick a sound and hear it bounce off the wall and come back — again and again as it fades. That's an echo." }, freqMul: 0.9, gainMul: 0.95, filter: 18000, rows: 5, medium: "air", mode: "reflect", interactive: "wave" },
-  { cs: { t: "Ve vesmíru ticho", p: "Ve vesmíru nejsou skoro žádné částice. Není co strkat — a tak je dokonalé ticho. Ucho sem dej, kam chceš, neuslyšíš nic." }, en: { t: "Silence in space", p: "Space has almost no particles. Nothing to push — so it's perfect silence. Put your ear anywhere here, you'll hear nothing." }, freqMul: 1, gainMul: 0, filter: 8000, rows: 3, medium: "space" },
   { cs: { t: "A to je celé", p: "Zvuk je rozhýbaný vzduch, co doběhne k uchu. Umíš mu měnit výšku, hlasitost i barvu, umíš ho odrazit i utišit. Teď ho slyšíš — i vidíš." }, en: { t: "That's all there is", p: "Sound is moved air reaching your ear. You can change its pitch, loudness and color, bounce it and quiet it. Now you hear it — and see it." }, freqMul: 1, gainMul: 0.95, filter: 18000, rows: 1, medium: "air" },
 ];
 
 const UI = {
-  cs: { back: "← Spaghetti.ltd", eyebrow: "Zvuková experience", title: "Cesta po zvukové vlně", start: "Start ▶", audio: "🔊 Zapni si zvuk. Tvůj kurzor je ucho — slyšíš jen to, co máš pod ním.", scroll: "scrolluj dolů", mute: "Ztlumit", unmute: "Zvuk", toMusic: "Pokračovat: jak vzniká hudba →", coach: "👂 Zaparkuj ucho na vlnu", hintFreq: "← basa · výška →", hintAmp: "blíž ke středu = hlasitěji", hintZone: "👂 přejížděj uchem po pásmech", media: { air: "vzduch", water: "voda", solid: "železo" }, tracerNote: "jen se kývu na místě" },
-  en: { back: "← Spaghetti.ltd", eyebrow: "A sound experience", title: "A journey along a sound wave", start: "Start ▶", audio: "🔊 Turn your sound on. Your cursor is an ear — you only hear what's under it.", scroll: "scroll down", mute: "Mute", unmute: "Sound", toMusic: "Next: how music is made →", coach: "👂 Park your ear on the wave", hintFreq: "← bass · treble →", hintAmp: "closer to center = louder", hintZone: "👂 glide your ear across the bands", media: { air: "air", water: "water", solid: "iron" }, tracerNote: "I just bob in place" },
+  cs: { back: "← Spaghetti.ltd", eyebrow: "Zvuková experience", title: "Cesta po zvukové vlně", start: "Start ▶", audio: "🔊 Zapni si zvuk. Tvůj kurzor je ucho — slyšíš jen to, co máš pod ním.", scroll: "scrolluj dolů", mute: "Ztlumit", unmute: "Zvuk", toMusic: "Pokračovat: jak vzniká hudba →", coach: "👂 Zaparkuj ucho na vlnu", hintFreq: "← basa · výška →", hintAmp: "blíž ke středu = hlasitěji", hintZone: "👂 přejížděj uchem po pásmech", media: { air: "vzduch", water: "voda", solid: "železo" }, tracerNote: "jen se kývu na místě", drawnAs: "takhle se zvuk obvykle kreslí", reallyAs: "takhle se doopravdy chová" },
+  en: { back: "← Spaghetti.ltd", eyebrow: "A sound experience", title: "A journey along a sound wave", start: "Start ▶", audio: "🔊 Turn your sound on. Your cursor is an ear — you only hear what's under it.", scroll: "scroll down", mute: "Mute", unmute: "Sound", toMusic: "Next: how music is made →", coach: "👂 Park your ear on the wave", hintFreq: "← bass · treble →", hintAmp: "closer to center = louder", hintZone: "👂 glide your ear across the bands", media: { air: "air", water: "water", solid: "iron" }, tracerNote: "I just bob in place", drawnAs: "how sound is usually drawn", reallyAs: "how it actually behaves" },
 } as const;
 
 const NOTE = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
@@ -85,6 +85,8 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
   const filt = useRef<BiquadFilterNode | null>(null);
   const master = useRef<GainNode | null>(null);
   const echoSend = useRef<GainNode | null>(null);
+  const echoFb = useRef<GainNode | null>(null);
+  const revWet = useRef<GainNode | null>(null);
   const lastVoice = useRef("sine");
   const pointer = useRef({ x: 0, y: 0, active: false });
   const everOn = useRef(false);
@@ -108,7 +110,7 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
     lv.connect(ms); lv.connect(conv).connect(wet).connect(ms);
     lv.connect(es); es.connect(dly); dly.connect(fb); fb.connect(dly); dly.connect(eo).connect(ms);
     ms.connect(a.destination);
-    osc.current = o; level.current = lv; filt.current = f; master.current = ms; echoSend.current = es;
+    osc.current = o; level.current = lv; filt.current = f; master.current = ms; echoSend.current = es; echoFb.current = fb; revWet.current = wet;
     applyVoice(userVoice.current); lastVoice.current = userVoice.current; o.start();
     setStarted(true);
   };
@@ -155,7 +157,7 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       const zones = zonesFor(s, fieldX0, FW); const multi = zones.length > 1; const lastZone = zones[zones.length - 1];
 
       const pt = coarse ? { x: w / 2, y: mid, active: started } : pointer.current;
-      const onBand = started && pt.active && (mode === "disk" ? Math.hypot(pt.x - w / 2, pt.y - mid) < R : (Math.abs(pt.y - mid) < half + 22 && pt.x >= fieldX0 - 8 && pt.x <= fieldX1 + 8));
+      const onBand = started && pt.active && (mode === "disk" ? Math.hypot(pt.x - w / 2, pt.y - mid) < R : ((mode === "compare" ? Math.abs(pt.y - mid) < 110 : Math.abs(pt.y - mid) < half + 22) && pt.x >= fieldX0 - 8 && pt.x <= fieldX1 + 8));
       if (onBand && !everOn.current) { everOn.current = true; setCoachDone(true); }
       const az: Zone | null = onBand ? (zones.find((z) => pt.x >= z.x0 && pt.x < z.x1) ?? lastZone) : null;
       const azHit = s.interactive === "wave" && !!az && HIT_IDS.has(az.voice);
@@ -185,7 +187,9 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
         osc.current.frequency.setTargetAtTime(cur.freq, now, 0.05);
         level.current.gain.setTargetAtTime(cur.level * 0.16, now, 0.05);
         filt.current.frequency.setTargetAtTime(cur.filter, now, 0.08);
-        echoSend.current?.gain.setTargetAtTime(mode === "reflect" ? 0.55 : 0, now, 0.12);
+        echoSend.current?.gain.setTargetAtTime(mode === "reflect" ? 1 : 0, now, 0.12);
+        echoFb.current?.gain.setTargetAtTime(mode === "reflect" ? 0.62 : 0.42, now, 0.2);
+        revWet.current?.gain.setTargetAtTime(mode === "reflect" ? 0.6 : 0.2, now, 0.2);
         if (voiceEff !== lastVoice.current) { applyVoice(voiceEff); lastVoice.current = voiceEff; }
       }
       // reálné údery (piano/šťouchnutí/kámen) — opakovaně, dokud je ucho na pásmu
@@ -206,7 +210,7 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
       const wv = (vid: string, t: number) => waveVal(vid, t);
 
       // vodítko, kde vlna „bydlí"
-      if (mode !== "disk" && cur.space < 0.3) { ctx.globalAlpha = (onBand ? 0.05 : 0.09) * cur.fade; ctx.fillStyle = INK; roundRect(ctx, fieldX0, mid - half, FW, half * 2, half); ctx.fill(); ctx.globalAlpha = 1; }
+      if (mode !== "disk" && mode !== "compare" && cur.space < 0.3) { ctx.globalAlpha = (onBand ? 0.05 : 0.09) * cur.fade; ctx.fillStyle = INK; roundRect(ctx, fieldX0, mid - half, FW, half * 2, half); ctx.fill(); ctx.globalAlpha = 1; }
 
       if (multi) {
         ctx.textAlign = "center";
@@ -220,7 +224,22 @@ export function SoundBlasterBook({ lang }: { lang: Lang }) {
         ctx.globalAlpha = 1;
       }
 
-      if (mode === "disk") {
+      if (mode === "compare") {
+        const topY = mid - 64, botY = mid + 48;
+        // nahoře: klasická oscilační (čárová) vlna
+        ctx.globalAlpha = pAlpha; ctx.strokeStyle = INK; ctx.lineWidth = 2.6; ctx.beginPath();
+        for (let i = 0; i <= 140; i++) { const xx = fieldX0 + (i / 140) * FW, nx2 = i / 140; const yy = topY + Math.sin(nx2 * K - phase) * 30; i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); }
+        ctx.stroke();
+        // dole: skutečná podélná částicová vlna (1 řada)
+        const Mc = 70, sp = FW / Mc, Ac = sp * 1.3 * Math.max(cur.level, 0.4);
+        const xs2: number[] = new Array(Mc);
+        for (let i = 0; i < Mc; i++) { const bx = fieldX0 + (i + 0.5) * sp; xs2[i] = bx + Ac * Math.sin(((bx - fieldX0) / FW) * K - phase); }
+        for (let i = 0; i < Mc; i++) { const comp = i > 0 ? clamp(1 - (xs2[i] - xs2[i - 1]) / sp, 0, 1) : 0; ctx.globalAlpha = pAlpha * (0.4 + comp * 0.5); ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(xs2[i], botY, 2 + comp * 1.7, 0, 7); ctx.fill(); }
+        // popisky
+        ctx.globalAlpha = pAlpha * 0.7; ctx.fillStyle = INK; ctx.font = "700 12px system-ui"; ctx.textAlign = "left";
+        ctx.fillText("↑ " + u.drawnAs, fieldX0, topY - 34); ctx.fillText("↓ " + u.reallyAs, fieldX0, botY + 40);
+        ctx.globalAlpha = 1;
+      } else if (mode === "disk") {
         const cxp = w / 2, cyp = mid, gap = 30, Kd = K * 0.5;
         for (let gy = cyp - R; gy <= cyp + R; gy += gap) for (let gx = cxp - R; gx <= cxp + R; gx += gap) {
           const dx0 = gx - cxp, dy0 = gy - cyp, r = Math.hypot(dx0, dy0); if (r > R || r < gap * 0.5) continue;
