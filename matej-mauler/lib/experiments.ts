@@ -98,6 +98,6 @@ export const experiments: ExperimentMeta[] = [
     slug: "space",
     emoji: "🌌",
     color: "#C7D2FE",
-    href: "/space",
+    href: "/vesmir",
   },
 ];

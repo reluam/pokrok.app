@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPublicExperiments } from "@/lib/experimentsDb";
+import { NODES } from "@/lib/encyclopedia/nodes";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.7,
     });
+  }
+
+  // hesla encyklopedie (červené odkazy ne — ty jsou noindex)
+  for (const slug of Object.keys(NODES)) {
+    if (slug === "vesmir") continue; // už je v experimentech přes href /vesmir
+    entries.push({ url: `${SITE}/${slug}`, lastModified: now, changeFrequency: "monthly", priority: 0.6 });
   }
 
   return entries;

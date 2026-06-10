@@ -1,12 +1,8 @@
-import { SpaceView } from "@/components/SpaceView";
-import { getLang } from "@/lib/getLang";
-import { guardExperiment } from "@/lib/experimentsDb";
+import { permanentRedirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Space — Spaghetti.ltd" };
 
-export default async function SpacePage() {
-  await guardExperiment("space");
-  const lang = await getLang();
-  return <SpaceView lang={lang} />;
+// Space se stal prvním realmem encyklopedie → /vesmir
+export default function SpacePage() {
+  permanentRedirect("/vesmir");
 }

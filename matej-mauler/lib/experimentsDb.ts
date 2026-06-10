@@ -43,6 +43,7 @@ async function ensure(sql: Sql) {
   // korekce přejmenovaných routes (idempotentní)
   await sql`UPDATE experiments SET href = '/time-remaining' WHERE slug = 'cas' AND href = '/kolik-ti-zbyva'`;
   await sql`UPDATE experiments SET href = '/sound-blaster' WHERE slug = 'soundverse' AND href = '/sound-universe'`;
+  await sql`UPDATE experiments SET href = '/vesmir' WHERE slug = 'space' AND href = '/space'`;
   ready = true;
 }
 
