@@ -12,14 +12,14 @@ const UI = {
   cs: {
     home: "← Spaghetti.ltd", eyebrow: "Encyklopedie", search: "Hledat", searchPh: "Hledej heslo… (třeba „slunce“)",
     empty: "Nic. Encyklopedie je mladá — zkus to jinak.", red: "neprobádáno",
-    endHint: "konec větve — vrať se výš, nebo odboč klikem",
+    endHint: "konec větve — vrať se výš, nebo odboč klikem", map: "Mapa všeho",
     redText: "Tohle téma encyklopedie zná, ale zatím ho nikdo neprobádal. Jednou tu bude — pravděpodobně neškodné.",
     wish: "Chci tohle téma", wished: "Zaznamenáno ✓", wishes: (n: number) => `${n}× přáno`,
   },
   en: {
     home: "← Spaghetti.ltd", eyebrow: "Encyclopedia", search: "Search", searchPh: "Search a topic… (try “sun”)",
     empty: "Nothing. The encyclopedia is young — try something else.", red: "uncharted",
-    endHint: "end of this branch — go back up, or click a detour",
+    endHint: "end of this branch — go back up, or click a detour", map: "Map of everything",
     redText: "The encyclopedia knows about this topic, but nobody has charted it yet. One day it will be here — probably harmless.",
     wish: "I want this topic", wished: "Noted ✓", wishes: (n: number) => `wished ${n}×`,
   },
@@ -73,7 +73,8 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   // zpět/vpřed prohlížeče
   useEffect(() => {
     const onPop = () => {
-      const s = location.pathname.replace(/^\//, "");
+      const p = location.pathname.replace(/^\//, "");
+      const s = p === "" || p === "cs" ? "brana" : p;
       if (getNode(s) || isRedLink(s)) { setDir("jump"); setSlug(s); setTrail([]); }
       else location.reload();
     };
@@ -113,7 +114,16 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     };
   }, []);
 
-  useEffect(() => { document.title = `${titleOf(slug, lang)} — Spaghetti.ltd`; }, [slug, lang]);
+  useEffect(() => { document.title = slug === "brana" ? "Spaghetti.ltd" : `${titleOf(slug, lang)} — Spaghetti.ltd`; }, [slug, lang]);
+
+  const switchLang = () => {
+    const target = lang === "cs" ? "en" : "cs";
+    document.cookie = `lang=${target}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    const p = location.pathname;
+    if (p === "/cs" && target === "en") location.href = "/";
+    else if (p === "/" && target === "cs") location.href = "/cs";
+    else location.reload();
+  };
 
   const upTarget = trail.length ? trail[trail.length - 1] : node?.up;
 
@@ -142,14 +152,33 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
                   ✦ {node.features.map((f) => f[lang]).join(" · ")}
                 </p>
               )}
+              {node.links && node.links.length > 0 && (
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, marginTop: 14, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
+                  {node.links.map((l) => (
+                    <Link key={l.href} href={l.href} style={{ color: C.text, textDecoration: "underline", textUnderlineOffset: 3 }}>{l.label[lang]}</Link>
+                  ))}
+                </p>
+              )}
             </div>
           </div>
         </div>
       )}
 
       {/* chrome */}
-      <div style={{ position: "fixed", top: 16, left: 20, zIndex: 20 }}>
-        <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: C.home, textDecoration: "none" }}>{u.home}</Link>
+      {slug !== "brana" && (
+        <div style={{ position: "fixed", top: 16, left: 20, zIndex: 20 }}>
+          <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: C.home, textDecoration: "none" }}>{u.home}</Link>
+        </div>
+      )}
+
+      {/* mapa + jazyk */}
+      <div style={{ position: "fixed", bottom: 18, right: 18, zIndex: 20, display: "flex", gap: 8, alignItems: "center" }}>
+        <Link href="/mapa" title={u.map} aria-label={u.map}
+          style={{ width: 34, height: 34, borderRadius: 10, display: "grid", placeItems: "center", background: C.pillBg, border: `1px solid ${C.pillBorder}`, textDecoration: "none", fontSize: 15, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>🗺</Link>
+        <button onClick={switchLang} title={lang === "cs" ? "English" : "Čeština"}
+          style={{ height: 34, padding: "0 10px", borderRadius: 10, background: C.pillBg, border: `1px solid ${C.pillBorder}`, color: C.pillText, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          {lang === "cs" ? "EN" : "CS"}
+        </button>
       </div>
 
       <button onClick={() => setSearchOpen(true)}

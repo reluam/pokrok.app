@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { HomeContent } from "@/components/HomeContent";
+import { EncyclopediaShell } from "@/components/encyclopedia/Shell";
 import { dictionaries } from "@/lib/dictionaries";
-import { getPublicExperiments } from "@/lib/experimentsDb";
-import { getPublicSongs } from "@/lib/songsDb";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +13,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function HomeCs() {
-  const [items, songs] = await Promise.all([getPublicExperiments("cs"), getPublicSongs("cs", 3)]);
-  return <HomeContent dict={dictionaries.cs} lang="cs" items={items} songs={songs} />;
+// Brána encyklopedie — heslo nad vesmírem. Scroll dolů = do vesmíru.
+export default function HomeCs() {
+  return <EncyclopediaShell initialSlug="brana" lang="cs" />;
 }

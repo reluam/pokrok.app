@@ -13,6 +13,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [
     { url: `${SITE}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE}/cs`, lastModified: now, changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE}/mapa`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${SITE}/archiv`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE}/songs`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
   ];
 
@@ -29,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // hesla encyklopedie (červené odkazy ne — ty jsou noindex)
   for (const slug of Object.keys(NODES)) {
-    if (slug === "vesmir") continue; // už je v experimentech přes href /vesmir
+    if (slug === "vesmir" || slug === "brana") continue; // vesmir je v experimentech, brána = "/"
     entries.push({ url: `${SITE}/${slug}`, lastModified: now, changeFrequency: "monthly", priority: 0.6 });
   }
 

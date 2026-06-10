@@ -70,7 +70,9 @@ export function SpaceRealm({ node, lang, dir, onNavigate }: { node: NodeDef; lan
           return (
             <button key={`${s.to}-${i}`} onClick={() => onNavigate(s.to)} title={label}
               style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%,-50%)", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: 6, animation: `encyFloat ${4 + (i % 4)}s ease-in-out infinite`, opacity: red ? 0.75 : 1 }}>
-              {def ? (
+              {s.emoji ? (
+                <span style={{ fontSize: (s.size ?? 40) * 0.85, lineHeight: 1, filter: "drop-shadow(0 0 14px rgba(255,255,255,0.35))" }}>{s.emoji}</span>
+              ) : def ? (
                 <SpaceBody kind={def.kind} px={s.size ?? 40} tint={def.tint} />
               ) : red ? (
                 <span style={{ width: 34, height: 34, borderRadius: "50%", border: "1.5px dashed rgba(255,255,255,0.5)", display: "grid", placeItems: "center", color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700 }}>?</span>

@@ -29,7 +29,28 @@ export const SEEDS: Record<string, Bilingual> = {
    soustava → Slunce → Země → Měsíc. Všechno ostatní jsou odbočky. */
 const N: NodeDef[] = [
   {
-    slug: "vesmir", realm: "space",
+    slug: "brana", realm: "space",
+    title: { cs: "Spaghetti.ltd", en: "Spaghetti.ltd" },
+    guide: {
+      cs: "Interaktivní encyklopedie, ve které se dá přeskakovat. Každé heslo je hřiště: scrolluj dolů a noř se z obecného do konkrétního, klikej na to, co pluje kolem, a odbočuj, kam tě to táhne. Každý týden přibude nové téma. Převážně neškodná.",
+      en: "An interactive encyclopedia you can skip around in. Every entry is a playground: scroll down to dive from the general to the specific, click whatever floats by and take detours wherever they pull you. A new topic lands every week. Mostly harmless.",
+    },
+    next: "vesmir",
+    satellites: [
+      { to: "vesmir", object: "milkyway", x: 50, y: 79, size: 100 },
+      { to: "zvuk", emoji: "🔊", x: 18, y: 28 },
+      { to: "hudba", emoji: "🎶", x: 82, y: 28 },
+      { to: "mesic", object: "moon", x: 13, y: 64, size: 30 },
+      { to: "slunce", object: "sun", x: 87, y: 65, size: 36 },
+      { to: "voyager-1", object: "voyager", x: 60, y: 13, size: 30 },
+    ],
+    links: [
+      { href: "/mapa", label: { cs: "🗺 Mapa všeho", en: "🗺 Map of everything" } },
+      { href: "/archiv", label: { cs: "🧪 Laboratoř", en: "🧪 The lab" } },
+    ],
+  },
+  {
+    slug: "vesmir", realm: "space", up: "brana",
     title: { cs: "Vesmír", en: "The Universe" },
     guide: {
       cs: "Všechno, co existuje, na jednom místě. Převážně prázdný, místy spektakulární, vcelku neškodný. Tohle je tvůj kosmický dvorek — scrolluj dolů a přibližuj se až domů, nebo klikni na cokoliv, co tě cestou zaujme.",

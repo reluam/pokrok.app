@@ -1,0 +1,182 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { NODES } from "@/lib/encyclopedia/nodes";
+import { redLinks, titleOf } from "@/lib/encyclopedia/graph";
+import type { Lang } from "@/lib/dictionaries";
+
+const REALM_COL: Record<string, string> = { space: "#8b9cf6", sound: "#e8556d", music: "#b07ef6" };
+const RED_COL = "#8a90a0";
+
+type MapNode = { slug: string; label: string; realm: string | null; depth: number; x: number; y: number; r: number };
+type Edge = { a: number; b: number; red: boolean };
+
+const UI = {
+  cs: { back: "← Spaghetti.ltd", eyebrow: "Encyklopedie", title: "Mapa všeho", legend: { space: "vesmír", sound: "zvuk", music: "hudba", red: "neprobádáno" }, hint: "obecné nahoře · konkrétní dole · klikni a jdi" },
+  en: { back: "← Spaghetti.ltd", eyebrow: "Encyclopedia", title: "Map of everything", legend: { space: "space", sound: "sound", music: "music", red: "uncharted" }, hint: "general up top · specific below · click to go" },
+} as const;
+
+/** Hierarchická hloubka: řetězec up-vazeb až k bráně. Červené odkazy = pod prvním odkazujícím. */
+function buildGraph(lang: Lang): { nodes: MapNode[]; edges: Edge[]; maxDepth: number } {
+  const depth: Record<string, number> = {};
+  const depthOf = (slug: string, seen: Set<string> = new Set()): number => {
+    if (depth[slug] !== undefined) return depth[slug];
+    if (seen.has(slug)) return 0;
+    seen.add(slug);
+    const up = NODES[slug]?.up;
+    const d = up ? depthOf(up, seen) + 1 : 0;
+    depth[slug] = d;
+    return d;
+  };
+  Object.keys(NODES).forEach((s) => depthOf(s));
+
+  const nodes: MapNode[] = Object.values(NODES).map((n) => ({
+    slug: n.slug, label: n.title[lang], realm: n.realm, depth: depth[n.slug], x: 0, y: 0, r: n.slug === "brana" ? 10 : 7,
+  }));
+  // červené odkazy pod prvním referrerem
+  for (const red of redLinks()) {
+    let d = 1;
+    for (const n of Object.values(NODES)) {
+      if ((n.satellites ?? []).some((s) => s.to === red)) { d = depth[n.slug] + 1; break; }
+    }
+    nodes.push({ slug: red, label: titleOf(red, lang), realm: null, depth: d, x: 0, y: 0, r: 5 });
+  }
+
+  const idx = Object.fromEntries(nodes.map((n, i) => [n.slug, i]));
+  const seen = new Set<string>();
+  const edges: Edge[] = [];
+  const add = (a: string, b: string) => {
+    if (idx[a] === undefined || idx[b] === undefined || a === b) return;
+    const key = [a, b].sort().join("→");
+    if (seen.has(key)) return;
+    seen.add(key);
+    edges.push({ a: idx[a], b: idx[b], red: !NODES[a] || !NODES[b] });
+  };
+  for (const n of Object.values(NODES)) {
+    if (n.up) add(n.slug, n.up);
+    if (n.next) add(n.slug, n.next);
+    for (const s of n.satellites ?? []) add(n.slug, s.to);
+  }
+  return { nodes, edges, maxDepth: Math.max(...nodes.map((n) => n.depth)) };
+}
+
+/** Rozmístění: y podle hloubky, x relaxací k sousedům + rozestupy v řadě. Deterministické. */
+function layout(nodes: MapNode[], edges: Edge[], maxDepth: number, w: number, h: number) {
+  const padT = 96, padB = 86, padX = 70;
+  const rowH = (h - padT - padB) / Math.max(1, maxDepth);
+  const rows: MapNode[][] = [];
+  nodes.forEach((n) => { (rows[n.depth] ??= []).push(n); });
+  rows.forEach((row) => {
+    row.sort((a, b) => (a.realm ?? "z").localeCompare(b.realm ?? "z") || a.slug.localeCompare(b.slug));
+    row.forEach((n, i) => {
+      n.y = padT + n.depth * rowH;
+      n.x = row.length === 1 ? w / 2 : padX + (i / (row.length - 1)) * (w - padX * 2);
+    });
+  });
+  const nb: number[][] = nodes.map(() => []);
+  edges.forEach((e) => { nb[e.a].push(e.b); nb[e.b].push(e.a); });
+  for (let it = 0; it < 140; it++) {
+    nodes.forEach((n, i) => {
+      if (n.slug === "brana" || nb[i].length === 0) return;
+      const target = nb[i].reduce((s, j) => s + nodes[j].x, 0) / nb[i].length;
+      n.x += (target - n.x) * 0.3;
+    });
+    rows.forEach((row) => {
+      const minGap = Math.min(110, Math.max(54, (w - padX * 2) / Math.max(1, row.length - 1)));
+      row.sort((a, b) => a.x - b.x);
+      for (let i = 1; i < row.length; i++) {
+        const gap = row[i].x - row[i - 1].x;
+        if (gap < minGap) { const push = (minGap - gap) / 2; row[i - 1].x -= push; row[i].x += push; }
+      }
+      row.forEach((n) => { n.x = Math.max(padX, Math.min(w - padX, n.x)); });
+    });
+  }
+}
+
+export function MapView({ lang }: { lang: Lang }) {
+  const u = UI[lang];
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hover, setHover] = useState<string | null>(null);
+
+  useEffect(() => {
+    const cv = canvasRef.current; if (!cv) return; const ctx = cv.getContext("2d"); if (!ctx) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const { nodes, edges, maxDepth } = buildGraph(lang);
+    let hovered: MapNode | null = null;
+
+    const fit = () => {
+      cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      layout(nodes, edges, maxDepth, innerWidth, innerHeight);
+      draw();
+    };
+    const draw = () => {
+      const w = innerWidth, h = innerHeight;
+      const g = ctx.createRadialGradient(w * 0.35, h * 0.3, 0, w * 0.35, h * 0.3, Math.max(w, h));
+      g.addColorStop(0, "#0b1026"); g.addColorStop(0.75, "#04060f");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+
+      for (const e of edges) {
+        const a = nodes[e.a], b = nodes[e.b];
+        const hot = hovered && (a === hovered || b === hovered);
+        ctx.strokeStyle = hot ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.11)";
+        ctx.lineWidth = hot ? 1.5 : 1;
+        ctx.setLineDash(e.red ? [3, 4] : []);
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      for (const n of nodes) {
+        const hot = n === hovered;
+        const col = n.realm ? REALM_COL[n.realm] : RED_COL;
+        if (n.realm) {
+          ctx.globalAlpha = hot ? 1 : 0.92;
+          ctx.fillStyle = col; ctx.beginPath(); ctx.arc(n.x, n.y, hot ? n.r + 2 : n.r, 0, 7); ctx.fill();
+          if (hot) { ctx.strokeStyle = "rgba(255,255,255,0.8)"; ctx.lineWidth = 1.5; ctx.stroke(); }
+        } else {
+          ctx.globalAlpha = hot ? 0.95 : 0.6;
+          ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.setLineDash([2.5, 3]);
+          ctx.beginPath(); ctx.arc(n.x, n.y, hot ? n.r + 2 : n.r, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+        }
+        ctx.globalAlpha = n.realm ? (hot ? 1 : 0.78) : (hot ? 0.9 : 0.42);
+        ctx.fillStyle = "#fff"; ctx.font = `${hot ? 700 : 500} 10.5px system-ui`; ctx.textAlign = "center";
+        ctx.fillText(n.label, n.x, n.y + n.r + 13);
+        ctx.globalAlpha = 1;
+      }
+    };
+    const pick = (x: number, y: number) => nodes.find((n) => Math.hypot(n.x - x, n.y - y + 4) < Math.max(14, n.r + 9)) ?? null;
+    const onMove = (e: PointerEvent) => { const p = pick(e.clientX, e.clientY); if (p !== hovered) { hovered = p; setHover(p?.slug ?? null); draw(); } };
+    const onClick = (e: MouseEvent) => { const p = pick(e.clientX, e.clientY); if (p) location.assign(p.slug === "brana" ? "/" : `/${p.slug}`); };
+    fit();
+    addEventListener("resize", fit);
+    cv.addEventListener("pointermove", onMove);
+    cv.addEventListener("click", onClick);
+    return () => { removeEventListener("resize", fit); cv.removeEventListener("pointermove", onMove); cv.removeEventListener("click", onClick); };
+  }, [lang]);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#04060f" }}>
+      <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, cursor: hover ? "pointer" : "default" }} />
+
+      <div style={{ position: "absolute", top: 16, left: 20, zIndex: 5 }}>
+        <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{u.back}</Link>
+      </div>
+      <div style={{ position: "absolute", top: 14, left: 0, right: 0, textAlign: "center", zIndex: 4, pointerEvents: "none" }}>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: "rgba(255,255,255,0.45)" }}>{u.eyebrow}</p>
+        <p style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: "-0.02em" }}>{u.title}</p>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{u.hint}</p>
+      </div>
+
+      <div style={{ position: "absolute", bottom: 16, left: 20, zIndex: 5, display: "flex", gap: 14, alignItems: "center", fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(255,255,255,0.65)" }}>
+        {(["space", "sound", "music"] as const).map((r) => (
+          <span key={r} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ width: 9, height: 9, borderRadius: "50%", background: REALM_COL[r] }} /> {u.legend[r]}
+          </span>
+        ))}
+        <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <span style={{ width: 9, height: 9, borderRadius: "50%", border: `1.4px dashed ${RED_COL}` }} /> {u.legend.red}
+        </span>
+      </div>
+    </div>
+  );
+}

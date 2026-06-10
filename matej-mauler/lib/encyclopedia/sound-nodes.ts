@@ -16,7 +16,7 @@ export const SOUND_NODES: NodeDef[] = [
       cs: "Zvuk je chvění. Vlevo je zdroj — rozkmitá se a postrká vzduch. To šťouchnutí běží zleva doprava. Tvůj kurzor je ucho: polož ho na vlnu a uslyšíš ji. Scrolluj dolů a projdi zvuk od chvění až po ozvěnu.",
       en: "Sound is shaking. On the left is the source — it vibrates and nudges the air. That nudge runs left to right. Your cursor is an ear: park it on the wave and you'll hear it. Scroll down to follow sound from a tremble to an echo.",
     },
-    next: "zvukova-vlna",
+    up: "brana", next: "zvukova-vlna",
     sound: { freqMul: 0.6, gainMul: 0.9, filter: 18000, rows: 1, medium: "air" },
   },
   {

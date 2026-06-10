@@ -9,6 +9,7 @@ export type Satellite = {
   to: string;            // slug cílového hesla
   x: number; y: number;  // pozice v % viewportu — vždy mimo centrální textovou zónu!
   object?: string;       // space: klíč do OBJECTS (vizuál tělesa); bez něj = zářící bod
+  emoji?: string;        // vizuál pro hesla bez vesmírného tělesa (🔊, 🎶…)
   size?: number;         // px vizuálu
   label?: Bilingual;     // přepis popisku (default: titul cíle / SEEDS)
 };
@@ -43,4 +44,5 @@ export type NodeDef = {
   music?: MusicSceneDef; // konfigurace hudební scény (music)
   satellites?: Satellite[];
   features?: Bilingual[]; // neklikatelné zajímavosti (řádek pod textem)
+  links?: { href: string; label: Bilingual }[]; // obyčejné odkazy pod textem (mapa, archiv…)
 };
