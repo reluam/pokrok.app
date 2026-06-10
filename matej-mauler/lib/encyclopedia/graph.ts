@@ -34,6 +34,51 @@ export function titleOf(slug: string, lang: Lang): string {
   return humanize(slug);
 }
 
+/* ── Data grafu pro mapy (mapa všeho, brána) ────────────────────── */
+export type GraphNode = { slug: string; realm: string | null; depth: number; parent: string | null };
+export type GraphEdge = { a: string; b: string; red: boolean; tree: boolean };
+
+/** Hierarchie: depth = up-řetězec k bráně; červené odkazy visí pod prvním odkazujícím. */
+export function graphData(): { nodes: GraphNode[]; edges: GraphEdge[]; maxDepth: number } {
+  const depth: Record<string, number> = {};
+  const depthOf = (slug: string, seen: Set<string> = new Set()): number => {
+    if (depth[slug] !== undefined) return depth[slug];
+    if (seen.has(slug)) return 0;
+    seen.add(slug);
+    const up = NODES[slug]?.up;
+    const d = up ? depthOf(up, seen) + 1 : 0;
+    depth[slug] = d;
+    return d;
+  };
+  Object.keys(NODES).forEach((s) => depthOf(s));
+
+  const nodes: GraphNode[] = Object.values(NODES).map((n) => ({ slug: n.slug, realm: n.realm, depth: depth[n.slug], parent: n.up ?? null }));
+  for (const red of redLinks()) {
+    let parent: string | null = null;
+    for (const n of Object.values(NODES)) {
+      if ((n.satellites ?? []).some((s) => s.to === red) || n.next === red || n.up === red) { parent = n.slug; break; }
+    }
+    nodes.push({ slug: red, realm: null, depth: parent ? depth[parent] + 1 : 1, parent });
+  }
+
+  const has = new Set(nodes.map((n) => n.slug));
+  const seenE = new Set<string>();
+  const edges: GraphEdge[] = [];
+  const add = (a: string, b: string, tree: boolean) => {
+    if (!has.has(a) || !has.has(b) || a === b) return;
+    const key = [a, b].sort().join("→");
+    if (seenE.has(key)) return;
+    seenE.add(key);
+    edges.push({ a, b, red: !NODES[a] || !NODES[b], tree });
+  };
+  for (const n of nodes) if (n.parent) add(n.slug, n.parent, true);
+  for (const n of Object.values(NODES)) {
+    if (n.next) add(n.slug, n.next, false);
+    for (const s of n.satellites ?? []) add(n.slug, s.to, false);
+  }
+  return { nodes, edges, maxDepth: Math.max(...nodes.map((n) => n.depth)) };
+}
+
 /* ── Hledání (klient-side, bez závislostí) ──────────────────────── */
 export type SearchEntry = { slug: string; title: Bilingual; guide?: Bilingual; red: boolean };
 

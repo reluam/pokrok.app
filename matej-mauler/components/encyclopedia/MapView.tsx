@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { NODES } from "@/lib/encyclopedia/nodes";
-import { redLinks, titleOf } from "@/lib/encyclopedia/graph";
+import { graphData, titleOf } from "@/lib/encyclopedia/graph";
 import type { Lang } from "@/lib/dictionaries";
 
-const REALM_COL: Record<string, string> = { space: "#8b9cf6", sound: "#e8556d", music: "#b07ef6" };
-const RED_COL = "#8a90a0";
+export const REALM_COL: Record<string, string> = { space: "#8b9cf6", sound: "#e8556d", music: "#b07ef6" };
+export const RED_COL = "#8a90a0";
 
 type MapNode = { slug: string; label: string; realm: string | null; depth: number; x: number; y: number; r: number };
 type Edge = { a: number; b: number; red: boolean };
@@ -17,48 +16,16 @@ const UI = {
   en: { back: "← Spaghetti.ltd", eyebrow: "Encyclopedia", title: "Map of everything", legend: { space: "space", sound: "sound", music: "music", red: "uncharted" }, hint: "general up top · specific below · click to go" },
 } as const;
 
-/** Hierarchická hloubka: řetězec up-vazeb až k bráně. Červené odkazy = pod prvním odkazujícím. */
+/** Mapová projekce sdílených dat grafu (graph.ts). */
 function buildGraph(lang: Lang): { nodes: MapNode[]; edges: Edge[]; maxDepth: number } {
-  const depth: Record<string, number> = {};
-  const depthOf = (slug: string, seen: Set<string> = new Set()): number => {
-    if (depth[slug] !== undefined) return depth[slug];
-    if (seen.has(slug)) return 0;
-    seen.add(slug);
-    const up = NODES[slug]?.up;
-    const d = up ? depthOf(up, seen) + 1 : 0;
-    depth[slug] = d;
-    return d;
-  };
-  Object.keys(NODES).forEach((s) => depthOf(s));
-
-  const nodes: MapNode[] = Object.values(NODES).map((n) => ({
-    slug: n.slug, label: n.title[lang], realm: n.realm, depth: depth[n.slug], x: 0, y: 0, r: n.slug === "brana" ? 10 : 7,
+  const g = graphData();
+  const nodes: MapNode[] = g.nodes.map((n) => ({
+    slug: n.slug, label: titleOf(n.slug, lang), realm: n.realm, depth: n.depth, x: 0, y: 0,
+    r: n.slug === "brana" ? 10 : n.realm ? 7 : 5,
   }));
-  // červené odkazy pod prvním referrerem
-  for (const red of redLinks()) {
-    let d = 1;
-    for (const n of Object.values(NODES)) {
-      if ((n.satellites ?? []).some((s) => s.to === red)) { d = depth[n.slug] + 1; break; }
-    }
-    nodes.push({ slug: red, label: titleOf(red, lang), realm: null, depth: d, x: 0, y: 0, r: 5 });
-  }
-
   const idx = Object.fromEntries(nodes.map((n, i) => [n.slug, i]));
-  const seen = new Set<string>();
-  const edges: Edge[] = [];
-  const add = (a: string, b: string) => {
-    if (idx[a] === undefined || idx[b] === undefined || a === b) return;
-    const key = [a, b].sort().join("→");
-    if (seen.has(key)) return;
-    seen.add(key);
-    edges.push({ a: idx[a], b: idx[b], red: !NODES[a] || !NODES[b] });
-  };
-  for (const n of Object.values(NODES)) {
-    if (n.up) add(n.slug, n.up);
-    if (n.next) add(n.slug, n.next);
-    for (const s of n.satellites ?? []) add(n.slug, s.to);
-  }
-  return { nodes, edges, maxDepth: Math.max(...nodes.map((n) => n.depth)) };
+  const edges: Edge[] = g.edges.map((e) => ({ a: idx[e.a], b: idx[e.b], red: e.red }));
+  return { nodes, edges, maxDepth: g.maxDepth };
 }
 
 /** Rozmístění: y podle hloubky, x relaxací k sousedům + rozestupy v řadě. Deterministické. */

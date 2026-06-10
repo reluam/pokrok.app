@@ -6,6 +6,7 @@ import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/li
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
 import { SoundRealm } from "./SoundRealm";
 import { MusicRealm } from "./MusicRealm";
+import { GateMap } from "./GateMap";
 import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
@@ -131,7 +132,8 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     <>
       {/* realm (pozadí + interaktivní obsah) */}
       {node ? (
-        node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} onNavigate={dive} />
+        node.slug === "brana" ? <GateMap lang={lang} onNavigate={dive} />
+        : node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} onNavigate={dive} />
         : node.realm === "sound" ? <SoundRealm node={node} lang={lang} onNavigate={dive} />
         : <MusicRealm node={node} lang={lang} onNavigate={dive} />
       ) : (
@@ -144,6 +146,10 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
           <div key={slug} style={{ position: "relative", maxWidth: topText ? "min(620px, calc(100vw - 240px))" : 620, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "auto" }}>
+              {slug === "brana" && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src="/logo.svg" alt="" width={58} height={58} style={{ display: "block", margin: "0 auto 12px", filter: "invert(1)", opacity: 0.95 }} />
+              )}
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: C.faint, marginBottom: 10 }}>{u.eyebrow}</p>
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,44px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: topText ? 14 : 15, lineHeight: 1.65, color: C.body }}>{node.guide[lang]}</p>
