@@ -7,6 +7,7 @@ import { SpaceRealm, type NavDir } from "./SpaceRealm";
 import { SoundRealm } from "./SoundRealm";
 import { MusicRealm } from "./MusicRealm";
 import { GateMap } from "./GateMap";
+import { Strands } from "./Strands";
 import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
@@ -35,11 +36,13 @@ const THEMES = {
   },
   light: {
     text: "#1a1614", body: "rgba(26,22,20,0.85)", muted: "rgba(26,22,20,0.55)", faint: "rgba(26,22,20,0.45)",
-    blur: "rgba(255,255,255,0.55)", pillBg: "rgba(255,255,255,0.6)", pillBorder: "rgba(26,22,20,0.2)",
+    blur: "rgba(255,255,255,0.55)", pillBg: "rgba(255,255,255,0.65)", pillBorder: "rgba(26,22,20,0.2)",
     pillText: "rgba(26,22,20,0.75)", kbdBorder: "rgba(26,22,20,0.25)", kbdText: "rgba(26,22,20,0.5)",
     hint: "rgba(26,22,20,0.6)", end: "rgba(26,22,20,0.45)", home: "rgba(26,22,20,0.65)",
   },
 } as const;
+
+export type Theme = "light" | "dark";
 
 export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; lang: Lang }) {
   const u = UI[lang];
@@ -48,8 +51,17 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   const [dir, setDir] = useState<NavDir>("jump");
   const [trail, setTrail] = useState<string[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>("light");
+  useEffect(() => { if (localStorage.getItem("ency-theme") === "dark") { const r = requestAnimationFrame(() => setTheme("dark")); return () => cancelAnimationFrame(r); } }, []);
+  const toggleTheme = () => setTheme((t) => { const n = t === "light" ? "dark" : "light"; localStorage.setItem("ency-theme", n); return n; });
+
   const node = getNode(slug);
-  const C = THEMES[node?.theme ?? "dark"];
+  const isGate = slug === "brana";
+  // tmavost: chrome sedí na stránce/canvasu, text hesla na středu (vesmírné okénko je vždy tmavé)
+  const chromeDark = theme === "dark" || (node?.realm === "sound" && node.sound?.medium === "space");
+  const overlayDark = node ? (node.realm === "space" && !isGate ? true : chromeDark) : theme === "dark";
+  const C = THEMES[overlayDark ? "dark" : "light"];
+  const PC = THEMES[chromeDark ? "dark" : "light"];
   const topText = node?.textPos === "top";
 
   const go = useCallback((to: string, d: NavDir) => {
@@ -126,39 +138,47 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     else location.reload();
   };
 
-  const upTarget = trail.length ? trail[trail.length - 1] : node?.up;
+  const upTarget = trail.length ? trail[trail.length - 1] : node?.up ?? null;
+  const overlayMax = isGate ? 620 : node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(620px, calc(100vw - 240px))" : 620;
 
   return (
     <>
-      {/* realm (pozadí + interaktivní obsah) */}
+      {/* stránka — světlá default, tmavá volbou */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, background: theme === "dark" ? "#06070d" : "var(--bg)" }} />
+
+      {/* realm (střed — tady se hesla smí lišit) */}
       {node ? (
-        node.slug === "brana" ? <GateMap lang={lang} onNavigate={dive} />
-        : node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} onNavigate={dive} />
-        : node.realm === "sound" ? <SoundRealm node={node} lang={lang} onNavigate={dive} />
-        : <MusicRealm node={node} lang={lang} onNavigate={dive} />
+        isGate ? <GateMap lang={lang} theme={theme} onNavigate={dive} />
+        : node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} theme={theme} />
+        : node.realm === "sound" ? <SoundRealm node={node} lang={lang} theme={theme} onNavigate={dive} />
+        : <MusicRealm node={node} lang={lang} theme={theme} onNavigate={dive} />
       ) : (
-        <RedLink slug={slug} lang={lang} />
+        <RedLink slug={slug} lang={lang} dark={theme === "dark"} />
       )}
 
-      {/* text přes subjekt — bez boxu, jen rozmazané pozadí; nic klikatelného pod ním */}
+      {/* špagety k okolním tématům — jednotný kabát všech hesel */}
+      {node && !isGate && (
+        <Strands node={node} lang={lang} dark={chromeDark} upTarget={upTarget} onUp={goUp} onNext={goNext} onSide={dive} />
+      )}
+
+      {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný */}
       {node && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "8vh 22px 0" : "0 22px", pointerEvents: "none" }}>
-          <div key={slug} style={{ position: "relative", maxWidth: topText ? "min(620px, calc(100vw - 240px))" : 620, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "104px 22px 0" : "0 22px", pointerEvents: "none" }}>
+          <div key={slug} style={{ position: "relative", maxWidth: overlayMax, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
-            {/* text nesmí blokovat klikání na síť pod ním — interaktivní jsou jen search a odkazy */}
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "none" }}>
-              {slug === "brana" && (
+              {isGate && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src="/logo.svg" alt="" width={58} height={58} style={{ display: "block", margin: "0 auto 12px", filter: "invert(1)", opacity: 0.95 }} />
+                <img src="/logo.svg" alt="" width={58} height={58} style={{ display: "block", margin: "0 auto 12px", filter: chromeDark ? "invert(1)" : "none", opacity: 0.95 }} />
               )}
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: C.faint, marginBottom: 10 }}>{u.eyebrow}</p>
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,44px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
-              {slug === "brana" && (
+              <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,42px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
+              {isGate && (
                 <button onClick={() => setSearchOpen(true)}
-                  style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 9, width: "min(380px, 100%)", margin: "2px auto 14px", background: "rgba(255,255,255,0.09)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "11px 18px", color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-sans)", fontSize: 14, cursor: "pointer", textAlign: "left" }}>
+                  style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 9, width: "min(380px, 100%)", margin: "2px auto 14px", background: chromeDark ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.75)", border: `1px solid ${C.pillBorder}`, borderRadius: 999, padding: "11px 18px", color: C.muted, fontFamily: "var(--font-sans)", fontSize: 14, cursor: "pointer", textAlign: "left" }}>
                   <span aria-hidden>🔍</span>
                   <span style={{ flex: 1 }}>{u.searchPh}</span>
-                  <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.45)" }}>⌘K</kbd>
+                  <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${C.kbdBorder}`, color: C.kbdText }}>⌘K</kbd>
                 </button>
               )}
               <p style={{ fontFamily: "var(--font-sans)", fontSize: topText ? 14 : 15, lineHeight: 1.65, color: C.body }}>{node.guide[lang]}</p>
@@ -180,48 +200,44 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
       )}
 
       {/* chrome */}
-      {slug !== "brana" && (
+      {!isGate && (
         <div style={{ position: "fixed", top: 16, left: 20, zIndex: 20 }}>
-          <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: C.home, textDecoration: "none" }}>{u.home}</Link>
+          <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: PC.home, textDecoration: "none" }}>{u.home}</Link>
         </div>
       )}
 
-      {/* mapa + jazyk */}
-      <div style={{ position: "fixed", bottom: 18, right: 18, zIndex: 20, display: "flex", gap: 8, alignItems: "center" }}>
-        <Link href="/mapa" title={u.map} aria-label={u.map}
-          style={{ width: 34, height: 34, borderRadius: 10, display: "grid", placeItems: "center", background: C.pillBg, border: `1px solid ${C.pillBorder}`, textDecoration: "none", fontSize: 15, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>🗺</Link>
-        <button onClick={switchLang} title={lang === "cs" ? "English" : "Čeština"}
-          style={{ height: 34, padding: "0 10px", borderRadius: 10, background: C.pillBg, border: `1px solid ${C.pillBorder}`, color: C.pillText, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
-          {lang === "cs" ? "EN" : "CS"}
-        </button>
-      </div>
-
-      {slug !== "brana" && (
+      {!isGate && (
         <button onClick={() => setSearchOpen(true)}
-          style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 8, background: C.pillBg, border: `1px solid ${C.pillBorder}`, borderRadius: 999, padding: "7px 16px", color: C.pillText, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 8, background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, borderRadius: 999, padding: "7px 16px", color: PC.pillText, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
           <span aria-hidden>🔍</span> {u.search}
-          <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${C.kbdBorder}`, color: C.kbdText }}>⌘K</kbd>
+          <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${PC.kbdBorder}`, color: PC.kbdText }}>⌘K</kbd>
         </button>
       )}
 
-      {/* výš (obecněji) */}
-      {upTarget && (
-        <button onClick={goUp}
-          style={{ position: "fixed", top: 56, left: "50%", transform: "translateX(-50%)", zIndex: 20, background: "none", border: "none", color: C.muted, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 6 }}>
-          ↑ {titleOf(upTarget, lang)}
-        </button>
-      )}
-
-      {/* dál (konkrétněji) */}
+      {/* dolní řádek: brána má ↓ hint (síť mluví sama), konec větve dostane text */}
       <div style={{ position: "fixed", bottom: "3vh", left: "50%", transform: "translateX(-50%)", zIndex: 20, textAlign: "center" }}>
-        {node?.next ? (
+        {isGate && node?.next ? (
           <button onClick={goNext}
-            style={{ background: "none", border: "none", color: C.hint, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: 6, animation: "encyBob 2s ease-in-out infinite" }}>
+            style={{ background: "none", border: "none", color: PC.hint, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: 6, animation: "encyBob 2s ease-in-out infinite" }}>
             ↓ {titleOf(node.next, lang)}
           </button>
-        ) : node ? (
-          <span style={{ color: C.end, fontFamily: "var(--font-sans)", fontSize: 11.5 }}>{u.endHint}</span>
+        ) : node && !node.next && !isGate ? (
+          <span style={{ color: PC.end, fontFamily: "var(--font-sans)", fontSize: 11.5 }}>{u.endHint}</span>
         ) : null}
+      </div>
+
+      {/* mapa + téma + jazyk */}
+      <div style={{ position: "fixed", bottom: 18, right: 18, zIndex: 20, display: "flex", gap: 8, alignItems: "center" }}>
+        <Link href="/mapa" title={u.map} aria-label={u.map}
+          style={{ width: 34, height: 34, borderRadius: 10, display: "grid", placeItems: "center", background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, textDecoration: "none", fontSize: 15, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>🗺</Link>
+        <button onClick={toggleTheme} title={theme === "light" ? "Dark" : "Light"}
+          style={{ width: 34, height: 34, borderRadius: 10, display: "grid", placeItems: "center", background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, cursor: "pointer", fontSize: 14, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          {theme === "light" ? "🌙" : "☀️"}
+        </button>
+        <button onClick={switchLang} title={lang === "cs" ? "English" : "Čeština"}
+          style={{ height: 34, padding: "0 10px", borderRadius: 10, background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, color: PC.pillText, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          {lang === "cs" ? "EN" : "CS"}
+        </button>
       </div>
 
       {searchOpen && <Search lang={lang} onPick={(s) => dive(s)} onClose={() => setSearchOpen(false)} />}
@@ -266,7 +282,7 @@ function Search({ lang, onPick, onClose }: { lang: Lang; onPick: (slug: string) 
 }
 
 /* ── Červený odkaz — heslo, které ještě nikdo neprobádal ────────── */
-function RedLink({ slug, lang }: { slug: string; lang: Lang }) {
+function RedLink({ slug, lang, dark }: { slug: string; lang: Lang; dark: boolean }) {
   const u = UI[lang];
   const [votes, setVotes] = useState<number | null>(null);
   const [wished, setWished] = useState(false);
@@ -283,18 +299,20 @@ function RedLink({ slug, lang }: { slug: string; lang: Lang }) {
     setWished(true); localStorage.setItem(`ency-wish:${slug}`, "1");
     try { const r = await fetch(`/api/wish/${slug}`, { method: "POST" }); const d = await r.json(); setVotes(d.votes ?? null); } catch {}
   };
+  const ink = dark ? "#fff" : "#1a1614";
+  const soft = dark ? "rgba(255,255,255,0.55)" : "rgba(26,22,20,0.55)";
   return (
-    <div style={{ position: "fixed", inset: 0, background: "radial-gradient(120% 100% at 35% 30%, #0b1026, #04060f 75%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "70px 24px", textAlign: "center" }}>
-      <div style={{ width: 130, height: 130, borderRadius: "50%", border: "2px dashed rgba(255,255,255,0.35)", display: "grid", placeItems: "center", color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-display)", fontSize: 52, fontWeight: 700, marginBottom: 26, animation: "encyFloat 5s ease-in-out infinite" }}>?</div>
-      <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>{u.red}</p>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px,6vw,44px)", fontWeight: 700, color: "#fff", letterSpacing: "-0.03em", marginBottom: 12 }}>{titleOf(slug, lang)}</h1>
-      <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.8)", maxWidth: 460, marginBottom: 24 }}>{u.redText}</p>
+    <div style={{ position: "fixed", inset: 0, zIndex: 1, background: dark ? "radial-gradient(120% 100% at 35% 30%, #0b1026, #04060f 75%)" : "radial-gradient(120% 100% at 35% 30%, #fffdf6, #f1ece0 75%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "70px 24px", textAlign: "center" }}>
+      <div style={{ width: 130, height: 130, borderRadius: "50%", border: `2px dashed ${dark ? "rgba(255,255,255,0.35)" : "rgba(26,22,20,0.3)"}`, display: "grid", placeItems: "center", color: soft, fontFamily: "var(--font-display)", fontSize: 52, fontWeight: 700, marginBottom: 26, animation: "encyFloat 5s ease-in-out infinite" }}>?</div>
+      <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: soft, marginBottom: 10 }}>{u.red}</p>
+      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px,6vw,44px)", fontWeight: 700, color: ink, letterSpacing: "-0.03em", marginBottom: 12 }}>{titleOf(slug, lang)}</h1>
+      <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, lineHeight: 1.7, color: dark ? "rgba(255,255,255,0.8)" : "rgba(26,22,20,0.75)", maxWidth: 460, marginBottom: 24 }}>{u.redText}</p>
       <button onClick={wish} disabled={wished}
-        style={{ background: wished ? "rgba(255,255,255,0.1)" : "#fff", color: wished ? "rgba(255,255,255,0.8)" : "#0b1026", border: "none", borderRadius: 999, padding: "11px 26px", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, cursor: wished ? "default" : "pointer" }}>
+        style={{ background: wished ? (dark ? "rgba(255,255,255,0.1)" : "rgba(26,22,20,0.08)") : ink, color: wished ? soft : (dark ? "#0b1026" : "#fff"), border: "none", borderRadius: 999, padding: "11px 26px", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, cursor: wished ? "default" : "pointer" }}>
         {wished ? u.wished : u.wish}
       </button>
       {votes !== null && votes > 0 && (
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 12 }}>{u.wishes(votes)}</p>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: soft, marginTop: 12 }}>{u.wishes(votes)}</p>
       )}
       <style>{`@keyframes encyFloat { 0%,100% { margin-top: -3px; } 50% { margin-top: 3px; } }`}</style>
     </div>

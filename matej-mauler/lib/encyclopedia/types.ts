@@ -37,7 +37,6 @@ export type NodeDef = {
   guide: Bilingual;      // průvodcovský text přes subjekt
   up?: string;           // obecnější heslo (scroll nahoru / Esc, když není breadcrumb)
   next?: string;         // kanonická trasa do hloubky (scroll dolů)
-  theme?: "dark" | "light"; // barva chrome+textu; default dark (vesmír), sound je světlý
   textPos?: "center" | "top"; // kde leží text — top u scén, kde střed patří hřišti (zvuková vlna)
   subject?: { object: string; size?: number }; // centrální vizuál (space)
   sound?: SoundSceneDef; // konfigurace zvukové scény (sound)

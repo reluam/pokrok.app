@@ -6,7 +6,7 @@ import type { NodeDef } from "./types";
    Všechna hesla rendruje SoundRealm (společný canvas + audio),
    text je nahoře, střed patří vlně (hřišti pro ucho). */
 
-const L = { theme: "light", textPos: "top" } as const;
+const L = { textPos: "top" } as const;
 
 export const SOUND_NODES: NodeDef[] = [
   {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getNode, titleOf } from "@/lib/encyclopedia/graph";
 import type { MusicSceneDef, NodeDef } from "@/lib/encyclopedia/types";
 import type { Lang } from "@/lib/dictionaries";
+import type { Theme } from "./Shell";
 
 const INK = "#1a1614";
 const sans = "var(--font-sans)";
@@ -47,7 +47,7 @@ const UI = {
 
 /** Hudební realm: sdílený sekvencer + WebAudio přes všechna hudební hesla.
     Vrstvy se po trase sčítají — co si naklikáš, hraje s tebou dál. */
-export function MusicRealm({ node, lang, onNavigate }: { node: NodeDef; lang: Lang; onNavigate: (slug: string) => void }) {
+export function MusicRealm({ node, lang, theme }: { node: NodeDef; lang: Lang; theme: Theme; onNavigate?: (slug: string) => void }) {
   const u = UI[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [audioOn, setAudioOn] = useState(false);
@@ -73,7 +73,8 @@ export function MusicRealm({ node, lang, onNavigate }: { node: NodeDef; lang: La
 
   // aktuální scéna pro smyčku (komponenta drží engine přes všechna hesla)
   const muRef = useRef<MusicSceneDef>(node.music!);
-  useEffect(() => { muRef.current = node.music!; }, [node]);
+  const themeRef = useRef<Theme>(theme);
+  useEffect(() => { muRef.current = node.music!; themeRef.current = theme; }, [node, theme]);
 
   const fxNode = (k: "room" | "drive" | "reverb" | "delay") => k === "room" ? nDrumRoom.current : k === "drive" ? nBassPre.current : k === "reverb" ? nChordRev.current : nMelSend.current;
   const applyVibe = (v: Vibe) => { vibe.current = v; setVibeUI(v.id); bpm.current = v.bpm; setBpmUI(v.bpm); swing.current = v.swing; setSwingUI(Math.round(v.swing * 100)); rolls.current = v.rolls(); fx.current.reverb = v.rev; setFxUI((f) => ({ ...f, reverb: Math.round((v.rev / FXR.reverb[1]) * 100) })); if (nChordRev.current && ac.current) nChordRev.current.gain.setTargetAtTime(v.rev, ac.current.currentTime, 0.1); if (dly.current) dly.current.delayTime.value = (60 / v.bpm / 4) * 3; };
@@ -140,9 +141,10 @@ export function MusicRealm({ node, lang, onNavigate }: { node: NodeDef; lang: La
       (["drums", "bass", "chord", "mel"] as Layer[]).forEach((k) => (enable.current[k] = !!ac.current && reach[k] && !mute.current[k]));
       if (ac.current) { const now = ac.current.currentTime; (["drums", "bass", "chord", "mel"] as Layer[]).forEach((k) => bus.current[k]?.gain.setTargetAtTime(enable.current[k] ? vol.current[k] : 0, now, 0.12)); while (pending.current.length && pending.current[0].time <= now) curStep.current = pending.current.shift()!.step; if (pending.current.length > 40) pending.current.splice(0, pending.current.length - 40); }
 
+      const dk2 = themeRef.current === "dark"; const ink2 = dk2 ? "#ece9f4" : INK;
       const scale = minor.current ? SCALES.minor : SCALES.major;
       const w = innerWidth, h = innerHeight; ctx.clearRect(0, 0, w, h);
-      const grd = ctx.createLinearGradient(0, 0, 0, h); grd.addColorStop(0, "#FAFAF7"); grd.addColorStop(1, "#efe9fb"); ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
+      const grd = ctx.createLinearGradient(0, 0, 0, h); grd.addColorStop(0, dk2 ? "#15161e" : "#FAFAF7"); grd.addColorStop(1, dk2 ? "#1d1930" : "#efe9fb"); ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
       grids.current = [];
 
       if (mu.view === "intro") {
@@ -163,12 +165,12 @@ export function MusicRealm({ node, lang, onNavigate }: { node: NodeDef; lang: La
           else label = NOTE[degMidi(scale, keyM.current, deg, editor === "bass" ? BASS_OCT : MEL_OCT) % 12];
           for (let c = 0; c < 16; c++) {
             const on = editor === "drums" ? r2.drums[DRUM_LANES[r]][c] > 0 : (editor === "bass" ? r2.bass[c] : editor === "chords" ? r2.chord[c] : r2.mel[c]) === deg;
-            if (c === cs) { ctx.globalAlpha = 0.07; ctx.fillStyle = INK; roundRect(ctx, gx + c * cw, y - gap / 2, cw, rh + gap, 4); ctx.fill(); }
-            ctx.globalAlpha = on ? (active ? 0.92 : 0.4) : (c % 4 === 0 ? 0.13 : 0.07); ctx.fillStyle = on ? col : INK;
+            if (c === cs) { ctx.globalAlpha = dk2 ? 0.14 : 0.07; ctx.fillStyle = ink2; roundRect(ctx, gx + c * cw, y - gap / 2, cw, rh + gap, 4); ctx.fill(); }
+            ctx.globalAlpha = on ? (active ? 0.92 : 0.4) : (c % 4 === 0 ? (dk2 ? 0.22 : 0.13) : (dk2 ? 0.12 : 0.07)); ctx.fillStyle = on ? col : ink2;
             roundRect(ctx, gx + c * cw + 2, y + 2, cw - 4, rh - 4, 4); ctx.fill();
             if (on && c === cs) { ctx.globalAlpha = 0.85; ctx.fillStyle = "#fff"; roundRect(ctx, gx + c * cw + 2, y + 2, cw - 4, rh - 4, 4); ctx.fill(); }
           }
-          ctx.globalAlpha = active ? 0.8 : 0.36; ctx.fillStyle = INK; ctx.font = `700 ${rh < 16 ? 9 : 11}px system-ui`; ctx.textAlign = "right"; ctx.fillText(label, gx - 8, y + rh / 2 + 3);
+          ctx.globalAlpha = active ? 0.8 : 0.36; ctx.fillStyle = ink2; ctx.font = `700 ${rh < 16 ? 9 : 11}px system-ui`; ctx.textAlign = "right"; ctx.fillText(label, gx - 8, y + rh / 2 + 3);
         }
         ctx.globalAlpha = 1;
       };
@@ -195,51 +197,39 @@ export function MusicRealm({ node, lang, onNavigate }: { node: NodeDef; lang: La
   const showVibe = node.slug === "rytmus" || mu.view === "studio";
   const showKeys = mu.rank >= 2;
   const showHint = !!mu.editor && !showMixer && !showVibe;
+  // paleta panelů podle tématu
+  const dk = theme === "dark";
+  const ink = dk ? "#ece9f4" : INK;
+  const inv = dk ? "#15161e" : "#fff";
+  const mutedCol = dk ? "rgba(236,233,244,0.55)" : "var(--text-muted)";
+  const panelBg = dk ? "rgba(22,23,34,0.78)" : "rgba(255,255,255,0.78)";
+  const panelBorder = dk ? "1px solid rgba(255,255,255,0.14)" : "1px solid rgba(26,22,20,0.12)";
 
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
 
-      {/* satelity — synapse kolem hřiště */}
-      <div key={node.slug} style={{ position: "absolute", inset: 0, pointerEvents: "none", animation: "encyMusIn 480ms ease" }}>
-        {(node.satellites ?? []).map((s, i) => {
-          const red = !getNode(s.to);
-          const label = s.label?.[lang] ?? titleOf(s.to, lang);
-          return (
-            <button key={`${s.to}-${i}`} onClick={() => onNavigate(s.to)} title={label}
-              style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%,-50%)", pointerEvents: "auto", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 7, padding: 6, animation: `encyMusFloat ${4 + (i % 4)}s ease-in-out infinite`, opacity: red ? 0.8 : 1 }}>
-              {red ? (
-                <span style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px dashed rgba(26,22,20,0.45)", display: "grid", placeItems: "center", color: "rgba(26,22,20,0.65)", fontFamily: sans, fontSize: 14, fontWeight: 700, background: "rgba(255,255,255,0.6)" }}>?</span>
-              ) : (
-                <span style={{ width: 13, height: 13, borderRadius: "50%", background: INK, boxShadow: "0 0 0 4px rgba(26,22,20,0.12)" }} />
-              )}
-              <span style={{ fontFamily: sans, fontSize: 11, fontWeight: 600, color: "rgba(26,22,20,0.8)", letterSpacing: "0.04em", whiteSpace: "nowrap", maxWidth: 170, overflow: "hidden", textOverflow: "ellipsis" }}>{label}</span>
-            </button>
-          );
-        })}
-      </div>
-
       {/* tónina + dur/moll — od basy dál */}
       {showKeys && (
-        <div style={{ position: "fixed", top: 12, right: 16, zIndex: 21, display: "flex", gap: 6, alignItems: "center", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(26,22,20,0.12)", borderRadius: 999, padding: "5px 8px", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
-          {KEYS.map((k) => <button key={k.m} onClick={() => { keyM.current = k.m; setKeyUI(k.m); }} style={mini(keyUI === k.m)}>{k.n}</button>)}
-          <span style={{ width: 1, height: 16, background: "rgba(26,22,20,0.15)" }} />
-          <button onClick={() => { minor.current = false; setMinorUI(false); }} style={mini(!minorUI)}>{u.major}</button>
-          <button onClick={() => { minor.current = true; setMinorUI(true); }} style={mini(minorUI)}>{u.minor}</button>
+        <div style={{ position: "fixed", top: 12, right: 16, zIndex: 21, display: "flex", gap: 6, alignItems: "center", background: panelBg, border: panelBorder, borderRadius: 999, padding: "5px 8px", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
+          {KEYS.map((k) => <button key={k.m} onClick={() => { keyM.current = k.m; setKeyUI(k.m); }} style={mini(keyUI === k.m, ink, inv)}>{k.n}</button>)}
+          <span style={{ width: 1, height: 16, background: dk ? "rgba(255,255,255,0.2)" : "rgba(26,22,20,0.15)" }} />
+          <button onClick={() => { minor.current = false; setMinorUI(false); }} style={mini(!minorUI, ink, inv)}>{u.major}</button>
+          <button onClick={() => { minor.current = true; setMinorUI(true); }} style={mini(minorUI, ink, inv)}>{u.minor}</button>
         </div>
       )}
 
       {/* styl + tempo + swing — na rytmu a ve studiu */}
       {showVibe && (
-        <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: showMixer ? "calc(8vh + 150px)" : "9vh", zIndex: 21, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", justifyContent: "center", background: "rgba(255,255,255,0.78)", border: "1px solid rgba(26,22,20,0.12)", borderRadius: 16, padding: "9px 14px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", maxWidth: "calc(100vw - 32px)" }}>
-          <div style={{ display: "flex", gap: 6 }}>{VIBES.map((v) => <button key={v.id} onClick={() => applyVibe(v)} style={pill(vibeUI === v.id)}>{v[lang]}</button>)}</div>
-          <label style={{ fontFamily: sans, fontSize: 10.5, fontWeight: 700, color: "var(--text-muted)", display: "flex", flexDirection: "column", gap: 2 }}>
+        <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: showMixer ? "calc(8vh + 150px)" : "9vh", zIndex: 21, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", justifyContent: "center", background: panelBg, border: panelBorder, borderRadius: 16, padding: "9px 14px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", maxWidth: "calc(100vw - 32px)" }}>
+          <div style={{ display: "flex", gap: 6 }}>{VIBES.map((v) => <button key={v.id} onClick={() => applyVibe(v)} style={pill(vibeUI === v.id, ink, inv)}>{v[lang]}</button>)}</div>
+          <label style={{ fontFamily: sans, fontSize: 10.5, fontWeight: 700, color: mutedCol, display: "flex", flexDirection: "column", gap: 2 }}>
             {u.tempo} · {bpmUI} BPM
-            <input type="range" min={60} max={150} value={bpmUI} onChange={(e) => { const v = +e.target.value; bpm.current = v; setBpmUI(v); if (dly.current) dly.current.delayTime.value = (60 / v / 4) * 3; }} style={{ width: 120, accentColor: INK }} />
+            <input type="range" min={60} max={150} value={bpmUI} onChange={(e) => { const v = +e.target.value; bpm.current = v; setBpmUI(v); if (dly.current) dly.current.delayTime.value = (60 / v / 4) * 3; }} style={{ width: 120, accentColor: ink }} />
           </label>
-          <label style={{ fontFamily: sans, fontSize: 10.5, fontWeight: 700, color: "var(--text-muted)", display: "flex", flexDirection: "column", gap: 2 }}>
+          <label style={{ fontFamily: sans, fontSize: 10.5, fontWeight: 700, color: mutedCol, display: "flex", flexDirection: "column", gap: 2 }}>
             {u.swing} · {swingUI}%
-            <input type="range" min={0} max={60} value={swingUI} onChange={(e) => { const v = +e.target.value; swing.current = v / 100; setSwingUI(v); }} style={{ width: 100, accentColor: INK }} />
+            <input type="range" min={0} max={60} value={swingUI} onChange={(e) => { const v = +e.target.value; swing.current = v / 100; setSwingUI(v); }} style={{ width: 100, accentColor: ink }} />
           </label>
         </div>
       )}
@@ -247,9 +237,9 @@ export function MusicRealm({ node, lang, onNavigate }: { node: NodeDef; lang: La
       {/* DAW mixer */}
       {showMixer && (
         <div style={{ position: "fixed", left: 0, right: 0, bottom: "8vh", zIndex: 21, display: "flex", justifyContent: "center", padding: "0 16px" }}>
-          <div style={{ display: "flex", gap: 10, background: "rgba(255,255,255,0.78)", border: "1px solid rgba(26,22,20,0.12)", borderRadius: 16, boxShadow: "0 10px 30px rgba(26,22,20,0.1)", padding: "10px 14px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+          <div style={{ display: "flex", gap: 10, background: panelBg, border: panelBorder, borderRadius: 16, boxShadow: dk ? "0 10px 30px rgba(0,0,0,0.4)" : "0 10px 30px rgba(26,22,20,0.1)", padding: "10px 14px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
             {(["drums", "bass", "chord", "mel"] as Layer[]).map((k) => (
-              <Strip key={k} label={u.layers[k]} color={LAYER_COL[k]} vol={volUI[k]} onVol={(v) => setVol(k, v)} muted={muteUI[k]} onMute={() => toggleLayer(k)} on={u.on} off={u.off}
+              <Strip key={k} label={u.layers[k]} color={LAYER_COL[k]} ink={ink} mutedCol={mutedCol} vol={volUI[k]} onVol={(v) => setVol(k, v)} muted={muteUI[k]} onMute={() => toggleLayer(k)} on={u.on} off={u.off}
                 fx={showFx ? { label: u.fx[FX_KEY[k]], pct: fxUI[FX_KEY[k]], on: (v: number) => setFx(FX_KEY[k], v) } : undefined} />
             ))}
           </div>
@@ -258,40 +248,39 @@ export function MusicRealm({ node, lang, onNavigate }: { node: NodeDef; lang: La
 
       {/* nápověda pod mřížkou */}
       {showHint && (
-        <div style={{ position: "fixed", left: 0, right: 0, bottom: "10vh", zIndex: 6, textAlign: "center", pointerEvents: "none", fontFamily: sans, fontSize: 12.5, fontWeight: 700, color: "var(--text-muted)" }}>{u.hint}</div>
+        <div style={{ position: "fixed", left: 0, right: 0, bottom: "10vh", zIndex: 6, textAlign: "center", pointerEvents: "none", fontFamily: sans, fontSize: 12.5, fontWeight: 700, color: mutedCol }}>{u.hint}</div>
       )}
 
       {/* zapnutí zvuku / mute */}
       {!audioOn ? (
         <button onClick={start}
-          style={{ position: "fixed", bottom: 18, left: 18, zIndex: 22, background: INK, color: "#fff", border: "none", borderRadius: 999, padding: "10px 20px", fontFamily: sans, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,0.18)", animation: "encyMusFloat 3s ease-in-out infinite" }}>
+          style={{ position: "fixed", bottom: 18, left: 18, zIndex: 22, background: ink, color: inv, border: "none", borderRadius: 999, padding: "10px 20px", fontFamily: sans, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,0.18)", animation: "encyMusFloat 3s ease-in-out infinite" }}>
           {u.audio}
         </button>
       ) : (
         <button onClick={toggleMute} aria-label={muted ? u.unmute : u.mute} title={muted ? u.unmute : u.mute}
-          style={{ position: "fixed", bottom: 18, left: 18, zIndex: 22, width: 42, height: 42, borderRadius: 12, border: `2.5px solid ${INK}`, background: "#fff", color: INK, boxShadow: `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16 }}>{muted ? "🔇" : "🔊"}</button>
+          style={{ position: "fixed", bottom: 18, left: 18, zIndex: 22, width: 42, height: 42, borderRadius: 12, border: `2.5px solid ${ink}`, background: inv, color: ink, boxShadow: dk ? "none" : `3px 3px 0 ${INK}`, cursor: "pointer", fontSize: 16 }}>{muted ? "🔇" : "🔊"}</button>
       )}
 
       <style>{`
         @keyframes encyMusFloat { 0%,100% { margin-top: -2px; } 50% { margin-top: 2px; } }
-        @keyframes encyMusIn { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
     </div>
   );
 }
 
-function Strip({ label, color, vol, onVol, muted, onMute, on, off, fx }: { label: string; color: string; vol: number; onVol: (v: number) => void; muted: boolean; onMute: () => void; on: string; off: string; fx?: { label: string; pct: number; on: (v: number) => void } }) {
+function Strip({ label, color, ink, mutedCol, vol, onVol, muted, onMute, on, off, fx }: { label: string; color: string; ink: string; mutedCol: string; vol: number; onVol: (v: number) => void; muted: boolean; onMute: () => void; on: string; off: string; fx?: { label: string; pct: number; on: (v: number) => void } }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, width: 92 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: color }} /><span style={{ fontFamily: sans, fontSize: 11, fontWeight: 700 }}>{label}</span></div>
-      <input type="range" min={0} max={100} value={vol} onChange={(e) => onVol(+e.target.value)} style={{ width: "100%", accentColor: INK }} />
-      {fx && <div style={{ width: "100%" }}><div style={{ fontFamily: sans, fontSize: 9, fontWeight: 700, color: "var(--text-muted)", textAlign: "center" }}>{fx.label}</div><input type="range" min={0} max={100} value={fx.pct} onChange={(e) => fx.on(+e.target.value)} style={{ width: "100%", accentColor: color }} /></div>}
-      <button onClick={onMute} style={{ padding: "2px 10px", borderRadius: 999, fontFamily: sans, fontSize: 10, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${muted ? "#e8556d" : INK}`, background: muted ? "#e8556d" : "transparent", color: muted ? "#fff" : INK }}>{muted ? off : on}</button>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: color }} /><span style={{ fontFamily: sans, fontSize: 11, fontWeight: 700, color: ink }}>{label}</span></div>
+      <input type="range" min={0} max={100} value={vol} onChange={(e) => onVol(+e.target.value)} style={{ width: "100%", accentColor: ink }} />
+      {fx && <div style={{ width: "100%" }}><div style={{ fontFamily: sans, fontSize: 9, fontWeight: 700, color: mutedCol, textAlign: "center" }}>{fx.label}</div><input type="range" min={0} max={100} value={fx.pct} onChange={(e) => fx.on(+e.target.value)} style={{ width: "100%", accentColor: color }} /></div>}
+      <button onClick={onMute} style={{ padding: "2px 10px", borderRadius: 999, fontFamily: sans, fontSize: 10, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${muted ? "#e8556d" : ink}`, background: muted ? "#e8556d" : "transparent", color: muted ? "#fff" : ink }}>{muted ? off : on}</button>
     </div>
   );
 }
-const pill = (active: boolean): React.CSSProperties => ({ padding: "6px 12px", borderRadius: 999, border: `2px solid ${INK}`, background: active ? INK : "transparent", color: active ? "#fff" : INK, fontFamily: sans, fontSize: 12, fontWeight: 700, cursor: "pointer" });
-const mini = (active: boolean): React.CSSProperties => ({ padding: "4px 9px", borderRadius: 999, border: "none", background: active ? INK : "transparent", color: active ? "#fff" : INK, fontFamily: sans, fontSize: 12, fontWeight: 700, cursor: "pointer" });
+const pill = (active: boolean, ink: string, inv: string): React.CSSProperties => ({ padding: "6px 12px", borderRadius: 999, border: `2px solid ${ink}`, background: active ? ink : "transparent", color: active ? inv : ink, fontFamily: sans, fontSize: 12, fontWeight: 700, cursor: "pointer" });
+const mini = (active: boolean, ink: string, inv: string): React.CSSProperties => ({ padding: "4px 9px", borderRadius: 999, border: "none", background: active ? ink : "transparent", color: active ? inv : ink, fontFamily: sans, fontSize: 12, fontWeight: 700, cursor: "pointer" });
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) { const rr = Math.min(r, h / 2, w / 2); ctx.beginPath(); ctx.moveTo(x + rr, y); ctx.arcTo(x + w, y, x + w, y + h, rr); ctx.arcTo(x + w, y + h, x, y + h, rr); ctx.arcTo(x, y + h, x, y, rr); ctx.arcTo(x, y, x + w, y, rr); ctx.closePath(); }
 function shaperCurve(amount: number) { const n = 1024, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.tanh(x * amount) / Math.tanh(amount); } return c; }

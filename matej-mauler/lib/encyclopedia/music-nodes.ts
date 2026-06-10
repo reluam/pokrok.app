@@ -5,7 +5,7 @@ import type { NodeDef } from "./types";
    Vrstvy se po trase sčítají (rank): co sis naklikal, hraje dál.
    hudba.up = zvuk — hudba je zvuk, který někdo uspořádal. */
 
-const L = { theme: "light", textPos: "top" } as const;
+const L = { textPos: "top" } as const;
 
 export const MUSIC_NODES: NodeDef[] = [
   {

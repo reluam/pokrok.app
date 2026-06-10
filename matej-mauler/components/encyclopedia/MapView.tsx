@@ -65,6 +65,9 @@ export function MapView({ lang }: { lang: Lang }) {
   const u = UI[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hover, setHover] = useState<string | null>(null);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  useEffect(() => { if (localStorage.getItem("ency-theme") === "dark") { const r = requestAnimationFrame(() => setTheme("dark")); return () => cancelAnimationFrame(r); } }, []);
+  const dk = theme === "dark";
 
   useEffect(() => {
     const cv = canvasRef.current; if (!cv) return; const ctx = cv.getContext("2d"); if (!ctx) return;
@@ -80,13 +83,14 @@ export function MapView({ lang }: { lang: Lang }) {
     const draw = () => {
       const w = innerWidth, h = innerHeight;
       const g = ctx.createRadialGradient(w * 0.35, h * 0.3, 0, w * 0.35, h * 0.3, Math.max(w, h));
-      g.addColorStop(0, "#0b1026"); g.addColorStop(0.75, "#04060f");
+      if (dk) { g.addColorStop(0, "#0b1026"); g.addColorStop(0.75, "#04060f"); }
+      else { g.addColorStop(0, "#fffdf6"); g.addColorStop(0.75, "#f1ece0"); }
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
 
       for (const e of edges) {
         const a = nodes[e.a], b = nodes[e.b];
         const hot = hovered && (a === hovered || b === hovered);
-        ctx.strokeStyle = hot ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.11)";
+        ctx.strokeStyle = dk ? (hot ? "rgba(255,224,150,0.85)" : "rgba(241,208,138,0.22)") : (hot ? "rgba(140,95,10,0.9)" : "rgba(176,124,24,0.3)");
         ctx.lineWidth = hot ? 1.5 : 1;
         ctx.setLineDash(e.red ? [3, 4] : []);
         ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
@@ -99,14 +103,14 @@ export function MapView({ lang }: { lang: Lang }) {
         if (n.realm) {
           ctx.globalAlpha = hot ? 1 : 0.92;
           ctx.fillStyle = col; ctx.beginPath(); ctx.arc(n.x, n.y, hot ? n.r + 2 : n.r, 0, 7); ctx.fill();
-          if (hot) { ctx.strokeStyle = "rgba(255,255,255,0.8)"; ctx.lineWidth = 1.5; ctx.stroke(); }
+          if (hot) { ctx.strokeStyle = dk ? "rgba(255,255,255,0.8)" : "rgba(26,22,20,0.7)"; ctx.lineWidth = 1.5; ctx.stroke(); }
         } else {
           ctx.globalAlpha = hot ? 0.95 : 0.6;
           ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.setLineDash([2.5, 3]);
           ctx.beginPath(); ctx.arc(n.x, n.y, hot ? n.r + 2 : n.r, 0, 7); ctx.stroke(); ctx.setLineDash([]);
         }
         ctx.globalAlpha = n.realm ? (hot ? 1 : 0.78) : (hot ? 0.9 : 0.42);
-        ctx.fillStyle = "#fff"; ctx.font = `${hot ? 700 : 500} 10.5px system-ui`; ctx.textAlign = "center";
+        ctx.fillStyle = dk ? "#fff" : "#1a1614"; ctx.font = `${hot ? 700 : 500} 10.5px system-ui`; ctx.textAlign = "center";
         ctx.fillText(n.label, n.x, n.y + n.r + 13);
         ctx.globalAlpha = 1;
       }
@@ -119,22 +123,22 @@ export function MapView({ lang }: { lang: Lang }) {
     cv.addEventListener("pointermove", onMove);
     cv.addEventListener("click", onClick);
     return () => { removeEventListener("resize", fit); cv.removeEventListener("pointermove", onMove); cv.removeEventListener("click", onClick); };
-  }, [lang]);
+  }, [lang, dk]);
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#04060f" }}>
+    <div style={{ position: "fixed", inset: 0, background: dk ? "#04060f" : "#f7f3ea" }}>
       <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, cursor: hover ? "pointer" : "default" }} />
 
       <div style={{ position: "absolute", top: 16, left: 20, zIndex: 5 }}>
-        <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{u.back}</Link>
+        <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: dk ? "rgba(255,255,255,0.7)" : "rgba(26,22,20,0.65)", textDecoration: "none" }}>{u.back}</Link>
       </div>
       <div style={{ position: "absolute", top: 14, left: 0, right: 0, textAlign: "center", zIndex: 4, pointerEvents: "none" }}>
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: "rgba(255,255,255,0.45)" }}>{u.eyebrow}</p>
-        <p style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: "-0.02em" }}>{u.title}</p>
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{u.hint}</p>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: dk ? "rgba(255,255,255,0.45)" : "rgba(26,22,20,0.45)" }}>{u.eyebrow}</p>
+        <p style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: dk ? "#fff" : "#1a1614", letterSpacing: "-0.02em" }}>{u.title}</p>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: dk ? "rgba(255,255,255,0.45)" : "rgba(26,22,20,0.5)", marginTop: 2 }}>{u.hint}</p>
       </div>
 
-      <div style={{ position: "absolute", bottom: 16, left: 20, zIndex: 5, display: "flex", gap: 14, alignItems: "center", fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(255,255,255,0.65)" }}>
+      <div style={{ position: "absolute", bottom: 16, left: 20, zIndex: 5, display: "flex", gap: 14, alignItems: "center", fontFamily: "var(--font-sans)", fontSize: 11, color: dk ? "rgba(255,255,255,0.65)" : "rgba(26,22,20,0.65)" }}>
         {(["space", "sound", "music"] as const).map((r) => (
           <span key={r} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <span style={{ width: 9, height: 9, borderRadius: "50%", background: REALM_COL[r] }} /> {u.legend[r]}

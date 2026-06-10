@@ -5,6 +5,7 @@ import { graphData } from "@/lib/encyclopedia/graph";
 import { titleOf } from "@/lib/encyclopedia/graph";
 import { REALM_COL, RED_COL } from "./MapView";
 import type { Lang } from "@/lib/dictionaries";
+import type { Theme } from "./Shell";
 
 type GNode = {
   slug: string; label: string; realm: string | null; depth: number;
@@ -13,9 +14,11 @@ type GNode = {
 
 /** Brána: celá síť rozhozená radiálně kolem středového textu.
     Obecné u středu, konkrétní na okraji — klikni kamkoliv a jdi. */
-export function GateMap({ lang, onNavigate }: { lang: Lang; onNavigate: (slug: string) => void }) {
+export function GateMap({ lang, theme, onNavigate }: { lang: Lang; theme: Theme; onNavigate: (slug: string) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hover, setHover] = useState<string | null>(null);
+  const themeRef = useRef<Theme>(theme);
+  useEffect(() => { themeRef.current = theme; }, [theme]);
 
   useEffect(() => {
     const cv = canvasRef.current; if (!cv) return; const ctx = cv.getContext("2d"); if (!ctx) return;
@@ -91,13 +94,17 @@ export function GateMap({ lang, onNavigate }: { lang: Lang; onNavigate: (slug: s
       }
       const pos = (slug: string) => slug === "brana" ? { px: cx, py: cy } : bySlug[slug];
 
+      const dk = themeRef.current === "dark";
       ctx.clearRect(0, 0, w, h);
       const bg = ctx.createRadialGradient(w * 0.35, h * 0.3, 0, w * 0.35, h * 0.3, Math.max(w, h));
-      bg.addColorStop(0, "#0b1026"); bg.addColorStop(0.75, "#04060f");
+      if (dk) { bg.addColorStop(0, "#0b1026"); bg.addColorStop(0.75, "#04060f"); }
+      else { bg.addColorStop(0, "#fffdf6"); bg.addColorStop(0.75, "#f1ece0"); }
       ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#fff";
-      for (const s of stars) { ctx.globalAlpha = s.o * (0.5 + 0.5 * Math.sin(tt * s.sp + s.ph)); ctx.beginPath(); ctx.arc(s.x * w, s.y * h, s.r, 0, 7); ctx.fill(); }
-      ctx.globalAlpha = 1;
+      if (dk) {
+        ctx.fillStyle = "#fff";
+        for (const s of stars) { ctx.globalAlpha = s.o * (0.5 + 0.5 * Math.sin(tt * s.sp + s.ph)); ctx.beginPath(); ctx.arc(s.x * w, s.y * h, s.r, 0, 7); ctx.fill(); }
+        ctx.globalAlpha = 1;
+      }
 
       // synapse = špagety: zvlněné prameny v těstovinové barvě, každý se vlní vlastním tempem
       ctx.lineCap = "round";
@@ -110,7 +117,7 @@ export function GateMap({ lang, onNavigate }: { lang: Lang; onNavigate: (slug: s
         const amp = Math.min(58, Math.max(12, len * 0.17));
         const w1 = (p.o1 + 0.45 * Math.sin(tt * p.sp + p.ph)) * amp;
         const w2 = (p.o2 + 0.45 * Math.sin(tt * p.sp + p.ph + 2.2)) * amp;
-        ctx.strokeStyle = hot ? "rgba(255,224,150,0.9)" : e.tree ? "rgba(241,208,138,0.3)" : "rgba(241,208,138,0.15)";
+        ctx.strokeStyle = dk ? (hot ? "rgba(255,224,150,0.9)" : e.tree ? "rgba(241,208,138,0.3)" : "rgba(241,208,138,0.15)") : (hot ? "rgba(140,95,10,0.95)" : e.tree ? "rgba(176,124,24,0.42)" : "rgba(176,124,24,0.2)");
         ctx.lineWidth = hot ? 2.4 : e.tree ? 1.7 : 1.2;
         ctx.setLineDash(e.red ? [4, 5] : []);
         ctx.beginPath();
@@ -127,7 +134,7 @@ export function GateMap({ lang, onNavigate }: { lang: Lang; onNavigate: (slug: s
         if (n.realm) {
           ctx.globalAlpha = hot ? 1 : 0.9;
           ctx.fillStyle = col; ctx.beginPath(); ctx.arc(n.px, n.py, hot ? n.r + 2.5 : n.r, 0, 7); ctx.fill();
-          if (hot) { ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.lineWidth = 1.5; ctx.stroke(); }
+          if (hot) { ctx.strokeStyle = dk ? "rgba(255,255,255,0.85)" : "rgba(26,22,20,0.7)"; ctx.lineWidth = 1.5; ctx.stroke(); }
         } else {
           ctx.globalAlpha = hot ? 0.95 : 0.55;
           ctx.strokeStyle = col; ctx.lineWidth = 1.3; ctx.setLineDash([2.5, 3]);
@@ -135,7 +142,7 @@ export function GateMap({ lang, onNavigate }: { lang: Lang; onNavigate: (slug: s
         }
         if (n.realm || hot || !small) {
           ctx.globalAlpha = n.realm ? (hot ? 1 : 0.7) : (hot ? 0.9 : 0.38);
-          ctx.fillStyle = "#fff"; ctx.font = `${hot ? 700 : 500} ${small ? 9 : 10}px system-ui`; ctx.textAlign = "center";
+          ctx.fillStyle = dk ? "#fff" : "#1a1614"; ctx.font = `${hot ? 700 : 500} ${small ? 9 : 10}px system-ui`; ctx.textAlign = "center";
           ctx.fillText(n.label, n.px, n.py + n.r + 12);
         }
         ctx.globalAlpha = 1;
@@ -147,7 +154,7 @@ export function GateMap({ lang, onNavigate }: { lang: Lang; onNavigate: (slug: s
   }, [lang, onNavigate]);
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#04060f", overflow: "hidden" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 1, background: theme === "dark" ? "#04060f" : "#f7f3ea", overflow: "hidden" }}>
       <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, cursor: hover ? "pointer" : "default" }} />
     </div>
   );
