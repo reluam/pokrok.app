@@ -162,8 +162,10 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
       const rowsN = Math.max(1, Math.round(cur.rows));
       const rowGap = Math.min(34, (h * 0.34) / rowsN);
       const half = rowGap * rowsN * 0.6 + 16;
-      const R = Math.min(w, h) * 0.42;
-      const padX = Math.max(64, w * 0.06), spkX = padX, fieldX0 = padX + 46, fieldX1 = w - padX, FW = Math.max(80, fieldX1 - fieldX0);
+      // hřiště jen uprostřed — jako subjekt ve vesmíru, omáčka ho obtéká
+      const FW = Math.min(560, Math.max(240, w - 130));
+      const fieldX0 = (w - FW) / 2, fieldX1 = fieldX0 + FW, spkX = fieldX0 - 44;
+      const R = Math.min(FW * 0.52, h * 0.3);
       const zones = zonesFor(s, fieldX0, FW); const multi = zones.length > 1; const lastZone = zones[zones.length - 1];
       geom.zones = zones; geom.labelTop = mid - half - 34; geom.labelBot = mid - half; geom.interactive = s.interactive ?? "";
 
@@ -222,7 +224,7 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
       }
 
       phase += (0.018 + cur.freq / 6500) * cur.speedF;
-      const M = 70, spacing = FW / M, A = spacing * 1.3 * cur.level, K = clamp(cur.freq / 45, 1.2, 20) * Math.PI * 2;
+      const M = Math.max(34, Math.round(FW / 14)), spacing = FW / M, A = spacing * 1.3 * cur.level, K = clamp(cur.freq / 45, 1.2, 20) * Math.PI * 2;
       const wallX = fieldX0 + FW * 0.96;
       const pAlpha = (1 - cur.space) * cur.fade;
       const wv = (vid: string, t: number) => waveVal(vid, t);
@@ -253,7 +255,7 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
         for (let i = 0; i <= 140; i++) { const xx = fieldX0 + (i / 140) * FW, nx2 = i / 140; const yy = topY + Math.sin(nx2 * K - phase) * 30; if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
         ctx.stroke();
         // dole: skutečná podélná částicová vlna (1 řada)
-        const Mc = 70, sp = FW / Mc, Ac = sp * 1.3 * Math.max(cur.level, 0.4);
+        const Mc = M, sp = FW / Mc, Ac = sp * 1.3 * Math.max(cur.level, 0.4);
         const xs2: number[] = new Array(Mc);
         for (let i = 0; i < Mc; i++) { const bx = fieldX0 + (i + 0.5) * sp; xs2[i] = bx + Ac * Math.sin(((bx - fieldX0) / FW) * K - phase); }
         for (let i = 0; i < Mc; i++) { const comp = i > 0 ? clamp(1 - (xs2[i] - xs2[i - 1]) / sp, 0, 1) : 0; ctx.globalAlpha = pAlpha * (0.5 + comp * 0.5); ctx.fillStyle = crm; ctx.beginPath(); ctx.arc(xs2[i], botY, 2 + comp * 1.7, 0, 7); ctx.fill(); }
