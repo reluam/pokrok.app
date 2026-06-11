@@ -19,7 +19,7 @@ const sans: React.CSSProperties = { fontFamily: "var(--font-sans)" };
 
 const T = {
   cs: {
-    back: "← The Lab",
+    back: "← Spaghetti.ltd",
     menu: "← zpět na výběr",
     title: "Veřejný mozek",
     tagline: "Slovo, asociace, synapse. Jeden mozek složený ze všech, kdo sem přijdou.",
@@ -60,7 +60,7 @@ const T = {
     nothing: "zatím nic",
   },
   en: {
-    back: "← The Lab",
+    back: "← Spaghetti.ltd",
     menu: "← back to modes",
     title: "The Public Brain",
     tagline: "A word, an association, a synapse. One brain made of everyone who drops by.",

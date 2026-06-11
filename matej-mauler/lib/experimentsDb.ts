@@ -47,7 +47,9 @@ async function ensure(sql: Sql) {
   await sql`UPDATE experiments SET href = '/zvuk' WHERE slug = 'soundverse' AND href = '/sound-blaster'`;
   await sql`UPDATE experiments SET title_cs = 'Sound Basics', title_en = 'Sound Basics' WHERE slug = 'soundverse' AND title_cs = 'Sound Blaster'`;
   await sql`UPDATE experiments SET href = '/hudba' WHERE slug = 'musicblaster' AND href = '/music-blaster'`;
-  await sql`UPDATE experiments SET published = FALSE WHERE slug = 'radio' AND published = TRUE`; // rádio žije v The Lab
+  // sjednocení 2026-06: Spaghetti = experimenty z The Lab + Encyklopedie; staré experimenty z feedu pryč
+  await sql`UPDATE experiments SET published = FALSE WHERE slug IN ('cas','vvv','odds','sonify','foundry','musicvote','anthem','journey','space','soundverse','musicblaster') AND published = TRUE`;
+  await sql`UPDATE experiments SET published = TRUE, href = '/radio', title_cs = 'Rádio', title_en = 'The Radio', desc_cs = 'Rádio renderované na serveru — všichni slyší totéž a každých 15 vteřin hlasují, co se změní.', desc_en = 'A server-rendered radio — everyone hears the same stream and votes every 15 seconds on what changes next.' WHERE slug = 'radio'`;
   ready = true;
 }
 

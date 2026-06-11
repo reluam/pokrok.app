@@ -1,14 +1,15 @@
-import { MusicMakerApp } from "@/components/MusicMakerApp";
+import { MusicExperience } from "@/components/MusicExperience";
 import { getLang } from "@/lib/getLang";
 import { guardExperiment } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Skládačka hudby — Spaghetti.ltd" };
+export const metadata = {
+  title: "Jak vzniká hudba — Spaghetti.ltd",
+  description: "Interaktivní hudební studio: poskládej skladbu po vrstvách — beat, basa, akordy a melodie. Mřížky, fadery a efekty jako v DAW.",
+};
 
 export default async function MusicPage() {
-  await guardExperiment("musicvote");
+  await guardExperiment("music");
   const lang = await getLang();
-  // Žádné DB volání při SSR → stránka se zobrazí okamžitě.
-  // Hotové songy se načtou na klientovi (a Neon se případně probudí na pozadí).
-  return <MusicMakerApp lang={lang} finished={[]} />;
+  return <MusicExperience lang={lang} />;
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import type { Lang } from "@/lib/lang";
+import type { Lang } from "@/lib/dictionaries";
 
 const INK = "#1a1614";
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
@@ -60,8 +60,8 @@ const SECTIONS: Sec[] = [
 ];
 
 const UI = {
-  cs: { back: "← The Lab", eyebrow: "Zvuková experience", title: "Cesta po zvukové vlně", start: "Start ▶", audio: "🔊 Zapni si zvuk. Tvůj kurzor je ucho — slyšíš jen to, co máš pod ním.", scroll: "scrolluj dolů", mute: "Ztlumit", unmute: "Zvuk", toMusic: "Pokračovat: jak vzniká hudba →", coach: "👂 Zaparkuj ucho na vlnu", hintFreq: "← basa · výška →", hintAmp: "blíž ke středu = hlasitěji", hintZone: "👂 přejížděj uchem po pásmech", media: { air: "vzduch", water: "voda", solid: "železo" }, tracerNote: "jen se kývu na místě", drawnAs: "takhle se zvuk obvykle kreslí", reallyAs: "takhle se doopravdy chová" },
-  en: { back: "← The Lab", eyebrow: "A sound experience", title: "A journey along a sound wave", start: "Start ▶", audio: "🔊 Turn your sound on. Your cursor is an ear — you only hear what's under it.", scroll: "scroll down", mute: "Mute", unmute: "Sound", toMusic: "Next: how music is made →", coach: "👂 Park your ear on the wave", hintFreq: "← bass · treble →", hintAmp: "closer to center = louder", hintZone: "👂 glide your ear across the bands", media: { air: "air", water: "water", solid: "iron" }, tracerNote: "I just bob in place", drawnAs: "how sound is usually drawn", reallyAs: "how it actually behaves" },
+  cs: { back: "← Spaghetti.ltd", eyebrow: "Zvuková experience", title: "Cesta po zvukové vlně", start: "Start ▶", audio: "🔊 Zapni si zvuk. Tvůj kurzor je ucho — slyšíš jen to, co máš pod ním.", scroll: "scrolluj dolů", mute: "Ztlumit", unmute: "Zvuk", toMusic: "Pokračovat: jak vzniká hudba →", coach: "👂 Zaparkuj ucho na vlnu", hintFreq: "← basa · výška →", hintAmp: "blíž ke středu = hlasitěji", hintZone: "👂 přejížděj uchem po pásmech", media: { air: "vzduch", water: "voda", solid: "železo" }, tracerNote: "jen se kývu na místě", drawnAs: "takhle se zvuk obvykle kreslí", reallyAs: "takhle se doopravdy chová" },
+  en: { back: "← Spaghetti.ltd", eyebrow: "A sound experience", title: "A journey along a sound wave", start: "Start ▶", audio: "🔊 Turn your sound on. Your cursor is an ear — you only hear what's under it.", scroll: "scroll down", mute: "Mute", unmute: "Sound", toMusic: "Next: how music is made →", coach: "👂 Park your ear on the wave", hintFreq: "← bass · treble →", hintAmp: "closer to center = louder", hintZone: "👂 glide your ear across the bands", media: { air: "air", water: "water", solid: "iron" }, tracerNote: "I just bob in place", drawnAs: "how sound is usually drawn", reallyAs: "how it actually behaves" },
 } as const;
 
 const NOTE = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];

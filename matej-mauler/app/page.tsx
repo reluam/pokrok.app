@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { EncyclopediaShell } from "@/components/encyclopedia/Shell";
+import { HomeContent } from "@/components/HomeContent";
 import { dictionaries } from "@/lib/dictionaries";
+import { getPublicExperiments } from "@/lib/experimentsDb";
+import { getPublicSongs } from "@/lib/songsDb";
 
 export const dynamic = "force-dynamic";
 
@@ -17,18 +19,17 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Spaghetti.ltd",
-  alternateName: "Spaghetti encyclopedia",
   url: "https://spaghetti.ltd",
-  description: "An interactive encyclopedia where every term gets a witty explanation and is connected to related terms by knowledge noodles.",
+  description: "Interactive experiments and an encyclopedia connected by knowledge noodles — sound, music, a server-rendered radio, a public brain and more.",
   inLanguage: ["cs", "en"],
 };
 
-// Brána encyklopedie — heslo nad vesmírem. Scroll dolů = do vesmíru.
-export default function Home() {
+export default async function Home() {
+  const [items, songs] = await Promise.all([getPublicExperiments("en"), getPublicSongs("en", 3)]);
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <EncyclopediaShell initialSlug="brana" lang="en" />
+      <HomeContent dict={dictionaries.en} lang="en" items={items} songs={songs} />
     </>
   );
 }

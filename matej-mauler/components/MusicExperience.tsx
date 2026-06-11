@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import type { Lang } from "@/lib/lang";
+import type { Lang } from "@/lib/dictionaries";
 
 const INK = "#1a1614";
 const sans = "var(--font-sans)";
@@ -53,8 +53,8 @@ const SECTIONS: { cs: { t: string; p: string }; en: { t: string; p: string }; in
 ];
 
 const UI = {
-  cs: { back: "← The Lab", eyebrow: "Hudební experience", title: "Jak vzniká hudba", start: "Start ▶", audio: "🔊 Zapni si zvuk a poskládej skladbu.", scroll: "scrolluj dolů", mute: "Ztlumit", unmute: "Zvuk", style: "styl", tempo: "tempo", swing: "swing", major: "dur", minor: "moll", drums: { kick: "kop", snare: "snare", hat: "hi-hat", open: "open" }, layers: { drums: "bicí", bass: "basa", chord: "akordy", mel: "melodie" }, fx: { room: "room", drive: "drive", reverb: "reverb", delay: "delay" }, on: "zap", off: "mute", hint: "👆 klikej do mřížky" },
-  en: { back: "← The Lab", eyebrow: "A music experience", title: "How music is made", start: "Start ▶", audio: "🔊 Turn your sound on and build a track.", scroll: "scroll down", mute: "Mute", unmute: "Sound", style: "style", tempo: "tempo", swing: "swing", major: "major", minor: "minor", drums: { kick: "kick", snare: "snare", hat: "hi-hat", open: "open" }, layers: { drums: "drums", bass: "bass", chord: "chords", mel: "melody" }, fx: { room: "room", drive: "drive", reverb: "reverb", delay: "delay" }, on: "on", off: "mute", hint: "👆 click the grid" },
+  cs: { back: "← Spaghetti.ltd", eyebrow: "Hudební experience", title: "Jak vzniká hudba", start: "Start ▶", audio: "🔊 Zapni si zvuk a poskládej skladbu.", scroll: "scrolluj dolů", mute: "Ztlumit", unmute: "Zvuk", style: "styl", tempo: "tempo", swing: "swing", major: "dur", minor: "moll", drums: { kick: "kop", snare: "snare", hat: "hi-hat", open: "open" }, layers: { drums: "bicí", bass: "basa", chord: "akordy", mel: "melodie" }, fx: { room: "room", drive: "drive", reverb: "reverb", delay: "delay" }, on: "zap", off: "mute", hint: "👆 klikej do mřížky" },
+  en: { back: "← Spaghetti.ltd", eyebrow: "A music experience", title: "How music is made", start: "Start ▶", audio: "🔊 Turn your sound on and build a track.", scroll: "scroll down", mute: "Mute", unmute: "Sound", style: "style", tempo: "tempo", swing: "swing", major: "major", minor: "minor", drums: { kick: "kick", snare: "snare", hat: "hi-hat", open: "open" }, layers: { drums: "drums", bass: "bass", chord: "chords", mel: "melody" }, fx: { room: "room", drive: "drive", reverb: "reverb", delay: "delay" }, on: "on", off: "mute", hint: "👆 click the grid" },
 } as const;
 
 export function MusicExperience({ lang }: { lang: Lang }) {
@@ -93,9 +93,8 @@ export function MusicExperience({ lang }: { lang: Lang }) {
     const a = new AC(); ac.current = a;
     const comp = a.createDynamicsCompressor(); comp.threshold.value = -15; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.25; comp.connect(a.destination);
     const ms = a.createGain(); ms.gain.value = muted ? 0 : 0.9; ms.connect(comp); master.current = ms;
-    const conv = a.createConvolver(); const L = (a.sampleRate * 2.8) | 0; const b = a.createBuffer(2, L, a.sampleRate);
-    for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, 2.6); }
-    conv.buffer = b; const rRet = a.createGain(); rRet.gain.value = 0.9; conv.connect(rRet).connect(ms);
+    const conv = a.createConvolver(); conv.buffer = impulse(a, 2.8, 2.6);
+    const rRet = a.createGain(); rRet.gain.value = 0.9; conv.connect(rRet).connect(ms);
     const dl = a.createDelay(0.9); dl.delayTime.value = (60 / bpm.current / 4) * 3; const fb = a.createGain(); fb.gain.value = 0.34; const dOut = a.createGain(); dOut.gain.value = 0.45; const dSend = a.createGain(); dSend.gain.value = fx.current.delay; dSend.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(dOut).connect(ms); dly.current = dl; nMelSend.current = dSend;
     // bicí: bus -> shaper -> master ; send do reverbu (room)
     const drumBus = a.createGain(); const drumShaper = a.createWaveShaper(); drumShaper.curve = shaperCurve(2.2); drumShaper.oversample = "2x"; drumBus.connect(drumShaper).connect(ms); const drumRoom = a.createGain(); drumRoom.gain.value = fx.current.room; drumBus.connect(drumRoom).connect(conv); bus.current.drums = drumBus; nDrumRoom.current = drumRoom;
@@ -234,7 +233,7 @@ export function MusicExperience({ lang }: { lang: Lang }) {
               <Row label={`${u.swing} · ${swingUI}%`}><input type="range" min={0} max={60} value={swingUI} onChange={(e) => { const v = +e.target.value; swing.current = v / 100; setSwingUI(v); }} style={{ width: "100%", accentColor: INK }} /></Row>
             </div>)}
             {sec.ed && sec.interactive !== "mix" && sec.interactive !== "studio" && <p style={{ fontFamily: sans, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", marginTop: 10 }}>{u.hint}</p>}
-            {step === N - 1 && <Link href={homeHref} style={{ display: "inline-block", marginTop: 10, fontFamily: sans, fontSize: 14, fontWeight: 700, color: INK, textDecoration: "underline", textUnderlineOffset: 3 }}>← The Lab</Link>}
+            {step === N - 1 && <Link href={homeHref} style={{ display: "inline-block", marginTop: 10, fontFamily: sans, fontSize: 14, fontWeight: 700, color: INK, textDecoration: "underline", textUnderlineOffset: 3 }}>← Spaghetti.ltd</Link>}
           </div>
         </div>
       )}
@@ -307,6 +306,7 @@ function MusicHero() {
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) { const rr = Math.min(r, h / 2, w / 2); ctx.beginPath(); ctx.moveTo(x + rr, y); ctx.arcTo(x + w, y, x + w, y + h, rr); ctx.arcTo(x + w, y + h, x, y + h, rr); ctx.arcTo(x, y + h, x, y, rr); ctx.arcTo(x, y, x + w, y, rr); ctx.closePath(); }
+function impulse(a: AudioContext, sec: number, decay: number) { const L = (a.sampleRate * sec) | 0; const b = a.createBuffer(2, L, a.sampleRate); for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, decay); } return b; }
 function shaperCurve(amount: number) { const n = 1024, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.tanh(x * amount) / Math.tanh(amount); } return c; }
 function noise(a: AudioContext, sec: number) { const L = (a.sampleRate * sec) | 0; const b = a.createBuffer(1, L, a.sampleRate); const d = b.getChannelData(0); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, 1.5); return b; }
 function kick(a: AudioContext, out: AudioNode, t: number) {

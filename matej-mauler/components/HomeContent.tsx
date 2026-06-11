@@ -130,7 +130,7 @@ export function HomeContent({ dict, lang, items, songs = [] }: { dict: Dictionar
             </p>
             <p>
               {dict.about.rewardA}
-              <a href="/what-are-the-odds" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: "3px", fontWeight: 600 }}>
+              <a href="/pravdepodobnost" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: "3px", fontWeight: 600 }}>
                 {dict.about.rewardLink}
               </a>
             </p>

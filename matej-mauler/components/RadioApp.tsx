@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { OPTIONS, type OptionId } from "@/lib/radioComposer";
-import type { Lang } from "@/lib/lang";
+import type { Lang } from "@/lib/dictionaries";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -12,7 +12,7 @@ const lab: React.CSSProperties = { fontFamily: "var(--font-sans)", fontSize: "9p
 
 const UI = {
   cs: {
-    back: "← The Lab", eyebrow: "Rádio renderované na serveru", title: "The Radio",
+    back: "← Spaghetti.ltd", eyebrow: "Rádio renderované na serveru", title: "The Radio",
     modalTitle: "Zvukový projekt", modalText: "Tohle rádio hraje. Zapni si reproduktory, nebo si nasaď sluchátka — zvuk se spustí po vstupu.",
     intro: "Skladba se renderuje na serveru a všichni slyší totéž. Hlasováním rozhodneš, co se změní od příštího taktu.",
     enter: "Vstoupit ▶", tempo: "Tempo", key: "Tónina", genre: "Styl", round: "Kolo",
@@ -21,7 +21,7 @@ const UI = {
     loading: "Ladím frekvenci…",
   },
   en: {
-    back: "← The Lab", eyebrow: "A server-rendered radio", title: "The Radio",
+    back: "← Spaghetti.ltd", eyebrow: "A server-rendered radio", title: "The Radio",
     modalTitle: "An audio project", modalText: "This radio plays sound. Turn on your speakers or put on headphones — audio starts once you enter.",
     intro: "The track is rendered on the server and everyone hears the same thing. Your vote decides what changes from the next bar.",
     enter: "Enter ▶", tempo: "Tempo", key: "Key", genre: "Style", round: "Round",

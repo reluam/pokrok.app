@@ -84,7 +84,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   useEffect(() => {
     const onPop = () => {
       const p = location.pathname.replace(/^\//, "");
-      const s = p === "" || p === "cs" ? "brana" : p;
+      const s = p === "encyklopedie" ? "brana" : p;
       if (getNode(s) || isRedLink(s)) { setDir("jump"); setSlug(s); setTrail([]); }
       else location.reload();
     };
@@ -124,7 +124,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     };
   }, []);
 
-  useEffect(() => { document.title = slug === "brana" ? "Spaghetti.ltd" : `${titleOf(slug, lang)} — Spaghetti.ltd`; }, [slug, lang]);
+  useEffect(() => { document.title = slug === "brana" ? "Encyklopedie — Spaghetti.ltd" : `${titleOf(slug, lang)} — Spaghetti.ltd`; }, [slug, lang]);
 
   const switchLang = () => {
     const target = lang === "cs" ? "en" : "cs";
@@ -193,11 +193,9 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
       )}
 
       {/* chrome */}
-      {!isGate && (
-        <div style={{ position: "fixed", top: 16, left: 20, zIndex: 20 }}>
-          <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: PC.home, textDecoration: "none" }}>{u.home}</Link>
-        </div>
-      )}
+      <div style={{ position: "fixed", top: 16, left: 20, zIndex: 20 }}>
+        <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: PC.home, textDecoration: "none" }}>{u.home}</Link>
+      </div>
 
       {!isGate && (
         <div style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: searchOpen ? 46 : 20 }}>

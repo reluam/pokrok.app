@@ -76,7 +76,7 @@ export function EncyclopediaAdmin({ wishes, suggestions: initial }: { wishes: Wi
           </div>
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-          {[["/mapa", "Mapa →"], ["/admin/vvv", "VVV →"], ["/admin/experiments", "Experimenty →"], ["/admin/songs", "Songs →"]].map(([href, label]) => (
+          {[["/mapa", "Mapa →"], ["/admin/brain", "Mozek →"], ["/admin/vvv", "VVV →"], ["/admin/experiments", "Experimenty →"], ["/admin/songs", "Songs →"]].map(([href, label]) => (
             <Link key={href} href={href} style={{ fontFamily: sans, fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>{label}</Link>
           ))}
           <Link href="/" style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>← Spaghetti.ltd</Link>

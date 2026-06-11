@@ -27,7 +27,7 @@ function StatCard({ label, value, emoji }: { label: string; value: number; emoji
   );
 }
 
-export function AdminDashboard({ stats, initialWords }: { stats: Stats; initialWords: AdminBrainWord[] }) {
+export function BrainAdmin({ stats, initialWords }: { stats: Stats; initialWords: AdminBrainWord[] }) {
   const [words, setWords] = useState<AdminBrainWord[]>(initialWords);
   const [search, setSearch] = useState("");
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -65,7 +65,7 @@ export function AdminDashboard({ stats, initialWords }: { stats: Stats; initialW
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ fontSize: "24px" }}>🧪</span>
           <div>
-            <h1 style={{ ...display, fontSize: "20px", fontWeight: 900, lineHeight: 1 }}>The Lab HQ</h1>
+            <h1 style={{ ...display, fontSize: "20px", fontWeight: 900, lineHeight: 1 }}>Spaghetti HQ</h1>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)" }}>Admin rozhraní</p>
           </div>
         </div>
@@ -74,7 +74,7 @@ export function AdminDashboard({ stats, initialWords }: { stats: Stats; initialW
             Experimenty →
           </Link>
           <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>
-            ← The Lab
+            ← Spaghetti.ltd
           </Link>
           <button onClick={logout} style={{
             background: "transparent", color: "var(--text-muted)",

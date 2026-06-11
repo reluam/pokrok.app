@@ -6,13 +6,11 @@ import { scenarios } from "@/lib/odds";
 type Motif = "bars" | "eq" | "wave" | "stars" | "digits" | "book" | "path" | "rings" | "odds";
 
 const MOTIF: Record<string, Motif> = {
-  radio: "eq", musicvote: "bars", anthem: "bars",
-  sonify: "wave", foundry: "wave",
-  journey: "path",
-  vvv: "book",
-  space: "stars",
-  cas: "digits",
-  odds: "odds",
+  encyklopedie: "book",
+  sound: "wave",
+  music: "bars",
+  radio: "eq",
+  brain: "rings",
 };
 
 const STAR_POS = [
