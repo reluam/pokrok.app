@@ -1,5 +1,6 @@
 import { MusicExperience } from "@/components/MusicExperience";
 import { getLang } from "@/lib/lang";
+import { guardExperiment } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -8,6 +9,7 @@ export const metadata = {
 };
 
 export default async function MusicPage() {
+  await guardExperiment("music");
   const lang = await getLang();
   return <MusicExperience lang={lang} />;
 }

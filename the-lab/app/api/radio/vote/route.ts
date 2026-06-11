@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { voteCell } from "@/lib/radioServer";
+import { voteOption } from "@/lib/radioServer";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -11,11 +11,11 @@ function ipHash(req: NextRequest): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { roundNo, cell } = await req.json();
-    if (typeof roundNo !== "number" || typeof cell !== "string" || cell.length > 40) {
+    const { round, option } = await req.json();
+    if (typeof round !== "number" || typeof option !== "string" || option.length > 20) {
       return NextResponse.json({ error: "bad request" }, { status: 400 });
     }
-    return NextResponse.json(await voteCell(roundNo, cell, ipHash(req)));
+    return NextResponse.json(await voteOption(round, option, ipHash(req)));
   } catch (e: unknown) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }

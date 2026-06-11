@@ -1,107 +1,131 @@
 import { getDb } from "./db";
-import { genSong, randomMutate, toggleNote, serverRoundSec, SERVER_TEMPO, type SongState, type DrumId, type MelodicId } from "./radio";
+import { genSong, applyOption, roundDurationMs, keyName, OPTIONS, type SongState, type OptionId } from "./radioComposer";
 
 type Sql = ReturnType<typeof getDb>;
 
-/* Rádio běží na serveru: kola jsou ukotvená na absolutní čas (epoch),
-   takže každý posluchač hraje synchronně jen podle hodin.
-   Jedno kolo = jeden průchod mřížkou = 4 bary @ 124 BPM (~7,7 s).
-   Stav posouvá líně každý dotaz na /api/radio/state + cron na /api/radio/tick. */
+/* Rádio doopravdy běží na serveru: každé kolo (~15 s, celé takty) má v DB
+   stav skladby + absolutní start; audio renderuje /api/radio/segment.
+   Hlasuje se 1× za kolo, uzávěrka VOTE_CLOSE_MS před koncem (kvůli
+   prefetchi dalšího segmentu) a vítěz se projeví od 1. doby dalšího kola. */
 
-export const ROUND_SEC = serverRoundSec(); // 4 bary
-const curRound = () => Math.floor(Date.now() / 1000 / ROUND_SEC);
+export const VOTE_CLOSE_MS = 4000;
 
 let schemaReady = false;
 async function ensureSchema(sql: Sql) {
   if (schemaReady) return;
   await sql.transaction([
-    sql`CREATE TABLE IF NOT EXISTS radio_state (
-      id INT PRIMARY KEY DEFAULT 1,
+    sql`CREATE TABLE IF NOT EXISTS radio_rounds (
+      round_no BIGINT PRIMARY KEY,
       state JSONB NOT NULL,
-      round_no INT NOT NULL DEFAULT 0,
-      round_start TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      started_at TIMESTAMPTZ NOT NULL,
+      duration_ms INT NOT NULL
     )`,
-    sql`CREATE TABLE IF NOT EXISTS radio_vote (
-      id SERIAL PRIMARY KEY,
-      round_no INT NOT NULL,
-      cell TEXT NOT NULL,
+    sql`CREATE TABLE IF NOT EXISTS radio_round_votes (
+      round_no BIGINT NOT NULL,
+      option_id TEXT NOT NULL,
       ip_hash TEXT NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      UNIQUE(round_no, cell, ip_hash)
+      PRIMARY KEY (round_no, ip_hash)
     )`,
   ]);
   schemaReady = true;
 }
 
-type StateRow = { state: SongState; round_no: number };
+export type RoundRow = { round_no: number; state: SongState; started_at: string; duration_ms: number };
 
-async function getRow(sql: Sql): Promise<StateRow> {
-  const [row] = await sql`SELECT state, round_no FROM radio_state WHERE id = 1` as StateRow[];
-  if (row) return row;
-  const fresh = genSong(); fresh.tempo = SERVER_TEMPO;
-  await sql`INSERT INTO radio_state (id, state, round_no) VALUES (1, ${JSON.stringify(fresh)}::jsonb, ${curRound()}) ON CONFLICT (id) DO NOTHING`;
-  const [r2] = await sql`SELECT state, round_no FROM radio_state WHERE id = 1` as StateRow[];
-  return r2;
+const rowEnd = (r: RoundRow) => new Date(r.started_at).getTime() + r.duration_ms;
+
+async function lastRound(sql: Sql): Promise<RoundRow | null> {
+  const [r] = await sql`SELECT round_no::int AS round_no, state, started_at, duration_ms FROM radio_rounds ORDER BY round_no DESC LIMIT 1` as RoundRow[];
+  return r ?? null;
 }
 
-function applyCell(state: SongState, cell: string) {
-  const p = cell.split(":");
-  if (p[0] === "d") {
-    const lane = p[1] as DrumId; const step = +p[2];
-    if (state.drums[lane]) { state.drums[lane].pattern[step] = !state.drums[lane].pattern[step]; state.drums[lane].muted = false; }
-  } else {
-    const layer = p[1] as MelodicId; const step = +p[2]; const midi = +p[3];
-    if (state[layer]) { state[layer].notes = toggleNote(state[layer].notes, step, midi); state[layer].muted = false; }
-  }
+async function winnerOf(sql: Sql, roundNo: number): Promise<OptionId | null> {
+  const [t] = await sql`SELECT option_id, COUNT(*)::int AS c FROM radio_round_votes WHERE round_no = ${roundNo} GROUP BY option_id ORDER BY c DESC, option_id ASC LIMIT 1` as { option_id: string; c: number }[];
+  return (t?.option_id as OptionId) ?? null;
 }
 
-function mutate(state: SongState) {
-  const m = randomMutate(state);
-  Object.assign(state, m.state);
-  state.tempo = SERVER_TEMPO; // tempo je kotva synchronizace — nikdy se nemění
-}
-
-/** Posune rádio do aktuálního kola: poslední kolo rozhodne hlasování, delší výpadek dožene pár mutací. */
-export async function advanceIfDue(): Promise<StateRow> {
+/** Zajistí kola až do teď + prefetch okna. Po delší pauze se rádio znovu ukotví na „teď“. */
+export async function ensureRounds(): Promise<{ current: RoundRow; next: RoundRow | null }> {
   const sql = getDb();
   await ensureSchema(sql);
-  let row = await getRow(sql);
-  const target = curRound();
-  if (row.round_no < target) {
-    const missed = target - row.round_no;
-    const state: SongState = JSON.parse(JSON.stringify(row.state));
-    const tally = await sql`SELECT cell, COUNT(*)::int AS c FROM radio_vote WHERE round_no = ${row.round_no} GROUP BY cell ORDER BY c DESC LIMIT 1` as { cell: string; c: number }[];
-    if (tally.length > 0) applyCell(state, tally[0].cell);
-    else mutate(state);
-    for (let i = 1; i < Math.min(missed, 4); i++) mutate(state);
-    await sql`UPDATE radio_state SET state = ${JSON.stringify(state)}::jsonb, round_no = ${target}, round_start = NOW() WHERE id = 1 AND round_no = ${row.round_no}`;
-    await sql`DELETE FROM radio_vote WHERE round_no < ${target - 2}`; // úklid starých hlasů
-    row = await getRow(sql);
+  const now = Date.now();
+  let last = await lastRound(sql);
+
+  // start od nuly, nebo restart po dlouhé pauze (mezera > 1 kolo) — kotva na teď
+  if (!last || rowEnd(last) < now - 2000) {
+    const roundNo = (last?.round_no ?? -1) + 1;
+    const state = last ? applyOption(last.state, null, roundNo * 31 + 7) : genSong(roundNo + 20260611);
+    const started = new Date(now + 1500);
+    await sql`INSERT INTO radio_rounds (round_no, state, started_at, duration_ms) VALUES (${roundNo}, ${JSON.stringify(state)}::jsonb, ${started.toISOString()}, ${roundDurationMs(state)}) ON CONFLICT (round_no) DO NOTHING`;
+    last = await lastRound(sql);
   }
-  return row;
+
+  // řetěz: dokud konec posledního kola nepokrývá teď + prefetch okno
+  let guard = 0;
+  while (last && rowEnd(last) - now < VOTE_CLOSE_MS + 1500 && guard++ < 3) {
+    const winner = await winnerOf(sql, last.round_no);
+    const state = applyOption(last.state, winner, (last.round_no + 1) * 31 + 7);
+    const started = new Date(rowEnd(last));
+    await sql`INSERT INTO radio_rounds (round_no, state, started_at, duration_ms) VALUES (${last.round_no + 1}, ${JSON.stringify(state)}::jsonb, ${started.toISOString()}, ${roundDurationMs(state)}) ON CONFLICT (round_no) DO NOTHING`;
+    last = await lastRound(sql);
+  }
+
+  // úklid: stará kola a hlasy
+  if (last) {
+    await sql`DELETE FROM radio_rounds WHERE round_no < ${last.round_no - 6}`;
+    await sql`DELETE FROM radio_round_votes WHERE round_no < ${last.round_no - 6}`;
+  }
+
+  const rows = await sql`SELECT round_no::int AS round_no, state, started_at, duration_ms FROM radio_rounds ORDER BY round_no DESC LIMIT 3` as RoundRow[];
+  const current = rows.find((r) => new Date(r.started_at).getTime() <= now && rowEnd(r) > now) ?? rows[rows.length - 1];
+  const next = rows.find((r) => r.round_no === current.round_no + 1) ?? null;
+  return { current, next };
 }
 
-export type SharedState = {
-  state: SongState; roundNo: number; deadline: string; roundSec: number;
-  votes: { cell: string; count: number }[];
+export async function getRound(roundNo: number): Promise<RoundRow | null> {
+  const sql = getDb();
+  await ensureSchema(sql);
+  const [r] = await sql`SELECT round_no::int AS round_no, state, started_at, duration_ms FROM radio_rounds WHERE round_no = ${roundNo}` as RoundRow[];
+  return r ?? null;
+}
+
+export type NowPayload = {
+  serverNow: number;
+  current: { round: number; startedAt: number; durationMs: number; tempo: number; key: string; genre: string };
+  next: { round: number; startedAt: number; durationMs: number } | null;
+  voting: { round: number; closesAt: number; counts: Record<string, number> };
 };
 
-export async function getSharedState(): Promise<SharedState> {
+export async function getNow(): Promise<NowPayload> {
   const sql = getDb();
-  const row = await advanceIfDue();
-  const votes = await sql`SELECT cell, COUNT(*)::int AS count FROM radio_vote WHERE round_no = ${row.round_no} GROUP BY cell` as { cell: string; count: number }[];
+  const { current, next } = await ensureRounds();
+  const votes = await sql`SELECT option_id, COUNT(*)::int AS count FROM radio_round_votes WHERE round_no = ${current.round_no} GROUP BY option_id` as { option_id: string; count: number }[];
+  const counts: Record<string, number> = {};
+  for (const o of OPTIONS) counts[o.id] = 0;
+  for (const v of votes) counts[v.option_id] = v.count;
   return {
-    state: row.state, roundNo: row.round_no,
-    deadline: new Date((curRound() + 1) * ROUND_SEC * 1000).toISOString(),
-    roundSec: ROUND_SEC, votes,
+    serverNow: Date.now(),
+    current: {
+      round: current.round_no, startedAt: new Date(current.started_at).getTime(), durationMs: current.duration_ms,
+      tempo: current.state.tempo, key: keyName(current.state), genre: current.state.genre,
+    },
+    next: next ? { round: next.round_no, startedAt: new Date(next.started_at).getTime(), durationMs: next.duration_ms } : null,
+    voting: { round: current.round_no, closesAt: rowEnd(current) - VOTE_CLOSE_MS, counts },
   };
 }
 
-export async function voteCell(roundNo: number, cell: string, ipHash: string): Promise<{ ok: boolean }> {
+const VALID = new Set(OPTIONS.map((o) => o.id as string));
+
+export async function voteOption(roundNo: number, option: string, ipHash: string): Promise<{ ok: boolean }> {
+  if (!VALID.has(option)) return { ok: false };
   const sql = getDb();
   await ensureSchema(sql);
+  const round = await getRound(roundNo);
+  if (!round || rowEnd(round) - VOTE_CLOSE_MS <= Date.now()) return { ok: false }; // po uzávěrce
   try {
-    await sql`INSERT INTO radio_vote (round_no, cell, ip_hash) VALUES (${roundNo}, ${cell}, ${ipHash}) ON CONFLICT (round_no, cell, ip_hash) DO NOTHING`;
+    // jeden hlas za kolo na člověka (PK round_no+ip_hash)
+    await sql`INSERT INTO radio_round_votes (round_no, option_id, ip_hash) VALUES (${roundNo}, ${option}, ${ipHash}) ON CONFLICT (round_no, ip_hash) DO NOTHING`;
     return { ok: true };
   } catch { return { ok: false }; }
 }

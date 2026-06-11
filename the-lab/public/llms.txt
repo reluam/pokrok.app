@@ -8,7 +8,8 @@ Simple projects live directly on this site; larger ones are linked cards that op
 
 - [A journey along a sound wave](/sound): An interactive sound experience. Your cursor is an ear — scroll through sound from a tremble to an echo, hear pitch, loudness, timbre and reflection, all synthesized live with WebAudio.
 - [How music is made](/music): An interactive music studio. Build a track layer by layer — beat, bass, chords and melody — with grids, faders and effects like a tiny DAW.
-- [The Radio](/radio): An endless generative radio station. Visitors vote on individual pattern cells and collectively tune what plays next, live.
+- [The Radio](/radio): A radio station rendered on the server — everyone hears the exact same mastered stream. Every ~15 seconds listeners vote (one vote each) on what changes next: melody, beat, bassline, instrument, tempo or key; the winner applies from beat one of the next bar.
+- [The Public Brain](/brain): A collective word-association brain. Explorer mode shows you a word and you type the first association that comes to mind — repeated associations strengthen the "synapse" between two words. Researcher mode visualizes the whole graph as a map where noodle thickness equals synapse strength (unlocks meaningfully after ~5,000 associations).
 
 ## Linked projects
 

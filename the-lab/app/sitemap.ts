@@ -9,5 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/sound`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE}/music`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE}/radio`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE}/brain`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
   ];
 }
