@@ -1,9 +1,15 @@
 import { getDb } from "./db";
-import { genSong, randomMutate, toggleNote, type SongState, type DrumId, type MelodicId } from "./radio";
+import { genSong, randomMutate, toggleNote, serverRoundSec, SERVER_TEMPO, type SongState, type DrumId, type MelodicId } from "./radio";
 
 type Sql = ReturnType<typeof getDb>;
 
-export const SHARED_ROUND_SEC = 12;
+/* Rádio běží na serveru: kola jsou ukotvená na absolutní čas (epoch),
+   takže každý posluchač hraje synchronně jen podle hodin.
+   Jedno kolo = jeden průchod mřížkou = 4 bary @ 124 BPM (~7,7 s).
+   Stav posouvá líně každý dotaz na /api/radio/state + cron na /api/radio/tick. */
+
+export const ROUND_SEC = serverRoundSec(); // 4 bary
+const curRound = () => Math.floor(Date.now() / 1000 / ROUND_SEC);
 
 let schemaReady = false;
 async function ensureSchema(sql: Sql) {
@@ -27,14 +33,14 @@ async function ensureSchema(sql: Sql) {
   schemaReady = true;
 }
 
-type StateRow = { state: SongState; round_no: number; round_start: string };
+type StateRow = { state: SongState; round_no: number };
 
 async function getRow(sql: Sql): Promise<StateRow> {
-  const [row] = await sql`SELECT state, round_no, round_start FROM radio_state WHERE id = 1` as StateRow[];
+  const [row] = await sql`SELECT state, round_no FROM radio_state WHERE id = 1` as StateRow[];
   if (row) return row;
-  const fresh = genSong();
-  await sql`INSERT INTO radio_state (id, state, round_no, round_start) VALUES (1, ${JSON.stringify(fresh)}::jsonb, 0, NOW()) ON CONFLICT (id) DO NOTHING`;
-  const [r2] = await sql`SELECT state, round_no, round_start FROM radio_state WHERE id = 1` as StateRow[];
+  const fresh = genSong(); fresh.tempo = SERVER_TEMPO;
+  await sql`INSERT INTO radio_state (id, state, round_no) VALUES (1, ${JSON.stringify(fresh)}::jsonb, ${curRound()}) ON CONFLICT (id) DO NOTHING`;
+  const [r2] = await sql`SELECT state, round_no FROM radio_state WHERE id = 1` as StateRow[];
   return r2;
 }
 
@@ -49,6 +55,32 @@ function applyCell(state: SongState, cell: string) {
   }
 }
 
+function mutate(state: SongState) {
+  const m = randomMutate(state);
+  Object.assign(state, m.state);
+  state.tempo = SERVER_TEMPO; // tempo je kotva synchronizace — nikdy se nemění
+}
+
+/** Posune rádio do aktuálního kola: poslední kolo rozhodne hlasování, delší výpadek dožene pár mutací. */
+export async function advanceIfDue(): Promise<StateRow> {
+  const sql = getDb();
+  await ensureSchema(sql);
+  let row = await getRow(sql);
+  const target = curRound();
+  if (row.round_no < target) {
+    const missed = target - row.round_no;
+    const state: SongState = JSON.parse(JSON.stringify(row.state));
+    const tally = await sql`SELECT cell, COUNT(*)::int AS c FROM radio_vote WHERE round_no = ${row.round_no} GROUP BY cell ORDER BY c DESC LIMIT 1` as { cell: string; c: number }[];
+    if (tally.length > 0) applyCell(state, tally[0].cell);
+    else mutate(state);
+    for (let i = 1; i < Math.min(missed, 4); i++) mutate(state);
+    await sql`UPDATE radio_state SET state = ${JSON.stringify(state)}::jsonb, round_no = ${target}, round_start = NOW() WHERE id = 1 AND round_no = ${row.round_no}`;
+    await sql`DELETE FROM radio_vote WHERE round_no < ${target - 2}`; // úklid starých hlasů
+    row = await getRow(sql);
+  }
+  return row;
+}
+
 export type SharedState = {
   state: SongState; roundNo: number; deadline: string; roundSec: number;
   votes: { cell: string; count: number }[];
@@ -56,24 +88,12 @@ export type SharedState = {
 
 export async function getSharedState(): Promise<SharedState> {
   const sql = getDb();
-  await ensureSchema(sql);
-  let row = await getRow(sql);
-
-  let guard = 0;
-  while (new Date(row.round_start).getTime() + SHARED_ROUND_SEC * 1000 <= Date.now() && guard++ < 4) {
-    const tally = await sql`SELECT cell, COUNT(*)::int AS c FROM radio_vote WHERE round_no = ${row.round_no} GROUP BY cell ORDER BY c DESC LIMIT 1` as { cell: string; c: number }[];
-    const state: SongState = JSON.parse(JSON.stringify(row.state));
-    if (tally.length > 0) applyCell(state, tally[0].cell);
-    else { const m = randomMutate(state); Object.assign(state, m.state); }
-    await sql`UPDATE radio_state SET state = ${JSON.stringify(state)}::jsonb, round_no = ${row.round_no + 1}, round_start = NOW() WHERE id = 1`;
-    row = await getRow(sql);
-  }
-
+  const row = await advanceIfDue();
   const votes = await sql`SELECT cell, COUNT(*)::int AS count FROM radio_vote WHERE round_no = ${row.round_no} GROUP BY cell` as { cell: string; count: number }[];
   return {
     state: row.state, roundNo: row.round_no,
-    deadline: new Date(new Date(row.round_start).getTime() + SHARED_ROUND_SEC * 1000).toISOString(),
-    roundSec: SHARED_ROUND_SEC, votes,
+    deadline: new Date((curRound() + 1) * ROUND_SEC * 1000).toISOString(),
+    roundSec: ROUND_SEC, votes,
   };
 }
 

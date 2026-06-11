@@ -4,13 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   radioUi, DRUM_IDS, MELODIC_IDS, DRUM_LABEL, LAYER_LABEL,
-  genSong, serverStateAt, serverRoundSec, toggleNote, toggleDrumCell, TOTAL,
+  genSong, serverRoundSec, SERVER_TEMPO, TOTAL,
   type SongState, type LayerId, type DrumId, type MelodicId,
 } from "@/lib/radio";
 import { createRadio, type RadioControl } from "@/lib/radioEngine";
 import { RadioEditor } from "./RadioEditor";
 import type { Lang } from "@/lib/lang";
-import { AudioNotice } from "./AudioNotice";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -21,53 +20,39 @@ const LAYER_COLOR: Record<LayerId, string> = {
 const card: React.CSSProperties = { background: "#fff", border: "2px solid var(--border)", borderRadius: "14px", boxShadow: "3px 3px 0 var(--border)", padding: "14px" };
 const lab: React.CSSProperties = { fontFamily: "var(--font-sans)", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" };
 
-type View = "gate" | "select" | "server" | "my" | "shared";
 type Ripple = { x: number; y: number; r: number; maxR: number; color: string; born: number };
-type LogItem = { label: { cs: string; en: string }; at: number };
 
-function editCell(state: SongState, cell: string): SongState {
-  const s: SongState = JSON.parse(JSON.stringify(state));
-  const p = cell.split(":");
-  if (p[0] === "d") { const lane = p[1] as DrumId; s.drums[lane].pattern = toggleDrumCell(s.drums[lane].pattern, +p[2]); s.drums[lane].muted = false; }
-  else { const l = p[1] as MelodicId; s[l].notes = toggleNote(s[l].notes, +p[2], +p[3]); s[l].muted = false; }
-  return s;
-}
-
+/** Jedno serverové rádio: hraje pro všechny stejně (kola ukotvená na čas),
+    posluchač se připojí k session a hlasuje o změnách. Zvuk startuje až po modálu. */
 export function RadioApp({ lang }: { lang: Lang }) {
   const t = radioUi[lang];
   const homeHref = "/";
 
-  const [view, setView] = useState<View>("gate");
+  const [entered, setEntered] = useState(false);
   const [song, setSong] = useState<SongState | null>(null);
-  const [log, setLog] = useState<LogItem[]>([]);
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [secLeft, setSecLeft] = useState(0);
 
   const [, forceMute] = useState(0);
   const mutedRef = useRef<Set<LayerId>>(new Set());
   const isMuted = (l: LayerId) => mutedRef.current.has(l);
-  const toggleMute = (l: LayerId) => { const s = mutedRef.current; s.has(l) ? s.delete(l) : s.add(l); forceMute((x) => x + 1); };
+  const toggleMute = (l: LayerId) => { const s = mutedRef.current; if (s.has(l)) s.delete(l); else s.add(l); forceMute((x) => x + 1); };
 
   const ctrlRef = useRef<RadioControl | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ripplesRef = useRef<Ripple[]>([]);
   const rafRef = useRef<number | null>(null);
-  const timeRef = useRef<HTMLSpanElement>(null);
-  const startRef = useRef(0);
 
-  // state sources
-  const serverRef = useRef<{ r: number; state: SongState }>({ r: 0, state: genSong() });
-  const myRef = useRef<SongState>(genSong());
   const sharedRef = useRef<SongState>(genSong());
   const sharedMeta = useRef<{ roundNo: number; deadline: number }>({ roundNo: 0, deadline: 0 });
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const stopEngine = () => {
+  const stopAll = () => {
     ctrlRef.current?.stop(); ctrlRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current); rafRef.current = null;
+    if (pollRef.current) clearInterval(pollRef.current); pollRef.current = null;
     ripplesRef.current = [];
   };
-  const stopAll = () => { stopEngine(); if (pollRef.current) clearInterval(pollRef.current); pollRef.current = null; };
   useEffect(() => () => stopAll(), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const spawn = (layer: LayerId, midi: number | null) => {
@@ -105,7 +90,7 @@ export function RadioApp({ lang }: { lang: Lang }) {
     }
     const td = new Uint8Array(ctrl.analyser.fftSize); ctrl.analyser.getByteTimeDomainData(td);
     ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,0.16)"; ctx.beginPath();
-    for (let i = 0; i < td.length; i += 2) { const x = (i / td.length) * w; const y = h * 0.4 + (td[i] / 128 - 1) * (h * 0.18); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+    for (let i = 0; i < td.length; i += 2) { const x = (i / td.length) * w; const y = h * 0.4 + (td[i] / 128 - 1) * (h * 0.18); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
     ctx.stroke();
     const now = performance.now(); const alive: Ripple[] = [];
     for (const rp of ripplesRef.current) {
@@ -115,50 +100,22 @@ export function RadioApp({ lang }: { lang: Lang }) {
       alive.push(rp);
     }
     ripplesRef.current = alive;
-    if (timeRef.current) { const s = Math.floor((now - startRef.current) / 1000); timeRef.current.textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`; }
     rafRef.current = requestAnimationFrame(draw);
   };
 
-  // ── Spuštění stanic ──
   const onHit = (layer: LayerId, midi: number | null, whenSec: number) => {
     const delay = Math.max(0, (whenSec - (ctrlRef.current?.audioTime() ?? whenSec)) * 1000);
     window.setTimeout(() => spawn(layer, midi), delay);
   };
 
-  const startServer = () => {
-    stopEngine();
+  /** Připojení k serverové session: engine startuje ve fázi odvozené z hodin (kola jsou epoch-anchored). */
+  const enter = () => {
+    stopAll();
     const roundSec = serverRoundSec();
-    const elapsed = Date.now() / 1000;
-    const r = Math.floor(elapsed / roundSec);
-    serverRef.current = { r, state: serverStateAt(r).state };
-    setSong({ ...serverRef.current.state }); setLog([]);
-    const startStep = Math.floor(((elapsed % roundSec) / roundSec) * TOTAL);
-    startRef.current = performance.now();
-    ctrlRef.current = createRadio({
-      getState: () => serverRef.current.state,
-      startStep,
-      onHit, isMuted,
-      onBar: () => {
-        serverRef.current.r += 1;
-        const nx = serverStateAt(serverRef.current.r);
-        serverRef.current.state = nx.state;
-        setSong({ ...nx.state }); setLog((p) => [{ label: nx.label, at: performance.now() }, ...p].slice(0, 12));
-      },
-    });
-  };
-
-  const startMy = () => {
-    stopEngine();
-    myRef.current = genSong();
-    setSong({ ...myRef.current }); setLog([]);
-    startRef.current = performance.now();
-    ctrlRef.current = createRadio({ getState: () => myRef.current, onHit, isMuted });
-  };
-
-  const startShared = () => {
-    stopEngine();
-    startRef.current = performance.now();
-    ctrlRef.current = createRadio({ getState: () => sharedRef.current, onHit, isMuted });
+    sharedRef.current.tempo = SERVER_TEMPO;
+    const phase = (Date.now() / 1000) % roundSec;
+    const startStep = Math.floor((phase / roundSec) * TOTAL) % TOTAL;
+    ctrlRef.current = createRadio({ getState: () => sharedRef.current, startStep, onHit, isMuted });
     const poll = async () => {
       try {
         const res = await fetch("/api/radio/state", { cache: "no-store" });
@@ -171,34 +128,24 @@ export function RadioApp({ lang }: { lang: Lang }) {
     };
     poll();
     pollRef.current = setInterval(poll, 1500);
+    setEntered(true);
   };
 
-  // countdown for shared
+  // odpočet do další změny
   useEffect(() => {
-    if (view !== "shared") return;
+    if (!entered) return;
     const i = setInterval(() => setSecLeft(Math.max(0, Math.ceil((sharedMeta.current.deadline - Date.now()) / 1000))), 250);
     return () => clearInterval(i);
-  }, [view]);
+  }, [entered]);
 
-  // spusť vizualizaci až po mountu canvasu
+  // vizualizace po mountu canvasu
   useEffect(() => {
-    if (view !== "server" && view !== "my" && view !== "shared") return;
+    if (!entered) return;
     const id = requestAnimationFrame(() => { if (!rafRef.current) draw(); });
     return () => cancelAnimationFrame(id);
-  }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [entered]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const enterGate = () => { setView("select"); startServer(); };
-  const goSelect = () => { setView("select"); if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } startServer(); };
-  const enter = (v: View) => {
-    setView(v);
-    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
-    if (v === "server") startServer();
-    else if (v === "my") startMy();
-    else if (v === "shared") startShared();
-  };
-
-  const myEdit = (cell: string) => { myRef.current = editCell(myRef.current, cell); setSong({ ...myRef.current }); };
-  const sharedVote = (cell: string) => {
+  const vote = (cell: string) => {
     setVotes((p) => ({ ...p, [cell]: (p[cell] ?? 0) + 1 }));
     fetch("/api/radio/vote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ roundNo: sharedMeta.current.roundNo, cell }) }).catch(() => {});
   };
@@ -208,63 +155,36 @@ export function RadioApp({ lang }: { lang: Lang }) {
     const cv = canvasRef.current; if (!cv) return;
     const resize = () => { const r = cv.getBoundingClientRect(); cv.width = r.width; cv.height = r.height; };
     resize(); window.addEventListener("resize", resize); return () => window.removeEventListener("resize", resize);
-  }, [view]);
+  }, [entered]);
 
   const noteName = (root: number) => ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][((root % 12) + 12) % 12];
 
-  /* ── GATE ── */
-  if (view === "gate") {
-    return (
-      <Shell t={t} homeHref={homeHref}>
-        <div style={{ textAlign: "center", paddingTop: "60px" }}>
-          <h1 style={{ ...display, fontSize: "clamp(36px, 8vw, 64px)", fontWeight: 900, letterSpacing: "-0.03em", marginBottom: "12px" }}>{t.title}</h1>
-          <p style={{ ...serifItalic, fontSize: "17px", color: "var(--text-secondary)", marginBottom: "20px" }}>{t.intro}</p>
-          <AudioNotice lang={lang} />
-          <button onClick={enterGate} style={{ background: "var(--text-primary)", color: "var(--bg)", border: "2.5px solid var(--text-primary)", borderRadius: "12px", boxShadow: "5px 5px 0 var(--text-primary)", padding: "16px 38px", fontFamily: "var(--font-sans)", fontSize: "17px", fontWeight: 800, cursor: "pointer" }}>{t.start}</button>
-        </div>
-      </Shell>
-    );
-  }
-
-  /* ── SELECT ── */
-  if (view === "select") {
-    const modes: { id: View; m: { title: string; desc: string }; emoji: string }[] = [
-      { id: "server", m: t.modes.server, emoji: "📡" },
-      { id: "my", m: t.modes.my, emoji: "🎛️" },
-      { id: "shared", m: t.modes.shared, emoji: "🗳️" },
-    ];
-    return (
-      <Shell t={t} homeHref={homeHref}>
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", textAlign: "center", marginBottom: "16px" }}>🔊 {t.modes.server.title} — {lang === "cs" ? "hraje na pozadí" : "playing in background"}</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "14px" }}>
-          {modes.map(({ id, m, emoji }) => (
-            <button key={id} onClick={() => enter(id)} style={{ ...card, textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "8px", minHeight: "160px" }}>
-              <span style={{ fontSize: "34px" }}>{emoji}</span>
-              <span style={{ ...display, fontSize: "20px", fontWeight: 800 }}>{m.title}</span>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>{m.desc}</span>
-              <span style={{ marginTop: "auto", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>{t.enter}</span>
-            </button>
-          ))}
-        </div>
-      </Shell>
-    );
-  }
-
-  /* ── STATION ── */
-  const showEditor = view === "my" || view === "shared";
   return (
     <Shell t={t} homeHref={homeHref}>
+      {/* zvukový modál — zvuk se zapne až po vstupu */}
+      {!entered && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(10,12,24,0.55)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+          <div style={{ ...card, maxWidth: 440, width: "100%", textAlign: "center", padding: "30px 28px", animation: "radioModalIn 360ms cubic-bezier(0.22,1,0.36,1)" }}>
+            <p style={{ fontSize: "40px", margin: "0 0 8px" }}>🎧</p>
+            <h1 style={{ ...display, fontSize: "26px", fontWeight: 900, letterSpacing: "-0.02em", margin: "0 0 8px" }}>{t.modalTitle}</h1>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 6px" }}>{t.modalText}</p>
+            <p style={{ ...serifItalic, fontSize: "13px", color: "var(--text-muted)", margin: "0 0 20px" }}>{t.intro}</p>
+            <button onClick={enter} style={{ background: "var(--text-primary)", color: "var(--bg)", border: "2.5px solid var(--text-primary)", borderRadius: "12px", boxShadow: "5px 5px 0 var(--text-primary)", padding: "14px 36px", fontFamily: "var(--font-sans)", fontSize: "16px", fontWeight: 800, cursor: "pointer" }}>{t.enter}</button>
+          </div>
+          <style>{`@keyframes radioModalIn { from { opacity: 0; transform: translateY(26px) scale(0.96); } to { opacity: 1; transform: none; } }`}</style>
+        </div>
+      )}
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-        <button onClick={goSelect} style={{ background: "transparent", border: "none", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)", cursor: "pointer" }}>← {lang === "cs" ? "stanice" : "stations"}</button>
-        <span style={{ ...display, fontSize: "18px", fontWeight: 800 }}>{t.modes[view as "server" | "my" | "shared"].title}</span>
-        {view === "shared" ? <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: secLeft <= 3 ? "#dc2626" : "var(--text-muted)", fontWeight: 700 }}>{t.nextIn} {secLeft}s</span> : <span ref={timeRef} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)" }}>00:00</span>}
+        <span style={{ ...display, fontSize: "18px", fontWeight: 800 }}>{t.title}</span>
+        <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: secLeft <= 2 ? "#dc2626" : "var(--text-muted)", fontWeight: 700 }}>{t.nextIn} {entered ? `${secLeft}s` : "—"}</span>
       </div>
 
       <div style={{ position: "relative", border: "2.5px solid var(--border)", borderRadius: "16px", boxShadow: "5px 5px 0 var(--border)", overflow: "hidden", background: "#070b18" }}>
-        <canvas ref={canvasRef} style={{ width: "100%", height: showEditor ? "30vh" : "46vh", minHeight: "220px", display: "block" }} />
+        <canvas ref={canvasRef} style={{ width: "100%", height: "30vh", minHeight: "220px", display: "block" }} />
       </div>
 
-      {/* mute toolbar — každá stopa */}
+      {/* mute toolbar — každá stopa (jen lokální poslech) */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>
         {([...DRUM_IDS, ...MELODIC_IDS] as LayerId[]).map((id) => {
           const m = mutedRef.current.has(id);
@@ -285,21 +205,12 @@ export function RadioApp({ lang }: { lang: Lang }) {
           <div><p style={lab}>{t.tempo}</p><p style={{ ...display, fontSize: "20px", fontWeight: 800 }}>{song?.tempo ?? "—"}</p></div>
           <div><p style={lab}>{t.key}</p><p style={{ ...display, fontSize: "20px", fontWeight: 800 }}>{song ? `${noteName(song.root)}${song.scaleName.includes("minor") ? "m" : ""}` : "—"}</p></div>
         </div>
-        {!showEditor && (
-          <div style={{ ...card, flex: 2, minWidth: "240px" }}>
-            <p style={{ ...lab, marginBottom: "6px" }}>{t.changelog}</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "3px", maxHeight: "120px", overflowY: "auto" }}>
-              {log.length === 0 ? <span style={{ ...serifItalic, fontSize: "13px", color: "var(--text-muted)" }}>—</span> :
-                log.map((it, i) => <span key={i} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: i === 0 ? "var(--text-primary)" : "var(--text-secondary)", fontWeight: i === 0 ? 700 : 400 }}>{it.label[lang]}</span>)}
-            </div>
-          </div>
-        )}
       </div>
 
-      {showEditor && song && (
+      {song && (
         <div style={{ ...card, marginTop: "12px" }}>
           <p style={{ ...lab, marginBottom: "8px" }}>{t.hint}</p>
-          <RadioEditor state={song} lang={lang} mode={view === "shared" ? "vote" : "edit"} votes={view === "shared" ? votes : undefined} onCell={view === "shared" ? sharedVote : myEdit} />
+          <RadioEditor state={song} lang={lang} mode="vote" votes={votes} onCell={vote} />
         </div>
       )}
     </Shell>

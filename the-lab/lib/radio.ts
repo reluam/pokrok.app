@@ -293,8 +293,9 @@ export function toggleDrumCell(pattern: boolean[], step: number): boolean[] {
 export const radioUi = {
   cs: {
     back: "← The Lab", eyebrow: "Nekonečné generativní rádio", title: "The Radio",
-    intro: "Nekonečný elektronický set. Vyber si stanici.",
-    start: "Spustit ♪", stop: "Zastavit ■", enter: "Vstoupit →",
+    intro: "Nekonečný elektronický set, který běží na serveru. Všichni slyší totéž — a hlasováním ho společně ladíte.",
+    modalTitle: "Zvukový projekt", modalText: "Tohle rádio hraje. Zapni si reproduktory, nebo si nasaď sluchátka — zvuk se spustí po vstupu.",
+    start: "Spustit ♪", stop: "Zastavit ■", enter: "Vstoupit ▶",
     tempo: "Tempo", key: "Tónina", playtime: "Hraje", lastChange: "Poslední změna", changelog: "Historie změn", layers: "Vrstvy",
     muted: "ztlumeno", on: "hraje", hint: "Klikni do mřížky a vytvoř tón. Klik na existující = smazat.",
     nextIn: "Změna za", votes: "hlasů", yourVote: "tvůj hlas",
@@ -306,8 +307,9 @@ export const radioUi = {
   },
   en: {
     back: "← The Lab", eyebrow: "Endless generative radio", title: "The Radio",
-    intro: "An endless electronic set. Pick a station.",
-    start: "Start ♪", stop: "Stop ■", enter: "Enter →",
+    intro: "An endless electronic set running on the server. Everyone hears the same stream — and tunes it together by voting.",
+    modalTitle: "An audio project", modalText: "This radio plays sound. Turn on your speakers or put on headphones — audio starts once you enter.",
+    start: "Start ♪", stop: "Stop ■", enter: "Enter ▶",
     tempo: "Tempo", key: "Key", playtime: "Playing", lastChange: "Last change", changelog: "Change log", layers: "Layers",
     muted: "muted", on: "playing", hint: "Click the grid to make a tone. Click an existing one to remove it.",
     nextIn: "Change in", votes: "votes", yourVote: "your vote",
