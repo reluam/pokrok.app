@@ -1,136 +1,113 @@
 import type { NodeDef } from "./types";
 
-/* ── Sound Basics — kanonická trasa zvukem ──────────────────────────
-   zvuk → vlna → šíření → médium → prostředí → ticho → kreslení
-   → frekvence → amplituda → barva → ozvěna
-   Všechna hesla rendruje SoundRealm (společný canvas + audio),
-   text je nahoře, střed patří vlně (hřišti pro ucho). */
-
-const L = { textPos: "top" } as const;
+/* ── Zvuk — termíny propojené nudlemi ───────────────────────────────
+   zvuk → zvuková vlna → šíření → médium → ticho ve vesmíru
+   → frekvence → amplituda → barva zvuku → ozvěna
+   Interaktivní experience žije v The Lab; tady jsou hesla. */
 
 export const SOUND_NODES: NodeDef[] = [
   {
-    slug: "zvuk", realm: "sound", ...L,
+    slug: "zvuk", realm: "sound",
     title: { cs: "Zvuk", en: "Sound" },
     guide: {
-      cs: "Zvuk je chvění. Vlevo je zdroj — rozkmitá se a postrká vzduch. To šťouchnutí běží zleva doprava. Tvůj kurzor je ucho: polož ho na vlnu a uslyšíš ji. Scrolluj dolů a projdi zvuk od chvění až po ozvěnu.",
-      en: "Sound is shaking. On the left is the source — it vibrates and nudges the air. That nudge runs left to right. Your cursor is an ear: park it on the wave and you'll hear it. Scroll down to follow sound from a tremble to an echo.",
+      cs: "Zvuk je chvění. Zdroj se rozkmitá a postrká vzduch; to šťouchnutí běží od částice k částici, až doletí k tvému uchu. Všechno, co jsi kdy slyšel — hrom, šepot i znělku večerníčku — je jen šikovně rozhýbaný vzduch.",
+      en: "Sound is shaking. A source vibrates and nudges the air; the nudge runs from particle to particle until it reaches your ear. Everything you've ever heard — thunder, a whisper, your favourite jingle — is just cleverly wobbled air.",
     },
     up: "brana", next: "zvukova-vlna",
-    sound: { freqMul: 0.6, gainMul: 0.9, filter: 18000, rows: 1, medium: "air" },
+    plain: { glyph: "🔊" },
   },
   {
-    slug: "zvukova-vlna", realm: "sound", ...L,
+    slug: "zvukova-vlna", realm: "sound",
     title: { cs: "Zvuková vlna", en: "Sound wave" },
     guide: {
-      cs: "Na vodě se hladina vlní nahoru a dolů — to je příčná vlna. Zvuk je jiný: částice se kývou tam a zpět, podél směru letu. Sleduj zelené — jen se houpou na místě, vlna běží dál.",
-      en: "On water the surface ripples up and down — that's a transverse wave. Sound is different: particles swing back and forth, along the direction of travel. Watch the green ones — they bob in place, the wave moves on.",
+      cs: "Na vodě se hladina vlní nahoru a dolů — to je příčná vlna. Zvuk je jiný: částice se kývou tam a zpět podél směru letu a vlna běží dál. Podélná vlna ze samých zhuštění a zředění — částice zůstávají na místě, cestuje jen šťouchnutí.",
+      en: "On water the surface ripples up and down — a transverse wave. Sound is different: particles swing back and forth along the direction of travel while the wave moves on. A longitudinal wave of squeezes and stretches — the particles stay put, only the nudge travels.",
     },
     up: "zvuk", next: "sireni-zvuku",
-    sound: { freqMul: 0.8, gainMul: 0.9, filter: 18000, rows: 5, medium: "air", tracer: true },
+    plain: { glyph: "〰️" },
     satellites: [
       { to: "vlneni", x: 14, y: 28 },
       { to: "voda", x: 86, y: 28, label: { cs: "Vlny na vodě", en: "Water waves" } },
     ],
   },
   {
-    slug: "sireni-zvuku", realm: "sound", ...L,
+    slug: "sireni-zvuku", realm: "sound",
     title: { cs: "Šíření zvuku", en: "How sound spreads" },
     guide: {
-      cs: "Ze zdroje se zvuk šíří na všechny strany zároveň — kulové vlny, co pořád dokola hustí a řídnou vzduch kolem.",
-      en: "From the source, sound spreads in every direction at once — spheres of squeeze and spread, over and over.",
+      cs: "Ze zdroje se zvuk šíří na všechny strany zároveň — kulové vlny, co pořád dokola hustí a řídnou vzduch kolem. Proto tě kamarád slyší, i když na něj nemíříš pusou.",
+      en: "From its source, sound spreads in every direction at once — spheres of squeeze and stretch, over and over. That's why your friend hears you even when your mouth isn't aimed at them.",
     },
     up: "zvukova-vlna", next: "medium",
-    sound: { freqMul: 0.9, gainMul: 0.9, filter: 18000, rows: 7, medium: "air", mode: "disk" },
+    plain: { glyph: "📢" },
   },
   {
-    slug: "medium", realm: "sound", ...L,
+    slug: "medium", realm: "sound",
     title: { cs: "Médium", en: "Medium" },
     guide: {
-      cs: "Aby se vlna nesla, musí mít co strkat — vzduch, vodu, zeď. V dokonale prázdném prostoru není co rozhýbat.",
-      en: "To travel, the wave needs something to push — air, water, a wall. In truly empty space there's nothing to move.",
+      cs: "Aby se vlna nesla, musí mít co strkat — vzduch, vodu, zeď. V hutnějším prostředí letí zvuk rychleji: vzduchem ~340 m/s, vodou ~1480 m/s, železem ~5100 m/s. Indiáni nepřikládali ucho ke kolejím pro nic za nic.",
+      en: "To travel, a wave needs something to push — air, water, a wall. In a denser medium sound flies faster: ~340 m/s in air, ~1,480 m/s in water, ~5,100 m/s in iron. There's a reason people in westerns put their ear to the rail.",
     },
-    up: "sireni-zvuku", next: "prostredi",
-    sound: { freqMul: 0.9, gainMul: 0.9, filter: 18000, rows: 3, medium: "air" },
+    up: "sireni-zvuku", next: "ticho-vesmiru",
+    plain: { glyph: "🌫️" },
     satellites: [
       { to: "vzduch", x: 14, y: 28 },
       { to: "voda", x: 86, y: 28 },
-      { to: "zelezo", x: 14, y: 85 },
+      { to: "zelezo", x: 14, y: 72 },
     ],
   },
   {
-    slug: "prostredi", realm: "sound", ...L,
-    title: { cs: "Různá prostředí", en: "Different media" },
-    guide: {
-      cs: "Vzduch, voda, železo vedle sebe. Výška zůstává stejná — to dělá zdroj. Ale v hutnějším prostředí letí zvuk rychleji a vlna se roztáhne: komprese jsou od sebe dál. Popisky pásem jsou dveře — klikni a prozkoumej je.",
-      en: "Air, water, iron side by side. The pitch stays the same — that's set by the source. But in a denser medium sound travels faster and the wave stretches: the squeezes spread further apart. The band labels are doors — click one to explore.",
-    },
-    up: "medium", next: "ticho-vesmiru",
-    sound: { freqMul: 1, gainMul: 0.95, filter: 18000, rows: 5, medium: "air", interactive: "medium" },
-  },
-  {
-    slug: "ticho-vesmiru", realm: "sound", textPos: "top",
+    slug: "ticho-vesmiru", realm: "sound",
     title: { cs: "Ticho ve vesmíru", en: "Silence in space" },
     guide: {
-      cs: "Ve vesmíru nejsou skoro žádné částice. Není co strkat — a tak je dokonalé ticho. Ucho sem dej, kam chceš, neuslyšíš nic.",
-      en: "Space has almost no particles. Nothing to push — so it's perfect silence. Put your ear anywhere here, you'll hear nothing.",
+      cs: "Ve vesmíru nejsou skoro žádné částice. Není co strkat — a tak je tam dokonalé ticho. Křič si jak chceš; exploze ve sci-fi filmech jsou prostě lež, kterou režisérům odpouštíme.",
+      en: "Space has almost no particles. Nothing to push — so it's perfectly silent. Scream all you like; the explosions in sci-fi movies are simply a lie we've agreed to forgive.",
     },
-    up: "prostredi", next: "jak-se-zvuk-kresli",
-    sound: { freqMul: 1, gainMul: 0, filter: 8000, rows: 3, medium: "space" },
+    up: "medium", next: "frekvence",
+    plain: { glyph: "🤫" },
     satellites: [{ to: "vesmir", x: 86, y: 30 }],
   },
   {
-    slug: "jak-se-zvuk-kresli", realm: "sound", ...L,
-    title: { cs: "Jak se zvuk kreslí", en: "How sound is drawn" },
-    guide: {
-      cs: "Zvuk se nejčastěji kreslí jako vlnka nahoru a dolů (nahoře). Ale doopravdy se vzduch jen hustí a řídne podél směru (dole). Obě křivky říkají totéž — jen ta dolní je pravdivá.",
-      en: "Sound is most often drawn as a wiggle up and down (top). But really the air just squeezes and spreads along the direction (bottom). Both say the same thing — the lower one is the true picture.",
-    },
-    up: "ticho-vesmiru", next: "frekvence",
-    sound: { freqMul: 0.8, gainMul: 0.9, filter: 18000, rows: 1, medium: "air", mode: "compare" },
-  },
-  {
-    slug: "frekvence", realm: "sound", ...L,
+    slug: "frekvence", realm: "sound",
     title: { cs: "Frekvence", en: "Frequency" },
     guide: {
-      cs: "Jak hustě jdou komprese za sebou, taková je výška. Posuň ucho vlevo (basa) ↔ vpravo (výška). Co naladíš, to si neseš dál.",
-      en: "How tightly the squeezes follow each other sets the pitch. Move your ear left (bass) ↔ right (treble). Whatever you tune stays with you.",
+      cs: "Jak hustě jdou zhuštění za sebou, taková je výška tónu. Pomalé chvění = basa, rychlé = pískot. Měří se v hertzích — kolikrát za sekundu se vzduch stihne zhustit. Ty slyšíš zhruba 20 až 20 000 Hz; tvůj pes se ti směje výš.",
+      en: "How tightly the squeezes follow each other sets the pitch. Slow shaking = bass, fast = a squeal. Measured in hertz — how many times a second the air gets squeezed. You hear roughly 20 to 20,000 Hz; your dog laughs at you higher up.",
     },
-    up: "jak-se-zvuk-kresli", next: "amplituda",
-    sound: { freqMul: 1, gainMul: 0.9, filter: 18000, rows: 5, medium: "air", interactive: "freq" },
+    up: "ticho-vesmiru", next: "amplituda",
+    plain: { glyph: "Hz" },
     satellites: [{ to: "ton", x: 86, y: 28 }],
   },
   {
-    slug: "amplituda", realm: "sound", ...L,
+    slug: "amplituda", realm: "sound",
     title: { cs: "Amplituda", en: "Amplitude" },
     guide: {
-      cs: "Jak daleko částice z místa vyrazí, tak je to hlasité. Blíž ke středu vlny = hlasitěji, k okraji = tišeji.",
-      en: "How far the particles dart from their spot is how loud it is. Closer to the wave's center = louder, near the edge = softer.",
+      cs: "Jak daleko částice vyrazí ze svého místa, tak je to hlasité. Malé výkyvy = šepot, velké = koncert, na kterém ti soused odpadne. Frekvence říká, jak rychle se vzduch kýve; amplituda, jak moc.",
+      en: "How far the particles dart from their spot is how loud it is. Tiny swings = a whisper, big ones = the concert your neighbour complains about. Frequency says how fast the air wobbles; amplitude says how much.",
     },
     up: "frekvence", next: "barva-zvuku",
-    sound: { freqMul: 1, gainMul: 1, filter: 18000, rows: 5, medium: "air", interactive: "amp" },
+    plain: { glyph: "📣" },
     satellites: [{ to: "decibel", x: 86, y: 28 }],
   },
   {
-    slug: "barva-zvuku", realm: "sound", ...L,
-    title: { cs: "Barva zvuku", en: "The color of sound" },
+    slug: "barva-zvuku", realm: "sound",
+    title: { cs: "Barva zvuku", en: "Timbre" },
     guide: {
-      cs: "Každé pásmo je jiný nástroj — od čistého tónu po housle a klavír. Přejížděj uchem a poslouchej, čím se liší. Co posloucháš naposled, to si neseš dál.",
-      en: "Each band is a different instrument — from a pure tone to violin and piano. Glide your ear across and hear how they differ. Whatever you hear last, you carry on.",
+      cs: "Stejný tón na housle a na klavír zní úplně jinak — a přesto má stejnou výšku i hlasitost. Rozdíl dělá směs vyšších harmonických tónů, které se vezou na tom základním. Říká se tomu barva. Proto poznáš mámu po hlase.",
+      en: "The same note on a violin and a piano sounds completely different — yet it has the same pitch and loudness. The difference is the blend of higher harmonics riding on the fundamental. It's called timbre. It's why you recognise your mum's voice.",
     },
     up: "amplituda", next: "ozvena",
-    sound: { freqMul: 1, gainMul: 0.9, filter: 18000, rows: 7, medium: "air", interactive: "wave" },
+    plain: { glyph: "🎻" },
     satellites: [{ to: "hudebni-nastroje", x: 14, y: 28 }],
   },
   {
-    slug: "ozvena", realm: "sound", ...L,
+    slug: "ozvena", realm: "sound",
     title: { cs: "Ozvěna", en: "Echo" },
     guide: {
-      cs: "Vyber si zvuk a poslouchej, jak se odrazí od zdi a vrací se zpět — znova a znova, jak doznívá. To je ozvěna. A tím máš zvuk celý: chvění, vlna, výška, hlasitost, barva, odraz.",
-      en: "Pick a sound and hear it bounce off the wall and come back — again and again as it fades. That's an echo. And that's all of sound: a tremble, a wave, pitch, loudness, color, reflection.",
+      cs: "Zvuk se od tvrdé stěny odráží jako míček. Když je stěna dost daleko, vrátí se ti vlastní hlas se zpožděním — znova a slaběji, jak doznívá. HALÓ… haló… ló… A tím máš zvuk celý: chvění, vlna, výška, hlasitost, barva, odraz.",
+      en: "Sound bounces off a hard wall like a ball. If the wall is far enough, your own voice comes back delayed — again and fainter as it fades. HELLO… hello… lo… And that's all of sound: a tremble, a wave, pitch, loudness, colour, reflection.",
     },
     up: "barva-zvuku",
-    sound: { freqMul: 0.9, gainMul: 0.95, filter: 18000, rows: 5, medium: "air", mode: "reflect", interactive: "wave" },
+    plain: { glyph: "🔁" },
     satellites: [{ to: "hudba", x: 86, y: 28 }],
   },
 ];

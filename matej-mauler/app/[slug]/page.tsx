@@ -18,7 +18,22 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function EncyclopediaPage({ params }: Props) {
   const { slug } = await params;
-  if (!getNode(slug) && !isRedLink(slug)) notFound();
+  const node = getNode(slug);
+  if (!node && !isRedLink(slug)) notFound();
   const lang = await getLang();
-  return <EncyclopediaShell initialSlug={slug} lang={lang} />;
+  // JSON-LD: heslo jako DefinedTerm — strojově čitelná definice pro vyhledávače i LLMka
+  const jsonLd = node && {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    name: node.title[lang],
+    description: node.guide[lang],
+    url: `https://spaghetti.ltd/${node.slug}`,
+    inDefinedTermSet: { "@type": "DefinedTermSet", name: "Spaghetti.ltd", url: "https://spaghetti.ltd" },
+  };
+  return (
+    <>
+      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
+      <EncyclopediaShell initialSlug={slug} lang={lang} />
+    </>
+  );
 }

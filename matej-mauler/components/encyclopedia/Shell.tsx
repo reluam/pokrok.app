@@ -4,8 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/lib/encyclopedia/graph";
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
-import { SoundRealm } from "./SoundRealm";
-import { MusicRealm } from "./MusicRealm";
 import { GateMap } from "./GateMap";
 import { PlainRealm } from "./PlainRealm";
 import { Strands } from "./Strands";
@@ -58,13 +56,9 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
   const node = getNode(slug);
   const isGate = slug === "brana";
-  // tmavost: chrome sedí na stránce/canvasu, text hesla na středu (vesmírné okénko je vždy tmavé)
-  const chromeDark = theme === "dark" || (node?.realm === "sound" && node.sound?.medium === "space");
-  // text uprostřed leží na omáčce (vesmír, knihovna) → vždy světlý
-  const onSauce = !isGate && !!node && (node.realm === "space" || (node.realm === "plain" && node.textPos !== "top"));
-  const overlayDark = node ? (onSauce ? true : chromeDark) : theme === "dark";
-  const C = THEMES[overlayDark ? "dark" : "light"];
-  const PC = THEMES[chromeDark ? "dark" : "light"];
+  const chromeDark = theme === "dark";
+  const C = THEMES[chromeDark ? "dark" : "light"];
+  const PC = C;
   const topText = node?.textPos === "top";
 
   const go = useCallback((to: string, d: NavDir) => {
@@ -142,7 +136,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   };
 
   const upTarget = trail.length ? trail[trail.length - 1] : node?.up ?? null;
-  const overlayMax = isGate ? 620 : node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(620px, calc(100vw - 240px))" : 620;
+  const overlayMax = isGate ? 620 : node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(560px, calc(100vw - 240px))" : "min(520px, 86vmin)";
 
   return (
     <>
@@ -153,8 +147,6 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
       {node ? (
         isGate ? <GateMap lang={lang} theme={theme} onNavigate={dive} />
         : node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} theme={theme} />
-        : node.realm === "sound" ? <SoundRealm node={node} lang={lang} theme={theme} onNavigate={dive} />
-        : node.realm === "music" ? <MusicRealm node={node} lang={lang} theme={theme} onNavigate={dive} />
         : <PlainRealm node={node} lang={lang} theme={theme} />
       ) : (
         <RedLink slug={slug} lang={lang} dark={theme === "dark"} />
@@ -167,7 +159,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
       {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný */}
       {node && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "150px 22px 0" : "0 22px", pointerEvents: "none" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: isGate && searchOpen ? 46 : 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "150px 22px 0" : "0 22px", pointerEvents: "none" }}>
           <div key={slug} style={{ position: "relative", maxWidth: overlayMax, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "none" }}>
@@ -178,15 +170,12 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: C.faint, marginBottom: 10 }}>{u.eyebrow}</p>
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,42px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
               {isGate && (
-                <button onClick={() => setSearchOpen(true)}
-                  style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 9, width: "min(380px, 100%)", margin: "2px auto 14px", background: chromeDark ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.75)", border: `1px solid ${C.pillBorder}`, borderRadius: 999, padding: "11px 18px", color: C.muted, fontFamily: "var(--font-sans)", fontSize: 14, cursor: "pointer", textAlign: "left" }}>
-                  <span aria-hidden>🔍</span>
-                  <span style={{ flex: 1 }}>{u.searchPh}</span>
-                  <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${C.kbdBorder}`, color: C.kbdText }}>⌘K</kbd>
-                </button>
+                <div style={{ width: "min(380px, 100%)", margin: "2px auto 14px" }}>
+                  <InlineSearch lang={lang} dark={chromeDark} gate open={searchOpen} onOpen={() => setSearchOpen(true)} onClose={() => setSearchOpen(false)} onPick={dive} />
+                </div>
               )}
               <p style={{ fontFamily: "var(--font-sans)", fontSize: topText ? 14 : 15, lineHeight: 1.65, color: C.body }}>{node.guide[lang]}</p>
-              {node.features && node.features.length > 0 && (
+              {node.features && node.features.length > 0 && node.realm !== "space" && (
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, letterSpacing: "0.04em", color: C.muted, marginTop: 12 }}>
                   ✦ {node.features.map((f) => f[lang]).join(" · ")}
                 </p>
@@ -211,11 +200,9 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
       )}
 
       {!isGate && (
-        <button onClick={() => setSearchOpen(true)}
-          style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 9, background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, borderRadius: 999, padding: "11px 24px", color: PC.pillText, fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
-          <span aria-hidden>🔍</span> {u.search}
-          <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${PC.kbdBorder}`, color: PC.kbdText }}>⌘K</kbd>
-        </button>
+        <div style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: searchOpen ? 46 : 20 }}>
+          <InlineSearch lang={lang} dark={chromeDark} open={searchOpen} onOpen={() => setSearchOpen(true)} onClose={() => setSearchOpen(false)} onPick={dive} />
+        </div>
       )}
 
       {/* dolní řádek: brána má ↓ hint (síť mluví sama), konec větve dostane text */}
@@ -244,7 +231,11 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         </button>
       </div>
 
-      {searchOpen && <Search lang={lang} onPick={(s) => dive(s)} onClose={() => setSearchOpen(false)} />}
+      {/* rozmazání stránky při hledání — výsledky se píšou přímo do pole */}
+      {searchOpen && (
+        <div onClick={() => setSearchOpen(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 44, background: chromeDark ? "rgba(2,4,12,0.5)" : "rgba(250,248,243,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }} />
+      )}
 
       <style>{`
         @keyframes encyText { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
@@ -254,33 +245,58 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   );
 }
 
-/* ── Hledání — vždy nahoře uprostřed, ⌘K ────────────────────────── */
-function Search({ lang, onPick, onClose }: { lang: Lang; onPick: (slug: string) => void; onClose: () => void }) {
+/* ── Hledání — píše se přímo do pole, výsledky pod ním ──────────── */
+function InlineSearch({ lang, dark, gate, open, onOpen, onClose, onPick }: {
+  lang: Lang; dark: boolean; gate?: boolean; open: boolean;
+  onOpen: () => void; onClose: () => void; onPick: (slug: string) => void;
+}) {
   const u = UI[lang];
   const [q, setQ] = useState("");
-  const results: SearchEntry[] = searchNodes(q, lang);
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) { ref.current?.focus(); return; }
+    ref.current?.blur();
+    const r = requestAnimationFrame(() => setQ(""));
+    return () => cancelAnimationFrame(r);
+  }, [open]);
+  const results: SearchEntry[] = open && q.trim() ? searchNodes(q, lang) : [];
+  const pick = (s: string) => { onPick(s); onClose(); };
+  const ink = dark ? "#fff" : "#1a1614";
+  const soft = dark ? "rgba(255,255,255,0.55)" : "rgba(26,22,20,0.55)";
+  const rowBg = dark ? "rgba(12,14,24,0.88)" : "rgba(255,255,255,0.94)";
+  const rowBorder = dark ? "1px solid rgba(255,255,255,0.14)" : "1px solid rgba(26,22,20,0.14)";
+
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(2,4,12,0.72)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "16vh" }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width: "min(560px, calc(100vw - 40px))" }}>
-        <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={u.searchPh}
-          onKeyDown={(e) => { if (e.key === "Enter" && results[0]) onPick(results[0].slug); }}
-          style={{ width: "100%", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 16, padding: "14px 18px", color: "#fff", fontFamily: "var(--font-sans)", fontSize: 16, outline: "none" }} />
-        <div style={{ marginTop: 10, maxHeight: "52vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
-          {q.trim() && results.length === 0 && (
-            <p style={{ color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans)", fontSize: 13, padding: "10px 6px" }}>{u.empty}</p>
+    <div style={{ position: "relative", pointerEvents: "auto" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, background: dark ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.8)", border: dark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(26,22,20,0.2)", borderRadius: 999, padding: gate ? "11px 18px" : "10px 20px", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+        <span aria-hidden>🔍</span>
+        <input ref={ref} value={q} className="ency-search"
+          onFocus={onOpen}
+          onChange={(e) => { setQ(e.target.value); if (!open) onOpen(); }}
+          onKeyDown={(e) => { if (e.key === "Enter" && results[0]) pick(results[0].slug); if (e.key === "Escape") onClose(); }}
+          placeholder={u.searchPh}
+          style={{ background: "none", border: "none", outline: "none", color: ink, fontFamily: "var(--font-sans)", fontSize: 14, width: gate ? "100%" : open ? "min(380px, 56vw)" : 180, transition: "width 250ms ease", minWidth: 0, flex: gate ? 1 : undefined }} />
+        <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: dark ? "1px solid rgba(255,255,255,0.25)" : "1px solid rgba(26,22,20,0.25)", color: soft, flexShrink: 0 }}>⌘K</kbd>
+      </div>
+
+      {open && q.trim() && (
+        <div style={{ position: "absolute", top: "calc(100% + 10px)", left: "50%", transform: "translateX(-50%)", width: "min(480px, calc(100vw - 36px))", maxHeight: "52vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
+          {results.length === 0 && (
+            <p style={{ color: soft, fontFamily: "var(--font-sans)", fontSize: 13, padding: "10px 6px", textAlign: "center", background: rowBg, border: rowBorder, borderRadius: 12 }}>{u.empty}</p>
           )}
           {results.map((r) => (
-            <button key={r.slug} onClick={() => onPick(r.slug)}
-              style={{ textAlign: "left", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 3 }}>
+            <button key={r.slug} onClick={() => pick(r.slug)}
+              style={{ textAlign: "left", background: rowBg, border: rowBorder, borderRadius: 12, padding: "10px 14px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 3 }}>
               <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ color: "#fff", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700 }}>{r.title[lang]}</span>
-                {r.red && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)", border: "1px dashed rgba(255,255,255,0.3)", borderRadius: 6, padding: "1px 6px" }}>{u.red}</span>}
+                <span style={{ color: ink, fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700 }}>{r.title[lang]}</span>
+                {r.red && <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", color: soft, border: `1px dashed ${soft}`, borderRadius: 6, padding: "1px 6px" }}>{u.red}</span>}
               </span>
-              {r.guide && <span style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-sans)", fontSize: 12, lineHeight: 1.45, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>{r.guide[lang]}</span>}
+              {r.guide && <span style={{ color: soft, fontFamily: "var(--font-sans)", fontSize: 12, lineHeight: 1.45, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>{r.guide[lang]}</span>}
             </button>
           ))}
         </div>
-      </div>
+      )}
+      <style>{`.ency-search::placeholder { color: inherit; opacity: 0.5; }`}</style>
     </div>
   );
 }

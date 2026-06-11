@@ -1,87 +1,64 @@
 import type { NodeDef } from "./types";
 
-/* ── Music — kanonická trasa hudbou ─────────────────────────────────
-   hudba → rytmus → basa → akordy → melodie → mix → studio
-   Vrstvy se po trase sčítají (rank): co sis naklikal, hraje dál.
-   hudba.up = zvuk — hudba je zvuk, který někdo uspořádal. */
-
-const L = { textPos: "top" } as const;
+/* ── Hudba — termíny propojené nudlemi ──────────────────────────────
+   hudba → rytmus → basa → akordy → melodie
+   Interaktivní studio žije v The Lab; tady jsou hesla. */
 
 export const MUSIC_NODES: NodeDef[] = [
   {
-    slug: "hudba", realm: "music", ...L,
+    slug: "hudba", realm: "music",
     title: { cs: "Hudba", en: "Music" },
     guide: {
-      cs: "Zvuk je jen chvění vzduchu. Hudba je zvuk, který někdo uspořádal — do času a do výšek. Pojďme jednu skladbu poskládat po vrstvách: tep, spodek, nálada, příběh.",
-      en: "Sound is just shaking air. Music is sound someone organized — in time and pitch. Let's build a track layer by layer: pulse, bottom, mood, story.",
+      cs: "Zvuk je jen chvění vzduchu. Hudba je zvuk, který někdo uspořádal — do času a do výšek. Tep, spodek, nálada a příběh, sladěné dohromady tak, že ti z toho rozhýbají nohu, aniž by ses na tom s nohou domlouval.",
+      en: "Sound is just shaking air. Music is sound someone organised — in time and pitch. Pulse, bottom, mood and story, locked together so well your foot starts tapping without ever being consulted.",
     },
     up: "zvuk", next: "rytmus",
-    music: { rank: 0, view: "intro" },
+    plain: { glyph: "🎶" },
     satellites: [
       { to: "zvuk", x: 14, y: 30 },
       { to: "hudebni-nastroje", x: 86, y: 30 },
     ],
   },
   {
-    slug: "rytmus", realm: "music", ...L,
+    slug: "rytmus", realm: "music",
     title: { cs: "Rytmus", en: "Rhythm" },
     guide: {
-      cs: "Rytmus je tep skladby. Nejdřív styl a tempo — vyber vibe, nalaď swing. A pak klikej do mřížky: ze čtyř bicích vrstev si poskládej vlastní beat.",
-      en: "Rhythm is the pulse of a track. First the style and tempo — pick a vibe, set the swing. Then click the grid: build your own beat from four drum lanes.",
+      cs: "Tep skladby. Pravidelné údery v čase, na které tělo přikyvuje samo od sebe — srdce to ostatně dělá celý život. Kopák drží dobu, snare odpovídá, hi-hat mezi tím cupitá.",
+      en: "The pulse of a track. Regular beats in time that your body nods along to all by itself — your heart has been doing it your whole life. The kick keeps the time, the snare answers, the hi-hat patters in between.",
     },
     up: "hudba", next: "basa",
-    music: { rank: 1, editor: "drums" },
+    plain: { glyph: "🥁" },
   },
   {
-    slug: "basa", realm: "music", ...L,
+    slug: "basa", realm: "music",
     title: { cs: "Basa", en: "Bass" },
     guide: {
-      cs: "Basa dává skladbě pevnou půdu. Klikej do piano rollu — určuješ, kdy hraje i jak je vysoká. Tóny jsou z tóniny, takže to vždy ladí.",
-      en: "Bass gives the track solid ground. Click the piano roll — you set when it plays and how high. Notes come from the key, so it always fits.",
+      cs: "Drží spodek. Hluboké tóny, které víc cítíš než slyšíš — pevná půda, po které ostatní nástroje chodí. Když basa vypadne, skladba se vznáší; když nastoupí, všechno najednou sedí.",
+      en: "Holds the bottom. Low notes you feel more than hear — the solid ground the other instruments walk on. When the bass drops out, the track floats; when it lands, everything suddenly fits.",
     },
     up: "rytmus", next: "akordy",
-    music: { rank: 2, editor: "bass" },
+    plain: { glyph: "🎸" },
   },
   {
-    slug: "akordy", realm: "music", ...L,
+    slug: "akordy", realm: "music",
     title: { cs: "Akordy", en: "Chords" },
     guide: {
-      cs: "Víc tónů naráz je akord — a akordy dělají náladu. Skládej je v piano rollu z diatonických možností. Tóninu a dur/moll měň vpravo nahoře kdykoliv — vše se přeladí.",
-      en: "Several notes at once make a chord — and chords set the mood. Place them in the roll from diatonic options. Change key and major/minor in the top right anytime — it all re-tunes.",
+      cs: "Víc tónů zahraných naráz. Akordy dělají náladu — dur se usmívá, moll se mračí, a septakord se tváří zajímavě, aby vypadal chytře. Jejich sled je harmonie: emoce skladby napsaná do not.",
+      en: "Several notes played at once. Chords set the mood — major smiles, minor frowns, and the seventh chord acts mysterious to look smart. Their sequence is harmony: the song's emotions written into notes.",
     },
     up: "basa", next: "melodie",
-    music: { rank: 3, editor: "chords" },
+    plain: { glyph: "🎹" },
     satellites: [{ to: "tonina", x: 86, y: 30 }],
   },
   {
-    slug: "melodie", realm: "music", ...L,
+    slug: "melodie", realm: "music",
     title: { cs: "Melodie", en: "Melody" },
     guide: {
-      cs: "Melodie je jeden hlas, co si zpívá nahoru a dolů — příběh skladby. Naklikej si vlastní v piano rollu. Drží se tóniny, takže to ladí.",
-      en: "Melody is a single voice singing up and down — the story of the track. Click your own in the roll. It stays in the key, so it fits.",
+      cs: "Jeden hlas, co si zpívá nahoru a dolů — příběh skladby. To, co si pak pískáš ve sprše a nemůžeš to dostat z hlavy. Rytmus je tep, basa půda, akordy nálada a melodie je důvod, proč si píseň pamatuješ.",
+      en: "A single voice singing up and down — the story of a track. The thing you whistle in the shower and can't get out of your head. Rhythm is the pulse, bass the ground, chords the mood, and the melody is why you remember the song.",
     },
-    up: "akordy", next: "mix",
-    music: { rank: 4, editor: "melody" },
+    up: "akordy",
+    plain: { glyph: "🎼" },
     satellites: [{ to: "ton", x: 86, y: 30 }],
-  },
-  {
-    slug: "mix", realm: "music", ...L,
-    title: { cs: "Mix", en: "The mix" },
-    guide: {
-      cs: "Skladba je vrstvy hrající spolu. Jako v DAW jim dole nastav hlasitost faderem a vypínej je tlačítkem mute — uslyšíš, co která vrstva dělá.",
-      en: "A track is layers playing together. Like in a DAW, set each one's volume with the fader below and silence it with mute — you'll hear what each layer does.",
-    },
-    up: "melodie", next: "studio",
-    music: { rank: 5, editor: "drums", view: "mix" },
-  },
-  {
-    slug: "studio", realm: "music", ...L,
-    title: { cs: "Studio", en: "The studio" },
-    guide: {
-      cs: "Teď jsi u kniplů. Všechny čtyři mřížky najednou, dole fader, mute a efekt u každé vrstvy. Hudba je chytře poskládaný zvuk — a ty teď víš jak na to.",
-      en: "Now you're at the controls. All four grids at once, with a fader, mute and effect per layer below. Music is cleverly arranged sound — and now you know how.",
-    },
-    up: "mix",
-    music: { rank: 6, view: "studio" },
   },
 ];

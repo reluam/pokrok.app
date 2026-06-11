@@ -27,6 +27,8 @@ export const SEEDS: Record<string, Bilingual> = {
   poezie: { cs: "Poezie", en: "Poetry" },
   pravda: { cs: "Pravda", en: "Truth" },
   delfini: { cs: "Delfíni", en: "Dolphins" },
+  nahoda: { cs: "Náhoda", en: "Chance" },
+  statistika: { cs: "Statistika", en: "Statistics" },
 };
 
 /* ── Hesla ──────────────────────────────────────────────────────────

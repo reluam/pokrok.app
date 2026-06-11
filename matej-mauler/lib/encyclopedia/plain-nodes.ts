@@ -1,6 +1,6 @@
 import type { NodeDef } from "./types";
 
-/* ── Plain realm: textová/znaková hesla na talíři ───────────────────
+/* ── Plain realm: textová/znaková hesla ─────────────────────────────
    A) Stopařův průvodce po Galaxii — slovník pojmů, vlastní větev
       stoparuv-pruvodce → nepanikar → 42 → rucnik → babylonska-rybka
       → vogonska-poezie → prevazne-neskodna
@@ -30,7 +30,7 @@ export const PLAIN_NODES: NodeDef[] = [
       en: "The words inscribed in large friendly letters on the Guide's cover. According to Arthur C. Clarke, the best advice that could possibly be given to humanity. The rest of the book's contents are more or less optional.",
     },
     up: "stoparuv-pruvodce", next: "42",
-    plain: { glyph: "NEPANIKAŘ", accent: "#ffd84a" },
+    plain: { glyph: "NEPANIKAŘ", accent: "#3fae5a" },
   },
   {
     slug: "42", realm: "plain",
@@ -96,13 +96,29 @@ export const PLAIN_NODES: NodeDef[] = [
     ],
   },
 
-  /* ── B) Citáty ── */
+  /* ── B) Pravděpodobnost — losovací talíř šancí ── */
+  {
+    slug: "pravdepodobnost", realm: "plain", textPos: "top",
+    title: { cs: "Pravděpodobnost", en: "Probability" },
+    guide: {
+      cs: "Jaká je šance? Vesmír je jedna velká loterie — a ty jsi v ní zatím vyhrál hlavní cenu (existuješ). Klikni doprostřed a táhni další los.",
+      en: "What are the odds? The universe is one big lottery — and so far you've won the jackpot (you exist). Click the middle to draw another ticket.",
+    },
+    up: "brana",
+    satellites: [
+      { to: "stoparuv-pruvodce", x: 14, y: 30, label: { cs: "Nepravděpodobnostní pohon", en: "Improbability Drive" } },
+      { to: "nahoda", x: 86, y: 30 },
+      { to: "statistika", x: 86, y: 70 },
+    ],
+  },
+
+  /* ── C) Citáty ── */
   {
     slug: "citaty", realm: "plain", textPos: "top",
     title: { cs: "Citáty", en: "Quotes" },
     guide: {
-      cs: "Citát je věta, kterou řekl někdo slavný. Nebo neřekl — ale s jeho jménem pod tím zní mnohem líp. Tady jsou ty nejprofláklejší. Klikni na talíř a zamíchej.",
-      en: "A quote is a sentence a famous person said. Or didn't — but it sounds much better with their name under it. Here are the most overused ones. Click the plate to shuffle.",
+      cs: "Citát je věta, kterou řekl někdo slavný. Nebo neřekl — ale s jeho jménem pod tím zní mnohem líp. Tady jsou ty nejprofláklejší. Klikni doprostřed a zamíchej.",
+      en: "A quote is a sentence a famous person said. Or didn't — but it sounds much better with their name under it. Here are the most overused ones. Click the middle to shuffle.",
     },
     up: "brana",
     satellites: [
