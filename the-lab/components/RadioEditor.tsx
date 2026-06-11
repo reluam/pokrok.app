@@ -5,7 +5,7 @@ import {
   TOTAL, SPB, DRUM_IDS, MELODIC_IDS, DRUM_LABEL, LAYER_LABEL, scaleRowsFor, midiToShort,
   type SongState, type DrumId, type MelodicId,
 } from "@/lib/radio";
-import type { Lang } from "@/lib/dictionaries";
+import type { Lang } from "@/lib/lang";
 
 const LAYER_COLOR: Record<string, string> = {
   kick: "#f59e0b", clap: "#ec4899", chat: "#94a3b8", ohat: "#cbd5e1",

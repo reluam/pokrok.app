@@ -1,12 +1,10 @@
-import { RadioApp } from "@/components/RadioApp";
-import { getLang } from "@/lib/getLang";
-import { guardExperiment } from "@/lib/experimentsDb";
+import { permanentRedirect, notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Spaghetti Radio — Spaghetti.ltd" };
 
-export default async function RadioPage() {
-  await guardExperiment("radio");
-  const lang = await getLang();
-  return <RadioApp lang={lang} />;
+// Rádio se přestěhovalo do The Lab. Než bude doména, vracíme 404.
+export default function RadioPage() {
+  const lab = process.env.NEXT_PUBLIC_LAB_URL;
+  if (lab) permanentRedirect(`${lab}/radio`);
+  notFound();
 }

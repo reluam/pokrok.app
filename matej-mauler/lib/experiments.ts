@@ -16,7 +16,6 @@ export const CATEGORIES: Record<string, string> = {
   sonify: "audio",
   foundry: "audio",
   musicvote: "audio",
-  radio: "audio",
   anthem: "audio",
   journey: "story",
   space: "map",
@@ -60,12 +59,6 @@ export const experiments: ExperimentMeta[] = [
     emoji: "🎼",
     color: "#DCFCE7",
     href: "/music",
-  },
-  {
-    slug: "radio",
-    emoji: "📻",
-    color: "#E0E7FF",
-    href: "/radio",
   },
   {
     slug: "anthem",

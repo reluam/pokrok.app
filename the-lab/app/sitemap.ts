@@ -8,5 +8,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE}/sound`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE}/music`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE}/radio`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
   ];
 }

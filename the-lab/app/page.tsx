@@ -33,9 +33,9 @@ const CARDS: Card[] = [
     desc: { cs: "Interaktivní encyklopedie propojená nudlemi poznání. Vesmír, zvuk, Stopařův průvodce a další.", en: "An interactive encyclopedia connected by knowledge noodles. Space, sound, the Hitchhiker's Guide and more." },
   },
   {
-    emoji: "📻", color: "#DCFCE7", href: "https://spaghetti.ltd/radio", external: true,
-    title: { cs: "Rádio Spaghetti", en: "Radio Spaghetti" },
-    desc: { cs: "Společné rádio — hlasuj, co poletí éterem dál.", en: "A shared radio — vote on what plays next." },
+    emoji: "📻", color: "#DCFCE7", href: "/radio",
+    title: { cs: "Rádio", en: "The Radio" },
+    desc: { cs: "Nekonečné generativní rádio — hlasuj o jednotlivých buňkách a nalaď, co poletí éterem dál.", en: "An endless generative radio — vote on the cells and tune what plays next." },
   },
 ];
 

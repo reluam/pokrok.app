@@ -1,5 +1,5 @@
 import { SCALES, midiToFreq } from "./music";
-import type { Lang } from "./dictionaries";
+import type { Lang } from "./lang";
 
 export { midiToFreq };
 
@@ -292,7 +292,7 @@ export function toggleDrumCell(pattern: boolean[], step: number): boolean[] {
 /* ── UI ────────────────────────────────────────────────────────── */
 export const radioUi = {
   cs: {
-    back: "← Spaghetti.ltd", eyebrow: "Nekonečné generativní rádio", title: "Spaghetti Radio",
+    back: "← The Lab", eyebrow: "Nekonečné generativní rádio", title: "The Radio",
     intro: "Nekonečný elektronický set. Vyber si stanici.",
     start: "Spustit ♪", stop: "Zastavit ■", enter: "Vstoupit →",
     tempo: "Tempo", key: "Tónina", playtime: "Hraje", lastChange: "Poslední změna", changelog: "Historie změn", layers: "Vrstvy",
@@ -305,7 +305,7 @@ export const radioUi = {
     },
   },
   en: {
-    back: "← Spaghetti.ltd", eyebrow: "Endless generative radio", title: "Spaghetti Radio",
+    back: "← The Lab", eyebrow: "Endless generative radio", title: "The Radio",
     intro: "An endless electronic set. Pick a station.",
     start: "Start ♪", stop: "Stop ■", enter: "Enter →",
     tempo: "Tempo", key: "Key", playtime: "Playing", lastChange: "Last change", changelog: "Change log", layers: "Layers",

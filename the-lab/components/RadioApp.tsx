@@ -9,7 +9,7 @@ import {
 } from "@/lib/radio";
 import { createRadio, type RadioControl } from "@/lib/radioEngine";
 import { RadioEditor } from "./RadioEditor";
-import type { Lang } from "@/lib/dictionaries";
+import type { Lang } from "@/lib/lang";
 import { AudioNotice } from "./AudioNotice";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
@@ -35,7 +35,7 @@ function editCell(state: SongState, cell: string): SongState {
 
 export function RadioApp({ lang }: { lang: Lang }) {
   const t = radioUi[lang];
-  const homeHref = lang === "cs" ? "/cs" : "/";
+  const homeHref = "/";
 
   const [view, setView] = useState<View>("gate");
   const [song, setSong] = useState<SongState | null>(null);
