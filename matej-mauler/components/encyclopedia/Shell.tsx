@@ -60,7 +60,9 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   const isGate = slug === "brana";
   // tmavost: chrome sedí na stránce/canvasu, text hesla na středu (vesmírné okénko je vždy tmavé)
   const chromeDark = theme === "dark" || (node?.realm === "sound" && node.sound?.medium === "space");
-  const overlayDark = node ? (node.realm === "space" && !isGate ? true : chromeDark) : theme === "dark";
+  // text uprostřed leží na omáčce (vesmír, knihovna) → vždy světlý
+  const onSauce = !isGate && !!node && (node.realm === "space" || (node.realm === "plain" && node.textPos !== "top"));
+  const overlayDark = node ? (onSauce ? true : chromeDark) : theme === "dark";
   const C = THEMES[overlayDark ? "dark" : "light"];
   const PC = THEMES[chromeDark ? "dark" : "light"];
   const topText = node?.textPos === "top";
@@ -165,7 +167,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
       {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný */}
       {node && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "104px 22px 0" : "0 22px", pointerEvents: "none" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "150px 22px 0" : "0 22px", pointerEvents: "none" }}>
           <div key={slug} style={{ position: "relative", maxWidth: overlayMax, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "none" }}>
@@ -210,7 +212,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
       {!isGate && (
         <button onClick={() => setSearchOpen(true)}
-          style={{ position: "fixed", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 8, background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, borderRadius: 999, padding: "7px 16px", color: PC.pillText, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+          style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 9, background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, borderRadius: 999, padding: "11px 24px", color: PC.pillText, fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
           <span aria-hidden>🔍</span> {u.search}
           <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: `1px solid ${PC.kbdBorder}`, color: PC.kbdText }}>⌘K</kbd>
         </button>

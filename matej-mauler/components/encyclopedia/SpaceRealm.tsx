@@ -1,74 +1,47 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { OBJECTS } from "@/lib/space";
 import { SpaceBody } from "@/components/SpaceBody";
 import type { NodeDef } from "@/lib/encyclopedia/types";
 import type { Lang } from "@/lib/dictionaries";
 import type { Theme } from "./Shell";
+import { SauceStage, seedOf } from "./Sauce";
 
 export type NavDir = "dive" | "rise" | "jump";
 
-/** Vesmírný realm: tmavé kulaté okénko do vesmíru uprostřed stránky.
-    Subjekt hesla uvnitř, špagety a text řeší jednotný shell. */
+/** Vesmírný realm: kápnutá omáčka uprostřed, na ní subjekt hesla.
+    Špagety a text řeší jednotný shell. */
 export function SpaceRealm({ node, dir, theme }: { node: NodeDef; lang?: Lang; dir: NavDir; theme: Theme }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [D, setD] = useState(480);
-
   useEffect(() => {
     const onR = () => setD(Math.min(560, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.72)));
     onR(); window.addEventListener("resize", onR);
     return () => window.removeEventListener("resize", onR);
   }, []);
 
-  useEffect(() => {
-    const cv = canvasRef.current; if (!cv) return;
-    const ctx = cv.getContext("2d"); if (!ctx) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = D * dpr; cv.height = D * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const stars = Array.from({ length: 130 }, () => ({
-      x: Math.random(), y: Math.random(), r: Math.random() * 1.3 + 0.2,
-      o: Math.random() * 0.5 + 0.2, sp: Math.random() * 1.5 + 0.3, ph: Math.random() * 6.28,
-    }));
-    let raf = 0;
-    const draw = () => {
-      ctx.clearRect(0, 0, D, D);
-      const g = ctx.createLinearGradient(0, D * 0.2, D, D * 0.8);
-      g.addColorStop(0, "rgba(80,60,140,0.0)"); g.addColorStop(0.5, "rgba(120,90,180,0.10)"); g.addColorStop(1, "rgba(80,60,140,0.0)");
-      ctx.fillStyle = g; ctx.fillRect(0, 0, D, D);
-      const tt = Date.now() / 1000;
-      for (const s of stars) {
-        const o = s.o * (0.5 + 0.5 * Math.sin(tt * s.sp + s.ph));
-        ctx.beginPath(); ctx.arc(s.x * D, s.y * D, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(220,225,255,${o})`; ctx.fill();
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => cancelAnimationFrame(raf);
-  }, [D]);
+  // hvězdné drobky na omáčce pro hesla bez subjektu (vesmír)
+  const specks = useMemo(() => Array.from({ length: 16 }, (_, i) => ({
+    x: 22 + ((i * 37) % 56), y: 22 + ((i * 53) % 56), r: 1 + ((i * 7) % 3), d: (i % 5) * 0.4,
+  })), []);
 
   const anim = dir === "dive" ? "encyDive 460ms cubic-bezier(0.22,1,0.36,1)" : dir === "rise" ? "encyRise 460ms cubic-bezier(0.22,1,0.36,1)" : "encyFade 380ms ease";
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none" }}>
-      <div style={{
-        position: "absolute", left: "50%", top: "52%", transform: "translate(-50%,-50%)",
-        width: D, height: D, borderRadius: "50%", overflow: "hidden",
-        background: "radial-gradient(120% 100% at 35% 30%, #0b1026, #04060f 75%)",
-        boxShadow: theme === "light"
-          ? "0 30px 90px rgba(26,22,20,0.3), 0 0 0 1px rgba(26,22,20,0.08)"
-          : "0 30px 90px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1)",
-      }}>
-        <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
-        {node.subject && (
-          <div key={node.slug} style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", animation: anim }}>
-            <div style={{ opacity: 0.95 }}>
-              <SpaceBody kind={OBJECTS[node.subject.object].kind} px={Math.round(D * 0.5)} tint={OBJECTS[node.subject.object].tint} detail />
+      <SauceStage size={D} seed={seedOf(node.slug)} dark={theme === "dark"}>
+        <div key={node.slug} style={{ position: "absolute", inset: 0, animation: anim }}>
+          {node.subject ? (
+            <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
+              <SpaceBody kind={OBJECTS[node.subject.object].kind} px={Math.round(D * 0.46)} tint={OBJECTS[node.subject.object].tint} detail />
             </div>
-          </div>
-        )}
-      </div>
+          ) : (
+            specks.map((s, i) => (
+              <span key={i} style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, width: s.r * 2, height: s.r * 2, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 1px rgba(255,240,220,0.8)", animation: `spaceTwinkle ${2.2 + (i % 3) * 0.6}s ease-in-out ${s.d}s infinite` }} />
+            ))
+          )}
+        </div>
+      </SauceStage>
 
       <style>{`
         @keyframes spacePulse { 0%,100% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.08); opacity: 1; } }

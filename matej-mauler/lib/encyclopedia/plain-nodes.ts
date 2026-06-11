@@ -30,7 +30,7 @@ export const PLAIN_NODES: NodeDef[] = [
       en: "The words inscribed in large friendly letters on the Guide's cover. According to Arthur C. Clarke, the best advice that could possibly be given to humanity. The rest of the book's contents are more or less optional.",
     },
     up: "stoparuv-pruvodce", next: "42",
-    plain: { glyph: "NEPANIKAŘ", accent: "#3fae5a" },
+    plain: { glyph: "NEPANIKAŘ", accent: "#ffd84a" },
   },
   {
     slug: "42", realm: "plain",

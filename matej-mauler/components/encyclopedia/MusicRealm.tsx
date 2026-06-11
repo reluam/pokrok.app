@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MusicSceneDef, NodeDef } from "@/lib/encyclopedia/types";
 import type { Lang } from "@/lib/dictionaries";
 import type { Theme } from "./Shell";
+import { drawSauceCanvas } from "./Sauce";
 
 const INK = "#1a1614";
 const sans = "var(--font-sans)";
@@ -148,8 +149,9 @@ export function MusicRealm({ node, lang, theme }: { node: NodeDef; lang: Lang; t
       grids.current = [];
 
       if (mu.view === "intro") {
-        // ekvalizérové sloupce — subjekt hesla „hudba"
-        const bw2 = Math.min(560, w * 0.7), bx = (w - bw2) / 2, n = 22, cw2 = bw2 / n, base = h * 0.66; const cols = ["#e8556d", "#f4a259", "#4eb4cf", "#7b6cf6"];
+        // ekvalizérové sloupce — subjekt hesla „hudba" (na omáčce)
+        const bw2 = Math.min(560, w * 0.7), bx = (w - bw2) / 2, n = 22, cw2 = bw2 / n, base = h * 0.66; const cols = ["#fdf0e0", "#ffd27f", "#ffb09a", "#f4a259"];
+        drawSauceCanvas(ctx, w / 2, h * 0.56, bw2 * 0.62, h * 0.18 + 60, 11, dk2);
         for (let i = 0; i < n; i++) { const hgt = (0.2 + 0.8 * Math.abs(Math.sin(t0 * 1.6 + i * 0.6) * Math.cos(t0 * 0.7 + i))) * h * 0.2; ctx.globalAlpha = 0.85; ctx.fillStyle = cols[i % 4]; roundRect(ctx, bx + i * cw2 + cw2 * 0.2, base - hgt, cw2 * 0.6, hgt, 3); ctx.fill(); }
         ctx.globalAlpha = 1; t0 += 0.03;
         raf = requestAnimationFrame(loop); return;
@@ -165,12 +167,12 @@ export function MusicRealm({ node, lang, theme }: { node: NodeDef; lang: Lang; t
           else label = NOTE[degMidi(scale, keyM.current, deg, editor === "bass" ? BASS_OCT : MEL_OCT) % 12];
           for (let c = 0; c < 16; c++) {
             const on = editor === "drums" ? r2.drums[DRUM_LANES[r]][c] > 0 : (editor === "bass" ? r2.bass[c] : editor === "chords" ? r2.chord[c] : r2.mel[c]) === deg;
-            if (c === cs) { ctx.globalAlpha = dk2 ? 0.14 : 0.07; ctx.fillStyle = ink2; roundRect(ctx, gx + c * cw, y - gap / 2, cw, rh + gap, 4); ctx.fill(); }
-            ctx.globalAlpha = on ? (active ? 0.92 : 0.4) : (c % 4 === 0 ? (dk2 ? 0.22 : 0.13) : (dk2 ? 0.12 : 0.07)); ctx.fillStyle = on ? col : ink2;
+            if (c === cs) { ctx.globalAlpha = 0.18; ctx.fillStyle = "#fdf0e0"; roundRect(ctx, gx + c * cw, y - gap / 2, cw, rh + gap, 4); ctx.fill(); }
+            ctx.globalAlpha = on ? (active ? 0.95 : 0.45) : (c % 4 === 0 ? 0.26 : 0.15); ctx.fillStyle = on ? col : "#3a0d04";
             roundRect(ctx, gx + c * cw + 2, y + 2, cw - 4, rh - 4, 4); ctx.fill();
             if (on && c === cs) { ctx.globalAlpha = 0.85; ctx.fillStyle = "#fff"; roundRect(ctx, gx + c * cw + 2, y + 2, cw - 4, rh - 4, 4); ctx.fill(); }
           }
-          ctx.globalAlpha = active ? 0.8 : 0.36; ctx.fillStyle = ink2; ctx.font = `700 ${rh < 16 ? 9 : 11}px system-ui`; ctx.textAlign = "right"; ctx.fillText(label, gx - 8, y + rh / 2 + 3);
+          ctx.globalAlpha = active ? 0.92 : 0.45; ctx.fillStyle = "#fdf0e0"; ctx.font = `700 ${rh < 16 ? 9 : 11}px system-ui`; ctx.textAlign = "right"; ctx.fillText(label, gx - 8, y + rh / 2 + 3);
         }
         ctx.globalAlpha = 1;
       };
@@ -179,11 +181,13 @@ export function MusicRealm({ node, lang, theme }: { node: NodeDef; lang: Lang; t
       if (mu.view === "studio") {
         const eds: Editor[] = ["drums", "bass", "chords", "melody"]; const rh = 9, gap = 2, groupGap = 13;
         const totalH = eds.reduce((sm, e) => sm + rowsOf(e) * (rh + gap) - gap + groupGap, 0) - groupGap;
+        drawSauceCanvas(ctx, w / 2, h * 0.56, gw * 0.64, totalH * 0.78 + 56, 11, dk2);
         let yy = h * 0.56 - totalH / 2;
         for (const e of eds) { const rows = rowsOf(e); paint(e, gx, yy, cw, rh, gap, rows, !mute.current[ED_LAYER[e]]); grids.current.push({ editor: e, gx, gy: yy, cw, rh, gap, rows }); yy += rows * (rh + gap) - gap + groupGap; }
       } else {
         const editor = mu.editor ?? "drums"; const rows = rowsOf(editor); const rh = editor === "drums" ? 36 : 24, gap = editor === "drums" ? 10 : 6;
         const totalH = rows * (rh + gap) - gap, gy = h * 0.58 - totalH / 2;
+        drawSauceCanvas(ctx, w / 2, h * 0.58, gw * 0.64, totalH * 0.85 + 52, 11, dk2);
         paint(editor, gx, gy, cw, rh, gap, rows, enable.current[ED_LAYER[editor]] || !ac.current); grids.current.push({ editor, gx, gy, cw, rh, gap, rows });
       }
       raf = requestAnimationFrame(loop);

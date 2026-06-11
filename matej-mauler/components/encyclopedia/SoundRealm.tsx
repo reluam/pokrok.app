@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { NodeDef, SoundSceneDef } from "@/lib/encyclopedia/types";
 import type { Lang } from "@/lib/dictionaries";
 import type { Theme } from "./Shell";
+import { drawSauceCanvas } from "./Sauce";
 
 const INK = "#1a1614";
 type Medium = "air" | "water" | "solid" | "space";
@@ -154,6 +155,7 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
       const dk = themeRef.current === "dark";
       const MEDX = dk ? MED_DARK : MED;
       const ink = dk ? "#ece9e4" : INK;
+      const crm = "#fdf0e0"; // texty uvnitř omáčky
       if (slugRef.current !== lastSlug) { lastSlug = slugRef.current; cur.fade = 0; }
 
       const w = innerWidth, h = innerHeight, mid = h * 0.6;
@@ -211,6 +213,14 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
       if (cur.space > 0.02) { ctx.fillStyle = "#fff"; for (const st of stars) { ctx.globalAlpha = cur.space * (0.35 + 0.5 * Math.sin(phase * 0.6 + st.x * 9)); ctx.beginPath(); ctx.arc(st.x * w, st.y * h, st.r, 0, 7); ctx.fill(); } ctx.globalAlpha = 1; }
 
+      // omáčka — stage tématu pod hřištěm
+      {
+        const dkS = dk || cur.space > 0.5;
+        const sry = mode === "disk" ? R * 1.1 : mode === "compare" ? 175 : Math.max(125, half * 1.5 + 48);
+        const srx = mode === "disk" ? R * 1.1 : FW * 0.56;
+        drawSauceCanvas(ctx, w / 2, mid, srx, sry, 7, dkS);
+      }
+
       phase += (0.018 + cur.freq / 6500) * cur.speedF;
       const M = 70, spacing = FW / M, A = spacing * 1.3 * cur.level, K = clamp(cur.freq / 45, 1.2, 20) * Math.PI * 2;
       const wallX = fieldX0 + FW * 0.96;
@@ -218,7 +228,7 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
       const wv = (vid: string, t: number) => waveVal(vid, t);
 
       // vodítko, kde vlna „bydlí"
-      if (mode !== "disk" && mode !== "compare" && cur.space < 0.3) { ctx.globalAlpha = (onBand ? 0.05 : 0.09) * cur.fade; ctx.fillStyle = ink; roundRect(ctx, fieldX0, mid - half, FW, half * 2, half); ctx.fill(); ctx.globalAlpha = 1; }
+      if (mode !== "disk" && mode !== "compare" && cur.space < 0.3) { ctx.globalAlpha = (onBand ? 0.08 : 0.14) * cur.fade; ctx.fillStyle = "#3a0d04"; roundRect(ctx, fieldX0, mid - half, FW, half * 2, half); ctx.fill(); ctx.globalAlpha = 1; }
 
       if (multi) {
         ctx.textAlign = "center";
@@ -226,8 +236,8 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
         for (const z of zones) {
           const active = az === z;
           ctx.globalAlpha = (active ? 0.12 : 0.04) * cur.fade; ctx.fillStyle = `rgb(${MEDX[z.medium].dot.join(",")})`; ctx.fillRect(z.x0, mid - half - 30, z.x1 - z.x0, half * 2 + 60);
-          ctx.globalAlpha = 0.16 * cur.fade; ctx.strokeStyle = ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(z.x1, mid - half - 30); ctx.lineTo(z.x1, mid + half + 30); ctx.stroke();
-          ctx.globalAlpha = (active ? 1 : 0.5) * cur.fade; ctx.fillStyle = ink; ctx.font = "700 13px system-ui";
+          ctx.globalAlpha = 0.3 * cur.fade; ctx.strokeStyle = crm; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(z.x1, mid - half - 30); ctx.lineTo(z.x1, mid + half + 30); ctx.stroke();
+          ctx.globalAlpha = (active ? 1 : 0.55) * cur.fade; ctx.fillStyle = crm; ctx.font = "700 13px system-ui";
           const lbl = clickable ? z.label + " ↗" : z.label;
           ctx.fillText(lbl, (z.x0 + z.x1) / 2, mid - half - 16);
           if (clickable) { const tw = ctx.measureText(lbl).width; ctx.globalAlpha = (active ? 0.7 : 0.3) * cur.fade; ctx.beginPath(); ctx.moveTo((z.x0 + z.x1) / 2 - tw / 2, mid - half - 12); ctx.lineTo((z.x0 + z.x1) / 2 + tw / 2, mid - half - 12); ctx.lineWidth = 1; ctx.stroke(); }
@@ -239,16 +249,16 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
       if (mode === "compare") {
         const topY = mid - 64, botY = mid + 48;
         // nahoře: klasická oscilační (čárová) vlna
-        ctx.globalAlpha = pAlpha; ctx.strokeStyle = ink; ctx.lineWidth = 2.6; ctx.beginPath();
+        ctx.globalAlpha = pAlpha; ctx.strokeStyle = crm; ctx.lineWidth = 2.6; ctx.beginPath();
         for (let i = 0; i <= 140; i++) { const xx = fieldX0 + (i / 140) * FW, nx2 = i / 140; const yy = topY + Math.sin(nx2 * K - phase) * 30; if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
         ctx.stroke();
         // dole: skutečná podélná částicová vlna (1 řada)
         const Mc = 70, sp = FW / Mc, Ac = sp * 1.3 * Math.max(cur.level, 0.4);
         const xs2: number[] = new Array(Mc);
         for (let i = 0; i < Mc; i++) { const bx = fieldX0 + (i + 0.5) * sp; xs2[i] = bx + Ac * Math.sin(((bx - fieldX0) / FW) * K - phase); }
-        for (let i = 0; i < Mc; i++) { const comp = i > 0 ? clamp(1 - (xs2[i] - xs2[i - 1]) / sp, 0, 1) : 0; ctx.globalAlpha = pAlpha * (0.4 + comp * 0.5); ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(xs2[i], botY, 2 + comp * 1.7, 0, 7); ctx.fill(); }
+        for (let i = 0; i < Mc; i++) { const comp = i > 0 ? clamp(1 - (xs2[i] - xs2[i - 1]) / sp, 0, 1) : 0; ctx.globalAlpha = pAlpha * (0.5 + comp * 0.5); ctx.fillStyle = crm; ctx.beginPath(); ctx.arc(xs2[i], botY, 2 + comp * 1.7, 0, 7); ctx.fill(); }
         // popisky
-        ctx.globalAlpha = pAlpha * 0.7; ctx.fillStyle = ink; ctx.font = "700 12px system-ui"; ctx.textAlign = "left";
+        ctx.globalAlpha = pAlpha * 0.85; ctx.fillStyle = crm; ctx.font = "700 12px system-ui"; ctx.textAlign = "left";
         ctx.fillText("↑ " + uu.drawnAs, fieldX0, topY - 34); ctx.fillText("↓ " + uu.reallyAs, fieldX0, botY + 40);
         ctx.globalAlpha = 1;
       } else if (mode === "disk") {
@@ -263,7 +273,7 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
         ctx.globalAlpha = pAlpha * 0.9; ctx.fillStyle = "#e23b3b"; const pr = 7 + (0.5 + 0.5 * Math.sin(phase * 2)) * (2 + cur.level * 6); ctx.beginPath(); ctx.arc(cxp, cyp, pr, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
       } else {
         if (cur.space < 0.5) { ctx.globalAlpha = pAlpha; drawSpeaker(ctx, spkX, mid, half * 0.82, phase, cur.level); ctx.globalAlpha = 1; }
-        if (mode === "reflect") { ctx.globalAlpha = cur.fade * 0.9; ctx.strokeStyle = ink; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(wallX, mid - half); ctx.lineTo(wallX, mid + half); ctx.stroke(); }
+        if (mode === "reflect") { ctx.globalAlpha = cur.fade * 0.9; ctx.strokeStyle = crm; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(wallX, mid - half); ctx.lineTo(wallX, mid + half); ctx.stroke(); }
         ctx.globalAlpha = 1;
 
         let trX = 0;
@@ -296,7 +306,7 @@ export function SoundRealm({ node, lang, theme, onNavigate }: { node: NodeDef; l
       }
 
       // Hz · nota u výšky
-      if (s.interactive === "freq" && onBand && !coarse) { ctx.globalAlpha = pAlpha; ctx.fillStyle = ink; ctx.font = "700 15px system-ui"; ctx.textAlign = "center"; ctx.fillText(`${Math.round(cur.freq)} Hz · ${noteName(cur.freq)}`, pt.x, mid - half - 14); ctx.globalAlpha = 1; }
+      if (s.interactive === "freq" && onBand && !coarse) { ctx.globalAlpha = pAlpha; ctx.fillStyle = crm; ctx.font = "700 15px system-ui"; ctx.textAlign = "center"; ctx.fillText(`${Math.round(cur.freq)} Hz · ${noteName(cur.freq)}`, pt.x, mid - half - 14); ctx.globalAlpha = 1; }
 
       // ucho na kurzoru
       if (!coarse && pt.active) {

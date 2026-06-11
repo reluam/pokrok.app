@@ -27,7 +27,7 @@ export function Strands({ node, lang, dark, upTarget, onUp, onNext, onSide }: {
 
   // koncové body špaget — relativní pozice, ať se renderují už na serveru
   const eps: Ep[] = [];
-  if (upTarget) eps.push({ slug: upTarget, kind: "up", xf: 0.5, yPx: 62, red: !getNode(upTarget), label: titleOf(upTarget, lang) });
+  if (upTarget) eps.push({ slug: upTarget, kind: "up", xf: 0.5, yPx: 100, red: !getNode(upTarget), label: titleOf(upTarget, lang) });
   if (node.next) eps.push({ slug: node.next, kind: "next", xf: 0.5, yBottomPx: 52, red: !getNode(node.next), label: titleOf(node.next, lang) });
   const sats = node.satellites ?? [];
   const right = sats.filter((_, i) => i % 2 === 0), left = sats.filter((_, i) => i % 2 === 1);
