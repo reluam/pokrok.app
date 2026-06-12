@@ -51,6 +51,8 @@ const T = {
     legendPos: "barva slova = slovní druh: modrá podst. jm. · červená sloveso · fialová příd. jm. · zelená příslovce · šedá ostatní",
     wordTip: (o: number, os: number, i: number, is_: number) => `${o} ven (×${os}) · ${i} dovnitř (×${is_})`,
     truncated: "Zobrazuju jen ~600 nejsilnějších synapsí.",
+    written: (n: number) => `zapsáno jako asociace ×${n.toLocaleString("cs-CZ")}`,
+    fromIt: (n: number) => `asociováno z něj ×${n.toLocaleString("cs-CZ")}`,
     netWords: "slov v síti",
     netAssoc: "asociací",
     pickHint: "Klikni na slovo a tady se ukáže jeho detail.",
@@ -91,6 +93,8 @@ const T = {
     legendPos: "word colour = part of speech: blue noun · red verb · violet adjective · green adverb · grey other",
     wordTip: (o: number, os: number, i: number, is_: number) => `${o} out (×${os}) · ${i} in (×${is_})`,
     truncated: "Showing only the ~600 strongest synapses.",
+    written: (n: number) => `written as an association ×${n.toLocaleString("en-GB")}`,
+    fromIt: (n: number) => `associated from it ×${n.toLocaleString("en-GB")}`,
     netWords: "words in the network",
     netAssoc: "associations",
     pickHint: "Click a word to see its detail here.",
@@ -442,7 +446,9 @@ function BrainMap({ data, lang, chrome, stats, onBack }: { data: MapData; lang: 
     const inn = data.edges.filter((e) => e.b === selected.id)
       .sort((x, y) => y.count - x.count).slice(0, 8)
       .map((e) => ({ id: e.a, label: labelOf.get(e.a) ?? "?", count: e.count }));
-    return { out, inn };
+    const innSum = data.edges.filter((e) => e.b === selected.id).reduce((a, e) => a + e.count, 0);
+    const outSum = data.edges.filter((e) => e.a === selected.id).reduce((a, e) => a + e.count, 0);
+    return { out, inn, innSum, outSum };
   }, [selected, data]);
 
   useEffect(() => {
@@ -936,6 +942,9 @@ function BrainMap({ data, lang, chrome, stats, onBack }: { data: MapData; lang: 
           ) : (
             <>
               <p style={{ ...display, fontSize: 17, fontWeight: 700, margin: 0, wordBreak: "break-word" }}>{selected.label}</p>
+              <p style={{ ...sans, fontSize: 11, color: "var(--text-secondary)", margin: "4px 0 0", lineHeight: 1.5 }}>
+                {t.written(detail.innSum)}<br />{t.fromIt(detail.outSum)}
+              </p>
 
               <p style={{ ...sans, fontSize: 10, color: "#b45309", textTransform: "uppercase", letterSpacing: "0.08em", margin: "10px 0 3px" }}>{t.outLabel}</p>
               {detail.out.length === 0 && <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
