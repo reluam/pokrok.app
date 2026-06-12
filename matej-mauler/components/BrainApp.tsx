@@ -42,8 +42,13 @@ const T = {
     gateGo: "→ Pomoz jí růst asociacemi",
     gateAnyway: "Stejně mi ukaž ten nicneříkající zárodek →",
     mapEmpty: "Síť je zatím úplně prázdná. Buď první synapse!",
-    mapHint: "táhni = posun · kolečko / pinch = zoom · klik na slovo = detail",
+    mapHint: "táhni = posun · kolečko / pinch = zoom · klik na slovo = detail a zoom · druhý klik = asociuj",
     mapLegend: "tloušťka nudle = síla synapse",
+    legendBall: "kulička = tok informací ve směru převahy asociací",
+    legendSeed: "kroužek = startovní slovo",
+    legendColor: "u vybraného slova: oranžová = ven · šedomodrá = dovnitř",
+    wordTip: (o: number, os: number, i: number, is_: number) => `${o} ven (×${os}) · ${i} dovnitř (×${is_})`,
+    clickAgain: "klikni na slovo ještě jednou a asociuj na něj ✏️",
     truncated: "Zobrazuju jen ~600 nejsilnějších synapsí.",
     outLabel: "kam vede →",
     inLabel: "→ co vede sem",
@@ -74,8 +79,13 @@ const T = {
     gateGo: "→ Help it grow with associations",
     gateAnyway: "Show me the meaningless embryo anyway →",
     mapEmpty: "The network is completely empty so far. Be the first synapse!",
-    mapHint: "drag = pan · wheel / pinch = zoom · click a word = detail",
+    mapHint: "drag = pan · wheel / pinch = zoom · click a word = detail & zoom · click again = associate",
     mapLegend: "noodle thickness = synapse strength",
+    legendBall: "ball = information flowing in the dominant direction",
+    legendSeed: "ring = seed word",
+    legendColor: "for a selected word: orange = outgoing · slate = incoming",
+    wordTip: (o: number, os: number, i: number, is_: number) => `${o} out (×${os}) · ${i} in (×${is_})`,
+    clickAgain: "click the word once more to associate on it ✏️",
     truncated: "Showing only the ~600 strongest synapses.",
     outLabel: "leads to →",
     inLabel: "→ comes from",
@@ -395,7 +405,10 @@ function runSim(nodes: SimNode[], edges: SimEdge[], maxCount: number, ticks = 30
 function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; lang: Lang; chrome: boolean; onBack: () => void; onAssociate: (w: Word) => void }) {
   const t = T[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<{ id: number; label: string } | null>(null);
+  const [tip, setTip] = useState<{ title: string; lines: string[] } | null>(null);
   const selRef = useRef<number | null>(null);
   const drawRef = useRef<() => void>(() => {});
   const chromeRef = useRef(chrome);
@@ -434,12 +447,13 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
 
     const { nodes, edges, maxCount } = buildSim(data);
     runSim(nodes, edges, maxCount);
+    const nodeByIdx = (i: number) => nodes[i];
+    const idxById = new Map(nodes.map((n, i) => [n.id, i]));
 
     // slova s vždy viditelným popiskem (top podle síly)
     const labeled = new Set([...nodes].sort((a, b) => b.strength - a.strength).slice(0, 36).map((n) => n.id));
 
-    // směrové toky: pro každou dvojici slov převažující směr a rychlost
-    // speed = (víc − míň) / víc … 100 vs 0 → 1, 100 vs 1 → 0,99; plná rychlost ≈ 0,5 s na přejezd
+    // jedna špageta na dvojici slov — s vlastním rozcuchem a tempem houpání (jako v encyklopedii)
     const pairs = new Map<string, { ab: number; ba: number; i: number; j: number }>();
     for (const e of edges) {
       const i = Math.min(e.a, e.b), j = Math.max(e.a, e.b);
@@ -448,15 +462,14 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       if (e.a === i) rec.ab += e.count; else rec.ba += e.count;
       pairs.set(k, rec);
     }
-    // jedna špageta na dvojici slov — s vlastním rozcuchem a tempem houpání (jako v encyklopedii)
-    type Strand = { a: number; b: number; norm: number; side: number; o1: number; o2: number; ph: number; sp: number; dirAB: boolean; speed: number; fphase: number };
+    type Strand = { a: number; b: number; ab: number; ba: number; norm: number; side: number; o1: number; o2: number; ph: number; sp: number; dirAB: boolean; speed: number; fphase: number };
     const strands: Strand[] = [];
     for (const r of pairs.values()) {
       const hi = Math.max(r.ab, r.ba), lo = Math.min(r.ab, r.ba);
       if (hi === 0) continue;
       const seed = r.i * 31 + r.j * 17;
       strands.push({
-        a: r.i, b: r.j,
+        a: r.i, b: r.j, ab: r.ab, ba: r.ba,
         norm: Math.sqrt(hi / maxCount),
         side: (r.i + r.j) % 2 === 0 ? 1 : -1,
         o1: (hash01(seed, 2) - 0.5) * 2, o2: (hash01(seed, 3) - 0.5) * 2,
@@ -467,10 +480,31 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       });
     }
 
+    // sousedi (indexy) pro zoom na slovo
+    const neigh = new Map<number, Set<number>>();
+    for (const e of edges) {
+      (neigh.get(e.a) ?? neigh.set(e.a, new Set()).get(e.a)!).add(e.b);
+      (neigh.get(e.b) ?? neigh.set(e.b, new Set()).get(e.b)!).add(e.a);
+    }
+    // statistiky slova pro hover tooltip (id slova → ven/dovnitř)
+    const wordStats = new Map<number, { out: number; outSum: number; inn: number; innSum: number }>();
+    for (const e of data.edges) {
+      const o = wordStats.get(e.a) ?? { out: 0, outSum: 0, inn: 0, innSum: 0 };
+      o.out += 1; o.outSum += e.count; wordStats.set(e.a, o);
+      const i2 = wordStats.get(e.b) ?? { out: 0, outSum: 0, inn: 0, innSum: 0 };
+      i2.inn += 1; i2.innSum += e.count; wordStats.set(e.b, i2);
+    }
+
     const view: View = { scale: 1, tx: 0, ty: 0 };
     let hovered: SimNode | null = null;
+    let hoveredStrand: number | null = null;
+    let anim: { t0: number; dur: number; from: View; to: View } | null = null;
+    const cur = { x: -1e4, y: -1e4 };
+    let panelSide = 0; // index do pořadí stran
+    let lastFlip = 0;
+    let panelFresh = true; // první umístění bez animace
 
-    const fit = () => {
+    const fitView = (): View => {
       const w = cv.clientWidth, h = cv.clientHeight;
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       for (const n of nodes) {
@@ -478,9 +512,52 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
       }
       const bw = Math.max(120, maxX - minX), bh = Math.max(120, maxY - minY);
-      view.scale = Math.max(0.18, Math.min(1.6, Math.min(w / (bw + 160), h / (bh + 160))));
-      view.tx = w / 2 - ((minX + maxX) / 2) * view.scale;
-      view.ty = h / 2 - ((minY + maxY) / 2) * view.scale;
+      const scale = Math.max(0.18, Math.min(1.6, Math.min(w / (bw + 160), h / (bh + 160))));
+      return { scale, tx: w / 2 - ((minX + maxX) / 2) * scale, ty: h / 2 - ((minY + maxY) / 2) * scale };
+    };
+    const animateTo = (to: View, dur = 520) => { anim = { t0: performance.now(), dur, from: { ...view }, to }; if (!chromeRef.current) Object.assign(view, to); };
+    // zoom na slovo: vejde se ono + všichni jeho sousedé, zbytek klidně mimo
+    const zoomToNode = (i: number) => {
+      const w = cv.clientWidth, h = cv.clientHeight;
+      const pts = [nodes[i], ...[...(neigh.get(i) ?? [])].map(nodeByIdx)];
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const n of pts) {
+        minX = Math.min(minX, n.x - n.r); maxX = Math.max(maxX, n.x + n.r);
+        minY = Math.min(minY, n.y - n.r); maxY = Math.max(maxY, n.y + n.r);
+      }
+      const pad = 110;
+      const bw = Math.max(80, maxX - minX), bh = Math.max(80, maxY - minY);
+      const scale = Math.max(0.3, Math.min(3, Math.min(w / (bw + pad * 2), h / (bh + pad * 2))));
+      animateTo({ scale, tx: w / 2 - ((minX + maxX) / 2) * scale, ty: h / 2 - ((minY + maxY) / 2) * scale });
+    };
+
+    // geometrie špagety (bez houpání — pro hit-test)
+    const strandGeom = (st: Strand) => {
+      const A = nodes[st.a], B = nodes[st.b];
+      const dx = B.x - A.x, dy = B.y - A.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const px = -dy / d, py = dx / d;
+      const bow = Math.min(26, d * 0.14) * st.side;
+      return { A, B, dx, dy, d, px, py, bow };
+    };
+    const strandAt = (wx: number, wy: number): number | null => {
+      const tol = 9 / view.scale + 4;
+      let best: number | null = null, bestD = Infinity;
+      for (let si = 0; si < strands.length; si++) {
+        const st = strands[si];
+        const { A, B, dx, dy, px, py, bow } = strandGeom(st);
+        if (wx < Math.min(A.x, B.x) - 40 || wx > Math.max(A.x, B.x) + 40 || wy < Math.min(A.y, B.y) - 40 || wy > Math.max(A.y, B.y) + 40) continue;
+        const c1x = A.x + dx / 3 + px * (bow * 0.9 + st.o1 * 6), c1y = A.y + dy / 3 + py * (bow * 0.9 + st.o1 * 6);
+        const c2x = A.x + (2 * dx) / 3 + px * (bow * 0.9 + st.o2 * 6), c2y = A.y + (2 * dy) / 3 + py * (bow * 0.9 + st.o2 * 6);
+        for (let k = 0; k <= 14; k++) {
+          const tt = k / 14, u = 1 - tt;
+          const x = u * u * u * A.x + 3 * u * u * tt * c1x + 3 * u * tt * tt * c2x + tt * tt * tt * B.x;
+          const y = u * u * u * A.y + 3 * u * u * tt * c1y + 3 * u * tt * tt * c2y + tt * tt * tt * B.y;
+          const dd = Math.hypot(x - wx, y - wy);
+          if (dd < tol && dd < bestD) { best = si; bestD = dd; }
+        }
+      }
+      return best;
     };
 
     const draw = () => {
@@ -495,30 +572,33 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       const bg = !chromeRef.current; // mapa jen jako rozmazané pozadí asociací
       const selId = selRef.current;
       const hotId = hovered?.id ?? selId;
+      const hsEnds = new Set<number>(); // popisky konců hoverované nudle
+      if (hoveredStrand !== null) { const st = strands[hoveredStrand]; hsEnds.add(nodes[st.a].id); hsEnds.add(nodes[st.b].id); }
 
       // špagety (synapse) — zlehka se houpou; kulička putuje potrubím směrem převahy
       const now = performance.now() / 1000;
-      for (const st of strands) {
+      for (let si = 0; si < strands.length; si++) {
+        const st = strands[si];
         const A = nodes[st.a], B = nodes[st.b];
         const hot = hotId !== null && (A.id === hotId || B.id === hotId);
+        const hovS = hoveredStrand === si;
         const dimS = hotId !== null && !hot;
         const srcId = st.dirAB ? A.id : B.id; // odkud informace teče
         let col: string;
         if (hot) {
-          // z hotovaného slova teče teplá, do něj chladná
+          // z vybraného slova teče teplá, do něj chladná
           col = srcId === hotId ? "rgba(180, 83, 9, 0.92)" : "rgba(71, 85, 105, 0.85)";
+        } else if (hovS) {
+          col = `rgba(176, 124, 24, ${0.55 + 0.3 * st.norm})`;
         } else {
           col = `rgba(176, 124, 24, ${dimS ? 0.07 + 0.1 * st.norm : 0.16 + 0.4 * st.norm})`;
         }
-        const lw = (0.8 + 4.2 * st.norm) * (hot ? 1.25 : 1);
+        const lw = (0.8 + 4.2 * st.norm) * (hot || hovS ? 1.25 : 1);
         ctx.strokeStyle = col;
         ctx.lineWidth = lw;
         ctx.lineCap = "round";
 
-        const dx = B.x - A.x, dy = B.y - A.y;
-        const d = Math.hypot(dx, dy) || 1;
-        const px = -dy / d, py = dx / d;
-        const bow = Math.min(26, d * 0.14) * st.side;
+        const { dx, dy, d, px, py, bow } = strandGeom(st);
         const wobAmp = Math.min(9, d * 0.07); // houpání úměrné délce nudle
         const w1 = Math.sin(now * st.sp + st.ph) * wobAmp;
         const w2 = Math.sin(now * st.sp * 1.27 + st.ph + 2.1) * wobAmp;
@@ -535,23 +615,23 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         if (!bg && st.speed > 0.001) {
           const tRaw = (now * st.speed * 2 + st.fphase) % 1; // plná rychlost = 0,5 s na přejezd
           const tBall = st.dirAB ? tRaw : 1 - tRaw;
-          const pt = (t: number) => {
-            const u = 1 - t;
+          const pt = (tt: number) => {
+            const u = 1 - tt;
             return {
-              x: u * u * u * A.x + 3 * u * u * t * c1x + 3 * u * t * t * c2x + t * t * t * B.x,
-              y: u * u * u * A.y + 3 * u * u * t * c1y + 3 * u * t * t * c2y + t * t * t * B.y,
+              x: u * u * u * A.x + 3 * u * u * tt * c1x + 3 * u * tt * tt * c2x + tt * tt * tt * B.x,
+              y: u * u * u * A.y + 3 * u * u * tt * c1y + 3 * u * tt * tt * c2y + tt * tt * tt * B.y,
             };
           };
-          ctx.strokeStyle = hot ? col : `rgba(176, 124, 24, ${dimS ? 0.22 : 0.7})`;
+          ctx.strokeStyle = hot || hovS ? col : `rgba(176, 124, 24, ${dimS ? 0.22 : 0.7})`;
           const span = 0.055, steps = 8;
           let prev = pt(Math.max(0, tBall - span));
           for (let k = 1; k <= steps; k++) {
             const tk = Math.min(1, Math.max(0, tBall - span + (2 * span * k) / steps));
-            const cur = pt(tk);
+            const cur2 = pt(tk);
             const gss = Math.exp(-(((k - steps / 2) / (steps / 3.2)) ** 2));
             ctx.lineWidth = lw + (3 + 3.5 * st.norm) * gss;
-            ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(cur.x, cur.y); ctx.stroke();
-            prev = cur;
+            ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(cur2.x, cur2.y); ctx.stroke();
+            prev = cur2;
           }
         }
       }
@@ -574,7 +654,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
           ctx.strokeStyle = "rgba(176, 124, 24, 0.85)"; ctx.lineWidth = 1.6;
           ctx.beginPath(); ctx.arc(n.x, n.y, (hot ? n.r + 2 : n.r) + 2.4, 0, 7); ctx.stroke();
         }
-        const showLabel = !bg && (hot || neighborIds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim)));
+        const showLabel = !bg && (hot || neighborIds.has(n.id) || hsEnds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim)));
         if (showLabel) {
           ctx.globalAlpha = hot ? 1 : 0.78;
           ctx.fillStyle = "#1a1614";
@@ -587,16 +667,77 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
     };
     drawRef.current = draw;
 
+    // ── info panel u vybraného slova: drží se u něj, neleze přes nudle a uhýbá kurzoru ──
+    const placePanel = () => {
+      const panel = panelRef.current;
+      const selId = selRef.current;
+      if (!panel || selId === null) return;
+      const i = idxById.get(selId);
+      if (i === undefined) return;
+      const n = nodes[i];
+      const w = cv.clientWidth, h = cv.clientHeight;
+      const sx = n.x * view.scale + view.tx, sy = n.y * view.scale + view.ty;
+      const W = panel.offsetWidth || 200, H = panel.offsetHeight || 120;
+      const gap = 26;
+      // preferovaná strana: pryč od těžiště sousedů (tam nudle nejsou)
+      const ns = [...(neigh.get(i) ?? [])].map(nodeByIdx);
+      let cxN = 0, cyN = 0;
+      ns.forEach((m) => { cxN += m.x - n.x; cyN += m.y - n.y; });
+      const order: ("r" | "l" | "t" | "b")[] = Math.abs(cxN) > Math.abs(cyN)
+        ? (cxN > 0 ? ["l", "r", "t", "b"] : ["r", "l", "t", "b"])
+        : (cyN > 0 ? ["t", "b", "r", "l"] : ["b", "t", "r", "l"]);
+      const posFor = (side: "r" | "l" | "t" | "b") => {
+        if (side === "r") return { x: sx + gap, y: sy - H / 2 };
+        if (side === "l") return { x: sx - gap - W, y: sy - H / 2 };
+        if (side === "t") return { x: sx - W / 2, y: sy - gap - H };
+        return { x: sx - W / 2, y: sy + gap };
+      };
+      // uhýbání kurzoru: když se kurzor přiblíží, přeskoč na další stranu
+      const nowMs = performance.now();
+      let side = order[panelSide % order.length];
+      let pos = posFor(side);
+      const near = (pp: { x: number; y: number }) =>
+        cur.x > pp.x - 30 && cur.x < pp.x + W + 30 && cur.y > pp.y - 30 && cur.y < pp.y + H + 30;
+      if (near(pos) && nowMs - lastFlip > 320) {
+        for (let k = 1; k < order.length; k++) {
+          const cand = order[(panelSide + k) % order.length];
+          if (!near(posFor(cand))) { panelSide = (panelSide + k) % order.length; side = cand; break; }
+        }
+        lastFlip = nowMs;
+        pos = posFor(side);
+      }
+      pos.x = Math.max(8, Math.min(w - W - 8, pos.x));
+      pos.y = Math.max(54, Math.min(h - H - 8, pos.y));
+      if (panelFresh) { panel.style.transition = "none"; }
+      panel.style.left = `${pos.x}px`;
+      panel.style.top = `${pos.y}px`;
+      if (panelFresh) { void panel.offsetWidth; panel.style.transition = "left 300ms ease, top 300ms ease"; panelFresh = false; }
+    };
+    const markPanelFresh = () => { panelFresh = true; panelSide = 0; };
+
     const resize = () => {
       cv.width = cv.clientWidth * dpr;
       cv.height = cv.clientHeight * dpr;
-      fit(); draw();
+      Object.assign(view, fitView());
+      draw();
     };
     resize();
     window.addEventListener("resize", resize);
 
     let raf = 0;
-    const tick = () => { draw(); raf = requestAnimationFrame(tick); };
+    const tick = () => {
+      if (anim) {
+        const k = Math.min(1, (performance.now() - anim.t0) / anim.dur);
+        const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        view.scale = anim.from.scale + (anim.to.scale - anim.from.scale) * e;
+        view.tx = anim.from.tx + (anim.to.tx - anim.from.tx) * e;
+        view.ty = anim.from.ty + (anim.to.ty - anim.from.ty) * e;
+        if (k >= 1) anim = null;
+      }
+      draw();
+      placePanel();
+      raf = requestAnimationFrame(tick);
+    };
     loopRef.current = {
       start: () => { if (!raf) raf = requestAnimationFrame(tick); },
       stop: () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } },
@@ -614,6 +755,38 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       return best;
     };
 
+    // hover → tooltip (slovo, nebo nudle s počty oběma směry)
+    const updateHover = (sx: number, sy: number) => {
+      const pWord = pick(sx, sy);
+      let pStrand: number | null = null;
+      if (!pWord) { const wp = toWorld(sx, sy); pStrand = strandAt(wp.x, wp.y); }
+      if (pWord !== hovered || pStrand !== hoveredStrand) {
+        hovered = pWord; hoveredStrand = pWord ? null : pStrand;
+        cv.style.cursor = pWord || pStrand !== null ? "pointer" : "grab";
+        if (pWord && pWord.id !== selRef.current) {
+          const st2 = wordStats.get(pWord.id) ?? { out: 0, outSum: 0, inn: 0, innSum: 0 };
+          setTip({ title: pWord.label, lines: [T[lang].wordTip(st2.out, st2.outSum, st2.inn, st2.innSum)] });
+        } else if (!pWord && pStrand !== null) {
+          const st2 = strands[pStrand];
+          const la = nodes[st2.a].label, lb = nodes[st2.b].label;
+          const lines: string[] = [];
+          if (st2.ab > 0) lines.push(`${la} → ${lb} ×${st2.ab}`);
+          if (st2.ba > 0) lines.push(`${lb} → ${la} ×${st2.ba}`);
+          setTip({ title: "", lines });
+        } else {
+          setTip(null);
+        }
+        if (!chromeRef.current) draw();
+      }
+      const tipEl = tipRef.current;
+      if (tipEl) {
+        const w = cv.clientWidth;
+        const tw = tipEl.offsetWidth || 160;
+        tipEl.style.left = `${sx + 16 + tw > w - 8 ? sx - tw - 12 : sx + 16}px`;
+        tipEl.style.top = `${sy + 18}px`;
+      }
+    };
+
     // pan + zoom + pinch + klik
     const pointers = new Map<number, { x: number; y: number }>();
     let panStart: { x: number; y: number; tx: number; ty: number } | null = null;
@@ -623,6 +796,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
     const rect = () => cv.getBoundingClientRect();
 
     const onDown = (e: PointerEvent) => {
+      anim = null; // ruční zásah ruší animaci pohledu
       cv.setPointerCapture(e.pointerId);
       const r = rect();
       pointers.set(e.pointerId, { x: e.clientX - r.left, y: e.clientY - r.top });
@@ -638,6 +812,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
     const onMove = (e: PointerEvent) => {
       const r = rect();
       const x = e.clientX - r.left, y = e.clientY - r.top;
+      cur.x = x; cur.y = y;
       if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x, y });
 
       if (pointers.size === 2) {
@@ -655,15 +830,12 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         moved = Math.max(moved, Math.hypot(dx, dy));
         if (moved > 4) {
           view.tx = panStart.tx + dx; view.ty = panStart.ty + dy;
-          draw();
+          if (!chromeRef.current) draw();
         }
         return;
       }
       // hover (myš bez stisknutí)
-      if (pointers.size === 0) {
-        const p = pick(x, y);
-        if (p !== hovered) { hovered = p; cv.style.cursor = p ? "pointer" : "grab"; draw(); }
-      }
+      if (pointers.size === 0) updateHover(x, y);
     };
     const onUp = (e: PointerEvent) => {
       const r = rect();
@@ -673,7 +845,21 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       pinchDist = 0;
       if (wasSingle && moved <= 4) {
         const p = pick(x, y);
-        setSelected(p ? { id: p.id, label: p.label } : null);
+        if (p) {
+          if (selRef.current === p.id) {
+            // druhý klik na vybrané slovo → rovnou asociovat
+            onAssociate({ id: p.id, display: p.label });
+          } else {
+            setSelected({ id: p.id, label: p.label });
+            setTip(null);
+            markPanelFresh();
+            const i = idxById.get(p.id);
+            if (i !== undefined) zoomToNode(i);
+          }
+        } else {
+          setSelected(null);
+          animateTo(fitView());
+        }
       }
       panStart = null;
     };
@@ -683,18 +869,21 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       view.tx = cx - (cx - view.tx) * k;
       view.ty = cy - (cy - view.ty) * k;
       view.scale = ns;
-      draw();
+      if (!chromeRef.current) draw();
     };
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+      anim = null;
       const r = rect();
       zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.0014));
     };
+    const onLeave = () => { cur.x = -1e4; cur.y = -1e4; hovered = null; hoveredStrand = null; setTip(null); };
 
     cv.addEventListener("pointerdown", onDown);
     cv.addEventListener("pointermove", onMove);
     cv.addEventListener("pointerup", onUp);
     cv.addEventListener("pointercancel", onUp);
+    cv.addEventListener("pointerleave", onLeave);
     cv.addEventListener("wheel", onWheel, { passive: false });
     cv.style.cursor = "grab";
 
@@ -706,20 +895,22 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       cv.removeEventListener("pointermove", onMove);
       cv.removeEventListener("pointerup", onUp);
       cv.removeEventListener("pointercancel", onUp);
+      cv.removeEventListener("pointerleave", onLeave);
       cv.removeEventListener("wheel", onWheel);
     };
-  }, [data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, lang]);
 
   return (
     <div style={{ position: "absolute", inset: 0, background: "#f1ece0" }}>
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block", touchAction: "none" }} />
 
-      {/* horní lišta + nápověda — jen v ostrém (interaktivním) režimu */}
+      {/* horní lišta + legenda + nápověda — jen v ostrém (interaktivním) režimu */}
       {chrome && (
         <>
           <div style={{
             position: "absolute", top: 0, left: 0, right: 0, padding: "14px 18px",
-            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
+            display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
             pointerEvents: "none",
           }}>
             <button onClick={onBack} style={{
@@ -729,9 +920,14 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
             }}>{t.backToAssoc}</button>
             <div style={{ textAlign: "right" }}>
               <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0 }}>⚡ {t.title} · 🔬 Researcher</p>
-              <p style={{ ...sans, fontSize: 11, color: "var(--text-muted)", margin: "2px 0 0" }}>
-                {t.mapLegend}{data.truncated ? ` · ${t.truncated}` : ""}
-              </p>
+              {/* vysvětlivky — mimochodem, drobně pod titulkem */}
+              <div style={{ ...sans, fontSize: 10.5, color: "var(--text-muted)", marginTop: 4, lineHeight: 1.7 }}>
+                <p style={{ margin: 0 }}>{t.mapLegend}</p>
+                <p style={{ margin: 0 }}>{t.legendBall}</p>
+                <p style={{ margin: 0 }}>{t.legendSeed}</p>
+                <p style={{ margin: 0 }}>{t.legendColor}</p>
+                {data.truncated && <p style={{ margin: 0 }}>{t.truncated}</p>}
+              </div>
             </div>
           </div>
 
@@ -742,41 +938,45 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         </>
       )}
 
-      {/* detail slova */}
-      {chrome && selected && detail && (
-        <div style={{
-          position: "absolute", top: 70, right: 16, width: 240, maxHeight: "calc(100dvh - 140px)", overflowY: "auto",
-          background: "#fff", border: "2.5px solid var(--border)", borderRadius: 16,
-          boxShadow: "5px 5px 0 var(--shadow)", padding: "16px 18px",
+      {/* hover tooltip — letí s kurzorem, čistý text */}
+      {chrome && tip && (tip.title || tip.lines.length > 0) && (
+        <div ref={tipRef} style={{
+          position: "absolute", left: -9999, top: -9999, pointerEvents: "none", zIndex: 25,
+          background: "rgba(255,253,246,0.93)", borderRadius: 8, padding: "6px 10px", maxWidth: 240,
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-            <p style={{ ...display, fontSize: 19, fontWeight: 700, margin: 0, wordBreak: "break-word" }}>{selected.label}</p>
-            <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", ...sans, fontSize: 14, color: "var(--text-muted)", padding: 0 }}>×</button>
-          </div>
+          {tip.title && <p style={{ ...display, fontSize: 13.5, fontWeight: 700, margin: 0 }}>{tip.title}</p>}
+          {tip.lines.map((l, i) => <p key={i} style={{ ...sans, fontSize: 11.5, color: "var(--text-secondary)", margin: 0 }}>{l}</p>)}
+        </div>
+      )}
 
-          <p style={{ ...sans, fontSize: 10.5, color: "#b45309", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.outLabel}</p>
-          {detail.out.length === 0 && <p style={{ ...sans, fontSize: 12, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
+      {/* detail vybraného slova — mimochodem vedle slova, uhýbá kurzoru, nejde přes něj klikat */}
+      {chrome && selected && detail && (
+        <div ref={panelRef} style={{
+          position: "absolute", left: -9999, top: -9999, width: 200, pointerEvents: "none", zIndex: 20,
+          background: "rgba(255,253,246,0.9)", borderRadius: 10, padding: "10px 13px",
+          transition: "left 300ms ease, top 300ms ease",
+        }}>
+          <p style={{ ...display, fontSize: 17, fontWeight: 700, margin: 0, wordBreak: "break-word" }}>{selected.label}</p>
+
+          <p style={{ ...sans, fontSize: 10, color: "#b45309", textTransform: "uppercase", letterSpacing: "0.08em", margin: "10px 0 3px" }}>{t.outLabel}</p>
+          {detail.out.length === 0 && <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
           {detail.out.map((o) => (
-            <div key={`o${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 13, padding: "2px 0" }}>
+            <div key={`o${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 12, padding: "1px 0" }}>
               <span style={{ wordBreak: "break-word" }}>{o.label}</span>
               <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
             </div>
           ))}
 
-          <p style={{ ...sans, fontSize: 10.5, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.inLabel}</p>
-          {detail.inn.length === 0 && <p style={{ ...sans, fontSize: 12, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
+          <p style={{ ...sans, fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", margin: "10px 0 3px" }}>{t.inLabel}</p>
+          {detail.inn.length === 0 && <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
           {detail.inn.map((o) => (
-            <div key={`i${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 13, padding: "2px 0" }}>
+            <div key={`i${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 12, padding: "1px 0" }}>
               <span style={{ wordBreak: "break-word" }}>{o.label}</span>
               <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
             </div>
           ))}
 
-          <button onClick={() => onAssociate({ id: selected.id, display: selected.label })} style={{
-            marginTop: 16, width: "100%", background: "var(--text-primary)", color: "var(--bg)",
-            border: "2px solid var(--text-primary)", borderRadius: 10, padding: "9px 12px",
-            ...sans, fontSize: 12.5, fontWeight: 700, cursor: "pointer",
-          }}>{t.associateThis}</button>
+          <p style={{ ...sans, fontSize: 10.5, color: "var(--text-muted)", margin: "10px 0 0", fontStyle: "italic" }}>{t.clickAgain}</p>
         </div>
       )}
     </div>
