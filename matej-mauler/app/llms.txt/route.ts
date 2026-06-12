@@ -30,7 +30,7 @@ Tagline: I have bad ideas and plenty of artificial willpower to build them.
 - [A journey along a sound wave](${SITE}/sound): Your cursor is an ear — scroll through sound from a tremble to an echo, all synthesized live with WebAudio.
 - [How music is made](${SITE}/music): Build a track layer by layer — beat, bass, chords and melody — with grids, faders and effects like a tiny DAW.
 - [The Radio](${SITE}/radio): A radio station rendered on the server — everyone hears the exact same mastered stream and votes every ~15 seconds on what changes next (melody, beat, bassline, instrument, tempo, key).
-- [The Public Brain](${SITE}/brain): Word → association. Every answer strengthens a synapse in the internet's shared brain.
+- [Synapses](${SITE}/synapse): Word → association. Every answer strengthens a synapse in the internet's shared network — explore the map of how we think together.
 
 # Encyclopedia terms
 

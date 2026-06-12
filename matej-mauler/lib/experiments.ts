@@ -45,8 +45,8 @@ export const experiments: ExperimentMeta[] = [
   },
   {
     slug: "brain",
-    emoji: "🧠",
+    emoji: "⚡",
     color: "#FCE7F3",
-    href: "/brain",
+    href: "/synapse",
   },
 ];

@@ -50,6 +50,7 @@ async function ensure(sql: Sql) {
   // sjednocení 2026-06: Spaghetti = experimenty z The Lab + Encyklopedie; staré experimenty z feedu pryč
   await sql`UPDATE experiments SET published = FALSE WHERE slug IN ('cas','vvv','odds','sonify','foundry','musicvote','anthem','journey','space','soundverse','musicblaster') AND published = TRUE`;
   await sql`UPDATE experiments SET published = TRUE, href = '/radio', title_cs = 'Rádio', title_en = 'The Radio', desc_cs = 'Rádio renderované na serveru — všichni slyší totéž a každých 15 vteřin hlasují, co se změní.', desc_en = 'A server-rendered radio — everyone hears the same stream and votes every 15 seconds on what changes next.' WHERE slug = 'radio'`;
+  await sql`UPDATE experiments SET href = '/synapse', title_cs = 'Synapse', title_en = 'Synapses', desc_cs = 'Slovo → asociace. Každá odpověď posílí synapsi ve společné síti internetu.', desc_en = ${"Word → association. Every answer strengthens a synapse in the internet's shared network."} WHERE slug = 'brain' AND href = '/brain'`;
   ready = true;
 }
 

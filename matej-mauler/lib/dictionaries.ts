@@ -90,8 +90,8 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "brain",
-        title: "Veřejný mozek",
-        description: "Slovo → asociace. Každá odpověď posílí synapsi ve společném mozku internetu.",
+        title: "Synapse",
+        description: "Slovo → asociace. Každá odpověď posílí synapsi ve společné síti internetu.",
       },
     ],
   },
@@ -149,8 +149,8 @@ export const dictionaries: Record<Lang, Dictionary> = {
       },
       {
         slug: "brain",
-        title: "The Public Brain",
-        description: "Word → association. Every answer strengthens a synapse in the internet's shared brain.",
+        title: "Synapses",
+        description: "Word → association. Every answer strengthens a synapse in the internet's shared network.",
       },
     ],
   },
