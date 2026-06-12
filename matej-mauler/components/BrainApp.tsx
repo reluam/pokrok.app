@@ -18,6 +18,23 @@ type Mode = "explore" | "gate" | "map";
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const sans: React.CSSProperties = { fontFamily: "var(--font-sans)" };
 
+/* Paměť viděných slov v prohlížeči (bez účtů). Per jazyk, strop 1000 ID:
+   dokud má síť pod ~1000 slov, uživatel po znovuotevření dostává jen nová;
+   nad strop se nejstarší zahazují (FIFO) a případné opakování je už řídké. */
+const SEEN_CAP = 1000;
+const seenKey = (l: Lang) => `syn:seen:${l}`;
+function loadSeen(l: Lang): number[] {
+  try { const v = JSON.parse(localStorage.getItem(seenKey(l)) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; }
+}
+function pushSeen(l: Lang, id: number) {
+  try {
+    const arr = loadSeen(l).filter((x) => x !== id);
+    arr.push(id);
+    while (arr.length > SEEN_CAP) arr.shift();
+    localStorage.setItem(seenKey(l), JSON.stringify(arr));
+  } catch {}
+}
+
 const T = {
   cs: {
     back: "← Spaghetti.ltd",
@@ -136,9 +153,13 @@ export function BrainApp({ lang }: { lang: Lang }) {
   const fetchWord = async (l: Lang, notId?: number) => {
     setWord(null); setErr(null);
     try {
-      const r = await fetch(`/api/brain/word?lang=${l}${notId ? `&not=${notId}` : ""}`);
+      const seen = loadSeen(l);
+      const params = new URLSearchParams({ lang: l });
+      if (seen.length) params.set("seen", seen.join(","));
+      if (notId) params.set("not", String(notId));
+      const r = await fetch(`/api/brain/word?${params}`);
       const j = await r.json();
-      if (j.word) setWord(j.word);
+      if (j.word) { setWord(j.word); pushSeen(l, j.word.id); }
     } catch { setErr(T[l].errNet); }
   };
 

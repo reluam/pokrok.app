@@ -92,11 +92,18 @@ async function ensure(sql: Sql) {
   ready = true;
 }
 
-/** Náhodné slovo k asociování (volitelně jiné než `notId`). */
-export async function randomWord(lang: BrainLang, notId?: number): Promise<BrainWord | null> {
+/** Náhodné slovo k asociování. `seen` = ID slov, která už uživatel v tomhle prohlížeči
+    viděl (vyloučí se, dokud síť nedojde); `avoidId` = nezopakovat aktuální slovo při fallbacku. */
+export async function randomWord(lang: BrainLang, seen: number[] = [], avoidId?: number): Promise<BrainWord | null> {
   const sql = getDb();
   await ensure(sql);
-  const rows = await sql`SELECT id, display FROM brain_words WHERE lang = ${lang} AND id <> ${notId ?? -1} ORDER BY random() LIMIT 1` as BrainWord[];
+  // přednostně slovo, které uživatel ještě neviděl
+  if (seen.length) {
+    const fresh = await sql`SELECT id, display FROM brain_words WHERE lang = ${lang} AND NOT (id = ANY(${seen}::int[])) ORDER BY random() LIMIT 1` as BrainWord[];
+    if (fresh[0]) return fresh[0];
+  }
+  // síť vyčerpaná (nebo bez historie) → cokoliv, jen ne aktuální slovo
+  const rows = await sql`SELECT id, display FROM brain_words WHERE lang = ${lang} AND id <> ${avoidId ?? -1} ORDER BY random() LIMIT 1` as BrainWord[];
   return rows[0] ?? null;
 }
 
