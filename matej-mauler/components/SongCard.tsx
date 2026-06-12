@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { type PublicSong, songsUi } from "@/lib/songsDb";
+import { type PublicSong, songsUi } from "@/lib/songsUi";
 import type { Lang } from "@/lib/dictionaries";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getLang } from "@/lib/getLang";
-import { getPublicSongs, songsUi } from "@/lib/songsDb";
+import { getPublicSongs } from "@/lib/songsDb";
+import { songsUi } from "@/lib/songsUi";
 import { SongCard } from "@/components/SongCard";
 
 export const dynamic = "force-dynamic";

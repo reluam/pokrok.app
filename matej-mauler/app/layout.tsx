@@ -20,13 +20,7 @@ const sans = Inter({
   display: "swap",
 });
 
-// Space Grotesk i jako varianta pro běžný text (A/B na hlavní stránce)
-const grotesk = Space_Grotesk({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500"],
-  variable: "--font-grotesk",
-  display: "swap",
-});
+// --font-grotesk je alias na --font-display (globals.css) — Space Grotesk se načítá jen jednou
 
 export const metadata: Metadata = {
   title: "Spaghetti.ltd",
@@ -36,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="cs" className={`${display.variable} ${sans.variable} ${grotesk.variable} h-full`}>
+    <html lang="cs" className={`${display.variable} ${sans.variable} h-full`}>
       <body className="min-h-full">
         {children}
         <Analytics />

@@ -1,6 +1,6 @@
 import { Dictionary, Lang } from "@/lib/dictionaries";
 import type { PublicExperiment } from "@/lib/experimentsDb";
-import { type PublicSong, songsUi } from "@/lib/songsDb";
+import { type PublicSong, songsUi } from "@/lib/songsUi";
 import { CATEGORIES } from "@/lib/experiments";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
