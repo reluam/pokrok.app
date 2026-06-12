@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: dictionaries.cs.meta.description,
   alternates: {
     canonical: "/cs",
-    languages: { en: "/", cs: "/cs" },
+    languages: { "x-default": "/", en: "/", cs: "/cs" },
   },
 };
 

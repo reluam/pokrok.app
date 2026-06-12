@@ -3,7 +3,7 @@ import { redLinks } from "@/lib/encyclopedia/graph";
 
 export const dynamic = "force-static";
 
-const SITE = "https://spaghetti.ltd";
+const SITE = "https://www.spaghetti.ltd";
 
 /** llms.txt — přehled encyklopedie pro LLMka, generovaný přímo z registru hesel. */
 export function GET() {

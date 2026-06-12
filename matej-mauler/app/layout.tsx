@@ -23,6 +23,7 @@ const sans = Inter({
 // --font-grotesk je alias na --font-display (globals.css) — Space Grotesk se načítá jen jednou
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.spaghetti.ltd"),
   title: "Spaghetti.ltd",
   description: "Máme špatné nápady a hromadu AI vůle je uskutečnit.",
   icons: { icon: "/logo.svg" },

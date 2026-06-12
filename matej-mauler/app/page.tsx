@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: dictionaries.en.meta.description,
   alternates: {
     canonical: "/",
-    languages: { en: "/", cs: "/cs" },
+    languages: { "x-default": "/", en: "/", cs: "/cs" },
   },
 };
 
@@ -19,7 +19,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Spaghetti.ltd",
-  url: "https://spaghetti.ltd",
+  url: "https://www.spaghetti.ltd",
   description: "Interactive experiments and an encyclopedia connected by knowledge noodles — sound, music, a server-rendered radio, a public brain and more.",
   inLanguage: ["cs", "en"],
 };

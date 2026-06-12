@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "*", allow: "/", disallow: ["/admin", "/api"] },
       { userAgent: ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-Web", "anthropic-ai", "PerplexityBot", "Google-Extended", "CCBot", "Bytespider", "Amazonbot"], allow: "/", disallow: ["/admin", "/api"] },
     ],
-    sitemap: "https://spaghetti.ltd/sitemap.xml",
+    sitemap: "https://www.spaghetti.ltd/sitemap.xml",
   };
 }

@@ -4,7 +4,7 @@ import { NODES } from "@/lib/encyclopedia/nodes";
 
 export const dynamic = "force-dynamic";
 
-const SITE = "https://spaghetti.ltd";
+const SITE = "https://www.spaghetti.ltd";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const items = await getPublicExperiments("en");
