@@ -12,58 +12,26 @@ type MapData = {
   edges: { a: number; b: number; count: number }[]; // a → b
   truncated: boolean;
 };
-type Mode = "menu" | "explorer" | "gate" | "map";
+type Mode = "explore" | "gate" | "map";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const sans: React.CSSProperties = { fontFamily: "var(--font-sans)" };
 
-/* ── tmavá neurální paleta — schválně úplně jiný svět než hlavní stránka ── */
-const INK = "#f3f1fa";          // světlé levandulové pozadí
-const PANEL = "#ffffff";        // matná plocha modálů — stejný svět jako mapa
-const PANEL_BORDER = "1px solid rgba(29,24,48,0.13)";
-const TEXT = "#1d1830";
-const TEXT_DIM = "rgba(29,24,48,0.64)";
-const TEXT_FAINT = "rgba(29,24,48,0.44)";
-const PINK = "#db2777";         // odchozí synapse
-const SKY = "#0284c7";          // příchozí synapse
-const VIOLET = "#7c5cd6";       // klidové nudle
-
-const matteCard: React.CSSProperties = {
-  background: PANEL, border: PANEL_BORDER, borderRadius: 22,
-  boxShadow: "0 14px 38px rgba(29,24,48,0.14)",
-};
-const primaryBtn: React.CSSProperties = {
-  background: PINK, color: "#130e26",
-  border: "none", borderRadius: 12, padding: "13px 20px",
-  ...sans, fontSize: 14, fontWeight: 700, cursor: "pointer",
-};
-const ghostBtn: React.CSSProperties = {
-  background: "rgba(29,24,48,0.05)", color: TEXT, border: "1px solid rgba(29,24,48,0.16)",
-  borderRadius: 999, padding: "8px 16px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer",
-};
-
 const T = {
   cs: {
     back: "← Spaghetti.ltd",
-    menu: "← zpět na výběr",
+    backToAssoc: "← zpět k asociacím",
     title: "Synapse",
     tagline: "Slovo, asociace, synapse. Jedna síť složená ze všech, kdo sem přijdou.",
-    intro: "Dostaneš slovo a napíšeš první věc, která tě napadne. Když stejnou asociaci napíše víc lidí, synapse mezi slovy zesílí — a z odpovědí pomalu roste mapa toho, jak dohromady myslíme.",
-    explorerTitle: "Explorer",
-    explorerDesc: "Dostaneš slovo. Napíšeš, co tě napadne. Vteřina práce a síť o kousek povyroste.",
-    explorerCta: "Jdu přemýšlet →",
-    researcherTitle: "Researcher",
-    researcherDesc: "Prohlédni si mapu synapsí — která slova k sobě lidem srostla nejsilněji.",
-    researcherCta: "Ukaž mapu →",
     stats: (s: Stats) => `${s.words.toLocaleString("cs-CZ")} slov · ${s.edges.toLocaleString("cs-CZ")} synapsí · ${s.total.toLocaleString("cs-CZ")} asociací`,
     prompt: "Co se ti vybaví, když se řekne…",
     placeholder: "první věc, co tě napadne",
     send: "Uložit →",
     savedNew: (a: string, b: string) => `${a} → ${b} · nová synapse ✨`,
     savedAgain: (a: string, b: string, n: number) => `${a} → ${b} · synapse posílena ×${n}`,
-    afterSave: "Přidej další asociaci na stejné slovo — nebo pokračuj dál.",
-    chain: (w: string) => `↪ asociuj dál na „${w}“`,
-    dice: "🎲 Nové slovo",
+    afterSave: "Síť pokračuje tvým slovem — asociuj dál, nebo si vezmi jiné.",
+    dice: "🎲 Jiné slovo",
+    researcher: "🔬 Prozkoumat mapu jako Researcher →",
     mine: (n: number) => `tvých asociací dnes: ${n}`,
     errInvalid: "Tohle síť nepobrala — zkus 1–3 slova, max 40 znaků.",
     errSame: "Slovo se nemůže asociovat samo na sebe, to by byla smyčka.",
@@ -71,11 +39,11 @@ const T = {
     loadingWord: "Síť hledá slovo…",
     gateTitle: "Síť se ještě rodí",
     gateText: (t: number, goal: number) => `Zatím nasbírala ${t.toLocaleString("cs-CZ")} z ${goal.toLocaleString("cs-CZ")} asociací, které potřebuje, aby mapa začala něco říkat.`,
-    gateGo: "→ Pomoz jí růst jako Explorer",
+    gateGo: "→ Pomoz jí růst asociacemi",
     gateAnyway: "Stejně mi ukaž ten nicneříkající zárodek →",
     mapEmpty: "Síť je zatím úplně prázdná. Buď první synapse!",
     mapHint: "táhni = posun · kolečko / pinch = zoom · klik na slovo = detail",
-    mapLegend: "tloušťka vlákna = síla synapse",
+    mapLegend: "tloušťka nudle = síla synapse",
     truncated: "Zobrazuju jen ~600 nejsilnějších synapsí.",
     outLabel: "kam vede →",
     inLabel: "→ co vede sem",
@@ -84,25 +52,18 @@ const T = {
   },
   en: {
     back: "← Spaghetti.ltd",
-    menu: "← back to modes",
+    backToAssoc: "← back to associating",
     title: "Synapses",
     tagline: "A word, an association, a synapse. One network made of everyone who drops by.",
-    intro: "You get a word and write the first thing that comes to mind. When more people write the same association, the synapse between the words grows stronger — and a map of how we think together slowly emerges.",
-    explorerTitle: "Explorer",
-    explorerDesc: "You get a word. You write what comes to mind. A second of work and the network grows a little.",
-    explorerCta: "Start thinking →",
-    researcherTitle: "Researcher",
-    researcherDesc: "Browse the map of synapses — which words have grown together the strongest.",
-    researcherCta: "Show the map →",
     stats: (s: Stats) => `${s.words.toLocaleString("en-GB")} words · ${s.edges.toLocaleString("en-GB")} synapses · ${s.total.toLocaleString("en-GB")} associations`,
     prompt: "What comes to mind when you hear…",
     placeholder: "the first thing you think of",
     send: "Save →",
     savedNew: (a: string, b: string) => `${a} → ${b} · new synapse ✨`,
     savedAgain: (a: string, b: string, n: number) => `${a} → ${b} · synapse strengthened ×${n}`,
-    afterSave: "Add another association to the same word — or move on.",
-    chain: (w: string) => `↪ associate onto “${w}”`,
-    dice: "🎲 New word",
+    afterSave: "The network continues with your word — keep going, or grab a different one.",
+    dice: "🎲 Different word",
+    researcher: "🔬 Explore the map as a Researcher →",
     mine: (n: number) => `your associations today: ${n}`,
     errInvalid: "The network couldn't digest that — try 1–3 words, max 40 characters.",
     errSame: "A word can't associate with itself, that would be a loop.",
@@ -110,11 +71,11 @@ const T = {
     loadingWord: "The network is picking a word…",
     gateTitle: "The network is still being born",
     gateText: (t: number, goal: number) => `So far it has ${t.toLocaleString("en-GB")} of the ${goal.toLocaleString("en-GB")} associations it needs before the map starts to mean anything.`,
-    gateGo: "→ Help it grow as an Explorer",
+    gateGo: "→ Help it grow with associations",
     gateAnyway: "Show me the meaningless embryo anyway →",
     mapEmpty: "The network is completely empty so far. Be the first synapse!",
     mapHint: "drag = pan · wheel / pinch = zoom · click a word = detail",
-    mapLegend: "strand thickness = synapse strength",
+    mapLegend: "noodle thickness = synapse strength",
     truncated: "Showing only the ~600 strongest synapses.",
     outLabel: "leads to →",
     inLabel: "→ comes from",
@@ -124,17 +85,17 @@ const T = {
 } as const;
 
 /* ════════════════════════════════════════════════════════════════
-   Hlavní aplikace — mapa se načte hned a žije na pozadí;
-   dokud si uživatel nevybere mód, je rozmazaná pod modálem.
+   Synapse — stejný kabát jako encyklopedie: žádné modály,
+   mapa žije na pozadí (rozmazaná tak, ať slova nejdou přečíst)
+   a asociace se píše přímo přes ni, text bez krabice na střed.
    ════════════════════════════════════════════════════════════════ */
 export function BrainApp({ lang }: { lang: Lang }) {
   const t = T[lang];
-  const [mode, setMode] = useState<Mode>("menu");
+  const [mode, setMode] = useState<Mode>("explore");
   const [stats, setStats] = useState<Stats | null>(null);
   const [map, setMap] = useState<MapData | null>(null);
   const dirty = useRef(false); // po nových asociacích mapu před zobrazením obnovit
 
-  // Explorer
   const [word, setWord] = useState<Word | null>(null);
   const [input, setInput] = useState("");
   const [last, setLast] = useState<{ from: string; to: Word; count: number } | null>(null);
@@ -149,24 +110,21 @@ export function BrainApp({ lang }: { lang: Lang }) {
       .catch(() => {});
   };
 
-  useEffect(() => {
-    fetch("/api/brain/stats").then((r) => r.ok ? r.json() : null).then((s) => s && setStats(s)).catch(() => {});
-    loadMap();
-  }, []);
-
   const fetchWord = async (notId?: number) => {
     setWord(null); setErr(null);
     try {
       const r = await fetch(`/api/brain/word${notId ? `?not=${notId}` : ""}`);
       const j = await r.json();
       if (j.word) setWord(j.word);
-    } catch { setErr(t.errNet); }
+    } catch { setErr(T[lang].errNet); }
   };
 
-  const enterExplorer = (w?: Word) => {
-    setMode("explorer"); setLast(null); setErr(null); setInput("");
-    if (w) setWord(w); else fetchWord(word?.id);
-  };
+  useEffect(() => {
+    fetch("/api/brain/stats").then((r) => r.ok ? r.json() : null).then((s) => s && setStats(s)).catch(() => {});
+    loadMap();
+    fetchWord();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const enterMap = () => {
     if (dirty.current) { dirty.current = false; loadMap(); }
@@ -190,6 +148,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
         setInput("");
         setStats((s) => s ? { ...s, total: j.total } : s);
         dirty.current = true;
+        setWord(j.to); // řetěz: pokračuje se vždy na novém slově
         inputRef.current?.focus();
       } else {
         setErr(j.error === "same" ? t.errSame : t.errInvalid);
@@ -201,82 +160,35 @@ export function BrainApp({ lang }: { lang: Lang }) {
   const overlay = mode !== "map";
 
   return (
-    <main style={{ position: "fixed", inset: 0, background: INK, color: TEXT, overflow: "hidden" }}>
-      {/* ── mapa na pozadí — od první vteřiny, pod modálem rozmazaná ── */}
+    <main style={{ position: "fixed", inset: 0, background: "var(--bg)", color: "var(--text-primary)", overflow: "hidden" }}>
+      {/* ── mapa na pozadí — rozmazaná tolik, ať slova nejdou přečíst ── */}
       <div style={{
         position: "absolute", inset: 0,
-        filter: overlay ? "blur(12px) saturate(1.05)" : "none",
-        transform: overlay ? "scale(1.04)" : "none",
+        filter: overlay ? "blur(16px) saturate(1.05)" : "none",
+        transform: overlay ? "scale(1.05)" : "none",
         transition: "filter 700ms ease, transform 700ms ease",
         pointerEvents: overlay ? "none" : "auto",
       }}>
         {map && map.edges.length > 0
-          ? <BrainMap data={map} lang={lang} chrome={mode === "map"} onMenu={() => setMode("menu")} onAssociate={(w) => enterExplorer(w)} />
+          ? <BrainMap data={map} lang={lang} chrome={mode === "map"} onBack={() => setMode("explore")} onAssociate={(w) => { setMode("explore"); setLast(null); setErr(null); setInput(""); setWord(w); }} />
           : <IdleField />}
       </div>
 
-      {/* ── overlaye nad mapou ── */}
-      {mode === "menu" && (
+      {/* ── asociace přímo přes mapu, encyklopedický střed bez krabice ── */}
+      {mode === "explore" && (
         <div style={overlayWrap}>
-          <div style={{ ...matteCard, maxWidth: 680, width: "100%", padding: "clamp(28px, 5vw, 44px)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
-            <Link href="/" style={{ ...sans, fontSize: 12.5, color: TEXT_FAINT, textDecoration: "none" }}>{t.back}</Link>
-            <h1 style={{ ...display, fontSize: "clamp(34px,6.5vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: "14px 0 10px", color: "#130e26" }}>
-              ⚡ {t.title}
-            </h1>
-            <p style={{ ...display, fontStyle: "italic", fontSize: 17, margin: "0 0 10px", color: TEXT }}>{t.tagline}</p>
-            <p style={{ ...sans, fontSize: 14, color: TEXT_DIM, lineHeight: 1.65, margin: 0 }}>{t.intro}</p>
-            {stats && (
-              <p style={{ ...sans, fontSize: 11.5, color: TEXT_FAINT, margin: "14px 0 0", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-                {t.stats(stats)}
-              </p>
-            )}
+          <Link href="/" style={{ position: "absolute", top: 20, left: 24, ...sans, fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>{t.back}</Link>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 14, marginTop: 28 }}>
-              <button onClick={() => enterExplorer()} className="syn-card" style={{
-                textAlign: "left", cursor: "pointer",
-                background: "rgba(219,39,119,0.06)",
-                border: "1px solid rgba(219,39,119,0.3)", borderRadius: 18,
-                padding: "22px 22px 18px", display: "flex", flexDirection: "column", gap: 9, color: TEXT,
-                transition: "transform 140ms ease, box-shadow 140ms ease",
-              }}>
-                <span style={{ fontSize: 30, lineHeight: 1 }}>🧭</span>
-                <span style={{ ...display, fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", color: "#130e26" }}>{t.explorerTitle}</span>
-                <span style={{ ...sans, fontSize: 13, color: TEXT_DIM, lineHeight: 1.55 }}>{t.explorerDesc}</span>
-                <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: PINK }}>{t.explorerCta}</span>
-              </button>
+          <div style={{ maxWidth: 600, width: "100%", textAlign: "center" }}>
+            <p style={{ ...sans, fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--text-muted)", margin: "0 0 6px" }}>⚡ {t.title}</p>
+            <p style={{ ...display, fontStyle: "italic", fontSize: 14, color: "var(--text-secondary)", margin: "0 0 34px" }}>{t.tagline}</p>
 
-              <button onClick={enterMap} className="syn-card" style={{
-                textAlign: "left", cursor: "pointer",
-                background: "rgba(2,132,199,0.05)",
-                border: "1px solid rgba(2,132,199,0.28)", borderRadius: 18,
-                padding: "22px 22px 18px", display: "flex", flexDirection: "column", gap: 9, color: TEXT,
-                transition: "transform 140ms ease, box-shadow 140ms ease",
-              }}>
-                <span style={{ fontSize: 30, lineHeight: 1 }}>🔬</span>
-                <span style={{ ...display, fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", color: "#130e26" }}>{t.researcherTitle}</span>
-                <span style={{ ...sans, fontSize: 13, color: TEXT_DIM, lineHeight: 1.55 }}>{t.researcherDesc}</span>
-                <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: SKY }}>{t.researcherCta}</span>
-              </button>
-            </div>
-          </div>
-          <style>{`.syn-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(29,24,48,0.12); }`}</style>
-        </div>
-      )}
-
-      {mode === "explorer" && (
-        <div style={overlayWrap}>
-          <div style={{ ...matteCard, maxWidth: 600, width: "100%", padding: "clamp(26px, 5vw, 38px)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-              <button onClick={() => setMode("menu")} style={{ ...sans, fontSize: 12.5, color: TEXT_FAINT, background: "none", border: "none", cursor: "pointer", padding: 0 }}>{t.menu}</button>
-              <span style={{ ...sans, fontSize: 11, color: PINK, textTransform: "uppercase", letterSpacing: "0.2em" }}>🧭 {t.explorerTitle}</span>
-            </div>
-
-            <p style={{ ...sans, fontSize: 13, color: TEXT_FAINT, margin: "26px 0 0" }}>{t.prompt}</p>
-            <p style={{ ...display, fontSize: "clamp(32px,6.5vw,48px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "8px 0 22px", minHeight: "1.1em", color: "#130e26" }}>
+            <p style={{ ...sans, fontSize: 13.5, color: "var(--text-secondary)", margin: 0 }}>{t.prompt}</p>
+            <p style={{ ...display, fontSize: "clamp(36px,8vw,60px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.08, margin: "8px 0 24px", minHeight: "1.1em" }}>
               {word ? word.display : <span style={{ opacity: 0.4, fontSize: 17, ...sans, fontWeight: 400 }}>{t.loadingWord}</span>}
             </p>
 
-            <form onSubmit={submit} style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <form onSubmit={submit} style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               <input
                 ref={inputRef}
                 value={input}
@@ -285,66 +197,73 @@ export function BrainApp({ lang }: { lang: Lang }) {
                 autoFocus
                 maxLength={60}
                 style={{
-                  flex: 1, minWidth: 190, background: "#f6f4fb", border: "1px solid rgba(124,92,214,0.4)",
-                  borderRadius: 12, padding: "13px 16px", ...sans, fontSize: 16,
-                  color: TEXT, outline: "none",
+                  flex: 1, minWidth: 200, maxWidth: 340, background: "#fff",
+                  border: "2px solid var(--border)", borderRadius: 999,
+                  padding: "13px 20px", ...sans, fontSize: 16,
+                  color: "var(--text-primary)", outline: "none",
+                  boxShadow: "3px 3px 0 var(--shadow)",
                 }}
               />
               <button type="submit" disabled={!word || !input.trim() || busy} style={{
-                ...primaryBtn,
+                background: "var(--text-primary)", color: "var(--bg)", border: "2px solid var(--text-primary)",
+                borderRadius: 999, boxShadow: "3px 3px 0 var(--shadow)", padding: "12px 22px",
+                ...sans, fontSize: 14, fontWeight: 700, cursor: "pointer",
                 opacity: (!word || !input.trim() || busy) ? 0.4 : 1,
               }}>{t.send}</button>
             </form>
 
-            {err && <p style={{ ...sans, fontSize: 13, color: "#b91c1c", margin: "12px 0 0" }}>{err}</p>}
+            {err && <p style={{ ...sans, fontSize: 13, color: "#b91c1c", margin: "14px 0 0" }}>{err}</p>}
 
             {last && !err && (
-              <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px dashed rgba(236,233,246,0.22)" }}>
-                <p style={{ ...sans, fontSize: 14, fontWeight: 600, margin: 0, color: "#130e26" }}>
+              <div style={{ marginTop: 18 }}>
+                <p style={{ ...sans, fontSize: 14, fontWeight: 600, margin: 0 }}>
                   {last.count > 1 ? t.savedAgain(last.from, last.to.display, last.count) : t.savedNew(last.from, last.to.display)}
                 </p>
-                <p style={{ ...sans, fontSize: 12.5, color: TEXT_FAINT, margin: "6px 0 0" }}>{t.afterSave}</p>
+                <p style={{ ...sans, fontSize: 12.5, color: "var(--text-muted)", margin: "5px 0 0" }}>{t.afterSave}</p>
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
-              {last && (
-                <button onClick={() => { setWord(last.to); setLast(null); setErr(null); inputRef.current?.focus(); }} style={{
-                  ...ghostBtn, borderColor: "rgba(219,39,119,0.4)", color: "#9d174d",
-                }}>{t.chain(last.to.display)}</button>
-              )}
-              <button onClick={() => { setLast(null); fetchWord(word?.id); inputRef.current?.focus(); }} style={ghostBtn}>{t.dice}</button>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 22, gap: 12, flexWrap: "wrap" }}>
-              <span style={{ ...sans, fontSize: 11.5, color: TEXT_FAINT }}>{mine > 0 ? t.mine(mine) : stats ? t.stats(stats) : ""}</span>
-              <button onClick={enterMap} style={{ ...sans, fontSize: 12.5, fontWeight: 600, color: SKY, background: "none", border: "none", cursor: "pointer", padding: 0 }}>🔬 {t.researcherCta}</button>
+            <div style={{ marginTop: 30, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+              <button onClick={() => { setLast(null); fetchWord(word?.id); inputRef.current?.focus(); }} style={{
+                background: "#fff", border: "2px solid var(--border)", borderRadius: 999,
+                padding: "8px 18px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                color: "var(--text-primary)", boxShadow: "3px 3px 0 var(--shadow)",
+              }}>{t.dice}</button>
+              <button onClick={enterMap} style={{
+                background: "none", border: "none", cursor: "pointer", padding: 0,
+                ...sans, fontSize: 13, fontWeight: 600, color: "var(--text-secondary)",
+                textDecoration: "underline", textUnderlineOffset: "4px",
+              }}>{t.researcher}</button>
             </div>
           </div>
+
+          <p style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", ...sans, fontSize: 11, color: "var(--text-muted)", margin: 0, whiteSpace: "nowrap" }}>
+            {mine > 0 ? t.mine(mine) : stats ? t.stats(stats) : ""}
+          </p>
         </div>
       )}
 
+      {/* ── gate: síť je moc malá na mapu — taky jen text na střed ── */}
       {mode === "gate" && map && (
         <div style={overlayWrap}>
-          <div style={{ ...matteCard, maxWidth: 460, width: "100%", padding: "36px 32px", textAlign: "center" }}>
+          <div style={{ maxWidth: 460, width: "100%", textAlign: "center" }}>
             <span style={{ fontSize: 42, display: "block", marginBottom: 12 }}>🐣</span>
-            <h2 style={{ ...display, fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 10px", color: "#130e26" }}>{t.gateTitle}</h2>
-            <p style={{ ...sans, fontSize: 14, color: TEXT_DIM, lineHeight: 1.6, margin: "0 0 18px" }}>
+            <h2 style={{ ...display, fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 10px" }}>{t.gateTitle}</h2>
+            <p style={{ ...sans, fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 18px" }}>
               {t.gateText(map.total, map.goal)}
             </p>
-            <div style={{ background: "#f1eef9", border: "1px solid rgba(124,92,214,0.3)", borderRadius: 999, height: 16, overflow: "hidden", marginBottom: 24 }}>
-              <div style={{ width: `${Math.max(1.5, Math.min(100, (map.total / map.goal) * 100))}%`, height: "100%", background: PINK }} />
+            <div style={{ background: "#fff", border: "2px solid var(--border)", borderRadius: 999, height: 14, overflow: "hidden", marginBottom: 24, boxShadow: "2px 2px 0 var(--shadow)" }}>
+              <div style={{ width: `${Math.max(1.5, Math.min(100, (map.total / map.goal) * 100))}%`, height: "100%", background: "var(--text-primary)" }} />
             </div>
-            <button onClick={() => enterExplorer()} style={{ ...primaryBtn, display: "block", width: "100%", marginBottom: 14 }}>{t.gateGo}</button>
-            {map.edges.length > 0 && (
-              <button onClick={() => setMode("map")} style={{
-                background: "none", border: "none", ...sans, fontSize: 12.5, color: TEXT_FAINT,
-                cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "3px", padding: 0,
-              }}>{t.gateAnyway}</button>
-            )}
-            {map.edges.length === 0 && <p style={{ ...sans, fontSize: 12.5, color: TEXT_FAINT, margin: 0 }}>{t.mapEmpty}</p>}
-            <p style={{ marginTop: 18 }}>
-              <button onClick={() => setMode("menu")} style={{ ...sans, fontSize: 12, color: TEXT_FAINT, background: "none", border: "none", cursor: "pointer", padding: 0 }}>{t.menu}</button>
+            <button onClick={() => setMode("explore")} style={{
+              background: "var(--text-primary)", color: "var(--bg)", border: "2px solid var(--text-primary)",
+              borderRadius: 999, boxShadow: "3px 3px 0 var(--shadow)", padding: "11px 22px",
+              ...sans, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 16,
+            }}>{t.gateGo}</button>
+            <p style={{ margin: 0 }}>
+              {map.edges.length > 0
+                ? <button onClick={() => setMode("map")} style={{ background: "none", border: "none", ...sans, fontSize: 12.5, color: "var(--text-muted)", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "3px", padding: 0 }}>{t.gateAnyway}</button>
+                : <span style={{ ...sans, fontSize: 12.5, color: "var(--text-muted)" }}>{t.mapEmpty}</span>}
             </p>
           </div>
         </div>
@@ -355,26 +274,26 @@ export function BrainApp({ lang }: { lang: Lang }) {
 
 const overlayWrap: React.CSSProperties = {
   position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-  padding: 24, zIndex: 10,
+  padding: 24, zIndex: 10, overflowY: "auto",
 };
 
-/* Decentní „zárodek sítě“, dokud mapa nedorazí (nebo je prázdná) — jen CSS, žádný canvas. */
+/* Decentní zárodek sítě, dokud mapa nedorazí (nebo je prázdná) — jen CSS, žádný canvas. */
 function IdleField() {
   return (
     <div style={{
       position: "absolute", inset: 0,
       background: `
-        radial-gradient(420px 300px at 28% 30%, rgba(124,92,214,0.14), transparent 70%),
-        radial-gradient(360px 280px at 72% 62%, rgba(219,39,119,0.09), transparent 70%),
-        radial-gradient(300px 240px at 55% 20%, rgba(2,132,199,0.08), transparent 70%),
-        ${INK}`,
+        radial-gradient(420px 300px at 28% 30%, rgba(176,124,24,0.12), transparent 70%),
+        radial-gradient(360px 280px at 72% 62%, rgba(180,83,9,0.08), transparent 70%),
+        radial-gradient(300px 240px at 55% 20%, rgba(71,85,105,0.07), transparent 70%),
+        var(--bg)`,
     }} />
   );
 }
 
 /* ════════════════════════════════════════════════════════════════
-   Mapa synapsí — force layout na canvasu, svítící vlákna ve tmě.
-   Tloušťka a sytost vlákna = síla synapse (count).
+   Mapa synapsí — force layout na canvasu, nudlové synapse
+   v těstovinové barvě jako špagety v encyklopedii.
    ════════════════════════════════════════════════════════════════ */
 type SimNode = { id: number; label: string; seed: boolean; strength: number; x: number; y: number; vx: number; vy: number; r: number };
 type SimEdge = { a: number; b: number; count: number };
@@ -454,7 +373,7 @@ function runSim(nodes: SimNode[], edges: SimEdge[], maxCount: number, ticks = 30
   }
 }
 
-function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; lang: Lang; chrome: boolean; onMenu: () => void; onAssociate: (w: Word) => void }) {
+function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; lang: Lang; chrome: boolean; onBack: () => void; onAssociate: (w: Word) => void }) {
   const t = T[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selected, setSelected] = useState<{ id: number; label: string } | null>(null);
@@ -511,8 +430,8 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
     const draw = () => {
       const w = cv.clientWidth, h = cv.clientHeight;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const g = ctx.createRadialGradient(w * 0.4, h * 0.32, 0, w * 0.4, h * 0.32, Math.max(w, h));
-      g.addColorStop(0, "#fbfaff"); g.addColorStop(0.75, "#eae7f4");
+      const g = ctx.createRadialGradient(w * 0.35, h * 0.3, 0, w * 0.35, h * 0.3, Math.max(w, h));
+      g.addColorStop(0, "#fffdf6"); g.addColorStop(0.75, "#f1ece0");
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
 
       ctx.setTransform(dpr * view.scale, 0, 0, dpr * view.scale, dpr * view.tx, dpr * view.ty);
@@ -520,7 +439,7 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
       const selId = selRef.current;
       const hotId = hovered?.id ?? selId;
 
-      // vlákna (synapse) — svítí ve tmě
+      // nudle (synapse)
       for (const e of edges) {
         const a = nodes[e.a], b = nodes[e.b];
         const norm = Math.sqrt(e.count / maxCount);
@@ -528,10 +447,10 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
         const isIn = hotId !== null && b.id === hotId;
         const hot = isOut || isIn;
         if (hot) {
-          // směr: odchozí růžová, příchozí blankytná
-          ctx.strokeStyle = isOut ? "rgba(219, 39, 119, 0.92)" : "rgba(2, 132, 199, 0.85)";
+          // směr: odchozí teplá, příchozí chladná
+          ctx.strokeStyle = isOut ? "rgba(180, 83, 9, 0.92)" : "rgba(71, 85, 105, 0.85)";
         } else {
-          ctx.strokeStyle = `rgba(124, 92, 214, ${hotId !== null ? 0.06 + 0.09 * norm : 0.18 + 0.42 * norm})`;
+          ctx.strokeStyle = `rgba(176, 124, 24, ${hotId !== null ? 0.07 + 0.1 * norm : 0.16 + 0.4 * norm})`;
         }
         ctx.lineWidth = (0.8 + 4.2 * norm) * (hot ? 1.25 : 1);
         ctx.lineCap = "round";
@@ -557,17 +476,17 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
       for (const n of nodes) {
         const hot = n.id === hotId;
         const dim = hotId !== null && !hot && !neighborIds.has(n.id);
-        ctx.globalAlpha = hot ? 1 : dim ? 0.25 : 0.9;
-        ctx.fillStyle = hot ? "#0f0a20" : "#241c3d";
+        ctx.globalAlpha = hot ? 1 : dim ? 0.25 : 0.88;
+        ctx.fillStyle = "#1a1614";
         ctx.beginPath(); ctx.arc(n.x, n.y, hot ? n.r + 2 : n.r, 0, 7); ctx.fill();
         if (n.seed) {
-          ctx.strokeStyle = "rgba(219, 39, 119, 0.7)"; ctx.lineWidth = 1.6;
+          ctx.strokeStyle = "rgba(176, 124, 24, 0.85)"; ctx.lineWidth = 1.6;
           ctx.beginPath(); ctx.arc(n.x, n.y, (hot ? n.r + 2 : n.r) + 2.4, 0, 7); ctx.stroke();
         }
         const showLabel = hot || neighborIds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim));
         if (showLabel) {
-          ctx.globalAlpha = hot ? 1 : 0.75;
-          ctx.fillStyle = hot ? "#0f0a20" : "rgba(29,24,48,0.88)";
+          ctx.globalAlpha = hot ? 1 : 0.78;
+          ctx.fillStyle = "#1a1614";
           ctx.font = `${hot ? 700 : 500} 11px ${getComputedStyle(document.body).fontFamily || "system-ui"}`;
           ctx.textAlign = "center";
           ctx.fillText(n.label, n.x, n.y + n.r + 14);
@@ -691,7 +610,7 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
   }, [data]);
 
   return (
-    <div style={{ position: "absolute", inset: 0, background: INK }}>
+    <div style={{ position: "absolute", inset: 0, background: "#f1ece0" }}>
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block", touchAction: "none" }} />
 
       {/* horní lišta + nápověda — jen v ostrém (interaktivním) režimu */}
@@ -702,10 +621,14 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
             display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
             pointerEvents: "none",
           }}>
-            <button onClick={onMenu} style={{ ...ghostBtn, pointerEvents: "auto", background: PANEL }}>{t.menu}</button>
+            <button onClick={onBack} style={{
+              pointerEvents: "auto", background: "#fff", border: "2px solid var(--border)", borderRadius: 999,
+              padding: "7px 14px", ...sans, fontSize: 12.5, fontWeight: 600, cursor: "pointer", color: "var(--text-primary)",
+              boxShadow: "3px 3px 0 var(--shadow)",
+            }}>{t.backToAssoc}</button>
             <div style={{ textAlign: "right" }}>
-              <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0, color: "#130e26" }}>⚡ {t.title} · 🔬 {t.researcherTitle}</p>
-              <p style={{ ...sans, fontSize: 11, color: TEXT_FAINT, margin: "2px 0 0" }}>
+              <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0 }}>⚡ {t.title} · 🔬 Researcher</p>
+              <p style={{ ...sans, fontSize: 11, color: "var(--text-muted)", margin: "2px 0 0" }}>
                 {t.mapLegend}{data.truncated ? ` · ${t.truncated}` : ""}
               </p>
             </div>
@@ -713,7 +636,7 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
 
           <p style={{
             position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
-            ...sans, fontSize: 11, color: TEXT_FAINT, margin: 0, whiteSpace: "nowrap",
+            ...sans, fontSize: 11, color: "var(--text-muted)", margin: 0, whiteSpace: "nowrap",
           }}>{t.mapHint}</p>
         </>
       )}
@@ -721,35 +644,37 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
       {/* detail slova */}
       {chrome && selected && detail && (
         <div style={{
-          ...matteCard,
-          position: "absolute", top: 70, right: 16, width: 244, maxHeight: "calc(100dvh - 140px)", overflowY: "auto",
-          borderRadius: 16, padding: "16px 18px",
+          position: "absolute", top: 70, right: 16, width: 240, maxHeight: "calc(100dvh - 140px)", overflowY: "auto",
+          background: "#fff", border: "2.5px solid var(--border)", borderRadius: 16,
+          boxShadow: "5px 5px 0 var(--shadow)", padding: "16px 18px",
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-            <p style={{ ...display, fontSize: 19, fontWeight: 700, margin: 0, wordBreak: "break-word", color: "#130e26" }}>{selected.label}</p>
-            <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", ...sans, fontSize: 14, color: TEXT_FAINT, padding: 0 }}>×</button>
+            <p style={{ ...display, fontSize: 19, fontWeight: 700, margin: 0, wordBreak: "break-word" }}>{selected.label}</p>
+            <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", ...sans, fontSize: 14, color: "var(--text-muted)", padding: 0 }}>×</button>
           </div>
 
-          <p style={{ ...sans, fontSize: 10.5, color: "#be185d", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.outLabel}</p>
-          {detail.out.length === 0 && <p style={{ ...sans, fontSize: 12, color: TEXT_FAINT, margin: 0 }}>{t.nothing}</p>}
+          <p style={{ ...sans, fontSize: 10.5, color: "#b45309", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.outLabel}</p>
+          {detail.out.length === 0 && <p style={{ ...sans, fontSize: 12, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
           {detail.out.map((o) => (
-            <div key={`o${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 13, padding: "2px 0", color: TEXT }}>
+            <div key={`o${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 13, padding: "2px 0" }}>
               <span style={{ wordBreak: "break-word" }}>{o.label}</span>
-              <span style={{ color: TEXT_FAINT, flexShrink: 0 }}>×{o.count}</span>
+              <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
             </div>
           ))}
 
-          <p style={{ ...sans, fontSize: 10.5, color: "#0369a1", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.inLabel}</p>
-          {detail.inn.length === 0 && <p style={{ ...sans, fontSize: 12, color: TEXT_FAINT, margin: 0 }}>{t.nothing}</p>}
+          <p style={{ ...sans, fontSize: 10.5, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.inLabel}</p>
+          {detail.inn.length === 0 && <p style={{ ...sans, fontSize: 12, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
           {detail.inn.map((o) => (
-            <div key={`i${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 13, padding: "2px 0", color: TEXT }}>
+            <div key={`i${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 13, padding: "2px 0" }}>
               <span style={{ wordBreak: "break-word" }}>{o.label}</span>
-              <span style={{ color: TEXT_FAINT, flexShrink: 0 }}>×{o.count}</span>
+              <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
             </div>
           ))}
 
           <button onClick={() => onAssociate({ id: selected.id, display: selected.label })} style={{
-            ...primaryBtn, marginTop: 16, width: "100%", padding: "10px 12px", fontSize: 12.5,
+            marginTop: 16, width: "100%", background: "var(--text-primary)", color: "var(--bg)",
+            border: "2px solid var(--text-primary)", borderRadius: 10, padding: "9px 12px",
+            ...sans, fontSize: 12.5, fontWeight: 700, cursor: "pointer",
           }}>{t.associateThis}</button>
         </div>
       )}
