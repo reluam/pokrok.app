@@ -14,7 +14,7 @@ async function classify() {
   const words = await getUnclassifiedWords(300);
   if (words.length === 0) return { ok: true, classified: 0, remaining: 0 };
 
-  const anthropic = new Anthropic();
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const list = words.map((w) => `${w.id}\t${w.display}\t${w.lang}`).join("\n");
   const res = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
