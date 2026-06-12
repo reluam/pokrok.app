@@ -3,3 +3,10 @@ Záloha/
 .DS_Store
 /.claude/
 mental-models/
+
+# Build artefakty a závislosti kdekoli v monorepu — ať je git add -A nikdy nesebere
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+*.tsbuildinfo
