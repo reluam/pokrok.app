@@ -1,5 +1,5 @@
 import { getDb } from "./db";
-import { genSong, applyOption, roundDurationMs, keyName, OPTIONS, type SongState, type OptionId } from "./radioComposer";
+import { genSong, applyOption, roundDurationMs, keyName, summarizeChange, OPTIONS, type SongState, type OptionId } from "./radioComposer";
 
 type Sql = ReturnType<typeof getDb>;
 
@@ -27,8 +27,29 @@ async function ensureSchema(sql: Sql) {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (round_no, ip_hash)
     )`,
+    // log všech změn — na rozdíl od radio_rounds se NEUKLÍZÍ (scroll až k začátku rádia)
+    sql`CREATE TABLE IF NOT EXISTS radio_log (
+      round_no BIGINT PRIMARY KEY,
+      aired_at TIMESTAMPTZ NOT NULL,
+      opt TEXT NOT NULL,
+      tempo INT, genre TEXT, key_name TEXT, voice TEXT,
+      mute JSONB, votes INT NOT NULL DEFAULT 0
+    )`,
   ]);
   schemaReady = true;
+}
+
+/** Zapíše jednu změnu do logu (idempotentně podle round_no). */
+async function logChange(sql: Sql, roundNo: number, airedAtIso: string, prev: SongState, next: SongState, opt: OptionId | null | "start", votes: number) {
+  const c = summarizeChange(prev, next, opt);
+  await sql`INSERT INTO radio_log (round_no, aired_at, opt, tempo, genre, key_name, voice, mute, votes)
+    VALUES (${roundNo}, ${airedAtIso}, ${c.opt}, ${c.tempo}, ${c.genre}, ${c.key}, ${c.voice}, ${c.mute ? JSON.stringify(c.mute) : null}::jsonb, ${votes})
+    ON CONFLICT (round_no) DO NOTHING`;
+}
+
+async function voteCount(sql: Sql, roundNo: number): Promise<number> {
+  const [r] = await sql`SELECT COUNT(*)::int AS n FROM radio_round_votes WHERE round_no = ${roundNo}` as { n: number }[];
+  return r?.n ?? 0;
 }
 
 export type RoundRow = { round_no: number; state: SongState; started_at: string; duration_ms: number };
@@ -55,9 +76,12 @@ export async function ensureRounds(): Promise<{ current: RoundRow; next: RoundRo
   // start od nuly, nebo restart po dlouhé pauze (mezera > 1 kolo) — kotva na teď
   if (!last || rowEnd(last) < now - 2000) {
     const roundNo = (last?.round_no ?? -1) + 1;
-    const state = last ? applyOption(last.state, null, roundNo * 31 + 7) : genSong(roundNo + 20260611);
+    const prevState = last?.state ?? null;
+    const state = prevState ? applyOption(prevState, null, roundNo * 31 + 7) : genSong(roundNo + 20260611);
     const started = new Date(now + 1500);
-    await sql`INSERT INTO radio_rounds (round_no, state, started_at, duration_ms) VALUES (${roundNo}, ${JSON.stringify(state)}::jsonb, ${started.toISOString()}, ${roundDurationMs(state)}) ON CONFLICT (round_no) DO NOTHING`;
+    const startedIso = started.toISOString();
+    await sql`INSERT INTO radio_rounds (round_no, state, started_at, duration_ms) VALUES (${roundNo}, ${JSON.stringify(state)}::jsonb, ${startedIso}, ${roundDurationMs(state)}) ON CONFLICT (round_no) DO NOTHING`;
+    await logChange(sql, roundNo, startedIso, prevState ?? state, state, prevState ? null : "start", 0);
     last = await lastRound(sql);
   }
 
@@ -65,9 +89,13 @@ export async function ensureRounds(): Promise<{ current: RoundRow; next: RoundRo
   let guard = 0;
   while (last && rowEnd(last) - now < VOTE_CLOSE_MS + 1500 && guard++ < 3) {
     const winner = await winnerOf(sql, last.round_no);
-    const state = applyOption(last.state, winner, (last.round_no + 1) * 31 + 7);
+    const votes = await voteCount(sql, last.round_no);
+    const newRound = last.round_no + 1;
+    const state = applyOption(last.state, winner, newRound * 31 + 7);
     const started = new Date(rowEnd(last));
-    await sql`INSERT INTO radio_rounds (round_no, state, started_at, duration_ms) VALUES (${last.round_no + 1}, ${JSON.stringify(state)}::jsonb, ${started.toISOString()}, ${roundDurationMs(state)}) ON CONFLICT (round_no) DO NOTHING`;
+    const startedIso = started.toISOString();
+    await sql`INSERT INTO radio_rounds (round_no, state, started_at, duration_ms) VALUES (${newRound}, ${JSON.stringify(state)}::jsonb, ${startedIso}, ${roundDurationMs(state)}) ON CONFLICT (round_no) DO NOTHING`;
+    await logChange(sql, newRound, startedIso, last.state, state, winner, votes);
     last = await lastRound(sql);
   }
 
@@ -92,7 +120,7 @@ export async function getRound(roundNo: number): Promise<RoundRow | null> {
 
 export type NowPayload = {
   serverNow: number;
-  current: { round: number; startedAt: number; durationMs: number; tempo: number; key: string; genre: string };
+  current: { round: number; startedAt: number; durationMs: number; tempo: number; key: string; genre: string; mutes: Record<string, boolean> };
   next: { round: number; startedAt: number; durationMs: number } | null;
   voting: { round: number; closesAt: number; counts: Record<string, number> };
 };
@@ -109,10 +137,39 @@ export async function getNow(): Promise<NowPayload> {
     current: {
       round: current.round_no, startedAt: new Date(current.started_at).getTime(), durationMs: current.duration_ms,
       tempo: current.state.tempo, key: keyName(current.state), genre: current.state.genre,
+      mutes: { ...(current.state.mutes ?? {}) } as Record<string, boolean>,
     },
     next: next ? { round: next.round_no, startedAt: new Date(next.started_at).getTime(), durationMs: next.duration_ms } : null,
     voting: { round: current.round_no, closesAt: rowEnd(current) - VOTE_CLOSE_MS, counts },
   };
+}
+
+export type LogEntry = {
+  round: number; airedAt: number; opt: string; tempo: number; genre: string; key: string;
+  voice: string; mute: { layer: string; on: boolean } | null; votes: number;
+};
+type LogRow = { round_no: number; aired_at: string; opt: string; tempo: number; genre: string; key_name: string; voice: string; mute: { layer: string; on: boolean } | null; votes: number };
+const toEntry = (r: LogRow): LogEntry => ({
+  round: r.round_no, airedAt: new Date(r.aired_at).getTime(), opt: r.opt, tempo: r.tempo,
+  genre: r.genre, key: r.key_name, voice: r.voice, mute: r.mute, votes: r.votes,
+});
+
+/** Log změn rádia, nejnovější první. `before`/`after` = stránkování podle round_no. */
+export async function getLog(opts: { before?: number; after?: number; limit?: number }): Promise<{ entries: LogEntry[]; hasMore: boolean }> {
+  const sql = getDb();
+  await ensureSchema(sql);
+  const limit = Math.min(60, Math.max(1, opts.limit ?? 30));
+  let rows: LogRow[];
+  if (opts.after !== undefined) {
+    rows = await sql`SELECT round_no::int AS round_no, aired_at, opt, tempo, genre, key_name, voice, mute, votes FROM radio_log WHERE round_no > ${opts.after} ORDER BY round_no DESC LIMIT ${limit + 1}` as LogRow[];
+  } else if (opts.before !== undefined) {
+    rows = await sql`SELECT round_no::int AS round_no, aired_at, opt, tempo, genre, key_name, voice, mute, votes FROM radio_log WHERE round_no < ${opts.before} ORDER BY round_no DESC LIMIT ${limit + 1}` as LogRow[];
+  } else {
+    rows = await sql`SELECT round_no::int AS round_no, aired_at, opt, tempo, genre, key_name, voice, mute, votes FROM radio_log ORDER BY round_no DESC LIMIT ${limit + 1}` as LogRow[];
+  }
+  const hasMore = rows.length > limit;
+  if (hasMore) rows.pop();
+  return { entries: rows.map(toEntry), hasMore };
 }
 
 const VALID = new Set(OPTIONS.map((o) => o.id as string));

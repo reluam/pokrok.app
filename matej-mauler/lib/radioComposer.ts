@@ -20,7 +20,17 @@ export type SongState = {
   bassPat: number[];   // 16 kroků: -1 ticho, 0 root, 1 oktáva, 2 kvinta
   lead: { voice: LeadVoice; notes: MelNote[] };
   energy: number;      // 0..1 — pad, hustota hatů, delay
+  mutes?: Partial<Record<Layer, boolean>>; // ztlumené vrstvy (vždy aspoň jedna hraje)
 };
+
+/* Mutovatelné vrstvy — vždy musí aspoň jedna hrát. */
+export const LAYERS = ["drums", "bass", "lead", "pad"] as const;
+export type Layer = (typeof LAYERS)[number];
+export function activeLayers(s: SongState): number {
+  const m = s.mutes ?? {};
+  return LAYERS.filter((l) => !m[l]).length;
+}
+const TEMPO_STEP = 3; // BPM na jeden hlas „rychleji/pomaleji“
 
 /* ── seedovaná náhoda (deterministická kola) ── */
 export function mkRng(seed: number) {
@@ -95,21 +105,31 @@ export function genSong(seed: number): SongState {
     bassPat: [...pick(rng, BASS[genre])],
     lead: { voice: pick(rng, ["pluck", "saw", "bell", "keys"] as const), notes: [] },
     energy: 0.5 + rng() * 0.3,
+    mutes: {},
   };
   s.lead.notes = genMelody(s, rng);
   return s;
 }
 
 /* ── hlasovatelné možnosti ── */
-export type OptionId = "melody" | "drums" | "bass" | "instrument" | "tempo" | "key";
+export type OptionId =
+  | "melody" | "drums" | "bass" | "instrument" | "key"
+  | "tempo_up" | "tempo_down"
+  | "mute_drums" | "mute_bass" | "mute_lead" | "mute_pad";
 
 export const OPTIONS: { id: OptionId; emoji: string; label: { cs: string; en: string }; desc: { cs: string; en: string } }[] = [
   { id: "melody", emoji: "🎼", label: { cs: "Nová melodie", en: "New melody" }, desc: { cs: "Lead si vymyslí jiný motiv.", en: "The lead invents a new motif." } },
   { id: "drums", emoji: "🥁", label: { cs: "Jiný beat", en: "New beat" }, desc: { cs: "Bicí přehodí groove.", en: "The drums switch the groove." } },
   { id: "bass", emoji: "🎸", label: { cs: "Jiná basa", en: "New bassline" }, desc: { cs: "Spodek pojede jinak.", en: "The low end moves differently." } },
   { id: "instrument", emoji: "🎹", label: { cs: "Vyměnit nástroj", en: "Swap instrument" }, desc: { cs: "Melodie dostane jiný zvuk.", en: "The melody gets a new sound." } },
-  { id: "tempo", emoji: "⏱️", label: { cs: "Změnit tempo", en: "Change tempo" }, desc: { cs: "Zrychlí, nebo zpomalí.", en: "Speeds up or slows down." } },
+  { id: "tempo_up", emoji: "⏩", label: { cs: "Zrychlit", en: "Speed up" }, desc: { cs: `Tempo o ${TEMPO_STEP} BPM výš.`, en: `Tempo up ${TEMPO_STEP} BPM.` } },
+  { id: "tempo_down", emoji: "⏪", label: { cs: "Zpomalit", en: "Slow down" }, desc: { cs: `Tempo o ${TEMPO_STEP} BPM níž.`, en: `Tempo down ${TEMPO_STEP} BPM.` } },
   { id: "key", emoji: "🎚️", label: { cs: "Nová tónina", en: "New key" }, desc: { cs: "Jiný základ + nálada (dur/moll).", en: "New root + mood (major/minor)." } },
+  // mute toggly — klient přepisuje text podle aktuálního stavu vrstvy
+  { id: "mute_drums", emoji: "🥁", label: { cs: "Bicí", en: "Drums" }, desc: { cs: "Ztlumit / zapnout bicí.", en: "Mute / unmute drums." } },
+  { id: "mute_bass", emoji: "🎸", label: { cs: "Basa", en: "Bass" }, desc: { cs: "Ztlumit / zapnout basu.", en: "Mute / unmute bass." } },
+  { id: "mute_lead", emoji: "🎶", label: { cs: "Melodie", en: "Melody" }, desc: { cs: "Ztlumit / zapnout melodii.", en: "Mute / unmute melody." } },
+  { id: "mute_pad", emoji: "🎹", label: { cs: "Akordy", en: "Chords" }, desc: { cs: "Ztlumit / zapnout akordy.", en: "Mute / unmute chords." } },
 ];
 
 /** Aplikace vítězné volby — vždy v rámci líbivých mantinelů. */
@@ -117,25 +137,27 @@ export function applyOption(prev: SongState, opt: OptionId | null, seed: number)
   const rng = mkRng(seed);
   const s: SongState = JSON.parse(JSON.stringify(prev));
   const o: OptionId = opt ?? pick(rng, ["melody", "drums", "instrument", "bass"] as const); // bez hlasů jemná změna
+  const unmute = (l: Layer) => { s.mutes = { ...(s.mutes ?? {}), [l]: false }; }; // změna vrstvy ji rozezní
   switch (o) {
     case "melody":
-      s.lead.notes = genMelody(s, rng);
+      s.lead.notes = genMelody(s, rng); unmute("lead");
       break;
     case "drums": {
       const g = pick(rng, (["house", "pop", "chill"] as const).filter((x) => x !== s.genre));
-      s.genre = g; s.drums = DRUMS[g](); s.bassPat = [...pick(rng, BASS[g])];
+      s.genre = g; s.drums = DRUMS[g](); s.bassPat = [...pick(rng, BASS[g])]; unmute("drums");
       break;
     }
     case "bass":
-      s.bassPat = [...pick(rng, BASS[s.genre])];
+      s.bassPat = [...pick(rng, BASS[s.genre])]; unmute("bass");
       break;
     case "instrument": {
-      s.lead.voice = pick(rng, (["pluck", "saw", "bell", "keys"] as const).filter((v) => v !== s.lead.voice));
+      s.lead.voice = pick(rng, (["pluck", "saw", "bell", "keys"] as const).filter((v) => v !== s.lead.voice)); unmute("lead");
       break;
     }
-    case "tempo": {
-      const dir = rng() < 0.5 ? -1 : 1;
-      s.tempo = Math.max(104, Math.min(126, s.tempo + dir * (4 + Math.floor(rng() * 5))));
+    case "tempo_up":
+    case "tempo_down": {
+      const dir = o === "tempo_up" ? 1 : -1;
+      s.tempo = Math.max(104, Math.min(126, s.tempo + dir * TEMPO_STEP));
       break;
     }
     case "key": {
@@ -145,9 +167,31 @@ export function applyOption(prev: SongState, opt: OptionId | null, seed: number)
       s.lead.notes = genMelody(s, rng); // melodie se přeladí do nové tóniny
       break;
     }
+    case "mute_drums": case "mute_bass": case "mute_lead": case "mute_pad": {
+      const layer = o.slice(5) as Layer;
+      const mutes = { ...(s.mutes ?? {}) };
+      if (mutes[layer]) mutes[layer] = false;            // zapnout zpět
+      else if (activeLayers(s) > 1) mutes[layer] = true; // ztlumit — ale nikdy poslední hrající vrstvu
+      s.mutes = mutes;
+      break;
+    }
   }
   s.energy = Math.max(0.35, Math.min(0.85, s.energy + (rng() - 0.5) * 0.12));
   return s;
+}
+
+/* ── popis změny do logu (formátuje se na klientovi podle jazyka) ── */
+export type ChangeLog = {
+  opt: string; tempo: number; genre: Genre; key: string; voice: LeadVoice;
+  mute: { layer: Layer; on: boolean } | null;
+};
+export function summarizeChange(prev: SongState, next: SongState, opt: OptionId | null | "start"): ChangeLog {
+  let mute: ChangeLog["mute"] = null;
+  for (const l of LAYERS) {
+    const a = !!(prev.mutes ?? {})[l], b = !!(next.mutes ?? {})[l];
+    if (a !== b) { mute = { layer: l, on: b }; break; }
+  }
+  return { opt: opt ?? "auto", tempo: next.tempo, genre: next.genre, key: keyName(next), voice: next.lead.voice, mute };
 }
 
 /** Délka kola: ~15 s zarovnaných na celé sudé takty (změna vždy od 1. doby). */

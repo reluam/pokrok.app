@@ -208,12 +208,16 @@ export function renderRound(state: SongState, roundNo: number): { wav: Buffer; d
     }
   }
 
-  // clap + lead do reverbu, lead do delaye
-  for (let i = 0; i < total; i++) revSend[i] += leadDry[i] * 0.35 + drumsB[i] * 0.06;
+  // ztlumené vrstvy — brány do mixu (vždy aspoň jedna hraje, hlídá composer)
+  const mu = state.mutes ?? {};
+  const gD = mu.drums ? 0 : 1, gB = mu.bass ? 0 : 1, gL = mu.lead ? 0 : 1, gP = mu.pad ? 0 : 1;
 
-  // sidechain duck od kicků (moderní pumpování basy + hudby)
+  // clap + lead do reverbu, lead do delaye
+  for (let i = 0; i < total; i++) revSend[i] += leadDry[i] * 0.35 * gL + drumsB[i] * 0.06 * gD;
+
+  // sidechain duck od kicků (moderní pumpování basy + hudby) — jen když bicí hrají
   const duck = new Float32Array(total).fill(1);
-  for (let bar = 0; bar < bars; bar++) for (let st = 0; st < 16; st++) {
+  if (gD) for (let bar = 0; bar < bars; bar++) for (let st = 0; st < 16; st++) {
     if (!state.drums.kick[st]) continue;
     const k = Math.floor((bar * 16 + st) * stepSec * SR);
     const n = Math.floor(0.22 * SR);
@@ -225,12 +229,12 @@ export function renderRound(state: SongState, roundNo: number): { wav: Buffer; d
 
   const L = new Float32Array(total), R = new Float32Array(total);
   for (let i = 0; i < total; i++) {
-    const mus = (musL[i] + leadDry[i]) * duck[i];
-    const musr = (musR[i] + leadDry[i]) * duck[i];
-    L[i] = drumsB[i] * 0.9 + bassB[i] * duck[i] * 0.85 + mus * 0.85;
-    R[i] = drumsB[i] * 0.9 + bassB[i] * duck[i] * 0.85 + musr * 0.85;
+    const mus = (musL[i] * gP + leadDry[i] * gL) * duck[i];
+    const musr = (musR[i] * gP + leadDry[i] * gL) * duck[i];
+    L[i] = drumsB[i] * gD * 0.9 + bassB[i] * gB * duck[i] * 0.85 + mus * 0.85;
+    R[i] = drumsB[i] * gD * 0.9 + bassB[i] * gB * duck[i] * 0.85 + musr * 0.85;
   }
-  pingPong(leadDry, L, R, state.tempo, 0.16 + state.energy * 0.1);
+  if (gL) pingPong(leadDry, L, R, state.tempo, 0.16 + state.energy * 0.1);
   reverb(revSend, L, R, 0.5);
   master(L, R);
 

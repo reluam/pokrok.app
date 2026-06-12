@@ -3,8 +3,40 @@
 import { useEffect, useRef, useState } from "react";
 import { track } from "@/lib/track";
 import Link from "next/link";
-import { OPTIONS, type OptionId } from "@/lib/radioComposer";
+import { OPTIONS, LAYERS, type OptionId, type Layer } from "@/lib/radioComposer";
 import type { Lang } from "@/lib/dictionaries";
+
+type LogEntry = {
+  round: number; airedAt: number; opt: string; tempo: number; genre: string; key: string;
+  voice: string; mute: { layer: string; on: boolean } | null; votes: number;
+};
+
+const LAYER_NAME: Record<Layer, { cs: string; en: string }> = {
+  drums: { cs: "Bicí", en: "Drums" }, bass: { cs: "Basa", en: "Bass" },
+  lead: { cs: "Melodie", en: "Melody" }, pad: { cs: "Akordy", en: "Chords" },
+};
+
+/** Jeden řádek logu → ikona + text v daném jazyce. */
+function logLine(e: LogEntry, lang: Lang): { icon: string; text: string } {
+  const cs = lang === "cs";
+  switch (e.opt) {
+    case "start": return { icon: "📻", text: cs ? `Rádio začalo · ${e.genre} · ${e.key} · ${e.tempo} BPM` : `Radio started · ${e.genre} · ${e.key} · ${e.tempo} BPM` };
+    case "auto": return { icon: "✨", text: cs ? "Jemná obměna" : "Subtle shift" };
+    case "melody": return { icon: "🎼", text: cs ? "Nová melodie" : "New melody" };
+    case "drums": return { icon: "🥁", text: cs ? `Jiný beat · ${e.genre}` : `New beat · ${e.genre}` };
+    case "bass": return { icon: "🎸", text: cs ? "Nová basa" : "New bassline" };
+    case "instrument": return { icon: "🎹", text: cs ? `Nástroj → ${e.voice}` : `Instrument → ${e.voice}` };
+    case "tempo_up": return { icon: "⏩", text: cs ? `Zrychleno · ${e.tempo} BPM` : `Faster · ${e.tempo} BPM` };
+    case "tempo_down": return { icon: "⏪", text: cs ? `Zpomaleno · ${e.tempo} BPM` : `Slower · ${e.tempo} BPM` };
+    case "key": return { icon: "🎚️", text: cs ? `Nová tónina · ${e.key}` : `New key · ${e.key}` };
+    default:
+      if (e.opt.startsWith("mute_") && e.mute) {
+        const name = LAYER_NAME[e.mute.layer as Layer]?.[lang] ?? e.mute.layer;
+        return { icon: e.mute.on ? "🔇" : "🔊", text: e.mute.on ? (cs ? `${name} ztlumeny` : `${name} muted`) : (cs ? `${name} zpět` : `${name} back`) };
+      }
+      return { icon: "♪", text: e.opt };
+  }
+}
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -20,6 +52,9 @@ const UI = {
     voteHead: "Co změnit příště?", voteSub: "Jeden hlas za kolo. Vítěz se projeví od první doby nového taktu.",
     closesIn: "Hlasování končí za", applied: "Sečteno — změna přijde od příštího taktu…", voted: "✓ hlas přijat", votes: "hlasů",
     loading: "Ladím frekvenci…",
+    mute: "Ztlumit", unmute: "Zapnout", lastLayer: "poslední hrající vrstvu nelze ztlumit",
+    logHead: "Log změn", logSub: "Co se v rádiu měnilo. Scrolluj až k úplnému začátku.",
+    logEmpty: "Zatím žádná změna.", loadOlder: "Načíst starší ↓", noVotes: "auto",
   },
   en: {
     back: "← Spaghetti.ltd", eyebrow: "A server-rendered radio", title: "The Radio",
@@ -29,12 +64,15 @@ const UI = {
     voteHead: "What changes next?", voteSub: "One vote per round. The winner applies from beat one of the next bar.",
     closesIn: "Voting closes in", applied: "Counted — the change lands on the next bar…", voted: "✓ vote in", votes: "votes",
     loading: "Tuning in…",
+    mute: "Mute", unmute: "Unmute", lastLayer: "can't mute the last playing layer",
+    logHead: "Change log", logSub: "Everything the radio changed. Scroll all the way to the beginning.",
+    logEmpty: "No changes yet.", loadOlder: "Load older ↓", noVotes: "auto",
   },
 } as const;
 
 type NowInfo = {
   serverNow: number;
-  current: { round: number; startedAt: number; durationMs: number; tempo: number; key: string; genre: string };
+  current: { round: number; startedAt: number; durationMs: number; tempo: number; key: string; genre: string; mutes: Record<string, boolean> };
   next: { round: number; startedAt: number; durationMs: number } | null;
   voting: { round: number; closesAt: number; counts: Record<string, number> };
 };
@@ -48,6 +86,46 @@ export function RadioApp({ lang }: { lang: Lang }) {
   const [secLeft, setSecLeft] = useState(0);
   const [closed, setClosed] = useState(false);
   const [myVote, setMyVote] = useState<{ round: number; option: OptionId } | null>(null);
+
+  // log změn
+  const [log, setLog] = useState<LogEntry[]>([]);
+  const [logHasMore, setLogHasMore] = useState(false);
+  const [logBusy, setLogBusy] = useState(false);
+  const logRef = useRef<LogEntry[]>([]);
+  useEffect(() => { logRef.current = log; }, [log]);
+
+  const mergeLog = (incoming: LogEntry[]) => {
+    if (!incoming.length) return;
+    setLog((prev) => {
+      const m = new Map(prev.map((e) => [e.round, e]));
+      for (const e of incoming) m.set(e.round, e);
+      return [...m.values()].sort((a, b) => b.round - a.round);
+    });
+  };
+  const loadLogNewest = async () => {
+    try {
+      const r = await fetch("/api/radio/log", { cache: "no-store" });
+      if (!r.ok) return;
+      const d: { entries: LogEntry[]; hasMore: boolean } = await r.json();
+      mergeLog(d.entries);
+      if (logRef.current.length === 0) setLogHasMore(d.hasMore);
+    } catch {}
+  };
+  const loadLogOlder = async () => {
+    const cur = logRef.current;
+    if (logBusy || !cur.length) return;
+    setLogBusy(true);
+    try {
+      const oldest = cur[cur.length - 1].round;
+      const r = await fetch(`/api/radio/log?before=${oldest}`, { cache: "no-store" });
+      if (r.ok) { const d = await r.json(); mergeLog(d.entries); setLogHasMore(d.hasMore); }
+    } catch {}
+    setLogBusy(false);
+  };
+  const onLogScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    if (logHasMore && !logBusy && el.scrollTop + el.clientHeight >= el.scrollHeight - 48) loadLogOlder();
+  };
 
   const ctxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -104,6 +182,14 @@ export function RadioApp({ lang }: { lang: Lang }) {
       setNow(d);
       ensureScheduled(d.current);
       if (d.next) ensureScheduled(d.next);
+      // nové záznamy logu, jakmile se kolo posune
+      const newest = logRef.current[0]?.round ?? -1;
+      if (d.current.round > newest) {
+        try {
+          const lr = await fetch(`/api/radio/log?after=${newest}`, { cache: "no-store" });
+          if (lr.ok) mergeLog((await lr.json()).entries);
+        } catch {}
+      }
     } catch {}
   };
 
@@ -120,6 +206,7 @@ export function RadioApp({ lang }: { lang: Lang }) {
     ctxRef.current = ctx; analyserRef.current = analyser;
     try { const v = JSON.parse(localStorage.getItem("radio-vote") ?? "null"); if (v) setMyVote(v); } catch {}
     sync();
+    loadLogNewest();
     pollRef.current = setInterval(sync, 3000);
     setEntered(true);
   };
@@ -185,6 +272,8 @@ export function RadioApp({ lang }: { lang: Lang }) {
 
   const votedThisRound = !!now && myVote?.round === now.voting.round;
   const totalVotes = now ? Object.values(now.voting.counts).reduce((a, b) => a + b, 0) : 0;
+  const mutes = now?.current.mutes ?? {};
+  const activeCount = LAYERS.filter((l) => !mutes[l]).length;
 
   return (
     <div style={{ minHeight: "100dvh", background: "var(--bg)" }}>
@@ -240,25 +329,61 @@ export function RadioApp({ lang }: { lang: Lang }) {
             {OPTIONS.map((o) => {
               const count = now?.voting.counts[o.id] ?? 0;
               const mine = votedThisRound && myVote?.option === o.id;
-              const disabled = !entered || closed || votedThisRound;
               const share = totalVotes > 0 ? count / totalVotes : 0;
+              // mute toggly: text/ikona podle aktuálního stavu vrstvy, zákaz ztlumit poslední vrstvu
+              const layer = o.id.startsWith("mute_") ? (o.id.slice(5) as Layer) : null;
+              const muted = layer ? !!mutes[layer] : false;
+              const wouldSilence = !!layer && !muted && activeCount <= 1;
+              const emoji = layer ? (muted ? "🔊" : "🔇") : o.emoji;
+              const label = layer ? `${muted ? t.unmute : t.mute} ${LAYER_NAME[layer][lang]}` : o.label[lang];
+              const desc = layer ? (wouldSilence ? t.lastLayer : o.desc[lang]) : o.desc[lang];
+              const disabled = !entered || closed || votedThisRound || wouldSilence;
               return (
-                <button key={o.id} onClick={() => vote(o.id)} disabled={disabled && !mine}
+                <button key={o.id} onClick={() => vote(o.id)} disabled={(disabled && !mine) || wouldSilence}
                   style={{
                     position: "relative", textAlign: "left", border: `2px solid ${mine ? "var(--text-primary)" : "var(--border)"}`,
                     background: mine ? "var(--text-primary)" : "#fff", color: mine ? "var(--bg)" : "var(--text-primary)",
                     borderRadius: "12px", boxShadow: mine ? "3px 3px 0 var(--border)" : "2px 2px 0 var(--border)", padding: "12px 14px",
-                    cursor: disabled ? "default" : "pointer", opacity: disabled && !mine ? 0.55 : 1, overflow: "hidden",
+                    cursor: disabled ? "default" : "pointer", opacity: (disabled && !mine) || wouldSilence ? 0.5 : 1, overflow: "hidden",
                   }}>
                   <span style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${share * 100}%`, background: mine ? "rgba(255,255,255,0.12)" : "rgba(26,22,20,0.06)", transition: "width .4s ease" }} />
                   <span style={{ position: "relative", display: "flex", flexDirection: "column", gap: "3px" }}>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "14px", fontWeight: 800 }}>{o.emoji} {o.label[lang]}{mine && <span style={{ fontWeight: 600 }}> · {t.voted}</span>}</span>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "11.5px", opacity: 0.75 }}>{o.desc[lang]}</span>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "14px", fontWeight: 800 }}>{emoji} {label}{mine && <span style={{ fontWeight: 600 }}> · {t.voted}</span>}</span>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "11.5px", opacity: 0.75 }}>{desc}</span>
                     <span style={{ fontFamily: "var(--font-sans)", fontSize: "10.5px", opacity: 0.6 }}>{count} {t.votes}</span>
                   </span>
                 </button>
               );
             })}
+          </div>
+        </div>
+
+        {/* log změn — nejnovější nahoře, scroll až k začátku rádia */}
+        <div style={{ ...card, marginTop: "12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "6px", marginBottom: "4px" }}>
+            <p style={{ ...display, fontSize: "17px", fontWeight: 800, margin: 0 }}>📝 {t.logHead}</p>
+          </div>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", margin: "0 0 12px" }}>{t.logSub}</p>
+
+          <div onScroll={onLogScroll} style={{ maxHeight: "320px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "2px" }}>
+            {log.length === 0 && <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)", padding: "8px 2px" }}>{entered ? t.logEmpty : "—"}</p>}
+            {log.map((e) => {
+              const { icon, text } = logLine(e, lang);
+              const time = new Date(e.airedAt).toLocaleTimeString(lang === "cs" ? "cs-CZ" : "en-GB", { hour: "2-digit", minute: "2-digit" });
+              return (
+                <div key={e.round} style={{ display: "flex", alignItems: "baseline", gap: "10px", padding: "7px 6px", borderBottom: "1px solid rgba(26,22,20,0.06)" }}>
+                  <span style={{ fontSize: "14px", flexShrink: 0, width: "18px", textAlign: "center" }}>{icon}</span>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, flex: 1, minWidth: 0 }}>{text}</span>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "10.5px", color: "var(--text-muted)", flexShrink: 0, whiteSpace: "nowrap" }}>
+                    {e.votes > 0 ? `${e.votes} ${t.votes}` : t.noVotes} · #{e.round} · {time}
+                  </span>
+                </div>
+              );
+            })}
+            {logBusy && <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", textAlign: "center", padding: "8px" }}>…</p>}
+            {logHasMore && !logBusy && (
+              <button onClick={loadLogOlder} style={{ background: "none", border: "none", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-secondary)", cursor: "pointer", padding: "10px", textAlign: "center" }}>{t.loadOlder}</button>
+            )}
           </div>
         </div>
       </div>
