@@ -26,7 +26,7 @@ const T = {
     stats: (s: Stats) => `${s.words.toLocaleString("cs-CZ")} slov · ${s.edges.toLocaleString("cs-CZ")} synapsí · ${s.total.toLocaleString("cs-CZ")} asociací`,
     prompt: "Co se ti vybaví, když se řekne…",
     placeholder: "první věc, co tě napadne",
-    send: "Uložit →",
+    send: "Potvrdit ⏎",
     savedNew: (a: string, b: string) => `${a} → ${b} · nová synapse ✨`,
     savedAgain: (a: string, b: string, n: number) => `${a} → ${b} · synapse posílena ×${n}`,
     afterSave: "Síť pokračuje tvým slovem — asociuj dál, nebo si vezmi jiné.",
@@ -58,7 +58,7 @@ const T = {
     stats: (s: Stats) => `${s.words.toLocaleString("en-GB")} words · ${s.edges.toLocaleString("en-GB")} synapses · ${s.total.toLocaleString("en-GB")} associations`,
     prompt: "What comes to mind when you hear…",
     placeholder: "the first thing you think of",
-    send: "Save →",
+    send: "Confirm ⏎",
     savedNew: (a: string, b: string) => `${a} → ${b} · new synapse ✨`,
     savedAgain: (a: string, b: string, n: number) => `${a} → ${b} · synapse strengthened ×${n}`,
     afterSave: "The network continues with your word — keep going, or grab a different one.",
@@ -166,8 +166,8 @@ export function BrainApp({ lang }: { lang: Lang }) {
       {/* ── mapa na pozadí — rozmazaná tolik, ať slova nejdou přečíst ── */}
       <div style={{
         position: "absolute", inset: 0,
-        filter: overlay ? "blur(16px) saturate(1.05)" : "none",
-        transform: overlay ? "scale(1.05)" : "none",
+        filter: overlay ? "blur(26px) saturate(1.05)" : "none",
+        transform: overlay ? "scale(1.08)" : "none",
         transition: "filter 700ms ease, transform 700ms ease",
         pointerEvents: overlay ? "none" : "auto",
       }}>
@@ -381,6 +381,14 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
   const [selected, setSelected] = useState<{ id: number; label: string } | null>(null);
   const selRef = useRef<number | null>(null);
   const drawRef = useRef<() => void>(() => {});
+  const chromeRef = useRef(chrome);
+  const loopRef = useRef<{ start: () => void; stop: () => void }>({ start: () => {}, stop: () => {} });
+
+  useEffect(() => {
+    chromeRef.current = chrome;
+    if (chrome) loopRef.current.start();
+    else { loopRef.current.stop(); drawRef.current(); }
+  }, [chrome]);
 
   useEffect(() => {
     selRef.current = selected?.id ?? null;
@@ -413,6 +421,28 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
     // slova s vždy viditelným popiskem (top podle síly)
     const labeled = new Set([...nodes].sort((a, b) => b.strength - a.strength).slice(0, 36).map((n) => n.id));
 
+    // směrové toky: pro každou dvojici slov převažující směr a rychlost
+    // speed = (víc − míň) / víc … 100 vs 0 → 1, 100 vs 1 → 0,99; plná rychlost ≈ 0,5 s na přejezd
+    const pairs = new Map<string, { ab: number; ba: number; i: number; j: number }>();
+    for (const e of edges) {
+      const i = Math.min(e.a, e.b), j = Math.max(e.a, e.b);
+      const k = `${i}|${j}`;
+      const rec = pairs.get(k) ?? { ab: 0, ba: 0, i, j };
+      if (e.a === i) rec.ab += e.count; else rec.ba += e.count;
+      pairs.set(k, rec);
+    }
+    type Flow = { a: number; b: number; speed: number; phase: number; norm: number };
+    const flows: Flow[] = [];
+    for (const r of pairs.values()) {
+      const hi = Math.max(r.ab, r.ba), lo = Math.min(r.ab, r.ba);
+      if (hi === 0) continue;
+      const speed = (hi - lo) / hi;
+      if (speed <= 0.001) continue; // vyrovnané směry netečou
+      const a = r.ab >= r.ba ? r.i : r.j;
+      const b = r.ab >= r.ba ? r.j : r.i;
+      flows.push({ a, b, speed, phase: hash01(a * 31 + b * 17, 5), norm: Math.sqrt(hi / maxCount) });
+    }
+
     const view: View = { scale: 1, tx: 0, ty: 0 };
     let hovered: SimNode | null = null;
 
@@ -438,6 +468,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
 
       ctx.setTransform(dpr * view.scale, 0, 0, dpr * view.scale, dpr * view.tx, dpr * view.ty);
 
+      const bg = !chromeRef.current; // mapa jen jako rozmazané pozadí asociací
       const selId = selRef.current;
       const hotId = hovered?.id ?? selId;
 
@@ -467,6 +498,26 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         ctx.stroke();
       }
 
+      // tekoucí informace: tečka jede po nudli směrem převahy asociací
+      const now = performance.now() / 1000;
+      for (const f of flows) {
+        const a = nodes[f.a], b = nodes[f.b];
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const d = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+        const side = (f.a + f.b) % 2 === 0 ? 1 : -1;
+        const bow = Math.min(26, d * 0.14) * side;
+        const cx2 = mx + (-(b.y - a.y) / d) * bow, cy2 = my + ((b.x - a.x) / d) * bow;
+        // plná rychlost = přejezd za 0,5 s; pomalejší úměrně převaze
+        const tt = (now * f.speed * 2 + f.phase) % 1;
+        const u = 1 - tt;
+        const x = u * u * a.x + 2 * u * tt * cx2 + tt * tt * b.x;
+        const y = u * u * a.y + 2 * u * tt * cy2 + tt * tt * b.y;
+        ctx.globalAlpha = bg ? 0.3 : (hotId !== null && a.id !== hotId && b.id !== hotId ? 0.18 : 0.85);
+        ctx.fillStyle = "#b45309";
+        ctx.beginPath(); ctx.arc(x, y, 1.6 + 1.9 * f.norm, 0, 7); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
       // slova (uzly)
       const neighborIds = new Set<number>();
       if (hotId !== null) {
@@ -478,14 +529,14 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       for (const n of nodes) {
         const hot = n.id === hotId;
         const dim = hotId !== null && !hot && !neighborIds.has(n.id);
-        ctx.globalAlpha = hot ? 1 : dim ? 0.25 : 0.88;
-        ctx.fillStyle = "#1a1614";
+        ctx.globalAlpha = bg ? 0.3 : hot ? 1 : dim ? 0.25 : 0.88;
+        ctx.fillStyle = bg ? "#8a8378" : "#1a1614";
         ctx.beginPath(); ctx.arc(n.x, n.y, hot ? n.r + 2 : n.r, 0, 7); ctx.fill();
         if (n.seed) {
           ctx.strokeStyle = "rgba(176, 124, 24, 0.85)"; ctx.lineWidth = 1.6;
           ctx.beginPath(); ctx.arc(n.x, n.y, (hot ? n.r + 2 : n.r) + 2.4, 0, 7); ctx.stroke();
         }
-        const showLabel = hot || neighborIds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim));
+        const showLabel = !bg && (hot || neighborIds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim)));
         if (showLabel) {
           ctx.globalAlpha = hot ? 1 : 0.78;
           ctx.fillStyle = "#1a1614";
@@ -505,6 +556,14 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
     };
     resize();
     window.addEventListener("resize", resize);
+
+    let raf = 0;
+    const tick = () => { draw(); raf = requestAnimationFrame(tick); };
+    loopRef.current = {
+      start: () => { if (!raf) raf = requestAnimationFrame(tick); },
+      stop: () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } },
+    };
+    if (chromeRef.current) loopRef.current.start();
 
     const toWorld = (sx: number, sy: number) => ({ x: (sx - view.tx) / view.scale, y: (sy - view.ty) / view.scale });
     const pick = (sx: number, sy: number): SimNode | null => {
@@ -602,6 +661,8 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
     cv.style.cursor = "grab";
 
     return () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
       window.removeEventListener("resize", resize);
       cv.removeEventListener("pointerdown", onDown);
       cv.removeEventListener("pointermove", onMove);
