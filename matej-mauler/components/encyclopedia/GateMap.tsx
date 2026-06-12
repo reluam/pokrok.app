@@ -49,12 +49,28 @@ export function GateMap({ lang, theme, onNavigate }: { lang: Lang; theme: Theme;
     // deterministický „náhodný" rozcuch — ať je to splácané jako špagety, ne jako orloj
     const rnd = (k: number) => { const x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
 
-    const nodes: (GNode & { rj: number })[] = g.nodes.filter((n) => n.slug !== "brana").map((n, i) => ({
-      slug: n.slug, label: titleOf(n.slug, lang), realm: n.realm, depth: n.depth,
-      angle: (angle[n.slug] ?? 0) + (rnd(i + 1) - 0.5) * 0.11,
-      rj: 0.93 + rnd(i + 53) * 0.14, // jitter poloměru
-      px: 0, py: 0, r: n.realm ? 6 : 4.5, ph: (i * 2.399) % 6.28, sp: 0.4 + ((i * 7) % 10) / 14,
-    }));
+    // poloměr normalizovaný per větev: každá kořenová větev se roztáhne od středu až k okraji,
+    // ať krátké větve nezůstávají namačkané u středu, když jiná větev je hluboká
+    const parentOf: Record<string, string | null> = {};
+    g.nodes.forEach((n) => { parentOf[n.slug] = n.parent; });
+    const rootMemo: Record<string, string> = {};
+    const rootFor = (slug: string): string => rootMemo[slug] ??= (parentOf[slug] && parentOf[slug] !== "brana" ? rootFor(parentOf[slug]!) : slug);
+    const branchMax: Record<string, number> = {};
+    g.nodes.forEach((n) => { if (n.slug === "brana") return; const r = rootFor(n.slug); branchMax[r] = Math.max(branchMax[r] ?? 1, n.depth); });
+    const curl: Record<string, number> = {}; // jemné spirálové zakroucení každé větve
+
+    const nodes: (GNode & { rj: number; t: number })[] = g.nodes.filter((n) => n.slug !== "brana").map((n, i) => {
+      const root = rootFor(n.slug);
+      curl[root] ??= (rnd(root.length * 13 + 5) - 0.5) * 0.22;
+      const bm = branchMax[root] ?? 1;
+      return {
+        slug: n.slug, label: titleOf(n.slug, lang), realm: n.realm, depth: n.depth,
+        angle: (angle[n.slug] ?? 0) + (n.depth - 1) * curl[root] + (rnd(i + 1) - 0.5) * 0.11,
+        t: bm > 1 ? Math.pow((n.depth - 1) / (bm - 1), 0.9) : 0,
+        rj: 0.95 + rnd(i + 53) * 0.1, // jitter poloměru
+        px: 0, py: 0, r: n.realm ? 6 : 4.5, ph: (i * 2.399) % 6.28, sp: 0.4 + ((i * 7) % 10) / 14,
+      };
+    });
     const bySlug = Object.fromEntries(nodes.map((n) => [n.slug, n]));
 
     // parametry pramenů: každá synapse je vlastní nudle s vlastním prohnutím a tempem
@@ -68,11 +84,10 @@ export function GateMap({ lang, theme, onNavigate }: { lang: Lang; theme: Theme;
     const resize = () => { w = innerWidth; h = innerHeight; cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); cx = w / 2; cy = h * 0.52; };
     resize(); addEventListener("resize", resize);
 
-    const ring = (d: number) => {
-      const t = g.maxDepth > 1 ? Math.pow((d - 1) / (g.maxDepth - 1), 0.72) : 0;
+    const ring = (t: number) => {
       // vnitřní prstenec musí obejít středový blok (logo + search + text)
-      const bx = Math.min(w * 0.34, 375), by = Math.min(h * 0.3, 262);
-      return { rx: bx + Math.max(0, w / 2 - 60 - bx) * t, ry: by + Math.max(0, h / 2 - 60 - by) * t };
+      const bx = Math.min(w * 0.31, 340), by = Math.min(h * 0.28, 240);
+      return { rx: bx + Math.max(0, w / 2 - 90 - bx) * t, ry: by + Math.max(0, h / 2 - 70 - by) * t };
     };
 
     let hovered: GNode | null = null;
@@ -88,7 +103,7 @@ export function GateMap({ lang, theme, onNavigate }: { lang: Lang; theme: Theme;
       const rot = tt * 0.008; // celý talíř se líně otáčí — jako míchání hrnce
       // pozice (jemné plutí)
       for (const n of nodes) {
-        const { rx, ry } = ring(n.depth);
+        const { rx, ry } = ring(n.t);
         n.px = cx + Math.cos(n.angle + rot) * rx * n.rj + Math.sin(tt * n.sp + n.ph) * 4.5;
         n.py = cy + Math.sin(n.angle + rot) * ry * n.rj + Math.cos(tt * n.sp + n.ph) * 4.5;
       }
