@@ -409,7 +409,6 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
   const t = T[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<{ id: number; label: string } | null>(null);
   const [tip, setTip] = useState<{ title: string; lines: string[] } | null>(null);
   const selRef = useRef<number | null>(null);
@@ -502,9 +501,6 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
     let hoveredStrand: number | null = null;
     let anim: { t0: number; dur: number; from: View; to: View } | null = null;
     const cur = { x: -1e4, y: -1e4 };
-    let panelSide = 0; // index do pořadí stran
-    let lastFlip = 0;
-    let panelFresh = true; // první umístění bez animace
 
     const fitView = (): View => {
       const w = cv.clientWidth, h = cv.clientHeight;
@@ -682,53 +678,6 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
     };
     drawRef.current = draw;
 
-    // ── info panel u vybraného slova: drží se u něj, neleze přes nudle a uhýbá kurzoru ──
-    const placePanel = () => {
-      const panel = panelRef.current;
-      const selId = selRef.current;
-      if (!panel || selId === null) return;
-      const i = idxById.get(selId);
-      if (i === undefined) return;
-      const n = nodes[i];
-      const w = cv.clientWidth, h = cv.clientHeight;
-      const sx = n.fx * view.scale + view.tx, sy = n.fy * view.scale + view.ty;
-      const W = panel.offsetWidth || 200, H = panel.offsetHeight || 120;
-      const gap = 26;
-      // preferovaná strana: pryč od těžiště sousedů (tam nudle nejsou)
-      const ns = [...(neigh.get(i) ?? [])].map(nodeByIdx);
-      let cxN = 0, cyN = 0;
-      ns.forEach((m) => { cxN += m.x - n.x; cyN += m.y - n.y; });
-      const order: ("r" | "l" | "t" | "b")[] = Math.abs(cxN) > Math.abs(cyN)
-        ? (cxN > 0 ? ["l", "r", "t", "b"] : ["r", "l", "t", "b"])
-        : (cyN > 0 ? ["t", "b", "r", "l"] : ["b", "t", "r", "l"]);
-      const posFor = (side: "r" | "l" | "t" | "b") => {
-        if (side === "r") return { x: sx + gap, y: sy - H / 2 };
-        if (side === "l") return { x: sx - gap - W, y: sy - H / 2 };
-        if (side === "t") return { x: sx - W / 2, y: sy - gap - H };
-        return { x: sx - W / 2, y: sy + gap };
-      };
-      // uhýbání kurzoru: když se kurzor přiblíží, přeskoč na další stranu
-      const nowMs = performance.now();
-      let side = order[panelSide % order.length];
-      let pos = posFor(side);
-      const near = (pp: { x: number; y: number }) =>
-        cur.x > pp.x - 30 && cur.x < pp.x + W + 30 && cur.y > pp.y - 30 && cur.y < pp.y + H + 30;
-      if (near(pos) && nowMs - lastFlip > 320) {
-        for (let k = 1; k < order.length; k++) {
-          const cand = order[(panelSide + k) % order.length];
-          if (!near(posFor(cand))) { panelSide = (panelSide + k) % order.length; side = cand; break; }
-        }
-        lastFlip = nowMs;
-        pos = posFor(side);
-      }
-      pos.x = Math.max(8, Math.min(w - W - 8, pos.x));
-      pos.y = Math.max(54, Math.min(h - H - 8, pos.y));
-      if (panelFresh) { panel.style.transition = "none"; }
-      panel.style.left = `${pos.x}px`;
-      panel.style.top = `${pos.y}px`;
-      if (panelFresh) { void panel.offsetWidth; panel.style.transition = "left 300ms ease, top 300ms ease"; panelFresh = false; }
-    };
-    const markPanelFresh = () => { panelFresh = true; panelSide = 0; };
 
     const resize = () => {
       cv.width = cv.clientWidth * dpr;
@@ -750,7 +699,6 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
         if (k >= 1) anim = null;
       }
       draw();
-      placePanel();
       raf = requestAnimationFrame(tick);
     };
     loopRef.current = {
@@ -868,7 +816,6 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
           } else {
             setSelected({ id: p.id, label: p.label });
             setTip(null);
-            markPanelFresh();
             const i = idxById.get(p.id);
             if (i !== undefined) zoomToNode(i);
           }
@@ -933,24 +880,18 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
               padding: "7px 14px", ...sans, fontSize: 12.5, fontWeight: 600, cursor: "pointer", color: "var(--text-primary)",
               boxShadow: "3px 3px 0 var(--shadow)",
             }}>{t.backToAssoc}</button>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0 }}>⚡ {t.title} · 🔬 Researcher</p>
-              {/* vysvětlivky — mimochodem, drobně pod titulkem */}
-              <div style={{ ...sans, fontSize: 10.5, color: "var(--text-muted)", marginTop: 4, lineHeight: 1.7 }}>
-                <p style={{ margin: 0 }}>{t.mapLegend}</p>
-                <p style={{ margin: 0 }}>{t.legendBall}</p>
-                <p style={{ margin: 0 }}>{t.legendSeed}</p>
-                <p style={{ margin: 0 }}>{t.legendColor}</p>
-                <p style={{ margin: 0 }}>{t.legendPos}</p>
-                {data.truncated && <p style={{ margin: 0 }}>{t.truncated}</p>}
-              </div>
-            </div>
+            <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0 }}>⚡ {t.title} · 🔬 Researcher</p>
           </div>
 
-          <p style={{
-            position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
-            ...sans, fontSize: 11, color: "var(--text-muted)", margin: 0, whiteSpace: "nowrap",
-          }}>{t.mapHint}</p>
+          <div style={{
+            position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)",
+            width: "min(94vw, 1200px)", textAlign: "center", pointerEvents: "none",
+          }}>
+            <p style={{ ...sans, fontSize: 10.5, color: "var(--text-muted)", margin: "0 0 3px", lineHeight: 1.5 }}>
+              {t.mapLegend} · {t.legendBall} · {t.legendSeed} · {t.legendPos}{data.truncated ? ` · ${t.truncated}` : ""}
+            </p>
+            <p style={{ ...sans, fontSize: 11, color: "var(--text-muted)", margin: 0 }}>{t.mapHint}</p>
+          </div>
         </>
       )}
 
@@ -965,12 +906,12 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
         </div>
       )}
 
-      {/* detail vybraného slova — mimochodem vedle slova, uhýbá kurzoru, nejde přes něj klikat */}
+      {/* detail vybraného slova — napevno vlevo pod tlačítkem zpět, ať nepřekáží mapě */}
       {chrome && selected && detail && (
-        <div ref={panelRef} style={{
-          position: "absolute", left: -9999, top: -9999, width: 200, pointerEvents: "none", zIndex: 20,
-          background: "rgba(255,253,246,0.9)", borderRadius: 10, padding: "10px 13px",
-          transition: "left 300ms ease, top 300ms ease",
+        <div style={{
+          position: "absolute", left: 18, top: 64, width: 210, maxHeight: "calc(100dvh - 140px)", overflowY: "auto",
+          pointerEvents: "none", zIndex: 20,
+          background: "rgba(255,253,246,0.92)", borderRadius: 10, padding: "12px 15px",
         }}>
           <p style={{ ...display, fontSize: 17, fontWeight: 700, margin: 0, wordBreak: "break-word" }}>{selected.label}</p>
 
