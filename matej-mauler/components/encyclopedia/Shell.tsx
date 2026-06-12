@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { track } from "@/lib/track";
 import Link from "next/link";
 import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/lib/encyclopedia/graph";
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
@@ -62,6 +63,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   const topText = node?.textPos === "top";
 
   const go = useCallback((to: string, d: NavDir) => {
+    track("encyklopedie", "interact");
     setDir(d); setSlug(to); setSearchOpen(false);
     window.history.pushState({ ency: true }, "", to === "brana" ? "/encyclopedia" : `/${to}`);
   }, []);
@@ -79,6 +81,8 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   // aktuální akce v ref, ať globální listenery nepřepojujeme při každé navigaci
   const act = useRef({ goNext, goUp, searchOpen });
   useEffect(() => { act.current = { goNext, goUp, searchOpen }; });
+
+  useEffect(() => { track("encyklopedie", "open"); }, []);
 
   // zpět/vpřed prohlížeče
   useEffect(() => {

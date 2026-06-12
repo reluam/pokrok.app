@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { track } from "@/lib/track";
 import Link from "next/link";
 import type { Lang } from "@/lib/dictionaries";
 
@@ -96,7 +97,10 @@ export function SoundExperience({ lang }: { lang: Lang }) {
 
   const applyVoice = (id: string) => { const o = osc.current, a = ac.current; if (!o || !a) return; const v = voiceOf(id); if (v?.h) { const imag = new Float32Array(v.h.length + 1), real = new Float32Array(v.h.length + 1); v.h.forEach((x, k) => (imag[k + 1] = x)); o.setPeriodicWave(a.createPeriodicWave(real, imag)); } else o.type = (id === "saw" ? "sawtooth" : id) as OscillatorType; };
 
+  useEffect(() => { track("sound", "open"); }, []);
+
   const start = () => {
+    track("sound", "interact");
     const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const a = new AC(); ac.current = a;
     const o = a.createOscillator(); o.frequency.value = userFreq.current * SECTIONS[0].freqMul;

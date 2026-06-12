@@ -3,6 +3,7 @@ import { HomeContent } from "@/components/HomeContent";
 import { dictionaries } from "@/lib/dictionaries";
 import { getPublicExperiments } from "@/lib/experimentsDb";
 import { getPublicSongs } from "@/lib/songsDb";
+import { applyTextOverrides, getTextOverrides } from "@/lib/siteTextsDb";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <HomeContent dict={dictionaries.en} lang="en" items={items} songs={songs} />
+      <HomeContent dict={applyTextOverrides(dictionaries.en, await getTextOverrides("en").catch(() => ({})))} lang="en" items={items} songs={songs} />
     </>
   );
 }

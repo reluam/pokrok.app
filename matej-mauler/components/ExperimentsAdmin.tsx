@@ -8,7 +8,7 @@ const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const inputS: React.CSSProperties = { width: "100%", background: "var(--bg)", border: "2px solid var(--border)", borderRadius: "8px", padding: "8px 10px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-primary)", outline: "none", marginBottom: "8px" };
 const btn = (bg: string, color = "#fff"): React.CSSProperties => ({ background: bg, color, border: "none", borderRadius: "8px", padding: "7px 12px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, cursor: "pointer" });
 
-export function ExperimentsAdmin({ initial }: { initial: ExperimentRow[] }) {
+export function ExperimentsAdmin({ initial, embedded = false }: { initial: ExperimentRow[]; embedded?: boolean }) {
   const [rows, setRows] = useState<ExperimentRow[]>(initial);
   const [editing, setEditing] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -38,16 +38,18 @@ export function ExperimentsAdmin({ initial }: { initial: ExperimentRow[] }) {
   };
 
   return (
-    <div style={{ minHeight: "100dvh", background: "var(--bg)" }}>
-      <div style={{ background: "#fff", borderBottom: "2.5px solid var(--border)", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ fontSize: "22px" }}>🍝</span>
-          <h1 style={{ ...display, fontSize: "20px", fontWeight: 900 }}>Experimenty</h1>
+    <div style={embedded ? undefined : { minHeight: "100dvh", background: "var(--bg)" }}>
+      {!embedded && (
+        <div style={{ background: "#fff", borderBottom: "2.5px solid var(--border)", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "22px" }}>🍝</span>
+            <h1 style={{ ...display, fontSize: "20px", fontWeight: 900 }}>Experimenty</h1>
+          </div>
+          <Link href="/admin" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>← Admin</Link>
         </div>
-        <Link href="/admin" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>← Admin</Link>
-      </div>
+      )}
 
-      <div style={{ maxWidth: "760px", margin: "0 auto", padding: "24px" }}>
+      <div style={{ maxWidth: "760px", margin: embedded ? "0" : "0 auto", padding: embedded ? "16px 0 0" : "24px" }}>
         <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)", marginBottom: "16px" }}>
           Draft = jen pro tebe (route vrací 404 ostatním). Publikováno = veřejně na hlavní stránce.
         </p>

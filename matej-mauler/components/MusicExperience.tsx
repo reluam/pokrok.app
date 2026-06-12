@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { track } from "@/lib/track";
 import Link from "next/link";
 import type { Lang } from "@/lib/dictionaries";
 
@@ -88,7 +89,10 @@ export function MusicExperience({ lang }: { lang: Lang }) {
   const setVol = (k: Layer, pct: number) => { vol.current[k] = pct / 100; setVolUI((s) => ({ ...s, [k]: pct })); };
   const setFx = (k: "room" | "drive" | "reverb" | "delay", pct: number) => { const [lo, hi] = FXR[k]; const v = lo + (pct / 100) * (hi - lo); fx.current[k] = v; setFxUI((s) => ({ ...s, [k]: pct })); const n = fxNode(k); if (n && ac.current) n.gain.setTargetAtTime(v, ac.current.currentTime, 0.05); };
 
+  useEffect(() => { track("music", "open"); }, []);
+
   const start = () => {
+    track("music", "interact");
     const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const a = new AC(); ac.current = a;
     const comp = a.createDynamicsCompressor(); comp.threshold.value = -15; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.25; comp.connect(a.destination);

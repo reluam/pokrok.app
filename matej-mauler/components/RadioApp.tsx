@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { track } from "@/lib/track";
 import Link from "next/link";
 import { OPTIONS, type OptionId } from "@/lib/radioComposer";
 import type { Lang } from "@/lib/dictionaries";
@@ -106,7 +107,10 @@ export function RadioApp({ lang }: { lang: Lang }) {
     } catch {}
   };
 
+  useEffect(() => { track("radio", "open"); }, []);
+
   const enter = () => {
+    track("radio", "interact");
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = new Ctx();
     if (ctx.state === "suspended") ctx.resume();

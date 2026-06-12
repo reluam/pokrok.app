@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { track } from "@/lib/track";
 import Link from "next/link";
 
 type Lang = "cs" | "en";
@@ -142,7 +143,10 @@ export function BrainApp({ lang }: { lang: Lang }) {
     return () => cancelAnimationFrame(id);
   }, [appLang]);
 
+  useEffect(() => { track("brain", "open"); }, []);
+
   const enterMap = () => {
+    track("brain", "interact");
     if (dirty.current) { dirty.current = false; loadMap(appLang); }
     if (map && map.total < map.goal) setMode("gate");
     else setMode("map");
@@ -159,6 +163,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       });
       const j = await r.json();
       if (j.ok) {
+        track("brain", "interact");
         setLast({ from: word.display, to: j.to, count: j.count });
         setMine((m) => m + 1);
         setInput("");
