@@ -63,7 +63,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
   const go = useCallback((to: string, d: NavDir) => {
     setDir(d); setSlug(to); setSearchOpen(false);
-    window.history.pushState({ ency: true }, "", `/${to}`);
+    window.history.pushState({ ency: true }, "", to === "brana" ? "/encyclopedia" : `/${to}`);
   }, []);
   const dive = useCallback((to: string) => { setTrail((t) => [...t, slug]); go(to, "dive"); }, [go, slug]);
   const goUp = useCallback(() => {
@@ -84,7 +84,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   useEffect(() => {
     const onPop = () => {
       const p = location.pathname.replace(/^\//, "");
-      const s = p === "encyklopedie" ? "brana" : p;
+      const s = p === "encyclopedia" || p === "encyklopedie" ? "brana" : p;
       if (getNode(s) || isRedLink(s)) { setDir("jump"); setSlug(s); setTrail([]); }
       else location.reload();
     };

@@ -1,16 +1,6 @@
-import { BrainApp } from "@/components/BrainApp";
-import { getLang } from "@/lib/getLang";
-import { guardExperiment } from "@/lib/experimentsDb";
+import { permanentRedirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-export const metadata = {
-  title: "Synapse — Spaghetti.ltd",
-  description: "Slovo → asociace. Každá odpověď posílí synapsi ve společné síti internetu. Explorer přidává asociace, Researcher zkoumá mapu synapsí.",
-  alternates: { canonical: "/synapse" },
-};
-
-export default async function SynapsePage() {
-  await guardExperiment("brain");
-  const lang = await getLang();
-  return <BrainApp lang={lang} />;
+// Projektové URL jsou anglicky — Synapse žije na /synapsis.
+export default function SynapseRedirect() {
+  permanentRedirect("/synapsis");
 }

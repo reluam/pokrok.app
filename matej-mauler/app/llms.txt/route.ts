@@ -26,11 +26,11 @@ Tagline: I have bad ideas and plenty of artificial willpower to build them.
 
 ## Experiments
 
-- [The Encyclopedia](${SITE}/encyklopedie): An interactive encyclopedia where every term gets a short, witty explanation and links onward by noodles — scroll deeper, click sideways. Full term list below; [map of everything](${SITE}/mapa).
+- [The Encyclopedia](${SITE}/encyclopedia): An interactive encyclopedia where every term gets a short, witty explanation and links onward by noodles — scroll deeper, click sideways. Full term list below; [map of everything](${SITE}/mapa).
 - [A journey along a sound wave](${SITE}/sound): Your cursor is an ear — scroll through sound from a tremble to an echo, all synthesized live with WebAudio.
 - [How music is made](${SITE}/music): Build a track layer by layer — beat, bass, chords and melody — with grids, faders and effects like a tiny DAW.
 - [The Radio](${SITE}/radio): A radio station rendered on the server — everyone hears the exact same mastered stream and votes every ~15 seconds on what changes next (melody, beat, bassline, instrument, tempo, key).
-- [Synapses](${SITE}/synapse): Word → association. Every answer strengthens a synapse in the internet's shared network — explore the map of how we think together.
+- [Synapses](${SITE}/synapsis): Word → association. Every answer strengthens a synapse in the internet's shared network — explore the map of how we think together.
 
 # Encyclopedia terms
 

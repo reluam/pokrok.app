@@ -22,7 +22,7 @@ export const experiments: ExperimentMeta[] = [
     slug: "encyklopedie",
     emoji: "🍝",
     color: "#FEF3C7",
-    href: "/encyklopedie",
+    href: "/encyclopedia",
     size: "wide",
   },
   {
@@ -47,6 +47,6 @@ export const experiments: ExperimentMeta[] = [
     slug: "brain",
     emoji: "⚡",
     color: "#FCE7F3",
-    href: "/synapse",
+    href: "/synapsis",
   },
 ];

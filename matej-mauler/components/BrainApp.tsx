@@ -177,14 +177,8 @@ export function BrainApp({ lang }: { lang: Lang }) {
 
   return (
     <main style={{ position: "fixed", inset: 0, background: "var(--bg)", color: "var(--text-primary)", overflow: "hidden" }}>
-      {/* ── mapa na pozadí — rozmazaná tolik, ať slova nejdou přečíst ── */}
-      <div style={{
-        position: "absolute", inset: 0,
-        filter: overlay ? "blur(26px) saturate(1.05)" : "none",
-        transform: overlay ? "scale(1.08)" : "none",
-        transition: "filter 700ms ease, transform 700ms ease",
-        pointerEvents: overlay ? "none" : "auto",
-      }}>
+      {/* ── mapa na pozadí — živá síť jako brána encyklopedie, jen kuličky bez popisků ── */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: overlay ? "none" : "auto" }}>
         {map && map.edges.length > 0
           ? <BrainMap data={map} lang={lang} chrome={mode === "map"} onBack={() => setMode("explore")} onAssociate={(w) => { setMode("explore"); setLast(null); setErr(null); setInput(""); setWord(w); }} />
           : <IdleField />}
@@ -324,7 +318,7 @@ function IdleField() {
    Mapa synapsí — force layout na canvasu, nudlové synapse
    v těstovinové barvě jako špagety v encyklopedii.
    ════════════════════════════════════════════════════════════════ */
-type SimNode = { id: number; label: string; seed: boolean; strength: number; x: number; y: number; vx: number; vy: number; r: number };
+type SimNode = { id: number; label: string; seed: boolean; strength: number; x: number; y: number; vx: number; vy: number; r: number; fx: number; fy: number; fph: number; fsp: number };
 type SimEdge = { a: number; b: number; count: number };
 type View = { scale: number; tx: number; ty: number };
 
@@ -340,7 +334,7 @@ function buildSim(data: MapData): { nodes: SimNode[]; edges: SimEdge[]; maxCount
   const idx = new Map<number, number>();
   const nodes: SimNode[] = data.nodes.map((n, i) => {
     idx.set(n.id, i);
-    return { id: n.id, label: n.label, seed: n.seed, strength: 0, x: 0, y: 0, vx: 0, vy: 0, r: 4 };
+    return { id: n.id, label: n.label, seed: n.seed, strength: 0, x: 0, y: 0, vx: 0, vy: 0, r: 4, fx: 0, fy: 0, fph: (i * 2.399) % 6.28, fsp: 0.4 + ((i * 7) % 10) / 14 };
   });
   const edges: SimEdge[] = [];
   let maxCount = 1;
@@ -416,8 +410,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
 
   useEffect(() => {
     chromeRef.current = chrome;
-    if (chrome) loopRef.current.start();
-    else { loopRef.current.stop(); drawRef.current(); }
+    loopRef.current.start(); // síť je živá vždy — jako brána encyklopedie
   }, [chrome]);
 
   useEffect(() => {
@@ -516,25 +509,23 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       return { scale, tx: w / 2 - ((minX + maxX) / 2) * scale, ty: h / 2 - ((minY + maxY) / 2) * scale };
     };
     const animateTo = (to: View, dur = 520) => { anim = { t0: performance.now(), dur, from: { ...view }, to }; if (!chromeRef.current) Object.assign(view, to); };
-    // zoom na slovo: vejde se ono + všichni jeho sousedé, zbytek klidně mimo
+    // zoom na slovo: slovo se zafixuje doprostřed stránky, přiblížení tak, ať jsou vidět všichni sousedi
     const zoomToNode = (i: number) => {
       const w = cv.clientWidth, h = cv.clientHeight;
-      const pts = [nodes[i], ...[...(neigh.get(i) ?? [])].map(nodeByIdx)];
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-      for (const n of pts) {
-        minX = Math.min(minX, n.x - n.r); maxX = Math.max(maxX, n.x + n.r);
-        minY = Math.min(minY, n.y - n.r); maxY = Math.max(maxY, n.y + n.r);
+      const n = nodes[i];
+      let rMax = 80;
+      for (const j of neigh.get(i) ?? []) {
+        const m = nodeByIdx(j);
+        rMax = Math.max(rMax, Math.hypot(m.x - n.x, m.y - n.y) + m.r);
       }
-      const pad = 110;
-      const bw = Math.max(80, maxX - minX), bh = Math.max(80, maxY - minY);
-      const scale = Math.max(0.3, Math.min(3, Math.min(w / (bw + pad * 2), h / (bh + pad * 2))));
-      animateTo({ scale, tx: w / 2 - ((minX + maxX) / 2) * scale, ty: h / 2 - ((minY + maxY) / 2) * scale });
+      const scale = Math.max(0.35, Math.min(3, (Math.min(w, h) / 2 - 100) / rMax));
+      animateTo({ scale, tx: w / 2 - n.x * scale, ty: h / 2 - n.y * scale });
     };
 
     // geometrie špagety (bez houpání — pro hit-test)
     const strandGeom = (st: Strand) => {
       const A = nodes[st.a], B = nodes[st.b];
-      const dx = B.x - A.x, dy = B.y - A.y;
+      const dx = B.fx - A.fx, dy = B.fy - A.fy;
       const d = Math.hypot(dx, dy) || 1;
       const px = -dy / d, py = dx / d;
       const bow = Math.min(26, d * 0.14) * st.side;
@@ -546,13 +537,13 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       for (let si = 0; si < strands.length; si++) {
         const st = strands[si];
         const { A, B, dx, dy, px, py, bow } = strandGeom(st);
-        if (wx < Math.min(A.x, B.x) - 40 || wx > Math.max(A.x, B.x) + 40 || wy < Math.min(A.y, B.y) - 40 || wy > Math.max(A.y, B.y) + 40) continue;
-        const c1x = A.x + dx / 3 + px * (bow * 0.9 + st.o1 * 6), c1y = A.y + dy / 3 + py * (bow * 0.9 + st.o1 * 6);
-        const c2x = A.x + (2 * dx) / 3 + px * (bow * 0.9 + st.o2 * 6), c2y = A.y + (2 * dy) / 3 + py * (bow * 0.9 + st.o2 * 6);
+        if (wx < Math.min(A.fx, B.fx) - 40 || wx > Math.max(A.fx, B.fx) + 40 || wy < Math.min(A.fy, B.fy) - 40 || wy > Math.max(A.fy, B.fy) + 40) continue;
+        const c1x = A.fx + dx / 3 + px * (bow * 0.9 + st.o1 * 6), c1y = A.fy + dy / 3 + py * (bow * 0.9 + st.o1 * 6);
+        const c2x = A.fx + (2 * dx) / 3 + px * (bow * 0.9 + st.o2 * 6), c2y = A.fy + (2 * dy) / 3 + py * (bow * 0.9 + st.o2 * 6);
         for (let k = 0; k <= 14; k++) {
           const tt = k / 14, u = 1 - tt;
-          const x = u * u * u * A.x + 3 * u * u * tt * c1x + 3 * u * tt * tt * c2x + tt * tt * tt * B.x;
-          const y = u * u * u * A.y + 3 * u * u * tt * c1y + 3 * u * tt * tt * c2y + tt * tt * tt * B.y;
+          const x = u * u * u * A.fx + 3 * u * u * tt * c1x + 3 * u * tt * tt * c2x + tt * tt * tt * B.fx;
+          const y = u * u * u * A.fy + 3 * u * u * tt * c1y + 3 * u * tt * tt * c2y + tt * tt * tt * B.fy;
           const dd = Math.hypot(x - wx, y - wy);
           if (dd < tol && dd < bestD) { best = si; bestD = dd; }
         }
@@ -569,7 +560,16 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
 
       ctx.setTransform(dpr * view.scale, 0, 0, dpr * view.scale, dpr * view.tx, dpr * view.ty);
 
-      const bg = !chromeRef.current; // mapa jen jako rozmazané pozadí asociací
+      const bg = !chromeRef.current; // mapa jako živé pozadí asociací
+      const nowF = performance.now() / 1000;
+      for (const n of nodes) { // jemné plutí jako na bráně
+        n.fx = n.x + Math.sin(nowF * n.fsp + n.fph) * 4.5;
+        n.fy = n.y + Math.cos(nowF * n.fsp + n.fph) * 4.5;
+      }
+      // v pozadí asociací nechat střed čistý pro text — útlum podle vzdálenosti od středu obrazovky
+      const cwx = (w / 2 - view.tx) / view.scale, cwy = (h / 2 - view.ty) / view.scale;
+      const R0 = (Math.min(w, h) * 0.32) / view.scale, feather = 180 / view.scale;
+      const clear = (x: number, y: number) => bg ? Math.max(0, Math.min(1, (Math.hypot(x - cwx, y - cwy) - R0) / feather)) : 1;
       const selId = selRef.current;
       const hotId = hovered?.id ?? selId;
       const hsEnds = new Set<number>(); // popisky konců hoverované nudle
@@ -584,6 +584,8 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         const hovS = hoveredStrand === si;
         const dimS = hotId !== null && !hot;
         const srcId = st.dirAB ? A.id : B.id; // odkud informace teče
+        const cf = clear((A.fx + B.fx) / 2, (A.fy + B.fy) / 2);
+        if (cf <= 0.02) continue;
         let col: string;
         if (hot) {
           // z vybraného slova teče teplá, do něj chladná
@@ -591,7 +593,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         } else if (hovS) {
           col = `rgba(176, 124, 24, ${0.55 + 0.3 * st.norm})`;
         } else {
-          col = `rgba(176, 124, 24, ${dimS ? 0.07 + 0.1 * st.norm : 0.16 + 0.4 * st.norm})`;
+          col = `rgba(176, 124, 24, ${(dimS ? 0.07 + 0.1 * st.norm : 0.16 + 0.4 * st.norm) * cf})`;
         }
         const lw = (0.8 + 4.2 * st.norm) * (hot || hovS ? 1.25 : 1);
         ctx.strokeStyle = col;
@@ -602,27 +604,27 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         const wobAmp = Math.min(9, d * 0.07); // houpání úměrné délce nudle
         const w1 = Math.sin(now * st.sp + st.ph) * wobAmp;
         const w2 = Math.sin(now * st.sp * 1.27 + st.ph + 2.1) * wobAmp;
-        const c1x = A.x + dx / 3 + px * (bow * 0.9 + st.o1 * 6 + w1);
-        const c1y = A.y + dy / 3 + py * (bow * 0.9 + st.o1 * 6 + w1);
-        const c2x = A.x + (2 * dx) / 3 + px * (bow * 0.9 + st.o2 * 6 + w2);
-        const c2y = A.y + (2 * dy) / 3 + py * (bow * 0.9 + st.o2 * 6 + w2);
+        const c1x = A.fx + dx / 3 + px * (bow * 0.9 + st.o1 * 6 + w1);
+        const c1y = A.fy + dy / 3 + py * (bow * 0.9 + st.o1 * 6 + w1);
+        const c2x = A.fx + (2 * dx) / 3 + px * (bow * 0.9 + st.o2 * 6 + w2);
+        const c2y = A.fy + (2 * dy) / 3 + py * (bow * 0.9 + st.o2 * 6 + w2);
         ctx.beginPath();
-        ctx.moveTo(A.x, A.y);
-        ctx.bezierCurveTo(c1x, c1y, c2x, c2y, B.x, B.y);
+        ctx.moveTo(A.fx, A.fy);
+        ctx.bezierCurveTo(c1x, c1y, c2x, c2y, B.fx, B.fy);
         ctx.stroke();
 
         // kulička v potrubí: nudle se kolem ní gaussovsky rozšíří a zase stáhne
-        if (!bg && st.speed > 0.001) {
+        if (st.speed > 0.001 && cf > 0.05) {
           const tRaw = (now * st.speed * 2 + st.fphase) % 1; // plná rychlost = 0,5 s na přejezd
           const tBall = st.dirAB ? tRaw : 1 - tRaw;
           const pt = (tt: number) => {
             const u = 1 - tt;
             return {
-              x: u * u * u * A.x + 3 * u * u * tt * c1x + 3 * u * tt * tt * c2x + tt * tt * tt * B.x,
-              y: u * u * u * A.y + 3 * u * u * tt * c1y + 3 * u * tt * tt * c2y + tt * tt * tt * B.y,
+              x: u * u * u * A.fx + 3 * u * u * tt * c1x + 3 * u * tt * tt * c2x + tt * tt * tt * B.fx,
+              y: u * u * u * A.fy + 3 * u * u * tt * c1y + 3 * u * tt * tt * c2y + tt * tt * tt * B.fy,
             };
           };
-          ctx.strokeStyle = hot || hovS ? col : `rgba(176, 124, 24, ${dimS ? 0.22 : 0.7})`;
+          ctx.strokeStyle = hot || hovS ? col : `rgba(176, 124, 24, ${(dimS ? 0.22 : 0.7) * cf})`;
           const span = 0.055, steps = 8;
           let prev = pt(Math.max(0, tBall - span));
           for (let k = 1; k <= steps; k++) {
@@ -647,20 +649,22 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       for (const n of nodes) {
         const hot = n.id === hotId;
         const dim = hotId !== null && !hot && !neighborIds.has(n.id);
-        ctx.globalAlpha = bg ? 0.3 : hot ? 1 : dim ? 0.25 : 0.88;
-        ctx.fillStyle = bg ? "#8a8378" : "#1a1614";
-        ctx.beginPath(); ctx.arc(n.x, n.y, hot ? n.r + 2 : n.r, 0, 7); ctx.fill();
+        const cf = clear(n.fx, n.fy);
+        if (cf <= 0.02) continue;
+        ctx.globalAlpha = (hot ? 1 : dim ? 0.25 : 0.9) * cf;
+        ctx.fillStyle = "#8b9cf6"; // stejné kuličky jako uzly v encyklopedii
+        ctx.beginPath(); ctx.arc(n.fx, n.fy, hot ? n.r + 2.5 : n.r, 0, 7); ctx.fill();
         if (n.seed) {
-          ctx.strokeStyle = "rgba(176, 124, 24, 0.85)"; ctx.lineWidth = 1.6;
-          ctx.beginPath(); ctx.arc(n.x, n.y, (hot ? n.r + 2 : n.r) + 2.4, 0, 7); ctx.stroke();
+          ctx.strokeStyle = `rgba(176, 124, 24, ${0.85 * cf})`; ctx.lineWidth = 1.6;
+          ctx.beginPath(); ctx.arc(n.fx, n.fy, (hot ? n.r + 2.5 : n.r) + 2.4, 0, 7); ctx.stroke();
         }
         const showLabel = !bg && (hot || neighborIds.has(n.id) || hsEnds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim)));
         if (showLabel) {
-          ctx.globalAlpha = hot ? 1 : 0.78;
+          ctx.globalAlpha = hot ? 1 : 0.82;
           ctx.fillStyle = "#1a1614";
           ctx.font = `${hot ? 700 : 500} 11px ${getComputedStyle(document.body).fontFamily || "system-ui"}`;
           ctx.textAlign = "center";
-          ctx.fillText(n.label, n.x, n.y + n.r + 14);
+          ctx.fillText(n.label, n.fx, n.fy + n.r + 15);
         }
         ctx.globalAlpha = 1;
       }
@@ -676,7 +680,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       if (i === undefined) return;
       const n = nodes[i];
       const w = cv.clientWidth, h = cv.clientHeight;
-      const sx = n.x * view.scale + view.tx, sy = n.y * view.scale + view.ty;
+      const sx = n.fx * view.scale + view.tx, sy = n.fy * view.scale + view.ty;
       const W = panel.offsetWidth || 200, H = panel.offsetHeight || 120;
       const gap = 26;
       // preferovaná strana: pryč od těžiště sousedů (tam nudle nejsou)
@@ -742,14 +746,14 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       start: () => { if (!raf) raf = requestAnimationFrame(tick); },
       stop: () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } },
     };
-    if (chromeRef.current) loopRef.current.start();
+    loopRef.current.start();
 
     const toWorld = (sx: number, sy: number) => ({ x: (sx - view.tx) / view.scale, y: (sy - view.ty) / view.scale });
     const pick = (sx: number, sy: number): SimNode | null => {
       const p = toWorld(sx, sy);
       let best: SimNode | null = null, bestD = Infinity;
       for (const n of nodes) {
-        const d = Math.hypot(n.x - p.x, n.y - p.y);
+        const d = Math.hypot(n.fx - p.x, n.fy - p.y);
         if (d < Math.max(14 / view.scale, n.r + 8) && d < bestD) { best = n; bestD = d; }
       }
       return best;
