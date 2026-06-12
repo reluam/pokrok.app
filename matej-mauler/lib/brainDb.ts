@@ -2,6 +2,9 @@ import { getDb } from "./db";
 
 type Sql = ReturnType<typeof getDb>;
 
+export type BrainLang = "cs" | "en";
+export const brainLang = (raw: string | null | undefined): BrainLang => raw === "en" ? "en" : "cs";
+
 export type BrainWord = { id: number; display: string };
 export type BrainStats = { words: number; edges: number; total: number; goal: number };
 export type BrainMapData = {
@@ -15,15 +18,25 @@ export type BrainMapData = {
 /** Kolik asociací mozek potřebuje, aby mapa pro Researchera začala dávat smysl. */
 export const BRAIN_GOAL = 5000;
 
-// Startovní slova — bez nich by Explorer neměl na co asociovat.
-const SEEDS = [
-  "špagety", "slunce", "hudba", "strach", "domov", "káva", "vesmír", "čas",
-  "peníze", "láska", "les", "moře", "sen", "kniha", "pondělí", "léto",
-  "zima", "pes", "kočka", "město", "noc", "světlo", "ticho", "barva",
-  "jablko", "chleba", "voda", "oheň", "vítr", "hora", "cesta", "hra",
-  "práce", "škola", "dětství", "budoucnost", "robot", "internet", "telefon", "hvězda",
-  "měsíc", "smích", "tanec", "klíč", "zrcadlo", "vlak", "déšť", "svoboda",
-];
+// Startovní slova — bez nich by Explorer neměl na co asociovat. Každý jazyk má vlastní síť.
+const SEEDS: Record<BrainLang, string[]> = {
+  cs: [
+    "špagety", "slunce", "hudba", "strach", "domov", "káva", "vesmír", "čas",
+    "peníze", "láska", "les", "moře", "sen", "kniha", "pondělí", "léto",
+    "zima", "pes", "kočka", "město", "noc", "světlo", "ticho", "barva",
+    "jablko", "chleba", "voda", "oheň", "vítr", "hora", "cesta", "hra",
+    "práce", "škola", "dětství", "budoucnost", "robot", "internet", "telefon", "hvězda",
+    "měsíc", "smích", "tanec", "klíč", "zrcadlo", "vlak", "déšť", "svoboda",
+  ],
+  en: [
+    "spaghetti", "sun", "music", "fear", "home", "coffee", "universe", "time",
+    "money", "love", "forest", "sea", "dream", "book", "monday", "summer",
+    "winter", "dog", "cat", "city", "night", "light", "silence", "color",
+    "apple", "bread", "water", "fire", "wind", "mountain", "road", "game",
+    "work", "school", "childhood", "future", "robot", "internet", "phone", "star",
+    "moon", "laughter", "dance", "key", "mirror", "train", "rain", "freedom",
+  ],
+};
 
 /**
  * Normalizace slova: malá písmena, jedna mezera, ořez interpunkce na okrajích.
@@ -57,23 +70,29 @@ async function ensure(sql: Sql) {
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (from_id, to_id)
   )`;
-  const [{ n }] = await sql`SELECT COUNT(*)::int AS n FROM brain_words WHERE is_seed` as { n: number }[];
-  if (n === 0) {
-    for (const w of SEEDS) {
-      const word = normalizeWord(w);
-      if (!word) continue;
-      await sql`INSERT INTO brain_words (word, display, is_seed) VALUES (${word}, ${word}, TRUE)
-        ON CONFLICT (word) DO UPDATE SET is_seed = TRUE`;
+  // migrace 2026-06: oddělené sítě per jazyk — existující slova jsou česká
+  await sql`ALTER TABLE brain_words ADD COLUMN IF NOT EXISTS lang TEXT NOT NULL DEFAULT 'cs'`;
+  await sql`ALTER TABLE brain_words DROP CONSTRAINT IF EXISTS brain_words_word_key`;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS brain_words_lang_word ON brain_words (lang, word)`;
+  for (const lang of ["cs", "en"] as const) {
+    const [{ n }] = await sql`SELECT COUNT(*)::int AS n FROM brain_words WHERE is_seed AND lang = ${lang}` as { n: number }[];
+    if (n === 0) {
+      for (const w of SEEDS[lang]) {
+        const word = normalizeWord(w);
+        if (!word) continue;
+        await sql`INSERT INTO brain_words (word, display, is_seed, lang) VALUES (${word}, ${word}, TRUE, ${lang})
+          ON CONFLICT (lang, word) DO UPDATE SET is_seed = TRUE`;
+      }
     }
   }
   ready = true;
 }
 
 /** Náhodné slovo k asociování (volitelně jiné než `notId`). */
-export async function randomWord(notId?: number): Promise<BrainWord | null> {
+export async function randomWord(lang: BrainLang, notId?: number): Promise<BrainWord | null> {
   const sql = getDb();
   await ensure(sql);
-  const rows = await sql`SELECT id, display FROM brain_words WHERE id <> ${notId ?? -1} ORDER BY random() LIMIT 1` as BrainWord[];
+  const rows = await sql`SELECT id, display FROM brain_words WHERE lang = ${lang} AND id <> ${notId ?? -1} ORDER BY random() LIMIT 1` as BrainWord[];
   return rows[0] ?? null;
 }
 
@@ -86,7 +105,7 @@ export async function associate(fromId: number, toRaw: string): Promise<Associat
   const sql = getDb();
   await ensure(sql);
 
-  const [from] = await sql`SELECT id, word, display FROM brain_words WHERE id = ${fromId}` as { id: number; word: string; display: string }[];
+  const [from] = await sql`SELECT id, word, display, lang FROM brain_words WHERE id = ${fromId}` as { id: number; word: string; display: string; lang: BrainLang }[];
   if (!from) return { ok: false, error: "unknown-from" };
 
   const word = normalizeWord(toRaw);
@@ -96,15 +115,16 @@ export async function associate(fromId: number, toRaw: string): Promise<Associat
   // Display = vstup očištěný stejně jako word, ale se zachovanou velikostí písmen.
   const display = raw2display(toRaw) || word;
 
-  const [to] = await sql`INSERT INTO brain_words (word, display) VALUES (${word}, ${display})
-    ON CONFLICT (word) DO UPDATE SET word = EXCLUDED.word
+  const [to] = await sql`INSERT INTO brain_words (word, display, lang) VALUES (${word}, ${display}, ${from.lang})
+    ON CONFLICT (lang, word) DO UPDATE SET word = EXCLUDED.word
     RETURNING id, display` as BrainWord[];
 
   const [edge] = await sql`INSERT INTO brain_edges (from_id, to_id) VALUES (${from.id}, ${to.id})
     ON CONFLICT (from_id, to_id) DO UPDATE SET count = brain_edges.count + 1, updated_at = NOW()
     RETURNING count` as { count: number }[];
 
-  const [{ total }] = await sql`SELECT COALESCE(SUM(count), 0)::int AS total FROM brain_edges` as { total: number }[];
+  const [{ total }] = await sql`SELECT COALESCE(SUM(e.count), 0)::int AS total FROM brain_edges e
+    JOIN brain_words w ON w.id = e.from_id WHERE w.lang = ${from.lang}` as { total: number }[];
 
   return { ok: true, from: { id: from.id, display: from.display }, to, count: edge.count, total };
 }
@@ -115,22 +135,23 @@ function raw2display(raw: string): string {
     .slice(0, 40);
 }
 
-export async function getBrainStats(): Promise<BrainStats> {
+export async function getBrainStats(lang: BrainLang): Promise<BrainStats> {
   const sql = getDb();
   await ensure(sql);
   const [row] = await sql`SELECT
-    (SELECT COUNT(*)::int FROM brain_words) AS words,
-    (SELECT COUNT(*)::int FROM brain_edges) AS edges,
-    (SELECT COALESCE(SUM(count), 0)::int FROM brain_edges) AS total` as { words: number; edges: number; total: number }[];
+    (SELECT COUNT(*)::int FROM brain_words WHERE lang = ${lang}) AS words,
+    (SELECT COUNT(*)::int FROM brain_edges e JOIN brain_words w ON w.id = e.from_id WHERE w.lang = ${lang}) AS edges,
+    (SELECT COALESCE(SUM(e.count), 0)::int FROM brain_edges e JOIN brain_words w ON w.id = e.from_id WHERE w.lang = ${lang}) AS total` as { words: number; edges: number; total: number }[];
   return { ...row, goal: BRAIN_GOAL };
 }
 
 /** Mapa pro Researchera: nejsilnější synapse + jejich slova. */
-export async function getBrainMap(maxEdges = 600): Promise<BrainMapData> {
+export async function getBrainMap(lang: BrainLang, maxEdges = 600): Promise<BrainMapData> {
   const sql = getDb();
   await ensure(sql);
-  const edges = await sql`SELECT from_id AS a, to_id AS b, count FROM brain_edges
-    ORDER BY count DESC, updated_at DESC LIMIT ${maxEdges + 1}` as { a: number; b: number; count: number }[];
+  const edges = await sql`SELECT e.from_id AS a, e.to_id AS b, e.count FROM brain_edges e
+    JOIN brain_words w ON w.id = e.from_id WHERE w.lang = ${lang}
+    ORDER BY e.count DESC, e.updated_at DESC LIMIT ${maxEdges + 1}` as { a: number; b: number; count: number }[];
   const truncated = edges.length > maxEdges;
   if (truncated) edges.pop();
 
@@ -139,13 +160,14 @@ export async function getBrainMap(maxEdges = 600): Promise<BrainMapData> {
     ? await sql`SELECT id, display AS label, is_seed AS seed FROM brain_words WHERE id = ANY(${ids})` as { id: number; label: string; seed: boolean }[]
     : [];
 
-  const [{ total }] = await sql`SELECT COALESCE(SUM(count), 0)::int AS total FROM brain_edges` as { total: number }[];
+  const [{ total }] = await sql`SELECT COALESCE(SUM(e.count), 0)::int AS total FROM brain_edges e
+    JOIN brain_words w ON w.id = e.from_id WHERE w.lang = ${lang}` as { total: number }[];
   return { total, goal: BRAIN_GOAL, nodes, edges, truncated };
 }
 
 /* ── Admin (moderace) ──────────────────────────────────────────── */
 export type AdminBrainWord = {
-  id: number; display: string; is_seed: boolean; created_at: string;
+  id: number; display: string; is_seed: boolean; created_at: string; lang: string;
   out_n: number; in_n: number; strength: number;
 };
 
@@ -153,7 +175,7 @@ export async function adminListWords(q = ""): Promise<AdminBrainWord[]> {
   const sql = getDb();
   await ensure(sql);
   const like = `%${q.trim().toLocaleLowerCase("cs")}%`;
-  return await sql`SELECT w.id, w.display, w.is_seed, w.created_at::text AS created_at,
+  return await sql`SELECT w.id, w.display, w.is_seed, w.created_at::text AS created_at, w.lang,
       COALESCE(o.n, 0)::int AS out_n, COALESCE(i.n, 0)::int AS in_n,
       (COALESCE(o.s, 0) + COALESCE(i.s, 0))::int AS strength
     FROM brain_words w

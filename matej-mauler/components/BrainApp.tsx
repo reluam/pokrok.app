@@ -90,7 +90,9 @@ const T = {
    a asociace se píše přímo přes ni, text bez krabice na střed.
    ════════════════════════════════════════════════════════════════ */
 export function BrainApp({ lang }: { lang: Lang }) {
-  const t = T[lang];
+  // jazyk appky: default podle hlavní stránky, ale jde přepnout kdykoliv a kdekoliv
+  const [appLang, setAppLang] = useState<Lang>(lang);
+  const t = T[appLang];
   const [mode, setMode] = useState<Mode>("explore");
   const [stats, setStats] = useState<Stats | null>(null);
   const [map, setMap] = useState<MapData | null>(null);
@@ -104,32 +106,34 @@ export function BrainApp({ lang }: { lang: Lang }) {
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const loadMap = () => {
-    fetch("/api/brain/map").then((r) => r.ok ? r.json() : null)
+  const loadMap = (l: Lang) => {
+    fetch(`/api/brain/map?lang=${l}`).then((r) => r.ok ? r.json() : null)
       .then((m) => { if (m) setMap(m); })
       .catch(() => {});
   };
 
-  const fetchWord = async (notId?: number) => {
+  const fetchWord = async (l: Lang, notId?: number) => {
     setWord(null); setErr(null);
     try {
-      const r = await fetch(`/api/brain/word${notId ? `?not=${notId}` : ""}`);
+      const r = await fetch(`/api/brain/word?lang=${l}${notId ? `&not=${notId}` : ""}`);
       const j = await r.json();
       if (j.word) setWord(j.word);
-    } catch { setErr(T[lang].errNet); }
+    } catch { setErr(T[l].errNet); }
   };
 
   useEffect(() => {
-    fetch("/api/brain/stats").then((r) => r.ok ? r.json() : null).then((s) => s && setStats(s)).catch(() => {});
-    loadMap();
-    // fetchWord resetuje word synchronně — odložit mimo tělo efektu
-    const id = requestAnimationFrame(() => { fetchWord(); });
+    // celé načtení (i reset při přepnutí jazyka) mimo tělo efektu — žádný synchronní setState
+    const id = requestAnimationFrame(() => {
+      setMap(null); setLast(null); setErr(null); setInput("");
+      fetch(`/api/brain/stats?lang=${appLang}`).then((r) => r.ok ? r.json() : null).then((s) => s && setStats(s)).catch(() => {});
+      loadMap(appLang);
+      fetchWord(appLang);
+    });
     return () => cancelAnimationFrame(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [appLang]);
 
   const enterMap = () => {
-    if (dirty.current) { dirty.current = false; loadMap(); }
+    if (dirty.current) { dirty.current = false; loadMap(appLang); }
     if (map && map.total < map.goal) setMode("gate");
     else setMode("map");
   };
@@ -226,7 +230,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
             )}
 
             <div style={{ marginTop: 30, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-              <button onClick={() => { setLast(null); fetchWord(word?.id); inputRef.current?.focus(); }} style={{
+              <button onClick={() => { setLast(null); fetchWord(appLang, word?.id); inputRef.current?.focus(); }} style={{
                 background: "#fff", border: "2px solid var(--border)", borderRadius: 999,
                 padding: "8px 18px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer",
                 color: "var(--text-primary)", boxShadow: "3px 3px 0 var(--shadow)",
@@ -244,6 +248,19 @@ export function BrainApp({ lang }: { lang: Lang }) {
           </p>
         </div>
       )}
+
+      {/* ── přepínač jazyka sítě — kdykoliv, kdekoliv; default podle hlavní stránky ── */}
+      <div style={{ position: "absolute", right: 16, bottom: 12, zIndex: 30, display: "flex", gap: 6 }}>
+        {(["cs", "en"] as const).map((l) => (
+          <button key={l} onClick={() => setAppLang(l)} aria-label={l === "cs" ? "Čeština" : "English"} style={{
+            background: appLang === l ? "var(--text-primary)" : "#fff",
+            color: appLang === l ? "var(--bg)" : "var(--text-primary)",
+            border: "2px solid var(--border)", borderRadius: 999, padding: "5px 12px",
+            ...sans, fontSize: 11.5, fontWeight: 700, cursor: "pointer",
+            boxShadow: "2px 2px 0 var(--shadow)",
+          }}>{l.toUpperCase()}</button>
+        ))}
+      </div>
 
       {/* ── gate: síť je moc malá na mapu — taky jen text na střed ── */}
       {mode === "gate" && map && (

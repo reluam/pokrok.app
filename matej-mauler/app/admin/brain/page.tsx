@@ -14,7 +14,7 @@ async function getData() {
     drafts = rows.length - published;
   } catch {}
   try {
-    const s = await getBrainStats();
+    const s = await getBrainStats("cs");
     words = s.words; edges = s.edges; total = s.total;
     list = await adminListWords();
   } catch {}
