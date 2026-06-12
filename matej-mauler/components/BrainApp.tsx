@@ -19,8 +19,8 @@ const sans: React.CSSProperties = { fontFamily: "var(--font-sans)" };
 
 /* ── tmavá neurální paleta — schválně úplně jiný svět než hlavní stránka ── */
 const INK = "#0d0a18";          // pozadí hlubin
-const GLASS = "rgba(21,16,36,0.82)";
-const GLASS_BORDER = "1px solid rgba(167,139,250,0.28)";
+const PANEL = "#151024";        // matná plocha modálů — stejný svět jako mapa
+const PANEL_BORDER = "1px solid rgba(236,233,246,0.13)";
 const TEXT = "#ece9f6";
 const TEXT_DIM = "rgba(236,233,246,0.6)";
 const TEXT_FAINT = "rgba(236,233,246,0.4)";
@@ -28,16 +28,14 @@ const PINK = "#f472b6";         // odchozí synapse
 const SKY = "#7dd3fc";          // příchozí synapse
 const VIOLET = "#a78bfa";       // klidové nudle
 
-const glassCard: React.CSSProperties = {
-  background: GLASS, border: GLASS_BORDER, borderRadius: 22,
-  boxShadow: "0 0 60px rgba(167,139,250,0.14), 0 18px 50px rgba(0,0,0,0.55)",
-  backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+const matteCard: React.CSSProperties = {
+  background: PANEL, border: PANEL_BORDER, borderRadius: 22,
+  boxShadow: "0 16px 44px rgba(0,0,0,0.5)",
 };
 const primaryBtn: React.CSSProperties = {
-  background: `linear-gradient(100deg, ${PINK}, ${VIOLET})`, color: "#160f23",
+  background: PINK, color: "#160f23",
   border: "none", borderRadius: 12, padding: "13px 20px",
   ...sans, fontSize: 14, fontWeight: 700, cursor: "pointer",
-  boxShadow: "0 4px 24px rgba(244,114,182,0.35)",
 };
 const ghostBtn: React.CSSProperties = {
   background: "rgba(236,233,246,0.07)", color: TEXT, border: "1px solid rgba(236,233,246,0.18)",
@@ -220,7 +218,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       {/* ── overlaye nad mapou ── */}
       {mode === "menu" && (
         <div style={overlayWrap}>
-          <div style={{ ...glassCard, maxWidth: 680, width: "100%", padding: "clamp(28px, 5vw, 44px)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
+          <div style={{ ...matteCard, maxWidth: 680, width: "100%", padding: "clamp(28px, 5vw, 44px)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
             <Link href="/" style={{ ...sans, fontSize: 12.5, color: TEXT_FAINT, textDecoration: "none" }}>{t.back}</Link>
             <h1 style={{ ...display, fontSize: "clamp(34px,6.5vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: "14px 0 10px", color: "#fff" }}>
               ⚡ {t.title}
@@ -236,8 +234,8 @@ export function BrainApp({ lang }: { lang: Lang }) {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 14, marginTop: 28 }}>
               <button onClick={() => enterExplorer()} className="syn-card" style={{
                 textAlign: "left", cursor: "pointer",
-                background: "linear-gradient(135deg, rgba(244,114,182,0.16), rgba(244,114,182,0.05))",
-                border: "1px solid rgba(244,114,182,0.4)", borderRadius: 18,
+                background: "rgba(244,114,182,0.09)",
+                border: "1px solid rgba(244,114,182,0.35)", borderRadius: 18,
                 padding: "22px 22px 18px", display: "flex", flexDirection: "column", gap: 9, color: TEXT,
                 transition: "transform 140ms ease, box-shadow 140ms ease",
               }}>
@@ -249,8 +247,8 @@ export function BrainApp({ lang }: { lang: Lang }) {
 
               <button onClick={enterMap} className="syn-card" style={{
                 textAlign: "left", cursor: "pointer",
-                background: "linear-gradient(135deg, rgba(125,211,252,0.14), rgba(125,211,252,0.04))",
-                border: "1px solid rgba(125,211,252,0.38)", borderRadius: 18,
+                background: "rgba(125,211,252,0.08)",
+                border: "1px solid rgba(125,211,252,0.33)", borderRadius: 18,
                 padding: "22px 22px 18px", display: "flex", flexDirection: "column", gap: 9, color: TEXT,
                 transition: "transform 140ms ease, box-shadow 140ms ease",
               }}>
@@ -261,13 +259,13 @@ export function BrainApp({ lang }: { lang: Lang }) {
               </button>
             </div>
           </div>
-          <style>{`.syn-card:hover { transform: translateY(-2px); box-shadow: 0 10px 38px rgba(167,139,250,0.22); }`}</style>
+          <style>{`.syn-card:hover { transform: translateY(-2px); filter: brightness(1.18); }`}</style>
         </div>
       )}
 
       {mode === "explorer" && (
         <div style={overlayWrap}>
-          <div style={{ ...glassCard, maxWidth: 600, width: "100%", padding: "clamp(26px, 5vw, 38px)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
+          <div style={{ ...matteCard, maxWidth: 600, width: "100%", padding: "clamp(26px, 5vw, 38px)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
               <button onClick={() => setMode("menu")} style={{ ...sans, fontSize: 12.5, color: TEXT_FAINT, background: "none", border: "none", cursor: "pointer", padding: 0 }}>{t.menu}</button>
               <span style={{ ...sans, fontSize: 11, color: PINK, textTransform: "uppercase", letterSpacing: "0.2em" }}>🧭 {t.explorerTitle}</span>
@@ -328,14 +326,14 @@ export function BrainApp({ lang }: { lang: Lang }) {
 
       {mode === "gate" && map && (
         <div style={overlayWrap}>
-          <div style={{ ...glassCard, maxWidth: 460, width: "100%", padding: "36px 32px", textAlign: "center" }}>
+          <div style={{ ...matteCard, maxWidth: 460, width: "100%", padding: "36px 32px", textAlign: "center" }}>
             <span style={{ fontSize: 42, display: "block", marginBottom: 12 }}>🐣</span>
             <h2 style={{ ...display, fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 10px", color: "#fff" }}>{t.gateTitle}</h2>
             <p style={{ ...sans, fontSize: 14, color: TEXT_DIM, lineHeight: 1.6, margin: "0 0 18px" }}>
               {t.gateText(map.total, map.goal)}
             </p>
             <div style={{ background: "rgba(13,10,24,0.7)", border: "1px solid rgba(167,139,250,0.3)", borderRadius: 999, height: 16, overflow: "hidden", marginBottom: 24 }}>
-              <div style={{ width: `${Math.max(1.5, Math.min(100, (map.total / map.goal) * 100))}%`, height: "100%", background: `linear-gradient(90deg, ${PINK}, ${VIOLET})` }} />
+              <div style={{ width: `${Math.max(1.5, Math.min(100, (map.total / map.goal) * 100))}%`, height: "100%", background: PINK }} />
             </div>
             <button onClick={() => enterExplorer()} style={{ ...primaryBtn, display: "block", width: "100%", marginBottom: 14 }}>{t.gateGo}</button>
             {map.edges.length > 0 && (
@@ -704,7 +702,7 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
             display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
             pointerEvents: "none",
           }}>
-            <button onClick={onMenu} style={{ ...ghostBtn, pointerEvents: "auto", background: GLASS, backdropFilter: "blur(10px)" }}>{t.menu}</button>
+            <button onClick={onMenu} style={{ ...ghostBtn, pointerEvents: "auto", background: PANEL }}>{t.menu}</button>
             <div style={{ textAlign: "right" }}>
               <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0, color: "#fff" }}>⚡ {t.title} · 🔬 {t.researcherTitle}</p>
               <p style={{ ...sans, fontSize: 11, color: TEXT_FAINT, margin: "2px 0 0" }}>
@@ -723,7 +721,7 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
       {/* detail slova */}
       {chrome && selected && detail && (
         <div style={{
-          ...glassCard,
+          ...matteCard,
           position: "absolute", top: 70, right: 16, width: 244, maxHeight: "calc(100dvh - 140px)", overflowY: "auto",
           borderRadius: 16, padding: "16px 18px",
         }}>
