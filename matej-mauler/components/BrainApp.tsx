@@ -18,27 +18,27 @@ const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const sans: React.CSSProperties = { fontFamily: "var(--font-sans)" };
 
 /* ── tmavá neurální paleta — schválně úplně jiný svět než hlavní stránka ── */
-const INK = "#0d0a18";          // pozadí hlubin
-const PANEL = "#151024";        // matná plocha modálů — stejný svět jako mapa
-const PANEL_BORDER = "1px solid rgba(236,233,246,0.13)";
-const TEXT = "#ece9f6";
-const TEXT_DIM = "rgba(236,233,246,0.6)";
-const TEXT_FAINT = "rgba(236,233,246,0.4)";
-const PINK = "#f472b6";         // odchozí synapse
-const SKY = "#7dd3fc";          // příchozí synapse
-const VIOLET = "#a78bfa";       // klidové nudle
+const INK = "#f3f1fa";          // světlé levandulové pozadí
+const PANEL = "#ffffff";        // matná plocha modálů — stejný svět jako mapa
+const PANEL_BORDER = "1px solid rgba(29,24,48,0.13)";
+const TEXT = "#1d1830";
+const TEXT_DIM = "rgba(29,24,48,0.64)";
+const TEXT_FAINT = "rgba(29,24,48,0.44)";
+const PINK = "#db2777";         // odchozí synapse
+const SKY = "#0284c7";          // příchozí synapse
+const VIOLET = "#7c5cd6";       // klidové nudle
 
 const matteCard: React.CSSProperties = {
   background: PANEL, border: PANEL_BORDER, borderRadius: 22,
-  boxShadow: "0 16px 44px rgba(0,0,0,0.5)",
+  boxShadow: "0 14px 38px rgba(29,24,48,0.14)",
 };
 const primaryBtn: React.CSSProperties = {
-  background: PINK, color: "#160f23",
+  background: PINK, color: "#130e26",
   border: "none", borderRadius: 12, padding: "13px 20px",
   ...sans, fontSize: 14, fontWeight: 700, cursor: "pointer",
 };
 const ghostBtn: React.CSSProperties = {
-  background: "rgba(236,233,246,0.07)", color: TEXT, border: "1px solid rgba(236,233,246,0.18)",
+  background: "rgba(29,24,48,0.05)", color: TEXT, border: "1px solid rgba(29,24,48,0.16)",
   borderRadius: 999, padding: "8px 16px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer",
 };
 
@@ -205,7 +205,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       {/* ── mapa na pozadí — od první vteřiny, pod modálem rozmazaná ── */}
       <div style={{
         position: "absolute", inset: 0,
-        filter: overlay ? "blur(11px) brightness(0.6) saturate(1.15)" : "none",
+        filter: overlay ? "blur(12px) saturate(1.05)" : "none",
         transform: overlay ? "scale(1.04)" : "none",
         transition: "filter 700ms ease, transform 700ms ease",
         pointerEvents: overlay ? "none" : "auto",
@@ -220,7 +220,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
         <div style={overlayWrap}>
           <div style={{ ...matteCard, maxWidth: 680, width: "100%", padding: "clamp(28px, 5vw, 44px)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
             <Link href="/" style={{ ...sans, fontSize: 12.5, color: TEXT_FAINT, textDecoration: "none" }}>{t.back}</Link>
-            <h1 style={{ ...display, fontSize: "clamp(34px,6.5vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: "14px 0 10px", color: "#fff" }}>
+            <h1 style={{ ...display, fontSize: "clamp(34px,6.5vw,52px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.05, margin: "14px 0 10px", color: "#130e26" }}>
               ⚡ {t.title}
             </h1>
             <p style={{ ...display, fontStyle: "italic", fontSize: 17, margin: "0 0 10px", color: TEXT }}>{t.tagline}</p>
@@ -234,32 +234,32 @@ export function BrainApp({ lang }: { lang: Lang }) {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 14, marginTop: 28 }}>
               <button onClick={() => enterExplorer()} className="syn-card" style={{
                 textAlign: "left", cursor: "pointer",
-                background: "rgba(244,114,182,0.09)",
-                border: "1px solid rgba(244,114,182,0.35)", borderRadius: 18,
+                background: "rgba(219,39,119,0.06)",
+                border: "1px solid rgba(219,39,119,0.3)", borderRadius: 18,
                 padding: "22px 22px 18px", display: "flex", flexDirection: "column", gap: 9, color: TEXT,
                 transition: "transform 140ms ease, box-shadow 140ms ease",
               }}>
                 <span style={{ fontSize: 30, lineHeight: 1 }}>🧭</span>
-                <span style={{ ...display, fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", color: "#fff" }}>{t.explorerTitle}</span>
+                <span style={{ ...display, fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", color: "#130e26" }}>{t.explorerTitle}</span>
                 <span style={{ ...sans, fontSize: 13, color: TEXT_DIM, lineHeight: 1.55 }}>{t.explorerDesc}</span>
                 <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: PINK }}>{t.explorerCta}</span>
               </button>
 
               <button onClick={enterMap} className="syn-card" style={{
                 textAlign: "left", cursor: "pointer",
-                background: "rgba(125,211,252,0.08)",
-                border: "1px solid rgba(125,211,252,0.33)", borderRadius: 18,
+                background: "rgba(2,132,199,0.05)",
+                border: "1px solid rgba(2,132,199,0.28)", borderRadius: 18,
                 padding: "22px 22px 18px", display: "flex", flexDirection: "column", gap: 9, color: TEXT,
                 transition: "transform 140ms ease, box-shadow 140ms ease",
               }}>
                 <span style={{ fontSize: 30, lineHeight: 1 }}>🔬</span>
-                <span style={{ ...display, fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", color: "#fff" }}>{t.researcherTitle}</span>
+                <span style={{ ...display, fontSize: 21, fontWeight: 700, letterSpacing: "-0.02em", color: "#130e26" }}>{t.researcherTitle}</span>
                 <span style={{ ...sans, fontSize: 13, color: TEXT_DIM, lineHeight: 1.55 }}>{t.researcherDesc}</span>
                 <span style={{ ...sans, fontSize: 13, fontWeight: 700, color: SKY }}>{t.researcherCta}</span>
               </button>
             </div>
           </div>
-          <style>{`.syn-card:hover { transform: translateY(-2px); filter: brightness(1.18); }`}</style>
+          <style>{`.syn-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(29,24,48,0.12); }`}</style>
         </div>
       )}
 
@@ -272,7 +272,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
             </div>
 
             <p style={{ ...sans, fontSize: 13, color: TEXT_FAINT, margin: "26px 0 0" }}>{t.prompt}</p>
-            <p style={{ ...display, fontSize: "clamp(32px,6.5vw,48px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "8px 0 22px", minHeight: "1.1em", color: "#fff" }}>
+            <p style={{ ...display, fontSize: "clamp(32px,6.5vw,48px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "8px 0 22px", minHeight: "1.1em", color: "#130e26" }}>
               {word ? word.display : <span style={{ opacity: 0.4, fontSize: 17, ...sans, fontWeight: 400 }}>{t.loadingWord}</span>}
             </p>
 
@@ -285,7 +285,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
                 autoFocus
                 maxLength={60}
                 style={{
-                  flex: 1, minWidth: 190, background: "rgba(13,10,24,0.7)", border: "1px solid rgba(167,139,250,0.35)",
+                  flex: 1, minWidth: 190, background: "#f6f4fb", border: "1px solid rgba(124,92,214,0.4)",
                   borderRadius: 12, padding: "13px 16px", ...sans, fontSize: 16,
                   color: TEXT, outline: "none",
                 }}
@@ -296,11 +296,11 @@ export function BrainApp({ lang }: { lang: Lang }) {
               }}>{t.send}</button>
             </form>
 
-            {err && <p style={{ ...sans, fontSize: 13, color: "#fda4af", margin: "12px 0 0" }}>{err}</p>}
+            {err && <p style={{ ...sans, fontSize: 13, color: "#b91c1c", margin: "12px 0 0" }}>{err}</p>}
 
             {last && !err && (
               <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px dashed rgba(236,233,246,0.22)" }}>
-                <p style={{ ...sans, fontSize: 14, fontWeight: 600, margin: 0, color: "#fff" }}>
+                <p style={{ ...sans, fontSize: 14, fontWeight: 600, margin: 0, color: "#130e26" }}>
                   {last.count > 1 ? t.savedAgain(last.from, last.to.display, last.count) : t.savedNew(last.from, last.to.display)}
                 </p>
                 <p style={{ ...sans, fontSize: 12.5, color: TEXT_FAINT, margin: "6px 0 0" }}>{t.afterSave}</p>
@@ -310,7 +310,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
             <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
               {last && (
                 <button onClick={() => { setWord(last.to); setLast(null); setErr(null); inputRef.current?.focus(); }} style={{
-                  ...ghostBtn, borderColor: "rgba(244,114,182,0.45)", color: "#fbcfe8",
+                  ...ghostBtn, borderColor: "rgba(219,39,119,0.4)", color: "#9d174d",
                 }}>{t.chain(last.to.display)}</button>
               )}
               <button onClick={() => { setLast(null); fetchWord(word?.id); inputRef.current?.focus(); }} style={ghostBtn}>{t.dice}</button>
@@ -328,11 +328,11 @@ export function BrainApp({ lang }: { lang: Lang }) {
         <div style={overlayWrap}>
           <div style={{ ...matteCard, maxWidth: 460, width: "100%", padding: "36px 32px", textAlign: "center" }}>
             <span style={{ fontSize: 42, display: "block", marginBottom: 12 }}>🐣</span>
-            <h2 style={{ ...display, fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 10px", color: "#fff" }}>{t.gateTitle}</h2>
+            <h2 style={{ ...display, fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 10px", color: "#130e26" }}>{t.gateTitle}</h2>
             <p style={{ ...sans, fontSize: 14, color: TEXT_DIM, lineHeight: 1.6, margin: "0 0 18px" }}>
               {t.gateText(map.total, map.goal)}
             </p>
-            <div style={{ background: "rgba(13,10,24,0.7)", border: "1px solid rgba(167,139,250,0.3)", borderRadius: 999, height: 16, overflow: "hidden", marginBottom: 24 }}>
+            <div style={{ background: "#f1eef9", border: "1px solid rgba(124,92,214,0.3)", borderRadius: 999, height: 16, overflow: "hidden", marginBottom: 24 }}>
               <div style={{ width: `${Math.max(1.5, Math.min(100, (map.total / map.goal) * 100))}%`, height: "100%", background: PINK }} />
             </div>
             <button onClick={() => enterExplorer()} style={{ ...primaryBtn, display: "block", width: "100%", marginBottom: 14 }}>{t.gateGo}</button>
@@ -364,9 +364,9 @@ function IdleField() {
     <div style={{
       position: "absolute", inset: 0,
       background: `
-        radial-gradient(420px 300px at 28% 30%, rgba(167,139,250,0.16), transparent 70%),
-        radial-gradient(360px 280px at 72% 62%, rgba(244,114,182,0.12), transparent 70%),
-        radial-gradient(300px 240px at 55% 20%, rgba(125,211,252,0.1), transparent 70%),
+        radial-gradient(420px 300px at 28% 30%, rgba(124,92,214,0.14), transparent 70%),
+        radial-gradient(360px 280px at 72% 62%, rgba(219,39,119,0.09), transparent 70%),
+        radial-gradient(300px 240px at 55% 20%, rgba(2,132,199,0.08), transparent 70%),
         ${INK}`,
     }} />
   );
@@ -512,7 +512,7 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
       const w = cv.clientWidth, h = cv.clientHeight;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const g = ctx.createRadialGradient(w * 0.4, h * 0.32, 0, w * 0.4, h * 0.32, Math.max(w, h));
-      g.addColorStop(0, "#1c1432"); g.addColorStop(0.75, "#0d0a18");
+      g.addColorStop(0, "#fbfaff"); g.addColorStop(0.75, "#eae7f4");
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
 
       ctx.setTransform(dpr * view.scale, 0, 0, dpr * view.scale, dpr * view.tx, dpr * view.ty);
@@ -529,9 +529,9 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
         const hot = isOut || isIn;
         if (hot) {
           // směr: odchozí růžová, příchozí blankytná
-          ctx.strokeStyle = isOut ? "rgba(244, 114, 182, 0.95)" : "rgba(125, 211, 252, 0.9)";
+          ctx.strokeStyle = isOut ? "rgba(219, 39, 119, 0.92)" : "rgba(2, 132, 199, 0.85)";
         } else {
-          ctx.strokeStyle = `rgba(167, 139, 250, ${hotId !== null ? 0.05 + 0.08 * norm : 0.16 + 0.4 * norm})`;
+          ctx.strokeStyle = `rgba(124, 92, 214, ${hotId !== null ? 0.06 + 0.09 * norm : 0.18 + 0.42 * norm})`;
         }
         ctx.lineWidth = (0.8 + 4.2 * norm) * (hot ? 1.25 : 1);
         ctx.lineCap = "round";
@@ -558,16 +558,16 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
         const hot = n.id === hotId;
         const dim = hotId !== null && !hot && !neighborIds.has(n.id);
         ctx.globalAlpha = hot ? 1 : dim ? 0.25 : 0.9;
-        ctx.fillStyle = hot ? "#ffffff" : "#ece9f6";
+        ctx.fillStyle = hot ? "#0f0a20" : "#241c3d";
         ctx.beginPath(); ctx.arc(n.x, n.y, hot ? n.r + 2 : n.r, 0, 7); ctx.fill();
         if (n.seed) {
-          ctx.strokeStyle = "rgba(244, 114, 182, 0.8)"; ctx.lineWidth = 1.6;
+          ctx.strokeStyle = "rgba(219, 39, 119, 0.7)"; ctx.lineWidth = 1.6;
           ctx.beginPath(); ctx.arc(n.x, n.y, (hot ? n.r + 2 : n.r) + 2.4, 0, 7); ctx.stroke();
         }
         const showLabel = hot || neighborIds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim));
         if (showLabel) {
           ctx.globalAlpha = hot ? 1 : 0.75;
-          ctx.fillStyle = hot ? "#ffffff" : "rgba(236,233,246,0.92)";
+          ctx.fillStyle = hot ? "#0f0a20" : "rgba(29,24,48,0.88)";
           ctx.font = `${hot ? 700 : 500} 11px ${getComputedStyle(document.body).fontFamily || "system-ui"}`;
           ctx.textAlign = "center";
           ctx.fillText(n.label, n.x, n.y + n.r + 14);
@@ -704,7 +704,7 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
           }}>
             <button onClick={onMenu} style={{ ...ghostBtn, pointerEvents: "auto", background: PANEL }}>{t.menu}</button>
             <div style={{ textAlign: "right" }}>
-              <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0, color: "#fff" }}>⚡ {t.title} · 🔬 {t.researcherTitle}</p>
+              <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0, color: "#130e26" }}>⚡ {t.title} · 🔬 {t.researcherTitle}</p>
               <p style={{ ...sans, fontSize: 11, color: TEXT_FAINT, margin: "2px 0 0" }}>
                 {t.mapLegend}{data.truncated ? ` · ${t.truncated}` : ""}
               </p>
@@ -726,11 +726,11 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
           borderRadius: 16, padding: "16px 18px",
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-            <p style={{ ...display, fontSize: 19, fontWeight: 700, margin: 0, wordBreak: "break-word", color: "#fff" }}>{selected.label}</p>
+            <p style={{ ...display, fontSize: 19, fontWeight: 700, margin: 0, wordBreak: "break-word", color: "#130e26" }}>{selected.label}</p>
             <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", cursor: "pointer", ...sans, fontSize: 14, color: TEXT_FAINT, padding: 0 }}>×</button>
           </div>
 
-          <p style={{ ...sans, fontSize: 10.5, color: "#f9a8d4", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.outLabel}</p>
+          <p style={{ ...sans, fontSize: 10.5, color: "#be185d", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.outLabel}</p>
           {detail.out.length === 0 && <p style={{ ...sans, fontSize: 12, color: TEXT_FAINT, margin: 0 }}>{t.nothing}</p>}
           {detail.out.map((o) => (
             <div key={`o${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 13, padding: "2px 0", color: TEXT }}>
@@ -739,7 +739,7 @@ function BrainMap({ data, lang, chrome, onMenu, onAssociate }: { data: MapData; 
             </div>
           ))}
 
-          <p style={{ ...sans, fontSize: 10.5, color: "#7dd3fc", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.inLabel}</p>
+          <p style={{ ...sans, fontSize: 10.5, color: "#0369a1", textTransform: "uppercase", letterSpacing: "0.08em", margin: "14px 0 6px" }}>{t.inLabel}</p>
           {detail.inn.length === 0 && <p style={{ ...sans, fontSize: 12, color: TEXT_FAINT, margin: 0 }}>{t.nothing}</p>}
           {detail.inn.map((o) => (
             <div key={`i${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 13, padding: "2px 0", color: TEXT }}>
