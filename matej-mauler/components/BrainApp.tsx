@@ -51,6 +51,9 @@ const T = {
     legendPos: "barva slova = slovní druh: modrá podst. jm. · červená sloveso · fialová příd. jm. · zelená příslovce · šedá ostatní",
     wordTip: (o: number, os: number, i: number, is_: number) => `${o} ven (×${os}) · ${i} dovnitř (×${is_})`,
     truncated: "Zobrazuju jen ~600 nejsilnějších synapsí.",
+    netWords: "slov v síti",
+    netAssoc: "asociací",
+    pickHint: "Klikni na slovo a tady se ukáže jeho detail.",
     outLabel: "kam vede →",
     inLabel: "→ co vede sem",
     associateThis: "✏️ Asociuj na tohle slovo",
@@ -88,6 +91,9 @@ const T = {
     legendPos: "word colour = part of speech: blue noun · red verb · violet adjective · green adverb · grey other",
     wordTip: (o: number, os: number, i: number, is_: number) => `${o} out (×${os}) · ${i} in (×${is_})`,
     truncated: "Showing only the ~600 strongest synapses.",
+    netWords: "words in the network",
+    netAssoc: "associations",
+    pickHint: "Click a word to see its detail here.",
     outLabel: "leads to →",
     inLabel: "→ comes from",
     associateThis: "✏️ Associate on this word",
@@ -185,7 +191,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       {/* ── mapa na pozadí — živá síť jako brána encyklopedie, jen kuličky bez popisků ── */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: overlay ? "none" : "auto" }}>
         {map && map.edges.length > 0
-          ? <BrainMap data={map} lang={appLang} chrome={mode === "map"} onBack={() => setMode("explore")} />
+          ? <BrainMap data={map} lang={appLang} chrome={mode === "map"} stats={stats} onBack={() => setMode("explore")} />
           : <IdleField />}
       </div>
 
@@ -405,7 +411,7 @@ function runSim(nodes: SimNode[], edges: SimEdge[], maxCount: number, ticks = 30
   }
 }
 
-function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; chrome: boolean; onBack: () => void }) {
+function BrainMap({ data, lang, chrome, stats, onBack }: { data: MapData; lang: Lang; chrome: boolean; stats: Stats | null; onBack: () => void }) {
   const t = T[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
@@ -906,33 +912,50 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
         </div>
       )}
 
-      {/* detail vybraného slova — napevno vlevo pod tlačítkem zpět, ať nepřekáží mapě */}
-      {chrome && selected && detail && (
+      {/* pravý sloupec — všechny proměnlivé informace: síť celkem + detail vybraného slova */}
+      {chrome && (
         <div style={{
-          position: "absolute", left: 18, top: 64, width: 210, maxHeight: "calc(100dvh - 140px)", overflowY: "auto",
-          pointerEvents: "none", zIndex: 20,
-          background: "rgba(255,253,246,0.92)", borderRadius: 10, padding: "12px 15px",
+          position: "absolute", right: 16, top: 56, width: 216, maxHeight: "calc(100dvh - 120px)", overflowY: "auto",
+          zIndex: 20, background: "rgba(255,253,246,0.92)", borderRadius: 12, padding: "14px 16px",
         }}>
-          <p style={{ ...display, fontSize: 17, fontWeight: 700, margin: 0, wordBreak: "break-word" }}>{selected.label}</p>
-
-          <p style={{ ...sans, fontSize: 10, color: "#b45309", textTransform: "uppercase", letterSpacing: "0.08em", margin: "10px 0 3px" }}>{t.outLabel}</p>
-          {detail.out.length === 0 && <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
-          {detail.out.map((o) => (
-            <div key={`o${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 12, padding: "1px 0" }}>
-              <span style={{ wordBreak: "break-word" }}>{o.label}</span>
-              <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
+          <div style={{ display: "flex", gap: 18 }}>
+            <div>
+              <p style={{ ...display, fontSize: 20, fontWeight: 800, margin: 0, lineHeight: 1.1 }}>{(stats?.words ?? data.nodes.length).toLocaleString(lang === "cs" ? "cs-CZ" : "en-GB")}</p>
+              <p style={{ ...sans, fontSize: 9.5, color: "var(--text-muted)", margin: "2px 0 0", textTransform: "uppercase", letterSpacing: "0.07em" }}>{t.netWords}</p>
             </div>
-          ))}
-
-          <p style={{ ...sans, fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", margin: "10px 0 3px" }}>{t.inLabel}</p>
-          {detail.inn.length === 0 && <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
-          {detail.inn.map((o) => (
-            <div key={`i${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 12, padding: "1px 0" }}>
-              <span style={{ wordBreak: "break-word" }}>{o.label}</span>
-              <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
+            <div>
+              <p style={{ ...display, fontSize: 20, fontWeight: 800, margin: 0, lineHeight: 1.1 }}>{(stats?.total ?? data.total).toLocaleString(lang === "cs" ? "cs-CZ" : "en-GB")}</p>
+              <p style={{ ...sans, fontSize: 9.5, color: "var(--text-muted)", margin: "2px 0 0", textTransform: "uppercase", letterSpacing: "0.07em" }}>{t.netAssoc}</p>
             </div>
-          ))}
+          </div>
 
+          <div style={{ borderTop: "1px dashed rgba(26,22,20,0.18)", margin: "12px 0" }} />
+
+          {!selected || !detail ? (
+            <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0, lineHeight: 1.55 }}>{t.pickHint}</p>
+          ) : (
+            <>
+              <p style={{ ...display, fontSize: 17, fontWeight: 700, margin: 0, wordBreak: "break-word" }}>{selected.label}</p>
+
+              <p style={{ ...sans, fontSize: 10, color: "#b45309", textTransform: "uppercase", letterSpacing: "0.08em", margin: "10px 0 3px" }}>{t.outLabel}</p>
+              {detail.out.length === 0 && <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
+              {detail.out.map((o) => (
+                <div key={`o${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 12, padding: "1px 0" }}>
+                  <span style={{ wordBreak: "break-word" }}>{o.label}</span>
+                  <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
+                </div>
+              ))}
+
+              <p style={{ ...sans, fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", margin: "10px 0 3px" }}>{t.inLabel}</p>
+              {detail.inn.length === 0 && <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0 }}>{t.nothing}</p>}
+              {detail.inn.map((o) => (
+                <div key={`i${o.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, ...sans, fontSize: 12, padding: "1px 0" }}>
+                  <span style={{ wordBreak: "break-word" }}>{o.label}</span>
+                  <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>
