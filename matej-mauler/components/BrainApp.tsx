@@ -122,7 +122,9 @@ export function BrainApp({ lang }: { lang: Lang }) {
   useEffect(() => {
     fetch("/api/brain/stats").then((r) => r.ok ? r.json() : null).then((s) => s && setStats(s)).catch(() => {});
     loadMap();
-    fetchWord();
+    // fetchWord resetuje word synchronně — odložit mimo tělo efektu
+    const id = requestAnimationFrame(() => { fetchWord(); });
+    return () => cancelAnimationFrame(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
