@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 556 556" fill="none">
+  <g stroke="#141414" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <!-- zamotané klubko -->
+    <ellipse cx="255" cy="250" rx="115" ry="82" transform="rotate(12 255 250)"/>
+    <ellipse cx="255" cy="305" rx="125" ry="78" transform="rotate(-18 255 305)"/>
+    <ellipse cx="235" cy="285" rx="88" ry="108" transform="rotate(35 235 285)"/>
+    <ellipse cx="290" cy="275" rx="96" ry="96" transform="rotate(-42 290 275)"/>
+    <ellipse cx="255" cy="295" rx="135" ry="62" transform="rotate(62 255 295)"/>
+    <ellipse cx="245" cy="300" rx="70" ry="115" transform="rotate(5 245 300)"/>
+    <!-- volný konec nahoru vpravo s háčkem -->
+    <path d="M360 205 C430 150 470 130 480 75 C486 48 512 60 500 96 C495 114 477 110 481 94"/>
+    <!-- volný konec dolů vlevo -->
+    <path d="M165 395 C110 420 70 435 38 460"/>
+  </g>
+  <!-- oči -->
+  <rect x="234" y="262" width="13" height="42" rx="6.5" fill="#141414"/>
+  <rect x="278" y="262" width="13" height="42" rx="6.5" fill="#141414"/>
+</svg>
