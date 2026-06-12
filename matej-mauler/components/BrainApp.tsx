@@ -362,7 +362,7 @@ function buildSim(data: MapData): { nodes: SimNode[]; edges: SimEdge[]; maxCount
     const r = 40 + hash01(n.id, 1) * spread;
     n.x = Math.cos(a) * r;
     n.y = Math.sin(a) * r;
-    n.r = 3 + 3.5 * Math.sqrt(n.strength / maxStrength); // malé kuličky jako v encyklopedii
+    n.r = 3 + 2.5 * Math.sqrt(n.strength / maxStrength); // screen px — jako tečky v encyklopedii
   });
   return { nodes, edges, maxCount, maxStrength };
 }
@@ -571,9 +571,10 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
 
       const bg = !chromeRef.current; // mapa jako živé pozadí asociací
       const nowF = performance.now() / 1000;
-      for (const n of nodes) { // jemné plutí jako na bráně
-        n.fx = n.x + Math.sin(nowF * n.fsp + n.fph) * 4.5;
-        n.fy = n.y + Math.cos(nowF * n.fsp + n.fph) * 4.5;
+      const px1 = 1 / view.scale; // 1 screen px ve světových jednotkách — vše kreslíme v pevných px jako encyklopedie
+      for (const n of nodes) { // jemné plutí jen na pozadí; v Researcheru uzly stojí
+        n.fx = bg ? n.x + Math.sin(nowF * n.fsp + n.fph) * 4.5 : n.x;
+        n.fy = bg ? n.y + Math.cos(nowF * n.fsp + n.fph) * 4.5 : n.y;
       }
       // v pozadí asociací nechat střed čistý pro text — útlum podle vzdálenosti od středu obrazovky
       const cwx = (w / 2 - view.tx) / view.scale, cwy = (h / 2 - view.ty) / view.scale;
@@ -604,13 +605,13 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
         } else {
           col = `rgba(176, 124, 24, ${(dimS ? 0.07 + 0.1 * st.norm : 0.16 + 0.4 * st.norm) * cf})`;
         }
-        const lw = (0.7 + 2.6 * st.norm) * (hot || hovS ? 1.3 : 1);
+        const lw = (0.8 + 1.6 * st.norm) * (hot || hovS ? 1.35 : 1) * px1; // screen px
         ctx.strokeStyle = col;
         ctx.lineWidth = lw;
         ctx.lineCap = "round";
 
         const { dx, dy, d, px, py, bow } = strandGeom(st);
-        const wobAmp = Math.min(9, d * 0.07); // houpání úměrné délce nudle
+        const wobAmp = bg ? Math.min(9, d * 0.07) : 0; // houpe se jen pozadí asociací, Researcher stojí
         const w1 = Math.sin(now * st.sp + st.ph) * wobAmp;
         const w2 = Math.sin(now * st.sp * 1.27 + st.ph + 2.1) * wobAmp;
         const c1x = A.fx + dx / 3 + px * (bow * 0.9 + st.o1 * 6 + w1);
@@ -634,13 +635,13 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
             };
           };
           ctx.strokeStyle = hot || hovS ? col : `rgba(176, 124, 24, ${(dimS ? 0.22 : 0.7) * cf})`;
-          const span = 0.055, steps = 8;
+          const span = 0.045, steps = 8;
           let prev = pt(Math.max(0, tBall - span));
           for (let k = 1; k <= steps; k++) {
             const tk = Math.min(1, Math.max(0, tBall - span + (2 * span * k) / steps));
             const cur2 = pt(tk);
             const gss = Math.exp(-(((k - steps / 2) / (steps / 3.2)) ** 2));
-            ctx.lineWidth = lw + (2.2 + 2.4 * st.norm) * gss;
+            ctx.lineWidth = lw + (1.7 + 1.5 * st.norm) * gss * px1;
             ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(cur2.x, cur2.y); ctx.stroke();
             prev = cur2;
           }
@@ -660,20 +661,21 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
         const dim = hotId !== null && !hot && !neighborIds.has(n.id);
         const cf = clear(n.fx, n.fy);
         if (cf <= 0.02) continue;
+        const r = (hot ? n.r + 2 : n.r) * px1;
         ctx.globalAlpha = (hot ? 1 : dim ? 0.25 : 0.9) * cf;
         ctx.fillStyle = POS_COL[n.pos ?? ""] ?? POS_COL.other; // barva = slovní druh
-        ctx.beginPath(); ctx.arc(n.fx, n.fy, hot ? n.r + 2 : n.r, 0, 7); ctx.fill();
+        ctx.beginPath(); ctx.arc(n.fx, n.fy, r, 0, 7); ctx.fill();
         if (n.seed) {
-          ctx.strokeStyle = `rgba(176, 124, 24, ${0.85 * cf})`; ctx.lineWidth = 1.3;
-          ctx.beginPath(); ctx.arc(n.fx, n.fy, (hot ? n.r + 2 : n.r) + 2.2, 0, 7); ctx.stroke();
+          ctx.strokeStyle = `rgba(176, 124, 24, ${0.85 * cf})`; ctx.lineWidth = 1.2 * px1;
+          ctx.beginPath(); ctx.arc(n.fx, n.fy, r + 2.2 * px1, 0, 7); ctx.stroke();
         }
         const showLabel = !bg && (hot || neighborIds.has(n.id) || hsEnds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim)));
         if (showLabel) {
-          ctx.globalAlpha = hot ? 1 : 0.82;
+          ctx.globalAlpha = hot ? 1 : 0.85;
           ctx.fillStyle = "#1a1614";
-          ctx.font = `${hot ? 700 : 500} 10px system-ui`;
+          ctx.font = `${hot ? 700 : 500} ${10 * px1}px system-ui`;
           ctx.textAlign = "center";
-          ctx.fillText(n.label, n.fx, n.fy + n.r + 12);
+          ctx.fillText(n.label, n.fx, n.fy + r + 11 * px1);
         }
         ctx.globalAlpha = 1;
       }
@@ -763,7 +765,7 @@ function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; c
       let best: SimNode | null = null, bestD = Infinity;
       for (const n of nodes) {
         const d = Math.hypot(n.fx - p.x, n.fy - p.y);
-        if (d < Math.max(14 / view.scale, n.r + 8) && d < bestD) { best = n; bestD = d; }
+        if (d < Math.max(14, n.r + 8) / view.scale && d < bestD) { best = n; bestD = d; }
       }
       return best;
     };
