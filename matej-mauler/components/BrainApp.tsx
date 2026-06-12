@@ -431,16 +431,23 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       if (e.a === i) rec.ab += e.count; else rec.ba += e.count;
       pairs.set(k, rec);
     }
-    type Flow = { a: number; b: number; speed: number; phase: number; norm: number };
-    const flows: Flow[] = [];
+    // jedna špageta na dvojici slov — s vlastním rozcuchem a tempem houpání (jako v encyklopedii)
+    type Strand = { a: number; b: number; norm: number; side: number; o1: number; o2: number; ph: number; sp: number; dirAB: boolean; speed: number; fphase: number };
+    const strands: Strand[] = [];
     for (const r of pairs.values()) {
       const hi = Math.max(r.ab, r.ba), lo = Math.min(r.ab, r.ba);
       if (hi === 0) continue;
-      const speed = (hi - lo) / hi;
-      if (speed <= 0.001) continue; // vyrovnané směry netečou
-      const a = r.ab >= r.ba ? r.i : r.j;
-      const b = r.ab >= r.ba ? r.j : r.i;
-      flows.push({ a, b, speed, phase: hash01(a * 31 + b * 17, 5), norm: Math.sqrt(hi / maxCount) });
+      const seed = r.i * 31 + r.j * 17;
+      strands.push({
+        a: r.i, b: r.j,
+        norm: Math.sqrt(hi / maxCount),
+        side: (r.i + r.j) % 2 === 0 ? 1 : -1,
+        o1: (hash01(seed, 2) - 0.5) * 2, o2: (hash01(seed, 3) - 0.5) * 2,
+        ph: hash01(seed, 4) * 6.28, sp: 0.45 + hash01(seed, 6) * 0.75,
+        dirAB: r.ab >= r.ba,
+        speed: (hi - lo) / hi, // 100:0 → 1, 100:1 → 0,99; vyrovnané netečou
+        fphase: hash01(seed, 5),
+      });
     }
 
     const view: View = { scale: 1, tx: 0, ty: 0 };
@@ -472,50 +479,64 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       const selId = selRef.current;
       const hotId = hovered?.id ?? selId;
 
-      // nudle (synapse)
-      for (const e of edges) {
-        const a = nodes[e.a], b = nodes[e.b];
-        const norm = Math.sqrt(e.count / maxCount);
-        const isOut = hotId !== null && a.id === hotId;
-        const isIn = hotId !== null && b.id === hotId;
-        const hot = isOut || isIn;
-        if (hot) {
-          // směr: odchozí teplá, příchozí chladná
-          ctx.strokeStyle = isOut ? "rgba(180, 83, 9, 0.92)" : "rgba(71, 85, 105, 0.85)";
-        } else {
-          ctx.strokeStyle = `rgba(176, 124, 24, ${hotId !== null ? 0.07 + 0.1 * norm : 0.16 + 0.4 * norm})`;
-        }
-        ctx.lineWidth = (0.8 + 4.2 * norm) * (hot ? 1.25 : 1);
-        ctx.lineCap = "round";
-        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-        const d = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-        const side = (e.a + e.b) % 2 === 0 ? 1 : -1;
-        const bow = Math.min(26, d * 0.14) * side;
-        const px = -(b.y - a.y) / d, py = (b.x - a.x) / d;
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.quadraticCurveTo(mx + px * bow, my + py * bow, b.x, b.y);
-        ctx.stroke();
-      }
-
-      // tekoucí informace: tečka jede po nudli směrem převahy asociací
+      // špagety (synapse) — zlehka se houpou; kulička putuje potrubím směrem převahy
       const now = performance.now() / 1000;
-      for (const f of flows) {
-        const a = nodes[f.a], b = nodes[f.b];
-        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-        const d = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-        const side = (f.a + f.b) % 2 === 0 ? 1 : -1;
-        const bow = Math.min(26, d * 0.14) * side;
-        const cx2 = mx + (-(b.y - a.y) / d) * bow, cy2 = my + ((b.x - a.x) / d) * bow;
-        // plná rychlost = přejezd za 0,5 s; pomalejší úměrně převaze
-        const tt = (now * f.speed * 2 + f.phase) % 1;
-        const u = 1 - tt;
-        const x = u * u * a.x + 2 * u * tt * cx2 + tt * tt * b.x;
-        const y = u * u * a.y + 2 * u * tt * cy2 + tt * tt * b.y;
-        ctx.globalAlpha = bg ? 0.3 : (hotId !== null && a.id !== hotId && b.id !== hotId ? 0.18 : 0.85);
-        ctx.fillStyle = "#b45309";
-        ctx.beginPath(); ctx.arc(x, y, 1.6 + 1.9 * f.norm, 0, 7); ctx.fill();
-        ctx.globalAlpha = 1;
+      for (const st of strands) {
+        const A = nodes[st.a], B = nodes[st.b];
+        const hot = hotId !== null && (A.id === hotId || B.id === hotId);
+        const dimS = hotId !== null && !hot;
+        const srcId = st.dirAB ? A.id : B.id; // odkud informace teče
+        let col: string;
+        if (hot) {
+          // z hotovaného slova teče teplá, do něj chladná
+          col = srcId === hotId ? "rgba(180, 83, 9, 0.92)" : "rgba(71, 85, 105, 0.85)";
+        } else {
+          col = `rgba(176, 124, 24, ${dimS ? 0.07 + 0.1 * st.norm : 0.16 + 0.4 * st.norm})`;
+        }
+        const lw = (0.8 + 4.2 * st.norm) * (hot ? 1.25 : 1);
+        ctx.strokeStyle = col;
+        ctx.lineWidth = lw;
+        ctx.lineCap = "round";
+
+        const dx = B.x - A.x, dy = B.y - A.y;
+        const d = Math.hypot(dx, dy) || 1;
+        const px = -dy / d, py = dx / d;
+        const bow = Math.min(26, d * 0.14) * st.side;
+        const wobAmp = Math.min(9, d * 0.07); // houpání úměrné délce nudle
+        const w1 = Math.sin(now * st.sp + st.ph) * wobAmp;
+        const w2 = Math.sin(now * st.sp * 1.27 + st.ph + 2.1) * wobAmp;
+        const c1x = A.x + dx / 3 + px * (bow * 0.9 + st.o1 * 6 + w1);
+        const c1y = A.y + dy / 3 + py * (bow * 0.9 + st.o1 * 6 + w1);
+        const c2x = A.x + (2 * dx) / 3 + px * (bow * 0.9 + st.o2 * 6 + w2);
+        const c2y = A.y + (2 * dy) / 3 + py * (bow * 0.9 + st.o2 * 6 + w2);
+        ctx.beginPath();
+        ctx.moveTo(A.x, A.y);
+        ctx.bezierCurveTo(c1x, c1y, c2x, c2y, B.x, B.y);
+        ctx.stroke();
+
+        // kulička v potrubí: nudle se kolem ní gaussovsky rozšíří a zase stáhne
+        if (!bg && st.speed > 0.001) {
+          const tRaw = (now * st.speed * 2 + st.fphase) % 1; // plná rychlost = 0,5 s na přejezd
+          const tBall = st.dirAB ? tRaw : 1 - tRaw;
+          const pt = (t: number) => {
+            const u = 1 - t;
+            return {
+              x: u * u * u * A.x + 3 * u * u * t * c1x + 3 * u * t * t * c2x + t * t * t * B.x,
+              y: u * u * u * A.y + 3 * u * u * t * c1y + 3 * u * t * t * c2y + t * t * t * B.y,
+            };
+          };
+          ctx.strokeStyle = hot ? col : `rgba(176, 124, 24, ${dimS ? 0.22 : 0.7})`;
+          const span = 0.055, steps = 8;
+          let prev = pt(Math.max(0, tBall - span));
+          for (let k = 1; k <= steps; k++) {
+            const tk = Math.min(1, Math.max(0, tBall - span + (2 * span * k) / steps));
+            const cur = pt(tk);
+            const gss = Math.exp(-(((k - steps / 2) / (steps / 3.2)) ** 2));
+            ctx.lineWidth = lw + (3 + 3.5 * st.norm) * gss;
+            ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(cur.x, cur.y); ctx.stroke();
+            prev = cur;
+          }
+        }
       }
 
       // slova (uzly)
