@@ -54,6 +54,19 @@ export function AdminHome({ data }: { data: DashboardData }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  /* ── klasifikace slovních druhů (Synapse) ── */
+  const [classifying, setClassifying] = useState(false);
+  const [classifyMsg, setClassifyMsg] = useState("");
+  const runClassify = async () => {
+    setClassifying(true); setClassifyMsg("");
+    try {
+      const r = await fetch("/api/brain/classify", { method: "POST" });
+      const j = await r.json();
+      setClassifyMsg(r.ok ? `✓ zařazeno ${j.classified}${j.remaining === "more" ? " (zbývají další — spusť znovu)" : ""}` : `✗ ${j.error ?? "chyba"}`);
+    } catch { setClassifyMsg("✗ chyba"); }
+    setClassifying(false);
+  };
+
   const saveTexts = async () => {
     setSaving(true); setSaved(false);
     const items: { key: string; lang: Lang; value: string | null }[] = [];
@@ -161,6 +174,17 @@ export function AdminHome({ data }: { data: DashboardData }) {
                   <Stat label="Slov (en)" value={data.brain.en?.words ?? 0} />
                   <Stat label="Asociací (en)" value={data.brain.en?.total ?? 0} />
                 </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
+                  <button onClick={runClassify} disabled={classifying} style={{
+                    background: "var(--text-primary)", color: "var(--bg)", border: "none", borderRadius: 8,
+                    padding: "7px 12px", fontFamily: sans, fontSize: 12, fontWeight: 700, cursor: "pointer",
+                    opacity: classifying ? 0.5 : 1,
+                  }}>{classifying ? "Claude třídí…" : `🤖 Roztřídit slovní druhy (${data.brainUnclassified})`}</button>
+                  {classifyMsg && <span style={{ fontFamily: sans, fontSize: 12, color: "var(--text-secondary)" }}>{classifyMsg}</span>}
+                </div>
+                <p style={{ fontFamily: sans, fontSize: 10.5, color: "var(--text-muted)", marginTop: 8 }}>
+                  Nová slova se třídí automaticky každou noc (cron 3:00). Tlačítko = okamžitě.
+                </p>
               </Card>
               <Card>
                 <p style={{ ...display, fontSize: 15, fontWeight: 800, marginBottom: 12 }}>🍝 Encyklopedie</p>

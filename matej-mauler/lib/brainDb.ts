@@ -6,11 +6,13 @@ export type BrainLang = "cs" | "en";
 export const brainLang = (raw: string | null | undefined): BrainLang => raw === "en" ? "en" : "cs";
 
 export type BrainWord = { id: number; display: string };
+export type WordPos = "noun" | "verb" | "adjective" | "adverb" | "other";
+export const WORD_POS: WordPos[] = ["noun", "verb", "adjective", "adverb", "other"];
 export type BrainStats = { words: number; edges: number; total: number; goal: number };
 export type BrainMapData = {
   total: number;
   goal: number;
-  nodes: { id: number; label: string; seed: boolean }[];
+  nodes: { id: number; label: string; seed: boolean; pos: string | null }[];
   edges: { a: number; b: number; count: number }[]; // a → b (směr asociace)
   truncated: boolean;
 };
@@ -72,6 +74,8 @@ async function ensure(sql: Sql) {
   )`;
   // migrace 2026-06: oddělené sítě per jazyk — existující slova jsou česká
   await sql`ALTER TABLE brain_words ADD COLUMN IF NOT EXISTS lang TEXT NOT NULL DEFAULT 'cs'`;
+  // slovní druh (noun/verb/adjective/adverb/other) — třídí Claude dávkově
+  await sql`ALTER TABLE brain_words ADD COLUMN IF NOT EXISTS pos TEXT`;
   await sql`ALTER TABLE brain_words DROP CONSTRAINT IF EXISTS brain_words_word_key`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS brain_words_lang_word ON brain_words (lang, word)`;
   for (const lang of ["cs", "en"] as const) {
@@ -157,12 +161,36 @@ export async function getBrainMap(lang: BrainLang, maxEdges = 600): Promise<Brai
 
   const ids = [...new Set(edges.flatMap((e) => [e.a, e.b]))];
   const nodes = ids.length
-    ? await sql`SELECT id, display AS label, is_seed AS seed FROM brain_words WHERE id = ANY(${ids})` as { id: number; label: string; seed: boolean }[]
+    ? await sql`SELECT id, display AS label, is_seed AS seed, pos FROM brain_words WHERE id = ANY(${ids})` as { id: number; label: string; seed: boolean; pos: string | null }[]
     : [];
 
   const [{ total }] = await sql`SELECT COALESCE(SUM(e.count), 0)::int AS total FROM brain_edges e
     JOIN brain_words w ON w.id = e.from_id WHERE w.lang = ${lang}` as { total: number }[];
   return { total, goal: BRAIN_GOAL, nodes, edges, truncated };
+}
+
+/* ── Klasifikace slovních druhů (Claude, dávkově) ──────────────── */
+export async function getUnclassifiedWords(limit = 300): Promise<{ id: number; display: string; lang: string }[]> {
+  const sql = getDb();
+  await ensure(sql);
+  return await sql`SELECT id, display, lang FROM brain_words WHERE pos IS NULL ORDER BY id LIMIT ${limit}` as { id: number; display: string; lang: string }[];
+}
+
+export async function countUnclassified(): Promise<number> {
+  const sql = getDb();
+  await ensure(sql);
+  const [{ n }] = await sql`SELECT COUNT(*)::int AS n FROM brain_words WHERE pos IS NULL` as { n: number }[];
+  return n;
+}
+
+export async function setWordPos(items: { id: number; pos: WordPos }[]): Promise<void> {
+  const sql = getDb();
+  await ensure(sql);
+  const valid = new Set(WORD_POS);
+  for (const it of items) {
+    if (!Number.isInteger(it.id) || !valid.has(it.pos)) continue;
+    await sql`UPDATE brain_words SET pos = ${it.pos} WHERE id = ${it.id}`;
+  }
 }
 
 /* ── Admin (moderace) ──────────────────────────────────────────── */

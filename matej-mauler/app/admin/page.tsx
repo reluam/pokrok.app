@@ -1,7 +1,7 @@
 import { AdminHome } from "@/components/AdminHome";
 import { getDb } from "@/lib/db";
 import { getProjectMetrics, type ProjectMetrics } from "@/lib/metricsDb";
-import { getBrainStats, type BrainStats } from "@/lib/brainDb";
+import { countUnclassified, getBrainStats, type BrainStats } from "@/lib/brainDb";
 import { getAllExperiments, type ExperimentRow } from "@/lib/experimentsDb";
 import { getTextOverrides } from "@/lib/siteTextsDb";
 import { graphData } from "@/lib/encyclopedia/graph";
@@ -12,6 +12,7 @@ export const metadata = { title: "Spaghetti HQ" };
 export type DashboardData = {
   metrics: ProjectMetrics[];
   brain: { cs: BrainStats | null; en: BrainStats | null };
+  brainUnclassified: number;
   radio: { rounds: number; votes: number } | null;
   ency: { terms: number; synapses: number; reds: number; wishes: number };
   rows: ExperimentRow[];
@@ -23,10 +24,11 @@ async function getData(): Promise<DashboardData> {
   const g = graphData();
   const reds = g.nodes.filter((n) => !n.realm).length;
 
-  const [metrics, brainCs, brainEn, rows, ovCs, ovEn] = await Promise.all([
+  const [metrics, brainCs, brainEn, unclassified, rows, ovCs, ovEn] = await Promise.all([
     getProjectMetrics().catch(() => [] as ProjectMetrics[]),
     getBrainStats("cs").catch(() => null),
     getBrainStats("en").catch(() => null),
+    countUnclassified().catch(() => 0),
     getAllExperiments().catch(() => [] as ExperimentRow[]),
     getTextOverrides("cs").catch(() => ({})),
     getTextOverrides("en").catch(() => ({})),
@@ -49,6 +51,7 @@ async function getData(): Promise<DashboardData> {
   return {
     metrics,
     brain: { cs: brainCs, en: brainEn },
+    brainUnclassified: unclassified,
     radio,
     ency: { terms: g.nodes.length - reds - 1, synapses: g.edges.length, reds, wishes },
     rows,

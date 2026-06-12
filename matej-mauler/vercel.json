@@ -1,5 +1,6 @@
 {
   "crons": [
-    { "path": "/api/radio/tick", "schedule": "* * * * *" }
+    { "path": "/api/radio/tick", "schedule": "* * * * *" },
+    { "path": "/api/brain/classify", "schedule": "0 3 * * *" }
   ]
 }

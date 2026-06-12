@@ -9,7 +9,7 @@ type Word = { id: number; display: string };
 type Stats = { words: number; edges: number; total: number; goal: number };
 type MapData = {
   total: number; goal: number;
-  nodes: { id: number; label: string; seed: boolean }[];
+  nodes: { id: number; label: string; seed: boolean; pos: string | null }[];
   edges: { a: number; b: number; count: number }[]; // a → b
   truncated: boolean;
 };
@@ -30,7 +30,7 @@ const T = {
     send: "Potvrdit ⏎",
     savedNew: (a: string, b: string) => `${a} → ${b} · nová synapse ✨`,
     savedAgain: (a: string, b: string, n: number) => `${a} → ${b} · synapse posílena ×${n}`,
-    afterSave: "Síť pokračuje tvým slovem — asociuj dál, nebo si vezmi jiné.",
+    afterSave: "Uloženo. Tady je další náhodné slovo.",
     dice: "🎲 Jiné slovo",
     researcher: "🔬 Prozkoumat mapu jako Researcher →",
     mine: (n: number) => `tvých asociací dnes: ${n}`,
@@ -43,13 +43,13 @@ const T = {
     gateGo: "→ Pomoz jí růst asociacemi",
     gateAnyway: "Stejně mi ukaž ten nicneříkající zárodek →",
     mapEmpty: "Síť je zatím úplně prázdná. Buď první synapse!",
-    mapHint: "táhni = posun · kolečko / pinch = zoom · klik na slovo = detail a zoom · druhý klik = asociuj",
+    mapHint: "táhni = posun · kolečko / pinch = zoom · klik na slovo = detail a zoom",
     mapLegend: "tloušťka nudle = síla synapse",
     legendBall: "kulička = tok informací ve směru převahy asociací",
     legendSeed: "kroužek = startovní slovo",
     legendColor: "u vybraného slova: oranžová = ven · šedomodrá = dovnitř",
+    legendPos: "barva slova = slovní druh: modrá podst. jm. · červená sloveso · fialová příd. jm. · zelená příslovce · šedá ostatní",
     wordTip: (o: number, os: number, i: number, is_: number) => `${o} ven (×${os}) · ${i} dovnitř (×${is_})`,
-    clickAgain: "klikni na slovo ještě jednou a asociuj na něj ✏️",
     truncated: "Zobrazuju jen ~600 nejsilnějších synapsí.",
     outLabel: "kam vede →",
     inLabel: "→ co vede sem",
@@ -67,7 +67,7 @@ const T = {
     send: "Confirm ⏎",
     savedNew: (a: string, b: string) => `${a} → ${b} · new synapse ✨`,
     savedAgain: (a: string, b: string, n: number) => `${a} → ${b} · synapse strengthened ×${n}`,
-    afterSave: "The network continues with your word — keep going, or grab a different one.",
+    afterSave: "Saved. Here's another random word.",
     dice: "🎲 Different word",
     researcher: "🔬 Explore the map as a Researcher →",
     mine: (n: number) => `your associations today: ${n}`,
@@ -80,13 +80,13 @@ const T = {
     gateGo: "→ Help it grow with associations",
     gateAnyway: "Show me the meaningless embryo anyway →",
     mapEmpty: "The network is completely empty so far. Be the first synapse!",
-    mapHint: "drag = pan · wheel / pinch = zoom · click a word = detail & zoom · click again = associate",
+    mapHint: "drag = pan · wheel / pinch = zoom · click a word = detail & zoom",
     mapLegend: "noodle thickness = synapse strength",
     legendBall: "ball = information flowing in the dominant direction",
     legendSeed: "ring = seed word",
     legendColor: "for a selected word: orange = outgoing · slate = incoming",
+    legendPos: "word colour = part of speech: blue noun · red verb · violet adjective · green adverb · grey other",
     wordTip: (o: number, os: number, i: number, is_: number) => `${o} out (×${os}) · ${i} in (×${is_})`,
-    clickAgain: "click the word once more to associate on it ✏️",
     truncated: "Showing only the ~600 strongest synapses.",
     outLabel: "leads to →",
     inLabel: "→ comes from",
@@ -169,7 +169,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
         setInput("");
         setStats((s) => s ? { ...s, total: j.total } : s);
         dirty.current = true;
-        setWord(j.to); // řetěz: pokračuje se vždy na novém slově
+        fetchWord(appLang, word.id); // další slovo je vždy náhodné — žádný vlastní train of thought
         inputRef.current?.focus();
       } else {
         setErr(j.error === "same" ? t.errSame : t.errInvalid);
@@ -185,7 +185,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       {/* ── mapa na pozadí — živá síť jako brána encyklopedie, jen kuličky bez popisků ── */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: overlay ? "none" : "auto" }}>
         {map && map.edges.length > 0
-          ? <BrainMap data={map} lang={lang} chrome={mode === "map"} onBack={() => setMode("explore")} onAssociate={(w) => { setMode("explore"); setLast(null); setErr(null); setInput(""); setWord(w); }} />
+          ? <BrainMap data={map} lang={appLang} chrome={mode === "map"} onBack={() => setMode("explore")} />
           : <IdleField />}
       </div>
 
@@ -212,17 +212,17 @@ export function BrainApp({ lang }: { lang: Lang }) {
                 autoFocus
                 maxLength={60}
                 style={{
-                  flex: 1, minWidth: 200, maxWidth: 340, background: "#fff",
-                  border: "2px solid var(--border)", borderRadius: 999,
-                  padding: "13px 20px", ...sans, fontSize: 16,
+                  flex: 1, minWidth: 200, maxWidth: 340, background: "rgba(255,255,255,0.8)",
+                  border: "1px solid rgba(26,22,20,0.2)", borderRadius: 999,
+                  padding: "12px 18px", ...sans, fontSize: 14,
                   color: "var(--text-primary)", outline: "none",
-                  boxShadow: "3px 3px 0 var(--shadow)",
+                  backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
                 }}
               />
               <button type="submit" disabled={!word || !input.trim() || busy} style={{
-                background: "var(--text-primary)", color: "var(--bg)", border: "2px solid var(--text-primary)",
-                borderRadius: 999, boxShadow: "3px 3px 0 var(--shadow)", padding: "12px 22px",
-                ...sans, fontSize: 14, fontWeight: 700, cursor: "pointer",
+                background: "var(--text-primary)", color: "var(--bg)", border: "none",
+                borderRadius: 999, padding: "12px 22px",
+                ...sans, fontSize: 13.5, fontWeight: 700, cursor: "pointer",
                 opacity: (!word || !input.trim() || busy) ? 0.4 : 1,
               }}>{t.send}</button>
             </form>
@@ -240,9 +240,9 @@ export function BrainApp({ lang }: { lang: Lang }) {
 
             <div style={{ marginTop: 30, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
               <button onClick={() => { setLast(null); fetchWord(appLang, word?.id); inputRef.current?.focus(); }} style={{
-                background: "#fff", border: "2px solid var(--border)", borderRadius: 999,
+                background: "rgba(255,255,255,0.8)", border: "1px solid rgba(26,22,20,0.2)", borderRadius: 999,
                 padding: "8px 18px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer",
-                color: "var(--text-primary)", boxShadow: "3px 3px 0 var(--shadow)",
+                color: "var(--text-primary)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
               }}>{t.dice}</button>
               <button onClick={enterMap} style={{
                 background: "none", border: "none", cursor: "pointer", padding: 0,
@@ -322,8 +322,12 @@ function IdleField() {
 /* ════════════════════════════════════════════════════════════════
    Mapa synapsí — force layout na canvasu, nudlové synapse
    v těstovinové barvě jako špagety v encyklopedii.
+   Barva slova = slovní druh (stejná paleta jako realmy encyklopedie).
    ════════════════════════════════════════════════════════════════ */
-type SimNode = { id: number; label: string; seed: boolean; strength: number; x: number; y: number; vx: number; vy: number; r: number; fx: number; fy: number; fph: number; fsp: number };
+const POS_COL: Record<string, string> = {
+  noun: "#8b9cf6", verb: "#e8556d", adjective: "#b07ef6", adverb: "#4daf7c", other: "#8a90a0",
+};
+type SimNode = { id: number; label: string; seed: boolean; pos: string | null; strength: number; x: number; y: number; vx: number; vy: number; r: number; fx: number; fy: number; fph: number; fsp: number };
 type SimEdge = { a: number; b: number; count: number };
 type View = { scale: number; tx: number; ty: number };
 
@@ -339,7 +343,7 @@ function buildSim(data: MapData): { nodes: SimNode[]; edges: SimEdge[]; maxCount
   const idx = new Map<number, number>();
   const nodes: SimNode[] = data.nodes.map((n, i) => {
     idx.set(n.id, i);
-    return { id: n.id, label: n.label, seed: n.seed, strength: 0, x: 0, y: 0, vx: 0, vy: 0, r: 4, fx: 0, fy: 0, fph: (i * 2.399) % 6.28, fsp: 0.4 + ((i * 7) % 10) / 14 };
+    return { id: n.id, label: n.label, seed: n.seed, pos: n.pos, strength: 0, x: 0, y: 0, vx: 0, vy: 0, r: 4, fx: 0, fy: 0, fph: (i * 2.399) % 6.28, fsp: 0.4 + ((i * 7) % 10) / 14 };
   });
   const edges: SimEdge[] = [];
   let maxCount = 1;
@@ -358,7 +362,7 @@ function buildSim(data: MapData): { nodes: SimNode[]; edges: SimEdge[]; maxCount
     const r = 40 + hash01(n.id, 1) * spread;
     n.x = Math.cos(a) * r;
     n.y = Math.sin(a) * r;
-    n.r = 3.5 + 9 * Math.sqrt(n.strength / maxStrength);
+    n.r = 3 + 3.5 * Math.sqrt(n.strength / maxStrength); // malé kuličky jako v encyklopedii
   });
   return { nodes, edges, maxCount, maxStrength };
 }
@@ -401,7 +405,7 @@ function runSim(nodes: SimNode[], edges: SimEdge[], maxCount: number, ticks = 30
   }
 }
 
-function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; lang: Lang; chrome: boolean; onBack: () => void; onAssociate: (w: Word) => void }) {
+function BrainMap({ data, lang, chrome, onBack }: { data: MapData; lang: Lang; chrome: boolean; onBack: () => void }) {
   const t = T[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
@@ -600,7 +604,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         } else {
           col = `rgba(176, 124, 24, ${(dimS ? 0.07 + 0.1 * st.norm : 0.16 + 0.4 * st.norm) * cf})`;
         }
-        const lw = (0.8 + 4.2 * st.norm) * (hot || hovS ? 1.25 : 1);
+        const lw = (0.7 + 2.6 * st.norm) * (hot || hovS ? 1.3 : 1);
         ctx.strokeStyle = col;
         ctx.lineWidth = lw;
         ctx.lineCap = "round";
@@ -636,7 +640,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
             const tk = Math.min(1, Math.max(0, tBall - span + (2 * span * k) / steps));
             const cur2 = pt(tk);
             const gss = Math.exp(-(((k - steps / 2) / (steps / 3.2)) ** 2));
-            ctx.lineWidth = lw + (3 + 3.5 * st.norm) * gss;
+            ctx.lineWidth = lw + (2.2 + 2.4 * st.norm) * gss;
             ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(cur2.x, cur2.y); ctx.stroke();
             prev = cur2;
           }
@@ -657,19 +661,19 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         const cf = clear(n.fx, n.fy);
         if (cf <= 0.02) continue;
         ctx.globalAlpha = (hot ? 1 : dim ? 0.25 : 0.9) * cf;
-        ctx.fillStyle = "#8b9cf6"; // stejné kuličky jako uzly v encyklopedii
-        ctx.beginPath(); ctx.arc(n.fx, n.fy, hot ? n.r + 2.5 : n.r, 0, 7); ctx.fill();
+        ctx.fillStyle = POS_COL[n.pos ?? ""] ?? POS_COL.other; // barva = slovní druh
+        ctx.beginPath(); ctx.arc(n.fx, n.fy, hot ? n.r + 2 : n.r, 0, 7); ctx.fill();
         if (n.seed) {
-          ctx.strokeStyle = `rgba(176, 124, 24, ${0.85 * cf})`; ctx.lineWidth = 1.6;
-          ctx.beginPath(); ctx.arc(n.fx, n.fy, (hot ? n.r + 2.5 : n.r) + 2.4, 0, 7); ctx.stroke();
+          ctx.strokeStyle = `rgba(176, 124, 24, ${0.85 * cf})`; ctx.lineWidth = 1.3;
+          ctx.beginPath(); ctx.arc(n.fx, n.fy, (hot ? n.r + 2 : n.r) + 2.2, 0, 7); ctx.stroke();
         }
         const showLabel = !bg && (hot || neighborIds.has(n.id) || hsEnds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim)));
         if (showLabel) {
           ctx.globalAlpha = hot ? 1 : 0.82;
           ctx.fillStyle = "#1a1614";
-          ctx.font = `${hot ? 700 : 500} 11px ${getComputedStyle(document.body).fontFamily || "system-ui"}`;
+          ctx.font = `${hot ? 700 : 500} 10px system-ui`;
           ctx.textAlign = "center";
-          ctx.fillText(n.label, n.fx, n.fy + n.r + 15);
+          ctx.fillText(n.label, n.fx, n.fy + n.r + 12);
         }
         ctx.globalAlpha = 1;
       }
@@ -856,8 +860,9 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
         const p = pick(x, y);
         if (p) {
           if (selRef.current === p.id) {
-            // druhý klik na vybrané slovo → rovnou asociovat
-            onAssociate({ id: p.id, display: p.label });
+            // druhý klik na vybrané slovo → odznačit a oddálit
+            setSelected(null);
+            animateTo(fitView());
           } else {
             setSelected({ id: p.id, label: p.label });
             setTip(null);
@@ -907,7 +912,6 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
       cv.removeEventListener("pointerleave", onLeave);
       cv.removeEventListener("wheel", onWheel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, lang]);
 
   return (
@@ -935,6 +939,7 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
                 <p style={{ margin: 0 }}>{t.legendBall}</p>
                 <p style={{ margin: 0 }}>{t.legendSeed}</p>
                 <p style={{ margin: 0 }}>{t.legendColor}</p>
+                <p style={{ margin: 0 }}>{t.legendPos}</p>
                 {data.truncated && <p style={{ margin: 0 }}>{t.truncated}</p>}
               </div>
             </div>
@@ -985,7 +990,6 @@ function BrainMap({ data, lang, chrome, onBack, onAssociate }: { data: MapData; 
             </div>
           ))}
 
-          <p style={{ ...sans, fontSize: 10.5, color: "var(--text-muted)", margin: "10px 0 0", fontStyle: "italic" }}>{t.clickAgain}</p>
         </div>
       )}
     </div>
