@@ -32,7 +32,8 @@ export function SpaceRealm({ node, lang = "cs", dir, theme }: { node: NodeDef; l
         <div key={node.slug} style={{ position: "absolute", inset: 0, animation: anim }}>
           {node.subject ? (
             <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
-              <Subject node={node} lang={lang} D={D} />
+              {node.slug === "slunecni-soustava" && <SolarOrbits node={node} D={D} dark={theme === "dark"} />}
+              <Subject node={node} lang={lang} D={D} solar={node.slug === "slunecni-soustava"} />
             </div>
           ) : (
             specks.map((s, i) => (
@@ -57,8 +58,30 @@ export function SpaceRealm({ node, lang = "cs", dir, theme }: { node: NodeDef; l
   );
 }
 
+/** Sluneční soustava — planety obíhají slunce (jen vizuál, ať se liší od samotného Slunce). */
+function SolarOrbits({ node, D, dark }: { node: NodeDef; D: number; dark: boolean }) {
+  const planets = (node.satellites ?? []).filter((s) => s.object);
+  return (
+    <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", pointerEvents: "none" }}>
+      {planets.map((s, i) => {
+        const dia = D * (0.56 + i * 0.075);          // rostoucí poloměr oběžné dráhy
+        const dur = 16 + i * 7;                        // vzdálenější planety pomaleji
+        const psize = Math.max(5, Math.round(D * (0.014 + (s.size ?? 20) / 2600)));
+        const tint = OBJECTS[s.object!]?.tint ?? "#cdb38a";
+        return (
+          <div key={s.to} style={{ position: "absolute", width: dia, height: dia, borderRadius: "50%", border: `1px solid ${dark ? "rgba(255,255,255,0.13)" : "rgba(26,22,20,0.12)"}` }}>
+            <div style={{ position: "absolute", inset: 0, animation: `spaceOrbit ${dur}s linear infinite`, animationDelay: `${i * -3}s` }}>
+              <span style={{ position: "absolute", left: "50%", top: 0, transform: "translate(-50%,-50%)", width: psize, height: psize, borderRadius: "50%", background: tint, boxShadow: `0 0 ${psize}px ${Math.round(psize / 2)}px ${tint}66` }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /** Subjekt hesla — klik cykluje zajímavosti v bublině. Stav se resetuje remountem (key na rodiči). */
-function Subject({ node, lang, D }: { node: NodeDef; lang: Lang; D: number }) {
+function Subject({ node, lang, D, solar }: { node: NodeDef; lang: Lang; D: number; solar?: boolean }) {
   const [fi, setFi] = useState(-1);
   const feats = node.features ?? [];
   return (
@@ -66,7 +89,7 @@ function Subject({ node, lang, D }: { node: NodeDef; lang: Lang; D: number }) {
       onClick={() => feats.length && setFi((i) => (i + 1) % feats.length)}
       title={feats.length ? "👆" : undefined}
       style={{ pointerEvents: feats.length ? "auto" : "none", position: "relative", background: "none", border: "none", cursor: feats.length ? "pointer" : "default", padding: 0 }}>
-      <SpaceBody kind={OBJECTS[node.subject!.object].kind} px={Math.round(D * 0.46)} tint={OBJECTS[node.subject!.object].tint} detail />
+      <SpaceBody kind={OBJECTS[node.subject!.object].kind} px={Math.round(D * (solar ? 0.3 : 0.46))} tint={OBJECTS[node.subject!.object].tint} detail />
       {fi >= 0 && feats[fi] && (
         <span key={fi} style={{ position: "absolute", left: "50%", bottom: "calc(100% + 2px)", transform: "translateX(-50%)", whiteSpace: "nowrap", background: "rgba(253,240,224,0.95)", color: "#1a1614", fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 700, borderRadius: 999, padding: "6px 14px", boxShadow: "0 6px 18px rgba(70,12,4,0.35)", animation: "encyBubble 360ms cubic-bezier(0.34,1.56,0.64,1)" }}>
           ✦ {feats[fi][lang]} <span style={{ opacity: 0.45, fontWeight: 600 }}>{fi + 1}/{feats.length}</span>

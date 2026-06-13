@@ -7,6 +7,7 @@ import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/li
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
 import { PlanetField } from "./PlanetField";
 import { PlainRealm } from "./PlainRealm";
+import { Strands } from "./Strands";
 import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
@@ -139,6 +140,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   };
 
   const overlayMax = node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(560px, calc(100vw - 240px))" : "min(520px, 86vmin)";
+  const upTarget = trail.length ? trail[trail.length - 1] : node?.up ?? null;
 
   // související pojmy — místo špaget se vypíšou textem pod vysvětlením (obecnější, hlubší, odbočky)
   const related = node && !isGate
@@ -164,13 +166,22 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         <RedLink slug={slug} lang={lang} dark={theme === "dark"} />
       )}
 
+      {/* špagety k okolním tématům — vizuální nudlové synapse kolem hesla */}
+      {node && !isGate && (
+        <Strands node={node} lang={lang} dark={chromeDark} upTarget={upTarget} onUp={goUp} onNext={goNext} onSide={dive} />
+      )}
+
       {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný (brána má vlastní rozcestí) */}
       {node && !isGate && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "150px 22px 0" : "0 22px", pointerEvents: "none" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: searchOpen ? 46 : 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "120px 22px 0" : "0 22px", pointerEvents: "none" }}>
           <div key={slug} style={{ position: "relative", maxWidth: overlayMax, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "none" }}>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: C.faint, marginBottom: 10 }}>{u.eyebrow}</p>
+              {/* hledání hned nad termínem */}
+              <div style={{ width: "min(360px, 100%)", margin: "0 auto 14px" }}>
+                <InlineSearch lang={lang} dark={chromeDark} gate open={searchOpen} onOpen={() => setSearchOpen(true)} onClose={() => setSearchOpen(false)} onPick={dive} />
+              </div>
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,42px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: topText ? 14 : 15, lineHeight: 1.65, color: C.body }}>{node.guide[lang]}</p>
               {node.features && node.features.length > 0 && node.realm !== "space" && (
@@ -204,11 +215,6 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: PC.home, textDecoration: "none" }}>{u.home}</Link>
       </div>
 
-      {!isGate && (
-        <div style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: searchOpen ? 46 : 20 }}>
-          <InlineSearch lang={lang} dark={chromeDark} open={searchOpen} onOpen={() => setSearchOpen(true)} onClose={() => setSearchOpen(false)} onPick={dive} />
-        </div>
-      )}
 
       {/* dolní řádek: konec větve dostane text (brána má vlastní rozcestí) */}
       {!isGate && (
