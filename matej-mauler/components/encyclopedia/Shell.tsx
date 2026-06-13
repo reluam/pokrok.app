@@ -5,7 +5,7 @@ import { track } from "@/lib/track";
 import Link from "next/link";
 import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/lib/encyclopedia/graph";
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
-import { GateMap } from "./GateMap";
+import { EncyclopediaLanding } from "./Landing";
 import { PlainRealm } from "./PlainRealm";
 import { Strands } from "./Strands";
 import type { Lang } from "@/lib/dictionaries";
@@ -79,8 +79,8 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   const goNext = useCallback(() => { const next = getNode(slug)?.next; if (next) dive(next); }, [dive, slug]);
 
   // aktuální akce v ref, ať globální listenery nepřepojujeme při každé navigaci
-  const act = useRef({ goNext, goUp, searchOpen });
-  useEffect(() => { act.current = { goNext, goUp, searchOpen }; });
+  const act = useRef({ goNext, goUp, searchOpen, gate: isGate });
+  useEffect(() => { act.current = { goNext, goUp, searchOpen, gate: isGate }; });
 
   useEffect(() => { track("encyklopedie", "open"); }, []);
 
@@ -101,7 +101,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     const lock = { until: 0, acc: 0 };
     const step = (d: number) => {
       const now = Date.now();
-      if (now < lock.until || act.current.searchOpen) return;
+      if (now < lock.until || act.current.searchOpen || act.current.gate) return; // na rozcestí se nescrolluje do hloubky
       lock.acc += d;
       if (lock.acc > 70) { lock.acc = 0; lock.until = now + 900; act.current.goNext(); }
       else if (lock.acc < -70) { lock.acc = 0; lock.until = now + 900; act.current.goUp(); }
@@ -149,7 +149,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
       {/* realm (střed — tady se hesla smí lišit) */}
       {node ? (
-        isGate ? <GateMap lang={lang} theme={theme} onNavigate={dive} />
+        isGate ? <EncyclopediaLanding node={node} lang={lang} theme={theme} onPick={dive} />
         : node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} theme={theme} />
         : <PlainRealm node={node} lang={lang} theme={theme} />
       ) : (
@@ -161,9 +161,9 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         <Strands node={node} lang={lang} dark={chromeDark} upTarget={upTarget} onUp={goUp} onNext={goNext} onSide={dive} />
       )}
 
-      {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný */}
-      {node && (
-        <div style={{ position: "fixed", inset: 0, zIndex: isGate && searchOpen ? 46 : 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "150px 22px 0" : "0 22px", pointerEvents: "none" }}>
+      {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný (brána má vlastní rozcestí) */}
+      {node && !isGate && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "150px 22px 0" : "0 22px", pointerEvents: "none" }}>
           <div key={slug} style={{ position: "relative", maxWidth: overlayMax, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "none" }}>
@@ -207,17 +207,14 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         </div>
       )}
 
-      {/* dolní řádek: brána má ↓ hint (síť mluví sama), konec větve dostane text */}
-      <div style={{ position: "fixed", bottom: "3vh", left: "50%", transform: "translateX(-50%)", zIndex: 20, textAlign: "center" }}>
-        {isGate && node?.next ? (
-          <button onClick={goNext}
-            style={{ background: "none", border: "none", color: PC.hint, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: 6, animation: "encyBob 2s ease-in-out infinite" }}>
-            ↓ {titleOf(node.next, lang)}
-          </button>
-        ) : node && !node.next && !isGate ? (
-          <span style={{ color: PC.end, fontFamily: "var(--font-sans)", fontSize: 11.5 }}>{u.endHint}</span>
-        ) : null}
-      </div>
+      {/* dolní řádek: konec větve dostane text (brána má vlastní rozcestí) */}
+      {!isGate && (
+        <div style={{ position: "fixed", bottom: "3vh", left: "50%", transform: "translateX(-50%)", zIndex: 20, textAlign: "center" }}>
+          {node && !node.next ? (
+            <span style={{ color: PC.end, fontFamily: "var(--font-sans)", fontSize: 11.5 }}>{u.endHint}</span>
+          ) : null}
+        </div>
+      )}
 
       {/* mapa + téma + jazyk */}
       <div style={{ position: "fixed", bottom: 18, right: 18, zIndex: 20, display: "flex", gap: 8, alignItems: "center" }}>
