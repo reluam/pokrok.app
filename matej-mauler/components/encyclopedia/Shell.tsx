@@ -5,23 +5,22 @@ import { track } from "@/lib/track";
 import Link from "next/link";
 import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/lib/encyclopedia/graph";
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
-import { EncyclopediaLanding } from "./Landing";
+import { PlanetField } from "./PlanetField";
 import { PlainRealm } from "./PlainRealm";
-import { Strands } from "./Strands";
 import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
   cs: {
     home: "← Spaghetti.ltd", eyebrow: "Encyklopedie", search: "Hledat", searchPh: "Hledej heslo… (třeba „slunce“)",
     empty: "Nic. Encyklopedie je mladá — zkus to jinak.", red: "neprobádáno",
-    endHint: "konec větve — vrať se výš, nebo odboč klikem", map: "Mapa všeho",
+    endHint: "konec větve — vrať se výš, nebo odboč klikem", map: "Mapa všeho", related: "Souvisí",
     redText: "Tohle téma encyklopedie zná, ale zatím ho nikdo neprobádal. Jednou tu bude — pravděpodobně neškodné.",
     wish: "Chci tohle téma", wished: "Zaznamenáno ✓", wishes: (n: number) => `${n}× přáno`,
   },
   en: {
     home: "← Spaghetti.ltd", eyebrow: "Encyclopedia", search: "Search", searchPh: "Search a topic… (try “sun”)",
     empty: "Nothing. The encyclopedia is young — try something else.", red: "uncharted",
-    endHint: "end of this branch — go back up, or click a detour", map: "Map of everything",
+    endHint: "end of this branch — go back up, or click a detour", map: "Map of everything", related: "Related",
     redText: "The encyclopedia knows about this topic, but nobody has charted it yet. One day it will be here — probably harmless.",
     wish: "I want this topic", wished: "Noted ✓", wishes: (n: number) => `wished ${n}×`,
   },
@@ -139,8 +138,17 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     else location.reload();
   };
 
-  const upTarget = trail.length ? trail[trail.length - 1] : node?.up ?? null;
-  const overlayMax = isGate ? 620 : node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(560px, calc(100vw - 240px))" : "min(520px, 86vmin)";
+  const overlayMax = node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(560px, calc(100vw - 240px))" : "min(520px, 86vmin)";
+
+  // související pojmy — místo špaget se vypíšou textem pod vysvětlením (obecnější, hlubší, odbočky)
+  const related = node && !isGate
+    ? (() => {
+        const ids = [node.up, node.next, ...(node.satellites ?? []).map((s) => s.to)].filter((x): x is string => !!x);
+        const seen = new Set<string>(); const out: { slug: string; label: string }[] = [];
+        for (const id of ids) { if (id === slug || seen.has(id)) continue; seen.add(id); out.push({ slug: id, label: titleOf(id, lang) }); }
+        return out;
+      })()
+    : [];
 
   return (
     <>
@@ -149,16 +157,11 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
       {/* realm (střed — tady se hesla smí lišit) */}
       {node ? (
-        isGate ? <EncyclopediaLanding node={node} lang={lang} theme={theme} onPick={dive} />
+        isGate ? <PlanetField lang={lang} theme={theme} onPick={dive} />
         : node.realm === "space" ? <SpaceRealm node={node} lang={lang} dir={dir} theme={theme} />
         : <PlainRealm node={node} lang={lang} theme={theme} />
       ) : (
         <RedLink slug={slug} lang={lang} dark={theme === "dark"} />
-      )}
-
-      {/* špagety k okolním tématům — jednotný kabát všech hesel */}
-      {node && !isGate && (
-        <Strands node={node} lang={lang} dark={chromeDark} upTarget={upTarget} onUp={goUp} onNext={goNext} onSide={dive} />
       )}
 
       {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný (brána má vlastní rozcestí) */}
@@ -167,25 +170,25 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
           <div key={slug} style={{ position: "relative", maxWidth: overlayMax, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "none" }}>
-              {isGate && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src="/logo.svg" alt="" width={58} height={58} style={{ display: "block", margin: "0 auto 12px", filter: chromeDark ? "invert(1)" : "none", opacity: 0.95 }} />
-              )}
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: C.faint, marginBottom: 10 }}>{u.eyebrow}</p>
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,42px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
-              {isGate && (
-                <div style={{ width: "min(380px, 100%)", margin: "2px auto 14px" }}>
-                  <InlineSearch lang={lang} dark={chromeDark} gate open={searchOpen} onOpen={() => setSearchOpen(true)} onClose={() => setSearchOpen(false)} onPick={dive} />
-                </div>
-              )}
               <p style={{ fontFamily: "var(--font-sans)", fontSize: topText ? 14 : 15, lineHeight: 1.65, color: C.body }}>{node.guide[lang]}</p>
               {node.features && node.features.length > 0 && node.realm !== "space" && (
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, letterSpacing: "0.04em", color: C.muted, marginTop: 12 }}>
                   ✦ {node.features.map((f) => f[lang]).join(" · ")}
                 </p>
               )}
+              {/* související pojmy — jen text, žádné špagety */}
+              {related.length > 0 && (
+                <p style={{ pointerEvents: "auto", fontFamily: "var(--font-sans)", fontSize: 13, marginTop: 16, display: "flex", gap: "8px 14px", justifyContent: "center", flexWrap: "wrap" }}>
+                  <span style={{ color: C.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", alignSelf: "center" }}>{u.related}</span>
+                  {related.map((r) => (
+                    <button key={r.slug} onClick={() => dive(r.slug)} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: C.text, fontWeight: 600, fontFamily: "var(--font-sans)", fontSize: 13, textDecoration: "underline", textUnderlineOffset: 3 }}>{r.label}</button>
+                  ))}
+                </p>
+              )}
               {node.links && node.links.length > 0 && (
-                <p style={{ pointerEvents: "auto", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, marginTop: 14, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
+                <p style={{ pointerEvents: "auto", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, marginTop: 12, display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap" }}>
                   {node.links.map((l) => (
                     <Link key={l.href} href={l.href} style={{ color: C.text, textDecoration: "underline", textUnderlineOffset: 3 }}>{l.label[lang]}</Link>
                   ))}
