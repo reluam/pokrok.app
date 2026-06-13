@@ -59,6 +59,14 @@ async function ensure(sql: Sql) {
   // projektové URL anglicky (2026-06-12)
   await sql`UPDATE experiments SET href = '/encyclopedia' WHERE slug = 'encyklopedie' AND href = '/encyklopedie'`;
   await sql`UPDATE experiments SET href = '/synapsis' WHERE slug = 'brain' AND href IN ('/brain', '/synapse')`;
+  // Decision Maker → kanonický draft se slugem 'decision-maker' (kvůli guardu draft = jen admin).
+  // Když nápad už pod tímhle slugem existuje, jen se povýší na draft (titul/popis zůstanou).
+  await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published, stage)
+    VALUES ('decision-maker', 'Decision Maker', 'Decision Maker',
+      'Nástroj na rozhodování, když jsi zaseknutý na 50/50. Pro a proti s vahami, fyzikální přetahování a moment „odříznutí" (decidere).',
+      'A tool for decisions when you are stuck at 50/50. Weighted pros and cons, a physical tug, and the moment of cutting away the rest (decidere).',
+      '#E0F2FE', '/decision-maker', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
+    ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/decision-maker'`;
   ready = true;
 }
 
