@@ -159,9 +159,11 @@ body {
 /* music — plovoucí noty */
 .exp-note { position: absolute; bottom: 10px; font-size: 22px; color: #7c3aed; opacity: 0; animation: exp-note 3.6s ease-in-out infinite; }
 @keyframes exp-note { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 0.55; } 100% { transform: translateY(-78px); opacity: 0; } }
-/* radio — vysílací kruhy */
-.exp-broadcast { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border: 2.5px solid #16a34a; border-radius: 50%; opacity: 0.5; animation: exp-bc 2.7s ease-out infinite; }
-@keyframes exp-bc { 0% { transform: scale(0.3); opacity: 0.6; } 100% { transform: scale(7); opacity: 0; } }
+/* radio — vysílací kruhy ze středu */
+.exp-broadcast { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border: 2.5px solid #16a34a; border-radius: 50%; opacity: 0.5; animation: exp-bc 2.8s ease-out infinite; }
+@keyframes exp-bc { 0% { transform: scale(0.25); opacity: 0.6; } 100% { transform: scale(8); opacity: 0; } }
+.exp-broadcast-core { position: absolute; left: 50%; top: 50%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; background: #16a34a; animation: exp-core 2.8s ease-in-out infinite; }
+@keyframes exp-core { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
 /* brain — pulzující synapse */
 .exp-syn { animation: exp-syn 2.4s ease-in-out infinite; }
 @keyframes exp-syn { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }

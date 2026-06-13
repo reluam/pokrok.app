@@ -16,15 +16,27 @@ const SKINS: Record<string, Skin> = {
 const NET_NODES: [number, number][] = [[40, 40], [95, 90], [150, 45], [210, 95], [265, 55], [120, 130], [200, 28], [300, 110], [70, 110], [250, 130]];
 const NET_EDGES: [number, number][] = [[0, 1], [1, 2], [2, 4], [1, 5], [4, 7], [2, 6], [0, 8], [5, 9], [4, 3], [3, 9]];
 
+// Encyklopedie — síť propojených hesel nudlemi (to, čím encyklopedie doslova je)
+const ENC_NODES: [number, number][] = [[42, 50], [108, 30], [172, 70], [240, 38], [298, 92], [78, 112], [208, 120], [148, 92]];
+const ENC_EDGES: [number, number][] = [[0, 1], [1, 2], [2, 3], [3, 4], [2, 7], [0, 5], [5, 7], [7, 6], [6, 4]];
+const ENC_PATHS: string[] = ENC_EDGES.map(([a, b], i) => {
+  const [x1, y1] = ENC_NODES[a], [x2, y2] = ENC_NODES[b];
+  const nx = -(y2 - y1), ny = x2 - x1, len = Math.hypot(nx, ny) || 1;
+  const bow = 16 * (i % 2 ? 1 : -1);
+  const cx = (x1 + x2) / 2 + (nx / len) * bow, cy = (y1 + y2) / 2 + (ny / len) * bow;
+  return `M ${x1} ${y1} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${x2} ${y2}`;
+});
+
 function Art({ slug }: { slug: string }) {
   switch (slug) {
-    case "encyklopedie": // splácané nudle poznání
+    case "encyklopedie": // síť hesel propojených nudlemi — mapa poznání
       return (
         <svg className="exp-art-svg" viewBox="0 0 340 152" preserveAspectRatio="xMidYMid slice" aria-hidden>
-          {[18, 52, 96, 134].map((y, i) => (
-            <path key={i} className="exp-noodle" style={{ animationDelay: `${i * 0.4}s` }}
-              d={`M -10 ${y} C 60 ${y - 28}, 120 ${y + 30}, 190 ${y} S 320 ${y - 26}, 360 ${y + 6}`}
-              fill="none" stroke="#b8861f" strokeWidth={5} strokeLinecap="round" opacity={0.45} />
+          {ENC_PATHS.map((d, i) => (
+            <path key={i} d={d} fill="none" stroke="#b8861f" strokeWidth={3.5} strokeLinecap="round" opacity={0.42} />
+          ))}
+          {ENC_NODES.map(([x, y], i) => (
+            <circle key={i} className="exp-syn" cx={x} cy={y} r={i % 3 === 0 ? 5.5 : 3.8} fill="#a8690f" style={{ animationDelay: `${(i % 5) * 0.35}s` }} />
           ))}
         </svg>
       );
@@ -42,11 +54,11 @@ function Art({ slug }: { slug: string }) {
           {["♪", "♫", "♩"].map((n, i) => <span key={i} className="exp-note" style={{ left: `${16 + i * 32}%`, animationDelay: `${i * 0.8}s` }}>{n}</span>)}
         </div>
       );
-    case "radio": // vysílací kruhy + ekvalizér
+    case "radio": // jen vysílací kruhy ze středu
       return (
         <div className="exp-art-fill" aria-hidden>
-          {[0, 0.9, 1.8].map((d, i) => <span key={i} className="exp-broadcast" style={{ animationDelay: `${d}s` }} />)}
-          <div className="exp-eq exp-eq-green">{Array.from({ length: 22 }).map((_, i) => <span key={i} style={{ animationDelay: `${(i % 7) * 0.1}s`, animationDuration: `${0.7 + (i % 4) * 0.18}s` }} />)}</div>
+          {[0, 0.7, 1.4, 2.1].map((d, i) => <span key={i} className="exp-broadcast" style={{ animationDelay: `${d}s` }} />)}
+          <span className="exp-broadcast-core" />
         </div>
       );
     case "brain": // synaptická síť s pulzem
