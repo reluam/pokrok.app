@@ -67,6 +67,13 @@ async function ensure(sql: Sql) {
       'A tool for decisions when you are stuck at 50/50. Weighted pros and cons, a physical tug, and the moment of cutting away the rest (decidere).',
       '#E0F2FE', '/decision-maker', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
     ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/decision-maker'`;
+  // About / Mapa Spaghetti — draft, samostatný projekt
+  await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published, stage)
+    VALUES ('about', 'Mapa Spaghetti', 'Map of Spaghetti',
+      'Mapa toho, jak Spaghetti souvisí: projekty jako nody, koncepty jako sdílené nudle. Proč experimenty vznikly a jak fungují.',
+      'A map of how Spaghetti connects: projects as nodes, concepts as shared noodles. Why the experiments came to be and how they work.',
+      '#FEF3C7', '/about', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
+    ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/about'`;
   ready = true;
 }
 

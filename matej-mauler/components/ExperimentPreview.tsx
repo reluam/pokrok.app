@@ -10,7 +10,12 @@ const SKINS: Record<string, Skin> = {
   radio: { bg: "linear-gradient(135deg,#DCFCE7 0%,#bbf7d0 100%)", ink: "#14532d" },
   brain: { bg: "linear-gradient(160deg,#1b1230 0%,#3a1d4d 100%)", ink: "#fbcfe8", shadow: "0 1px 18px rgba(244,114,182,0.4)" },
   "decision-maker": { bg: "linear-gradient(135deg,#E0F2FE 0%,#bae6fd 100%)", ink: "#0c4a6e" },
+  about: { bg: "linear-gradient(135deg,#FEF3C7 0%,#fde2b0 100%)", ink: "#5b3d12" },
 };
+
+// About — síť barevných nodů projektů (sdílené koncepty uprostřed)
+const ABOUT_DOTS: [number, number, string][] = [[60, 50, "#e0a52e"], [150, 32, "#6d82e6"], [250, 54, "#9b6ef0"], [296, 104, "#16a34a"], [70, 110, "#ec4899"], [200, 120, "#0ea5e9"]];
+const ABOUT_HUB: [number, number][] = [[150, 78], [210, 64], [110, 92]];
 
 // Synapse network — deterministické body + spoje
 const NET_NODES: [number, number][] = [[40, 40], [95, 90], [150, 45], [210, 95], [265, 55], [120, 130], [200, 28], [300, 110], [70, 110], [250, 130]];
@@ -80,6 +85,16 @@ function Art({ slug }: { slug: string }) {
           <path className="exp-tug exp-tug-l" d="M 44 76 Q 107 118 170 104" fill="none" stroke="#c8a24a" strokeWidth={4} strokeLinecap="round" />
           <path className="exp-tug exp-tug-r" d="M 170 104 Q 233 118 296 76" fill="none" stroke="#c8a24a" strokeWidth={4} strokeLinecap="round" />
           <circle className="exp-knot" cx={170} cy={104} r={6} fill="#0c4a6e" />
+        </svg>
+      );
+    case "about": // síť barevných projektů kolem sdílených konceptů
+      return (
+        <svg className="exp-art-svg" viewBox="0 0 340 152" preserveAspectRatio="xMidYMid slice" aria-hidden>
+          {ABOUT_DOTS.map(([x, y], i) => ABOUT_HUB.map(([hx, hy], j) => (
+            <line key={`${i}-${j}`} x1={x} y1={y} x2={hx} y2={hy} stroke="#b8861f" strokeWidth={1.5} opacity={(i + j) % 2 ? 0.28 : 0} />
+          )))}
+          {ABOUT_HUB.map(([x, y], i) => <circle key={`h${i}`} cx={x} cy={y} r={3} fill="#a8690f" opacity={0.5} />)}
+          {ABOUT_DOTS.map(([x, y, c], i) => <circle key={i} className="exp-syn" cx={x} cy={y} r={6} fill={c} stroke="#6b4310" strokeWidth={1.5} style={{ animationDelay: `${(i % 4) * 0.3}s` }} />)}
         </svg>
       );
     default: // obecný hravý fallback — plovoucí kuličky
