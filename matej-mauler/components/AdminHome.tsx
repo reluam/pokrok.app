@@ -209,8 +209,8 @@ export function AdminHome({ data }: { data: DashboardData }) {
         {tab === "projects" && (
           <>
             <h1 style={{ ...display, fontSize: 26, fontWeight: 900, marginBottom: 6 }}>Projekty</h1>
-            <p style={{ fontFamily: sans, fontSize: 13, color: "var(--text-muted)", marginBottom: 4 }}>
-              Klikni na ✎ a uprav nastavení projektu (názvy, popisky, barvu, URL, publikaci, pořadí).
+            <p style={{ fontFamily: sans, fontSize: 13, color: "var(--text-muted)", marginBottom: 14 }}>
+              Kanban: nápady vlevo, rozpracované uprostřed, aktivní vpravo. Táhni karty podle stavu, klikni na kartu pro nastavení.
             </p>
             <ExperimentsAdmin initial={data.rows} embedded />
           </>

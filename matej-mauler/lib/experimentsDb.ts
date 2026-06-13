@@ -6,12 +6,14 @@ import { isAdmin } from "./adminAuth";
 
 type Sql = ReturnType<typeof getDb>;
 
+export type Stage = "idea" | "draft" | "published";
 export type ExperimentRow = {
   slug: string;
   title_cs: string; title_en: string;
   desc_cs: string; desc_en: string;
   color: string; href: string; external: boolean;
   sort_order: number; published: boolean;
+  stage: Stage;
   published_at: string | null; created_at?: string;
 };
 export type PublicExperiment = { slug: string; title: string; description: string; color: string; href: string; external: boolean; date: string; number: number };
@@ -30,14 +32,17 @@ async function ensure(sql: Sql) {
   )`;
   await sql`ALTER TABLE experiments ADD COLUMN IF NOT EXISTS published_at DATE`;
   await sql`ALTER TABLE experiments ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE`;
+  // kanban fáze: idea | draft | published — backfill z dosavadního published
+  await sql`ALTER TABLE experiments ADD COLUMN IF NOT EXISTS stage TEXT`;
+  await sql`UPDATE experiments SET stage = CASE WHEN published THEN 'published' ELSE 'draft' END WHERE stage IS NULL`;
   // seed z kódu (jen co ještě není)
   for (let i = 0; i < STATIC.length; i++) {
     const m = STATIC[i];
     const cs = dictionaries.cs.experiments.find((e) => e.slug === m.slug);
     const en = dictionaries.en.experiments.find((e) => e.slug === m.slug);
     if (!cs || !en || !m.href) continue;
-    await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published)
-      VALUES (${m.slug}, ${cs.title}, ${en.title}, ${cs.description}, ${en.description}, ${m.color}, ${m.href}, ${!!m.external}, ${i}, ${!m.wip})
+    await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published, stage)
+      VALUES (${m.slug}, ${cs.title}, ${en.title}, ${cs.description}, ${en.description}, ${m.color}, ${m.href}, ${!!m.external}, ${i}, ${!m.wip}, ${m.wip ? "draft" : "published"})
       ON CONFLICT (slug) DO NOTHING`;
   }
   // korekce přejmenovaných routes (idempotentní)
@@ -123,16 +128,34 @@ export async function patchExperiment(slug: string, f: Partial<ExperimentRow>): 
   const [cur] = await sql`SELECT * FROM experiments WHERE slug = ${slug}` as ExperimentRow[];
   if (!cur) return;
   const n = { ...cur, ...f };
-  await sql`UPDATE experiments SET title_cs=${n.title_cs}, title_en=${n.title_en}, desc_cs=${n.desc_cs}, desc_en=${n.desc_en}, color=${n.color}, href=${n.href}, external=${n.external}, published=${n.published}, published_at=${n.published_at || null} WHERE slug=${slug}`;
+  // stage je zdroj pravdy pro published (jen 'published' jde na web)
+  if (f.stage) n.published = f.stage === "published";
+  else if (f.published !== undefined) n.stage = f.published ? "published" : (cur.stage === "idea" ? "idea" : "draft");
+  await sql`UPDATE experiments SET title_cs=${n.title_cs}, title_en=${n.title_en}, desc_cs=${n.desc_cs}, desc_en=${n.desc_en}, color=${n.color}, href=${n.href}, external=${n.external}, published=${n.published}, stage=${n.stage}, published_at=${n.published_at || null} WHERE slug=${slug}`;
 }
 
-export async function createExperiment(r: Omit<ExperimentRow, "sort_order" | "published_at" | "created_at">): Promise<void> {
+export async function createExperiment(r: Omit<ExperimentRow, "sort_order" | "published_at" | "created_at" | "published"> & { published?: boolean }): Promise<void> {
   const sql = getDb();
   await ensure(sql);
+  const stage: Stage = r.stage ?? "idea";
+  const published = stage === "published";
   const [{ max }] = await sql`SELECT COALESCE(MAX(sort_order), -1) AS max FROM experiments` as { max: number }[];
-  await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published)
-    VALUES (${r.slug}, ${r.title_cs}, ${r.title_en}, ${r.desc_cs}, ${r.desc_en}, ${r.color}, ${r.href}, ${r.external}, ${max + 1}, ${r.published})
+  await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published, stage)
+    VALUES (${r.slug}, ${r.title_cs}, ${r.title_en}, ${r.desc_cs}, ${r.desc_en}, ${r.color}, ${r.href}, ${r.external}, ${max + 1}, ${published}, ${stage})
     ON CONFLICT (slug) DO NOTHING`;
+}
+
+/** Volný slug pro nový nápad — slugifikuje titul, při kolizi přidá příponu. */
+export async function uniqueSlug(base: string): Promise<string> {
+  const sql = getDb();
+  await ensure(sql);
+  let root = base.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+  if (!root) root = "napad";
+  const rows = await sql`SELECT slug FROM experiments WHERE slug = ${root} OR slug LIKE ${root + "-%"}` as { slug: string }[];
+  const taken = new Set(rows.map((r) => r.slug));
+  if (!taken.has(root)) return root;
+  for (let i = 2; i < 999; i++) if (!taken.has(`${root}-${i}`)) return `${root}-${i}`;
+  return `${root}-${Date.now().toString(36)}`;
 }
 
 // Soft-delete: ponecháme řádek jako náhrobek (tombstone) → nereseeduje se z kódu,
