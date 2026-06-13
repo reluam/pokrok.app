@@ -1,124 +1,93 @@
-// Lehké CSS/SVG mini-vizualizace pro karty experimentů.
-// Pozn.: odds motiv je server-rendered náhoda (stránka je force-dynamic) → nové číslo při každém načtení.
+// Hravé bannery experimentů ve stylu neal.fun — každý projekt má vlastní vizuální svět
+// (pozadí, motiv, typografii) a název zabudovaný přímo do obrázku.
 
-import { scenarios } from "@/lib/odds";
+type Skin = { bg: string; ink: string; shadow?: string };
 
-type Motif = "bars" | "eq" | "wave" | "stars" | "digits" | "book" | "path" | "rings" | "odds";
-
-const MOTIF: Record<string, Motif> = {
-  encyklopedie: "book",
-  sound: "wave",
-  music: "bars",
-  radio: "eq",
-  brain: "rings",
+const SKINS: Record<string, Skin> = {
+  encyklopedie: { bg: "linear-gradient(135deg,#FEF3C7 0%,#FDE68A 100%)", ink: "#6b4310" },
+  sound: { bg: "linear-gradient(135deg,#E0E7FF 0%,#C7D2FE 100%)", ink: "#27348b" },
+  music: { bg: "linear-gradient(135deg,#efe9fb 0%,#ddd0f7 100%)", ink: "#5b2e96" },
+  radio: { bg: "linear-gradient(135deg,#DCFCE7 0%,#bbf7d0 100%)", ink: "#14532d" },
+  brain: { bg: "linear-gradient(160deg,#1b1230 0%,#3a1d4d 100%)", ink: "#fbcfe8", shadow: "0 1px 18px rgba(244,114,182,0.4)" },
+  "decision-maker": { bg: "linear-gradient(135deg,#E0F2FE 0%,#bae6fd 100%)", ink: "#0c4a6e" },
 };
 
-const STAR_POS = [
-  [12, 30], [22, 65], [34, 22], [44, 50], [55, 72], [64, 32],
-  [74, 58], [83, 26], [88, 68], [28, 44], [50, 28], [70, 76], [18, 80], [60, 52],
-];
+// Synapse network — deterministické body + spoje
+const NET_NODES: [number, number][] = [[40, 40], [95, 90], [150, 45], [210, 95], [265, 55], [120, 130], [200, 28], [300, 110], [70, 110], [250, 130]];
+const NET_EDGES: [number, number][] = [[0, 1], [1, 2], [2, 4], [1, 5], [4, 7], [2, 6], [0, 8], [5, 9], [4, 3], [3, 9]];
 
-// Cesta životem – body a poslední je cíl (vlajka)
-const PATH_PTS: [number, number][] = [[16, 64], [48, 38], [80, 62], [112, 34], [144, 58]];
-const FLAG: [number, number] = [174, 40];
-
-export function ExperimentPreview({ slug, color, lang = "cs" }: { slug: string; color: string; lang?: "cs" | "en" }) {
-  const motif = MOTIF[slug] ?? "bars";
-  const oddsScenario = motif === "odds" ? scenarios[Math.floor(Math.random() * scenarios.length)] : null;
-  return (
-    <div className="exp-visual" style={{ background: color }}>
-      {motif === "bars" && (
-        <div className="m-bars">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <span key={i} style={{ animationDelay: `${i * 0.11}s` }} />
+function Art({ slug }: { slug: string }) {
+  switch (slug) {
+    case "encyklopedie": // splácané nudle poznání
+      return (
+        <svg className="exp-art-svg" viewBox="0 0 340 152" preserveAspectRatio="xMidYMid slice" aria-hidden>
+          {[18, 52, 96, 134].map((y, i) => (
+            <path key={i} className="exp-noodle" style={{ animationDelay: `${i * 0.4}s` }}
+              d={`M -10 ${y} C 60 ${y - 28}, 120 ${y + 30}, 190 ${y} S 320 ${y - 26}, 360 ${y + 6}`}
+              fill="none" stroke="#b8861f" strokeWidth={5} strokeLinecap="round" opacity={0.45} />
           ))}
-        </div>
-      )}
-
-      {/* Spaghetti Radio – ekvalizér přes celou šířku */}
-      {motif === "eq" && (
-        <div className="m-eq">
-          {Array.from({ length: 22 }).map((_, i) => (
-            <span key={i} style={{ animationDelay: `${(i % 7) * 0.1}s`, animationDuration: `${0.7 + (i % 4) * 0.18}s` }} />
-          ))}
-        </div>
-      )}
-
-      {motif === "wave" && (
-        <div className="m-wave">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <span key={i} style={{ animationDelay: `${i * 0.09}s` }} />
-          ))}
-        </div>
-      )}
-
-      {motif === "stars" && STAR_POS.map(([x, y], i) => (
-        <span key={i} className="m-stars-dot" style={{ position: "absolute", width: 5, height: 5, borderRadius: "50%", background: "#1a1614", left: `${x}%`, top: `${y}%`, opacity: 0.2, animation: `m-twk 2.2s ease-in-out infinite`, animationDelay: `${(i % 7) * 0.3}s` }} />
-      ))}
-
-      {/* How much time – měnící se čísla přes celou šířku */}
-      {motif === "digits" && (
-        <div className="m-digits">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i} className="m-digit">
-              <span className="m-reel" style={{ animationDuration: `${0.85 + (i % 4) * 0.22}s` }}>
-                {"0123456789".split("").map((d, j) => <b key={j}>{d}</b>)}
-                <b>0</b>
-              </span>
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* VVV – listující kniha */}
-      {motif === "book" && (
-        <div className="m-book">
-          <span className="pg l" />
-          <span className="pg r" />
-          <span className="leaf" style={{ background: color }} />
-        </div>
-      )}
-
-      {/* Journey – cesta z kuliček, postupné zvýraznění, cílová vlajka */}
-      {motif === "path" && (
-        <svg className="m-path" viewBox="0 0 200 92" width="88%" preserveAspectRatio="xMidYMid meet">
-          <polyline
-            className="m-path-line"
-            points={[...PATH_PTS, FLAG].map(([x, y]) => `${x},${y}`).join(" ")}
-            pathLength={1}
-            fill="none"
-          />
-          {PATH_PTS.map(([x, y], i) => (
-            <circle key={i} className="m-path-dot" cx={x} cy={y} r="5" style={{ animationDelay: `${i * 0.42}s` }} />
-          ))}
-          {/* cílová vlajka */}
-          <g className="m-flag">
-            <line x1={FLAG[0]} y1={FLAG[1]} x2={FLAG[0]} y2={FLAG[1] - 26} />
-            <rect x={FLAG[0]} y={FLAG[1] - 26} width="22" height="15" />
-            <rect className="chk" x={FLAG[0]} y={FLAG[1] - 26} width="5.5" height="7.5" />
-            <rect className="chk" x={FLAG[0] + 11} y={FLAG[1] - 26} width="5.5" height="7.5" />
-            <rect className="chk" x={FLAG[0] + 5.5} y={FLAG[1] - 18.5} width="5.5" height="7.5" />
-            <rect className="chk" x={FLAG[0] + 16.5} y={FLAG[1] - 18.5} width="5.5" height="7.5" />
-          </g>
         </svg>
-      )}
-
-      {/* odds – náhodná pravděpodobnost přímo v kartě (nové číslo při každém načtení) */}
-      {motif === "odds" && oddsScenario && (
-        <div className="m-odds">
-          <span className="m-odds-q">{lang === "en" ? oddsScenario.question.en : oddsScenario.question.cs}</span>
-          <span className="m-odds-v">{oddsScenario.odds}</span>
+      );
+    case "sound": // sinusová vlna přes celou šířku
+      return (
+        <svg className="exp-art-svg" viewBox="0 0 340 152" preserveAspectRatio="none" aria-hidden>
+          <path className="exp-sine" d="M0 76 Q 28 26 56 76 T 112 76 T 168 76 T 224 76 T 280 76 T 336 76 T 392 76 T 448 76" fill="none" stroke="#3b51c4" strokeWidth={4} strokeLinecap="round" opacity={0.5} />
+          <path className="exp-sine2" d="M0 76 Q 28 116 56 76 T 112 76 T 168 76 T 224 76 T 280 76 T 336 76 T 392 76 T 448 76" fill="none" stroke="#6d82e6" strokeWidth={3} strokeLinecap="round" opacity={0.4} />
+        </svg>
+      );
+    case "music": // ekvalizér dole + plovoucí noty
+      return (
+        <div className="exp-art-fill" aria-hidden>
+          <div className="exp-eq">{Array.from({ length: 26 }).map((_, i) => <span key={i} style={{ animationDelay: `${(i % 8) * 0.1}s`, animationDuration: `${0.7 + (i % 4) * 0.2}s` }} />)}</div>
+          {["♪", "♫", "♩"].map((n, i) => <span key={i} className="exp-note" style={{ left: `${16 + i * 32}%`, animationDelay: `${i * 0.8}s` }}>{n}</span>)}
         </div>
-      )}
-
-      {motif === "rings" && (
-        <>
-          {[0, 0.8, 1.6].map((d, i) => (
-            <span key={i} style={{ position: "absolute", border: "2px solid #1a1614", borderRadius: "50%", animation: "m-ring 2.4s ease-out infinite", animationDelay: `${d}s` }} />
+      );
+    case "radio": // vysílací kruhy + ekvalizér
+      return (
+        <div className="exp-art-fill" aria-hidden>
+          {[0, 0.9, 1.8].map((d, i) => <span key={i} className="exp-broadcast" style={{ animationDelay: `${d}s` }} />)}
+          <div className="exp-eq exp-eq-green">{Array.from({ length: 22 }).map((_, i) => <span key={i} style={{ animationDelay: `${(i % 7) * 0.1}s`, animationDuration: `${0.7 + (i % 4) * 0.18}s` }} />)}</div>
+        </div>
+      );
+    case "brain": // synaptická síť s pulzem
+      return (
+        <svg className="exp-art-svg" viewBox="0 0 340 152" preserveAspectRatio="xMidYMid slice" aria-hidden>
+          {NET_EDGES.map(([a, b], i) => (
+            <line key={i} x1={NET_NODES[a][0]} y1={NET_NODES[a][1]} x2={NET_NODES[b][0]} y2={NET_NODES[b][1]} stroke="#f472b6" strokeWidth={1.5} opacity={0.4} />
           ))}
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#1a1614", position: "relative" }} />
-        </>
-      )}
+          {NET_NODES.map(([x, y], i) => (
+            <circle key={i} className="exp-syn" cx={x} cy={y} r={3.5} fill="#f9a8d4" style={{ animationDelay: `${(i % 5) * 0.3}s` }} />
+          ))}
+        </svg>
+      );
+    case "decision-maker": // přetahovaná nudle s uzlem
+      return (
+        <svg className="exp-art-svg" viewBox="0 0 340 152" preserveAspectRatio="xMidYMid meet" aria-hidden>
+          <circle cx={44} cy={76} r={10} fill="#60a5fa" stroke="#0c4a6e" strokeWidth={2} />
+          <circle cx={296} cy={76} r={10} fill="#f59e0b" stroke="#0c4a6e" strokeWidth={2} />
+          <path className="exp-tug exp-tug-l" d="M 44 76 Q 107 118 170 104" fill="none" stroke="#c8a24a" strokeWidth={4} strokeLinecap="round" />
+          <path className="exp-tug exp-tug-r" d="M 170 104 Q 233 118 296 76" fill="none" stroke="#c8a24a" strokeWidth={4} strokeLinecap="round" />
+          <circle className="exp-knot" cx={170} cy={104} r={6} fill="#0c4a6e" />
+        </svg>
+      );
+    default: // obecný hravý fallback — plovoucí kuličky
+      return (
+        <div className="exp-art-fill" aria-hidden>
+          {Array.from({ length: 9 }).map((_, i) => (
+            <span key={i} className="exp-float" style={{ left: `${(i * 11 + 6) % 96}%`, top: `${(i * 37) % 70 + 12}%`, animationDelay: `${i * 0.4}s`, width: 8 + (i % 3) * 5, height: 8 + (i % 3) * 5 }} />
+          ))}
+        </div>
+      );
+  }
+}
+
+export function ExperimentPreview({ slug, title, color, lang = "cs" }: { slug: string; title?: string; color: string; lang?: "cs" | "en" }) {
+  void lang;
+  const skin = SKINS[slug];
+  return (
+    <div className="exp-banner" style={{ background: skin?.bg ?? color }}>
+      <Art slug={slug} />
+      {title && <span className="exp-banner-title" style={{ color: skin?.ink ?? "#1a1614", textShadow: skin?.shadow }}>{title}</span>}
     </div>
   );
 }

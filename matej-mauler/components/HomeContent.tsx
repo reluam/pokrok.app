@@ -76,7 +76,7 @@ export function HomeContent({ dict, lang, items, songs = [] }: { dict: Dictionar
               {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="exp-article"
             >
-              <ExperimentPreview slug={item.slug} color={item.color} lang={lang} />
+              <ExperimentPreview slug={item.slug} title={item.title} color={item.color} lang={lang} />
               <div className="exp-body">
                 <div className="exp-meta">
                   <span>#{String(item.number).padStart(2, "0")}</span>
@@ -84,7 +84,6 @@ export function HomeContent({ dict, lang, items, songs = [] }: { dict: Dictionar
                   <span>{fmtDate(item.date, lang)}</span>
                   {CATEGORIES[item.slug] && <span className="exp-cat">{CATEGORIES[item.slug]}</span>}
                 </div>
-                <h3 className="exp-title">{item.title}</h3>
                 {/* A/B: popisky ve feedu = Space Grotesk */}
                 <p className="exp-desc" style={{ fontFamily: "var(--font-grotesk)" }}>{item.description}</p>
               </div>

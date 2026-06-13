@@ -139,6 +139,39 @@ body {
 .exp-title { font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 6px; }
 .exp-desc { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
 
+/* ── Hravé bannery (neal.fun styl): vlastní svět + název v obrázku ── */
+.exp-banner { position: relative; height: 156px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 2.5px solid var(--border); }
+.exp-art-svg, .exp-art-fill { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; transition: transform 0.3s var(--transition); }
+.exp-banner-title { position: relative; z-index: 1; font-family: var(--font-display); font-weight: 900; font-size: clamp(22px, 4.6vw, 31px); letter-spacing: -0.03em; line-height: 1.04; text-align: center; padding: 0 18px; }
+.exp-article:hover .exp-art-svg, .exp-article:hover .exp-art-fill { transform: scale(1.06); }
+
+/* encyklopedie — vlnící se nudle */
+.exp-noodle { animation: exp-noodle 5s ease-in-out infinite; }
+@keyframes exp-noodle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+/* sound — posouvající se sinusovka (vlnová délka 56) */
+.exp-sine { animation: exp-slide 3s linear infinite; }
+.exp-sine2 { animation: exp-slide 4.4s linear infinite reverse; }
+@keyframes exp-slide { from { transform: translateX(0); } to { transform: translateX(-56px); } }
+/* music + radio — ekvalizér u dna */
+.exp-eq { position: absolute; left: 0; right: 0; bottom: 0; height: 58%; display: flex; align-items: flex-end; gap: 3px; padding: 0 8px; }
+.exp-eq span { flex: 1; background: #7c3aed; opacity: 0.4; border-radius: 3px 3px 0 0; height: 30%; animation: m-eq 0.9s ease-in-out infinite; }
+.exp-eq-green span { background: #16a34a; opacity: 0.35; }
+/* music — plovoucí noty */
+.exp-note { position: absolute; bottom: 10px; font-size: 22px; color: #7c3aed; opacity: 0; animation: exp-note 3.6s ease-in-out infinite; }
+@keyframes exp-note { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 0.55; } 100% { transform: translateY(-78px); opacity: 0; } }
+/* radio — vysílací kruhy */
+.exp-broadcast { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border: 2.5px solid #16a34a; border-radius: 50%; opacity: 0.5; animation: exp-bc 2.7s ease-out infinite; }
+@keyframes exp-bc { 0% { transform: scale(0.3); opacity: 0.6; } 100% { transform: scale(7); opacity: 0; } }
+/* brain — pulzující synapse */
+.exp-syn { animation: exp-syn 2.4s ease-in-out infinite; }
+@keyframes exp-syn { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+/* fallback — plovoucí kuličky */
+.exp-float { position: absolute; border-radius: 50%; background: rgba(26,22,20,0.18); animation: exp-float 3.6s ease-in-out infinite; }
+@keyframes exp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@media (prefers-reduced-motion: reduce) {
+  .exp-noodle, .exp-sine, .exp-sine2, .exp-eq span, .exp-note, .exp-broadcast, .exp-syn, .exp-float { animation: none !important; }
+}
+
 /* ── Mini-vizualizace ── */
 .m-ink { background: #1a1614; }
 .m-bars { display: flex; align-items: flex-end; gap: 6px; height: 56%; }
