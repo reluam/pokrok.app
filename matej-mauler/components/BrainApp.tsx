@@ -89,6 +89,7 @@ const T = {
     introSkip: "Mám síť rovnou →",
     progress: (n: number, goal: number) => `tvé asociace: ${n} / ${goal}`,
     goalReached: "Hotovo! Asociací máš dost.",
+    choosePrompt: "Můžeš se rovnou podívat na síť, nebo přidat další asociace.",
     next: "Dále →",
     keepGoing: "Pokračovat v asociacích",
     explainTitle: "Proč zrovna tahle slova?",
@@ -155,6 +156,7 @@ const T = {
     introSkip: "Just show me the network →",
     progress: (n: number, goal: number) => `your associations: ${n} / ${goal}`,
     goalReached: "Done! You have enough associations.",
+    choosePrompt: "You can jump straight to the network, or add more associations.",
     next: "Next →",
     keepGoing: "Keep associating",
     explainTitle: "Why these words?",
@@ -322,59 +324,72 @@ export function BrainApp({ lang }: { lang: Lang }) {
               {done ? t.goalReached : t.progress(myAssoc.length, ASSOC_GOAL)}
             </p>
 
-            <p style={{ ...sans, fontSize: 13.5, color: "var(--text-secondary)", margin: 0 }}>{t.prompt}</p>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap", margin: "8px 0 24px", minHeight: "1.1em" }}>
-              <p style={{ ...display, fontSize: "clamp(36px,8vw,60px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.08, margin: 0 }}>
-                {word ? word.display : <span style={{ opacity: 0.4, fontSize: 17, ...sans, fontWeight: 400 }}>{t.loadingWord}</span>}
-              </p>
-              {word && (
-                <button onClick={() => { setLast(null); fetchWord(appLang, word?.id); inputRef.current?.focus(); }} style={{
-                  background: "rgba(255,255,255,0.8)", border: "1px solid rgba(26,22,20,0.2)", borderRadius: 999,
-                  padding: "8px 16px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
-                  color: "var(--text-primary)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-                }}>{t.dice}</button>
-              )}
-            </div>
+            {(!done || continuing) && (
+              <>
+                <p style={{ ...sans, fontSize: 13.5, color: "var(--text-secondary)", margin: 0 }}>{t.prompt}</p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap", margin: "8px 0 24px", minHeight: "1.1em" }}>
+                  <p style={{ ...display, fontSize: "clamp(36px,8vw,60px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.08, margin: 0 }}>
+                    {word ? word.display : <span style={{ opacity: 0.4, fontSize: 17, ...sans, fontWeight: 400 }}>{t.loadingWord}</span>}
+                  </p>
+                  {word && (
+                    <button onClick={() => { setLast(null); fetchWord(appLang, word?.id); inputRef.current?.focus(); }} style={{
+                      background: "rgba(255,255,255,0.8)", border: "1px solid rgba(26,22,20,0.2)", borderRadius: 999,
+                      padding: "8px 16px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
+                      color: "var(--text-primary)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+                    }}>{t.dice}</button>
+                  )}
+                </div>
 
-            <form onSubmit={submit} style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-              <input
-                ref={inputRef}
-                value={input}
-                onChange={(e) => { setInput(e.target.value); setErr(null); }}
-                placeholder={t.placeholder}
-                autoFocus
-                maxLength={60}
-                style={{
-                  flex: 1, minWidth: 200, maxWidth: 340, background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(26,22,20,0.2)", borderRadius: 999,
-                  padding: "12px 18px", ...sans, fontSize: 14,
-                  color: "var(--text-primary)", outline: "none",
-                  backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-                }}
-              />
-              <button type="submit" disabled={!word || !input.trim() || busy} style={{
-                background: "var(--text-primary)", color: "var(--bg)", border: "none",
-                borderRadius: 999, padding: "12px 22px",
-                ...sans, fontSize: 13.5, fontWeight: 700, cursor: "pointer",
-                opacity: (!word || !input.trim() || busy) ? 0.4 : 1,
-              }}>{t.send}</button>
-            </form>
+                <form onSubmit={submit} style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                  <input
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => { setInput(e.target.value); setErr(null); }}
+                    placeholder={t.placeholder}
+                    autoFocus
+                    maxLength={60}
+                    style={{
+                      flex: 1, minWidth: 200, maxWidth: 340, background: "rgba(255,255,255,0.8)",
+                      border: "1px solid rgba(26,22,20,0.2)", borderRadius: 999,
+                      padding: "12px 18px", ...sans, fontSize: 14,
+                      color: "var(--text-primary)", outline: "none",
+                      backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+                    }}
+                  />
+                  <button type="submit" disabled={!word || !input.trim() || busy} style={{
+                    background: "var(--text-primary)", color: "var(--bg)", border: "none",
+                    borderRadius: 999, padding: "12px 22px",
+                    ...sans, fontSize: 13.5, fontWeight: 700, cursor: "pointer",
+                    opacity: (!word || !input.trim() || busy) ? 0.4 : 1,
+                  }}>{t.send}</button>
+                </form>
 
-            {err && <p style={{ ...sans, fontSize: 13, color: "#b91c1c", margin: "14px 0 0" }}>{err}</p>}
+                {err && <p style={{ ...sans, fontSize: 13, color: "#b91c1c", margin: "14px 0 0" }}>{err}</p>}
 
-            {last && !err && (
-              <div style={{ marginTop: 18 }}>
-                <p style={{ ...sans, fontSize: 14, fontWeight: 600, margin: 0 }}>
-                  {last.count > 1 ? t.savedAgain(last.from, last.to.display, last.count) : t.savedNew(last.from, last.to.display)}
-                </p>
-                <p style={{ ...sans, fontSize: 12.5, color: "var(--text-muted)", margin: "5px 0 0" }}>{t.afterSave}</p>
+                {last && !err && (
+                  <div style={{ marginTop: 18 }}>
+                    <p style={{ ...sans, fontSize: 14, fontWeight: 600, margin: 0 }}>
+                      {last.count > 1 ? t.savedAgain(last.from, last.to.display, last.count) : t.savedNew(last.from, last.to.display)}
+                    </p>
+                    <p style={{ ...sans, fontSize: 12.5, color: "var(--text-muted)", margin: "5px 0 0" }}>{t.afterSave}</p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* po splnění + chce pokračovat: pod polem zůstává cesta dál */}
+            {done && continuing && (
+              <div style={{ marginTop: 26, display: "flex", justifyContent: "center" }}>
+                <button onClick={() => setStep("explain")} style={primaryBtn}>{t.next}</button>
               </div>
             )}
 
-            {done && (
-              <div style={{ marginTop: 28, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            {/* po splnění 10: volba — dál na síť, nebo zpět k asociacím */}
+            {done && !continuing && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+                <p style={{ ...sans, fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6, margin: "4px 0 6px", maxWidth: 380 }}>{t.choosePrompt}</p>
                 <button onClick={() => setStep("explain")} style={primaryBtn}>{t.next}</button>
-                {!continuing && <button onClick={() => { setContinuing(true); inputRef.current?.focus(); }} style={subtleBtn}>{t.keepGoing}</button>}
+                <button onClick={() => { setContinuing(true); setLast(null); inputRef.current?.focus(); }} style={subtleBtn}>{t.keepGoing}</button>
               </div>
             )}
           </div>
