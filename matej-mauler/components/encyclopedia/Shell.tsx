@@ -12,14 +12,14 @@ import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
   cs: {
-    home: "← Spaghetti.ltd", eyebrow: "Absurdní encyklopedie", search: "Hledat", searchPh: "Hledej heslo… (třeba „slunce“)",
+    home: "← Spaghetti.ltd", eyebrow: "Encyklopedie", search: "Hledat", searchPh: "Hledej heslo… (třeba „slunce“)",
     empty: "Nic. Encyklopedie je mladá — zkus to jinak.", red: "neprobádáno",
     endHint: "konec větve — vrať se výš, nebo odboč klikem", map: "Mapa všeho", related: "Souvisí",
     redText: "Tohle téma encyklopedie zná, ale zatím ho nikdo neprobádal. Jednou tu bude — pravděpodobně neškodné.",
     wish: "Chci tohle téma", wished: "Zaznamenáno ✓", wishes: (n: number) => `${n}× přáno`,
   },
   en: {
-    home: "← Spaghetti.ltd", eyebrow: "The Absurd Encyclopedia", search: "Search", searchPh: "Search a topic… (try “sun”)",
+    home: "← Spaghetti.ltd", eyebrow: "Encyclopedia", search: "Search", searchPh: "Search a topic… (try “sun”)",
     empty: "Nothing. The encyclopedia is young — try something else.", red: "uncharted",
     endHint: "end of this branch — go back up, or click a detour", map: "Map of everything", related: "Related",
     redText: "The encyclopedia knows about this topic, but nobody has charted it yet. One day it will be here — probably harmless.",

@@ -16,8 +16,8 @@ type MapNode = { slug: string; label: string; realm: string | null; depth: numbe
 type Edge = { a: number; b: number; red: boolean };
 
 const UI = {
-  cs: { back: "← Spaghetti.ltd", eyebrow: "Absurdní encyklopedie", title: "Mapa všeho", legend: { worlds: "barva = svět", red: "neprobádáno" }, hint: "obecné nahoře · konkrétní dole · klikni a jdi" },
-  en: { back: "← Spaghetti.ltd", eyebrow: "The Absurd Encyclopedia", title: "Map of everything", legend: { worlds: "colour = world", red: "uncharted" }, hint: "general up top · specific below · click to go" },
+  cs: { back: "← Spaghetti.ltd", eyebrow: "Encyklopedie", title: "Mapa všeho", legend: { worlds: "barva = svět", red: "neprobádáno" }, hint: "obecné nahoře · konkrétní dole · klikni a jdi" },
+  en: { back: "← Spaghetti.ltd", eyebrow: "Encyclopedia", title: "Map of everything", legend: { worlds: "colour = world", red: "uncharted" }, hint: "general up top · specific below · click to go" },
 } as const;
 
 /** Mapová projekce sdílených dat grafu (graph.ts). */

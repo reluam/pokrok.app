@@ -127,7 +127,7 @@ export function PlanetField({ lang, theme, onPick }: { lang: Lang; theme: Theme;
         <div style={{ textAlign: "center", marginBottom: 14, pointerEvents: "none" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.svg" alt="" width={44} height={44} style={{ display: "block", margin: "0 auto 8px", filter: dark ? "invert(1)" : "none", opacity: 0.95 }} />
-          <p style={{ fontFamily: sans, fontSize: 9.5, textTransform: "uppercase", letterSpacing: "0.28em", color: soft }}>{lang === "cs" ? "Absurdní encyklopedie" : "The Absurd Encyclopedia"}</p>
+          <p style={{ fontFamily: sans, fontSize: 9.5, textTransform: "uppercase", letterSpacing: "0.28em", color: soft }}>{lang === "cs" ? "Encyklopedie" : "Encyclopedia"}</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 9, background: dark ? "rgba(20,22,38,0.82)" : "rgba(255,255,255,0.88)", border: dark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(26,22,20,0.2)", borderRadius: 999, padding: "12px 18px", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", boxShadow: dark ? "none" : "0 6px 24px rgba(26,22,20,0.1)" }}>
           <span aria-hidden>🔍</span>

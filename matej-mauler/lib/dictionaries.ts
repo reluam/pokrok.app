@@ -70,7 +70,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
     experiments: [
       {
         slug: "encyklopedie",
-        title: "Absurdní encyklopedie",
+        title: "Encyklopedie",
         description: "Encyklopedie absurdních fikčních světů — braná smrtelně vážně. Futurama, Simpsonovi, Red Dwarf, Stopařův průvodce… jako by to všechno byla pravda.",
       },
       {
@@ -129,7 +129,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
     experiments: [
       {
         slug: "encyklopedie",
-        title: "The Absurd Encyclopedia",
+        title: "The Encyclopedia",
         description: "An encyclopedia of absurd fictional worlds — taken deadly seriously. Futurama, The Simpsons, Red Dwarf, the Hitchhiker's Guide… as if it were all real.",
       },
       {

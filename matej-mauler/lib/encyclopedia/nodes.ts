@@ -26,7 +26,7 @@ export const SEEDS: Record<string, Bilingual> = {
 const N: NodeDef[] = [
   {
     slug: "brana", realm: "plain",
-    title: { cs: "Absurdní encyklopedie", en: "The Absurd Encyclopedia" },
+    title: { cs: "Encyklopedie", en: "The Encyclopedia" },
     guide: {
       cs: "Žiješ ve světě poskládaném z těch nejabsurdnějších. Tahle encyklopedie ho bere smrtelně vážně — heslo po heslu, jako by to všechno byla pravda. (Je.)",
       en: "You live in a world assembled from the most absurd ones. This encyclopedia takes it deadly seriously — entry by entry, as if all of it were real. (It is.)",

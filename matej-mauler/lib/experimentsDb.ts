@@ -54,7 +54,7 @@ async function ensure(sql: Sql) {
   await sql`UPDATE experiments SET href = '/hudba' WHERE slug = 'musicblaster' AND href = '/music-blaster'`;
   // sjednocení 2026-06: Spaghetti = experimenty z The Lab + Encyklopedie; staré experimenty z feedu pryč
   await sql`UPDATE experiments SET published = FALSE WHERE slug IN ('cas','vvv','odds','sonify','foundry','musicvote','anthem','journey','space','soundverse','musicblaster') AND published = TRUE`;
-  await sql`UPDATE experiments SET published = TRUE, href = '/radio', title_cs = 'Rádio', title_en = 'The Radio', desc_cs = 'Rádio renderované na serveru — všichni slyší totéž a každých 15 vteřin hlasují, co se změní.', desc_en = 'A server-rendered radio — everyone hears the same stream and votes every 15 seconds on what changes next.' WHERE slug = 'radio'`;
+  await sql`UPDATE experiments SET published = FALSE, stage = 'draft', href = '/radio', title_cs = 'Rádio', title_en = 'The Radio', desc_cs = 'Rádio renderované na serveru — všichni slyší totéž a každých 15 vteřin hlasují, co se změní.', desc_en = 'A server-rendered radio — everyone hears the same stream and votes every 15 seconds on what changes next.' WHERE slug = 'radio'`;
   await sql`UPDATE experiments SET href = '/synapse', title_cs = 'Synapse', title_en = 'Synapses', desc_cs = 'Slovo → asociace. Každá odpověď posílí synapsi ve společné síti internetu.', desc_en = ${"Word → association. Every answer strengthens a synapse in the internet's shared network."} WHERE slug = 'brain' AND href = '/brain'`;
   // projektové URL anglicky (2026-06-12)
   await sql`UPDATE experiments SET href = '/encyclopedia' WHERE slug = 'encyklopedie' AND href = '/encyklopedie'`;
@@ -74,7 +74,7 @@ async function ensure(sql: Sql) {
       'A map of how Spaghetti connects: projects as nodes, concepts as shared noodles. Why the experiments came to be and how they work.',
       '#FEF3C7', '/about', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
     ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/about'`;
-  await sql`UPDATE experiments SET title_cs = 'Absurdní encyklopedie', title_en = 'The Absurd Encyclopedia', desc_cs = 'Encyklopedie absurdních fikčních světů — braná smrtelně vážně. Futurama, Simpsonovi, Red Dwarf, Stopařův průvodce… jako by to všechno byla pravda.', desc_en = ${"An encyclopedia of absurd fictional worlds — taken deadly seriously. Futurama, The Simpsons, Red Dwarf, the Hitchhiker's Guide… as if it were all real."} WHERE slug = 'encyklopedie'`;
+  await sql`UPDATE experiments SET title_cs = 'Encyklopedie', title_en = 'The Encyclopedia', desc_cs = 'Encyklopedie absurdních fikčních světů — braná smrtelně vážně. Futurama, Simpsonovi, Red Dwarf, Stopařův průvodce… jako by to všechno byla pravda.', desc_en = ${"An encyclopedia of absurd fictional worlds — taken deadly seriously. Futurama, The Simpsons, Red Dwarf, the Hitchhiker's Guide… as if it were all real."} WHERE slug = 'encyklopedie'`;
   ready = true;
 }
 

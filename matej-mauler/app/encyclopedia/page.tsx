@@ -5,7 +5,7 @@ import { getLang } from "@/lib/getLang";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "The Absurd Encyclopedia — Spaghetti.ltd",
+  title: "The Encyclopedia — Spaghetti.ltd",
   description: "Interaktivní encyklopedie propojená nudlemi poznání. Scrolluj z obecného do konkrétního, klikej do stran — vesmír, zvuk, hudba, Stopařův průvodce a další.",
   alternates: { canonical: "/encyclopedia" },
 };

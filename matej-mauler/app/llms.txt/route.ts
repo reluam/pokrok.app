@@ -26,7 +26,7 @@ Tagline: I have bad ideas and plenty of artificial willpower to build them.
 
 ## Experiments
 
-- [The Absurd Encyclopedia](${SITE}/encyclopedia): An encyclopedia of absurd fictional worlds (Futurama, The Simpsons, Red Dwarf, Hitchhiker's Guide, Rick and Morty, Top Gear, South Park, The Office) written deadpan, as if it were all real. Full term list below; [map of everything](${SITE}/mapa).
+- [The Encyclopedia](${SITE}/encyclopedia): An encyclopedia of absurd fictional worlds (Futurama, The Simpsons, Red Dwarf, Hitchhiker's Guide, Rick and Morty, Top Gear, South Park, The Office) written deadpan, as if it were all real. Full term list below; [map of everything](${SITE}/mapa).
 - [A journey along a sound wave](${SITE}/sound): Your cursor is an ear — scroll through sound from a tremble to an echo, all synthesized live with WebAudio.
 - [How music is made](${SITE}/music): Build a track layer by layer — beat, bass, chords and melody — with grids, faders and effects like a tiny DAW.
 - [The Radio](${SITE}/radio): A radio station rendered on the server — everyone hears the exact same mastered stream and votes every ~15 seconds on what changes next (melody, beat, bassline, instrument, tempo, key).
