@@ -11,9 +11,12 @@ export type AboutProject = {
 };
 
 export const SPAGHETTI_BLURB: Bi = {
-  cs: "Mám blbé nápady a hromadu umělé vůle je uskutečnit. Spaghetti.ltd je hřiště malých interaktivních věcí, co spojuje jeden světonázor: ukázat, jak věci fungují — hravě, společně, bez účtů. Tady je mapa toho, jak to spolu souvisí.",
-  en: "I have bad ideas and plenty of artificial willpower to build them. Spaghetti.ltd is a playground of small interactive things tied together by one worldview: show how things work — playfully, together, without accounts. This is a map of how it all connects.",
+  cs: "Spaghetti.ltd je hřiště malých experimentů spojených jedním světonázorem: život je bordel — bordel, který je úžasně fascinující.",
+  en: "Spaghetti.ltd is a playground of small experiments tied together by one worldview: life is a mess — a mess that is amazingly fascinating.",
 };
+
+/** Centrální node — z něj vedou linky na všechny experimenty. */
+export const MESS_LABEL: Bi = { cs: "Bordel", en: "A mess" };
 
 export const ABOUT_CONCEPTS: AboutConcept[] = [
   { id: "playful-physics", name: { cs: "Hravá fyzika · osahej si to", en: "Playful physics · feel it" }, blurb: { cs: "Nevysvětluj — nech to osahat. Vlny, pružiny, kuličky v potrubí. Některé věci pochopíš líp rukama než větou.", en: "Don't explain — let people touch it. Waves, springs, beads in a pipe. Some things land better through your hands than a sentence." } },
