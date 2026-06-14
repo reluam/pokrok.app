@@ -176,6 +176,40 @@ export async function getBrainMap(lang: BrainLang, maxEdges = 600): Promise<Brai
   return { total, goal: BRAIN_GOAL, nodes, edges, truncated };
 }
 
+/* ── Cesta „moje asociace vs. dav" ─────────────────────────────── */
+export type MineStat = {
+  from: number; fromLabel: string; to: string; toLabel: string;
+  count: number; total: number; others: number; othersTotal: number; pct: number | null;
+};
+
+/**
+ * Pro každou uživatelovu asociaci from→to spočítá, jak moc ji sdílí dav:
+ * pct = kolik % ostatních asociací z daného slova mířilo na stejný cíl
+ * (bez vlastního příspěvku uživatele). pct === null = nikdo jiný to ještě nespojil.
+ */
+export async function getMineStats(lang: BrainLang, pairs: { from: number; to: string }[]): Promise<MineStat[]> {
+  const sql = getDb();
+  await ensure(sql);
+  const out: MineStat[] = [];
+  for (const p of pairs.slice(0, 50)) {
+    if (!Number.isInteger(p.from) || typeof p.to !== "string") continue;
+    const word = normalizeWord(p.to);
+    if (!word) continue;
+    const [from] = await sql`SELECT id, display FROM brain_words WHERE id = ${p.from} AND lang = ${lang}` as { id: number; display: string }[];
+    if (!from) continue;
+    const [to] = await sql`SELECT id, display FROM brain_words WHERE lang = ${lang} AND word = ${word}` as { id: number; display: string }[];
+    if (!to) continue;
+    const [edge] = await sql`SELECT count FROM brain_edges WHERE from_id = ${from.id} AND to_id = ${to.id}` as { count: number }[];
+    const count = edge?.count ?? 0;
+    const [{ total }] = await sql`SELECT COALESCE(SUM(count), 0)::int AS total FROM brain_edges WHERE from_id = ${from.id}` as { total: number }[];
+    const others = Math.max(0, count - 1);          // ostatní lidé, co dali stejný cíl
+    const othersTotal = Math.max(0, total - 1);      // všechny asociace z toho slova krom té tvojí
+    const pct = othersTotal > 0 ? Math.round((others / othersTotal) * 100) : null;
+    out.push({ from: from.id, fromLabel: from.display, to: word, toLabel: to.display, count, total, others, othersTotal, pct });
+  }
+  return out;
+}
+
 /* ── Klasifikace slovních druhů (Claude, dávkově) ──────────────── */
 export async function getUnclassifiedWords(limit = 300): Promise<{ id: number; display: string; lang: string }[]> {
   const sql = getDb();

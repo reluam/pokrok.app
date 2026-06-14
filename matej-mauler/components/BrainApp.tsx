@@ -13,7 +13,11 @@ type MapData = {
   edges: { a: number; b: number; count: number }[]; // a → b
   truncated: boolean;
 };
-type Mode = "explore" | "gate" | "map";
+type Step = "intro" | "assoc" | "explain" | "results";
+type MineStat = { from: number; fromLabel: string; to: string; toLabel: string; count: number; total: number; others: number; othersTotal: number; pct: number | null };
+
+/** Kolik asociací uživatel vyplní v 1. kroku cesty, než se nabídne „Dále". */
+const ASSOC_GOAL = 10;
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const sans: React.CSSProperties = { fontFamily: "var(--font-sans)" };
@@ -77,6 +81,30 @@ const T = {
     inLabel: "→ co vede sem",
     associateThis: "✏️ Asociuj na tohle slovo",
     nothing: "zatím nic",
+    // — cesta —
+    introEyebrow: "⚡ Synapse",
+    introTitle: "Jak se rodí asociace",
+    introBody: "Krátká cesta, která ti ukáže, jak v hlavě vznikají asociace — a jak se z nich skládá společná síť. Dostaneš pár slov a u každého napíšeš první věc, co tě napadne. Na konci uvidíš, jak moc se tvá spojení potkávají s ostatními.",
+    introStart: "Začít →",
+    introSkip: "Mám síť rovnou →",
+    progress: (n: number, goal: number) => `tvé asociace: ${n} / ${goal}`,
+    goalReached: "Hotovo! Asociací máš dost.",
+    next: "Dále →",
+    keepGoing: "Pokračovat v asociacích",
+    explainTitle: "Proč zrovna tahle slova?",
+    explainP1: "Když jsi psal/a asociace, skoro vždy ti naskočilo slovo, které tě napadlo jako úplně první.",
+    explainP2: "A jako první tě napadlo proto, že k němu máš nejsilnější neuronové spojení — zjednodušeně řečeno.",
+    explainP3: "Přesně tak funguje i síť, kterou jsi právě pomohl/a spoluvytvořit: čím víc lidí spojí dvě slova, tím silnější je mezi nimi synapse.",
+    explainGo: "Ukázat moji síť →",
+    mineTitle: "Tvé asociace vs. dav",
+    mineEmpty: "V téhle návštěvě jsi zatím žádnou asociaci nezapsal/a.",
+    minePct: (p: number) => `${p} % lidí u toho řeklo totéž`,
+    mineFirst: "jsi první, kdo to takhle spojil",
+    mineSummary: (p: number) => `Shoda s davem: ${p} %`,
+    share: "📷 Sdílet výsledek",
+    cardTitle: "Moje synapse",
+    cardSub: "jak se mé asociace potkávají s ostatními",
+    loadingMine: "Počítám, jak moc tě dav sdílí…",
   },
   en: {
     back: "← Spaghetti.ltd",
@@ -119,6 +147,30 @@ const T = {
     inLabel: "→ comes from",
     associateThis: "✏️ Associate on this word",
     nothing: "nothing yet",
+    // — journey —
+    introEyebrow: "⚡ Synapses",
+    introTitle: "How an association is born",
+    introBody: "A short journey showing how associations form in your head — and how they add up into a shared network. You'll get a few words; for each, write the first thing that comes to mind. At the end you'll see how much your connections overlap with everyone else's.",
+    introStart: "Start →",
+    introSkip: "Just show me the network →",
+    progress: (n: number, goal: number) => `your associations: ${n} / ${goal}`,
+    goalReached: "Done! You have enough associations.",
+    next: "Next →",
+    keepGoing: "Keep associating",
+    explainTitle: "Why these words?",
+    explainP1: "While associating, you almost always wrote the very first word that popped into your head.",
+    explainP2: "It popped up first because you have the strongest neural connection to it — put simply.",
+    explainP3: "That's exactly how the network you just helped build works: the more people link two words, the stronger the synapse between them.",
+    explainGo: "Show me my network →",
+    mineTitle: "Your associations vs. the crowd",
+    mineEmpty: "You haven't written any associations this visit yet.",
+    minePct: (p: number) => `${p}% of people said the same`,
+    mineFirst: "you're the first to link it this way",
+    mineSummary: (p: number) => `Crowd match: ${p}%`,
+    share: "📷 Share result",
+    cardTitle: "My synapses",
+    cardSub: "how my associations overlap with others",
+    loadingMine: "Measuring how much the crowd shares your mind…",
   },
 } as const;
 
@@ -131,7 +183,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
   // jazyk appky: default podle hlavní stránky, ale jde přepnout kdykoliv a kdekoliv
   const [appLang, setAppLang] = useState<Lang>(lang);
   const t = T[appLang];
-  const [mode, setMode] = useState<Mode>("explore");
+  const [step, setStep] = useState<Step>("intro");
   const [stats, setStats] = useState<Stats | null>(null);
   const [map, setMap] = useState<MapData | null>(null);
   const dirty = useRef(false); // po nových asociacích mapu před zobrazením obnovit
@@ -140,9 +192,14 @@ export function BrainApp({ lang }: { lang: Lang }) {
   const [input, setInput] = useState("");
   const [last, setLast] = useState<{ from: string; to: Word; count: number } | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [mine, setMine] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [continuing, setContinuing] = useState(false); // po splnění cíle chce pokračovat v asociacích
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // cesta: co uživatel během téhle návštěvy naasocioval + spočtená shoda s davem
+  const [myAssoc, setMyAssoc] = useState<{ from: number; fromLabel: string; to: string; toId: number }[]>([]);
+  const [mineStats, setMineStats] = useState<MineStat[] | null>(null);
+  const [mineLoading, setMineLoading] = useState(false);
 
   const loadMap = (l: Lang) => {
     fetch(`/api/brain/map?lang=${l}`).then((r) => r.ok ? r.json() : null)
@@ -167,6 +224,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
     // celé načtení (i reset při přepnutí jazyka) mimo tělo efektu — žádný synchronní setState
     const id = requestAnimationFrame(() => {
       setMap(null); setLast(null); setErr(null); setInput("");
+      setMyAssoc([]); setMineStats(null); setContinuing(false);
       fetch(`/api/brain/stats?lang=${appLang}`).then((r) => r.ok ? r.json() : null).then((s) => s && setStats(s)).catch(() => {});
       loadMap(appLang);
       fetchWord(appLang);
@@ -176,11 +234,22 @@ export function BrainApp({ lang }: { lang: Lang }) {
 
   useEffect(() => { track("brain", "open"); }, []);
 
-  const enterMap = () => {
+  const goResults = async () => {
     track("brain", "interact");
     if (dirty.current) { dirty.current = false; loadMap(appLang); }
-    if (map && map.total < map.goal) setMode("gate");
-    else setMode("map");
+    setStep("results");
+    if (myAssoc.length && !mineStats) {
+      setMineLoading(true);
+      try {
+        const r = await fetch("/api/brain/mine", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lang: appLang, pairs: myAssoc.map((a) => ({ from: a.from, to: a.to })) }),
+        });
+        const j = await r.json();
+        if (Array.isArray(j.items)) setMineStats(j.items);
+      } catch { /* síť výsledků selhala — levý sloupec ukáže prázdno */ }
+      setMineLoading(false);
+    }
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -196,7 +265,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       if (j.ok) {
         track("brain", "interact");
         setLast({ from: word.display, to: j.to, count: j.count });
-        setMine((m) => m + 1);
+        setMyAssoc((m) => [...m, { from: word.id, fromLabel: word.display, to: j.to.display, toId: j.to.id }]);
         setInput("");
         setStats((s) => s ? { ...s, total: j.total } : s);
         dirty.current = true;
@@ -209,25 +278,49 @@ export function BrainApp({ lang }: { lang: Lang }) {
     setBusy(false);
   };
 
-  const overlay = mode !== "map";
+  const done = myAssoc.length >= ASSOC_GOAL;
+  const overlay = step !== "results";
 
   return (
     <main style={{ position: "fixed", inset: 0, background: "var(--bg)", color: "var(--text-primary)", overflow: "hidden" }}>
-      {/* ── mapa na pozadí — živá síť jako brána encyklopedie, jen kuličky bez popisků ── */}
+      {/* ── mapa: na pozadí (intro/assoc/explain) → plná síť ve výsledcích ── */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: overlay ? "none" : "auto" }}>
         {map && map.edges.length > 0
-          ? <BrainMap data={map} lang={appLang} chrome={mode === "map"} stats={stats} onBack={() => setMode("explore")} />
+          ? <BrainMap data={map} lang={appLang} chrome={step === "results"} stats={stats}
+              mine={step === "results" ? mineStats : undefined} mineLoading={mineLoading}
+              onShare={() => shareCard(appLang, mineStats)} onBack={() => setStep("assoc")} />
           : <IdleField />}
       </div>
 
-      {/* ── asociace přímo přes mapu, encyklopedický střed bez krabice ── */}
-      {mode === "explore" && (
+      {/* ── 0) intro: co tahle cesta je ── */}
+      {step === "intro" && (
         <div style={overlayWrap}>
-          <Link href="/" style={{ position: "absolute", top: 20, left: 24, ...sans, fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>{t.back}</Link>
+          <Link href="/" style={backLink}>{t.back}</Link>
+          <div style={{ maxWidth: 560, width: "100%", textAlign: "center" }}>
+            <p style={{ ...sans, fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--text-muted)", margin: "0 0 14px" }}>{t.introEyebrow}</p>
+            <h1 style={{ ...display, fontSize: "clamp(30px,6vw,46px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1, margin: "0 0 18px" }}>{t.introTitle}</h1>
+            <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 30px" }}>{t.introBody}</p>
+            <button onClick={() => setStep("assoc")} style={primaryBtn}>{t.introStart}</button>
+            <div style={{ marginTop: 16 }}>
+              <button onClick={goResults} style={subtleBtn}>{t.introSkip}</button>
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* ── 1) asociace s progress barem (cíl ASSOC_GOAL) ── */}
+      {step === "assoc" && (
+        <div style={overlayWrap}>
+          <Link href="/" style={backLink}>{t.back}</Link>
           <div style={{ maxWidth: 600, width: "100%", textAlign: "center" }}>
-            <p style={{ ...sans, fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--text-muted)", margin: "0 0 6px" }}>⚡ {t.title}</p>
-            <p style={{ ...display, fontStyle: "italic", fontSize: 14, color: "var(--text-secondary)", margin: "0 0 34px" }}>{t.tagline}</p>
+            <div style={{ maxWidth: 320, margin: "0 auto 6px" }}>
+              <div style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(26,22,20,0.15)", borderRadius: 999, height: 10, overflow: "hidden" }}>
+                <div style={{ width: `${Math.min(100, (myAssoc.length / ASSOC_GOAL) * 100)}%`, height: "100%", background: "var(--text-primary)", transition: "width .35s ease" }} />
+              </div>
+            </div>
+            <p style={{ ...sans, fontSize: 12, color: "var(--text-muted)", margin: "0 0 26px" }}>
+              {done ? t.goalReached : t.progress(myAssoc.length, ASSOC_GOAL)}
+            </p>
 
             <p style={{ ...sans, fontSize: 13.5, color: "var(--text-secondary)", margin: 0 }}>{t.prompt}</p>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap", margin: "8px 0 24px", minHeight: "1.1em" }}>
@@ -278,17 +371,26 @@ export function BrainApp({ lang }: { lang: Lang }) {
               </div>
             )}
 
-            <div style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
-              <button onClick={enterMap} style={{
-                background: "var(--text-primary)", color: "var(--bg)", border: "none", cursor: "pointer",
-                borderRadius: 999, padding: "11px 24px", ...sans, fontSize: 13.5, fontWeight: 700,
-              }}>{t.researcher}</button>
-            </div>
+            {done && (
+              <div style={{ marginTop: 28, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                <button onClick={() => setStep("explain")} style={primaryBtn}>{t.next}</button>
+                {!continuing && <button onClick={() => { setContinuing(true); inputRef.current?.focus(); }} style={subtleBtn}>{t.keepGoing}</button>}
+              </div>
+            )}
           </div>
+        </div>
+      )}
 
-          <p style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", ...sans, fontSize: 11, color: "var(--text-muted)", margin: 0, whiteSpace: "nowrap" }}>
-            {mine > 0 ? t.mine(mine) : stats ? t.stats(stats) : ""}
-          </p>
+      {/* ── 2) vysvětlení: první slovo = nejsilnější neuronové spojení ── */}
+      {step === "explain" && (
+        <div style={overlayWrap}>
+          <div style={{ maxWidth: 560, width: "100%", textAlign: "center" }}>
+            <h2 style={{ ...display, fontSize: "clamp(26px,5vw,38px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.12, margin: "0 0 22px" }}>{t.explainTitle}</h2>
+            <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 14px" }}>{t.explainP1}</p>
+            <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 14px" }}>{t.explainP2}</p>
+            <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 30px" }}>{t.explainP3}</p>
+            <button onClick={goResults} style={primaryBtn}>{t.explainGo}</button>
+          </div>
         </div>
       )}
 
@@ -304,32 +406,6 @@ export function BrainApp({ lang }: { lang: Lang }) {
           }}>{l.toUpperCase()}</button>
         ))}
       </div>
-
-      {/* ── gate: síť je moc malá na mapu — taky jen text na střed ── */}
-      {mode === "gate" && map && (
-        <div style={overlayWrap}>
-          <div style={{ maxWidth: 460, width: "100%", textAlign: "center" }}>
-            <span style={{ fontSize: 42, display: "block", marginBottom: 12 }}>🐣</span>
-            <h2 style={{ ...display, fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 10px" }}>{t.gateTitle}</h2>
-            <p style={{ ...sans, fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 18px" }}>
-              {t.gateText(map.total, map.goal)}
-            </p>
-            <div style={{ background: "#fff", border: "2px solid var(--border)", borderRadius: 999, height: 14, overflow: "hidden", marginBottom: 24, boxShadow: "2px 2px 0 var(--shadow)" }}>
-              <div style={{ width: `${Math.max(1.5, Math.min(100, (map.total / map.goal) * 100))}%`, height: "100%", background: "var(--text-primary)" }} />
-            </div>
-            <button onClick={() => setMode("explore")} style={{
-              background: "var(--text-primary)", color: "var(--bg)", border: "2px solid var(--text-primary)",
-              borderRadius: 999, boxShadow: "3px 3px 0 var(--shadow)", padding: "11px 22px",
-              ...sans, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 16,
-            }}>{t.gateGo}</button>
-            <p style={{ margin: 0 }}>
-              {map.edges.length > 0
-                ? <button onClick={() => setMode("map")} style={{ background: "none", border: "none", ...sans, fontSize: 12.5, color: "var(--text-muted)", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "3px", padding: 0 }}>{t.gateAnyway}</button>
-                : <span style={{ ...sans, fontSize: 12.5, color: "var(--text-muted)" }}>{t.mapEmpty}</span>}
-            </p>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
@@ -338,6 +414,86 @@ const overlayWrap: React.CSSProperties = {
   position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
   padding: 24, zIndex: 10, overflowY: "auto",
 };
+
+const primaryBtn: React.CSSProperties = {
+  background: "var(--text-primary)", color: "var(--bg)", border: "none", cursor: "pointer",
+  borderRadius: 999, padding: "12px 28px", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
+};
+const subtleBtn: React.CSSProperties = {
+  background: "none", border: "none", cursor: "pointer", padding: 0,
+  fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: "var(--text-muted)",
+  textDecoration: "underline", textUnderlineOffset: "4px",
+};
+const backLink: React.CSSProperties = {
+  position: "absolute", top: 20, left: 24, fontFamily: "var(--font-sans)", fontSize: 13,
+  color: "var(--text-muted)", textDecoration: "none",
+};
+
+/** Průměrná shoda s davem přes uživatelovy asociace (jen ty, co už někdo jiný zapsal). */
+function summaryPct(items: MineStat[] | null): number | null {
+  if (!items) return null;
+  const ps = items.map((i) => i.pct).filter((p): p is number => p != null);
+  if (!ps.length) return null;
+  return Math.round(ps.reduce((a, b) => a + b, 0) / ps.length);
+}
+
+/* Sdílecí karta výsledků — nakreslí se na canvas (1080×1350) a pošle přes Web Share
+   (mobil, sdílení obrázku), jinak se stáhne jako PNG. */
+async function shareCard(lang: Lang, items: MineStat[] | null) {
+  const t = T[lang];
+  const W = 1080, H = 1350;
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext("2d");
+  if (!ctx) return;
+
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, "#fffdf6"); g.addColorStop(1, "#efe8d8");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#1a1614"; ctx.lineWidth = 10; ctx.strokeRect(34, 34, W - 68, H - 68);
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#1a1614";
+  ctx.font = "800 76px Georgia, 'Times New Roman', serif";
+  ctx.fillText("⚡ " + t.cardTitle, 86, 170);
+  ctx.font = "400 30px system-ui, sans-serif"; ctx.fillStyle = "#6b6862";
+  ctx.fillText(t.cardSub, 88, 218);
+
+  const list = (items ?? []).slice(0, 8);
+  let y = 320;
+  for (const it of list) {
+    ctx.fillStyle = "#1a1614";
+    ctx.font = "700 42px Georgia, serif";
+    const line = `${it.fromLabel} → ${it.toLabel}`;
+    ctx.fillText(line.length > 30 ? line.slice(0, 29) + "…" : line, 88, y);
+    ctx.fillStyle = "#b07c18";
+    ctx.font = "400 28px system-ui, sans-serif";
+    ctx.fillText(it.pct != null ? t.minePct(it.pct) : t.mineFirst, 88, y + 42);
+    y += 118;
+    if (y > H - 320) break;
+  }
+
+  const sum = summaryPct(items);
+  if (sum != null) {
+    ctx.strokeStyle = "rgba(26,22,20,0.25)"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(88, H - 250); ctx.lineTo(W - 88, H - 250); ctx.stroke();
+    ctx.fillStyle = "#1a1614"; ctx.font = "800 56px Georgia, serif";
+    ctx.fillText(t.mineSummary(sum), 88, H - 168);
+  }
+  ctx.fillStyle = "#6b6862"; ctx.font = "700 30px system-ui, sans-serif";
+  ctx.fillText("spaghetti.ltd", 88, H - 92);
+
+  const blob = await new Promise<Blob | null>((res) => cv.toBlob(res, "image/png"));
+  if (!blob) return;
+  const file = new File([blob], "synapse.png", { type: "image/png" });
+  const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean; share?: (d: ShareData) => Promise<void> };
+  if (nav.canShare && nav.canShare({ files: [file] }) && nav.share) {
+    try { await nav.share({ files: [file], title: t.cardTitle }); return; } catch { /* uživatel zrušil → stáhneme */ }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = "synapse.png"; a.click();
+  URL.revokeObjectURL(url);
+}
 
 /* Decentní zárodek sítě, dokud mapa nedorazí (nebo je prázdná) — jen CSS, žádný canvas. */
 function IdleField() {
@@ -442,7 +598,7 @@ function runSim(nodes: SimNode[], edges: SimEdge[], maxCount: number, ticks = 30
   }
 }
 
-function BrainMap({ data, lang, chrome, stats, onBack }: { data: MapData; lang: Lang; chrome: boolean; stats: Stats | null; onBack: () => void }) {
+function BrainMap({ data, lang, chrome, stats, mine, mineLoading, onShare, onBack }: { data: MapData; lang: Lang; chrome: boolean; stats: Stats | null; mine?: MineStat[] | null; mineLoading?: boolean; onShare?: () => void; onBack: () => void }) {
   const t = T[lang];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
@@ -948,7 +1104,7 @@ function BrainMap({ data, lang, chrome, stats, onBack }: { data: MapData; lang: 
       {/* pravý sloupec — všechny proměnlivé informace: síť celkem + detail vybraného slova */}
       {chrome && (
         <div style={{
-          position: "absolute", right: 16, top: 56, width: 216, maxHeight: "calc(100dvh - 120px)", overflowY: "auto",
+          position: "absolute", right: 16, top: 56, width: "min(216px, 42vw)", maxHeight: "calc(100dvh - 120px)", overflowY: "auto",
           zIndex: 20, background: "rgba(255,253,246,0.92)", borderRadius: 12, padding: "14px 16px",
         }}>
           <div style={{ display: "flex", gap: 18 }}>
@@ -990,6 +1146,48 @@ function BrainMap({ data, lang, chrome, stats, onBack }: { data: MapData; lang: 
                   <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>×{o.count}</span>
                 </div>
               ))}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* levý sloupec — tvé asociace vs. dav + sdílení (jen ve výsledcích cesty) */}
+      {chrome && (
+        <div style={{
+          position: "absolute", left: 16, top: 56, width: "min(248px, 44vw)", maxHeight: "calc(100dvh - 120px)", overflowY: "auto",
+          zIndex: 20, background: "rgba(255,253,246,0.92)", borderRadius: 12, padding: "14px 16px",
+        }}>
+          <p style={{ ...display, fontSize: 15, fontWeight: 800, margin: "0 0 10px" }}>{t.mineTitle}</p>
+          {mineLoading ? (
+            <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0, lineHeight: 1.55 }}>{t.loadingMine}</p>
+          ) : !mine || mine.length === 0 ? (
+            <p style={{ ...sans, fontSize: 11.5, color: "var(--text-muted)", margin: 0, lineHeight: 1.55 }}>{t.mineEmpty}</p>
+          ) : (
+            <>
+              {mine.map((m, i) => (
+                <div key={i} style={{ margin: "0 0 11px" }}>
+                  <p style={{ ...display, fontSize: 13.5, fontWeight: 700, margin: 0, wordBreak: "break-word" }}>{m.fromLabel} → {m.toLabel}</p>
+                  {m.pct != null ? (
+                    <>
+                      <div style={{ background: "rgba(26,22,20,0.1)", borderRadius: 999, height: 6, overflow: "hidden", margin: "4px 0 2px" }}>
+                        <div style={{ width: `${Math.max(2, m.pct)}%`, height: "100%", background: "#b07c18" }} />
+                      </div>
+                      <p style={{ ...sans, fontSize: 11, color: "var(--text-secondary)", margin: 0 }}>{t.minePct(m.pct)}</p>
+                    </>
+                  ) : (
+                    <p style={{ ...sans, fontSize: 11, color: "var(--text-muted)", margin: "2px 0 0", fontStyle: "italic" }}>{t.mineFirst}</p>
+                  )}
+                </div>
+              ))}
+              {summaryPct(mine) != null && (
+                <p style={{ ...display, fontSize: 15, fontWeight: 800, margin: "12px 0 0", borderTop: "1px dashed rgba(26,22,20,0.18)", paddingTop: 10 }}>{t.mineSummary(summaryPct(mine)!)}</p>
+              )}
+              {onShare && (
+                <button onClick={onShare} style={{
+                  marginTop: 12, width: "100%", background: "var(--text-primary)", color: "var(--bg)", border: "none",
+                  borderRadius: 999, padding: "9px 14px", ...sans, fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+                }}>{t.share}</button>
+              )}
             </>
           )}
         </div>
