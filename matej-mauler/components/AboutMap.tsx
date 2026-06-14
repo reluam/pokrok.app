@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ABOUT_PROJECTS, ABOUT_CONCEPTS, SPAGHETTI_BLURB, MESS_LABEL, conceptById, projectsUsing } from "@/lib/about";
+import { ABOUT_PROJECTS, ABOUT_CONCEPTS, SPAGHETTI_BLURB, MESS_LABEL, conceptById } from "@/lib/about";
 import { RED_COL } from "@/components/encyclopedia/MapView";
 import type { Lang } from "@/lib/dictionaries";
 
@@ -24,8 +24,13 @@ const UI = {
   en: { back: "← Spaghetti.ltd", eyebrow: "Map of Spaghetti · about", open: "Open the project →", shares: "Shows up in", uses: "Built from", hint: "hover the nodes — projects (coloured) and the concepts that connect them" },
 } as const;
 
-export function AboutMap({ lang }: { lang: Lang }) {
+export function AboutMap({ lang, published }: { lang: Lang; published: string[] }) {
   const t = UI[lang];
+  // jen publikované projekty + koncepty, které alespoň jeden publikovaný projekt používá
+  const pubSet = useMemo(() => new Set(published), [published]);
+  const projects = useMemo(() => ABOUT_PROJECTS.filter((p) => pubSet.has(p.id)), [pubSet]);
+  const concepts = useMemo(() => ABOUT_CONCEPTS.filter((c) => projects.some((p) => p.concepts.includes(c.id))), [projects]);
+  const conceptProjects = (cid: string) => projects.filter((p) => p.concepts.includes(cid));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hover, setHover] = useState<string | null>(null);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null);
@@ -51,15 +56,15 @@ export function AboutMap({ lang }: { lang: Lang }) {
       const R1 = Math.max(210, Math.min(360, Math.min(w, h) * 0.32));
       const R2 = R1 + Math.max(120, Math.min(220, Math.min(w, h) * 0.2));
       const ang: Record<string, number> = {};
-      ABOUT_PROJECTS.forEach((p, i) => {
-        const a = -Math.PI / 2 + (i / ABOUT_PROJECTS.length) * Math.PI * 2;
+      projects.forEach((p, i) => {
+        const a = -Math.PI / 2 + (i / projects.length) * Math.PI * 2;
         ang[p.id] = a;
         const n: N = { id: p.id, kind: "project", label: p.name[lang], color: p.color, href: p.href, ax: cx + Math.cos(a) * R1, ay: cy + Math.sin(a) * R1, x: 0, y: 0, r: 7, ph: i * 1.7, sp: 0.35 + (i % 4) * 0.06 };
         nodes.push(n); byId[p.id] = n;
       });
       // koncepty: úhel = průměr projektů, co je sdílejí; pak rozestrkat, ať se popisky nepřekrývají
-      const cs = ABOUT_CONCEPTS.map((c, i) => {
-        const ps = projectsUsing(c.id);
+      const cs = concepts.map((c, i) => {
+        const ps = conceptProjects(c.id);
         if (ps.length === 0) return null;
         let vx = 0, vy = 0;
         ps.forEach((p) => { vx += Math.cos(ang[p.id]); vy += Math.sin(ang[p.id]); });
@@ -98,7 +103,7 @@ export function AboutMap({ lang }: { lang: Lang }) {
 
       // hrany — tenké rovné linky jako v encyklopedii (barva dle projektu): střed→projekt + projekt→koncept
       ctx.lineCap = "round";
-      for (const p of ABOUT_PROJECTS) {
+      for (const p of projects) {
         const pn = byId[p.id]; if (!pn) continue;
         const on = focus ? related.has(p.id) : false;
         ctx.globalAlpha = focus && !on ? 0.06 : (on ? 0.85 : 0.32);
@@ -162,17 +167,17 @@ export function AboutMap({ lang }: { lang: Lang }) {
       else { cv.style.cursor = "default"; if (hovRef.current && !hideTimer.current) scheduleHide(); }
     };
     const onLeave = () => { if (hovRef.current) scheduleHide(); };
-    const onClick = (e: MouseEvent) => { const p = pick(e.clientX, e.clientY); const proj = p && ABOUT_PROJECTS.find((x) => x.id === p.id); if (proj) location.assign(proj.href); };
+    const onClick = (e: MouseEvent) => { const p = pick(e.clientX, e.clientY); const proj = p && projects.find((x) => x.id === p.id); if (proj) location.assign(proj.href); };
     cv.addEventListener("pointermove", onMove);
     cv.addEventListener("pointerleave", onLeave);
     cv.addEventListener("click", onClick);
 
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); cv.removeEventListener("pointermove", onMove); cv.removeEventListener("pointerleave", onLeave); cv.removeEventListener("click", onClick); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang]);
+  }, [lang, projects, concepts]);
 
-  const hovProject = ABOUT_PROJECTS.find((p) => p.id === hover) ?? null;
-  const hovConcept = ABOUT_CONCEPTS.find((c) => c.id === hover) ?? null;
+  const hovProject = projects.find((p) => p.id === hover) ?? null;
+  const hovConcept = concepts.find((c) => c.id === hover) ?? null;
   const accent = hovProject?.color ?? RED_COL;
 
   // umístění detailu vedle nodu, s clampem do okna
@@ -235,7 +240,7 @@ export function AboutMap({ lang }: { lang: Lang }) {
               <p style={{ fontFamily: sans, fontSize: 13.5, lineHeight: 1.62, color: "var(--text-secondary)", margin: "0 0 14px" }}>{hovConcept.blurb[lang]}</p>
               <p style={{ fontFamily: sans, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", margin: "0 0 6px" }}>{t.shares}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {projectsUsing(hovConcept.id).map((p) => <Tag key={p.id} color={p.color}>{p.name[lang]}</Tag>)}
+                {conceptProjects(hovConcept.id).map((p) => <Tag key={p.id} color={p.color}>{p.name[lang]}</Tag>)}
               </div>
             </>
           )}

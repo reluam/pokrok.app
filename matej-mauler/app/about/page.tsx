@@ -1,6 +1,6 @@
 import { AboutMap } from "@/components/AboutMap";
 import { getLang } from "@/lib/getLang";
-import { guardExperiment } from "@/lib/experimentsDb";
+import { guardExperiment, getPublicExperiments } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -12,5 +12,7 @@ export const metadata = {
 export default async function AboutPage() {
   await guardExperiment("about");
   const lang = await getLang();
-  return <AboutMap lang={lang} />;
+  // jen publikované projekty (drafty jako rádio / decision-maker se nezobrazí)
+  const published = (await getPublicExperiments(lang).catch(() => [])).map((e) => e.slug);
+  return <AboutMap lang={lang} published={published} />;
 }
