@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
-import { HandDrawnCard, HandDrawnFrame } from "./HandDrawnCard";
 import { CATEGORIES } from "@/lib/experiments";
 import { SPAGHETTI_BLURB } from "@/lib/about";
 import type { Dictionary, Lang } from "@/lib/dictionaries";
@@ -20,26 +19,26 @@ const T = {
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
-function ProjectCard({ item, lang, i, open }: { item: PublicExperiment; lang: Lang; i: number; open: string }) {
+function ProjectCard({ item, lang, open }: { item: PublicExperiment; lang: Lang; open: string }) {
   const cat = CATEGORIES[item.slug];
   return (
     <a
       key={item.slug}
       href={item.href}
       {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="zcard group/card block"
+      className="scard group/card"
     >
-      <HandDrawnCard variant={i % 3} shadow shadowOffset={6} fill="#fff" className="h-full" innerClassName="p-6 md:p-7 flex flex-col h-full">
-        <div style={{ borderRadius: 12, overflow: "hidden", border: "2px solid #171717", marginBottom: 13 }}>
+      <div className="p-5 md:p-6 flex flex-col h-full">
+        <div className="scard-banner" style={{ marginBottom: 14 }}>
           <ExperimentPreview slug={item.slug} title={item.title} color={item.color} lang={lang} />
         </div>
-        {cat && <span style={{ ...display, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--accent, #c2410c)", marginBottom: 4 }}>{cat}</span>}
-        <h3 style={{ ...display, fontSize: 21, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 6, color: "#171717" }}>{item.title}</h3>
-        <p style={{ fontFamily: "var(--font-grotesk)", fontSize: 14, lineHeight: 1.55, color: "rgba(23,23,23,0.72)", flex: 1, marginBottom: 14 }}>{item.description}</p>
-        <span style={{ ...display, fontSize: 14, fontWeight: 800, color: "#171717", display: "inline-flex", alignItems: "center", gap: 6 }}>
+        {cat && <span style={{ ...display, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 6 }}>{cat}</span>}
+        <h3 style={{ ...display, fontSize: 21, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.12, marginBottom: 7, color: "var(--text-primary)" }}>{item.title}</h3>
+        <p style={{ fontFamily: "var(--font-grotesk)", fontSize: 14, lineHeight: 1.55, color: "var(--text-secondary)", flex: 1, marginBottom: 16 }}>{item.description}</p>
+        <span style={{ ...display, fontSize: 13.5, fontWeight: 800, color: "var(--text-primary)", display: "inline-flex", alignItems: "center", gap: 6 }}>
           {open} <span className="zarrow">→</span>
         </span>
-      </HandDrawnCard>
+      </div>
     </a>
   );
 }
@@ -78,15 +77,9 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         <LanguageSwitcher lang={lang} labels={dict.switcher} />
         <div className="browse-grid">
           <aside className="browse-side animate-fade-up">
-            <button onClick={() => setMode("home")} className="hd-ctrl" style={{ marginBottom: 18 }}>
-              <HandDrawnFrame innerClassName="px-3.5 py-1.5"><span style={{ ...display, fontSize: 12, fontWeight: 800 }}>{t.back}</span></HandDrawnFrame>
-            </button>
+            <button onClick={() => setMode("home")} className="sbtn" style={{ fontSize: 12, padding: "7px 15px", marginBottom: 18 }}>{t.back}</button>
             {brand("sm")}
-            <div style={{ marginTop: 22 }}>
-              <HandDrawnFrame className="hd-frame--block">
-                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.search} autoFocus className="hd-input" />
-              </HandDrawnFrame>
-            </div>
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.search} autoFocus className="sinput" style={{ marginTop: 22 }} />
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
               <Chip active={cat === null} onClick={() => setCat(null)} label={t.allCats} />
               {cats.map((c) => <Chip key={c} active={cat === c} onClick={() => setCat(c)} label={c} />)}
@@ -98,7 +91,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
               <p style={{ fontFamily: sans, fontSize: 15, color: "var(--text-muted)", padding: "10px 2px" }}>{t.none}</p>
             ) : (
               <div className="zcards">
-                {filtered.map((item, i) => <ProjectCard key={item.slug} item={item} lang={lang} i={i} open={t.open} />)}
+                {filtered.map((item) => <ProjectCard key={item.slug} item={item} lang={lang} open={t.open} />)}
               </div>
             )}
           </section>
@@ -122,13 +115,11 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         {/* projekty */}
         <div className="mb-6 animate-fade-up" style={{ animationDelay: "40ms", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <h2 className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{dict.products.title}</h2>
-          <button onClick={() => setMode("browse")} className="hd-ctrl" style={{ marginLeft: "auto" }}>
-            <HandDrawnFrame innerClassName="px-4 py-2"><span style={{ ...display, fontSize: 13, fontWeight: 800 }}>{t.browse} →</span></HandDrawnFrame>
-          </button>
+          <button onClick={() => setMode("browse")} className="sbtn" style={{ marginLeft: "auto", fontSize: 13, padding: "9px 18px" }}>{t.browse} →</button>
         </div>
 
         <section className="zcards animate-fade-up pb-14" style={{ animationDelay: "60ms" }}>
-          {items.map((item, i) => <ProjectCard key={item.slug} item={item} lang={lang} i={i} open={t.open} />)}
+          {items.map((item) => <ProjectCard key={item.slug} item={item} lang={lang} open={t.open} />)}
         </section>
 
         {/* about */}
@@ -150,10 +141,6 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
 
 function Chip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
-    <button onClick={onClick} className="hd-ctrl">
-      <HandDrawnFrame fill={active ? "#171717" : "#fff"} shadow={active} innerClassName="px-3.5 py-1.5">
-        <span style={{ ...display, fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: active ? "#fff" : "#171717" }}>{label}</span>
-      </HandDrawnFrame>
-    </button>
+    <button onClick={onClick} className={`schip${active ? " active" : ""}`}>{label}</button>
   );
 }

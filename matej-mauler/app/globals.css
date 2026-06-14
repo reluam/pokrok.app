@@ -228,35 +228,54 @@ body {
 
 @media (max-width: 480px) { .experiments-feed { grid-template-columns: 1fr; } }
 
-/* ── Homepage: karty projektů ve stylu ziju.life (hand-drawn, narovnané) ── */
+/* ── Homepage: jemné vzdušné karty projektů (hravé pohybem, ne okrajem) ── */
 .zcards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(266px, 1fr));
-  gap: 24px 22px;
+  gap: 26px 22px;
   align-items: stretch;
 }
-.zcard {
-  transition: transform 200ms var(--transition);
-  text-decoration: none;
+.scard {
+  display: block; text-decoration: none; height: 100%;
+  background: #fff;
+  border: 1px solid rgba(26,22,20,0.07);
+  border-radius: 24px;
+  box-shadow: 0 1px 2px rgba(26,22,20,0.04), 0 16px 32px -18px rgba(26,22,20,0.22);
+  transition: transform 260ms var(--transition), box-shadow 260ms var(--transition);
 }
-.zcard:hover { transform: translateY(-5px); }
-.zarrow { transition: transform 180ms var(--transition); }
-.zcard:hover .zarrow { transform: translateX(4px); }
+.scard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 2px 6px rgba(26,22,20,0.05), 0 26px 50px -20px rgba(26,22,20,0.30);
+}
+.scard-banner { border-radius: 14px; overflow: hidden; border: 1px solid rgba(26,22,20,0.06); }
+.zarrow { transition: transform 200ms var(--transition); }
+.scard:hover .zarrow { transform: translateX(4px); }
 
-/* ── Kreslené (paper) ovládací prvky: tlačítka, hledání, chipy ── */
-.hd-frame { position: relative; display: inline-block; }
-.hd-frame--block { display: block; width: 100%; }
-.hd-ctrl {
-  background: none; border: none; padding: 0; cursor: pointer; color: #171717;
-  display: inline-block; transition: transform 140ms var(--transition);
+/* ── Jemné ovládací prvky: tlačítka, hledání, chipy ── */
+.sbtn {
+  font-family: var(--font-display); font-weight: 800; color: var(--text-primary);
+  background: rgba(26,22,20,0.045); border: 1px solid rgba(26,22,20,0.08);
+  border-radius: 999px; cursor: pointer;
+  transition: background 180ms var(--transition), transform 180ms var(--transition);
 }
-.hd-ctrl:hover { transform: translate(-1px, -1px); }
-.hd-ctrl:active { transform: translate(1px, 1px); }
-.hd-input {
-  width: 100%; background: transparent; border: none; outline: none; color: #171717;
-  font-family: var(--font-sans); font-size: 14px; padding: 11px 15px;
+.sbtn:hover { background: rgba(26,22,20,0.09); transform: translateY(-1px); }
+.sinput {
+  width: 100%; font-family: var(--font-sans); font-size: 14px; color: var(--text-primary);
+  background: #fff; border: 1px solid rgba(26,22,20,0.12); border-radius: 999px;
+  padding: 12px 18px; outline: none; box-shadow: 0 1px 2px rgba(26,22,20,0.04);
+  transition: border-color 180ms var(--transition), box-shadow 180ms var(--transition);
 }
-.hd-input::placeholder { color: rgba(23,23,23,0.45); }
+.sinput::placeholder { color: var(--text-muted); }
+.sinput:focus { border-color: rgba(26,22,20,0.28); box-shadow: 0 0 0 4px rgba(26,22,20,0.05); }
+.schip {
+  font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-secondary);
+  background: transparent; border: 1px solid rgba(26,22,20,0.14);
+  border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  transition: color 160ms var(--transition), border-color 160ms var(--transition), background 160ms var(--transition);
+}
+.schip:hover { color: var(--text-primary); border-color: rgba(26,22,20,0.3); }
+.schip.active { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg); }
 
 /* ── Procházení / hledání experimentů (levý sloupec + filtrované karty) ── */
 .browse-grid {
