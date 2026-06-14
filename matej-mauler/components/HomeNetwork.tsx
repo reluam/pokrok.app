@@ -5,6 +5,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
 import { HandDrawnCard } from "./HandDrawnCard";
 import { CATEGORIES } from "@/lib/experiments";
+import { SPAGHETTI_BLURB } from "@/lib/about";
 import type { Dictionary, Lang } from "@/lib/dictionaries";
 import type { PublicExperiment } from "@/lib/experimentsDb";
 
@@ -116,8 +117,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         {/* logo + název + popis */}
         <header className="pt-16 md:pt-20 pb-12 animate-fade-up">
           <div style={{ marginBottom: 18 }}>{brand("lg")}</div>
-          <p className="text-[18px] md:text-[22px] mb-3 max-w-[600px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.35 }}>{dict.hero.tagline}</p>
-          <p className="text-[14px] max-w-[520px]" style={{ color: "var(--text-muted)", fontFamily: sans, lineHeight: 1.6 }}>{dict.hero.sub}</p>
+          <p className="text-[18px] md:text-[22px] max-w-[620px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.4 }}>{SPAGHETTI_BLURB[lang]}</p>
         </header>
 
         {/* projekty */}
