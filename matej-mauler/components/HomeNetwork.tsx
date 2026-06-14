@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
 import { HandDrawnCard } from "./HandDrawnCard";
@@ -18,7 +19,6 @@ const T = {
 };
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-const ROT = ["-1.3deg", "0.9deg", "-0.5deg", "1.2deg", "-0.9deg", "0.6deg"];
 
 function ProjectCard({ item, lang, i, open }: { item: PublicExperiment; lang: Lang; i: number; open: string }) {
   const cat = CATEGORIES[item.slug];
@@ -28,7 +28,6 @@ function ProjectCard({ item, lang, i, open }: { item: PublicExperiment; lang: La
       href={item.href}
       {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       className="zcard group/card block"
-      style={{ "--rot": ROT[i % ROT.length] } as React.CSSProperties}
     >
       <HandDrawnCard variant={i % 3} shadow shadowOffset={6} className="h-full" innerClassName="p-6 md:p-7 flex flex-col h-full">
         <div style={{ borderRadius: 12, overflow: "hidden", border: "2px solid #171717", marginBottom: 13 }}>
@@ -79,14 +78,15 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         <LanguageSwitcher lang={lang} labels={dict.switcher} />
         <div className="browse-grid">
           <aside className="browse-side animate-fade-up">
-            <button onClick={() => setMode("home")} style={{ ...display, fontSize: 13, fontWeight: 700, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: 18 }}>{t.back}</button>
+            <button onClick={() => setMode("home")} className="paper-btn" style={{ fontSize: 12, padding: "7px 13px", marginBottom: 18 }}>{t.back}</button>
             {brand("sm")}
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t.search}
               autoFocus
-              style={{ marginTop: 22, width: "100%", padding: "11px 15px", borderRadius: 12, border: "2.5px solid var(--border)", background: "#fff", fontFamily: sans, fontSize: 14, outline: "none", boxShadow: "3px 3px 0 var(--border)" }}
+              className="paper-input"
+              style={{ marginTop: 22 }}
             />
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
               <Chip active={cat === null} onClick={() => setCat(null)} label={t.allCats} />
@@ -121,10 +121,9 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         </header>
 
         {/* projekty */}
-        <div className="mb-6 animate-fade-up" style={{ animationDelay: "40ms", display: "flex", alignItems: "baseline", gap: 16, flexWrap: "wrap" }}>
+        <div className="mb-6 animate-fade-up" style={{ animationDelay: "40ms", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <h2 className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{dict.products.title}</h2>
-          <span style={{ fontFamily: sans, fontSize: 13, color: "var(--text-muted)", fontStyle: "italic" }}>{dict.products.subtitle}</span>
-          <button onClick={() => setMode("browse")} style={{ ...display, marginLeft: "auto", fontSize: 13, fontWeight: 800, color: "var(--text-primary)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 4, padding: 0 }}>{t.browse} →</button>
+          <button onClick={() => setMode("browse")} className="paper-btn" style={{ marginLeft: "auto", fontSize: 13, padding: "9px 16px" }}>{t.browse} →</button>
         </div>
 
         <section className="zcards animate-fade-up pb-14" style={{ animationDelay: "60ms" }}>
@@ -138,7 +137,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
             <p className="mb-4">{a.p1}</p>
             <p className="mb-4" style={{ fontWeight: 600, color: "var(--text-primary)" }}>{a.p2}</p>
             <p className="mb-4">{a.p3a}<a href="mailto:matej@matejmauler.com" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.writeMe}</a>{a.p3b}</p>
-            <p>{a.rewardA}<a href="/pravdepodobnost" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.rewardLink}</a></p>
+            <p>{a.rewardA}<Link href="/pravdepodobnost" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.rewardLink}</Link></p>
           </div>
         </section>
 
@@ -150,18 +149,6 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
 
 function Chip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
-    <button
-      onClick={onClick}
-      style={{
-        ...display, fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em",
-        padding: "6px 13px", borderRadius: 999, cursor: "pointer",
-        border: "2px solid var(--border)",
-        background: active ? "var(--text-primary)" : "transparent",
-        color: active ? "var(--bg)" : "var(--text-primary)",
-        boxShadow: active ? "2px 2px 0 var(--border)" : "none",
-      }}
-    >
-      {label}
-    </button>
+    <button onClick={onClick} className={`paper-chip${active ? " active" : ""}`}>{label}</button>
   );
 }

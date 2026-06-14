@@ -228,21 +228,46 @@ body {
 
 @media (max-width: 480px) { .experiments-feed { grid-template-columns: 1fr; } }
 
-/* ── Homepage: karty projektů ve stylu ziju.life (hand-drawn, lehká rotace) ── */
+/* ── Homepage: karty projektů ve stylu ziju.life (hand-drawn, narovnané) ── */
 .zcards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(266px, 1fr));
-  gap: 26px 22px;
+  gap: 24px 22px;
   align-items: stretch;
 }
 .zcard {
-  transform: rotate(var(--rot, 0deg));
   transition: transform 200ms var(--transition);
   text-decoration: none;
 }
-.zcard:hover { transform: rotate(0deg) translateY(-5px); }
+.zcard:hover { transform: translateY(-5px); }
 .zarrow { transition: transform 180ms var(--transition); }
 .zcard:hover .zarrow { transform: translateX(4px); }
+
+/* ── Kreslené (paper) ovládací prvky: tlačítka, hledání, chipy ── */
+.paper-btn {
+  background: #FDFBF7; border: 2.5px solid #171717; border-radius: 12px;
+  box-shadow: 3px 3px 0 #171717; color: #171717;
+  font-family: var(--font-display); font-weight: 800; cursor: pointer;
+  transition: transform 140ms var(--transition), box-shadow 140ms var(--transition);
+}
+.paper-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #171717; }
+.paper-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #171717; }
+.paper-input {
+  width: 100%; background: #FDFBF7; border: 2.5px solid #171717; border-radius: 14px;
+  box-shadow: 3px 3px 0 #171717; color: #171717; outline: none;
+  font-family: var(--font-sans); font-size: 14px; padding: 11px 15px;
+  transition: box-shadow 140ms var(--transition);
+}
+.paper-input::placeholder { color: rgba(23,23,23,0.45); }
+.paper-input:focus { box-shadow: 4px 4px 0 #171717; }
+.paper-chip {
+  background: #FDFBF7; border: 2px solid #171717; border-radius: 999px; color: #171717;
+  font-family: var(--font-display); font-weight: 800; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 14px; cursor: pointer;
+  transition: transform 120ms var(--transition);
+}
+.paper-chip:hover { transform: translateY(-1px); }
+.paper-chip.active { background: #171717; color: #FDFBF7; box-shadow: 2px 2px 0 rgba(23,23,23,0.22); }
 
 /* ── Procházení / hledání experimentů (levý sloupec + filtrované karty) ── */
 .browse-grid {
