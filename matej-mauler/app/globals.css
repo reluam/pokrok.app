@@ -241,14 +241,20 @@ body {
 .home-matej { grid-area: matej; }
 .home-main  { grid-area: main; min-width: 0; }
 
+/* karty stejné velikosti, řazené zleva odshora (nejnovější první); volné místo nevadí */
 .feed-fill {
   display: grid;
-  grid-template-columns: 1fr;
-  grid-auto-rows: auto;
-  gap: clamp(12px, 1.4vw, 18px);
+  grid-template-columns: repeat(auto-fill, minmax(264px, 296px));
+  grid-auto-rows: 324px;
+  gap: clamp(14px, 1.5vw, 20px);
+  align-content: start;
 }
 .feed-fill .exp-article { display: flex; flex-direction: column; }
-.feed-fill .exp-banner { flex: 1 1 auto; height: auto; min-height: 150px; }
+.feed-fill .exp-banner { flex: 0 0 152px; height: 152px; min-height: 0; }
+.feed-fill .exp-body { flex: 1 1 auto; overflow: hidden; }
+.feed-fill .exp-desc {
+  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
 
 @media (min-width: 880px) {
   .home-grid {
@@ -263,14 +269,5 @@ body {
     border-left: 1.5px solid rgba(26,22,20,0.12);
     padding-left: clamp(20px, 2.4vw, 32px);
   }
-  /* experimenty = řádky vyplňující výšku; každá karta je široký řádek (banner vlevo, text vpravo) */
-  .feed-fill { height: 100%; overflow-y: auto; grid-auto-rows: minmax(172px, 1fr); }
-  .feed-fill .exp-article { flex-direction: row; }
-  .feed-fill .exp-banner {
-    flex: 0 0 clamp(300px, 44%, 780px);
-    min-height: 0;
-    border-bottom: none;
-    border-right: 2.5px solid var(--border);
-  }
-  .feed-fill .exp-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }
+  .feed-fill { height: 100%; overflow-y: auto; }
 }
