@@ -127,9 +127,8 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
           <h2 className="text-[20px] md:text-[24px] mb-4" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{a.heading}</h2>
           <div className="max-w-[620px]" style={{ color: "var(--text-secondary)", fontFamily: sans, fontSize: 15, lineHeight: 1.7 }}>
             <p className="mb-4">{a.p1}</p>
-            <p className="mb-4" style={{ fontWeight: 600, color: "var(--text-primary)" }}>{a.p2}</p>
             <p className="mb-4">{a.p3a}<a href="mailto:matej@matejmauler.com" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.writeMe}</a>{a.p3b}</p>
-            <p>{a.rewardA}<Link href="/pravdepodobnost" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.rewardLink}</Link></p>
+            <p>{a.rewardA}<Link href={lang === "cs" ? "/encyklopedie" : "/encyclopedia"} style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.rewardLink}</Link></p>
           </div>
         </section>
 
