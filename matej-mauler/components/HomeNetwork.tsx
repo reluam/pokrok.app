@@ -29,7 +29,7 @@ function ProjectCard({ item, lang, i, open }: { item: PublicExperiment; lang: La
       className="zcard group/card block"
       style={{ "--rot": ROT[i % ROT.length] } as React.CSSProperties}
     >
-      <HandDrawnCard variant={i % 3} shadow shadowOffset={6} className="h-full" innerClassName="p-4 flex flex-col h-full">
+      <HandDrawnCard variant={i % 3} shadow shadowOffset={6} className="h-full" innerClassName="p-6 md:p-7 flex flex-col h-full">
         <div style={{ borderRadius: 12, overflow: "hidden", border: "2px solid #171717", marginBottom: 13 }}>
           <ExperimentPreview slug={item.slug} title={item.title} color={item.color} lang={lang} />
         </div>
