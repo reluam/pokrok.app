@@ -58,8 +58,8 @@ export const dictionaries: Record<Lang, Dictionary> = {
     },
     about: {
       heading: "O projektu",
-      p1: "Ahoj, jsem Matěj. Celý svůj život se snažím přijít na to, jak vlastně žít a proč tu jsem. A tak brouzdám internetem a knihami a zjišťuju, o čem život vlastně je. Většinu času jsem mimo, ale občas mám aha moment, který mi pomůže něco objasnit. A právě tyto momenty sdílím zde na Spaghetti.ltd.",
-      p2: "",
+      p1: "Ahoj, jsem Matěj. Celý svůj život se snažím přijít na to, jak vlastně žít a proč tu jsem. A tak brouzdám internetem a knihami a zjišťuju, o čem život vlastně je.",
+      p2: "Většinu času jsem mimo, ale občas mám aha moment, který mi pomůže něco objasnit. A právě tyto momenty sdílím zde na Spaghetti.ltd.",
       p3a: "Pokud máš feedback, nápad nebo tě něco zaujme natolik, že bys byl rád, abych pro tebe něco udělal, neváhej mi napsat na ",
       writeMe: "můj mail",
       p3b: ".",
@@ -117,8 +117,8 @@ export const dictionaries: Record<Lang, Dictionary> = {
     },
     about: {
       heading: "About",
-      p1: "Hi, I'm Matěj. My whole life I've been trying to figure out how to actually live and why I'm here. So I wander the internet and books, working out what life is really about. Most of the time I'm off the mark, but every now and then I get an aha moment that helps me make sense of something. And those are exactly the moments I share here on Spaghetti.ltd.",
-      p2: "",
+      p1: "Hi, I'm Matěj. My whole life I've been trying to figure out how to actually live and why I'm here. So I wander the internet and books, working out what life is really about.",
+      p2: "Most of the time I'm off the mark, but every now and then I get an aha moment that helps me make sense of something. And those are exactly the moments I share here on Spaghetti.ltd.",
       p3a: "If you have feedback, an idea, or something grabs you enough that you'd like me to make something for you, don't hesitate to drop me a line at ",
       writeMe: "my email",
       p3b: ".",
