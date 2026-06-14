@@ -517,9 +517,21 @@ function IdleField() {
 const POS_COL: Record<string, string> = {
   noun: "#8b9cf6", verb: "#e8556d", adjective: "#b07ef6", adverb: "#4daf7c", other: "#8a90a0",
 };
-type SimNode = { id: number; label: string; seed: boolean; pos: string | null; strength: number; x: number; y: number; vx: number; vy: number; r: number; fx: number; fy: number; fph: number; fsp: number };
+type SimNode = { id: number; label: string; seed: boolean; pos: string | null; strength: number; targetR: number; x: number; y: number; vx: number; vy: number; r: number; fx: number; fy: number; fph: number; fsp: number };
 type SimEdge = { a: number; b: number; count: number };
 type View = { scale: number; tx: number; ty: number };
+
+// Cesta zaobleného obdélníku (placka pod vybraným slovem) — arcTo je všude.
+function roundRectPath(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  const rr = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
+}
 
 // Deterministický pseudo-random z id (ať mapa po reloadu vypadá stejně).
 function hash01(n: number, salt = 0): number {
@@ -533,7 +545,7 @@ function buildSim(data: MapData): { nodes: SimNode[]; edges: SimEdge[]; maxCount
   const idx = new Map<number, number>();
   const nodes: SimNode[] = data.nodes.map((n, i) => {
     idx.set(n.id, i);
-    return { id: n.id, label: n.label, seed: n.seed, pos: n.pos, strength: 0, x: 0, y: 0, vx: 0, vy: 0, r: 4, fx: 0, fy: 0, fph: (i * 2.399) % 6.28, fsp: 0.4 + ((i * 7) % 10) / 14 };
+    return { id: n.id, label: n.label, seed: n.seed, pos: n.pos, strength: 0, targetR: 0, x: 0, y: 0, vx: 0, vy: 0, r: 4, fx: 0, fy: 0, fph: (i * 2.399) % 6.28, fsp: 0.4 + ((i * 7) % 10) / 14 };
   });
   const edges: SimEdge[] = [];
   let maxCount = 1;
@@ -547,12 +559,16 @@ function buildSim(data: MapData): { nodes: SimNode[]; edges: SimEdge[]; maxCount
   }
   const maxStrength = Math.max(1, ...nodes.map((n) => n.strength));
   const spread = 60 * Math.sqrt(nodes.length);
+  const rMin = 26, rMax = Math.max(rMin + 80, spread);
   nodes.forEach((n) => {
     const a = hash01(n.id) * Math.PI * 2;
-    const r = 40 + hash01(n.id, 1) * spread;
+    const sn = Math.sqrt(n.strength / maxStrength); // 0..1, sqrt = jemnější gradient
+    // síla = vazby × zmínění; silné slovo → cílový kruh blíž středu, slabé → na okraj
+    n.targetR = rMax - (rMax - rMin) * sn;
+    const r = n.targetR * (0.82 + hash01(n.id, 1) * 0.34); // lehký rozptyl kolem cílového kruhu
     n.x = Math.cos(a) * r;
     n.y = Math.sin(a) * r;
-    n.r = 3 + 2.5 * Math.sqrt(n.strength / maxStrength); // screen px — jako tečky v encyklopedii
+    n.r = 3 + 2.6 * sn; // velikost tečky podle síly
   });
   return { nodes, edges, maxCount, maxStrength };
 }
@@ -585,10 +601,13 @@ function runSim(nodes: SimNode[], edges: SimEdge[], maxCount: number, ticks = 30
       a.vx += dx * f * d * 0.1; a.vy += dy * f * d * 0.1;
       b.vx -= dx * f * d * 0.1; b.vy -= dy * f * d * 0.1;
     }
-    // gravitace ke středu (drží oddělené ostrůvky pohromadě)
+    // místo prosté gravitace: jemné srovnání ke kruhu daného poloměru podle síly slova
+    // (silné slovo → blíž středu). Drží i oddělené ostrůvky v dosahu a zachová kruhový vzhled.
     for (const n of nodes) {
-      n.vx -= n.x * 0.004;
-      n.vy -= n.y * 0.004;
+      const r = Math.hypot(n.x, n.y) || 0.01;
+      const pull = (r - n.targetR) * 0.014;
+      n.vx -= (n.x / r) * pull;
+      n.vy -= (n.y / r) * pull;
       n.vx *= 0.85; n.vy *= 0.85;
       // strop rychlosti — pružina roste s d, takže u větší sítě jinak diverguje do NaN a mapa zmizí
       const sp = Math.hypot(n.vx, n.vy);
@@ -852,7 +871,7 @@ function BrainMap({ data, lang, chrome, stats, mine, mineLoading, onShare, onBac
         const dim = hotId !== null && !hot && !neighborIds.has(n.id);
         const cf = clear(n.fx, n.fy);
         if (cf <= 0.02) continue;
-        const r = (hot ? n.r + 2 : n.r) * px1;
+        const r = (hot ? n.r + 3 : n.r) * px1;
         ctx.globalAlpha = (hot ? 1 : dim ? 0.25 : 0.9) * cf;
         ctx.fillStyle = POS_COL[n.pos ?? ""] ?? POS_COL.other; // barva = slovní druh
         ctx.beginPath(); ctx.arc(n.fx, n.fy, r, 0, 7); ctx.fill();
@@ -862,11 +881,31 @@ function BrainMap({ data, lang, chrome, stats, mine, mineLoading, onShare, onBac
         }
         const showLabel = !bg && (hot || neighborIds.has(n.id) || hsEnds.has(n.id) || (labeled.has(n.id) && (hotId === null || !dim)));
         if (showLabel) {
-          ctx.globalAlpha = hot ? 1 : 0.85;
-          ctx.fillStyle = "#1a1614";
-          ctx.font = `${hot ? 700 : 500} ${10 * px1}px system-ui`;
           ctx.textAlign = "center";
-          ctx.fillText(n.label, n.fx, n.fy + r + 11 * px1);
+          if (hot) {
+            // vybrané (nebo najeté) slovo — velké a čitelné, na podkladové placce
+            const fs = 18 * px1;
+            ctx.font = `800 ${fs}px system-ui`;
+            ctx.textBaseline = "middle";
+            const tw = ctx.measureText(n.label).width;
+            const cx = n.fx, cyL = n.fy + r + 14 * px1 + fs / 2;
+            const padX = 9 * px1, padY = 6 * px1;
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "rgba(255,253,246,0.97)";
+            roundRectPath(ctx, cx - tw / 2 - padX, cyL - fs / 2 - padY, tw + padX * 2, fs + padY * 2, 8 * px1);
+            ctx.fill();
+            ctx.strokeStyle = "rgba(26,22,20,0.22)"; ctx.lineWidth = 1.4 * px1; ctx.stroke();
+            ctx.fillStyle = "#1a1614";
+            ctx.fillText(n.label, cx, cyL);
+            ctx.textBaseline = "alphabetic";
+          } else {
+            const fs = (neighborIds.has(n.id) ? 12 : 10) * px1;
+            ctx.globalAlpha = 0.85;
+            ctx.fillStyle = "#1a1614";
+            ctx.font = `500 ${fs}px system-ui`;
+            ctx.fillText(n.label, n.fx, n.fy + r + 11 * px1);
+          }
+          ctx.globalAlpha = 1;
         }
         ctx.globalAlpha = 1;
       }
@@ -1070,11 +1109,11 @@ function BrainMap({ data, lang, chrome, stats, mine, mineLoading, onShare, onBac
             display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
             pointerEvents: "none",
           }}>
-            <button onClick={onBack} style={{
+            <Link href="/" style={{
               pointerEvents: "auto", background: "#fff", border: "2px solid var(--border)", borderRadius: 999,
               padding: "7px 14px", ...sans, fontSize: 12.5, fontWeight: 600, cursor: "pointer", color: "var(--text-primary)",
-              boxShadow: "3px 3px 0 var(--shadow)",
-            }}>{t.backToAssoc}</button>
+              boxShadow: "3px 3px 0 var(--shadow)", textDecoration: "none",
+            }}>{t.back}</Link>
             <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0 }}>⚡ {t.title} · 🔬 Researcher</p>
           </div>
 
@@ -1148,6 +1187,12 @@ function BrainMap({ data, lang, chrome, stats, mine, mineLoading, onShare, onBac
               ))}
             </>
           )}
+
+          <button onClick={onBack} style={{
+            marginTop: 14, width: "100%", background: "#fff", border: "2px solid var(--border)", borderRadius: 999,
+            padding: "8px 14px", ...sans, fontSize: 12.5, fontWeight: 600, cursor: "pointer", color: "var(--text-primary)",
+            boxShadow: "2px 2px 0 var(--shadow)",
+          }}>{t.backToAssoc}</button>
         </div>
       )}
 
