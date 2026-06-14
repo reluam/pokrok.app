@@ -434,6 +434,9 @@ function runSim(nodes: SimNode[], edges: SimEdge[], maxCount: number, ticks = 30
       n.vx -= n.x * 0.004;
       n.vy -= n.y * 0.004;
       n.vx *= 0.85; n.vy *= 0.85;
+      // strop rychlosti — pružina roste s d, takže u větší sítě jinak diverguje do NaN a mapa zmizí
+      const sp = Math.hypot(n.vx, n.vy);
+      if (sp > 30) { n.vx = (n.vx / sp) * 30; n.vy = (n.vy / sp) * 30; }
       n.x += n.vx; n.y += n.vy;
     }
   }
