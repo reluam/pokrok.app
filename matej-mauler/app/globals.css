@@ -227,3 +227,42 @@ body {
 .m-odds-v { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 4.5vw, 30px); letter-spacing: -0.01em; color: #1a1614; white-space: nowrap; }
 
 @media (max-width: 480px) { .experiments-feed { grid-template-columns: 1fr; } }
+
+/* ── Homepage: fixní about-sloupec vlevo + experimenty vyplňující zbytek ── */
+.home-grid {
+  display: grid;
+  column-gap: clamp(20px, 2.6vw, 34px);
+  row-gap: 22px;
+  padding: clamp(26px, 4vh, 46px) clamp(20px, 4vw, 40px);
+  max-width: 1340px;
+  margin: 0 auto;
+  grid-template-columns: 1fr;
+  grid-template-areas: "intro" "main" "matej";
+}
+.home-intro { grid-area: intro; }
+.home-matej { grid-area: matej; }
+.home-main  { grid-area: main; min-width: 0; }
+.feed-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(218px, 1fr));
+  grid-auto-rows: minmax(186px, 1fr);
+  gap: clamp(12px, 1.4vw, 18px);
+}
+.feed-fill .exp-article { display: flex; flex-direction: column; }
+.feed-fill .exp-banner { flex: 1 1 auto; height: auto; min-height: 116px; }
+
+@media (min-width: 880px) {
+  .home-grid {
+    grid-template-columns: clamp(252px, 23vw, 318px) 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "intro main" "matej main";
+    height: 100dvh;
+  }
+  .home-matej { align-self: start; }
+  .home-main {
+    min-height: 0;
+    border-left: 1.5px solid rgba(26,22,20,0.12);
+    padding-left: clamp(20px, 2.6vw, 34px);
+  }
+  .feed-fill { height: 100%; overflow-y: auto; }
+}
