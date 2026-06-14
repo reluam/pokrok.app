@@ -228,46 +228,35 @@ body {
 
 @media (max-width: 480px) { .experiments-feed { grid-template-columns: 1fr; } }
 
-/* ── Homepage: fixní about-sloupec nalepený vlevo + experimenty jako řádky ── */
-.home-grid {
+/* ── Homepage: karty projektů ve stylu ziju.life (hand-drawn, lehká rotace) ── */
+.zcards {
   display: grid;
-  column-gap: clamp(18px, 2.2vw, 30px);
-  row-gap: 22px;
-  padding: clamp(24px, 4vh, 44px) clamp(16px, 1.8vw, 28px);
+  grid-template-columns: repeat(auto-fill, minmax(266px, 1fr));
+  gap: 26px 22px;
+  align-items: stretch;
+}
+.zcard {
+  transform: rotate(var(--rot, 0deg));
+  transition: transform 200ms var(--transition);
+  text-decoration: none;
+}
+.zcard:hover { transform: rotate(0deg) translateY(-5px); }
+.zarrow { transition: transform 180ms var(--transition); }
+.zcard:hover .zarrow { transform: translateX(4px); }
+
+/* ── Procházení / hledání experimentů (levý sloupec + filtrované karty) ── */
+.browse-grid {
+  display: grid;
   grid-template-columns: 1fr;
-  grid-template-areas: "intro" "main" "matej";
+  gap: clamp(22px, 3vw, 38px);
+  padding: clamp(24px, 4vh, 44px) clamp(18px, 2vw, 32px);
 }
-.home-intro { grid-area: intro; }
-.home-matej { grid-area: matej; }
-.home-main  { grid-area: main; min-width: 0; }
-
-/* karty stejné velikosti, řazené zleva odshora (nejnovější první); volné místo nevadí */
-.feed-fill {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(264px, 296px));
-  grid-auto-rows: 324px;
-  gap: clamp(14px, 1.5vw, 20px);
-  align-content: start;
-}
-.feed-fill .exp-article { display: flex; flex-direction: column; }
-.feed-fill .exp-banner { flex: 0 0 152px; height: 152px; min-height: 0; }
-.feed-fill .exp-body { flex: 1 1 auto; overflow: hidden; }
-.feed-fill .exp-desc {
-  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}
-
+.browse-main { min-width: 0; }
 @media (min-width: 880px) {
-  .home-grid {
-    grid-template-columns: clamp(248px, 22vw, 312px) 1fr;
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "intro main" "matej main";
-    height: 100dvh;
+  .browse-grid {
+    grid-template-columns: clamp(260px, 24vw, 330px) 1fr;
+    align-items: start;
+    min-height: 100dvh;
   }
-  .home-matej { align-self: start; }
-  .home-main {
-    min-height: 0;
-    border-left: 1.5px solid rgba(26,22,20,0.12);
-    padding-left: clamp(20px, 2.4vw, 32px);
-  }
-  .feed-fill { height: 100%; overflow-y: auto; }
+  .browse-side { position: sticky; top: 28px; }
 }
