@@ -11,8 +11,8 @@ export type AboutProject = {
 };
 
 export const SPAGHETTI_BLURB: Bi = {
-  cs: "Spaghetti.ltd je hřiště malých experimentů spojených jedním světonázorem: život je spletenec — spletenec, který je úžasně fascinující.",
-  en: "Spaghetti.ltd is a playground of small experiments tied together by one worldview: life is a mess — a mess that is amazingly fascinating.",
+  cs: "Život je chaos. Úžasně fascinující chaos.",
+  en: "Life is chaos. Amazingly fascinating chaos.",
 };
 
 /** Centrální node — z něj vedou linky na všechny experimenty. */
