@@ -49,7 +49,7 @@ const T = {
     savedAgain: (a: string, b: string, n: number) => `${a} → ${b} · synapse posílena ×${n}`,
     afterSave: "Uloženo. Tady je další náhodné slovo.",
     dice: "🎲 Jiné slovo",
-    researcher: "🔬 Prozkoumat mapu jako Researcher →",
+    researcher: "🔬 Zobrazit mapu",
     mine: (n: number) => `tvých asociací dnes: ${n}`,
     errInvalid: "Tohle síť nepobrala — zkus 1–3 slova, max 40 znaků.",
     errSame: "Slovo se nemůže asociovat samo na sebe, to by byla smyčka.",
@@ -91,7 +91,7 @@ const T = {
     savedAgain: (a: string, b: string, n: number) => `${a} → ${b} · synapse strengthened ×${n}`,
     afterSave: "Saved. Here's another random word.",
     dice: "🎲 Different word",
-    researcher: "🔬 Explore the map as a Researcher →",
+    researcher: "🔬 View the map",
     mine: (n: number) => `your associations today: ${n}`,
     errInvalid: "The network couldn't digest that — try 1–3 words, max 40 characters.",
     errSame: "A word can't associate with itself, that would be a loop.",
@@ -230,9 +230,18 @@ export function BrainApp({ lang }: { lang: Lang }) {
             <p style={{ ...display, fontStyle: "italic", fontSize: 14, color: "var(--text-secondary)", margin: "0 0 34px" }}>{t.tagline}</p>
 
             <p style={{ ...sans, fontSize: 13.5, color: "var(--text-secondary)", margin: 0 }}>{t.prompt}</p>
-            <p style={{ ...display, fontSize: "clamp(36px,8vw,60px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.08, margin: "8px 0 24px", minHeight: "1.1em" }}>
-              {word ? word.display : <span style={{ opacity: 0.4, fontSize: 17, ...sans, fontWeight: 400 }}>{t.loadingWord}</span>}
-            </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap", margin: "8px 0 24px", minHeight: "1.1em" }}>
+              <p style={{ ...display, fontSize: "clamp(36px,8vw,60px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.08, margin: 0 }}>
+                {word ? word.display : <span style={{ opacity: 0.4, fontSize: 17, ...sans, fontWeight: 400 }}>{t.loadingWord}</span>}
+              </p>
+              {word && (
+                <button onClick={() => { setLast(null); fetchWord(appLang, word?.id); inputRef.current?.focus(); }} style={{
+                  background: "rgba(255,255,255,0.8)", border: "1px solid rgba(26,22,20,0.2)", borderRadius: 999,
+                  padding: "8px 16px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
+                  color: "var(--text-primary)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+                }}>{t.dice}</button>
+              )}
+            </div>
 
             <form onSubmit={submit} style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               <input
@@ -269,16 +278,10 @@ export function BrainApp({ lang }: { lang: Lang }) {
               </div>
             )}
 
-            <div style={{ marginTop: 30, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-              <button onClick={() => { setLast(null); fetchWord(appLang, word?.id); inputRef.current?.focus(); }} style={{
-                background: "rgba(255,255,255,0.8)", border: "1px solid rgba(26,22,20,0.2)", borderRadius: 999,
-                padding: "8px 18px", ...sans, fontSize: 13, fontWeight: 600, cursor: "pointer",
-                color: "var(--text-primary)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-              }}>{t.dice}</button>
+            <div style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
               <button onClick={enterMap} style={{
-                background: "none", border: "none", cursor: "pointer", padding: 0,
-                ...sans, fontSize: 13, fontWeight: 600, color: "var(--text-secondary)",
-                textDecoration: "underline", textUnderlineOffset: "4px",
+                background: "var(--text-primary)", color: "var(--bg)", border: "none", cursor: "pointer",
+                borderRadius: 999, padding: "11px 24px", ...sans, fontSize: 13.5, fontWeight: 700,
               }}>{t.researcher}</button>
             </div>
           </div>
