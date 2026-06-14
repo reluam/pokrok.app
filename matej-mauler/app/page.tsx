@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { HomeContent } from "@/components/HomeContent";
+import { HomeNetwork } from "@/components/HomeNetwork";
 import { dictionaries } from "@/lib/dictionaries";
 import { getPublicExperiments } from "@/lib/experimentsDb";
-import { getPublicSongs } from "@/lib/songsDb";
 import { applyTextOverrides, getTextOverrides } from "@/lib/siteTextsDb";
 
 export const dynamic = "force-dynamic";
@@ -26,11 +25,11 @@ const jsonLd = {
 };
 
 export default async function Home() {
-  const [items, songs] = await Promise.all([getPublicExperiments("en"), getPublicSongs("en", 3)]);
+  const items = await getPublicExperiments("en");
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <HomeContent dict={applyTextOverrides(dictionaries.en, await getTextOverrides("en").catch(() => ({})))} lang="en" items={items} songs={songs} />
+      <HomeNetwork dict={applyTextOverrides(dictionaries.en, await getTextOverrides("en").catch(() => ({})))} lang="en" items={items} />
     </>
   );
 }

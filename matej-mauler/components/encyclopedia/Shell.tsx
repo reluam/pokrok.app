@@ -7,7 +7,6 @@ import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/li
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
 import { PlanetField } from "./PlanetField";
 import { PlainRealm } from "./PlainRealm";
-import { Strands } from "./Strands";
 import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
@@ -139,8 +138,7 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
     else location.reload();
   };
 
-  const overlayMax = node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(560px, calc(100vw - 240px))" : "min(520px, 86vmin)";
-  const upTarget = trail.length ? trail[trail.length - 1] : node?.up ?? null;
+  const overlayMax = node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(560px, calc(100vw - 48px))" : "min(520px, 86vmin)";
 
   // související pojmy — místo špaget se vypíšou textem pod vysvětlením (obecnější, hlubší, odbočky)
   const related = node && !isGate
@@ -166,22 +164,13 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         <RedLink slug={slug} lang={lang} dark={theme === "dark"} />
       )}
 
-      {/* špagety k okolním tématům — vizuální nudlové synapse kolem hesla */}
-      {node && !isGate && (
-        <Strands node={node} lang={lang} dark={chromeDark} upTarget={upTarget} onUp={goUp} onNext={goNext} onSide={dive} />
-      )}
-
       {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný (brána má vlastní rozcestí) */}
       {node && !isGate && (
-        <div style={{ position: "fixed", inset: 0, zIndex: searchOpen ? 46 : 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "120px 22px 0" : "0 22px", pointerEvents: "none" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "120px 22px 0" : "0 22px", pointerEvents: "none" }}>
           <div key={slug} style={{ position: "relative", maxWidth: overlayMax, animation: "encyText 560ms cubic-bezier(0.22,1,0.36,1)" }}>
             <div aria-hidden style={{ position: "absolute", inset: "-34px -50px", background: C.blur, backdropFilter: "blur(13px)", WebkitBackdropFilter: "blur(13px)", maskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)", WebkitMaskImage: "radial-gradient(closest-side, #000 55%, transparent 100%)" }} />
             <div style={{ position: "relative", textAlign: "center", pointerEvents: "none" }}>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.28em", color: C.faint, marginBottom: 10 }}>{u.eyebrow}</p>
-              {/* hledání hned nad termínem */}
-              <div style={{ width: "min(360px, 100%)", margin: "0 auto 14px" }}>
-                <InlineSearch lang={lang} dark={chromeDark} gate open={searchOpen} onOpen={() => setSearchOpen(true)} onClose={() => setSearchOpen(false)} onPick={dive} />
-              </div>
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: topText ? "clamp(26px,5vw,38px)" : "clamp(28px,6vw,42px)", fontWeight: 700, color: C.text, letterSpacing: "-0.03em", lineHeight: 1.05, marginBottom: 12 }}>{node.title[lang]}</h1>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: topText ? 14 : 15, lineHeight: 1.65, color: C.body }}>{node.guide[lang]}</p>
               {node.features && node.features.length > 0 && node.realm !== "space" && (
@@ -210,9 +199,14 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         </div>
       )}
 
-      {/* chrome */}
-      <div style={{ position: "fixed", top: 16, left: 20, zIndex: 20 }}>
-        <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: PC.home, textDecoration: "none" }}>{u.home}</Link>
+      {/* horní lišta — domů vlevo, hledání nahoře (mobil i PC) */}
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", pointerEvents: "none" }}>
+        <Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: PC.home, textDecoration: "none", flexShrink: 0, whiteSpace: "nowrap", pointerEvents: "auto" }}>{u.home}</Link>
+        <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+          <div style={{ width: "min(420px, 100%)", pointerEvents: "auto" }}>
+            <InlineSearch lang={lang} dark={chromeDark} gate open={searchOpen} onOpen={() => setSearchOpen(true)} onClose={() => setSearchOpen(false)} onPick={dive} />
+          </div>
+        </div>
       </div>
 
 
@@ -283,7 +277,7 @@ function InlineSearch({ lang, dark, gate, open, onOpen, onClose, onPick }: {
           onChange={(e) => { setQ(e.target.value); if (!open) onOpen(); }}
           onKeyDown={(e) => { if (e.key === "Enter" && results[0]) pick(results[0].slug); if (e.key === "Escape") onClose(); }}
           placeholder={u.searchPh}
-          style={{ background: "none", border: "none", outline: "none", color: ink, fontFamily: "var(--font-sans)", fontSize: 14, width: gate ? "100%" : open ? "min(380px, 56vw)" : 180, transition: "width 250ms ease", minWidth: 0, flex: gate ? 1 : undefined }} />
+          style={{ background: "none", border: "none", outline: "none", color: ink, fontFamily: "var(--font-sans)", fontSize: 16, width: gate ? "100%" : open ? "min(380px, 56vw)" : 180, transition: "width 250ms ease", minWidth: 0, flex: gate ? 1 : undefined }} />
         <kbd style={{ fontFamily: "var(--font-sans)", fontSize: 10, padding: "1px 5px", borderRadius: 5, border: dark ? "1px solid rgba(255,255,255,0.25)" : "1px solid rgba(26,22,20,0.25)", color: soft, flexShrink: 0 }}>⌘K</kbd>
       </div>
 
