@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
-import { HandDrawnCard } from "./HandDrawnCard";
+import { HandDrawnCard, HandDrawnFrame } from "./HandDrawnCard";
 import { CATEGORIES } from "@/lib/experiments";
 import { SPAGHETTI_BLURB } from "@/lib/about";
 import type { Dictionary, Lang } from "@/lib/dictionaries";
@@ -29,7 +29,7 @@ function ProjectCard({ item, lang, i, open }: { item: PublicExperiment; lang: La
       {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       className="zcard group/card block"
     >
-      <HandDrawnCard variant={i % 3} shadow shadowOffset={6} className="h-full" innerClassName="p-6 md:p-7 flex flex-col h-full">
+      <HandDrawnCard variant={i % 3} shadow shadowOffset={6} fill="#fff" className="h-full" innerClassName="p-6 md:p-7 flex flex-col h-full">
         <div style={{ borderRadius: 12, overflow: "hidden", border: "2px solid #171717", marginBottom: 13 }}>
           <ExperimentPreview slug={item.slug} title={item.title} color={item.color} lang={lang} />
         </div>
@@ -78,16 +78,15 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         <LanguageSwitcher lang={lang} labels={dict.switcher} />
         <div className="browse-grid">
           <aside className="browse-side animate-fade-up">
-            <button onClick={() => setMode("home")} className="paper-btn" style={{ fontSize: 12, padding: "7px 13px", marginBottom: 18 }}>{t.back}</button>
+            <button onClick={() => setMode("home")} className="hd-ctrl" style={{ marginBottom: 18 }}>
+              <HandDrawnFrame innerClassName="px-3.5 py-1.5"><span style={{ ...display, fontSize: 12, fontWeight: 800 }}>{t.back}</span></HandDrawnFrame>
+            </button>
             {brand("sm")}
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t.search}
-              autoFocus
-              className="paper-input"
-              style={{ marginTop: 22 }}
-            />
+            <div style={{ marginTop: 22 }}>
+              <HandDrawnFrame className="hd-frame--block">
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.search} autoFocus className="hd-input" />
+              </HandDrawnFrame>
+            </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
               <Chip active={cat === null} onClick={() => setCat(null)} label={t.allCats} />
               {cats.map((c) => <Chip key={c} active={cat === c} onClick={() => setCat(c)} label={c} />)}
@@ -123,7 +122,9 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         {/* projekty */}
         <div className="mb-6 animate-fade-up" style={{ animationDelay: "40ms", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <h2 className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{dict.products.title}</h2>
-          <button onClick={() => setMode("browse")} className="paper-btn" style={{ marginLeft: "auto", fontSize: 13, padding: "9px 16px" }}>{t.browse} →</button>
+          <button onClick={() => setMode("browse")} className="hd-ctrl" style={{ marginLeft: "auto" }}>
+            <HandDrawnFrame innerClassName="px-4 py-2"><span style={{ ...display, fontSize: 13, fontWeight: 800 }}>{t.browse} →</span></HandDrawnFrame>
+          </button>
         </div>
 
         <section className="zcards animate-fade-up pb-14" style={{ animationDelay: "60ms" }}>
@@ -149,6 +150,10 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
 
 function Chip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
-    <button onClick={onClick} className={`paper-chip${active ? " active" : ""}`}>{label}</button>
+    <button onClick={onClick} className="hd-ctrl">
+      <HandDrawnFrame fill={active ? "#171717" : "#fff"} shadow={active} innerClassName="px-3.5 py-1.5">
+        <span style={{ ...display, fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: active ? "#fff" : "#171717" }}>{label}</span>
+      </HandDrawnFrame>
+    </button>
   );
 }
