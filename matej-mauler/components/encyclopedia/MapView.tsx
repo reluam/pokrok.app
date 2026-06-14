@@ -5,15 +5,19 @@ import Link from "next/link";
 import { graphData, titleOf } from "@/lib/encyclopedia/graph";
 import type { Lang } from "@/lib/dictionaries";
 
-export const REALM_COL: Record<string, string> = { space: "#8b9cf6", sound: "#e8556d", music: "#b07ef6", plain: "#4daf7c" };
+export const REALM_COL: Record<string, string> = {
+  space: "#8b9cf6", plain: "#4daf7c",
+  hitchhiker: "#2ea36b", futurama: "#18b5c4", simpsons: "#f2b71e", reddwarf: "#d0392f",
+  southpark: "#e8772e", office: "#3b7dd8", topgear: "#5a6b7a", rickmorty: "#7ec850",
+};
 export const RED_COL = "#8a90a0";
 
 type MapNode = { slug: string; label: string; realm: string | null; depth: number; x: number; y: number; r: number };
 type Edge = { a: number; b: number; red: boolean };
 
 const UI = {
-  cs: { back: "← Spaghetti.ltd", eyebrow: "Encyklopedie", title: "Mapa všeho", legend: { space: "vesmír", sound: "zvuk", music: "hudba", plain: "knihovna", red: "neprobádáno" }, hint: "obecné nahoře · konkrétní dole · klikni a jdi" },
-  en: { back: "← Spaghetti.ltd", eyebrow: "Encyclopedia", title: "Map of everything", legend: { space: "space", sound: "sound", music: "music", plain: "library", red: "uncharted" }, hint: "general up top · specific below · click to go" },
+  cs: { back: "← Spaghetti.ltd", eyebrow: "Absurdní encyklopedie", title: "Mapa všeho", legend: { worlds: "barva = svět", red: "neprobádáno" }, hint: "obecné nahoře · konkrétní dole · klikni a jdi" },
+  en: { back: "← Spaghetti.ltd", eyebrow: "The Absurd Encyclopedia", title: "Map of everything", legend: { worlds: "colour = world", red: "uncharted" }, hint: "general up top · specific below · click to go" },
 } as const;
 
 /** Mapová projekce sdílených dat grafu (graph.ts). */
@@ -139,11 +143,12 @@ export function MapView({ lang }: { lang: Lang }) {
       </div>
 
       <div style={{ position: "absolute", bottom: 16, left: 20, zIndex: 5, display: "flex", gap: 14, alignItems: "center", fontFamily: "var(--font-sans)", fontSize: 11, color: dk ? "rgba(255,255,255,0.65)" : "rgba(26,22,20,0.65)" }}>
-        {(["space", "sound", "music", "plain"] as const).map((r) => (
-          <span key={r} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <span style={{ width: 9, height: 9, borderRadius: "50%", background: REALM_COL[r] }} /> {u.legend[r]}
-          </span>
-        ))}
+        <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          {["futurama", "simpsons", "reddwarf", "southpark", "office", "topgear", "rickmorty", "hitchhiker", "space"].map((r) => (
+            <span key={r} style={{ width: 9, height: 9, borderRadius: "50%", background: REALM_COL[r] }} />
+          ))}
+          {u.legend.worlds}
+        </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 9, height: 9, borderRadius: "50%", border: `1.4px dashed ${RED_COL}` }} /> {u.legend.red}
         </span>

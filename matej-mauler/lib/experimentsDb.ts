@@ -74,6 +74,7 @@ async function ensure(sql: Sql) {
       'A map of how Spaghetti connects: projects as nodes, concepts as shared noodles. Why the experiments came to be and how they work.',
       '#FEF3C7', '/about', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
     ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/about'`;
+  await sql`UPDATE experiments SET title_cs = 'Absurdní encyklopedie', title_en = 'The Absurd Encyclopedia', desc_cs = 'Encyklopedie absurdních fikčních světů — braná smrtelně vážně. Futurama, Simpsonovi, Red Dwarf, Stopařův průvodce… jako by to všechno byla pravda.', desc_en = ${"An encyclopedia of absurd fictional worlds — taken deadly seriously. Futurama, The Simpsons, Red Dwarf, the Hitchhiker's Guide… as if it were all real."} WHERE slug = 'encyklopedie'`;
   ready = true;
 }
 

@@ -70,8 +70,8 @@ export const dictionaries: Record<Lang, Dictionary> = {
     experiments: [
       {
         slug: "encyklopedie",
-        title: "Encyklopedie",
-        description: "Interaktivní encyklopedie propojená nudlemi poznání. Vesmír, zvuk, Stopařův průvodce a další — scrolluj do hloubky, klikej do stran.",
+        title: "Absurdní encyklopedie",
+        description: "Encyklopedie absurdních fikčních světů — braná smrtelně vážně. Futurama, Simpsonovi, Red Dwarf, Stopařův průvodce… jako by to všechno byla pravda.",
       },
       {
         slug: "sound",
@@ -129,8 +129,8 @@ export const dictionaries: Record<Lang, Dictionary> = {
     experiments: [
       {
         slug: "encyklopedie",
-        title: "The Encyclopedia",
-        description: "An interactive encyclopedia connected by knowledge noodles. Space, sound, the Hitchhiker's Guide and more — scroll deeper, click sideways.",
+        title: "The Absurd Encyclopedia",
+        description: "An encyclopedia of absurd fictional worlds — taken deadly seriously. Futurama, The Simpsons, Red Dwarf, the Hitchhiker's Guide… as if it were all real.",
       },
       {
         slug: "sound",

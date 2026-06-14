@@ -2,8 +2,10 @@ import type { Bilingual } from "@/lib/space";
 
 export type { Bilingual };
 
-/** Kategorie hesla — barví mapu a špagety, vše rendruje jednotný shell. */
-export type RealmId = "space" | "sound" | "music" | "plain";
+/** Kategorie hesla = svět, ze kterého pochází — barví mapu a planetu, vše rendruje jednotný shell. */
+export type RealmId =
+  | "space" | "plain"
+  | "hitchhiker" | "futurama" | "simpsons" | "reddwarf" | "southpark" | "office" | "topgear" | "rickmorty";
 
 /** Klikatelná synapse (nudle) k jinému heslu. Cíl může být existující heslo i červený odkaz. */
 export type Satellite = {

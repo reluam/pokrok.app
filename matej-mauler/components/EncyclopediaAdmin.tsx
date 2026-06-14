@@ -9,7 +9,7 @@ import type { Suggestion } from "@/app/api/admin/ency/suggest/route";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const sans = "var(--font-sans)";
-const REALM_LABEL: Record<string, string> = { space: "🌌 Vesmír", sound: "🔊 Zvuk", music: "🎶 Hudba", plain: "📖 Knihovna" };
+const REALM_LABEL: Record<string, string> = { space: "🌌 Vesmír", plain: "📖 Obecné", hitchhiker: "📖 Stopař", futurama: "🚀 Futurama", simpsons: "🏠 Simpsonovi", reddwarf: "🛰️ Red Dwarf", southpark: "⛄ South Park", office: "📄 The Office", topgear: "🏎️ Top Gear", rickmorty: "🛸 Rick & Morty" };
 
 type Wish = { slug: string; votes: number };
 
@@ -42,7 +42,7 @@ export function EncyclopediaAdmin({ wishes, suggestions: initial }: { wishes: Wi
   const g = graphData();
   const reds = g.nodes.filter((n) => !n.realm);
   const wishMap = Object.fromEntries(wishes.map((w) => [w.slug, w.votes]));
-  const realms = ["space", "sound", "music", "plain"] as const;
+  const realms = ["space", "hitchhiker", "futurama", "simpsons", "reddwarf", "southpark", "office", "topgear", "rickmorty", "plain"] as const;
 
   const logout = async () => { await fetch("/api/admin/auth", { method: "DELETE" }); router.push("/admin/login"); };
 

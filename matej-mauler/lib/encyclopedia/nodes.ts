@@ -1,7 +1,6 @@
 import type { Bilingual, NodeDef } from "./types";
-import { SOUND_NODES } from "./sound-nodes";
-import { MUSIC_NODES } from "./music-nodes";
 import { PLAIN_NODES } from "./plain-nodes";
+import { ABSURD_NODES } from "./absurd-nodes";
 
 /* ── Zásobník: témata, která zatím neexistují (červené odkazy) ──────
    Synapse na ně smí vést — dostanou placeholder a počítadlo přání. */
@@ -16,19 +15,9 @@ export const SEEDS: Record<string, Bilingual> = {
   "sklenikovy-efekt": { cs: "Skleníkový efekt", en: "Greenhouse effect" },
   voda: { cs: "Voda", en: "Water" },
   "cerna-dira": { cs: "Černá díra", en: "Black hole" },
-  vzduch: { cs: "Vzduch", en: "Air" },
-  zelezo: { cs: "Železo", en: "Iron" },
-  vlneni: { cs: "Vlnění", en: "Waves" },
-  ton: { cs: "Tón", en: "Tone" },
-  decibel: { cs: "Decibel", en: "Decibel" },
-  "hudebni-nastroje": { cs: "Hudební nástroje", en: "Musical instruments" },
-  tonina: { cs: "Tónina", en: "Key" },
   jazyk: { cs: "Jazyk", en: "Language" },
   poezie: { cs: "Poezie", en: "Poetry" },
-  pravda: { cs: "Pravda", en: "Truth" },
   delfini: { cs: "Delfíni", en: "Dolphins" },
-  nahoda: { cs: "Náhoda", en: "Chance" },
-  statistika: { cs: "Statistika", en: "Statistics" },
 };
 
 /* ── Hesla ──────────────────────────────────────────────────────────
@@ -36,11 +25,11 @@ export const SEEDS: Record<string, Bilingual> = {
    soustava → Slunce → Země → Měsíc. Všechno ostatní jsou odbočky. */
 const N: NodeDef[] = [
   {
-    slug: "brana", realm: "space",
-    title: { cs: "Spaghetti.ltd", en: "Spaghetti.ltd" },
+    slug: "brana", realm: "plain",
+    title: { cs: "Absurdní encyklopedie", en: "The Absurd Encyclopedia" },
     guide: {
-      cs: "Život je zamotaný. Jako špagety. Zamotej se do našich nudlí poznání.",
-      en: "Life is a mess. Like spaghetti. Get entangled in our messy knowledge noodles.",
+      cs: "Žiješ ve světě poskládaném z těch nejabsurdnějších. Tahle encyklopedie ho bere smrtelně vážně — heslo po heslu, jako by to všechno byla pravda. (Je.)",
+      en: "You live in a world assembled from the most absurd ones. This encyclopedia takes it deadly seriously — entry by entry, as if all of it were real. (It is.)",
     },
     next: "vesmir",
   },
@@ -257,7 +246,6 @@ const N: NodeDef[] = [
     },
     up: "mlecna-draha",
     subject: { object: "voyager" },
-    satellites: [{ to: "zvuk", x: 78, y: 68, label: { cs: "Zlatá deska se zvuky Země", en: "Golden record of Earth's sounds" } }],
     features: [{ cs: "mezihvězdný prostor", en: "interstellar space" }],
   },
   {
@@ -330,4 +318,4 @@ const N: NodeDef[] = [
   },
 ];
 
-export const NODES: Record<string, NodeDef> = Object.fromEntries([...N, ...SOUND_NODES, ...MUSIC_NODES, ...PLAIN_NODES].map((n) => [n.slug, n]));
+export const NODES: Record<string, NodeDef> = Object.fromEntries([...N, ...PLAIN_NODES, ...ABSURD_NODES].map((n) => [n.slug, n]));
