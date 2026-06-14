@@ -61,6 +61,21 @@ function bassNote(buf: Float32Array, at: number, dur: number, freq: number) {
 
 /* ── lead hlasy ── */
 function leadNote(buf: Float32Array, at: number, dur: number, freq: number, voice: LeadVoice) {
+  if (voice === "pop") {
+    // popový lead: tři rozladěné pily + sub + jemné vibrato, jasný filtr, zpěvný obal
+    const lp = new LP1(3300);
+    addNote(buf, at, dur + 0.05, (i, n) => {
+      const t = i / SR;
+      const vib = 1 + Math.sin(TAU * 5.5 * t) * 0.006;
+      const f = freq * vib;
+      const p1 = f * t, p2 = f * 1.004 * t, p3 = f * 0.996 * t;
+      const saws = (2 * (p1 - Math.floor(p1 + 0.5)) + 2 * (p2 - Math.floor(p2 + 0.5)) + 2 * (p3 - Math.floor(p3 + 0.5))) / 3;
+      const sub = Math.sin(TAU * freq * 0.5 * t) * 0.22;
+      const env = Math.min(1, i / (0.008 * SR)) * (0.72 + 0.28 * Math.exp(-t * 2)) * (i > n - 0.04 * SR ? (n - i) / (0.04 * SR) : 1);
+      return lp.run(saws * 0.72 + sub) * env * 0.44;
+    });
+    return;
+  }
   if (voice === "bell") {
     addNote(buf, at, Math.max(dur, 0.45), (i) => {
       const t = i / SR;

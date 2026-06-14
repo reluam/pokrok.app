@@ -5,7 +5,7 @@
 
 export type Lang = "cs" | "en";
 
-export type LeadVoice = "pluck" | "saw" | "bell" | "keys";
+export type LeadVoice = "pop" | "pluck" | "saw" | "bell" | "keys";
 export type Genre = "house" | "pop" | "chill";
 
 export type MelNote = { step: number; deg: number; len: number }; // přes 32 kroků (2 takty)
@@ -94,7 +94,7 @@ function genMelody(s: SongState, rng: () => number): MelNote[] {
 export function genSong(seed: number): SongState {
   const rng = mkRng(seed);
   const minor = rng() < 0.45;
-  const genre = pick(rng, ["house", "pop", "chill"] as const);
+  const genre = pick(rng, ["pop", "pop", "pop", "house", "chill"] as const);
   const s: SongState = {
     tempo: genre === "chill" ? 108 : 118 + Math.floor(rng() * 8),
     rootMidi: pick(rng, ROOTS),
@@ -103,8 +103,8 @@ export function genSong(seed: number): SongState {
     genre,
     drums: DRUMS[genre](),
     bassPat: [...pick(rng, BASS[genre])],
-    lead: { voice: pick(rng, ["pluck", "saw", "bell", "keys"] as const), notes: [] },
-    energy: 0.5 + rng() * 0.3,
+    lead: { voice: pick(rng, ["pop", "pop", "pluck", "keys", "bell"] as const), notes: [] },
+    energy: 0.58 + rng() * 0.28,
     mutes: {},
   };
   s.lead.notes = genMelody(s, rng);
@@ -151,7 +151,7 @@ export function applyOption(prev: SongState, opt: OptionId | null, seed: number)
       s.bassPat = [...pick(rng, BASS[s.genre])]; unmute("bass");
       break;
     case "instrument": {
-      s.lead.voice = pick(rng, (["pluck", "saw", "bell", "keys"] as const).filter((v) => v !== s.lead.voice)); unmute("lead");
+      s.lead.voice = pick(rng, (["pop", "pop", "pluck", "keys", "bell"] as const).filter((v) => v !== s.lead.voice)); unmute("lead");
       break;
     }
     case "tempo_up":
@@ -186,12 +186,24 @@ export type ChangeLog = {
   mute: { layer: Layer; on: boolean } | null;
 };
 export function summarizeChange(prev: SongState, next: SongState, opt: OptionId | null | "start"): ChangeLog {
-  let mute: ChangeLog["mute"] = null;
+  let mute: ChangeLog["mute"] = null; let muteOpt: string | null = null;
   for (const l of LAYERS) {
     const a = !!(prev.mutes ?? {})[l], b = !!(next.mutes ?? {})[l];
-    if (a !== b) { mute = { layer: l, on: b }; break; }
+    if (a !== b) { mute = { layer: l, on: b }; muteOpt = `mute_${l}`; break; }
   }
-  return { opt: opt ?? "auto", tempo: next.tempo, genre: next.genre, key: keyName(next), voice: next.lead.voice, mute };
+  // popíše, co se SKUTEČNĚ změnilo (i u auto změn bez hlasu) — priorita podle výraznosti
+  const J = (x: unknown) => JSON.stringify(x);
+  let detected: string;
+  if (opt === "start") detected = "start";
+  else if (muteOpt) detected = muteOpt;
+  else if (prev.tempo !== next.tempo) detected = next.tempo > prev.tempo ? "tempo_up" : "tempo_down";
+  else if (prev.minor !== next.minor || prev.rootMidi !== next.rootMidi) detected = "key";
+  else if (prev.genre !== next.genre || J(prev.drums) !== J(next.drums)) detected = "drums";
+  else if (J(prev.bassPat) !== J(next.bassPat)) detected = "bass";
+  else if (prev.lead.voice !== next.lead.voice) detected = "instrument";
+  else if (J(prev.lead.notes) !== J(next.lead.notes)) detected = "melody";
+  else detected = "auto";
+  return { opt: detected, tempo: next.tempo, genre: next.genre, key: keyName(next), voice: next.lead.voice, mute };
 }
 
 /** Délka kola: ~15 s zarovnaných na celé sudé takty (změna vždy od 1. doby). */
