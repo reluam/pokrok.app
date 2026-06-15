@@ -88,6 +88,10 @@ async function ensure(sql: Sql) {
 /* ── Veřejné čtení (s fallbackem na kód při výpadku DB) ─────────── */
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
+// Na ostré (production) jsou drafty skryté; na preview/lokálně je ukaž —
+// aby šlo projekt rozklikat a ladit na preview deploy ještě před publikací.
+const showDrafts = () => process.env.VERCEL_ENV !== "production";
+
 function staticFallback(lang: "cs" | "en"): PublicExperiment[] {
   return STATIC.filter((m) => m.href && !m.wip).map((m, i) => {
     const c = dictionaries[lang].experiments.find((e) => e.slug === m.slug)!;
@@ -100,7 +104,10 @@ export async function getPublicExperiments(lang: "cs" | "en"): Promise<PublicExp
     const sql = getDb();
     await ensure(sql);
     // Chronologicky (nejstarší první) kvůli číslování, pak otočíme → nejnovější nahoře.
-    const rows = await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE AND deleted = FALSE ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC` as (ExperimentRow & { eff_date: string })[];
+    // Na preview/lokálně přidáme i drafty (stage <> 'idea'), ať jsou ve feedu k nalezení.
+    const rows = (showDrafts()
+      ? await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE deleted = FALSE AND stage <> 'idea' ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC`
+      : await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE AND deleted = FALSE ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC`) as (ExperimentRow & { eff_date: string })[];
     const numbered = rows.map((r, i) => ({ slug: r.slug, title: lang === "cs" ? r.title_cs : r.title_en, description: lang === "cs" ? r.desc_cs : r.desc_en, color: r.color, href: r.href, external: r.external, date: r.eff_date, number: i + 1 }));
     return numbered.reverse();
   } catch {
@@ -132,9 +139,10 @@ export async function getDeletedHrefs(): Promise<string[]> {
   }
 }
 
-/** Pro experiment routes: draft → 404 pro neadminy. */
+/** Pro experiment routes: draft → 404 pro neadminy (na ostré). Na preview/lokálně projde. */
 export async function guardExperiment(slug: string): Promise<void> {
   if (await isAdmin()) return;
+  if (showDrafts()) return; // preview/dev: ukaž i drafty
   if (!(await isPublished(slug))) notFound();
 }
 
