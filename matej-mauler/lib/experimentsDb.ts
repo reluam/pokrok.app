@@ -74,6 +74,13 @@ async function ensure(sql: Sql) {
       'A map of how Spaghetti connects: projects as nodes, concepts as shared noodles. Why the experiments came to be and how they work.',
       '#FEF3C7', '/about', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
     ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/about'`;
+  // Manuál na život — IKEA-style listovací návod na život, draft (2026-06-15)
+  await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published, stage)
+    VALUES ('life-manual', 'Manuál na život', 'Life Manual',
+      'Návod na život ve stylu IKEA montážního manuálu — černobíle, listuje se zleva doprava. Vtipné, naučné a pravdivé střípky: obsah balení, nářadí, varování a kroky sestavení.',
+      'A guide to life in the style of an IKEA assembly manual — black and white, flipped left to right. Funny, educational, true bits and pieces: what is in the box, the tools, the warnings, and the assembly steps.',
+      '#F5F5F4', '/life-manual', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
+    ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/life-manual'`;
   await sql`UPDATE experiments SET title_cs = 'Encyklopedie', title_en = 'The Encyclopedia', desc_cs = 'Encyklopedie absurdních fikčních světů — braná smrtelně vážně. Futurama, Simpsonovi, Red Dwarf, Stopařův průvodce… jako by to všechno byla pravda.', desc_en = ${"An encyclopedia of absurd fictional worlds — taken deadly seriously. Futurama, The Simpsons, Red Dwarf, the Hitchhiker's Guide… as if it were all real."} WHERE slug = 'encyklopedie'`;
   ready = true;
 }
