@@ -399,92 +399,176 @@ const PAGES: Page[] = [
 
 const TOTAL = PAGES.length;
 
-/* ── List ───────────────────────────────────────────────────────────────── */
+/* ── Listy (jeden list = půlka spreadu) ───────────────────────────────────── */
 
-function Sheet({ page, lang, n }: { page?: Page; lang: Lang; n: number }) {
-  const t = UI[lang];
-  if (!page) {
-    // zadní strana / prázdný list (jen když je lichý počet stránek)
-    return (
-      <div className="flex-1 min-w-0 bg-[#F3F1EC] border border-[#141414]/10 flex items-center justify-center">
-        <span className="text-[#141414]/20 text-xs uppercase tracking-[0.3em]" style={display}>Spaghetti</span>
-      </div>
-    );
-  }
+type ManualUI = (typeof UI)[Lang];
+
+/** Obal listu: bílý papír + zaoblení do hřbetu. */
+function PageShell({ side, children }: { side: "L" | "R"; children: React.ReactNode }) {
   return (
-    <div className="flex-1 min-w-0 bg-white border border-[#141414]/12 flex flex-col overflow-y-auto px-6 sm:px-8 py-5">
-      {/* hlavička listu */}
-      <div className="flex items-center justify-between text-[#141414]/70 text-xs shrink-0">
-        <span className="inline-flex items-center justify-center min-w-7 h-7 px-2 border border-[#141414]/40 rounded-full font-semibold" style={display}>
+    <div className="relative h-full w-full bg-white overflow-hidden">
+      {children}
+      {/* zaoblení listu do hřbetu */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 w-24"
+        style={
+          side === "L"
+            ? { right: 0, background: "linear-gradient(to right, rgba(0,0,0,0) 50%, rgba(20,20,20,0.13))" }
+            : { left: 0, background: "linear-gradient(to left, rgba(0,0,0,0) 50%, rgba(20,20,20,0.13))" }
+        }
+      />
+      {/* jemný stín u vnějšího okraje */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 w-8"
+        style={
+          side === "L"
+            ? { left: 0, background: "linear-gradient(to left, rgba(0,0,0,0), rgba(20,20,20,0.06))" }
+            : { right: 0, background: "linear-gradient(to right, rgba(0,0,0,0), rgba(20,20,20,0.06))" }
+        }
+      />
+    </div>
+  );
+}
+
+/** Levý list — ilustrace (montážní schéma). */
+function LeftFace({ page, t }: { page: Page; t: ManualUI }) {
+  return (
+    <div className="flex h-full flex-col px-7 sm:px-12 py-6 sm:py-8">
+      <div className="flex items-center justify-between text-[#141414]/65 text-xs shrink-0">
+        <span className="inline-flex items-center justify-center min-w-8 h-8 px-2 border border-[#141414]/40 rounded-full font-semibold text-sm" style={display}>
           {page.tag}
         </span>
         <span className="uppercase tracking-[0.15em] opacity-45 text-[10px]">{t.artNo}</span>
       </div>
       <div className="border-t border-[#141414]/12 mt-2 shrink-0" />
-
-      <h2 className={`text-center font-bold leading-tight mt-4 shrink-0 ${page.cover ? "text-3xl sm:text-4xl" : "text-xl sm:text-2xl"}`} style={display}>
-        {page.title[lang]}
-      </h2>
-
-      {/* ilustrace */}
-      <div className={`text-[#141414] mx-auto w-full ${page.cover ? "max-w-[320px]" : "max-w-[280px]"} grow flex items-center justify-center min-h-[150px] py-3`}>
-        {page.art}
-      </div>
-
-      {/* odrážky */}
-      {page.body && (
-        <ul className="space-y-1.5 text-sm leading-snug text-[#141414]/85 shrink-0 mb-3">
-          {page.body.map((b, k) => (
-            <li key={k} className="flex gap-2">
-              <span className="mt-[5px] h-1.5 w-1.5 bg-[#141414] shrink-0" aria-hidden />
-              <span>{b[lang]}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {/* popisek */}
-      <p className="text-center text-sm leading-snug text-[#141414]/90 shrink-0">{page.caption[lang]}</p>
-
-      <div className="text-center text-[11px] text-[#141414]/40 mt-3 shrink-0" style={display}>
-        {String(n).padStart(2, "0")} {t.of} {String(TOTAL).padStart(2, "0")}
+      <div className="flex-1 min-h-0 flex items-center justify-center text-[#141414] py-4">
+        <div className={`w-full ${page.cover ? "max-w-[460px]" : "max-w-[400px]"}`}>{page.art}</div>
       </div>
     </div>
   );
 }
 
+/** Pravý list — text (popis kroku). */
+function RightFace({ page, lang, t, n }: { page: Page; lang: Lang; t: ManualUI; n: number }) {
+  return (
+    <div className="flex h-full flex-col px-7 sm:px-12 py-6 sm:py-8 overflow-y-auto">
+      <div className="flex items-center justify-between text-[#141414]/65 text-xs shrink-0">
+        <span className="uppercase tracking-[0.15em] opacity-45 text-[10px]">{t.artNo}</span>
+        <span style={display}>
+          {String(n).padStart(2, "0")} {t.of} {String(TOTAL).padStart(2, "0")}
+        </span>
+      </div>
+      <div className="border-t border-[#141414]/12 mt-2 shrink-0" />
+      <h2 className={`font-bold leading-tight mt-5 ${page.cover ? "text-3xl sm:text-5xl" : "text-2xl sm:text-3xl"}`} style={display}>
+        {page.title[lang]}
+      </h2>
+      {page.body && (
+        <ul className="mt-4 space-y-2.5 text-[15px] leading-snug text-[#141414]/85">
+          {page.body.map((b, k) => (
+            <li key={k} className="flex gap-2.5">
+              <span className="mt-[7px] h-1.5 w-1.5 bg-[#141414] shrink-0" aria-hidden />
+              <span>{b[lang]}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className={`leading-relaxed text-[#141414]/90 ${page.cover ? "text-lg sm:text-xl mt-6" : "text-[15px] sm:text-base mt-5"}`}>
+        {page.caption[lang]}
+      </p>
+      <div className="mt-auto" />
+    </div>
+  );
+}
+
+/** Mobil — jedno téma jako jeden list (ilustrace + text), scroll dolů. */
+function MobileFace({ page, lang, t, n }: { page: Page; lang: Lang; t: ManualUI; n: number }) {
+  return (
+    <div className="flex h-full flex-col px-6 py-5 overflow-y-auto">
+      <div className="flex items-center justify-between text-[#141414]/65 text-xs shrink-0">
+        <span className="inline-flex items-center justify-center min-w-7 h-7 px-2 border border-[#141414]/40 rounded-full font-semibold" style={display}>
+          {page.tag}
+        </span>
+        <span style={display}>
+          {String(n).padStart(2, "0")} {t.of} {String(TOTAL).padStart(2, "0")}
+        </span>
+      </div>
+      <div className="border-t border-[#141414]/12 mt-2 shrink-0" />
+      <div className="text-[#141414] mx-auto w-full max-w-[340px] py-3 shrink-0">{page.art}</div>
+      <h2 className={`font-bold leading-tight ${page.cover ? "text-3xl" : "text-2xl"}`} style={display}>
+        {page.title[lang]}
+      </h2>
+      {page.body && (
+        <ul className="mt-3 space-y-2 text-sm leading-snug text-[#141414]/85">
+          {page.body.map((b, k) => (
+            <li key={k} className="flex gap-2">
+              <span className="mt-[6px] h-1.5 w-1.5 bg-[#141414] shrink-0" aria-hidden />
+              <span>{b[lang]}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="leading-relaxed text-[#141414]/90 text-[15px] mt-4">{page.caption[lang]}</p>
+    </div>
+  );
+}
+
+/** Stín na otáčejícím se listu — dodá hloubku. */
+function FlipShade({ side }: { side: "L" | "R" }) {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      style={{
+        background:
+          side === "R"
+            ? "linear-gradient(to left, rgba(20,20,20,0.16), rgba(0,0,0,0) 45%)"
+            : "linear-gradient(to right, rgba(20,20,20,0.16), rgba(0,0,0,0) 45%)",
+      }}
+    />
+  );
+}
+
 /* ── Komponenta ─────────────────────────────────────────────────────────── */
+
+const FLIP_MS = 720;
 
 export function LifeManual({ lang }: { lang: Lang }) {
   const t = UI[lang];
-  const [i, setI] = useState(0); // index levého listu
+  const [s, setS] = useState(0); // index tématu (= spreadu)
+  const [flip, setFlip] = useState<1 | -1 | null>(null);
   const [twoUp, setTwoUp] = useState(false);
+  const [mobDir, setMobDir] = useState<1 | -1>(1);
   const dragX = useRef<number | null>(null);
+  const sRef = useRef(0);
+  const twoUpRef = useRef(false);
+
+  useEffect(() => { sRef.current = s; }, [s]);
+  useEffect(() => { twoUpRef.current = twoUp; }, [twoUp]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 880px)");
-    const apply = () => {
-      setTwoUp(mq.matches);
-      if (mq.matches) setI((p) => p - (p % 2)); // zarovnej na sudý list
-    };
+    const apply = () => setTwoUp(mq.matches);
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  const step = twoUp ? 2 : 1;
-  const canPrev = i > 0;
-  const canNext = i + step < TOTAL;
-
-  const go = useCallback(
-    (d: 1 | -1) => {
-      setI((p) => {
-        const next = Math.min(TOTAL - 1, Math.max(0, p + d * step));
-        return twoUp ? next - (next % 2) : next;
-      });
-    },
-    [step, twoUp]
-  );
+  const go = useCallback((d: 1 | -1) => {
+    setFlip((cur) => {
+      if (cur !== null) return cur; // otáčení už probíhá
+      const at = sRef.current;
+      const next = at + d;
+      if (next < 0 || next >= TOTAL) return null;
+      if (!twoUpRef.current) {
+        setMobDir(d);
+        setS(next);
+        return null;
+      }
+      return d; // spustí 3D otočení listu (desktop)
+    });
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -495,7 +579,19 @@ export function LifeManual({ lang }: { lang: Lang }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [go]);
 
-  const jump = (target: number) => setI(twoUp ? target - (target % 2) : target);
+  const jump = (target: number) => {
+    if (flip !== null || target === s) return;
+    setMobDir(target > s ? 1 : -1);
+    setS(target);
+  };
+
+  const canPrev = s > 0;
+  const canNext = s < TOTAL - 1;
+
+  // statické půlky pod otáčejícím se listem
+  const leftPage = flip === -1 ? PAGES[s - 1] : PAGES[s];
+  const rightPage = flip === 1 ? PAGES[s + 1] : PAGES[s];
+  const rightN = (flip === 1 ? s + 1 : s) + 1;
 
   return (
     <main className="h-[100dvh] flex flex-col bg-[#FAF9F6] text-[#141414] overflow-hidden" style={{ fontFamily: sans }}>
@@ -504,14 +600,13 @@ export function LifeManual({ lang }: { lang: Lang }) {
         <span className="text-xs uppercase tracking-[0.2em] opacity-50" style={display}>{t.title}</span>
       </header>
 
-      {/* listovací plocha */}
       <div className="relative flex-1 min-h-0">
         {/* šipky úplně u okrajů */}
         <button
           aria-label={t.prev}
           onClick={() => go(-1)}
           disabled={!canPrev}
-          className="absolute left-0 top-0 z-20 h-full w-12 sm:w-16 flex items-center justify-center text-3xl text-[#141414]/55 hover:text-[#141414] hover:bg-[#141414]/[0.03] disabled:opacity-20 disabled:hover:bg-transparent transition-colors"
+          className="absolute left-0 top-0 z-30 h-full w-12 sm:w-16 flex items-center justify-center text-4xl text-[#141414]/50 hover:text-[#141414] hover:bg-[#141414]/[0.03] disabled:opacity-15 disabled:hover:bg-transparent transition-colors"
         >
           ‹
         </button>
@@ -519,73 +614,120 @@ export function LifeManual({ lang }: { lang: Lang }) {
           aria-label={t.next}
           onClick={() => go(1)}
           disabled={!canNext}
-          className="absolute right-0 top-0 z-20 h-full w-12 sm:w-16 flex items-center justify-center text-3xl text-[#141414]/55 hover:text-[#141414] hover:bg-[#141414]/[0.03] disabled:opacity-20 disabled:hover:bg-transparent transition-colors"
+          className="absolute right-0 top-0 z-30 h-full w-12 sm:w-16 flex items-center justify-center text-4xl text-[#141414]/50 hover:text-[#141414] hover:bg-[#141414]/[0.03] disabled:opacity-15 disabled:hover:bg-transparent transition-colors"
         >
           ›
         </button>
 
-        {/* knížka */}
+        {/* knížka přes celou šíř */}
         <div
-          className="h-full px-12 sm:px-20 py-4 flex justify-center"
+          className="h-full px-12 sm:px-20 py-4 sm:py-6"
           onPointerDown={(e) => (dragX.current = e.clientX)}
           onPointerUp={(e) => {
             if (dragX.current == null) return;
             const dx = e.clientX - dragX.current;
             dragX.current = null;
-            if (dx < -50) go(1);
-            else if (dx > 50) go(-1);
+            if (dx < -55) go(1);
+            else if (dx > 55) go(-1);
           }}
         >
-          <div
-            key={i}
-            className="relative w-full max-w-5xl h-full flex shadow-[0_24px_60px_-30px_rgba(0,0,0,0.45)]"
-            style={{ animation: "lm-flip 300ms ease" }}
-          >
-            <Sheet page={PAGES[i]} lang={lang} n={i + 1} />
-            {twoUp && <Sheet page={PAGES[i + 1]} lang={lang} n={i + 2} />}
-            {/* hřbet knihy */}
-            {twoUp && <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[#141414]/15 pointer-events-none" />}
+          {twoUp ? (
+            <div className="relative w-full h-full flex shadow-[0_30px_70px_-32px_rgba(0,0,0,0.5)]" style={{ perspective: "2600px" }}>
+              {/* levá půlka */}
+              <div className="relative w-1/2 h-full">
+                <PageShell side="L"><LeftFace page={leftPage} t={t} /></PageShell>
+              </div>
+              {/* pravá půlka */}
+              <div className="relative w-1/2 h-full">
+                <PageShell side="R"><RightFace page={rightPage} lang={lang} t={t} n={rightN} /></PageShell>
+              </div>
+              {/* hřbet */}
+              <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[#141414]/25 z-10 pointer-events-none" />
 
-            {/* ohnutý roh — táhni za dolní konec listu */}
-            {canNext && (
-              <button
-                aria-label={t.next}
-                onClick={() => go(1)}
-                className="group absolute bottom-0 right-0 z-30 h-10 w-10"
+              {/* otáčející se list */}
+              {flip !== null && (
+                <div
+                  className="absolute top-0 h-full"
+                  style={{
+                    width: "50%",
+                    left: flip === 1 ? "50%" : 0,
+                    transformOrigin: flip === 1 ? "left center" : "right center",
+                    transformStyle: "preserve-3d",
+                    zIndex: 20,
+                    boxShadow: "0 0 40px -10px rgba(0,0,0,0.35)",
+                    animation: `${flip === 1 ? "lm-fwd" : "lm-back"} ${FLIP_MS}ms ease-in-out forwards`,
+                  }}
+                  onAnimationEnd={() => {
+                    setS((p) => p + (flip ?? 0));
+                    setFlip(null);
+                  }}
+                >
+                  {/* přední strana listu */}
+                  <div className="absolute inset-0" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}>
+                    {flip === 1 ? (
+                      <PageShell side="R"><RightFace page={PAGES[s]} lang={lang} t={t} n={s + 1} /></PageShell>
+                    ) : (
+                      <PageShell side="L"><LeftFace page={PAGES[s]} t={t} /></PageShell>
+                    )}
+                    <FlipShade side={flip === 1 ? "R" : "L"} />
+                  </div>
+                  {/* zadní strana listu */}
+                  <div className="absolute inset-0" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+                    {flip === 1 ? (
+                      <PageShell side="L"><LeftFace page={PAGES[s + 1]} t={t} /></PageShell>
+                    ) : (
+                      <PageShell side="R"><RightFace page={PAGES[s - 1]} lang={lang} t={t} n={s} /></PageShell>
+                    )}
+                    <FlipShade side={flip === 1 ? "L" : "R"} />
+                  </div>
+                </div>
+              )}
+
+              {/* ohnutý roh — táhni za dolní konec listu */}
+              {canNext && flip === null && (
+                <button aria-label={t.next} onClick={() => go(1)} className="group absolute bottom-0 right-0 z-20 h-12 w-12">
+                  <svg viewBox="0 0 48 48" className="h-full w-full">
+                    <path d="M48 48 L48 8 L8 48 Z" fill="#F0EEE8" stroke="#141414" strokeOpacity="0.18" strokeWidth="1" />
+                    <path d="M48 8 L8 48" stroke="#141414" strokeOpacity="0.3" strokeWidth="1" className="group-hover:stroke-[#141414]" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          ) : (
+            // mobil — jedno téma jako jeden list
+            <div className="w-full h-full shadow-[0_24px_60px_-30px_rgba(0,0,0,0.45)]" style={{ perspective: "1600px" }}>
+              <div
+                key={s}
+                className="w-full h-full"
+                style={{ transformStyle: "preserve-3d", animation: `${mobDir === 1 ? "lm-mob-fwd" : "lm-mob-back"} 500ms ease` }}
               >
-                <svg viewBox="0 0 40 40" className="h-full w-full">
-                  <path d="M40 40 L40 8 L8 40 Z" fill="#F0EEE8" stroke="#141414" strokeOpacity="0.18" strokeWidth="1" />
-                  <path d="M40 8 L8 40" stroke="#141414" strokeOpacity="0.25" strokeWidth="1" className="group-hover:stroke-[#141414]" />
-                </svg>
-              </button>
-            )}
-          </div>
+                <PageShell side="R"><MobileFace page={PAGES[s]} lang={lang} t={t} n={s + 1} /></PageShell>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* spodní navigace */}
       <footer className="shrink-0 flex flex-col items-center gap-2 py-3">
         <div className="flex items-center gap-1.5">
-          {PAGES.map((_, idx) => {
-            const active = twoUp ? idx === i || idx === i + 1 : idx === i;
-            return (
-              <button
-                key={idx}
-                aria-label={`${idx + 1}`}
-                onClick={() => jump(idx)}
-                className={`h-2 rounded-full transition-all ${active ? "w-5 bg-[#141414]" : "w-2 bg-[#141414]/25 hover:bg-[#141414]/50"}`}
-              />
-            );
-          })}
+          {PAGES.map((_, idx) => (
+            <button
+              key={idx}
+              aria-label={`${idx + 1}`}
+              onClick={() => jump(idx)}
+              className={`h-2 rounded-full transition-all ${idx === s ? "w-5 bg-[#141414]" : "w-2 bg-[#141414]/25 hover:bg-[#141414]/50"}`}
+            />
+          ))}
         </div>
         <p className="text-[11px] text-[#141414]/40 px-4 text-center">{t.hint}</p>
       </footer>
 
       <style>{`
-        @keyframes lm-flip {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes lm-fwd { from { transform: rotateY(0deg); } to { transform: rotateY(-180deg); } }
+        @keyframes lm-back { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }
+        @keyframes lm-mob-fwd { from { opacity: 0.25; transform: rotateY(-32deg); transform-origin: left center; } to { opacity: 1; transform: rotateY(0deg); } }
+        @keyframes lm-mob-back { from { opacity: 0.25; transform: rotateY(32deg); transform-origin: right center; } to { opacity: 1; transform: rotateY(0deg); } }
       `}</style>
     </main>
   );
