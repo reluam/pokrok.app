@@ -689,7 +689,7 @@ function RightFace({ sp, lang, n }: { sp: Spread; lang: Lang; n: number }) {
 }
 
 /** Mobil — celé téma na jeden list, bez rolování. */
-function MobileFace({ sp, lang, n }: { sp: Spread; lang: Lang; n: number }) {
+function MobileFace({ sp, lang, n, serial }: { sp: Spread; lang: Lang; n: number; serial: number | null }) {
   return (
     <div className="flex h-full flex-col px-6 py-6 overflow-hidden">
       <FaceHeader left={false} n={n} />
@@ -704,6 +704,7 @@ function MobileFace({ sp, lang, n }: { sp: Spread; lang: Lang; n: number }) {
           <>
             {sp.art && <div className="text-[#1A1A1A] mx-auto w-full max-w-[280px] mb-5">{sp.art}</div>}
             <Title sp={sp} lang={lang} cover={sp.cover} />
+            {sp.cover && <div className="mt-4"><SerialPill serial={serial} lang={lang} /></div>}
             {sp.items && <ItemList items={sp.items} lang={lang} />}
             <Note sp={sp} lang={lang} cover={sp.cover} />
             <Sub sp={sp} lang={lang} />
@@ -721,14 +722,25 @@ function FlipShade({ side }: { side: "L" | "R" }) {
   );
 }
 
+/** Výrobní číslo = pořadí návštěvníka. */
+function SerialPill({ serial, lang }: { serial: number | null; lang: Lang }) {
+  if (serial == null) return null;
+  return (
+    <span className="inline-block text-[11px] uppercase tracking-[0.22em] text-[#1A1A1A]/75 border border-[#1A1A1A]/35 rounded-full px-3.5 py-1.5" style={display}>
+      {lang === "cs" ? "Kus č." : "Unit No."} {String(serial).padStart(4, "0")}
+    </span>
+  );
+}
+
 /** Obálka jako jeden list (zavřená kniha). */
-function CoverPage({ sp, lang }: { sp: Spread; lang: Lang }) {
+function CoverPage({ sp, lang, serial }: { sp: Spread; lang: Lang; serial: number | null }) {
   return (
     <div className="flex h-full flex-col items-center justify-between px-8 sm:px-12 py-10 sm:py-14 text-center">
       <span className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[#1A1A1A]/55">{sp.kicker[lang]}</span>
-      <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-6">
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-5">
         <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-[1.0] text-[#1A1A1A]" style={display}>{sp.title[lang]}</h1>
-        <div className="w-44 sm:w-56 text-[#1A1A1A]">{sp.art}</div>
+        <div className="w-40 sm:w-52 text-[#1A1A1A]">{sp.art}</div>
+        <SerialPill serial={serial} lang={lang} />
       </div>
       <p className="text-sm text-[#1A1A1A]/65 max-w-xs leading-relaxed">{sp.note?.[lang]}</p>
     </div>
@@ -746,6 +758,7 @@ export function LifeManual({ lang }: { lang: Lang }) {
   const [coverAnim, setCoverAnim] = useState<"open" | "close" | null>(null);
   const [twoUp, setTwoUp] = useState(false);
   const [mobDir, setMobDir] = useState<1 | -1>(1);
+  const [serial, setSerial] = useState<number | null>(null);
   const dragX = useRef<number | null>(null);
   const sRef = useRef(0);
   const twoUpRef = useRef(false);
@@ -763,6 +776,16 @@ export function LifeManual({ lang }: { lang: Lang }) {
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  // Výrobní číslo = pořadí návštěvníka. Server dedupuje přes cookie (prohlížeč si pamatuje).
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/visitor")
+      .then((r) => r.json())
+      .then((d) => { if (alive && typeof d?.no === "number") setSerial(d.no); })
+      .catch(() => {});
+    return () => { alive = false; };
   }, []);
 
   const go = useCallback((d: 1 | -1) => {
@@ -832,7 +855,7 @@ export function LifeManual({ lang }: { lang: Lang }) {
               // ── zavřená kniha (jen obálka) ──
               <div className="h-full flex items-center justify-center" style={{ perspective: "2200px" }}>
                 <div className="relative h-full w-full max-w-[30rem] bg-white shadow-[0_30px_70px_-28px_rgba(0,0,0,0.55)]">
-                  <CoverPage sp={SPREADS[0]} lang={lang} />
+                  <CoverPage sp={SPREADS[0]} lang={lang} serial={serial} />
                   <div aria-hidden className="absolute inset-y-0 left-0 w-1.5 bg-[#1A1A1A]/12" />
                   <div aria-hidden className="absolute top-1.5 bottom-1.5 -right-1.5 w-1.5 bg-white border border-[#1A1A1A]/10" />
                   <div aria-hidden className="absolute top-3 bottom-3 -right-3 w-1.5 bg-white border border-[#1A1A1A]/10" />
@@ -895,7 +918,7 @@ export function LifeManual({ lang }: { lang: Lang }) {
                     }}
                     onAnimationEnd={() => { setS(coverAnim === "open" ? 1 : 0); setCoverAnim(null); }}
                   >
-                    <CoverPage sp={SPREADS[0]} lang={lang} />
+                    <CoverPage sp={SPREADS[0]} lang={lang} serial={serial} />
                     <FlipShade side="R" />
                   </div>
                 </div>
@@ -914,7 +937,7 @@ export function LifeManual({ lang }: { lang: Lang }) {
           ) : (
             <div className="w-full h-full shadow-[0_24px_60px_-30px_rgba(0,0,0,0.45)]" style={{ perspective: "1600px" }}>
               <div key={s} className="w-full h-full" style={{ transformStyle: "preserve-3d", animation: `${mobDir === 1 ? "lm-mob-fwd" : "lm-mob-back"} 480ms ease` }}>
-                <PageShell side="R"><MobileFace sp={SPREADS[s]} lang={lang} n={s + 1} /></PageShell>
+                <PageShell side="R"><MobileFace sp={SPREADS[s]} lang={lang} n={s + 1} serial={serial} /></PageShell>
               </div>
             </div>
           )}
