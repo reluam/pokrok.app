@@ -217,14 +217,15 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "VAROVÁNÍ", en: "WARNING" },
-    title: { cs: "Jsi originál", en: "You're an original" },
+    title: { cs: "Dodáno tak, jak je", en: "Delivered as-is" },
     items: [
-      { text: { cs: "Žádné dva kusy nejsou stejné. Ani ty.", en: "No two units are alike. Not even you." } },
-      { text: { cs: "Drobné vady patří k výbavě: křivý nos, jedna noha delší, divné zvuky.", en: "Small defects come standard: a crooked nose, one leg longer, odd noises." } },
+      { text: { cs: "Vrácení ani výměna: nelze.", en: "Returns or exchanges: not possible." } },
+      { text: { cs: "Náhradní díly: nejsou skladem.", en: "Spare parts: out of stock." } },
+      { text: { cs: "Drobné vady jsou součást specifikace, ne chyba.", en: "Minor defects are part of the spec, not a fault." } },
     ],
     note: {
-      cs: "Vrátit ani vyměnit se nedá — máš jen tenhle kus a jen tenhle život. Ber to jako výhodu.",
-      en: "No returns, no exchanges — you have only this unit and only this life. Treat it as an advantage.",
+      cs: "Reklamace nepřijímáme. Veškerý servis probíhá za plného provozu.",
+      en: "No claims accepted. All servicing happens during full operation.",
     },
   },
 
@@ -235,7 +236,7 @@ const SPREADS: Spread[] = [
     kicker: { cs: "OBSAH BALENÍ", en: "IN THE BOX" },
     title: { cs: "Co je v tobě", en: "What's inside you" },
     items: [
-      { icon: <IconCells />, lead: "37 bil.", text: { cs: "buněk, ze kterých jsi celý", en: "cells you're entirely made of" } },
+      { icon: <IconCells />, lead: "37 bil.", text: { cs: "buněk · jejich atomy se ukuly uvnitř hvězd", en: "cells · their atoms were forged inside stars" } },
       { icon: <IconOrgans />, lead: "5+", text: { cs: "orgánů · srdce, 2× ledviny, 2× plíce, játra, mozek…", en: "organs · heart, 2 kidneys, 2 lungs, liver, brain…" } },
       { icon: <IconBrain />, lead: "86 mld", text: { cs: "neuronů · návod k nim je v tiskárně, dorazí později", en: "neurons · the manual for them is at the printer, arriving later" } },
       { icon: <IconBone />, lead: "206×", text: { cs: "kostí · teď jich máš ~300, časem ti srostou", en: "bones · you have ~300 now, they'll fuse over time" } },
@@ -270,7 +271,7 @@ const SPREADS: Spread[] = [
     title: { cs: "Čím se dobíjet", en: "How to refuel" },
     items: [
       { lead: "2–4 l", text: { cs: "tekutin denně · voda ti promazává vše od mozku po klouby", en: "fluids a day · water keeps everything from your brain to your joints running" } },
-      { lead: "vláknina", text: { cs: "zelenina a celozrnné · nakrmí bakterie ve tvých střevech (tvé druhé já)", en: "veg and whole grains · feed the bacteria in your gut (your second self)" } },
+      { lead: "vláknina", text: { cs: "zelenina a celozrnné · nakrmí bakterie ve tvých střevech — je jich víc než hvězd v Mléčné dráze", en: "veg and whole grains · feed your gut bacteria — there are more of them than stars in the Milky Way" } },
       { lead: "bílkoviny", text: { cs: "maso, ryby, luštěniny · z nich si stavíš svaly a opravuješ se", en: "meat, fish, legumes · you build muscle and repair yourself from them" } },
       { lead: "omega-3", text: { cs: "ryby a ořechy · mazivo pro tvůj mozek", en: "fish and nuts · oil for your brain" } },
       { lead: "vit. D", text: { cs: "slunce, ~15 min denně · zvedne ti náladu i imunitu", en: "sunlight, ~15 min a day · lifts your mood and immunity" } },
@@ -309,7 +310,31 @@ const SPREADS: Spread[] = [
     },
   },
 
-  /* 5 — zacházení (jemně, cute) */
+  /* — homo sapiens: tvor společenský */
+  {
+    tag: "△",
+    art: (
+      <Frame>
+        <Person x={104} y={190} s={1.05} pose="side" />
+        <Person x={180} y={184} s={1.2} pose="stand" />
+        <Person x={256} y={190} s={1.05} pose="side" />
+        <path d="M64 252 H296" {...line} strokeWidth={4} />
+      </Frame>
+    ),
+    kicker: { cs: "EVOLUCE", en: "EVOLUTION" },
+    title: { cs: "Tvor společenský", en: "A social creature" },
+    items: [
+      { lead: "300k", text: { cs: "let jsi laděný pro život ve skupině (rod Homo ~2,5 mil. let)", en: "years tuned for life in a group (genus Homo ~2.5M years)" } },
+      { lead: "~150", text: { cs: "blízkých vztahů zvládneš naráz udržet (Dunbarovo číslo)", en: "close relationships you can keep at once (Dunbar's number)" } },
+      { lead: "0", text: { cs: "drápů · přežili jsme spoluprací, ne silou", en: "claws · we survived by cooperating, not by force" } },
+    ],
+    note: {
+      cs: "Jsi Homo sapiens sapiens — člověk společenský. Život není jen o tobě; samota ti nesvědčí a patřit někam je palivo, ne luxus.",
+      en: "You're Homo sapiens sapiens — the social human. Life isn't only about you; solitude doesn't suit you, and belonging is fuel, not a luxury.",
+    },
+  },
+
+  /* — kultivuj lásku (nejdřív ven, pak dovnitř) */
   {
     tag: "03",
     art: (
@@ -321,16 +346,16 @@ const SPREADS: Spread[] = [
         <Heart x={180} y={238} s={1.1} />
       </Frame>
     ),
-    kicker: { cs: "ZACHÁZENÍ", en: "HANDLING" },
-    title: { cs: "Zacházej s láskou", en: "Handle with love" },
+    kicker: { cs: "VZTAHY", en: "RELATIONSHIPS" },
+    title: { cs: "Kultivuj lásku", en: "Cultivate love" },
     items: [
-      { mark: "check", text: { cs: "Mluv na sebe laskavě — jako na kamaráda", en: "Speak to yourself kindly — like to a friend" } },
-      { mark: "check", text: { cs: "Objímej a nech se objímat; objetí fakt snižuje stres", en: "Hug and let yourself be hugged; hugs really do lower stress" } },
-      { mark: "check", text: { cs: "Když je někomu smutno, stačí být nablízku — nemusíš to spravit", en: "When someone is sad, just being near is enough — you don't have to fix it" } },
+      { mark: "check", text: { cs: "Nejdřív ven: buď laskavý k druhým, pomáhej, naslouchej", en: "Outward first: be kind to others, help, listen" } },
+      { mark: "check", text: { cs: "Pak dovnitř: stejně laskavě i sám k sobě", en: "Then inward: be just as kind to yourself" } },
+      { mark: "check", text: { cs: "Objímej a nech se objímat — objetí snižuje stres oběma", en: "Hug and be hugged — a hug lowers stress on both sides" } },
     ],
     note: {
-      cs: "Křehký je každý — i ten, kdo to nedává najevo. Buď hodný na druhé i na sebe.",
-      en: "Everyone is fragile, even those who hide it. Be gentle with others and with yourself.",
+      cs: "Rosteme skrz druhé. Lásku posílej ven i dovnitř — v tomhle pořadí.",
+      en: "We grow through others. Send love outward and inward — in that order.",
     },
   },
 
@@ -352,17 +377,17 @@ const SPREADS: Spread[] = [
         </g>
       </Frame>
     ),
-    kicker: { cs: "SOFTWARE", en: "SOFTWARE" },
+    kicker: { cs: "ÚDRŽBA MYSLI", en: "MIND UPKEEP" },
     title: { cs: "Pár věcí pro klidnější hlavu", en: "A few things for a calmer mind" },
     items: [
-      { lead: "01", text: { cs: "Nesrovnávej své zákulisí s cizím sestřihem", en: "Don't compare your backstage to other people's highlight reel" } },
-      { lead: "02", text: { cs: "Skoro nikdo nemyslí na tvé chyby tolik jako ty", en: "Almost nobody dwells on your mistakes like you do" } },
-      { lead: "03", text: { cs: "Většinu dnešních starostí si za rok ani nevzpomeneš", en: "Most of today's worries you won't even remember in a year" } },
-      { lead: "04", text: { cs: "Rozhodnout = odříznout zbytek; i nerozhodnout je rozhodnutí", en: "To decide is to cut away the rest; not deciding is a decision too" } },
+      { lead: "dech", text: { cs: "pomalý nádech a delší výdech zklidní nervy během chvilky", en: "a slow breath in and a longer breath out calm the nerves within moments" } },
+      { lead: "meditace", text: { cs: "5–10 min denně si všímej dechu; mysl se učí nehonit každou myšlenku", en: "5–10 min a day, notice your breath; the mind learns not to chase every thought" } },
+      { lead: "deník", text: { cs: "vypsat starosti na papír je dostane z hlavy ven", en: "writing worries on paper gets them out of your head" } },
+      { lead: "ven", text: { cs: "procházka v přírodě resetuje náladu líp než scrollování", en: "a walk in nature resets your mood better than scrolling" } },
     ],
     note: {
-      cs: "Tohle je tvůj software — důležitější než hardware. Klidně si ho přepiš, když začne zlobit.",
-      en: "This is your software — more important than the hardware. Feel free to rewrite it when it starts misbehaving.",
+      cs: "Myšlenky nejsi ty — jsou to návštěvy. Nemusíš každou pozvat dál.",
+      en: "You are not your thoughts — they're visitors. You don't have to invite every one in.",
     },
   },
 
@@ -384,7 +409,7 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "ZNÁMÉ SOFTWAROVÉ CHYBY", en: "KNOWN SOFTWARE BUGS" },
-    title: { cs: "Tvé tovární chyby", en: "Your factory bugs" },
+    title: { cs: "Možné tovární chyby", en: "Possible factory bugs" },
     items: [
       { lead: "!", text: { cs: "Můžeš mít sklon vidět svět černobíle. Občas si schválně ukaž i ostatní barvy.", en: "You may tend to see the world in black and white. Now and then, show yourself the other colours on purpose." } },
       { lead: "!", text: { cs: "Budeš si víc všímat toho, co potvrzuje, co si už myslíš. Hledej i opačný názor.", en: "You'll notice more of what confirms what you already think. Go looking for the opposite view too." } },
@@ -481,10 +506,10 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "DOKONČENO", en: "COMPLETE" },
-    title: { cs: "Hotovo. Teď žij.", en: "Done. Now go live." },
+    title: { cs: "Den 1 dokončen", en: "Day 1 complete" },
     note: {
-      cs: "Vrátit ani vyměnit tě nejde. Záruka ≈ 4 000 týdnů (dle modelu a štěstí). Nezůstávej v krabici. A kdyby bylo zle → zavolej někomu, koho máš rád.",
-      en: "You can't be returned or exchanged. Warranty ≈ 4,000 weeks (by model and luck). Don't stay in the box. And if things go wrong → call someone you love.",
+      cs: "Tohle byl den 1. Gratulujeme — Manuál na život máš úspěšně za sebou. Teď běž a začni žít. Zbývá ti zhruba 4 000 týdnů.",
+      en: "That was day 1. Congratulations — you've completed the Life Manual. Now go and start living. You have roughly 4,000 weeks left.",
     },
   },
 ];
@@ -696,6 +721,20 @@ function FlipShade({ side }: { side: "L" | "R" }) {
   );
 }
 
+/** Obálka jako jeden list (zavřená kniha). */
+function CoverPage({ sp, lang }: { sp: Spread; lang: Lang }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-between px-8 sm:px-12 py-10 sm:py-14 text-center">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[#1A1A1A]/55">{sp.kicker[lang]}</span>
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-6">
+        <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-[1.0] text-[#1A1A1A]" style={display}>{sp.title[lang]}</h1>
+        <div className="w-44 sm:w-56 text-[#1A1A1A]">{sp.art}</div>
+      </div>
+      <p className="text-sm text-[#1A1A1A]/65 max-w-xs leading-relaxed">{sp.note?.[lang]}</p>
+    </div>
+  );
+}
+
 /* ── Komponenta ─────────────────────────────────────────────────────────── */
 
 const FLIP_MS = 720;
@@ -704,14 +743,19 @@ export function LifeManual({ lang }: { lang: Lang }) {
   const t = UI[lang];
   const [s, setS] = useState(0);
   const [flip, setFlip] = useState<1 | -1 | null>(null);
+  const [coverAnim, setCoverAnim] = useState<"open" | "close" | null>(null);
   const [twoUp, setTwoUp] = useState(false);
   const [mobDir, setMobDir] = useState<1 | -1>(1);
   const dragX = useRef<number | null>(null);
   const sRef = useRef(0);
   const twoUpRef = useRef(false);
+  const flipRef = useRef<1 | -1 | null>(null);
+  const coverRef = useRef<"open" | "close" | null>(null);
 
   useEffect(() => { sRef.current = s; }, [s]);
   useEffect(() => { twoUpRef.current = twoUp; }, [twoUp]);
+  useEffect(() => { flipRef.current = flip; }, [flip]);
+  useEffect(() => { coverRef.current = coverAnim; }, [coverAnim]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 880px)");
@@ -722,14 +766,19 @@ export function LifeManual({ lang }: { lang: Lang }) {
   }, []);
 
   const go = useCallback((d: 1 | -1) => {
-    setFlip((cur) => {
-      if (cur !== null) return cur;
-      const at = sRef.current;
-      const next = at + d;
-      if (next < 0 || next >= TOTAL) return null;
-      if (!twoUpRef.current) { setMobDir(d); setS(next); return null; }
-      return d;
-    });
+    if (coverRef.current !== null) return;
+    if (!twoUpRef.current) {
+      setMobDir(d);
+      setS((p) => Math.min(TOTAL - 1, Math.max(0, p + d)));
+      return;
+    }
+    const at = sRef.current;
+    if (at === 0 && d === 1) { setCoverAnim("open"); return; } // rozbalení obálky
+    if (at === 1 && d === -1) { setCoverAnim("close"); return; } // zavření zpět na obálku
+    if (flipRef.current !== null) return;
+    const next = at + d;
+    if (next < 1 || next >= TOTAL) return;
+    setFlip(d);
   }, []);
 
   useEffect(() => {
@@ -742,7 +791,7 @@ export function LifeManual({ lang }: { lang: Lang }) {
   }, [go]);
 
   const jump = (target: number) => {
-    if (flip !== null || target === s) return;
+    if (coverAnim !== null || flip !== null || target === s) return;
     setMobDir(target > s ? 1 : -1);
     setS(target);
   };
@@ -779,12 +828,33 @@ export function LifeManual({ lang }: { lang: Lang }) {
           }}
         >
           {twoUp ? (
+            s === 0 && coverAnim === null ? (
+              // ── zavřená kniha (jen obálka) ──
+              <div className="h-full flex items-center justify-center" style={{ perspective: "2200px" }}>
+                <div className="relative h-full w-full max-w-[30rem] bg-white shadow-[0_30px_70px_-28px_rgba(0,0,0,0.55)]">
+                  <CoverPage sp={SPREADS[0]} lang={lang} />
+                  <div aria-hidden className="absolute inset-y-0 left-0 w-1.5 bg-[#1A1A1A]/12" />
+                  <div aria-hidden className="absolute top-1.5 bottom-1.5 -right-1.5 w-1.5 bg-white border border-[#1A1A1A]/10" />
+                  <div aria-hidden className="absolute top-3 bottom-3 -right-3 w-1.5 bg-white border border-[#1A1A1A]/10" />
+                  <button aria-label={t.next} onClick={() => go(1)} className="group absolute bottom-0 right-0 z-20 h-12 w-12">
+                    <svg viewBox="0 0 48 48" className="h-full w-full">
+                      <path d="M48 48 L48 8 L8 48 Z" fill="#F0EEE8" stroke="#1A1A1A" strokeOpacity="0.18" strokeWidth="1" />
+                      <path d="M48 8 L8 48" stroke="#1A1A1A" strokeOpacity="0.3" strokeWidth="1" className="group-hover:stroke-[#1A1A1A]" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            ) : (
             <div className="relative w-full h-full flex shadow-[0_30px_70px_-32px_rgba(0,0,0,0.5)]" style={{ perspective: "2600px" }}>
-              <div className="relative w-1/2 h-full"><PageShell side="L"><LeftFace sp={leftSp} lang={lang} /></PageShell></div>
-              <div className="relative w-1/2 h-full"><PageShell side="R"><RightFace sp={rightSp} lang={lang} n={rightN} /></PageShell></div>
+              <div className="relative w-1/2 h-full" style={coverAnim === "open" ? { animation: "lm-open-bg 680ms ease forwards" } : undefined}>
+                <PageShell side="L"><LeftFace sp={coverAnim ? SPREADS[1] : leftSp} lang={lang} /></PageShell>
+              </div>
+              <div className="relative w-1/2 h-full" style={coverAnim === "open" ? { animation: "lm-open-bg 680ms ease forwards" } : undefined}>
+                <PageShell side="R"><RightFace sp={coverAnim ? SPREADS[1] : rightSp} lang={lang} n={coverAnim ? 2 : rightN} /></PageShell>
+              </div>
               <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[#1A1A1A]/25 z-10 pointer-events-none" />
 
-              {flip !== null && (
+              {flip !== null && coverAnim === null && (
                 <div
                   className="absolute top-0 h-full"
                   style={{
@@ -813,7 +883,25 @@ export function LifeManual({ lang }: { lang: Lang }) {
                 </div>
               )}
 
-              {canNext && flip === null && (
+              {coverAnim !== null && (
+                <div className="absolute inset-0 z-40 flex items-center justify-center" style={{ perspective: "2200px" }}>
+                  <div
+                    className="relative h-full w-full max-w-[30rem] bg-white shadow-[0_30px_70px_-28px_rgba(0,0,0,0.55)]"
+                    style={{
+                      transformOrigin: "left center",
+                      transformStyle: "preserve-3d",
+                      backfaceVisibility: "hidden",
+                      animation: `${coverAnim === "open" ? "lm-open" : "lm-close"} 680ms ease forwards`,
+                    }}
+                    onAnimationEnd={() => { setS(coverAnim === "open" ? 1 : 0); setCoverAnim(null); }}
+                  >
+                    <CoverPage sp={SPREADS[0]} lang={lang} />
+                    <FlipShade side="R" />
+                  </div>
+                </div>
+              )}
+
+              {canNext && flip === null && coverAnim === null && (
                 <button aria-label={t.next} onClick={() => go(1)} className="group absolute bottom-0 right-0 z-20 h-12 w-12">
                   <svg viewBox="0 0 48 48" className="h-full w-full">
                     <path d="M48 48 L48 8 L8 48 Z" fill="#F0EEE8" stroke="#1A1A1A" strokeOpacity="0.18" strokeWidth="1" />
@@ -822,6 +910,7 @@ export function LifeManual({ lang }: { lang: Lang }) {
                 </button>
               )}
             </div>
+            )
           ) : (
             <div className="w-full h-full shadow-[0_24px_60px_-30px_rgba(0,0,0,0.45)]" style={{ perspective: "1600px" }}>
               <div key={s} className="w-full h-full" style={{ transformStyle: "preserve-3d", animation: `${mobDir === 1 ? "lm-mob-fwd" : "lm-mob-back"} 480ms ease` }}>
@@ -847,6 +936,9 @@ export function LifeManual({ lang }: { lang: Lang }) {
         @keyframes lm-back { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }
         @keyframes lm-mob-fwd { from { opacity: 0.25; transform: rotateY(-32deg); transform-origin: left center; } to { opacity: 1; transform: rotateY(0deg); } }
         @keyframes lm-mob-back { from { opacity: 0.25; transform: rotateY(32deg); transform-origin: right center; } to { opacity: 1; transform: rotateY(0deg); } }
+        @keyframes lm-open { from { transform: rotateY(0deg); opacity: 1; } to { transform: rotateY(-108deg); opacity: 0; } }
+        @keyframes lm-close { from { transform: rotateY(-108deg); opacity: 0; } to { transform: rotateY(0deg); opacity: 1; } }
+        @keyframes lm-open-bg { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
     </main>
   );
