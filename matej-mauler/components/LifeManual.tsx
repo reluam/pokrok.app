@@ -64,12 +64,6 @@ const Arrow = ({ d, w = 4 }: { d: string; w?: number }) => <path d={d} {...line}
 const Tick = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   <path d={`M${x - 13 * s} ${y} l${9 * s} ${10 * s} l${18 * s} ${-20 * s}`} {...line} strokeWidth={6} />
 );
-const Ex = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
-  <g {...line} strokeWidth={6}>
-    <path d={`M${x - 11 * s} ${y - 11 * s} l${22 * s} ${22 * s}`} />
-    <path d={`M${x + 11 * s} ${y - 11 * s} l${-22 * s} ${22 * s}`} />
-  </g>
-);
 
 /** IKEA panáček — hladká, oblá figura. */
 function Person({ x = 180, y = 168, s = 1, pose = "stand" }: { x?: number; y?: number; s?: number; pose?: "stand" | "wave" | "cheer" | "side" | "reach" }) {
@@ -234,10 +228,10 @@ const SPREADS: Spread[] = [
     tag: "i",
     kind: "parts",
     kicker: { cs: "OBSAH BALENÍ", en: "IN THE BOX" },
-    title: { cs: "Co je v tobě", en: "What's inside you" },
+    title: { cs: "Z čeho jsi složen", en: "What you're made of" },
     items: [
       { icon: <IconCells />, lead: "37 bil.", text: { cs: "buněk · jejich atomy se ukuly uvnitř hvězd", en: "cells · their atoms were forged inside stars" } },
-      { icon: <IconOrgans />, lead: "5+", text: { cs: "orgánů · srdce, 2× ledviny, 2× plíce, játra, mozek…", en: "organs · heart, 2 kidneys, 2 lungs, liver, brain…" } },
+      { icon: <IconOrgans />, lead: "78", text: { cs: "orgánů · ty hlavní hned na další straně", en: "organs · the main ones on the next page" } },
       { icon: <IconBrain />, lead: "86 mld", text: { cs: "neuronů · návod k nim je v tiskárně, dorazí později", en: "neurons · the manual for them is at the printer, arriving later" } },
       { icon: <IconBone />, lead: "206×", text: { cs: "kostí · teď jich máš ~300, časem ti srostou", en: "bones · you have ~300 now, they'll fuse over time" } },
       { icon: <IconBlood />, lead: "0,3→5 l", text: { cs: "krve · teď máš pár deci, časem ~5 litrů", en: "blood · a few decilitres now, ~5 litres later" } },
@@ -246,6 +240,30 @@ const SPREADS: Spread[] = [
     note: {
       cs: "Všechno potřebné už máš v sobě — návod chybí schválně, sestavuješ se za pochodu. (Dodán s plným žaludkem; vrácení není možné.)",
       en: "You already hold everything you need — the manual is missing on purpose, you assemble yourself on the move. (Shipped with a full stomach; returns not possible.)",
+    },
+  },
+
+  /* — orgány (detail přes obě stránky) */
+  {
+    tag: "i",
+    kind: "parts",
+    kicker: { cs: "ORGÁNY", en: "ORGANS" },
+    title: { cs: "Tvé hlavní díly", en: "Your main parts" },
+    items: [
+      { lead: "1×", text: { cs: "mozek · řídí celé tělo i tebe", en: "brain · runs the whole body and you" } },
+      { lead: "1×", text: { cs: "srdce · pumpuje krev, ~100 000× denně", en: "heart · pumps blood, ~100,000×/day" } },
+      { lead: "2×", text: { cs: "plíce · okysličují krev, ~20 000 nádechů denně", en: "lungs · oxygenate blood, ~20,000 breaths/day" } },
+      { lead: "1×", text: { cs: "játra · chemická továrna, 500+ úkolů", en: "liver · chemical factory, 500+ jobs" } },
+      { lead: "2×", text: { cs: "ledviny · čistí krev, ~180 l denně", en: "kidneys · filter blood, ~180 l/day" } },
+      { lead: "1×", text: { cs: "žaludek · rozkládá jídlo kyselinou", en: "stomach · breaks down food with acid" } },
+      { lead: "~7,5 m", text: { cs: "střeva · vstřebávají živiny", en: "intestines · absorb nutrients" } },
+      { lead: "1×", text: { cs: "slinivka · inzulin a trávicí enzymy", en: "pancreas · insulin and digestive enzymes" } },
+      { lead: "1×", text: { cs: "slezina · recykluje krev, posiluje imunitu", en: "spleen · recycles blood, boosts immunity" } },
+      { lead: "1×", text: { cs: "kůže · největší orgán, ~2 m²", en: "skin · the largest organ, ~2 m²" } },
+    ],
+    note: {
+      cs: "Celkem máš ~78 orgánů. Všechny jedou non-stop, bez tvého vědomí a bez dovolené.",
+      en: "You have ~78 organs in total. All run non-stop, without your awareness and without holidays.",
     },
   },
 
@@ -271,10 +289,11 @@ const SPREADS: Spread[] = [
     title: { cs: "Čím se dobíjet", en: "How to refuel" },
     items: [
       { lead: "2–4 l", text: { cs: "tekutin denně · voda ti promazává vše od mozku po klouby", en: "fluids a day · water keeps everything from your brain to your joints running" } },
-      { lead: "vláknina", text: { cs: "zelenina a celozrnné · nakrmí bakterie ve tvých střevech — je jich víc než hvězd v Mléčné dráze", en: "veg and whole grains · feed your gut bacteria — there are more of them than stars in the Milky Way" } },
-      { lead: "bílkoviny", text: { cs: "maso, ryby, luštěniny · z nich si stavíš svaly a opravuješ se", en: "meat, fish, legumes · you build muscle and repair yourself from them" } },
-      { lead: "omega-3", text: { cs: "ryby a ořechy · mazivo pro tvůj mozek", en: "fish and nuts · oil for your brain" } },
-      { lead: "vit. D", text: { cs: "slunce, ~15 min denně · zvedne ti náladu i imunitu", en: "sunlight, ~15 min a day · lifts your mood and immunity" } },
+      { lead: "vláknina", text: { cs: "zelenina a celozrnné · nakrmí bakterie ve střevech — je jich víc než hvězd v Mléčné dráze", en: "veg and whole grains · feed your gut bacteria — more of them than stars in the Milky Way" } },
+      { lead: "bílkoviny", text: { cs: "maso, ryby, luštěniny · stavební díly svalů a oprav", en: "meat, fish, legumes · building blocks for muscle and repair" } },
+      { lead: "tuky", text: { cs: "omega-3 i omega-6 (ryby, ořechy) · mazivo pro mozek a buňky", en: "fats · omega-3 and omega-6 (fish, nuts) · oil for brain and cells" } },
+      { lead: "sacharidy", text: { cs: "v rozumné míře · rychlá energie na teď", en: "carbs · in moderation · quick energy for now" } },
+      { lead: "slunce", text: { cs: "~15 min paprsků denně · doplní vitamín D, ten zvedá náladu i imunitu", en: "sun · ~15 min of rays a day · tops up vitamin D, which lifts mood and immunity" } },
     ],
     note: {
       cs: "Nic ti není zakázané — jde o poměr. Tak 80 % rozumně, 20 % pro radost.",
@@ -347,15 +366,15 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "VZTAHY", en: "RELATIONSHIPS" },
-    title: { cs: "Kultivuj lásku", en: "Cultivate love" },
+    title: { cs: "Kultivuj laskavost a spolupráci", en: "Cultivate kindness and cooperation" },
     items: [
       { mark: "check", text: { cs: "Nejdřív ven: buď laskavý k druhým, pomáhej, naslouchej", en: "Outward first: be kind to others, help, listen" } },
       { mark: "check", text: { cs: "Pak dovnitř: stejně laskavě i sám k sobě", en: "Then inward: be just as kind to yourself" } },
       { mark: "check", text: { cs: "Objímej a nech se objímat — objetí snižuje stres oběma", en: "Hug and be hugged — a hug lowers stress on both sides" } },
     ],
     note: {
-      cs: "Rosteme skrz druhé. Lásku posílej ven i dovnitř — v tomhle pořadí.",
-      en: "We grow through others. Send love outward and inward — in that order.",
+      cs: "Rosteme skrz druhé — spoluprací, ne soupeřením. Laskavost posílej ven i dovnitř, v tomhle pořadí.",
+      en: "We grow through others — by cooperating, not competing. Send kindness outward and inward, in that order.",
     },
   },
 
@@ -378,7 +397,7 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "ÚDRŽBA MYSLI", en: "MIND UPKEEP" },
-    title: { cs: "Pár věcí pro klidnější hlavu", en: "A few things for a calmer mind" },
+    title: { cs: "Pár věcí pro klidnější mysl", en: "A few things for a calmer mind" },
     items: [
       { lead: "dech", text: { cs: "pomalý nádech a delší výdech zklidní nervy během chvilky", en: "a slow breath in and a longer breath out calm the nerves within moments" } },
       { lead: "meditace", text: { cs: "5–10 min denně si všímej dechu; mysl se učí nehonit každou myšlenku", en: "5–10 min a day, notice your breath; the mind learns not to chase every thought" } },
@@ -448,45 +467,24 @@ const SPREADS: Spread[] = [
     },
   },
 
-  /* 9 — spoj se */
+  /* — řešení nejčastějších problémů (troubleshooting přes obě stránky) */
   {
-    tag: "05",
-    art: (
-      <Frame>
-        <Person x={108} y={184} s={1.45} pose="side" />
-        <Person x={252} y={184} s={1.45} pose="side" />
-        <path d="M150 140 l22 0 l0 -11 l12 11 l-12 11 l0 -11" {...line} strokeWidth={4.5} />
-        <path d="M210 140 l-22 0 l0 -11 l-12 11 l12 11 l0 -11" {...line} strokeWidth={4.5} />
-        <text x={180} y={96} fontSize={24} textAnchor="middle" fill="currentColor" stroke="none" style={display}>cvak!</text>
-      </Frame>
-    ),
-    kicker: { cs: "ZAPOJENÍ", en: "CONNECTION" },
-    title: { cs: "Spoj se s ostatními", en: "Connect with others" },
+    tag: "✗",
+    kind: "parts",
+    kicker: { cs: "ŘEŠENÍ PROBLÉMŮ", en: "TROUBLESHOOTING" },
+    title: { cs: "Nejčastější závady", en: "Common faults" },
+    items: [
+      { lead: "✗", text: { cs: "Zlomené srdce → čas a blízcí; lepí se pomalu, ale spolehlivě", en: "Broken heart → time and loved ones; mends slowly but surely" } },
+      { lead: "✗", text: { cs: "Odřená ruka → omýt, zakrýt; tělo se spraví samo", en: "Grazed hand → clean, cover; the body repairs itself" } },
+      { lead: "✗", text: { cs: "Rozhodovací paralýza → hoď si kostkou; úleva či lítost prozradí, co jsi chtěl", en: "Decision paralysis → flip a coin; relief or regret reveals what you wanted" } },
+      { lead: "✗", text: { cs: "Nechutenství k práci → udělej jen první 2 minuty; chuť přijde během", en: "No appetite for work → just do the first 2 minutes; the appetite follows" } },
+      { lead: "✗", text: { cs: "Samota → ozvi se někomu; i krátká zpráva pomáhá", en: "Loneliness → reach out to someone; even a short message helps" } },
+      { lead: "✗", text: { cs: "Vtíravé myšlenky ve 3 ráno → zapiš je a spi; do rána se zmenší", en: "Intrusive 3 a.m. thoughts → write them down and sleep; smaller by morning" } },
+      { lead: "✗", text: { cs: "Existenciální krize → běžný update; ven mezi lidi, najez se, míň přemýšlej", en: "Existential crisis → a routine update; get outside, see people, eat, overthink less" } },
+    ],
     note: {
-      cs: "Nejdelší studie o štěstí (Harvard, 85+ let) má jediný hlavní závěr: nezáleží na penězích ani slávě, ale na kvalitě tvých vztahů. Platí to i pro samotáře — stačí pár blízkých, ne dav.",
-      en: "The longest happiness study (Harvard, 85+ years) has one main finding: it's not money or fame, but the quality of your relationships. True even for loners — a few close ones is enough, not a crowd.",
-    },
-  },
-
-  /* 10 — když to praskne */
-  {
-    tag: "06",
-    art: (
-      <Frame>
-        <g transform="rotate(-90 100 176)">
-          <Person x={100} y={176} s={1.25} pose="stand" />
-        </g>
-        <Ex x={100} y={70} s={1.1} />
-        <Arrow d="M150 168 H214" w={5} />
-        <Person x={262} y={176} s={1.4} pose="cheer" />
-        <Tick x={262} y={68} s={1.3} />
-      </Frame>
-    ),
-    kicker: { cs: "OPRAVA", en: "REPAIR" },
-    title: { cs: "Když se něco zlomí", en: "When something breaks" },
-    note: {
-      cs: "Občas se rozbiješ nebo pokřivíš — to k výrobku patří. Nereklamuj se, slep se časem a odpočinkem a pokračuj. Prasklinami mimochodem proudí dovnitř světlo (a vznikají z nich nejlepší historky).",
-      en: "Sometimes you'll break or bend — that comes with the product. Don't return yourself; glue yourself with time and rest, and keep going. Cracks, by the way, are how the light gets in (and the best stories come out).",
+      cs: "Většina závad je dočasná a běžná. Když nějaká přetrvává, zavolej odborný servis (terapeuta) — není to ostuda, je to údržba.",
+      en: "Most faults are temporary and normal. If one lingers, call professional service (a therapist) — no shame, just maintenance.",
     },
   },
 
@@ -505,7 +503,7 @@ const SPREADS: Spread[] = [
         </g>
       </Frame>
     ),
-    kicker: { cs: "DOKONČENO", en: "COMPLETE" },
+    kicker: { cs: "HOTOVO", en: "DONE" },
     title: { cs: "Den 1 dokončen", en: "Day 1 complete" },
     note: {
       cs: "Tohle byl den 1. Gratulujeme — Manuál na život máš úspěšně za sebou. Teď běž a začni žít. Zbývá ti zhruba 4 000 týdnů.",
@@ -627,11 +625,12 @@ function ItemList({ items, lang }: { items: Item[]; lang: Lang }) {
 }
 
 function PartRows({ items, lang }: { items: Item[]; lang: Lang }) {
+  const hasIcons = items.some((it) => it.icon);
   return (
     <ul className="mt-5">
       {items.map((it, k) => (
         <li key={k} className={`flex items-center gap-3 sm:gap-4 py-2.5 ${k > 0 ? "border-t border-[#1A1A1A]/10" : ""}`}>
-          <span className="w-9 h-9 sm:w-11 sm:h-11 shrink-0 text-[#1A1A1A]">{it.icon}</span>
+          {hasIcons && <span className="w-9 h-9 sm:w-11 sm:h-11 shrink-0 text-[#1A1A1A]">{it.icon}</span>}
           <span className="w-[3.8rem] shrink-0 font-bold text-[#1A1A1A] text-[13px] tabular-nums" style={display}>{it.lead}</span>
           <span className="text-[14px] sm:text-[15px] leading-snug text-[#1A1A1A]/90">{it.text[lang]}</span>
         </li>
