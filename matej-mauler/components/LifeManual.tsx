@@ -145,6 +145,7 @@ type Spread = {
   title: TT;
   items?: Item[];
   note?: TT;
+  sub?: TT;
 };
 
 const SPREADS: Spread[] = [
@@ -165,12 +166,43 @@ const SPREADS: Spread[] = [
     kicker: { cs: "ART. NO. 1-986-400 · HOMO SAPIENS", en: "ART. NO. 1-986-400 · HOMO SAPIENS" },
     title: { cs: "Manuál na život", en: "Life Manual" },
     note: {
-      cs: "DŮLEŽITÉ — přečíst před použitím. Při nedodržení návodu hrozí ztráta záruky.",
-      en: "IMPORTANT — read before use. Failure to follow the manual may void the warranty.",
+      cs: "Návod k použití. Jeden kus, jeden život, žádné náhradní díly.",
+      en: "Instructions for use. One unit, one life, no spare parts.",
     },
   },
 
-  /* 1 — záruka & vady */
+  /* 1 — úvod / vítej na světě */
+  {
+    tag: "→",
+    art: (
+      <Frame>
+        <Person x={180} y={150} s={0.85} pose="cheer" />
+        <g transform="translate(180 168)">
+          <path d="M-74 0 L-74 64 L74 64 L74 0 Z" {...solid} />
+          <path d="M-74 0 L-106 -20 M74 0 L106 -20 M-74 0 L-42 20 M74 0 L42 20" {...line} strokeWidth={4} />
+          <path d="M-74 0 L74 0" {...line} />
+          <rect x={-18} y={20} width={36} height={20} rx={3} {...line} strokeWidth={3} />
+        </g>
+        <g {...line} strokeWidth={3.5}>
+          <path d="M250 64 v16 M242 72 h16" />
+          <path d="M92 56 v14 M85 63 h14" />
+          <path d="M286 116 l7 7 M293 116 l-7 7" />
+        </g>
+      </Frame>
+    ),
+    kicker: { cs: "ÚVOD", en: "INTRODUCTION" },
+    title: { cs: "Vítej na světě", en: "Welcome to the world" },
+    note: {
+      cs: "Gratulujeme k narození a vítej ve světě. Čeká tě úžasný život, protkaný radostmi a bolestmi. Aby ses v něm neztratil, v tomto návodu najdeš základní informace pro život.",
+      en: "Congratulations on being born, and welcome to the world. An amazing life awaits you, woven from joys and pains. So you don't get lost in it, this manual holds the basics for living.",
+    },
+    sub: {
+      cs: "Disclaimer: Návod doporučujeme předat hned první den bytí. Při pozdějším čtení nezaručujeme úspěšnost.",
+      en: "Disclaimer: best handed over on the first day of existence. If read later, success is not guaranteed.",
+    },
+  },
+
+  /* 2 — záruka & vady */
   {
     tag: "!",
     art: (
@@ -185,11 +217,15 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "VAROVÁNÍ", en: "WARNING" },
-    title: { cs: "Dodáváno tak, jak je", en: "Delivered as-is" },
+    title: { cs: "Jsi originál", en: "You're an original" },
     items: [
-      { text: { cs: "Přijetím tohoto kusu souhlasíš se všemi výrobními vadami.", en: "By accepting this unit you agree to all manufacturing defects." } },
-      { text: { cs: "Po převzetí již reklamace není možná.", en: "After acceptance, returns are no longer possible." } },
+      { text: { cs: "Žádné dva kusy nejsou stejné. Ani ty.", en: "No two units are alike. Not even you." } },
+      { text: { cs: "Drobné vady patří k výbavě: křivý nos, jedna noha delší, divné zvuky.", en: "Small defects come standard: a crooked nose, one leg longer, odd noises." } },
     ],
+    note: {
+      cs: "Vrátit ani vyměnit se nedá — máš jen tenhle kus a jen tenhle život. Ber to jako výhodu.",
+      en: "No returns, no exchanges — you have only this unit and only this life. Treat it as an advantage.",
+    },
   },
 
   /* 2 — obsah balení (kusovník přes obě stránky) */
@@ -197,18 +233,18 @@ const SPREADS: Spread[] = [
     tag: "i",
     kind: "parts",
     kicker: { cs: "OBSAH BALENÍ", en: "IN THE BOX" },
-    title: { cs: "Co najdeš uvnitř", en: "What's inside" },
+    title: { cs: "Co je v tobě", en: "What's inside you" },
     items: [
-      { icon: <IconCells />, lead: "37 bil.", text: { cs: "buněk · z nich jsi celý poskládaný", en: "cells · the whole you is assembled from them" } },
+      { icon: <IconCells />, lead: "37 bil.", text: { cs: "buněk, ze kterých jsi celý", en: "cells you're entirely made of" } },
       { icon: <IconOrgans />, lead: "5+", text: { cs: "orgánů · srdce, 2× ledviny, 2× plíce, játra, mozek…", en: "organs · heart, 2 kidneys, 2 lungs, liver, brain…" } },
-      { icon: <IconBrain />, lead: "86 mld", text: { cs: "neuronů · samostatný návod je v tiskárně, dorazí později", en: "neurons · separate manual is at the printer, arriving later" } },
-      { icon: <IconBone />, lead: "206×", text: { cs: "kostí · novorozenec jich má ~300, časem srostou", en: "bones · a newborn has ~300, they fuse over time" } },
-      { icon: <IconBlood />, lead: "0,3→5 l", text: { cs: "krve · od novorozence po dospělého", en: "blood · from newborn to adult" } },
-      { icon: <IconHair />, lead: "0–150k", text: { cs: "vlasů · dle modelu; úbytek bez záruky", en: "hairs · by model; loss not covered" } },
+      { icon: <IconBrain />, lead: "86 mld", text: { cs: "neuronů · návod k nim je v tiskárně, dorazí později", en: "neurons · the manual for them is at the printer, arriving later" } },
+      { icon: <IconBone />, lead: "206×", text: { cs: "kostí · teď jich máš ~300, časem ti srostou", en: "bones · you have ~300 now, they'll fuse over time" } },
+      { icon: <IconBlood />, lead: "0,3→5 l", text: { cs: "krve · teď máš pár deci, časem ~5 litrů", en: "blood · a few decilitres now, ~5 litres later" } },
+      { icon: <IconHair />, lead: "0–150k", text: { cs: "vlasů · dle modelu; časem mohou ubývat", en: "hairs · by model; may thin out over time" } },
     ],
     note: {
-      cs: "Standardně dodáván s plným žaludkem. V případě vrácení (není možné) opět vraťte s plným žaludkem.",
-      en: "Ships with a full stomach as standard. If returned (not possible), please return with a full stomach.",
+      cs: "Všechno potřebné už máš v sobě — návod chybí schválně, sestavuješ se za pochodu. (Dodán s plným žaludkem; vrácení není možné.)",
+      en: "You already hold everything you need — the manual is missing on purpose, you assemble yourself on the move. (Shipped with a full stomach; returns not possible.)",
     },
   },
 
@@ -231,17 +267,17 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "ÚDRŽBA · PALIVO", en: "UPKEEP · FUEL" },
-    title: { cs: "Doplňování energie", en: "Refuelling" },
+    title: { cs: "Čím se dobíjet", en: "How to refuel" },
     items: [
-      { lead: "2–4 l", text: { cs: "tekutin denně · voda promazává vše od mozku po klouby", en: "fluids a day · water keeps everything from brain to joints running" } },
-      { lead: "vláknina", text: { cs: "zelenina a celozrnné · krmí střevní bakterie (tvé druhé já)", en: "veg and whole grains · feed your gut bacteria (your second self)" } },
-      { lead: "bílkoviny", text: { cs: "maso, ryby, luštěniny · stavební díly svalů a oprav", en: "meat, fish, legumes · building blocks for muscle and repair" } },
-      { lead: "omega-3", text: { cs: "ryby a ořechy · mazivo pro mozek", en: "fish and nuts · oil for the brain" } },
-      { lead: "vit. D", text: { cs: "slunce, ~15 min denně · nálada a imunita", en: "sunlight, ~15 min a day · mood and immunity" } },
+      { lead: "2–4 l", text: { cs: "tekutin denně · voda ti promazává vše od mozku po klouby", en: "fluids a day · water keeps everything from your brain to your joints running" } },
+      { lead: "vláknina", text: { cs: "zelenina a celozrnné · nakrmí bakterie ve tvých střevech (tvé druhé já)", en: "veg and whole grains · feed the bacteria in your gut (your second self)" } },
+      { lead: "bílkoviny", text: { cs: "maso, ryby, luštěniny · z nich si stavíš svaly a opravuješ se", en: "meat, fish, legumes · you build muscle and repair yourself from them" } },
+      { lead: "omega-3", text: { cs: "ryby a ořechy · mazivo pro tvůj mozek", en: "fish and nuts · oil for your brain" } },
+      { lead: "vit. D", text: { cs: "slunce, ~15 min denně · zvedne ti náladu i imunitu", en: "sunlight, ~15 min a day · lifts your mood and immunity" } },
     ],
     note: {
-      cs: "Žádné palivo není zakázané — jde o poměr. Zhruba 80 % rozumně, 20 % pro radost.",
-      en: "No fuel is forbidden — it's about the ratio. Roughly 80% sensible, 20% for joy.",
+      cs: "Nic ti není zakázané — jde o poměr. Tak 80 % rozumně, 20 % pro radost.",
+      en: "Nothing is forbidden to you — it's about the ratio. About 80% sensible, 20% for joy.",
     },
   },
 
@@ -261,15 +297,15 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "PROVOZNÍ REŽIM", en: "OPERATING MODE" },
-    title: { cs: "Hibernace a chlazení", en: "Hibernation & cooling" },
+    title: { cs: "Spánek a chlazení", en: "Sleep & cooling" },
     items: [
-      { lead: "16 h", text: { cs: "provozu → pak 7–9 h na matraci, ve tmě a tichu", en: "of operation → then 7–9 h on a mattress, dark and quiet" } },
-      { lead: "20 min", text: { cs: "šlofík přes den dobije výkon při přetížení", en: "a daytime nap recharges output when overloaded" } },
-      { lead: "PAUZA", text: { cs: "po těžké zátěži nech vychladnout — nejede se na 100 % pořád", en: "after heavy load let it cool down — you can't run at 100% nonstop" } },
+      { lead: "16 h", text: { cs: "vzhůru → pak si na 7–9 h lehni do tmy a ticha", en: "awake → then lie down for 7–9 h in the dark and quiet" } },
+      { lead: "20 min", text: { cs: "krátký šlofík tě dobije, když je toho moc", en: "a short nap recharges you when it's all too much" } },
+      { lead: "PAUZA", text: { cs: "po velké zátěži se nech vychladnout — nejde jet pořád naplno", en: "after a heavy load let yourself cool down — you can't run flat-out forever" } },
     ],
     note: {
-      cs: "Stoupá-li z uší kouř, jde o přehřátí (tzv. vyhoření). Okamžitě odpojit od sítě (práce, notifikace) a nechat vychladnout. Restart může trvat týdny.",
-      en: "If smoke rises from the ears, it's overheating (so-called burnout). Unplug from the grid (work, notifications) at once and let it cool. A restart can take weeks.",
+      cs: "Až ti půjde kouř z uší, je to přehřátí (vyhoření). Vypni se, odpoj od sítě (práce, telefon) a vychladni. Restart může trvat týdny.",
+      en: "When smoke starts rising from your ears, it's overheating (burnout). Power down, unplug from the grid (work, phone) and cool off. A restart can take weeks.",
     },
   },
 
@@ -286,15 +322,15 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "ZACHÁZENÍ", en: "HANDLING" },
-    title: { cs: "Křehké. S láskou.", en: "Fragile. With love." },
+    title: { cs: "Zacházej s láskou", en: "Handle with love" },
     items: [
-      { mark: "check", text: { cs: "Drž v teple a mluv laskavě — i sám na sebe", en: "Keep warm and speak kindly — to yourself too" } },
-      { mark: "check", text: { cs: "Pravidelně objímej; objetí opravdu snižuje stres", en: "Hug regularly; hugs really do lower stress" } },
-      { mark: "check", text: { cs: "Když je někomu smutno, stačí být blízko — nemusíš to spravit", en: "When someone is sad, just being near is enough — you don't have to fix it" } },
+      { mark: "check", text: { cs: "Mluv na sebe laskavě — jako na kamaráda", en: "Speak to yourself kindly — like to a friend" } },
+      { mark: "check", text: { cs: "Objímej a nech se objímat; objetí fakt snižuje stres", en: "Hug and let yourself be hugged; hugs really do lower stress" } },
+      { mark: "check", text: { cs: "Když je někomu smutno, stačí být nablízku — nemusíš to spravit", en: "When someone is sad, just being near is enough — you don't have to fix it" } },
     ],
     note: {
-      cs: "Křehký je každý kus, i ten, co to nedává najevo. Buď na lidi (i na sebe) hodný.",
-      en: "Every unit is fragile, even the ones that hide it. Be gentle with people (and yourself).",
+      cs: "Křehký je každý — i ten, kdo to nedává najevo. Buď hodný na druhé i na sebe.",
+      en: "Everyone is fragile, even those who hide it. Be gentle with others and with yourself.",
     },
   },
 
@@ -317,16 +353,16 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "SOFTWARE", en: "SOFTWARE" },
-    title: { cs: "Mentální modely", en: "Mental models" },
+    title: { cs: "Pár věcí pro klidnější hlavu", en: "A few things for a calmer mind" },
     items: [
-      { lead: "01", text: { cs: "Nesrovnávej své zákulisí s cizím sestřihem", en: "Don't compare your backstage to a highlight reel" } },
+      { lead: "01", text: { cs: "Nesrovnávej své zákulisí s cizím sestřihem", en: "Don't compare your backstage to other people's highlight reel" } },
       { lead: "02", text: { cs: "Skoro nikdo nemyslí na tvé chyby tolik jako ty", en: "Almost nobody dwells on your mistakes like you do" } },
-      { lead: "03", text: { cs: "Většinu dnešních starostí si za rok nevybavíš", en: "Most of today's worries you won't recall in a year" } },
-      { lead: "04", text: { cs: "Rozhodnout = odříznout zbytek; i nerozhodnutí je rozhodnutí", en: "To decide is to cut away the rest; not deciding is a decision too" } },
+      { lead: "03", text: { cs: "Většinu dnešních starostí si za rok ani nevzpomeneš", en: "Most of today's worries you won't even remember in a year" } },
+      { lead: "04", text: { cs: "Rozhodnout = odříznout zbytek; i nerozhodnout je rozhodnutí", en: "To decide is to cut away the rest; not deciding is a decision too" } },
     ],
     note: {
-      cs: "Software je důležitější než hardware. Přepiš je, kdykoli začnou víc škodit než pomáhat.",
-      en: "Software beats hardware. Rewrite them whenever they do more harm than good.",
+      cs: "Tohle je tvůj software — důležitější než hardware. Klidně si ho přepiš, když začne zlobit.",
+      en: "This is your software — more important than the hardware. Feel free to rewrite it when it starts misbehaving.",
     },
   },
 
@@ -348,15 +384,15 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "ZNÁMÉ SOFTWAROVÉ CHYBY", en: "KNOWN SOFTWARE BUGS" },
-    title: { cs: "Známé chyby v provozu", en: "Known bugs in operation" },
+    title: { cs: "Tvé tovární chyby", en: "Your factory bugs" },
     items: [
-      { lead: "!", text: { cs: "Váš člověk může mít tendenci vidět svět černobíle. Doporučujeme mu jednou za čas ukázat i ostatní barvy.", en: "Your human may tend to see the world in black and white. We recommend showing it the other colours from time to time." } },
-      { lead: "!", text: { cs: "Váš člověk si všímá hlavně toho, co potvrzuje jeho názor. Občas mu nabídněte i ten opačný.", en: "Your human mainly notices what confirms its opinion. Offer it the opposite one now and then." } },
-      { lead: "!", text: { cs: "U vašeho člověka přebije jedna kritika deset pochval. Připomínejte mu i to, co se povedlo.", en: "For your human, one criticism outweighs ten compliments. Remind it of what went well, too." } },
+      { lead: "!", text: { cs: "Můžeš mít sklon vidět svět černobíle. Občas si schválně ukaž i ostatní barvy.", en: "You may tend to see the world in black and white. Now and then, show yourself the other colours on purpose." } },
+      { lead: "!", text: { cs: "Budeš si víc všímat toho, co potvrzuje, co si už myslíš. Hledej i opačný názor.", en: "You'll notice more of what confirms what you already think. Go looking for the opposite view too." } },
+      { lead: "!", text: { cs: "Jedna kritika ti přebije deset pochval. Připomínej si i to, co se povedlo.", en: "One criticism will outweigh ten compliments for you. Keep reminding yourself of what went well." } },
     ],
     note: {
-      cs: "Chyby nejdou odinstalovat — ale když o nich víš, dají se vědomě obejít.",
-      en: "The bugs can't be uninstalled — but once you know them, you can route around them on purpose.",
+      cs: "Tyhle chyby nejdou odinstalovat — ale když o nich víš, dají se obejít.",
+      en: "These bugs can't be uninstalled — but once you know them, you can route around them.",
     },
   },
 
@@ -377,13 +413,13 @@ const SPREADS: Spread[] = [
     kicker: { cs: "POKROČILÝ REŽIM", en: "ADVANCED MODE" },
     title: { cs: "Hop, nebo trop", en: "Go big or go home" },
     items: [
-      { lead: "+", text: { cs: "Dlouhodobé uvažování · rozhodovat se pro budoucí já, ne jen pro teď", en: "Long-term thinking · decide for your future self, not just for now" } },
-      { lead: "+", text: { cs: "Empatie · umět se podívat očima druhých", en: "Empathy · seeing through other people's eyes" } },
-      { lead: "+", text: { cs: "Vděčnost · všímat si toho, co už funguje", en: "Gratitude · noticing what already works" } },
+      { lead: "+", text: { cs: "Dlouhodobé uvažování · rozhoduj se i za své budoucí já", en: "Long-term thinking · decide for your future self too" } },
+      { lead: "+", text: { cs: "Empatie · dívej se na svět i očima druhých", en: "Empathy · see the world through other people's eyes too" } },
+      { lead: "+", text: { cs: "Vděčnost · všímej si toho, co už funguje", en: "Gratitude · notice what already works" } },
     ],
     note: {
-      cs: "POZOR: učením pokročilých dovedností se z vašeho člověka může stát lepší člověk. Jde o neautorizované odemčení (tzv. rooting), takže záruka tím propadá. Riskujete na vlastní nebezpečí.",
-      en: "WARNING: teaching advanced skills may turn your human into a better person. This counts as an unauthorised unlock (so-called rooting), which voids the warranty. Proceed at your own risk.",
+      cs: "POZOR: tímhle se z tebe může stát lepší člověk. Je to neautorizované odemčení (tzv. rooting) — záruka tím propadá. Pokračuj na vlastní nebezpečí.",
+      en: "WARNING: this may turn you into a better person. It counts as an unauthorised unlock (so-called rooting) — it voids the warranty. Proceed at your own risk.",
     },
   },
 
@@ -400,10 +436,10 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "ZAPOJENÍ", en: "CONNECTION" },
-    title: { cs: "Spoj se s ostatními kusy", en: "Connect with other units" },
+    title: { cs: "Spoj se s ostatními", en: "Connect with others" },
     note: {
-      cs: "Nejdelší studie o štěstí (Harvard, 85+ let) má jediný hlavní závěr: nerozhodují peníze ani sláva, ale kvalita vztahů. Týká se i introvertního modelu — ten jen potřebuje míň kusů, ne žádné.",
-      en: "The longest happiness study (Harvard, 85+ years) has one main finding: not money or fame, but the quality of your relationships. Even the introverted model — it just needs fewer units, not none.",
+      cs: "Nejdelší studie o štěstí (Harvard, 85+ let) má jediný hlavní závěr: nezáleží na penězích ani slávě, ale na kvalitě tvých vztahů. Platí to i pro samotáře — stačí pár blízkých, ne dav.",
+      en: "The longest happiness study (Harvard, 85+ years) has one main finding: it's not money or fame, but the quality of your relationships. True even for loners — a few close ones is enough, not a crowd.",
     },
   },
 
@@ -424,8 +460,8 @@ const SPREADS: Spread[] = [
     kicker: { cs: "OPRAVA", en: "REPAIR" },
     title: { cs: "Když se něco zlomí", en: "When something breaks" },
     note: {
-      cs: "Rozbité a křivé díly patří k výrobku. Nereklamuj je — slep je časem a odpočinkem a sestavuj dál. Praskliny mimochodem pouštějí dovnitř světlo (a dělají lepší historky).",
-      en: "Broken and bent parts come with the product. Don't return them — glue them with time and rest, and keep going. Cracks, by the way, let the light in (and make better stories).",
+      cs: "Občas se rozbiješ nebo pokřivíš — to k výrobku patří. Nereklamuj se, slep se časem a odpočinkem a pokračuj. Prasklinami mimochodem proudí dovnitř světlo (a vznikají z nich nejlepší historky).",
+      en: "Sometimes you'll break or bend — that comes with the product. Don't return yourself; glue yourself with time and rest, and keep going. Cracks, by the way, are how the light gets in (and the best stories come out).",
     },
   },
 
@@ -445,10 +481,10 @@ const SPREADS: Spread[] = [
       </Frame>
     ),
     kicker: { cs: "DOKONČENO", en: "COMPLETE" },
-    title: { cs: "Hotovo", en: "Done" },
+    title: { cs: "Hotovo. Teď žij.", en: "Done. Now go live." },
     note: {
-      cs: "Výrobek nelze vrátit ani vyměnit. Záruka ≈ 4 000 týdnů (dle modelu a štěstí). Nenech ho ležet v krabici. Dotazy? → Zavolej někomu, koho máš rád.",
-      en: "No returns, no exchanges. Warranty ≈ 4,000 weeks (by model and luck). Don't leave it in the box. Questions? → Call someone you love.",
+      cs: "Vrátit ani vyměnit tě nejde. Záruka ≈ 4 000 týdnů (dle modelu a štěstí). Nezůstávej v krabici. A kdyby bylo zle → zavolej někomu, koho máš rád.",
+      en: "You can't be returned or exchanged. Warranty ≈ 4,000 weeks (by model and luck). Don't stay in the box. And if things go wrong → call someone you love.",
     },
   },
 ];
@@ -545,6 +581,11 @@ function Note({ sp, lang, cover }: { sp: Spread; lang: Lang; cover?: boolean }) 
   );
 }
 
+function Sub({ sp, lang }: { sp: Spread; lang: Lang }) {
+  if (!sp.sub) return null;
+  return <p className="mt-4 text-[13px] sm:text-sm text-[#1A1A1A]/55 leading-relaxed">{sp.sub[lang]}</p>;
+}
+
 function ItemList({ items, lang }: { items: Item[]; lang: Lang }) {
   return (
     <ul className="mt-6">
@@ -614,6 +655,7 @@ function RightFace({ sp, lang, n }: { sp: Spread; lang: Lang; n: number }) {
             <Title sp={sp} lang={lang} cover={sp.cover} />
             {sp.items && <ItemList items={sp.items} lang={lang} />}
             <Note sp={sp} lang={lang} cover={sp.cover} />
+            <Sub sp={sp} lang={lang} />
           </>
         )}
       </FitText>
@@ -639,6 +681,7 @@ function MobileFace({ sp, lang, n }: { sp: Spread; lang: Lang; n: number }) {
             <Title sp={sp} lang={lang} cover={sp.cover} />
             {sp.items && <ItemList items={sp.items} lang={lang} />}
             <Note sp={sp} lang={lang} cover={sp.cover} />
+            <Sub sp={sp} lang={lang} />
           </>
         )}
       </FitText>
