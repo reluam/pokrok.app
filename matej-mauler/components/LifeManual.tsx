@@ -41,7 +41,8 @@ const line = {
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
 };
-const solid = { ...line, fill: "#fff" }; // bílá výplň + obrys → čisté překryvy
+const solid = { ...line, fill: "#fff" };
+const ic = { stroke: "currentColor", strokeWidth: 2.6, fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
 
 function Defs() {
   return (
@@ -60,14 +61,6 @@ const Frame = ({ children }: { children: React.ReactNode }) => (
 );
 const Arrow = ({ d, w = 4 }: { d: string; w?: number }) => <path d={d} {...line} strokeWidth={w} markerEnd="url(#lm-arw)" />;
 
-function NumBadge({ x, y, n, r = 15 }: { x: number; y: number; n: string | number; r?: number }) {
-  return (
-    <g>
-      <circle cx={x} cy={y} r={r} {...solid} strokeWidth={4} />
-      <text x={x} y={y + r * 0.36} fontSize={r * 1.15} textAnchor="middle" fill="currentColor" stroke="none" style={display}>{n}</text>
-    </g>
-  );
-}
 const Tick = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   <path d={`M${x - 13 * s} ${y} l${9 * s} ${10 * s} l${18 * s} ${-20 * s}`} {...line} strokeWidth={6} />
 );
@@ -89,37 +82,65 @@ function Person({ x = 180, y = 168, s = 1, pose = "stand" }: { x?: number; y?: n
   };
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      {/* nohy */}
       <path d="M-12 10 L-15 66 q-1 9 9 9 M12 10 L15 66 q1 9 -9 9" {...line} strokeWidth={6} />
-      {/* tělo (zvonek) */}
       <path d="M-29 14 Q-35 -40 0 -47 Q35 -40 29 14 Z" {...solid} />
-      {/* ruce */}
       <path d={arms[pose]} {...line} strokeWidth={6} />
-      {/* hlava */}
       <circle cx={0} cy={-72} r={21} {...solid} />
     </g>
   );
 }
 
-/* ── Drobné ikony ───────────────────────────────────────────────────────── */
 const Heart = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   <path transform={`translate(${x} ${y}) scale(${s})`} d="M0 -6 C-11 -22 -32 -10 0 16 C32 -10 11 -22 0 -6 Z" {...line} strokeWidth={4.5} />
 );
-const FragileGlass = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
-  <g transform={`translate(${x} ${y}) scale(${s})`} {...line} strokeWidth={3.5}>
-    <path d="M-9 -14 L9 -14 L6 10 L-6 10 Z" />
-    <path d="M-9 16 L9 16 M-13 -14 L13 -14" />
-  </g>
+
+/* ── Drobné ikony pro kusovník ────────────────────────────────────────────── */
+const IW = ({ children }: { children: React.ReactNode }) => (
+  <svg viewBox="0 0 44 44" className="w-full h-full" aria-hidden>{children}</svg>
+);
+const IconCells = () => (
+  <IW><g {...ic}>
+    <circle cx={15} cy={16} r={8} /><circle cx={30} cy={14} r={6} /><circle cx={22} cy={29} r={9} /><circle cx={34} cy={30} r={5} />
+    <circle cx={15} cy={16} r={2} fill="currentColor" stroke="none" /><circle cx={22} cy={29} r={2.4} fill="currentColor" stroke="none" />
+  </g></IW>
+);
+const IconOrgans = () => (
+  <IW><g {...ic}>
+    <path d="M22 13 C18 7 10 10 15 17 C18 21 22 23 22 23 C22 23 26 21 29 17 C34 10 26 7 22 13 Z" />
+    <path d="M11 27 q-5 5 0 10 q5 2 6 -3 q1 -6 -6 -7 Z" /><path d="M33 27 q5 5 0 10 q-5 2 -6 -3 q-1 -6 6 -7 Z" />
+  </g></IW>
+);
+const IconBrain = () => (
+  <IW><g {...ic}>
+    <path d="M22 9 q11 -1 12 9 q4 3 0 8 q1 7 -7 7 q-5 4 -10 0 q-8 0 -7 -8 q-3 -5 2 -8 q0 -8 10 -8 Z" />
+    <path d="M22 11 v22 M15 17 q4 2 0 6 M29 18 q-4 2 0 6" />
+  </g></IW>
+);
+const IconBone = () => (
+  <IW><g {...ic}>
+    <path d="M12 18 q-5 -4 -1 -7 q4 -2 4 2 l14 0 q0 -4 4 -2 q5 3 -1 7 q5 4 -1 7 q-4 2 -4 -2 l-14 0 q0 4 -4 2 q-5 -3 1 -7 Z" />
+  </g></IW>
+);
+const IconBlood = () => (
+  <IW><g {...ic}>
+    <path d="M22 8 q10 13 10 19 a10 10 0 1 1 -20 0 q0 -6 10 -19 Z" /><path d="M17 27 a5 5 0 0 0 3 7" />
+  </g></IW>
+);
+const IconHair = () => (
+  <IW><g {...ic}>
+    <circle cx={22} cy={26} r={11} /><path d="M13 20 q3 -10 9 -10 q6 0 9 10 M16 16 q3 -5 6 -5 M22 11 q4 0 7 6" />
+  </g></IW>
 );
 
 /* ── Obsah (spready) ──────────────────────────────────────────────────────── */
 
 type TT = { cs: string; en: string };
-type Item = { lead?: string; mark?: "check" | "cross"; text: TT };
+type Item = { lead?: string; mark?: "check" | "cross"; icon?: React.ReactNode; text: TT };
 type Spread = {
   tag: string;
   cover?: boolean;
-  art: React.ReactNode;
+  kind?: "standard" | "parts";
+  art?: React.ReactNode;
   kicker: TT;
   title: TT;
   items?: Item[];
@@ -134,7 +155,6 @@ const SPREADS: Spread[] = [
     art: (
       <Frame>
         <Person x={168} y={172} s={1.7} pose="wave" />
-        {/* výstražná značka */}
         <g transform="translate(300 64)">
           <path d="M0 -26 L24 18 L-24 18 Z" {...line} />
           <path d="M0 -10 L0 6" {...line} strokeWidth={6} />
@@ -145,8 +165,8 @@ const SPREADS: Spread[] = [
     kicker: { cs: "ART. NO. 1-986-400 · HOMO SAPIENS", en: "ART. NO. 1-986-400 · HOMO SAPIENS" },
     title: { cs: "Manuál na život", en: "Life Manual" },
     note: {
-      cs: "DŮLEŽITÉ — přečíst před použitím, ideálně před narozením. Při nedodržení hrozí ztráta záruky. (Záruku stejně nikdo nečte.)",
-      en: "IMPORTANT — read before use, ideally before birth. Non-compliance may void the warranty. (Nobody reads the warranty anyway.)",
+      cs: "DŮLEŽITÉ — přečíst před použitím. Při nedodržení návodu hrozí ztráta záruky.",
+      en: "IMPORTANT — read before use. Failure to follow the manual may void the warranty.",
     },
   },
 
@@ -167,66 +187,42 @@ const SPREADS: Spread[] = [
     kicker: { cs: "VAROVÁNÍ", en: "WARNING" },
     title: { cs: "Dodáváno tak, jak je", en: "Delivered as-is" },
     items: [
-      { text: { cs: "Křivý nos, jedna noha delší", en: "Crooked nose, one leg longer" } },
-      { text: { cs: "Trapné vzpomínky vyskakující ve 3 ráno", en: "Cringe memories popping up at 3 a.m." } },
-      { text: { cs: "Občas vydává podivné zvuky", en: "Occasionally makes odd noises" } },
+      { text: { cs: "Přijetím tohoto kusu souhlasíš se všemi výrobními vadami.", en: "By accepting this unit you agree to all manufacturing defects." } },
+      { text: { cs: "Po převzetí již reklamace není možná.", en: "After acceptance, returns are no longer possible." } },
     ],
-    note: {
-      cs: "Přijetím tohoto kusu souhlasíš se všemi výrobními vadami. Reklamace neuznáváme — každý exemplář je originál.",
-      en: "By accepting this unit you agree to all defects. No returns — every unit is an original.",
-    },
   },
 
-  /* 2 — obsah balení */
+  /* 2 — obsah balení (kusovník přes obě stránky) */
   {
     tag: "i",
-    art: (
-      <Frame>
-        <Person x={92} y={170} s={1.05} pose="stand" />
-        <NumBadge x={92} y={70} n={1} r={13} />
-        <Heart x={196} y={86} s={1.5} />
-        <NumBadge x={170} y={58} n={1} r={11} />
-        {/* mozek */}
-        <path d="M250 86 q-6 -24 18 -22 q24 -2 22 18 q12 12 -4 24 q-12 16 -26 2 q-20 -4 -10 -22" transform="translate(8 0)" {...line} strokeWidth={4.5} />
-        <text x={278} y={120} fontSize={13} textAnchor="middle" fill="currentColor" stroke="none">86 mld.</text>
-        {/* kost */}
-        <path transform="translate(168 214)" d="M-30 0 q-12 -9 -2 -14 q9 -5 9 5 l36 0 q0 -10 9 -5 q10 5 -2 14 q12 9 2 14 q-9 5 -9 -5 l-36 0 q0 10 -9 5 q-10 -5 2 -14 Z" {...line} strokeWidth={4.5} />
-        <text x={168} y={250} fontSize={13} textAnchor="middle" fill="currentColor" stroke="none">206×</text>
-        {/* chybějící návod */}
-        <rect x={250} y={188} width={56} height={64} rx={6} {...line} strokeWidth={3.5} />
-        <Ex x={278} y={220} s={0.9} />
-        <text x={278} y={270} fontSize={12} textAnchor="middle" fill="currentColor" stroke="none">0× návod</text>
-      </Frame>
-    ),
+    kind: "parts",
     kicker: { cs: "OBSAH BALENÍ", en: "IN THE BOX" },
     title: { cs: "Co najdeš uvnitř", en: "What's inside" },
     items: [
-      { lead: "1×", text: { cs: "tělo · ~37 bilionů buněk", en: "body · ~37 trillion cells" } },
-      { lead: "1×", text: { cs: "srdce · ~100 000 úderů za den", en: "heart · ~100,000 beats a day" } },
-      { lead: "86mld", text: { cs: "neuronů · návod k obsluze nepřiložen", en: "neurons · operating manual not included" } },
-      { lead: "206×", text: { cs: "kostí · novorozenec jich má ~300", en: "bones · newborns ship with ~300" } },
-      { lead: "0–150k", text: { cs: "vlasů · dle modelu, úbytek bez záruky", en: "hairs · by model, loss not covered" } },
+      { icon: <IconCells />, lead: "37 bil.", text: { cs: "buněk · z nich jsi celý poskládaný", en: "cells · the whole you is assembled from them" } },
+      { icon: <IconOrgans />, lead: "5+", text: { cs: "orgánů · srdce, 2× ledviny, 2× plíce, játra, mozek…", en: "organs · heart, 2 kidneys, 2 lungs, liver, brain…" } },
+      { icon: <IconBrain />, lead: "86 mld", text: { cs: "neuronů · samostatný návod je v tiskárně, dorazí později", en: "neurons · separate manual is at the printer, arriving later" } },
+      { icon: <IconBone />, lead: "206×", text: { cs: "kostí · novorozenec jich má ~300, časem srostou", en: "bones · a newborn has ~300, they fuse over time" } },
+      { icon: <IconBlood />, lead: "0,3→5 l", text: { cs: "krve · od novorozence po dospělého", en: "blood · from newborn to adult" } },
+      { icon: <IconHair />, lead: "0–150k", text: { cs: "vlasů · dle modelu; úbytek bez záruky", en: "hairs · by model; loss not covered" } },
     ],
     note: {
-      cs: "Vše už je uvnitř. Návod chybí schválně — sestavuješ se za plného provozu.",
-      en: "It's all inside already. The manual is missing on purpose — you assemble yourself at full speed.",
+      cs: "Standardně dodáván s plným žaludkem. V případě vrácení (není možné) opět vraťte s plným žaludkem.",
+      en: "Ships with a full stomach as standard. If returned (not possible), please return with a full stomach.",
     },
   },
 
-  /* 3 — palivo */
+  /* 3 — palivo / strava */
   {
     tag: "01",
     art: (
       <Frame>
-        {/* sklenice */}
         <g transform="translate(96 150)">
           <path d="M-30 -56 L-22 56 Q-20 64 0 64 Q20 64 22 56 L30 -56 Z" {...line} />
           <path d="M-25 -6 Q-12 8 0 -6 Q12 -20 25 -6 L22 56 Q20 64 0 64 Q-20 64 -22 56 Z" fill="currentColor" fillOpacity={0.08} stroke="none" />
           <text x={0} y={-72} fontSize={20} textAnchor="middle" fill="currentColor" stroke="none" style={display}>2–4 L</text>
         </g>
-        {/* vidlička */}
         <path d="M210 96 v34 M200 96 v16 q0 7 10 7 q10 0 10 -7 v-16 M210 137 v123" {...line} strokeWidth={4.5} />
-        {/* baterie + blesk */}
         <g transform="translate(296 196)">
           <rect x={-44} y={-26} width={80} height={56} rx={9} {...line} />
           <rect x={36} y={-10} width={10} height={24} rx={3} {...line} />
@@ -237,67 +233,68 @@ const SPREADS: Spread[] = [
     kicker: { cs: "ÚDRŽBA · PALIVO", en: "UPKEEP · FUEL" },
     title: { cs: "Doplňování energie", en: "Refuelling" },
     items: [
-      { lead: "2–4 l", text: { cs: "tekutin denně · voda / pivo / kola dle modelu", en: "fluids a day · water / beer / cola by model" } },
-      { lead: "~2000", text: { cs: "kcal denně · doplňuj pravidelně", en: "kcal a day · top up regularly" } },
+      { lead: "2–4 l", text: { cs: "tekutin denně · voda promazává vše od mozku po klouby", en: "fluids a day · water keeps everything from brain to joints running" } },
+      { lead: "vláknina", text: { cs: "zelenina a celozrnné · krmí střevní bakterie (tvé druhé já)", en: "veg and whole grains · feed your gut bacteria (your second self)" } },
+      { lead: "bílkoviny", text: { cs: "maso, ryby, luštěniny · stavební díly svalů a oprav", en: "meat, fish, legumes · building blocks for muscle and repair" } },
+      { lead: "omega-3", text: { cs: "ryby a ořechy · mazivo pro mozek", en: "fish and nuts · oil for the brain" } },
+      { lead: "vit. D", text: { cs: "slunce, ~15 min denně · nálada a imunita", en: "sunlight, ~15 min a day · mood and immunity" } },
     ],
     note: {
-      cs: "Prázdná nádrž = podrážděnost (tzv. hlad-vztek). Resetuje se doplněním — pozor, na koho ji stihneš vylít.",
-      en: "Empty tank = irritability (so-called hanger). Resets on refill — mind who you snap at first.",
+      cs: "Žádné palivo není zakázané — jde o poměr. Zhruba 80 % rozumně, 20 % pro radost.",
+      en: "No fuel is forbidden — it's about the ratio. Roughly 80% sensible, 20% for joy.",
     },
   },
 
-  /* 4 — hibernace */
+  /* 4 — hibernace / odpočinek / vyhoření */
   {
     tag: "02",
     art: (
       <Frame>
-        {/* postel */}
         <g transform="translate(180 196)">
           <path d="M-120 0 L120 0 M-120 0 L-120 -30 M120 0 L120 -52 M-120 -34 L70 -34 Q120 -34 120 16" {...line} />
           <rect x={-112} y={-58} width={64} height={26} rx={9} {...line} strokeWidth={4} />
           <circle cx={-30} cy={-48} r={17} {...solid} strokeWidth={4} />
           <path d="M-13 -48 Q60 -56 110 -16" {...line} strokeWidth={4.5} />
         </g>
-        {/* Zzz */}
         <text x={190} y={86} fontSize={30} textAnchor="middle" fill="currentColor" stroke="none" style={display}>z z Z</text>
-        {/* měsíc */}
         <path d="M300 70 a26 26 0 1 0 8 36 a20 20 0 1 1 -8 -36" {...line} strokeWidth={4.5} />
       </Frame>
     ),
     kicker: { cs: "PROVOZNÍ REŽIM", en: "OPERATING MODE" },
-    title: { cs: "Hibernace", en: "Hibernation" },
+    title: { cs: "Hibernace a chlazení", en: "Hibernation & cooling" },
     items: [
-      { lead: "16 h", text: { cs: "provozu, pak odlož ke spánku", en: "of operation, then set down to sleep" } },
-      { lead: "7–9 h", text: { cs: "na matraci, ve tmě a tichu", en: "on a mattress, in the dark and quiet" } },
+      { lead: "16 h", text: { cs: "provozu → pak 7–9 h na matraci, ve tmě a tichu", en: "of operation → then 7–9 h on a mattress, dark and quiet" } },
+      { lead: "20 min", text: { cs: "šlofík přes den dobije výkon při přetížení", en: "a daytime nap recharges output when overloaded" } },
+      { lead: "PAUZA", text: { cs: "po těžké zátěži nech vychladnout — nejede se na 100 % pořád", en: "after heavy load let it cool down — you can't run at 100% nonstop" } },
     ],
     note: {
-      cs: "Matrace není součástí balení. Bez hibernace přestává spolehlivě fungovat paměť, nálada i imunita.",
-      en: "Mattress not included. Skip it and memory, mood and immunity stop working reliably.",
+      cs: "Stoupá-li z uší kouř, jde o přehřátí (tzv. vyhoření). Okamžitě odpojit od sítě (práce, notifikace) a nechat vychladnout. Restart může trvat týdny.",
+      en: "If smoke rises from the ears, it's overheating (so-called burnout). Unplug from the grid (work, notifications) at once and let it cool. A restart can take weeks.",
     },
   },
 
-  /* 5 — vhodné zacházení */
+  /* 5 — zacházení (jemně, cute) */
   {
     tag: "03",
     art: (
       <Frame>
-        <Person x={104} y={186} s={1.2} pose="side" />
-        <Person x={256} y={186} s={1.2} pose="side" />
-        <Heart x={180} y={96} s={2} />
-        <Arrow d="M138 96 Q180 70 222 96" />
-        <FragileGlass x={180} y={236} s={1.5} />
+        <Person x={104} y={188} s={1.2} pose="side" />
+        <Person x={256} y={188} s={1.2} pose="side" />
+        <Heart x={180} y={92} s={2.1} />
+        <Arrow d="M138 94 Q180 66 222 94" />
+        <Heart x={180} y={238} s={1.1} />
       </Frame>
     ),
     kicker: { cs: "ZACHÁZENÍ", en: "HANDLING" },
-    title: { cs: "Křehké. Opatrně.", en: "Fragile. Handle with care." },
+    title: { cs: "Křehké. S láskou.", en: "Fragile. With love." },
     items: [
-      { mark: "check", text: { cs: "Chovej se k druhým tak, jak chceš, ať se chovají k tobě", en: "Treat others the way you want to be treated" } },
-      { mark: "check", text: { cs: "Skladuj v suchu, podávej s laskavostí", en: "Keep dry, hand over with kindness" } },
-      { mark: "cross", text: { cs: "Neházet. Neporovnávat s ostatními kusy", en: "Do not throw. Do not compare with other units" } },
+      { mark: "check", text: { cs: "Drž v teple a mluv laskavě — i sám na sebe", en: "Keep warm and speak kindly — to yourself too" } },
+      { mark: "check", text: { cs: "Pravidelně objímej; objetí opravdu snižuje stres", en: "Hug regularly; hugs really do lower stress" } },
+      { mark: "check", text: { cs: "Když je někomu smutno, stačí být blízko — nemusíš to spravit", en: "When someone is sad, just being near is enough — you don't have to fix it" } },
     ],
     note: {
-      cs: "Platí oboustranně — i ty jsi pro někoho křehký balík.",
-      en: "Works both ways — you're someone's fragile parcel too.",
+      cs: "Křehký je každý kus, i ten, co to nedává najevo. Buď na lidi (i na sebe) hodný.",
+      en: "Every unit is fragile, even the ones that hide it. Be gentle with people (and yourself).",
     },
   },
 
@@ -306,15 +303,12 @@ const SPREADS: Spread[] = [
     tag: "04",
     art: (
       <Frame>
-        {/* hlava z profilu */}
         <path d="M118 232 q-44 0 -44 -66 q0 -82 78 -82 q74 0 74 72 q0 30 -24 38 l3 38 z" {...line} />
-        {/* ozubené kolo */}
         <g transform="translate(150 150)" {...line} strokeWidth={4.5}>
           <circle cx={0} cy={0} r={24} />
           <circle cx={0} cy={0} r={9} />
           <path d="M0 -34 v10 M0 24 v10 M-34 0 h10 M24 0 h10 M-24 -24 l7 7 M17 17 l7 7 M24 -24 l-7 7 M-17 17 l-7 7" />
         </g>
-        {/* žárovka */}
         <g transform="translate(264 116)" {...line} strokeWidth={4.5}>
           <circle cx={0} cy={0} r={24} />
           <path d="M-11 26 h22 M-8 34 h16" />
@@ -336,7 +330,64 @@ const SPREADS: Spread[] = [
     },
   },
 
-  /* 7 — spoj se */
+  /* 7 — známé chyby (biasy) */
+  {
+    tag: "!!",
+    art: (
+      <Frame>
+        <g transform="translate(180 150)">
+          <path d="M0 -80 L90 76 L-90 76 Z" {...line} />
+          <g transform="translate(0 26)">
+            <ellipse cx={0} cy={0} rx={26} ry={34} {...solid} />
+            <path d="M0 -34 V34" {...line} strokeWidth={4} />
+            <circle cx={0} cy={-42} r={11} {...solid} strokeWidth={4} />
+            <path d="M-6 -51 q-8 -10 -17 -10 M6 -51 q8 -10 17 -10" {...line} strokeWidth={3.5} />
+            <path d="M-26 -14 l-22 -8 M-26 4 l-24 0 M-26 20 l-22 11 M26 -14 l22 -8 M26 4 l24 0 M26 20 l22 11" {...line} strokeWidth={3.5} />
+          </g>
+        </g>
+      </Frame>
+    ),
+    kicker: { cs: "ZNÁMÉ SOFTWAROVÉ CHYBY", en: "KNOWN SOFTWARE BUGS" },
+    title: { cs: "Známé chyby v provozu", en: "Known bugs in operation" },
+    items: [
+      { lead: "!", text: { cs: "Váš člověk může mít tendenci vidět svět černobíle. Doporučujeme mu jednou za čas ukázat i ostatní barvy.", en: "Your human may tend to see the world in black and white. We recommend showing it the other colours from time to time." } },
+      { lead: "!", text: { cs: "Váš člověk si všímá hlavně toho, co potvrzuje jeho názor. Občas mu nabídněte i ten opačný.", en: "Your human mainly notices what confirms its opinion. Offer it the opposite one now and then." } },
+      { lead: "!", text: { cs: "U vašeho člověka přebije jedna kritika deset pochval. Připomínejte mu i to, co se povedlo.", en: "For your human, one criticism outweighs ten compliments. Remind it of what went well, too." } },
+    ],
+    note: {
+      cs: "Chyby nejdou odinstalovat — ale když o nich víš, dají se vědomě obejít.",
+      en: "The bugs can't be uninstalled — but once you know them, you can route around them on purpose.",
+    },
+  },
+
+  /* 8 — hop nebo trop (pokročilý režim / odemčení) */
+  {
+    tag: "+",
+    art: (
+      <Frame>
+        <g transform="translate(180 162)">
+          <path d="M-24 -20 v-22 a24 24 0 0 1 44 -10" {...line} strokeWidth={7} />
+          <rect x={-44} y={-20} width={88} height={76} rx={13} {...solid} />
+          <circle cx={0} cy={10} r={9} {...line} strokeWidth={4} />
+          <path d="M0 19 v15" {...line} strokeWidth={5} />
+          <path d="M58 -36 l0 -16 M50 -44 l16 0 M70 -16 l0 -10 M65 -21 l10 0 M-58 -30 l0 -12 M-64 -36 l12 0" {...line} strokeWidth={3.5} />
+        </g>
+      </Frame>
+    ),
+    kicker: { cs: "POKROČILÝ REŽIM", en: "ADVANCED MODE" },
+    title: { cs: "Hop, nebo trop", en: "Go big or go home" },
+    items: [
+      { lead: "+", text: { cs: "Dlouhodobé uvažování · rozhodovat se pro budoucí já, ne jen pro teď", en: "Long-term thinking · decide for your future self, not just for now" } },
+      { lead: "+", text: { cs: "Empatie · umět se podívat očima druhých", en: "Empathy · seeing through other people's eyes" } },
+      { lead: "+", text: { cs: "Vděčnost · všímat si toho, co už funguje", en: "Gratitude · noticing what already works" } },
+    ],
+    note: {
+      cs: "POZOR: učením pokročilých dovedností se z vašeho člověka může stát lepší člověk. Jde o neautorizované odemčení (tzv. rooting), takže záruka tím propadá. Riskujete na vlastní nebezpečí.",
+      en: "WARNING: teaching advanced skills may turn your human into a better person. This counts as an unauthorised unlock (so-called rooting), which voids the warranty. Proceed at your own risk.",
+    },
+  },
+
+  /* 9 — spoj se */
   {
     tag: "05",
     art: (
@@ -351,12 +402,12 @@ const SPREADS: Spread[] = [
     kicker: { cs: "ZAPOJENÍ", en: "CONNECTION" },
     title: { cs: "Spoj se s ostatními kusy", en: "Connect with other units" },
     note: {
-      cs: "Nejdelší studie o štěstí (Harvard, 85+ let) má jediný hlavní závěr: nerozhodují peníze ani sláva, ale kvalita vztahů. Týká se i toho introvertního modelu.",
-      en: "The longest happiness study (Harvard, 85+ years) has one main finding: not money or fame, but the quality of your relationships. Even the introverted model.",
+      cs: "Nejdelší studie o štěstí (Harvard, 85+ let) má jediný hlavní závěr: nerozhodují peníze ani sláva, ale kvalita vztahů. Týká se i introvertního modelu — ten jen potřebuje míň kusů, ne žádné.",
+      en: "The longest happiness study (Harvard, 85+ years) has one main finding: not money or fame, but the quality of your relationships. Even the introverted model — it just needs fewer units, not none.",
     },
   },
 
-  /* 8 — když to praskne */
+  /* 10 — když to praskne */
   {
     tag: "06",
     art: (
@@ -373,12 +424,12 @@ const SPREADS: Spread[] = [
     kicker: { cs: "OPRAVA", en: "REPAIR" },
     title: { cs: "Když se něco zlomí", en: "When something breaks" },
     note: {
-      cs: "Rozbité a křivé díly patří k výrobku. Nereklamuj je — slep je časem a odpočinkem a sestavuj dál. Praskliny mimochodem pouštějí dovnitř světlo.",
-      en: "Broken and bent parts come with the product. Don't return them — glue them with time and rest, and keep going. Cracks, by the way, let the light in.",
+      cs: "Rozbité a křivé díly patří k výrobku. Nereklamuj je — slep je časem a odpočinkem a sestavuj dál. Praskliny mimochodem pouštějí dovnitř světlo (a dělají lepší historky).",
+      en: "Broken and bent parts come with the product. Don't return them — glue them with time and rest, and keep going. Cracks, by the way, let the light in (and make better stories).",
     },
   },
 
-  /* 9 — hotovo */
+  /* 11 — hotovo */
   {
     tag: "✓",
     art: (
@@ -416,7 +467,7 @@ function FitText({ dep, children, className = "" }: { dep: string; children: Rea
       if (!o || !i) return;
       const avail = o.clientHeight;
       const need = i.scrollHeight;
-      const next = need > avail && need > 0 ? Math.max(0.62, (avail - 2) / need) : 1;
+      const next = need > avail && need > 0 ? Math.max(0.6, (avail - 2) / need) : 1;
       setScale((p) => (Math.abs(p - next) < 0.01 ? p : next));
     };
     measure();
@@ -441,26 +492,19 @@ function PageShell({ side, children }: { side: "L" | "R"; children: React.ReactN
   return (
     <div className="relative h-full w-full bg-white overflow-hidden">
       {children}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 w-24"
+      <div aria-hidden className="pointer-events-none absolute inset-y-0 w-24"
         style={side === "L"
           ? { right: 0, background: "linear-gradient(to right, rgba(0,0,0,0) 50%, rgba(20,20,20,0.12))" }
-          : { left: 0, background: "linear-gradient(to left, rgba(0,0,0,0) 50%, rgba(20,20,20,0.12))" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 w-8"
+          : { left: 0, background: "linear-gradient(to left, rgba(0,0,0,0) 50%, rgba(20,20,20,0.12))" }} />
+      <div aria-hidden className="pointer-events-none absolute inset-y-0 w-8"
         style={side === "L"
           ? { left: 0, background: "linear-gradient(to left, rgba(0,0,0,0), rgba(20,20,20,0.05))" }
-          : { right: 0, background: "linear-gradient(to right, rgba(0,0,0,0), rgba(20,20,20,0.05))" }}
-      />
+          : { right: 0, background: "linear-gradient(to right, rgba(0,0,0,0), rgba(20,20,20,0.05))" }} />
     </div>
   );
 }
 
 function FaceHeader({ left, tag, n }: { left: boolean; tag?: string; n: number }) {
-  const num = `${String(n).padStart(2, "0")} / ${String(TOTAL).padStart(2, "0")}`;
   return (
     <>
       <div className="flex items-center justify-between text-[#1A1A1A]/60 shrink-0">
@@ -472,7 +516,7 @@ function FaceHeader({ left, tag, n }: { left: boolean; tag?: string; n: number }
         ) : (
           <>
             <span className="text-[10px] tracking-[0.18em] uppercase">Návod · Manual</span>
-            <span className="text-xs tabular-nums" style={display}>{num}</span>
+            <span className="text-xs tabular-nums" style={display}>{String(n).padStart(2, "0")} / {String(TOTAL).padStart(2, "0")}</span>
           </>
         )}
       </div>
@@ -481,12 +525,32 @@ function FaceHeader({ left, tag, n }: { left: boolean; tag?: string; n: number }
   );
 }
 
+function Title({ sp, lang, cover }: { sp: Spread; lang: Lang; cover?: boolean }) {
+  return (
+    <>
+      <span className="block text-[11px] font-semibold uppercase tracking-[0.26em] text-[#1A1A1A]/55">{sp.kicker[lang]}</span>
+      <h2 className={`font-bold tracking-tight text-[#1A1A1A] mt-3 ${cover ? "text-5xl sm:text-6xl leading-[1.0]" : "text-3xl sm:text-4xl leading-[1.06]"}`} style={display}>
+        {sp.title[lang]}
+      </h2>
+    </>
+  );
+}
+
+function Note({ sp, lang, cover }: { sp: Spread; lang: Lang; cover?: boolean }) {
+  if (!sp.note) return null;
+  return (
+    <p className={`border-l-2 border-[#1A1A1A] pl-4 text-[#1A1A1A]/80 leading-relaxed ${cover ? "mt-7 text-lg sm:text-xl" : "mt-6 text-[15px] sm:text-base"}`}>
+      {sp.note[lang]}
+    </p>
+  );
+}
+
 function ItemList({ items, lang }: { items: Item[]; lang: Lang }) {
   return (
     <ul className="mt-6">
       {items.map((it, k) => (
         <li key={k} className={`flex items-baseline gap-4 py-2.5 ${k > 0 ? "border-t border-[#1A1A1A]/10" : ""}`}>
-          <span className="shrink-0 w-[3.6rem] text-right font-bold text-[#1A1A1A] text-sm tabular-nums" style={display}>
+          <span className="shrink-0 w-[3.4rem] text-right font-bold text-[#1A1A1A] text-sm tabular-nums" style={display}>
             {it.mark === "check" ? "✓" : it.mark === "cross" ? "✗" : it.lead ?? "—"}
           </span>
           <span className="text-[15px] sm:text-base leading-snug text-[#1A1A1A]/90">{it.text[lang]}</span>
@@ -496,25 +560,34 @@ function ItemList({ items, lang }: { items: Item[]; lang: Lang }) {
   );
 }
 
-function TextBody({ sp, lang, cover }: { sp: Spread; lang: Lang; cover?: boolean }) {
+function PartRows({ items, lang }: { items: Item[]; lang: Lang }) {
   return (
-    <>
-      <span className="block text-[11px] font-semibold uppercase tracking-[0.26em] text-[#1A1A1A]/55">{sp.kicker[lang]}</span>
-      <h2 className={`font-bold tracking-tight text-[#1A1A1A] mt-3 ${cover ? "text-5xl sm:text-6xl leading-[1.0]" : "text-3xl sm:text-4xl leading-[1.06]"}`} style={display}>
-        {sp.title[lang]}
-      </h2>
-      {sp.items && <ItemList items={sp.items} lang={lang} />}
-      {sp.note && (
-        <p className={`border-l-2 border-[#1A1A1A] pl-4 text-[#1A1A1A]/80 leading-relaxed ${cover ? "mt-7 text-lg sm:text-xl" : "mt-6 text-[15px] sm:text-base"}`}>
-          {sp.note[lang]}
-        </p>
-      )}
-    </>
+    <ul className="mt-5">
+      {items.map((it, k) => (
+        <li key={k} className={`flex items-center gap-3 sm:gap-4 py-2.5 ${k > 0 ? "border-t border-[#1A1A1A]/10" : ""}`}>
+          <span className="w-9 h-9 sm:w-11 sm:h-11 shrink-0 text-[#1A1A1A]">{it.icon}</span>
+          <span className="w-[3.8rem] shrink-0 font-bold text-[#1A1A1A] text-[13px] tabular-nums" style={display}>{it.lead}</span>
+          <span className="text-[14px] sm:text-[15px] leading-snug text-[#1A1A1A]/90">{it.text[lang]}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
-/** Levý list — ilustrace. */
-function LeftFace({ sp }: { sp: Spread }) {
+/** Levý list. */
+function LeftFace({ sp, lang }: { sp: Spread; lang: Lang }) {
+  if (sp.kind === "parts") {
+    const half = Math.ceil((sp.items ?? []).length / 2);
+    return (
+      <div className="flex h-full flex-col px-7 sm:px-12 py-7 sm:py-9 overflow-hidden">
+        <FaceHeader left tag={sp.tag} n={0} />
+        <FitText dep={`pl-${sp.tag}-${lang}`} className="mt-1">
+          <Title sp={sp} lang={lang} />
+          <PartRows items={(sp.items ?? []).slice(0, half)} lang={lang} />
+        </FitText>
+      </div>
+    );
+  }
   return (
     <div className="flex h-full flex-col px-7 sm:px-12 py-7 sm:py-9">
       <FaceHeader left tag={sp.tag} n={0} />
@@ -525,26 +598,49 @@ function LeftFace({ sp }: { sp: Spread }) {
   );
 }
 
-/** Pravý list — text. */
+/** Pravý list. */
 function RightFace({ sp, lang, n }: { sp: Spread; lang: Lang; n: number }) {
   return (
     <div className="flex h-full flex-col px-7 sm:px-14 py-7 sm:py-9 overflow-hidden">
       <FaceHeader left={false} n={n} />
-      <FitText dep={`${n}-${lang}`} className="mt-1">
-        <TextBody sp={sp} lang={lang} cover={sp.cover} />
+      <FitText dep={`r-${n}-${lang}`} className="mt-1">
+        {sp.kind === "parts" ? (
+          <>
+            <PartRows items={(sp.items ?? []).slice(Math.ceil((sp.items ?? []).length / 2))} lang={lang} />
+            <Note sp={sp} lang={lang} />
+          </>
+        ) : (
+          <>
+            <Title sp={sp} lang={lang} cover={sp.cover} />
+            {sp.items && <ItemList items={sp.items} lang={lang} />}
+            <Note sp={sp} lang={lang} cover={sp.cover} />
+          </>
+        )}
       </FitText>
     </div>
   );
 }
 
-/** Mobil — celé téma na jeden list (ilustrace + text), bez rolování. */
+/** Mobil — celé téma na jeden list, bez rolování. */
 function MobileFace({ sp, lang, n }: { sp: Spread; lang: Lang; n: number }) {
   return (
     <div className="flex h-full flex-col px-6 py-6 overflow-hidden">
       <FaceHeader left={false} n={n} />
       <FitText dep={`m-${n}-${lang}`}>
-        <div className="text-[#1A1A1A] mx-auto w-full max-w-[300px] mb-5">{sp.art}</div>
-        <TextBody sp={sp} lang={lang} cover={sp.cover} />
+        {sp.kind === "parts" ? (
+          <>
+            <Title sp={sp} lang={lang} />
+            <PartRows items={sp.items ?? []} lang={lang} />
+            <Note sp={sp} lang={lang} />
+          </>
+        ) : (
+          <>
+            {sp.art && <div className="text-[#1A1A1A] mx-auto w-full max-w-[280px] mb-5">{sp.art}</div>}
+            <Title sp={sp} lang={lang} cover={sp.cover} />
+            {sp.items && <ItemList items={sp.items} lang={lang} />}
+            <Note sp={sp} lang={lang} cover={sp.cover} />
+          </>
+        )}
       </FitText>
     </div>
   );
@@ -552,11 +648,8 @@ function MobileFace({ sp, lang, n }: { sp: Spread; lang: Lang; n: number }) {
 
 function FlipShade({ side }: { side: "L" | "R" }) {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0"
-      style={{ background: side === "R" ? "linear-gradient(to left, rgba(20,20,20,0.16), rgba(0,0,0,0) 45%)" : "linear-gradient(to right, rgba(20,20,20,0.16), rgba(0,0,0,0) 45%)" }}
-    />
+    <div aria-hidden className="pointer-events-none absolute inset-0"
+      style={{ background: side === "R" ? "linear-gradient(to left, rgba(20,20,20,0.16), rgba(0,0,0,0) 45%)" : "linear-gradient(to right, rgba(20,20,20,0.16), rgba(0,0,0,0) 45%)" }} />
   );
 }
 
@@ -644,7 +737,7 @@ export function LifeManual({ lang }: { lang: Lang }) {
         >
           {twoUp ? (
             <div className="relative w-full h-full flex shadow-[0_30px_70px_-32px_rgba(0,0,0,0.5)]" style={{ perspective: "2600px" }}>
-              <div className="relative w-1/2 h-full"><PageShell side="L"><LeftFace sp={leftSp} /></PageShell></div>
+              <div className="relative w-1/2 h-full"><PageShell side="L"><LeftFace sp={leftSp} lang={lang} /></PageShell></div>
               <div className="relative w-1/2 h-full"><PageShell side="R"><RightFace sp={rightSp} lang={lang} n={rightN} /></PageShell></div>
               <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[#1A1A1A]/25 z-10 pointer-events-none" />
 
@@ -665,12 +758,12 @@ export function LifeManual({ lang }: { lang: Lang }) {
                   <div className="absolute inset-0" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}>
                     {flip === 1
                       ? <PageShell side="R"><RightFace sp={SPREADS[s]} lang={lang} n={s + 1} /></PageShell>
-                      : <PageShell side="L"><LeftFace sp={SPREADS[s]} /></PageShell>}
+                      : <PageShell side="L"><LeftFace sp={SPREADS[s]} lang={lang} /></PageShell>}
                     <FlipShade side={flip === 1 ? "R" : "L"} />
                   </div>
                   <div className="absolute inset-0" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
                     {flip === 1
-                      ? <PageShell side="L"><LeftFace sp={SPREADS[s + 1]} /></PageShell>
+                      ? <PageShell side="L"><LeftFace sp={SPREADS[s + 1]} lang={lang} /></PageShell>
                       : <PageShell side="R"><RightFace sp={SPREADS[s - 1]} lang={lang} n={s} /></PageShell>}
                     <FlipShade side={flip === 1 ? "L" : "R"} />
                   </div>
