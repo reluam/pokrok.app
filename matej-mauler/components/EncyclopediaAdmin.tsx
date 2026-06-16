@@ -9,7 +9,7 @@ import type { Suggestion } from "@/app/api/admin/ency/suggest/route";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const sans = "var(--font-sans)";
-const REALM_LABEL: Record<string, string> = { space: "🌌 Vesmír", plain: "📖 Obecné", hitchhiker: "📖 Stopař", futurama: "🚀 Futurama", simpsons: "🏠 Simpsonovi", reddwarf: "🛰️ Red Dwarf", southpark: "⛄ South Park", office: "📄 The Office", topgear: "🏎️ Top Gear", rickmorty: "🛸 Rick & Morty" };
+const REALM_LABEL: Record<string, string> = { space: "🌌 Universe", plain: "📖 General", hitchhiker: "📖 Hitchhiker", futurama: "🚀 Futurama", simpsons: "🏠 The Simpsons", reddwarf: "🛰️ Red Dwarf", southpark: "⛄ South Park", office: "📄 The Office", topgear: "🏎️ Top Gear", rickmorty: "🛸 Rick & Morty" };
 
 type Wish = { slug: string; votes: number };
 
@@ -21,7 +21,7 @@ function StatCard({ label, value, emoji }: { label: string; value: number; emoji
   return (
     <div style={{ background: "#fff", border: "2.5px solid var(--border)", borderRadius: "16px", boxShadow: "4px 4px 0 var(--border)", padding: "18px 22px" }}>
       <p style={{ fontSize: "22px", marginBottom: "6px" }}>{emoji}</p>
-      <p style={{ ...display, fontSize: "30px", fontWeight: 900, lineHeight: 1 }}>{value.toLocaleString("cs-CZ")}</p>
+      <p style={{ ...display, fontSize: "30px", fontWeight: 900, lineHeight: 1 }}>{value.toLocaleString("en-US")}</p>
       <p style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)", marginTop: "4px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</p>
     </div>
   );
@@ -51,10 +51,10 @@ export function EncyclopediaAdmin({ wishes, suggestions: initial }: { wishes: Wi
     try {
       const res = await fetch("/api/admin/ency/suggest", { method: "POST" });
       const j = await res.json();
-      if (!res.ok) throw new Error(j.error ?? "Chyba");
+      if (!res.ok) throw new Error(j.error ?? "Error");
       setSuggestions(j.suggestions);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Chyba");
+      setError(e instanceof Error ? e.message : "Error");
     }
     setThinking(false);
   };
@@ -72,15 +72,15 @@ export function EncyclopediaAdmin({ wishes, suggestions: initial }: { wishes: Wi
           <span style={{ fontSize: "24px" }}>🍝</span>
           <div>
             <h1 style={{ ...display, fontSize: "20px", fontWeight: 900, lineHeight: 1 }}>Spaghetti HQ</h1>
-            <p style={{ fontFamily: sans, fontSize: "11px", color: "var(--text-muted)" }}>Encyklopedie — content management</p>
+            <p style={{ fontFamily: sans, fontSize: "11px", color: "var(--text-muted)" }}>Encyclopedia — content management</p>
           </div>
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-          {[["/admin", "Přehled →"], ["/mapa", "Mapa →"], ["/admin/brain", "Synapse →"], ["/admin/vvv", "VVV →"], ["/admin/experiments", "Experimenty →"], ["/admin/songs", "Songs →"]].map(([href, label]) => (
+          {[["/admin", "Overview →"], ["/mapa", "Map →"], ["/admin/brain", "Synapse →"], ["/admin/vvv", "VVV →"], ["/admin/experiments", "Experiments →"], ["/admin/songs", "Songs →"]].map(([href, label]) => (
             <Link key={href} href={href} style={{ fontFamily: sans, fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>{label}</Link>
           ))}
           <Link href="/" style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>← Spaghetti.ltd</Link>
-          <button onClick={logout} style={{ background: "transparent", color: "var(--text-muted)", border: "2px solid var(--border)", borderRadius: "8px", padding: "6px 14px", fontFamily: sans, fontSize: "12px", cursor: "pointer" }}>Odhlásit →</button>
+          <button onClick={logout} style={{ background: "transparent", color: "var(--text-muted)", border: "2px solid var(--border)", borderRadius: "8px", padding: "6px 14px", fontFamily: sans, fontSize: "12px", cursor: "pointer" }}>Log out →</button>
         </div>
       </div>
 
@@ -88,24 +88,24 @@ export function EncyclopediaAdmin({ wishes, suggestions: initial }: { wishes: Wi
 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: "14px", marginBottom: "28px" }}>
-          <StatCard label="Hesel" value={g.nodes.length - reds.length} emoji="📚" />
-          <StatCard label="Synapsí" value={g.edges.length} emoji="🍝" />
-          <StatCard label="Červených odkazů" value={reds.length} emoji="❓" />
-          <StatCard label="Přání" value={wishes.reduce((s, w) => s + w.votes, 0)} emoji="🙋" />
+          <StatCard label="Entries" value={g.nodes.length - reds.length} emoji="📚" />
+          <StatCard label="Synapses" value={g.edges.length} emoji="🍝" />
+          <StatCard label="Red links" value={reds.length} emoji="❓" />
+          <StatCard label="Wishes" value={wishes.reduce((s, w) => s + w.votes, 0)} emoji="🙋" />
         </div>
 
         {/* Claude návrhy */}
         <Card style={{ marginBottom: "28px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap", marginBottom: suggestions.length || error ? "14px" : 0 }}>
             <div style={{ flex: 1, minWidth: "220px" }}>
-              <p style={{ ...display, fontSize: "16px", fontWeight: 800 }}>🤖 Claude — návrhy propojení</p>
+              <p style={{ ...display, fontSize: "16px", fontWeight: 800 }}>🤖 Claude — connection suggestions</p>
               <p style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
-                Pošle Claudovi celý graf (hesla, synapse, červené odkazy, přání) a vrátí návrhy nových vazeb a témat. Spouštěj po přidání nového tématu. Graf žije v kódu — návrhy jsou zásobník na příští editaci.
+                Sends Claude the whole graph (entries, synapses, red links, wishes) and returns suggestions for new links and topics. Run it after adding a new topic. The graph lives in code — suggestions are a backlog for the next edit.
               </p>
             </div>
             <button onClick={suggest} disabled={thinking}
               style={{ background: "var(--text-primary)", color: "var(--bg)", border: "2px solid var(--text-primary)", borderRadius: "10px", boxShadow: "3px 3px 0 var(--text-primary)", padding: "9px 18px", fontFamily: sans, fontSize: "13px", fontWeight: 700, cursor: "pointer", opacity: thinking ? 0.55 : 1, flexShrink: 0 }}>
-              {thinking ? "Claude přemýšlí…" : "Navrhnout propojení →"}
+              {thinking ? "Claude is thinking…" : "Suggest connections →"}
             </button>
           </div>
           {error && <p style={{ fontFamily: sans, fontSize: "12px", color: "#b91c1c" }}>✗ {error}</p>}
@@ -114,33 +114,33 @@ export function EncyclopediaAdmin({ wishes, suggestions: initial }: { wishes: Wi
               <div key={s.id} style={{ border: "1.5px solid rgba(26,22,20,0.12)", borderRadius: "10px", padding: "10px 14px", display: "flex", gap: "12px", alignItems: "flex-start", flexWrap: "wrap" }}>
                 <div style={{ flex: 1, minWidth: "240px" }}>
                   <p style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700 }}>
-                    <Chip tone={s.kind === "topic" ? "red" : "side"}>{s.kind === "topic" ? "nové téma" : "synapse"}</Chip>
+                    <Chip tone={s.kind === "topic" ? "red" : "side"}>{s.kind === "topic" ? "new topic" : "synapse"}</Chip>
                     {" "}
                     <code style={{ fontSize: "12px" }}>{s.from_slug}</code> → <code style={{ fontSize: "12px" }}>{s.to_slug}</code>
                     {s.title && <span style={{ fontWeight: 600, color: "var(--text-secondary)" }}> · {s.title}</span>}
                   </p>
                   <p style={{ fontFamily: sans, fontSize: "12.5px", color: "var(--text-secondary)", lineHeight: 1.5, marginTop: "3px" }}>{s.reason}</p>
                 </div>
-                <button onClick={() => dismiss(s.id)} style={{ background: "#FEF2F2", color: "#b91c1c", border: "1.5px solid #FECACA", borderRadius: "8px", padding: "4px 10px", fontFamily: sans, fontSize: "11px", fontWeight: 600, cursor: "pointer" }}>Zahodit</button>
+                <button onClick={() => dismiss(s.id)} style={{ background: "#FEF2F2", color: "#b91c1c", border: "1.5px solid #FECACA", borderRadius: "8px", padding: "4px 10px", fontFamily: sans, fontSize: "11px", fontWeight: 600, cursor: "pointer" }}>Dismiss</button>
               </div>
             ))}
             {!suggestions.length && !error && !thinking && (
-              <p style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)" }}>Zatím žádné návrhy — klikni na tlačítko.</p>
+              <p style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)" }}>No suggestions yet — click the button.</p>
             )}
           </div>
         </Card>
 
         {/* Červené odkazy + přání */}
         <Card style={{ marginBottom: "28px" }}>
-          <p style={{ ...display, fontSize: "16px", fontWeight: 800, marginBottom: "10px" }}>❓ Červené odkazy (zásobník témat)</p>
+          <p style={{ ...display, fontSize: "16px", fontWeight: 800, marginBottom: "10px" }}>❓ Red links (topic backlog)</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "8px" }}>
             {reds.sort((a, b) => (wishMap[b.slug] ?? 0) - (wishMap[a.slug] ?? 0)).map((r) => (
               <div key={r.slug} style={{ border: "1.5px dashed rgba(26,22,20,0.25)", borderRadius: "10px", padding: "8px 12px" }}>
                 <p style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700 }}>
-                  {SEEDS[r.slug]?.cs ?? r.slug}
+                  {SEEDS[r.slug]?.en ?? SEEDS[r.slug]?.cs ?? r.slug}
                   {(wishMap[r.slug] ?? 0) > 0 && <span style={{ color: "#b45309", fontWeight: 700 }}> · 🙋 {wishMap[r.slug]}</span>}
                 </p>
-                <p style={{ fontFamily: sans, fontSize: "11px", color: "var(--text-muted)" }}>/{r.slug} · z: {r.parent ?? "—"}</p>
+                <p style={{ fontFamily: sans, fontSize: "11px", color: "var(--text-muted)" }}>/{r.slug} · from: {r.parent ?? "—"}</p>
               </div>
             ))}
           </div>
@@ -152,17 +152,17 @@ export function EncyclopediaAdmin({ wishes, suggestions: initial }: { wishes: Wi
           if (!list.length) return null;
           return (
             <Card key={realm} style={{ marginBottom: "20px" }}>
-              <p style={{ ...display, fontSize: "16px", fontWeight: 800, marginBottom: "12px" }}>{REALM_LABEL[realm]} <span style={{ fontFamily: sans, fontSize: "12px", fontWeight: 400, color: "var(--text-muted)" }}>· {list.length} hesel</span></p>
+              <p style={{ ...display, fontSize: "16px", fontWeight: 800, marginBottom: "12px" }}>{REALM_LABEL[realm]} <span style={{ fontFamily: sans, fontSize: "12px", fontWeight: 400, color: "var(--text-muted)" }}>· {list.length} entries</span></p>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {list.map((n) => (
                   <div key={n.slug} style={{ borderTop: "1px solid rgba(26,22,20,0.08)", paddingTop: "8px", display: "flex", gap: "10px", alignItems: "baseline", flexWrap: "wrap" }}>
-                    <Link href={`/${n.slug}`} target="_blank" style={{ fontFamily: sans, fontSize: "13.5px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none", minWidth: "150px" }}>{n.title.cs}</Link>
+                    <Link href={`/${n.slug}`} target="_blank" style={{ fontFamily: sans, fontSize: "13.5px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none", minWidth: "150px" }}>{n.title.en}</Link>
                     <span style={{ fontFamily: sans, fontSize: "11px", color: "var(--text-muted)" }}>/{n.slug}</span>
                     <span style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
-                      {n.up && <Chip tone="up">↑ {titleOf(n.up, "cs")}</Chip>}
-                      {n.next && <Chip tone="next">↓ {titleOf(n.next, "cs")}</Chip>}
+                      {n.up && <Chip tone="up">↑ {titleOf(n.up, "en")}</Chip>}
+                      {n.next && <Chip tone="next">↓ {titleOf(n.next, "en")}</Chip>}
                       {(n.satellites ?? []).map((s) => (
-                        <Chip key={s.to} tone={NODES[s.to] ? "side" : "red"}>{NODES[s.to] ? "→" : "?"} {titleOf(s.to, "cs")}</Chip>
+                        <Chip key={s.to} tone={NODES[s.to] ? "side" : "red"}>{NODES[s.to] ? "→" : "?"} {titleOf(s.to, "en")}</Chip>
                       ))}
                     </span>
                   </div>

@@ -3,7 +3,7 @@ import { getAllExperiments } from "@/lib/experimentsDb";
 import { getBrainStats, adminListWords, type AdminBrainWord } from "@/lib/brainDb";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Mozek — Spaghetti HQ" };
+export const metadata = { title: "Brain — Spaghetti HQ" };
 
 async function getData() {
   let published = 0, drafts = 0, words = 0, edges = 0, total = 0;

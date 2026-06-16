@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
     const titleCs = String(b.title_cs || "").trim();
     const titleEn = String(b.title_en || "").trim();
     const explicit = String(b.slug || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
-    if (stage !== "idea" && !b.href) return NextResponse.json({ error: "href povinné pro draft/publish" }, { status: 400 });
-    if (!explicit && !titleCs && !titleEn) return NextResponse.json({ error: "titul povinný" }, { status: 400 });
+    if (stage !== "idea" && !b.href) return NextResponse.json({ error: "href is required for draft/publish" }, { status: 400 });
+    if (!explicit && !titleCs && !titleEn) return NextResponse.json({ error: "title is required" }, { status: 400 });
     const slug = explicit || await uniqueSlug(titleCs || titleEn);
     await createExperiment({
       slug,

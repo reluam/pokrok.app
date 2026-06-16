@@ -1,7 +1,7 @@
 import { AdminDashboard, type Term, type Clarification } from "@/components/AdminDashboard";
 import { getDb } from "@/lib/db";
 
-export const metadata = { title: "VVV slovník — Spaghetti HQ" };
+export const metadata = { title: "VVV dictionary — Spaghetti HQ" };
 
 async function getStats() {
   try {

@@ -183,7 +183,8 @@ const T = {
    ════════════════════════════════════════════════════════════════ */
 export function BrainApp({ lang }: { lang: Lang }) {
   // jazyk appky: default podle hlavní stránky, ale jde přepnout kdykoliv a kdekoliv
-  const [appLang, setAppLang] = useState<Lang>(lang);
+  // Web je proteď pouze v angličtině — síť běží v jazyce stránky, bez přepínače.
+  const appLang = lang;
   const t = T[appLang];
   const [step, setStep] = useState<Step>("intro");
   const [stats, setStats] = useState<Stats | null>(null);
@@ -409,18 +410,6 @@ export function BrainApp({ lang }: { lang: Lang }) {
         </div>
       )}
 
-      {/* ── přepínač jazyka sítě — kdykoliv, kdekoliv; default podle hlavní stránky ── */}
-      <div style={{ position: "absolute", right: 16, bottom: 12, zIndex: 30, display: "flex", gap: 6 }}>
-        {(["cs", "en"] as const).map((l) => (
-          <button key={l} onClick={() => setAppLang(l)} aria-label={l === "cs" ? "Čeština" : "English"} style={{
-            background: appLang === l ? "var(--text-primary)" : "#fff",
-            color: appLang === l ? "var(--bg)" : "var(--text-primary)",
-            border: "2px solid var(--border)", borderRadius: 999, padding: "5px 12px",
-            ...sans, fontSize: 11.5, fontWeight: 700, cursor: "pointer",
-            boxShadow: "2px 2px 0 var(--shadow)",
-          }}>{l.toUpperCase()}</button>
-        ))}
-      </div>
     </main>
   );
 }

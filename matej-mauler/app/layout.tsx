@@ -25,13 +25,13 @@ const sans = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.spaghetti.ltd"),
   title: "Spaghetti.ltd",
-  description: "Máme špatné nápady a hromadu AI vůle je uskutečnit.",
+  description: "I have bad ideas and plenty of artificial willpower to build them.",
   icons: { icon: "/logo.svg" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="cs" className={`${display.variable} ${sans.variable} h-full`}>
+    <html lang="en" className={`${display.variable} ${sans.variable} h-full`}>
       <body className="min-h-full">
         {children}
         <Analytics />

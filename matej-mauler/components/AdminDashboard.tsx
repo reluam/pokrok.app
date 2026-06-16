@@ -17,7 +17,7 @@ export type Clarification = {
 type Stats = { terms: number; clarifications: number; votes: number };
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("cs-CZ", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function StatCard({ label, value, emoji }: { label: string; value: number; emoji: string }) {
@@ -28,7 +28,7 @@ function StatCard({ label, value, emoji }: { label: string; value: number; emoji
       padding: "20px 24px",
     }}>
       <p style={{ fontSize: "24px", marginBottom: "8px" }}>{emoji}</p>
-      <p style={{ ...display, fontSize: "32px", fontWeight: 900, lineHeight: 1 }}>{value.toLocaleString("cs-CZ")}</p>
+      <p style={{ ...display, fontSize: "32px", fontWeight: 900, lineHeight: 1 }}>{value.toLocaleString("en-US")}</p>
       <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginTop: "4px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</p>
     </div>
   );
@@ -49,7 +49,7 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
   };
 
   const deleteTerm = async (slug: string) => {
-    if (!confirm(`Smazat termín "${slug}" a všechna jeho upřesnění?`)) return;
+    if (!confirm(`Delete the term "${slug}" and all of its clarifications?`)) return;
     const res = await fetch(`/api/admin/vvv/terms/${slug}`, { method: "DELETE" });
     if (res.ok) {
       setTerms(prev => prev.filter(t => t.slug !== slug));
@@ -58,7 +58,7 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
   };
 
   const deleteClarif = async (id: number) => {
-    if (!confirm("Smazat toto upřesnění?")) return;
+    if (!confirm("Delete this clarification?")) return;
     const res = await fetch(`/api/admin/vvv/clarifications/${id}`, { method: "DELETE" });
     if (res.ok) setClarifs(prev => prev.filter(c => c.id !== id));
   };
@@ -68,7 +68,7 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
     setSeedMsg("");
     const res = await fetch("/api/vvv/setup", { method: "POST" });
     const j = await res.json();
-    setSeedMsg(res.ok ? `✓ Hotovo. Naseedováno ${j.seeded} termínů.` : `✗ Chyba: ${j.error}`);
+    setSeedMsg(res.ok ? `✓ Done. Seeded ${j.seeded} terms.` : `✗ Error: ${j.error}`);
     setSeeding(false);
   };
 
@@ -92,15 +92,15 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
           <span style={{ fontSize: "24px" }}>🍝</span>
           <div>
             <h1 style={{ ...display, fontSize: "20px", fontWeight: 900, lineHeight: 1 }}>Spaghetti HQ</h1>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)" }}>Admin rozhraní</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)" }}>Admin interface</p>
           </div>
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <Link href="/admin" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
-            ← Encyklopedie
+            ← Encyclopedia
           </Link>
           <Link href="/admin/experiments" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
-            Experimenty →
+            Experiments →
           </Link>
           <Link href="/admin/songs" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
             Songs →
@@ -114,7 +114,7 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
             padding: "6px 14px", fontFamily: "var(--font-sans)",
             fontSize: "12px", cursor: "pointer",
           }}>
-            Odhlásit →
+            Log out →
           </button>
         </div>
       </div>
@@ -123,21 +123,21 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "14px", marginBottom: "32px" }}>
-          <StatCard label="Termínů VVV" value={stats.terms} emoji="📚" />
-          <StatCard label="Upřesnění" value={stats.clarifications} emoji="✏️" />
-          <StatCard label="Celkem hlasů" value={stats.votes} emoji="👍" />
+          <StatCard label="VVV terms" value={stats.terms} emoji="📚" />
+          <StatCard label="Clarifications" value={stats.clarifications} emoji="✏️" />
+          <StatCard label="Total votes" value={stats.votes} emoji="👍" />
         </div>
 
         {/* DB Setup */}
         <div style={{ background: "#fff", border: "2px solid var(--border)", borderRadius: "14px", boxShadow: "3px 3px 0 var(--border)", padding: "16px 20px", marginBottom: "28px", display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
           <div>
-            <p style={{ ...display, fontSize: "15px", fontWeight: 700 }}>Inicializace databáze</p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)" }}>Vytvoří tabulky a naseeduje HHGG termíny (idempotentní)</p>
+            <p style={{ ...display, fontSize: "15px", fontWeight: 700 }}>Database initialization</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)" }}>Creates the tables and seeds the HHGG terms (idempotent)</p>
           </div>
           <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
             <button onClick={runSetup} disabled={seeding}
               style={{ background: "var(--text-primary)", color: "var(--bg)", border: "2px solid var(--text-primary)", borderRadius: "10px", boxShadow: "3px 3px 0 var(--text-primary)", padding: "8px 18px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, cursor: "pointer", opacity: seeding ? 0.5 : 1 }}>
-              {seeding ? "Spouštím..." : "Spustit setup →"}
+              {seeding ? "Running..." : "Run setup →"}
             </button>
             {seedMsg && <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: seedMsg.startsWith("✓") ? "#166534" : "#b91c1c" }}>{seedMsg}</p>}
           </div>
@@ -148,10 +148,10 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
           {(["terms", "clarifs"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               style={{ background: tab === t ? "var(--text-primary)" : "#fff", color: tab === t ? "var(--bg)" : "var(--text-primary)", border: "2px solid var(--border)", borderRadius: "10px", boxShadow: "2px 2px 0 var(--border)", padding: "8px 18px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
-              {t === "terms" ? `Termíny (${terms.length})` : `Upřesnění (${clarifs.length})`}
+              {t === "terms" ? `Terms (${terms.length})` : `Clarifications (${clarifs.length})`}
             </button>
           ))}
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Hledat..."
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..."
             style={{ flex: 1, minWidth: "180px", background: "#fff", border: "2px solid var(--border)", borderRadius: "10px", padding: "8px 14px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-primary)", outline: "none" }} />
         </div>
 
@@ -171,7 +171,7 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
                       {term.name}
                     </Link>
                     <span style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: term.source === "Komunita" ? "#D97706" : "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                      {term.source === "Komunita" ? "⚠️ komunita" : "HHGG"}
+                      {term.source === "Komunita" ? "⚠️ community" : "HHGG"}
                     </span>
                   </div>
                   <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", marginTop: "3px" }}>
@@ -180,12 +180,12 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
                 </div>
                 <button onClick={() => deleteTerm(term.slug)}
                   style={{ background: "#FEF2F2", color: "#b91c1c", border: "1.5px solid #FECACA", borderRadius: "8px", padding: "6px 12px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>
-                  Smazat
+                  Delete
                 </button>
               </div>
             ))}
             {filteredTerms.length === 0 && (
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-muted)", padding: "20px 0" }}>Žádné výsledky.</p>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-muted)", padding: "20px 0" }}>No results.</p>
             )}
           </div>
         )}
@@ -210,12 +210,12 @@ export function AdminDashboard({ stats, terms: initialTerms, clarifications: ini
                 </div>
                 <button onClick={() => deleteClarif(c.id)}
                   style={{ background: "#FEF2F2", color: "#b91c1c", border: "1.5px solid #FECACA", borderRadius: "8px", padding: "6px 12px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, cursor: "pointer", flexShrink: 0, alignSelf: "flex-start" }}>
-                  Smazat
+                  Delete
                 </button>
               </div>
             ))}
             {filteredClarifs.length === 0 && (
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-muted)", padding: "20px 0" }}>Žádná upřesnění.</p>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-muted)", padding: "20px 0" }}>No clarifications.</p>
             )}
           </div>
         )}

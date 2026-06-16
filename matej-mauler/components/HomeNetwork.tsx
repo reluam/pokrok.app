@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
 import { CATEGORIES } from "@/lib/experiments";
 import { SPAGHETTI_BLURB } from "@/lib/about";
@@ -74,7 +73,6 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
   if (mode === "browse") {
     return (
       <main style={{ background: "var(--bg)", minHeight: "100dvh" }}>
-        <LanguageSwitcher lang={lang} labels={dict.switcher} />
         <div className="browse-grid">
           <aside className="browse-side animate-fade-up">
             <button onClick={() => setMode("home")} className="sbtn" style={{ fontSize: 12, padding: "7px 15px", marginBottom: 18 }}>{t.back}</button>
@@ -104,7 +102,6 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
   const a = dict.about;
   return (
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
-      <LanguageSwitcher lang={lang} labels={dict.switcher} />
       <div className="max-w-[1100px] mx-auto px-5 md:px-8">
         {/* logo + název + popis */}
         <header className="pt-16 md:pt-20 pb-12 animate-fade-up">

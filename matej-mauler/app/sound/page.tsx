@@ -4,8 +4,8 @@ import { guardExperiment } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Cesta po zvukové vlně — Spaghetti.ltd",
-  description: "Interaktivní zvuková experience: tvůj kurzor je ucho. Scrolluj zvukem od chvění přes frekvenci a barvu až po ozvěnu.",
+  title: "A journey along a sound wave — Spaghetti.ltd",
+  description: "An interactive sound experience: your cursor is an ear. Scroll through sound from a tremble through frequency and timbre to an echo.",
 };
 
 export default async function SoundPage() {

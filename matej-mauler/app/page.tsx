@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: dictionaries.en.meta.description,
   alternates: {
     canonical: "/",
-    languages: { "x-default": "/", en: "/", cs: "/cs" },
+    languages: { "x-default": "/", en: "/" },
   },
 };
 
@@ -21,7 +21,7 @@ const jsonLd = {
   name: "Spaghetti.ltd",
   url: "https://www.spaghetti.ltd",
   description: "Interactive experiments and an encyclopedia connected by knowledge noodles — sound, music, a server-rendered radio, a public brain and more.",
-  inLanguage: ["cs", "en"],
+  inLanguage: "en",
 };
 
 export default async function Home() {

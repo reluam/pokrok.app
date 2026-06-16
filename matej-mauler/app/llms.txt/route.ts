@@ -20,7 +20,7 @@ export function GET() {
 
   const body = `# Spaghetti.ltd
 
-> Spaghetti.ltd is Matěj Mauler's playground of interactive web experiments plus an interactive encyclopedia connected by "knowledge noodles". Bilingual (Czech/English), free, no accounts, no ads.
+> Spaghetti.ltd is Matěj Mauler's playground of interactive web experiments plus an interactive encyclopedia connected by "knowledge noodles". In English, free, no accounts, no ads.
 
 Tagline: I have bad ideas and plenty of artificial willpower to build them.
 

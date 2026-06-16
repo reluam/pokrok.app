@@ -5,7 +5,7 @@ import { guardExperiment } from "@/lib/experimentsDb";
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Decision Maker — Spaghetti.ltd",
-  description: "Nástroj na rozhodování, když jsi zaseknutý na 50/50. Pro a proti s vahami, fyzikální přetahování a moment odříznutí (decidere).",
+  description: "A tool for deciding when you're stuck at 50/50. Pros and cons with weights, a physical tug-of-war and the moment of cutting off (decidere).",
   alternates: { canonical: "/decision-maker" },
 };
 

@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "The Encyclopedia — Spaghetti.ltd",
-  description: "Interaktivní encyklopedie propojená nudlemi poznání. Scrolluj z obecného do konkrétního, klikej do stran — vesmír, zvuk, hudba, Stopařův průvodce a další.",
+  description: "An interactive encyclopedia connected by noodles of knowledge. Scroll from the general to the specific, click sideways — the universe, sound, music, the Hitchhiker's Guide and more.",
   alternates: { canonical: "/encyclopedia" },
 };
 

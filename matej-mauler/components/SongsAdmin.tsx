@@ -13,14 +13,14 @@ type Draft = Partial<SongRow>;
 export type AdminMessage = { id: number; author: string; content: string; created_at: string; song_slug: string; song_title: string };
 
 function fmtMsgDate(iso: string) {
-  return new Date(iso).toLocaleDateString("cs-CZ", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow[]; initialMessages?: AdminMessage[] }) {
   const [rows, setRows] = useState<SongRow[]>(initial);
   const [messages, setMessages] = useState<AdminMessage[]>(initialMessages);
   const delMessage = async (id: number) => {
-    if (!confirm("Smazat zprávu?")) return;
+    if (!confirm("Delete this message?")) return;
     setMessages((m) => m.filter((x) => x.id !== id));
     await fetch(`/api/admin/songs/messages/${id}`, { method: "DELETE" });
   };
@@ -38,7 +38,7 @@ export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow
       const blob = await upload(`songs/${Date.now()}-${file.name}`, file, { access: "public", handleUploadUrl: "/api/admin/songs/upload" });
       setNeu((n) => ({ ...n, [key]: blob.url }));
     } catch (e) {
-      alert("Upload selhal: " + (e as Error).message);
+      alert("Upload failed: " + (e as Error).message);
     }
     setBusyFlag(false);
   };
@@ -49,19 +49,19 @@ export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow
   };
   const togglePub = (r: SongRow) => patch(r.slug, { published: !r.published });
   const del = async (slug: string) => {
-    if (!confirm(`Smazat song "${slug}"?`)) return;
+    if (!confirm(`Delete the song "${slug}"?`)) return;
     setRows((r) => r.filter((x) => x.slug !== slug));
     await fetch(`/api/admin/songs/${slug}`, { method: "DELETE" });
   };
   const startEdit = (r: SongRow) => { setEditing(r.slug); setDraft({ ...r }); };
   const saveEdit = async () => { if (!editing) return; await patch(editing, draft); setEditing(null); };
   const addNew = async () => {
-    if (!neu.title || !neu.audio_url) { alert("Vyplň aspoň název a odkaz na audio (mp3)."); return; }
+    if (!neu.title || !neu.audio_url) { alert("Fill in at least a title and an audio link (mp3)."); return; }
     setBusy(true);
     const res = await fetch("/api/admin/songs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(neu) });
     setBusy(false);
     if (res.ok) location.reload();
-    else alert("Nepodařilo se uložit.");
+    else alert("Could not save.");
   };
 
   const field = (label: string, key: keyof SongRow, d: Draft, set: (d: Draft) => void, ph = "", type = "text") => (
@@ -83,32 +83,32 @@ export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow
 
       <div style={{ maxWidth: "760px", margin: "0 auto", padding: "24px" }}>
         <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)", marginBottom: "16px" }}>
-          Draft = jen pro tebe. Publikováno = veřejně na /songs i v náhledu na homepage. Audio = veřejná adresa .mp3.
+          Draft = only for you. Published = public on /songs and in the homepage preview. Audio = a public .mp3 URL.
         </p>
 
-        <button onClick={() => setAdding((a) => !a)} style={{ ...btn("var(--text-primary)"), marginBottom: "14px" }}>{adding ? "Zavřít" : "+ Nový song"}</button>
+        <button onClick={() => setAdding((a) => !a)} style={{ ...btn("var(--text-primary)"), marginBottom: "14px" }}>{adding ? "Close" : "+ New song"}</button>
 
         {adding && (
           <div style={{ background: "#fff", border: "2px solid var(--border)", borderRadius: "12px", padding: "16px", marginBottom: "18px" }}>
-            {field("Název", "title", neu, setNeu, "Půlnoční špagety")}
-            {field("Odkaz na audio (.mp3)", "audio_url", neu, setNeu, "https://… .mp3 (nebo nahraj níže)")}
+            {field("Title", "title", neu, setNeu, "Midnight spaghetti")}
+            {field("Audio link (.mp3)", "audio_url", neu, setNeu, "https://… .mp3 (or upload below)")}
             <label style={{ display: "block", marginBottom: "10px" }}>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", display: "block", marginBottom: "3px" }}>↑ Nebo nahraj audio do Blobu {upA && "· nahrávám…"}</span>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", display: "block", marginBottom: "3px" }}>↑ Or upload audio to Blob {upA && "· uploading…"}</span>
               <input type="file" accept="audio/*" disabled={upA} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTo(f, "audio_url", setUpA); }} style={{ fontFamily: "var(--font-sans)", fontSize: "12px" }} />
             </label>
-            {field("Obrázek / cover (URL, nepovinné)", "cover_url", neu, setNeu, "https://… .jpg (nebo nahraj níže)")}
+            {field("Image / cover (URL, optional)", "cover_url", neu, setNeu, "https://… .jpg (or upload below)")}
             <label style={{ display: "block", marginBottom: "10px" }}>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", display: "block", marginBottom: "3px" }}>↑ Nebo nahraj cover do Blobu {upC && "· nahrávám…"}</span>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", display: "block", marginBottom: "3px" }}>↑ Or upload cover to Blob {upC && "· uploading…"}</span>
               <input type="file" accept="image/*" disabled={upC} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTo(f, "cover_url", setUpC); }} style={{ fontFamily: "var(--font-sans)", fontSize: "12px" }} />
             </label>
-            {field("Datum vydání", "released_at", neu, setNeu, "", "date")}
-            {field("Poznámka CS", "note_cs", neu, setNeu, "O čem to je…")}
-            {field("Note EN", "note_en", neu, setNeu, "What it's about…")}
-            <button onClick={addNew} disabled={busy} style={{ ...btn("#16A34A"), marginTop: "4px", opacity: busy ? 0.6 : 1 }}>{busy ? "Ukládám…" : "Uložit (jako draft)"}</button>
+            {field("Release date", "released_at", neu, setNeu, "", "date")}
+            {field("Note", "note_en", neu, setNeu, "What it's about…")}
+            {field("Note (CS — optional, for later)", "note_cs", neu, setNeu, "")}
+            <button onClick={addNew} disabled={busy} style={{ ...btn("#16A34A"), marginTop: "4px", opacity: busy ? 0.6 : 1 }}>{busy ? "Saving…" : "Save (as draft)"}</button>
           </div>
         )}
 
-        {rows.length === 0 && <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)" }}>Zatím žádné songy.</p>}
+        {rows.length === 0 && <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)" }}>No songs yet.</p>}
 
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {rows.map((r) => (
@@ -121,7 +121,7 @@ export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow
                 <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 700, color: r.published ? "#16A34A" : "var(--text-muted)", padding: "2px 8px", borderRadius: "999px", background: r.published ? "#DCFCE7" : "rgba(0,0,0,0.05)" }}>{r.published ? "publ." : "draft"}</span>
                 <div style={{ display: "flex", gap: "4px" }}>
                   <button onClick={() => startEdit(r)} style={{ ...btn("#fff", "var(--text-primary)"), border: "1.5px solid var(--border)" }}>✎</button>
-                  <button onClick={() => togglePub(r)} style={btn(r.published ? "#d97706" : "#16A34A")}>{r.published ? "skrýt" : "publikovat"}</button>
+                  <button onClick={() => togglePub(r)} style={btn(r.published ? "#d97706" : "#16A34A")}>{r.published ? "hide" : "publish"}</button>
                   <button onClick={() => del(r.slug)} style={btn("#FEF2F2", "#b91c1c")}>×</button>
                 </div>
               </div>
@@ -130,15 +130,15 @@ export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow
 
               {editing === r.slug && (
                 <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid var(--border)" }}>
-                  {field("Název", "title", draft, setDraft)}
-                  {field("Odkaz na audio (.mp3)", "audio_url", draft, setDraft)}
+                  {field("Title", "title", draft, setDraft)}
+                  {field("Audio link (.mp3)", "audio_url", draft, setDraft)}
                   {field("Cover (URL)", "cover_url", draft, setDraft)}
-                  {field("Datum vydání", "released_at", draft, setDraft, "", "date")}
-                  {field("Poznámka CS", "note_cs", draft, setDraft)}
-                  {field("Note EN", "note_en", draft, setDraft)}
+                  {field("Release date", "released_at", draft, setDraft, "", "date")}
+                  {field("Note", "note_en", draft, setDraft)}
+                  {field("Note (CS — optional, for later)", "note_cs", draft, setDraft)}
                   <div style={{ display: "flex", gap: "6px", marginTop: "4px" }}>
-                    <button onClick={saveEdit} style={btn("#16A34A")}>Uložit</button>
-                    <button onClick={() => setEditing(null)} style={btn("transparent", "var(--text-muted)")}>Zrušit</button>
+                    <button onClick={saveEdit} style={btn("#16A34A")}>Save</button>
+                    <button onClick={() => setEditing(null)} style={btn("transparent", "var(--text-muted)")}>Cancel</button>
                   </div>
                 </div>
               )}
@@ -148,17 +148,17 @@ export function SongsAdmin({ initial, initialMessages = [] }: { initial: SongRow
 
         {/* Zprávy od posluchačů (soukromé) */}
         <div style={{ marginTop: "32px", paddingTop: "20px", borderTop: "2px solid var(--border)" }}>
-          <h2 style={{ ...display, fontSize: "18px", fontWeight: 900, marginBottom: "4px" }}>Zprávy od posluchačů</h2>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginBottom: "14px" }}>Soukromé — vidíš je jen ty. {messages.length} celkem.</p>
+          <h2 style={{ ...display, fontSize: "18px", fontWeight: 900, marginBottom: "4px" }}>Listener messages</h2>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginBottom: "14px" }}>Private — only you can see them. {messages.length} total.</p>
           {messages.length === 0 ? (
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)" }}>Zatím žádné zprávy.</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-muted)" }}>No messages yet.</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {messages.map((m) => (
                 <div key={m.id} style={{ background: "#fff", border: "2px solid var(--border)", borderRadius: "12px", padding: "12px 14px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "10px", marginBottom: "6px" }}>
                     <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)" }}>
-                      <strong style={{ color: "var(--text-secondary)", fontWeight: 700 }}>{m.author?.trim() || "Anonym"}</strong> · {m.song_title} · {fmtMsgDate(m.created_at)}
+                      <strong style={{ color: "var(--text-secondary)", fontWeight: 700 }}>{m.author?.trim() || "Anonymous"}</strong> · {m.song_title} · {fmtMsgDate(m.created_at)}
                     </p>
                     <button onClick={() => delMessage(m.id)} style={btn("#FEF2F2", "#b91c1c")}>×</button>
                   </div>

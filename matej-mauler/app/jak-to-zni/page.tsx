@@ -4,7 +4,7 @@ import { guardExperiment } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Jak to zní? — Spaghetti.ltd",
+  title: "How does it sound? — Spaghetti.ltd",
 };
 
 export default async function JakToZniPage() {

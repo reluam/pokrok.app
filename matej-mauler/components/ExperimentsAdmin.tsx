@@ -10,9 +10,9 @@ const inputS: React.CSSProperties = { width: "100%", background: "var(--bg)", bo
 const btn = (bg: string, color = "#fff"): React.CSSProperties => ({ background: bg, color, border: "none", borderRadius: "8px", padding: "7px 12px", fontFamily: sans, fontSize: "12px", fontWeight: 600, cursor: "pointer" });
 
 const COLUMNS: { stage: Stage; title: string; hint: string; accent: string }[] = [
-  { stage: "idea", title: "💡 Ideas", hint: "Nápady na nové projekty", accent: "#A78BFA" },
-  { stage: "draft", title: "🛠 Drafts", hint: "Rozpracované — jen pro tebe (404 ostatním)", accent: "#F59E0B" },
-  { stage: "published", title: "🚀 Published", hint: "Aktivní — veřejně na hlavní stránce", accent: "#16A34A" },
+  { stage: "idea", title: "💡 Ideas", hint: "Ideas for new projects", accent: "#A78BFA" },
+  { stage: "draft", title: "🛠 Drafts", hint: "In progress — only for you (404 to everyone else)", accent: "#F59E0B" },
+  { stage: "published", title: "🚀 Published", hint: "Active — public on the homepage", accent: "#16A34A" },
 ];
 
 export function ExperimentsAdmin({ initial, embedded = false }: { initial: ExperimentRow[]; embedded?: boolean }) {
@@ -52,7 +52,7 @@ export function ExperimentsAdmin({ initial, embedded = false }: { initial: Exper
   };
   const saveEdit = async () => { if (!editing) return; await patch(editing, draft); setEditing(null); };
   const del = async (slug: string) => {
-    if (!confirm(`Smazat „${slug}" ze seznamu?`)) return;
+    if (!confirm(`Delete "${slug}" from the list?`)) return;
     setRows((r) => r.filter((x) => x.slug !== slug));
     setEditing(null);
     await fetch(`/api/admin/experiments/${slug}`, { method: "DELETE" });
@@ -72,7 +72,7 @@ export function ExperimentsAdmin({ initial, embedded = false }: { initial: Exper
   const board = (
     <>
       <p style={{ fontFamily: sans, fontSize: "13px", color: "var(--text-muted)", marginBottom: "14px" }}>
-        Táhni kartu mezi sloupci podle stavu. Klikni na kartu pro detail a nastavení.
+        Drag a card between columns by status. Click a card for details and settings.
       </p>
 
       <div style={{ display: "flex", gap: "14px", alignItems: "flex-start", overflowX: "auto", paddingBottom: "8px" }}>
@@ -114,21 +114,21 @@ export function ExperimentsAdmin({ initial, embedded = false }: { initial: Exper
                     }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <span style={{ width: 11, height: 11, borderRadius: 3, background: r.color, border: "1px solid rgba(0,0,0,0.15)", flexShrink: 0 }} />
-                      <p style={{ ...display, fontSize: "14px", fontWeight: 800, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title_cs || r.slug}</p>
+                      <p style={{ ...display, fontSize: "14px", fontWeight: 800, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title_en || r.title_cs || r.slug}</p>
                     </div>
                     <p style={{ fontFamily: sans, fontSize: "10.5px", color: "var(--text-muted)", margin: "4px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {r.href ? r.href : <span style={{ fontStyle: "italic" }}>zatím jen nápad</span>}
+                      {r.href ? r.href : <span style={{ fontStyle: "italic" }}>just an idea for now</span>}
                     </p>
                   </div>
                 ))}
-                {items.length === 0 && <p style={{ fontFamily: sans, fontSize: "11.5px", color: "var(--text-muted)", textAlign: "center", padding: "10px 0", fontStyle: "italic" }}>prázdné</p>}
+                {items.length === 0 && <p style={{ fontFamily: sans, fontSize: "11.5px", color: "var(--text-muted)", textAlign: "center", padding: "10px 0", fontStyle: "italic" }}>empty</p>}
               </div>
 
               {col.stage === "idea" && (
                 <div style={{ marginTop: "10px", display: "flex", gap: "6px" }}>
                   <input value={newIdea} onChange={(e) => setNewIdea(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addIdea(); }}
-                    placeholder="+ nový nápad…" style={{ ...inputS, marginBottom: 0, flex: 1, fontSize: "12.5px" }} />
-                  <button onClick={addIdea} style={{ ...btn(col.accent), flexShrink: 0 }}>Přidat</button>
+                    placeholder="+ new idea…" style={{ ...inputS, marginBottom: 0, flex: 1, fontSize: "12.5px" }} />
+                  <button onClick={addIdea} style={{ ...btn(col.accent), flexShrink: 0 }}>Add</button>
                 </div>
               )}
             </div>
@@ -144,7 +144,7 @@ export function ExperimentsAdmin({ initial, embedded = false }: { initial: Exper
         <div style={{ background: "#fff", borderBottom: "2.5px solid var(--border)", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <span style={{ fontSize: "22px" }}>🍝</span>
-            <h1 style={{ ...display, fontSize: "20px", fontWeight: 900 }}>Projekty</h1>
+            <h1 style={{ ...display, fontSize: "20px", fontWeight: 900 }}>Projects</h1>
           </div>
           <Link href="/admin" style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>← Admin</Link>
         </div>
@@ -159,7 +159,7 @@ export function ExperimentsAdmin({ initial, embedded = false }: { initial: Exper
         <div onClick={() => setEditing(null)} style={{ position: "fixed", inset: 0, zIndex: 60, background: "rgba(10,12,24,0.45)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "5vh 18px", overflowY: "auto" }}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", border: "2.5px solid var(--border)", borderRadius: "16px", boxShadow: "6px 6px 0 var(--border)", padding: "20px 22px", width: "100%", maxWidth: "520px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", marginBottom: "14px" }}>
-              <p style={{ ...display, fontSize: "18px", fontWeight: 900 }}>{editingRow.title_cs || editingRow.slug}</p>
+              <p style={{ ...display, fontSize: "18px", fontWeight: 900 }}>{editingRow.title_en || editingRow.title_cs || editingRow.slug}</p>
               <button onClick={() => setEditing(null)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: sans, fontSize: "18px", color: "var(--text-muted)" }}>×</button>
             </div>
 
@@ -177,27 +177,27 @@ export function ExperimentsAdmin({ initial, embedded = false }: { initial: Exper
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-              <input style={inputS} value={draft.title_cs ?? ""} onChange={(e) => setDraft({ ...draft, title_cs: e.target.value })} placeholder="Název CS" />
-              <input style={inputS} value={draft.title_en ?? ""} onChange={(e) => setDraft({ ...draft, title_en: e.target.value })} placeholder="Title EN" />
+              <input style={inputS} value={draft.title_en ?? ""} onChange={(e) => setDraft({ ...draft, title_en: e.target.value })} placeholder="Title" />
+              <input style={inputS} value={draft.title_cs ?? ""} onChange={(e) => setDraft({ ...draft, title_cs: e.target.value })} placeholder="Title (CS — optional, for later)" />
             </div>
-            <textarea style={{ ...inputS, minHeight: "52px", resize: "vertical" }} value={draft.desc_cs ?? ""} onChange={(e) => setDraft({ ...draft, desc_cs: e.target.value })} placeholder="Popis CS / poznámky k nápadu" />
-            <textarea style={{ ...inputS, minHeight: "52px", resize: "vertical" }} value={draft.desc_en ?? ""} onChange={(e) => setDraft({ ...draft, desc_en: e.target.value })} placeholder="Description EN" />
+            <textarea style={{ ...inputS, minHeight: "52px", resize: "vertical" }} value={draft.desc_en ?? ""} onChange={(e) => setDraft({ ...draft, desc_en: e.target.value })} placeholder="Description / notes about the idea" />
+            <textarea style={{ ...inputS, minHeight: "52px", resize: "vertical" }} value={draft.desc_cs ?? ""} onChange={(e) => setDraft({ ...draft, desc_cs: e.target.value })} placeholder="Description (CS — optional, for later)" />
             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-              <input style={{ ...inputS, width: "110px", marginBottom: 0 }} value={draft.color ?? ""} onChange={(e) => setDraft({ ...draft, color: e.target.value })} placeholder="#barva" />
-              <input style={{ ...inputS, flex: 1, marginBottom: 0 }} value={draft.href ?? ""} onChange={(e) => setDraft({ ...draft, href: e.target.value })} placeholder="/href (u publish povinné)" />
+              <input style={{ ...inputS, width: "110px", marginBottom: 0 }} value={draft.color ?? ""} onChange={(e) => setDraft({ ...draft, color: e.target.value })} placeholder="#color" />
+              <input style={{ ...inputS, flex: 1, marginBottom: 0 }} value={draft.href ?? ""} onChange={(e) => setDraft({ ...draft, href: e.target.value })} placeholder="/href (required to publish)" />
               <label style={{ fontFamily: sans, fontSize: "12px", display: "flex", alignItems: "center", gap: "4px" }}>
                 <input type="checkbox" checked={!!draft.external} onChange={(e) => setDraft({ ...draft, external: e.target.checked })} /> ext
               </label>
             </div>
             <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "8px" }}>
-              <span style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)" }}>Datum publikace:</span>
+              <span style={{ fontFamily: sans, fontSize: "12px", color: "var(--text-muted)" }}>Publish date:</span>
               <input type="date" style={{ ...inputS, width: "170px", marginBottom: 0 }} value={(draft.published_at ?? "").slice(0, 10)} onChange={(e) => setDraft({ ...draft, published_at: e.target.value })} />
             </div>
 
             <div style={{ display: "flex", gap: "8px", marginTop: "16px", alignItems: "center", flexWrap: "wrap" }}>
-              <button onClick={saveEdit} style={btn("var(--text-primary)")}>Uložit</button>
-              {editingRow.href && <a href={editingRow.href} target="_blank" rel="noopener noreferrer" style={{ ...btn("#fff", "var(--text-primary)"), border: "1.5px solid var(--border)", textDecoration: "none" }}>náhled ↗</a>}
-              <button onClick={() => del(editingRow.slug)} style={{ ...btn("#FEF2F2", "#b91c1c"), marginLeft: "auto" }}>Smazat</button>
+              <button onClick={saveEdit} style={btn("var(--text-primary)")}>Save</button>
+              {editingRow.href && <a href={editingRow.href} target="_blank" rel="noopener noreferrer" style={{ ...btn("#fff", "var(--text-primary)"), border: "1.5px solid var(--border)", textDecoration: "none" }}>preview ↗</a>}
+              <button onClick={() => del(editingRow.slug)} style={{ ...btn("#FEF2F2", "#b91c1c"), marginLeft: "auto" }}>Delete</button>
             </div>
           </div>
         </div>

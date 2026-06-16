@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const COOKIE_NAME = "lang";
 const ADMIN_COOKIE = "admin_token";
 
 // Cache hrefů smazaných experimentů (per edge isolate, TTL 60 s) → 410 Gone bez DB v hot-path.
@@ -42,31 +41,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ── Language routing (root only) ───────────────────────────────
-  if (pathname !== "/") return NextResponse.next();
-
-  const cookieLang = request.cookies.get(COOKIE_NAME)?.value;
-
-  if (cookieLang === "cs") {
-    return NextResponse.redirect(new URL("/cs", request.url));
-  }
-  if (cookieLang === "en") {
-    return NextResponse.next();
-  }
-
-  const host = request.headers.get("host") ?? "";
-  if (host.endsWith(".cz")) {
-    return NextResponse.redirect(new URL("/cs", request.url));
-  }
-
-  const country =
-    request.headers.get("x-vercel-ip-country") ||
-    request.headers.get("cf-ipcountry") ||
-    "";
-  if (country === "CZ" || country === "SK") {
-    return NextResponse.redirect(new URL("/cs", request.url));
-  }
-
+  // Web je proteď pouze v angličtině — žádné jazykové routování.
   return NextResponse.next();
 }
 

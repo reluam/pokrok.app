@@ -7,6 +7,7 @@ import { getNode, isRedLink, searchNodes, titleOf, type SearchEntry } from "@/li
 import { SpaceRealm, type NavDir } from "./SpaceRealm";
 import { PlanetField } from "./PlanetField";
 import { PlainRealm } from "./PlainRealm";
+import { Strands } from "./Strands";
 import type { Lang } from "@/lib/dictionaries";
 
 const UI = {
@@ -53,6 +54,15 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
   const [theme, setTheme] = useState<Theme>("light");
   useEffect(() => { if (localStorage.getItem("ency-theme") === "dark") { const r = requestAnimationFrame(() => setTheme("dark")); return () => cancelAnimationFrame(r); } }, []);
   const toggleTheme = () => setTheme((t) => { const n = t === "light" ? "dark" : "light"; localStorage.setItem("ency-theme", n); return n; });
+
+  // špagety jen na PC — na mobilu by se nudle a uzly nevešly, tam stačí textové „Souvisí"
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px) and (pointer: fine)");
+    const apply = () => setIsDesktop(mq.matches);
+    apply(); mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   const node = getNode(slug);
   const isGate = slug === "brana";
@@ -129,18 +139,10 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
 
   useEffect(() => { document.title = `${titleOf(slug === "brana" ? "brana" : slug, lang)} — Spaghetti.ltd`; }, [slug, lang]);
 
-  const switchLang = () => {
-    const target = lang === "cs" ? "en" : "cs";
-    document.cookie = `lang=${target}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
-    const p = location.pathname;
-    if (p === "/cs" && target === "en") location.href = "/";
-    else if (p === "/" && target === "cs") location.href = "/cs";
-    else location.reload();
-  };
+  const overlayMax = node?.realm === "space" ? "min(470px, 84vmin)" : topText ? `min(560px, calc(100vw - ${isDesktop ? 240 : 48}px))` : "min(520px, 86vmin)";
+  const upTarget = trail.length ? trail[trail.length - 1] : node?.up ?? null;
 
-  const overlayMax = node?.realm === "space" ? "min(470px, 84vmin)" : topText ? "min(560px, calc(100vw - 48px))" : "min(520px, 86vmin)";
-
-  // související pojmy — místo špaget se vypíšou textem pod vysvětlením (obecnější, hlubší, odbočky)
+  // související pojmy — na mobilu hlavní navigace, na PC doplněk ke špagetám (obecnější, hlubší, odbočky)
   const related = node && !isGate
     ? (() => {
         const ids = [node.up, node.next, ...(node.satellites ?? []).map((s) => s.to)].filter((x): x is string => !!x);
@@ -164,6 +166,11 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         <RedLink slug={slug} lang={lang} dark={theme === "dark"} />
       )}
 
+      {/* špagety k okolním tématům — jen na PC; mobil má textové „Souvisí" */}
+      {isDesktop && node && !isGate && (
+        <Strands node={node} lang={lang} dark={chromeDark} upTarget={upTarget} onUp={goUp} onNext={goNext} onSide={dive} />
+      )}
+
       {/* text přes střed — bez boxu, jen rozmazané pozadí; pro myš průhledný (brána má vlastní rozcestí) */}
       {node && !isGate && (
         <div style={{ position: "fixed", inset: 0, zIndex: 8, display: "flex", justifyContent: "center", alignItems: topText ? "flex-start" : "center", padding: topText ? "120px 22px 0" : "0 22px", pointerEvents: "none" }}>
@@ -178,8 +185,8 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
                   ✦ {node.features.map((f) => f[lang]).join(" · ")}
                 </p>
               )}
-              {/* související pojmy — jen text, žádné špagety */}
-              {related.length > 0 && (
+              {/* související pojmy — textem jen na mobilu; na PC je nahrazují špagety */}
+              {!isDesktop && related.length > 0 && (
                 <p style={{ pointerEvents: "auto", fontFamily: "var(--font-sans)", fontSize: 13, marginTop: 16, display: "flex", gap: "8px 14px", justifyContent: "center", flexWrap: "wrap" }}>
                   <span style={{ color: C.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", alignSelf: "center" }}>{u.related}</span>
                   {related.map((r) => (
@@ -219,17 +226,13 @@ export function EncyclopediaShell({ initialSlug, lang }: { initialSlug: string; 
         </div>
       )}
 
-      {/* mapa + téma + jazyk */}
+      {/* mapa + téma */}
       <div style={{ position: "fixed", bottom: 18, right: 18, zIndex: 20, display: "flex", gap: 8, alignItems: "center" }}>
         <Link href="/mapa" title={u.map} aria-label={u.map}
           style={{ width: 34, height: 34, borderRadius: 10, display: "grid", placeItems: "center", background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, textDecoration: "none", fontSize: 15, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>🗺</Link>
         <button onClick={toggleTheme} title={theme === "light" ? "Dark" : "Light"}
           style={{ width: 34, height: 34, borderRadius: 10, display: "grid", placeItems: "center", background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, cursor: "pointer", fontSize: 14, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
           {theme === "light" ? "🌙" : "☀️"}
-        </button>
-        <button onClick={switchLang} title={lang === "cs" ? "English" : "Čeština"}
-          style={{ height: 34, padding: "0 10px", borderRadius: 10, background: PC.pillBg, border: `1px solid ${PC.pillBorder}`, color: PC.pillText, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
-          {lang === "cs" ? "EN" : "CS"}
         </button>
       </div>
 

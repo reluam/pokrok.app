@@ -10,7 +10,7 @@ const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 type Stats = { published: number; drafts: number; words: number; edges: number; total: number };
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("cs-CZ", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function StatCard({ label, value, emoji }: { label: string; value: number; emoji: string }) {
@@ -21,7 +21,7 @@ function StatCard({ label, value, emoji }: { label: string; value: number; emoji
       padding: "20px 24px",
     }}>
       <p style={{ fontSize: "24px", marginBottom: "8px" }}>{emoji}</p>
-      <p style={{ ...display, fontSize: "32px", fontWeight: 900, lineHeight: 1 }}>{value.toLocaleString("cs-CZ")}</p>
+      <p style={{ ...display, fontSize: "32px", fontWeight: 900, lineHeight: 1 }}>{value.toLocaleString("en-US")}</p>
       <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", marginTop: "4px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</p>
     </div>
   );
@@ -49,7 +49,7 @@ export function BrainAdmin({ stats, initialWords }: { stats: Stats; initialWords
   };
 
   const deleteWord = async (w: AdminBrainWord) => {
-    if (!confirm(`Smazat slovo „${w.display}“ a všech jeho ${w.out_n + w.in_n} synapsí?`)) return;
+    if (!confirm(`Delete the word "${w.display}" and all of its ${w.out_n + w.in_n} synapses?`)) return;
     const res = await fetch(`/api/admin/brain/words/${w.id}`, { method: "DELETE" });
     if (res.ok) setWords(prev => prev.filter(x => x.id !== w.id));
   };
@@ -66,12 +66,12 @@ export function BrainAdmin({ stats, initialWords }: { stats: Stats; initialWords
           <span style={{ fontSize: "24px" }}>🧪</span>
           <div>
             <h1 style={{ ...display, fontSize: "20px", fontWeight: 900, lineHeight: 1 }}>Spaghetti HQ</h1>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)" }}>Admin rozhraní</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)" }}>Admin interface</p>
           </div>
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <Link href="/admin/experiments" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, color: "var(--text-primary)", textDecoration: "none" }}>
-            Experimenty →
+            Experiments →
           </Link>
           <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)", textDecoration: "none" }}>
             ← Spaghetti.ltd
@@ -82,7 +82,7 @@ export function BrainAdmin({ stats, initialWords }: { stats: Stats; initialWords
             padding: "6px 14px", fontFamily: "var(--font-sans)",
             fontSize: "12px", cursor: "pointer",
           }}>
-            Odhlásit →
+            Log out →
           </button>
         </div>
       </div>
@@ -91,21 +91,21 @@ export function BrainAdmin({ stats, initialWords }: { stats: Stats; initialWords
 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "14px", marginBottom: "32px" }}>
-          <StatCard label="Publikováno" value={stats.published} emoji="🧫" />
-          <StatCard label="Drafty" value={stats.drafts} emoji="📝" />
-          <StatCard label="Slov v mozku" value={stats.words} emoji="🧠" />
-          <StatCard label="Synapsí" value={stats.edges} emoji="🔗" />
-          <StatCard label="Asociací" value={stats.total} emoji="⚡" />
+          <StatCard label="Published" value={stats.published} emoji="🧫" />
+          <StatCard label="Drafts" value={stats.drafts} emoji="📝" />
+          <StatCard label="Words in brain" value={stats.words} emoji="🧠" />
+          <StatCard label="Synapses" value={stats.edges} emoji="🔗" />
+          <StatCard label="Associations" value={stats.total} emoji="⚡" />
         </div>
 
         {/* Veřejný mozek — moderace */}
         <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "14px", flexWrap: "wrap" }}>
-          <h2 style={{ ...display, fontSize: "20px", fontWeight: 900 }}>🧠 Veřejný mozek — moderace</h2>
+          <h2 style={{ ...display, fontSize: "20px", fontWeight: 900 }}>🧠 Public brain — moderation</h2>
           <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--text-muted)" }}>
-            smazání slova odstraní i všechny jeho synapse
+            deleting a word also removes all of its synapses
           </span>
         </div>
-        <input value={search} onChange={e => onSearch(e.target.value)} placeholder="Hledat slovo…"
+        <input value={search} onChange={e => onSearch(e.target.value)} placeholder="Search for a word…"
           style={{ width: "100%", background: "#fff", border: "2px solid var(--border)", borderRadius: "10px", padding: "8px 14px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-primary)", outline: "none", marginBottom: "14px" }} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -123,17 +123,17 @@ export function BrainAdmin({ stats, initialWords }: { stats: Stats; initialWords
                   )}
                 </div>
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--text-muted)", marginTop: "3px" }}>
-                  ⚡ {w.strength} · → {w.out_n} ven · ← {w.in_n} sem · {formatDate(w.created_at)}
+                  ⚡ {w.strength} · → {w.out_n} out · ← {w.in_n} in · {formatDate(w.created_at)}
                 </p>
               </div>
               <button onClick={() => deleteWord(w)}
                 style={{ background: "#FEF2F2", color: "#b91c1c", border: "1.5px solid #FECACA", borderRadius: "8px", padding: "6px 12px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>
-                Smazat
+                Delete
               </button>
             </div>
           ))}
           {words.length === 0 && (
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-muted)", padding: "20px 0" }}>Žádná slova.</p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "14px", color: "var(--text-muted)", padding: "20px 0" }}>No words.</p>
           )}
         </div>
       </div>

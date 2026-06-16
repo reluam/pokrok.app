@@ -4,7 +4,7 @@ import { getLang } from "@/lib/getLang";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Mapa všeho — Spaghetti.ltd" };
+export const metadata: Metadata = { title: "Map of everything — Spaghetti.ltd" };
 
 export default async function MapaPage() {
   const lang = await getLang();

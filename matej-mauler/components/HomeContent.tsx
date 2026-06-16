@@ -2,7 +2,6 @@ import { Dictionary, Lang } from "@/lib/dictionaries";
 import type { PublicExperiment } from "@/lib/experimentsDb";
 import { type PublicSong, songsUi } from "@/lib/songsUi";
 import { CATEGORIES } from "@/lib/experiments";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ExperimentPreview } from "./ExperimentPreview";
 import { SongCard } from "./SongCard";
 
@@ -19,8 +18,6 @@ export function HomeContent({ dict, lang, items, songs = [] }: { dict: Dictionar
   const su = songsUi[lang];
   return (
     <main style={{ background: "var(--bg)", minHeight: "100vh" }}>
-      <LanguageSwitcher lang={lang} labels={dict.switcher} />
-
       <div className="max-w-[1100px] mx-auto px-5 md:px-8">
 
         {/* Header */}

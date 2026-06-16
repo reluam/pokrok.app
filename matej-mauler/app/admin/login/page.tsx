@@ -24,7 +24,7 @@ export default function AdminLogin() {
       router.push("/admin");
       router.refresh();
     } else {
-      setError("Špatné heslo. Zkus znovu.");
+      setError("Wrong password. Try again.");
       setPassword("");
     }
     setLoading(false);
@@ -50,14 +50,14 @@ export default function AdminLogin() {
           fontFamily: "var(--font-sans)", fontSize: "13px",
           color: "var(--text-muted)", marginBottom: "28px",
         }}>
-          Admin rozhraní. Pouze pro zasvěcené.
+          Admin interface. For insiders only.
         </p>
         <form onSubmit={handleSubmit}>
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="Heslo"
+            placeholder="Password"
             autoFocus
             style={{
               width: "100%", background: "var(--bg)",
@@ -82,7 +82,7 @@ export default function AdminLogin() {
               fontSize: "14px", fontWeight: 700, cursor: "pointer",
               opacity: (loading || !password) ? 0.4 : 1,
             }}>
-            {loading ? "..." : "Vstoupit →"}
+            {loading ? "..." : "Enter →"}
           </button>
         </form>
       </div>

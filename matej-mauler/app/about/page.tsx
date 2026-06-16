@@ -4,8 +4,8 @@ import { guardExperiment, getPublicExperiments } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Mapa Spaghetti — Spaghetti.ltd",
-  description: "Mapa toho, jak Spaghetti.ltd souvisí: projekty jako nody, koncepty jako sdílené nudle. Proč jednotlivé experimenty vznikly a jak fungují.",
+  title: "The Spaghetti map — Spaghetti.ltd",
+  description: "A map of how Spaghetti.ltd connects: projects as nodes, concepts as shared noodles. Why each experiment came to be and how it works.",
   alternates: { canonical: "/about" },
 };
 

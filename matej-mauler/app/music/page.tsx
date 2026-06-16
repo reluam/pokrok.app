@@ -4,8 +4,8 @@ import { guardExperiment } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Jak vzniká hudba — Spaghetti.ltd",
-  description: "Interaktivní hudební studio: poskládej skladbu po vrstvách — beat, basa, akordy a melodie. Mřížky, fadery a efekty jako v DAW.",
+  title: "How music is made — Spaghetti.ltd",
+  description: "Interactive music studio: build a track layer by layer — beat, bass, chords and melody. Grids, faders and effects like in a DAW.",
 };
 
 export default async function MusicPage() {

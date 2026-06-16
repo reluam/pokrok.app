@@ -3,7 +3,7 @@ import { getDb } from "@/lib/db";
 import type { Suggestion } from "@/app/api/admin/ency/suggest/route";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Encyklopedie — Spaghetti HQ" };
+export const metadata = { title: "Encyclopedia — Spaghetti HQ" };
 
 async function getData() {
   try {

@@ -4,8 +4,8 @@ import { guardExperiment } from "@/lib/experimentsDb";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Rádio — Spaghetti.ltd",
-  description: "Rádio renderované na serveru: nekonečná zmasterovaná skladba, kterou posluchači každých 15 vteřin ladí hlasováním — melodie, beat, basa, nástroj, tempo, tónina.",
+  title: "Radio — Spaghetti.ltd",
+  description: "Server-rendered radio: an endless mastered track that listeners tune every 15 seconds by voting — melody, beat, bass, instrument, tempo, key.",
 };
 
 export default async function RadioPage() {

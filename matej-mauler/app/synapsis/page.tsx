@@ -5,7 +5,7 @@ import { guardExperiment } from "@/lib/experimentsDb";
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Synapse — Spaghetti.ltd",
-  description: "Slovo → asociace. Každá odpověď posílí synapsi ve společné síti internetu. Explorer přidává asociace, Researcher zkoumá mapu synapsí.",
+  description: "Word → association. Every answer strengthens a synapse in the internet's shared network. Explorer adds associations, Researcher explores the synapse map.",
   alternates: { canonical: "/synapsis" },
 };
 
