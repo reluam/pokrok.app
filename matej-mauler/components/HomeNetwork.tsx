@@ -32,10 +32,10 @@ function ProjectCard({ item, lang, open }: { item: PublicExperiment; lang: Lang;
         <div className="scard-banner" data-noodle="paint" data-noodle-color={item.color} style={{ marginBottom: 14 }}>
           <ExperimentPreview slug={item.slug} title={item.title} color={item.color} lang={lang} />
         </div>
-        {cat && <span style={{ ...display, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 6 }}>{cat}</span>}
+        {cat && <span data-noodle="eat" style={{ ...display, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 6 }}>{cat}</span>}
         <h3 data-noodle="eat" style={{ ...display, fontSize: 21, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.12, marginBottom: 7, color: "var(--text-primary)" }}>{item.title}</h3>
         <p data-noodle="eat" style={{ fontFamily: "var(--font-grotesk)", fontSize: 14, lineHeight: 1.55, color: "var(--text-secondary)", flex: 1, marginBottom: 16 }}>{item.description}</p>
-        <span style={{ ...display, fontSize: 13.5, fontWeight: 800, color: "var(--text-primary)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <span data-noodle="eat" style={{ ...display, fontSize: 13.5, fontWeight: 800, color: "var(--text-primary)", display: "inline-flex", alignItems: "center", gap: 6 }}>
           {open} <span className="zarrow">→</span>
         </span>
       </div>
