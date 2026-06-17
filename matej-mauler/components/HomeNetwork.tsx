@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ExperimentPreview } from "./ExperimentPreview";
+import { HomeNoodleGame } from "./HomeNoodleGame";
 import { CATEGORIES } from "@/lib/experiments";
 import { SPAGHETTI_BLURB } from "@/lib/about";
 import type { Dictionary, Lang } from "@/lib/dictionaries";
@@ -12,8 +13,8 @@ const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const sans = "var(--font-sans)";
 
 const T = {
-  cs: { browse: "Procházet všechny experimenty", back: "← Zpět", search: "Hledej experiment…", allCats: "Vše", open: "Otevřít", none: "Nic se nenašlo." },
-  en: { browse: "Browse all experiments", back: "← Back", search: "Search experiments…", allCats: "All", open: "Open", none: "Nothing found." },
+  cs: { browse: "Procházet všechny experimenty", back: "← Zpět", search: "Hledej experiment…", allCats: "Vše", open: "Otevřít", none: "Nic se nenašlo.", play: "Hrát" },
+  en: { browse: "Browse all experiments", back: "← Back", search: "Search experiments…", allCats: "All", open: "Open", none: "Nothing found.", play: "Play" },
 };
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -28,12 +29,12 @@ function ProjectCard({ item, lang, open }: { item: PublicExperiment; lang: Lang;
       className="scard group/card"
     >
       <div className="p-5 md:p-6 flex flex-col h-full">
-        <div className="scard-banner" style={{ marginBottom: 14 }}>
+        <div className="scard-banner" data-noodle="paint" data-noodle-color={item.color} style={{ marginBottom: 14 }}>
           <ExperimentPreview slug={item.slug} title={item.title} color={item.color} lang={lang} />
         </div>
         {cat && <span style={{ ...display, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 6 }}>{cat}</span>}
-        <h3 style={{ ...display, fontSize: 21, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.12, marginBottom: 7, color: "var(--text-primary)" }}>{item.title}</h3>
-        <p style={{ fontFamily: "var(--font-grotesk)", fontSize: 14, lineHeight: 1.55, color: "var(--text-secondary)", flex: 1, marginBottom: 16 }}>{item.description}</p>
+        <h3 data-noodle="eat" style={{ ...display, fontSize: 21, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.12, marginBottom: 7, color: "var(--text-primary)" }}>{item.title}</h3>
+        <p data-noodle="eat" style={{ fontFamily: "var(--font-grotesk)", fontSize: 14, lineHeight: 1.55, color: "var(--text-secondary)", flex: 1, marginBottom: 16 }}>{item.description}</p>
         <span style={{ ...display, fontSize: 13.5, fontWeight: 800, color: "var(--text-primary)", display: "inline-flex", alignItems: "center", gap: 6 }}>
           {open} <span className="zarrow">→</span>
         </span>
@@ -47,6 +48,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
   const [mode, setMode] = useState<"home" | "browse">("home");
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
+  const [gameOpen, setGameOpen] = useState(false);
 
   const cats = useMemo(() => [...new Set(items.map((it) => CATEGORIES[it.slug]).filter(Boolean))], [items]);
   const filtered = useMemo(() => {
@@ -105,14 +107,17 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
       <div className="max-w-[1100px] mx-auto px-5 md:px-8">
         {/* logo + název + popis */}
         <header className="pt-16 md:pt-20 pb-12 animate-fade-up">
-          <div style={{ marginBottom: 18 }}>{brand("lg")}</div>
-          <p className="text-[18px] md:text-[22px] max-w-[620px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.4 }}>{SPAGHETTI_BLURB[lang]}</p>
+          <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <div data-noodle="logo">{brand("lg")}</div>
+            <button onClick={() => setGameOpen(true)} className="sbtn" data-noodle="eat" style={{ fontSize: 15, padding: "9px 16px", lineHeight: 1 }} aria-label={t.play} title={t.play}>▶</button>
+          </div>
+          <p data-noodle="eat" className="text-[18px] md:text-[22px] max-w-[620px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.4 }}>{SPAGHETTI_BLURB[lang]}</p>
         </header>
 
         {/* projekty */}
         <div className="mb-6 animate-fade-up" style={{ animationDelay: "40ms", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-          <h2 className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{dict.products.title}</h2>
-          <button onClick={() => setMode("browse")} className="sbtn" style={{ marginLeft: "auto", fontSize: 13, padding: "9px 18px" }}>{t.browse} →</button>
+          <h2 data-noodle="eat" className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{dict.products.title}</h2>
+          <button onClick={() => setMode("browse")} className="sbtn" data-noodle="eat" style={{ marginLeft: "auto", fontSize: 13, padding: "9px 18px" }}>{t.browse} →</button>
         </div>
 
         <section className="zcards animate-fade-up pb-14" style={{ animationDelay: "60ms" }}>
@@ -121,8 +126,8 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
 
         {/* about */}
         <section className="py-10" style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)" }}>
-          <h2 className="text-[20px] md:text-[24px] mb-4" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{a.heading}</h2>
-          <div className="max-w-[620px]" style={{ color: "var(--text-secondary)", fontFamily: sans, fontSize: 15, lineHeight: 1.7 }}>
+          <h2 data-noodle="eat" className="text-[20px] md:text-[24px] mb-4" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{a.heading}</h2>
+          <div data-noodle="eat" className="max-w-[620px]" style={{ color: "var(--text-secondary)", fontFamily: sans, fontSize: 15, lineHeight: 1.7 }}>
             <p className="mb-4">{a.p1}</p>
             <p className="mb-4">{a.p2}</p>
             <p className="mb-4">{a.p3a}<a href="mailto:matej@matejmauler.com" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.writeMe}</a>{a.p3b}</p>
@@ -130,8 +135,10 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
           </div>
         </section>
 
-        <footer className="py-8" style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)", color: "var(--text-muted)", fontFamily: sans, fontSize: 12 }}>© {new Date().getFullYear()} Spaghetti.ltd</footer>
+        <footer data-noodle="eat" className="py-8" style={{ borderTop: "1.5px solid rgba(26,22,20,0.1)", color: "var(--text-muted)", fontFamily: sans, fontSize: 12 }}>© {new Date().getFullYear()} Spaghetti.ltd</footer>
       </div>
+
+      <HomeNoodleGame open={gameOpen} onClose={() => setGameOpen(false)} lang={lang} />
     </main>
   );
 }
