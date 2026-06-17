@@ -194,20 +194,27 @@ export function renderRound(state: SongState, roundNo: number): { wav: Buffer; d
     // pad — držený akord, šířka podle energie
     pad(musL, musR, barAt, 16 * stepSec * 1.02, chordFreqs(chordDeg).map((f) => f), 0.1 + state.energy * 0.12);
 
+    const swing = (state.swing ?? 0) * stepSec;
     for (let st = 0; st < 16; st++) {
       const at = barAt + st * stepSec;
+      const sw = st % 2 === 1 ? swing : 0; // swing posouvá liché 16tiny (lo-fi/funk groove)
       const lastBar = bar % 4 === 3;
-      // bicí (+ fill na konci čtyřtaktí)
+      // bicí (+ fill na konci čtyřtaktí) — kick/clap drží grid, hi-haty groovují
       if (state.drums.kick[st]) kick(drumsB, at);
       if (state.drums.clap[st] || (lastBar && st === 14)) { clap(drumsB, at, rng); revSend[Math.floor(at * SR)] += 0.001; }
-      if (state.drums.chh[st] && (state.energy > 0.4 || st % 4 === 2)) hat(drumsB, at + (st % 4 === 2 ? 0.004 : 0), false, rng);
-      if (state.drums.ohh[st]) hat(drumsB, at, true, rng);
-      // basa — sleduje root akordu
+      if (state.drums.chh[st] && (state.energy > 0.4 || st % 4 === 2)) hat(drumsB, at + sw + (st % 4 === 2 ? 0.004 : 0), false, rng);
+      if (state.drums.ohh[st]) hat(drumsB, at + sw, true, rng);
+      // trap rolls: triolový roll na konci taktu + drobné mezi-haty
+      if (state.hatRoll) {
+        if (st === 14) for (let k = 1; k < 3; k++) hat(drumsB, at + (k * stepSec) / 3, false, rng);
+        else if (st % 4 === 2 && state.energy > 0.5) hat(drumsB, at + stepSec / 2, false, rng);
+      }
+      // basa — sleduje root akordu (sub-žánry drží noty déle = 808 feel)
       const bp = state.bassPat[st];
       if (bp >= 0) {
         const base = degMidi(state, chordDeg, -2) + (bp === 1 ? 12 : bp === 2 ? 7 : 0);
         let len = 1; while (len < 8 && state.bassPat[(st + len) % 16] < 0) len++;
-        bassNote(bassB, at, Math.min(len, 3) * stepSec * 0.92, midiToFreq(base));
+        bassNote(bassB, at + sw, Math.min(len, state.subBass ? 6 : 3) * stepSec * 0.92, midiToFreq(base));
       }
     }
   }
@@ -217,7 +224,7 @@ export function renderRound(state: SongState, roundNo: number): { wav: Buffer; d
     for (const n of state.lead.notes) {
       const gStep = rep * 32 + n.step;
       if (gStep >= bars * 16) continue;
-      const at = gStep * stepSec;
+      const at = gStep * stepSec + (gStep % 2 === 1 ? (state.swing ?? 0) * stepSec : 0);
       const freq = midiToFreq(degMidi(state, n.deg, 1));
       leadNote(leadDry, at, n.len * stepSec * 0.9, freq, state.lead.voice);
     }

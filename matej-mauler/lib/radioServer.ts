@@ -73,15 +73,21 @@ export async function ensureRounds(): Promise<{ current: RoundRow; next: RoundRo
   const now = Date.now();
   let last = await lastRound(sql);
 
-  // start od nuly, nebo restart po dlouhé pauze (mezera > 1 kolo) — kotva na teď
+  // start od nuly, nebo restart po pauze — kotva na teď.
+  // Po DELŠÍ pauze (>5 min, nikdo neposlouchal) naladíme úplně novou skladbu
+  // (jako rádio, co mezitím hrálo dál) — ne jen jeden drift krok.
   if (!last || rowEnd(last) < now - 2000) {
     const roundNo = (last?.round_no ?? -1) + 1;
     const prevState = last?.state ?? null;
-    const state = prevState ? applyOption(prevState, null, roundNo * 31 + 7) : genSong(roundNo + 20260611);
+    const gapMs = last ? now - rowEnd(last) : Infinity;
+    const fresh = !prevState || gapMs > 5 * 60 * 1000;
+    const state = fresh
+      ? genSong(Math.floor(now / 60000) * 7 + roundNo) // čerstvá skladba, jiná při každém naladění
+      : applyOption(prevState, null, roundNo * 31 + 7);
     const started = new Date(now + 1500);
     const startedIso = started.toISOString();
     await sql`INSERT INTO radio_rounds (round_no, state, started_at, duration_ms) VALUES (${roundNo}, ${JSON.stringify(state)}::jsonb, ${startedIso}, ${roundDurationMs(state)}) ON CONFLICT (round_no) DO NOTHING`;
-    await logChange(sql, roundNo, startedIso, prevState ?? state, state, prevState ? null : "start", 0);
+    await logChange(sql, roundNo, startedIso, prevState ?? state, state, fresh ? "start" : null, 0);
     last = await lastRound(sql);
   }
 

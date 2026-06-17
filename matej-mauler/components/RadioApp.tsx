@@ -3,8 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { track } from "@/lib/track";
 import Link from "next/link";
-import { OPTIONS, LAYERS, type OptionId, type Layer } from "@/lib/radioComposer";
+import { OPTIONS, LAYERS, GENRE_LABEL, type OptionId, type Layer, type Genre } from "@/lib/radioComposer";
 import type { Lang } from "@/lib/dictionaries";
+
+/** Hezký název žánru (s fallbackem na surový řetězec ze staršího stavu). */
+const genreLabel = (g: string, lang: Lang): string => GENRE_LABEL[g as Genre]?.[lang] ?? g;
 
 type LogEntry = {
   round: number; airedAt: number; opt: string; tempo: number; genre: string; key: string;
@@ -19,11 +22,14 @@ const LAYER_NAME: Record<Layer, { cs: string; en: string }> = {
 /** Jeden řádek logu → ikona + text v daném jazyce. */
 function logLine(e: LogEntry, lang: Lang): { icon: string; text: string } {
   const cs = lang === "cs";
+  const g = genreLabel(e.genre, lang);
   switch (e.opt) {
-    case "start": return { icon: "📻", text: cs ? `Rádio začalo · ${e.genre} · ${e.key} · ${e.tempo} BPM` : `Radio started · ${e.genre} · ${e.key} · ${e.tempo} BPM` };
+    case "start": return { icon: "📻", text: cs ? `Naladěno · ${g} · ${e.key} · ${e.tempo} BPM` : `Tuned in · ${g} · ${e.key} · ${e.tempo} BPM` };
+    case "next_track": return { icon: "🔀", text: cs ? `Nová skladba · ${g} · ${e.key} · ${e.tempo} BPM` : `New track · ${g} · ${e.key} · ${e.tempo} BPM` };
+    case "genre": return { icon: "🎛️", text: cs ? `Žánr → ${g}` : `Genre → ${g}` };
     case "auto": return { icon: "✨", text: cs ? "Jemná obměna" : "Subtle shift" };
     case "melody": return { icon: "🎼", text: cs ? "Nová melodie" : "New melody" };
-    case "drums": return { icon: "🥁", text: cs ? `Jiný beat · ${e.genre}` : `New beat · ${e.genre}` };
+    case "drums": return { icon: "🥁", text: cs ? `Jiný beat · ${g}` : `New beat · ${g}` };
     case "bass": return { icon: "🎸", text: cs ? "Nová basa" : "New bassline" };
     case "instrument": return { icon: "🎹", text: cs ? `Nástroj → ${e.voice}` : `Instrument → ${e.voice}` };
     case "tempo_up": return { icon: "⏩", text: cs ? `Zrychleno · ${e.tempo} BPM` : `Faster · ${e.tempo} BPM` };
@@ -310,7 +316,7 @@ export function RadioApp({ lang }: { lang: Lang }) {
           <div style={{ ...card, flex: 1, display: "flex", justifyContent: "space-around", textAlign: "center", minWidth: "260px", padding: "10px 14px" }}>
             <div><p style={lab}>{t.tempo}</p><p style={{ ...display, fontSize: "18px", fontWeight: 800 }}>{now?.current.tempo ?? "—"}</p></div>
             <div><p style={lab}>{t.key}</p><p style={{ ...display, fontSize: "18px", fontWeight: 800 }}>{now?.current.key ?? "—"}</p></div>
-            <div><p style={lab}>{t.genre}</p><p style={{ ...display, fontSize: "18px", fontWeight: 800 }}>{now?.current.genre ?? "—"}</p></div>
+            <div><p style={lab}>{t.genre}</p><p style={{ ...display, fontSize: "18px", fontWeight: 800 }}>{now ? genreLabel(now.current.genre, lang) : "—"}</p></div>
             <div><p style={lab}>{t.round}</p><p style={{ ...display, fontSize: "18px", fontWeight: 800 }}>#{now?.current.round ?? "—"}</p></div>
           </div>
         </div>
