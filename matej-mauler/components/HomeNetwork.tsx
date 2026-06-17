@@ -109,7 +109,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         <header className="pt-16 md:pt-20 pb-12 animate-fade-up">
           <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
             <div data-noodle="logo">{brand("lg")}</div>
-            <button onClick={() => setGameOpen(true)} className="sbtn" data-noodle="eat" style={{ fontSize: 15, padding: "9px 16px", lineHeight: 1 }} aria-label={t.play} title={t.play}>▶</button>
+            <button onClick={() => setGameOpen(true)} className="sbtn" data-noodle="eat-block" style={{ fontSize: 15, padding: "9px 16px", lineHeight: 1 }} aria-label={t.play} title={t.play}>▶</button>
           </div>
           <p data-noodle="eat" className="text-[18px] md:text-[22px] max-w-[620px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.4 }}>{SPAGHETTI_BLURB[lang]}</p>
         </header>
@@ -117,7 +117,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         {/* projekty */}
         <div className="mb-6 animate-fade-up" style={{ animationDelay: "40ms", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <h2 data-noodle="eat" className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{dict.products.title}</h2>
-          <button onClick={() => setMode("browse")} className="sbtn" data-noodle="eat" style={{ marginLeft: "auto", fontSize: 13, padding: "9px 18px" }}>{t.browse} →</button>
+          <button onClick={() => setMode("browse")} className="sbtn" data-noodle="eat-block" style={{ marginLeft: "auto", fontSize: 13, padding: "9px 18px" }}>{t.browse} →</button>
         </div>
 
         <section className="zcards animate-fade-up pb-14" style={{ animationDelay: "60ms" }}>

@@ -20,9 +20,10 @@ const serifI: React.CSSProperties = { fontFamily: "var(--font-display)", fontSty
 const sans = "var(--font-sans)";
 
 const CELL = 26; // velikost buňky v px (dokumentový prostor)
-const STEP_MS = 110; // ms na krok
-const RESPAWN_MIN = 5000, RESPAWN_MAX = 10000; // ms — nový text 5–10 s po snědení
-const MAX_PENDING = 6; // max čekajících respawnů naráz
+// rychlost roste se skóre: stepMs klesá z BASE_MS k MIN_MS
+const BASE_MS = 132, MIN_MS = 52, SPEED_K = 0.06;
+const SPAWN_INTERVAL = 2400; // ms — jak rychle přibývají nové texty (až po snědení webu)
+const MAX_FACTOID_WORDS = 260; // strop živých faktoidových slov
 const FACTOID_FONT = 'italic 16px ui-serif, Georgia, "Times New Roman", serif';
 const FACTOID_LINE = 23;
 
@@ -38,13 +39,16 @@ type Game = {
   food: Food[];
   paints: Paint[];
   cards: Rect[];
-  pending: number[]; // časy (ms), kdy se má objevit nový text po snědení
   cols: number;
   rows: number;
   docW: number;
   docH: number;
   acc: number;
   last: number;
+  score: number; // řídí rychlost
+  stepMs: number; // aktuální ms na krok (i pro interpolaci)
+  allEaten: boolean; // celý web snězen → smí přibývat nové texty
+  nextSpawnAt: number; // čas dalšího faktoidu (po allEaten)
 };
 
 const UI = {
@@ -122,6 +126,8 @@ const FACTOIDS: Record<Lang, string[]> = {
 
 const opposite = (a: Dir, b: Dir) => a.x === -b.x && a.y === -b.y;
 const inRect = (px: number, py: number, r: Rect) => px >= r.x0 && px <= r.x1 && py >= r.y0 && py <= r.y1;
+// buňka hlavy (CELL×CELL) se překrývá se soustem → sníst i při průjezdu jen částí textu
+const cellHitsRect = (cx: number, cy: number, r: Rect) => cx * CELL < r.x1 && cx * CELL + CELL > r.x0 && cy * CELL < r.y1 && cy * CELL + CELL > r.y0;
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const wob = (x: number, y: number, amp: number) => Math.sin(x * 0.9 + y * 1.7) * amp;
 
@@ -197,6 +203,15 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       });
     });
 
+    // celé bloky (tlačítka) — sní se najednou i s pilulkou, ne jen text
+    document.querySelectorAll<HTMLElement>('[data-noodle="eat-block"]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 4 || r.height < 4) return;
+      const card = el.closest(".scard") as HTMLElement | null;
+      const bg = card ? getComputedStyle(card).backgroundColor || undefined : undefined;
+      food.push({ kind: "dom", x0: r.left + sx, y0: r.top + sy, x1: r.right + sx, y1: r.bottom + sy, n: 6, eaten: false, bg });
+    });
+
     // obrázky experimentů = přebarvovací dlaždice
     const paints: Paint[] = [];
     document.querySelectorAll<HTMLElement>('[data-noodle="paint"]').forEach((el) => {
@@ -222,7 +237,8 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     const snake: Cell[] = [];
     for (let i = 0; i < 5; i++) snake.push({ x: clamp(hx - i, 0, cols - 1), y: hy });
 
-    return { snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 }, food, paints, cards, pending: [], cols, rows, docW, docH, acc: 0, last: 0 };
+    const hasDom = food.some((f) => f.kind === "dom");
+    return { snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 }, food, paints, cards, cols, rows, docW, docH, acc: 0, last: 0, score: 0, stepMs: BASE_MS, allEaten: !hasDom, nextSpawnAt: 0 };
   }, [collectWords]);
 
   /* ── canvas (fixed přes viewport, retina) ── */
@@ -241,13 +257,20 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     return ctx;
   }, []);
 
-  /* ── nový text na NÁHODNÉ místo: věta na pozadí mimo karty, nebo jedno slovo na kartu ── */
+  /* ── nový text na NÁHODNÉ místo: věta na pozadí mimo karty, nebo jedno slovo na kartu —
+        a NIKDY přes jiný (nesnězený) text ── */
   const spawnText = useCallback((g: Game, ctx: CanvasRenderingContext2D) => {
-    if (g.food.filter((f) => f.kind === "factoid" && !f.eaten).length > 200) return;
+    if (g.food.filter((f) => f.kind === "factoid" && !f.eaten).length > MAX_FACTOID_WORDS) return;
     ctx.font = FACTOID_FONT;
     const overlaps = (b: Rect, c: Rect) => b.x0 < c.x1 && b.x1 > c.x0 && b.y0 < c.y1 && b.y1 > c.y0;
+    const PAD = 3;
+    const overText = (r: Rect) => {
+      const p = { x0: r.x0 - PAD, y0: r.y0 - PAD, x1: r.x1 + PAD, y1: r.y1 + PAD };
+      for (const f of g.food) if (!f.eaten && overlaps(p, f)) return true;
+      return false;
+    };
 
-    // na kartách: jen jedno slovo, vždy se vejde dovnitř karty
+    // na kartách: jedno slovo, vejde se dovnitř a nepřekrývá jiný text
     if (g.cards.length > 0 && Math.random() < 0.4) {
       const card = g.cards[Math.floor(Math.random() * g.cards.length)];
       const pad = 12;
@@ -261,16 +284,21 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       const slotW = card.x1 - card.x0 - 2 * pad;
       const slotH = card.y1 - card.y0 - 2 * pad - 18;
       if (ww > slotW || slotH < 0) return; // nevejde se → přeskoč
-      const x = card.x0 + pad + Math.random() * (slotW - ww);
-      const y = card.y0 + pad + Math.random() * slotH;
-      g.food.push({ kind: "factoid", text: word, x0: x, y0: y, x1: x + ww, y1: y + 18, n: word.length, eaten: false });
-      return;
+      for (let attempt = 0; attempt < 24; attempt++) {
+        const x = card.x0 + pad + Math.random() * (slotW - ww);
+        const y = card.y0 + pad + Math.random() * slotH;
+        const r: Rect = { x0: x, y0: y, x1: x + ww, y1: y + 18 };
+        if (overText(r)) continue;
+        g.food.push({ kind: "factoid", text: word, ...r, n: word.length, eaten: false });
+        return;
+      }
+      return; // nikde na kartě není volno
     }
 
-    // na pozadí stránky: celá věta, ale nesmí zasahovat do žádné karty
+    // na pozadí stránky: celá věta, mimo karty a nikdy přes jiný text
     const text = FACTOIDS[lang][Math.floor(Math.random() * FACTOIDS[lang].length)];
     const maxW = Math.min(340, g.docW - 32);
-    for (let attempt = 0; attempt < 20; attempt++) {
+    for (let attempt = 0; attempt < 30; attempt++) {
       const ax = 16 + Math.random() * Math.max(0, g.docW - maxW - 32);
       const ay = 80 + Math.random() * Math.max(0, g.docH - 160);
       const items: Food[] = [];
@@ -284,7 +312,8 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
         x += adv;
       }
       const box: Rect = { x0: ax, y0: ay, x1: x1max, y1: y + 18 };
-      if (g.cards.some((c) => overlaps(box, c))) continue; // zasahuje do karty → zkus jinde
+      if (g.cards.some((c) => overlaps(box, c))) continue; // zasahuje do karty
+      if (overText(box)) continue; // přes jiný text → zkus jinde
       for (const it of items) g.food.push(it);
       return;
     }
@@ -318,7 +347,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
 
     // nudle — plynulý pohyb: pozice se interpolují mezi kroky mřížky (t = postup do dalšího kroku)
     const amp = CELL * 0.06;
-    const t = clamp(g.acc / STEP_MS, 0, 1);
+    const t = clamp(g.acc / g.stepMs, 0, 1);
     type Pt = { x: number; y: number };
     const vis: Pt[] = g.snake.map((c, i) => {
       if (i === 0) return { x: c.x + g.nextDir.x * t, y: c.y + g.nextDir.y * t }; // hlava klouže do další buňky
@@ -472,21 +501,25 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       // obrázek experimentu → přebarvi stránku (nezabíjí)
       for (const p of g.paints) if (inRect(px, py, p)) {
         themeTarget.current = hexToRgb(p.color);
-        if (!p.hit) { p.hit = true; setScore((s) => s + 15); }
+        if (!p.hit) { p.hit = true; g.score += 15; setScore((s) => s + 15); }
       }
 
-      // jídlo
+      // jídlo — stačí překryv buňky hlavy se soustem (sníst i při průjezdu jen částí)
       let ate = 0, grew = false;
-      for (const f of g.food) if (!f.eaten && inRect(px, py, f)) { f.eaten = true; ate += f.n; grew = true; }
+      for (const f of g.food) if (!f.eaten && cellHitsRect(nx, ny, f)) { f.eaten = true; ate += f.n; grew = true; }
 
       const body = grew ? g.snake : g.snake.slice(0, -1);
       if (body.some((c) => c.x === nx && c.y === ny)) { die(); return true; }
 
       g.snake.unshift({ x: nx, y: ny });
       if (grew) {
+        g.score += ate;
         setScore((s) => s + ate);
-        // po snědení naplánuj nový text za 5–10 s (jinam, náhodně)
-        if (g.pending.length < MAX_PENDING) g.pending.push(performance.now() + RESPAWN_MIN + Math.random() * (RESPAWN_MAX - RESPAWN_MIN));
+        // celý web snězen? → teprve teď začnou přibývat nové texty
+        if (!g.allEaten && g.food.every((f) => f.kind !== "dom" || f.eaten)) {
+          g.allEaten = true;
+          g.nextSpawnAt = performance.now() + 700;
+        }
       } else g.snake.pop();
       return false;
     };
@@ -495,16 +528,16 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       const dt = now - g.last;
       g.last = now;
       g.acc += dt;
+      g.stepMs = clamp(BASE_MS - g.score * SPEED_K, MIN_MS, BASE_MS); // rychlost roste se skóre
       let dead = false;
-      while (g.acc >= STEP_MS) { g.acc -= STEP_MS; if (step()) { dead = true; break; } }
+      while (g.acc >= g.stepMs) { g.acc -= g.stepMs; if (step()) { dead = true; break; } }
       if (dead) return;
 
-      // objev nové texty, kterým „dozrál" čas (5–10 s po snědení)
-      if (g.pending.length && g.pending.some((d) => d <= now)) {
+      // až po snědení celého webu začnou postupně přibývat nové texty (nikdy přes jiný text)
+      if (g.allEaten && now >= g.nextSpawnAt) {
         const ctx = canvasRef.current?.getContext("2d");
-        const dueCount = g.pending.filter((d) => d <= now).length;
-        g.pending = g.pending.filter((d) => d > now);
-        if (ctx) for (let i = 0; i < dueCount; i++) spawnText(g, ctx);
+        if (ctx) spawnText(g, ctx);
+        g.nextSpawnAt = now + SPAWN_INTERVAL;
       }
 
       // plynulé přebarvení stránky do barvy experimentu
@@ -518,7 +551,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
 
       // kamera sleduje hlavu (plynule, dle interpolované pozice)
       const vh = window.innerHeight;
-      const tcam = clamp(g.acc / STEP_MS, 0, 1);
+      const tcam = clamp(g.acc / g.stepMs, 0, 1);
       const headDocY = (g.snake[0].y + g.nextDir.y * tcam) * CELL + CELL / 2;
       const targetY = clamp(headDocY - vh * 0.45, 0, Math.max(0, g.docH - vh));
       scrollRef.current += (targetY - scrollRef.current) * 0.18;
