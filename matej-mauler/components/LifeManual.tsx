@@ -368,7 +368,7 @@ const SPREADS: Spread[] = [
     ],
     note: "Most faults are temporary and normal. If one lingers, call professional service (a therapist) — no shame, just maintenance." },
   { tag: "✓", done: true, art: ArtDone, kicker: "DONE", title: "Day 1 complete",
-    note: "Day 1 — completed successfully. From here you have roughly 28,155 days left to live. Stop reading the manual now and go spend them." },
+    note: "Day 1 — completed successfully. From here you have roughly 28,155 days left to live. Now that you are prepared for everything, go out and do great things!" },
 ];
 
 const TOTAL = SPREADS.length;
