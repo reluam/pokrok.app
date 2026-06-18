@@ -235,7 +235,7 @@ const ICONS: Record<string, React.ReactNode> = {
 };
 
 /* ── Obsah ──────────────────────────────────────────────────────────────── */
-type Item = { lead?: string; mark?: "check" | "cross"; icon?: string; text: string };
+type Item = { lead?: string; mark?: "check" | "cross"; icon?: string; wm?: string; text: string };
 type Spread = {
   tag: string;
   cover?: boolean;
@@ -275,18 +275,18 @@ const SPREADS: Spread[] = [
     note: "Exact figures may differ slightly from unit to unit, and also change with the unit's age." },
   { tag: "i", kind: "parts", layout: "tiles", minTile: 150, kicker: "CHEMICAL MAKEUP", title: "Down to the elements",
     items: [
-      { lead: "O", text: "Oxygen · 65%" },
-      { lead: "C", text: "Carbon · 18.5%" },
-      { lead: "H", text: "Hydrogen · 9.5%" },
-      { lead: "N", text: "Nitrogen · 3.2%" },
-      { lead: "Ca", text: "Calcium · 1.5%" },
-      { lead: "P", text: "Phosphorus · 1.0%" },
-      { lead: "K", text: "Potassium · 0.4%" },
-      { lead: "S", text: "Sulfur · 0.3%" },
-      { lead: "Na", text: "Sodium · 0.2%" },
-      { lead: "Cl", text: "Chlorine · 0.2%" },
-      { lead: "Mg", text: "Magnesium · 0.1%" },
-      { lead: "+", text: "trace · Fe, Zn, I, Cu, F, Se… (<1%)" },
+      { lead: "65%", wm: "O", text: "Oxygen" },
+      { lead: "18.5%", wm: "C", text: "Carbon" },
+      { lead: "9.5%", wm: "H", text: "Hydrogen" },
+      { lead: "3.2%", wm: "N", text: "Nitrogen" },
+      { lead: "1.5%", wm: "Ca", text: "Calcium" },
+      { lead: "1.0%", wm: "P", text: "Phosphorus" },
+      { lead: "0.4%", wm: "K", text: "Potassium" },
+      { lead: "0.3%", wm: "S", text: "Sulfur" },
+      { lead: "0.2%", wm: "Na", text: "Sodium" },
+      { lead: "0.2%", wm: "Cl", text: "Chlorine" },
+      { lead: "0.1%", wm: "Mg", text: "Magnesium" },
+      { lead: "<1%", wm: "+", text: "trace · Fe, Zn, I, Cu, F, Se…" },
     ],
     note: "About 96% of you is just oxygen, carbon, hydrogen and nitrogen. The rest is seasoning." },
   { tag: "i", kind: "parts", layout: "tiles", minTile: 232, kicker: "ORGANS", title: "Most important parts",
@@ -375,17 +375,25 @@ const TOTAL = SPREADS.length;
 const LAST = TOTAL - 1;
 const SYM = /^[!✗✓+△→×]/;
 
-/* dlaždice kusovníku — ikona/symbol jako vodoznak, text výrazně přes ní */
+/* dlaždice kusovníku — vodoznak (ikona/symbol/číslo) vzadu; nahoře číslo + klíčové
+   slovo ve stejné akcentní barvě na jednom řádku, popis pod tím */
 function PartTile({ it }: { it: Item }) {
+  const parts = it.text.split(" · ");
+  const kw = parts.length > 1 ? parts[0] : "";
+  const body = parts.length > 1 ? parts.slice(1).join(" · ") : it.text;
+  const wm = it.wm ?? it.lead;
   return (
-    <div style={{ position: "relative", overflow: "hidden", border: `1px solid ${BORDER}`, borderRadius: 9, background: "#fff", padding: "13px 15px", minHeight: 64, display: "flex", flexDirection: "column", justifyContent: "center", gap: 4 }}>
+    <div style={{ position: "relative", overflow: "hidden", border: `1px solid ${BORDER}`, borderRadius: 9, background: "#fff", padding: "13px 15px", minHeight: 66, display: "flex", flexDirection: "column", justifyContent: "center", gap: 4 }}>
       <div aria-hidden style={it.icon
         ? { position: "absolute", right: -6, bottom: -10, width: 66, height: 66, color: INK, opacity: 0.1, pointerEvents: "none" }
-        : { position: "absolute", right: 2, bottom: -16, color: INK, opacity: 0.07, pointerEvents: "none", fontFamily: FD, fontWeight: 700, fontSize: 60, lineHeight: 1, whiteSpace: "nowrap" }}>
-        {it.icon ? ICONS[it.icon] : it.lead}
+        : { position: "absolute", right: 4, bottom: -14, color: INK, opacity: 0.08, pointerEvents: "none", fontFamily: FD, fontWeight: 700, fontSize: 56, lineHeight: 1, whiteSpace: "nowrap" }}>
+        {it.icon ? ICONS[it.icon] : wm}
       </div>
-      <span style={{ position: "relative", fontFamily: FD, fontWeight: 700, fontSize: 13.5, letterSpacing: ".01em", color: ACCENT }}>{it.lead}</span>
-      <div style={{ position: "relative", fontSize: 13.5, lineHeight: 1.4, color: BODY }}>{it.text}</div>
+      <div style={{ position: "relative", display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
+        <span style={{ fontFamily: FD, fontWeight: 700, fontSize: 14.5, color: ACCENT }}>{it.lead}</span>
+        {kw && <span style={{ fontFamily: FD, fontWeight: 600, fontSize: 14.5, color: ACCENT }}>{kw}</span>}
+      </div>
+      {body && <div style={{ position: "relative", fontSize: 13.5, lineHeight: 1.38, color: BODY }}>{body}</div>}
     </div>
   );
 }
