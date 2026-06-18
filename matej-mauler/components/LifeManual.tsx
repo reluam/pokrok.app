@@ -204,13 +204,18 @@ const ArtAdvanced = (
 );
 const ArtDone = (
   <Frame>
-    <Person x={150} y={178} s={1.95} pose="cheer" />
-    <Tick x={150} y={52} s={1.7} />
-    <g transform="translate(238 210)">
-      <path d="M-32 -22 L26 -22 L46 0 L26 22 L-32 22 Z" {...LP(3.5)} />
-      <circle cx={-20} cy={0} r={4} fill="currentColor" />
-      <text x={12} y={-2} fontSize={18} textAnchor="middle" fill="currentColor" stroke="none" style={txt()}>~4000</text>
-      <text x={12} y={15} fontSize={10} textAnchor="middle" fill="currentColor" stroke="none">weeks</text>
+    <Person x={150} y={188} s={1.7} pose="cheer" />
+    {/* razítko hotovo — vlevo nahoře, mimo hlavu */}
+    <g transform="translate(74 62)">
+      <circle cx={0} cy={0} r={22} {...LP(4)} />
+      <Tick x={0} y={-1} s={0.85} />
+    </g>
+    {/* lístek se zbývajícími dny */}
+    <g transform="translate(252 248)">
+      <path d="M-54 -22 L40 -22 L60 0 L40 22 L-54 22 Z" {...LP(3.5)} />
+      <circle cx={-42} cy={0} r={4} fill="currentColor" />
+      <text x={5} y={-3} fontSize={15} textAnchor="middle" fill="currentColor" stroke="none" style={txt()}>1 / 28,156</text>
+      <text x={5} y={13} fontSize={8} textAnchor="middle" fill="currentColor" stroke="none">DAYS · DAY 1 DONE</text>
     </g>
   </Frame>
 );
@@ -236,6 +241,8 @@ type Spread = {
   cover?: boolean;
   done?: boolean;
   kind?: "parts";
+  layout?: "tiles" | "rows";
+  minTile?: number;
   art?: React.ReactNode;
   kicker: string;
   title: string;
@@ -245,28 +252,44 @@ type Spread = {
 };
 
 const SPREADS: Spread[] = [
-  { tag: "00", cover: true, art: ArtCover, kicker: "ART. NO. 1-986-400 · HOMO SAPIENS", title: "Life Manual", note: "Instructions for use. One unit, one life, no spare parts." },
+  { tag: "00", cover: true, art: ArtCover, kicker: "ART. NO. 1-986-400 · HOMO SAPIENS", title: "Life Manual", note: "Instructions for use." },
   { tag: "→", art: ArtIntro, kicker: "INTRODUCTION", title: "Welcome to the world",
     note: "Congratulations on being born, and welcome to the world. An amazing life awaits you, woven from joys and pains. So you don't get lost in it, this manual holds the basics for living.",
     sub: "Disclaimer: best handed over on the first day of existence. If read later, success is not guaranteed." },
   { tag: "!", art: ArtWarranty, kicker: "WARNING", title: "Delivered as-is",
     items: [
-      { text: "Returns or exchanges: not possible." },
-      { text: "Spare parts: out of stock." },
-      { text: "Minor defects are part of the spec, not a fault." },
+      { text: "Returns or exchanges are not possible." },
+      { text: "Generally, there are no spare parts. Tread carefully." },
+      { text: "Minor defects are to be expected. Major defects may be present in this particular unit." },
     ],
     note: "No claims accepted. All servicing happens during full operation." },
-  { tag: "i", kind: "parts", kicker: "IN THE BOX", title: "What you're made of",
+  { tag: "i", kind: "parts", layout: "tiles", minTile: 232, kicker: "IN THE BOX", title: "Part list",
     items: [
       { icon: "cells", lead: "37 bil.", text: "cells · their atoms were forged inside stars" },
-      { icon: "organs", lead: "78", text: "organs · the main ones on the next page" },
-      { icon: "brain", lead: "86 bn", text: "neurons · the manual for them is at the printer, arriving later" },
+      { icon: "organs", lead: "78", text: "organs · the main ones two pages on" },
+      { icon: "brain", lead: "86 bn", text: "neurons · their manual is at the printer, arriving later" },
       { icon: "bone", lead: "206×", text: "bones · you have ~300 now, they'll fuse over time" },
       { icon: "blood", lead: "0.3→5 l", text: "blood · a few decilitres now, ~5 litres later" },
       { icon: "hair", lead: "0–150k", text: "hairs · by model; may thin out over time" },
     ],
-    note: "You already hold everything you need — the manual is missing on purpose, you assemble yourself on the move. (Shipped with a full stomach; returns not possible.)" },
-  { tag: "i", kind: "parts", kicker: "ORGANS", title: "Your main parts",
+    note: "Exact figures may differ slightly from unit to unit, and also change with the unit's age." },
+  { tag: "i", kind: "parts", layout: "tiles", minTile: 150, kicker: "CHEMICAL MAKEUP", title: "Down to the elements",
+    items: [
+      { lead: "O", text: "Oxygen · 65%" },
+      { lead: "C", text: "Carbon · 18.5%" },
+      { lead: "H", text: "Hydrogen · 9.5%" },
+      { lead: "N", text: "Nitrogen · 3.2%" },
+      { lead: "Ca", text: "Calcium · 1.5%" },
+      { lead: "P", text: "Phosphorus · 1.0%" },
+      { lead: "K", text: "Potassium · 0.4%" },
+      { lead: "S", text: "Sulfur · 0.3%" },
+      { lead: "Na", text: "Sodium · 0.2%" },
+      { lead: "Cl", text: "Chlorine · 0.2%" },
+      { lead: "Mg", text: "Magnesium · 0.1%" },
+      { lead: "+", text: "trace · Fe, Zn, I, Cu, F, Se… (<1%)" },
+    ],
+    note: "About 96% of you is just oxygen, carbon, hydrogen and nitrogen. The rest is seasoning." },
+  { tag: "i", kind: "parts", layout: "tiles", minTile: 232, kicker: "ORGANS", title: "Most important parts",
     items: [
       { lead: "1×", text: "brain · runs the whole body and you" },
       { lead: "1×", text: "heart · pumps blood, ~100,000×/day" },
@@ -279,7 +302,7 @@ const SPREADS: Spread[] = [
       { lead: "1×", text: "spleen · recycles blood, boosts immunity" },
       { lead: "1×", text: "skin · the largest organ, ~2 m²" },
     ],
-    note: "You have ~78 organs in total. All run non-stop, without your awareness and without holidays." },
+    note: "~78 organs in total. Selling one may have unexpected consequences for the whole unit." },
   { tag: "01", art: ArtFuel, kicker: "UPKEEP · FUEL", title: "How to refuel",
     items: [
       { lead: "2–4 l", text: "fluids a day · water keeps everything from your brain to your joints running" },
@@ -345,12 +368,27 @@ const SPREADS: Spread[] = [
     ],
     note: "Most faults are temporary and normal. If one lingers, call professional service (a therapist) — no shame, just maintenance." },
   { tag: "✓", done: true, art: ArtDone, kicker: "DONE", title: "Day 1 complete",
-    note: "That was day 1. Congratulations — you've completed the Life Manual. Now go and start living. You have roughly 4,000 weeks left." },
+    note: "Day 1 — completed successfully. From here you have roughly 28,155 days left to live. Stop reading the manual now and go spend them." },
 ];
 
 const TOTAL = SPREADS.length;
 const LAST = TOTAL - 1;
 const SYM = /^[!✗✓+△→×]/;
+
+/* dlaždice kusovníku — ikona/symbol jako vodoznak, text výrazně přes ní */
+function PartTile({ it }: { it: Item }) {
+  return (
+    <div style={{ position: "relative", overflow: "hidden", border: `1px solid ${BORDER}`, borderRadius: 9, background: "#fff", padding: "13px 15px", minHeight: 64, display: "flex", flexDirection: "column", justifyContent: "center", gap: 4 }}>
+      <div aria-hidden style={it.icon
+        ? { position: "absolute", right: -6, bottom: -10, width: 66, height: 66, color: INK, opacity: 0.1, pointerEvents: "none" }
+        : { position: "absolute", right: 2, bottom: -16, color: INK, opacity: 0.07, pointerEvents: "none", fontFamily: FD, fontWeight: 700, fontSize: 60, lineHeight: 1, whiteSpace: "nowrap" }}>
+        {it.icon ? ICONS[it.icon] : it.lead}
+      </div>
+      <span style={{ position: "relative", fontFamily: FD, fontWeight: 700, fontSize: 13.5, letterSpacing: ".01em", color: ACCENT }}>{it.lead}</span>
+      <div style={{ position: "relative", fontSize: 13.5, lineHeight: 1.4, color: BODY }}>{it.text}</div>
+    </div>
+  );
+}
 
 /* ── Komponenta ─────────────────────────────────────────────────────────── */
 export function LifeManual() {
@@ -497,16 +535,22 @@ export function LifeManual() {
                         <h2 style={{ fontFamily: FD, fontWeight: 700, fontSize: "clamp(26px,3vw,40px)", lineHeight: 1.04, letterSpacing: "-0.02em", margin: "4px 0 0" }}>{sp.title}</h2>
                       </div>
                     </div>
-                    <div style={{ width: 44, height: 3, background: ACCENT, margin: "16px 0 4px" }} />
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(290px,100%),1fr))", columnGap: "clamp(24px,3vw,48px)" }}>
-                      {sp.items!.map((it, k) => (
-                        <div key={k} style={{ display: "flex", gap: 13, alignItems: "center", padding: "10px 0", borderBottom: `1px solid ${HAIR}` }}>
-                          {it.icon && <div style={{ width: 34, height: 34, flex: "none", color: INK }}>{ICONS[it.icon]}</div>}
-                          <span style={{ flex: "none", minWidth: 60, height: 30, padding: "0 11px", display: "inline-grid", placeItems: "center", border: `1.5px solid ${INK}`, borderRadius: 999, fontFamily: FD, fontWeight: 700, fontSize: 12.5, color: SYM.test(it.lead ?? "") ? ACCENT : INK, whiteSpace: "nowrap" }}>{it.lead}</span>
-                          <span style={{ fontSize: "clamp(13.5px,0.95vw,15px)", lineHeight: 1.4, color: BODY }}>{it.text}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <div style={{ width: 44, height: 3, background: ACCENT, margin: "16px 0 8px" }} />
+                    {sp.layout === "tiles" ? (
+                      <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(min(${sp.minTile ?? 220}px,100%),1fr))`, gap: 10 }}>
+                        {sp.items!.map((it, k) => <PartTile key={k} it={it} />)}
+                      </div>
+                    ) : (
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(290px,100%),1fr))", columnGap: "clamp(24px,3vw,48px)" }}>
+                        {sp.items!.map((it, k) => (
+                          <div key={k} style={{ display: "flex", gap: 13, alignItems: "center", padding: "10px 0", borderBottom: `1px solid ${HAIR}` }}>
+                            {it.icon && <div style={{ width: 34, height: 34, flex: "none", color: INK }}>{ICONS[it.icon]}</div>}
+                            <span style={{ flex: "none", minWidth: 60, height: 30, padding: "0 11px", display: "inline-grid", placeItems: "center", border: `1.5px solid ${INK}`, borderRadius: 999, fontFamily: FD, fontWeight: 700, fontSize: 12.5, color: SYM.test(it.lead ?? "") ? ACCENT : INK, whiteSpace: "nowrap" }}>{it.lead}</span>
+                            <span style={{ fontSize: "clamp(13.5px,0.95vw,15px)", lineHeight: 1.4, color: BODY }}>{it.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {noteBlock("80ch")}
                   </div>
                 )}
