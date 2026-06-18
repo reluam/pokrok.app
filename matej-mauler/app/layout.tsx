@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -20,6 +20,14 @@ const sans = Inter({
   display: "swap",
 });
 
+// Mono font – JetBrains Mono (technické popisky v Manuálu na život atd.)
+const mono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 // --font-grotesk je alias na --font-display (globals.css) — Space Grotesk se načítá jen jednou
 
 export const metadata: Metadata = {
@@ -31,7 +39,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} h-full`}>
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} h-full`}>
       <body className="min-h-full">
         {children}
         <Analytics />

@@ -77,10 +77,17 @@ async function ensure(sql: Sql) {
   // Manuál na život — IKEA-style listovací návod na život, draft (2026-06-15)
   await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published, stage)
     VALUES ('life-manual', 'Manuál na život', 'Life Manual',
-      'Návod na život ve stylu IKEA montážního manuálu — černobíle, jako rozevřená knížka. Vtipné, naučné a pravdivé střípky: záruka a výrobní vady, obsah balení, palivo, hibernace, vhodné zacházení a mentální modely.',
-      'A guide to life in the style of an IKEA assembly manual — black and white, like an open booklet. Funny, educational, true bits and pieces: warranty and defects, what is in the box, fuel, hibernation, proper handling, and mental models.',
+      'Návod na život ve stylu IKEA montážního manuálu — černobílé technické listy. Vtipné, naučné a pravdivé střípky: záruka a výrobní vady, obsah balení, orgány, palivo, spánek, mentální modely i řešení nejčastějších problémů.',
+      'A guide to life in the style of an IKEA assembly manual — black-and-white technical sheets. Funny, educational, true bits and pieces: warranty and defects, what is in the box, organs, fuel, sleep, mental models, and troubleshooting.',
       '#F5F5F4', '/life-manual', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
     ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/life-manual'`;
+  // Spaghetti Město — on-chain ekonomická simulace s blockchainovou identitou, draft (2026-06-16)
+  await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published, stage)
+    VALUES ('spaghetti-city', 'Spaghetti Město', 'Spaghetti City',
+      'Ekonomická simulace na blockchainu: získej občanství (nepřenosné digitální ID), vlastni parcely, stav a obchoduj v měně $RAGU. Hra, která tě na vlastní kůži naučí, proč a jak funguje blockchain — vlastnictví, identita, neměnnost.',
+      'An on-chain economic simulation: claim citizenship (a soulbound digital ID), own parcels, build and trade in $RAGU. A game that teaches why and how blockchain works — ownership, identity, immutability — by doing.',
+      '#FDE9C8', '/spaghetti-city', FALSE, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM experiments), FALSE, 'draft')
+    ON CONFLICT (slug) DO UPDATE SET stage = 'draft', published = FALSE, href = '/spaghetti-city'`;
   await sql`UPDATE experiments SET title_cs = 'Encyklopedie', title_en = 'The Encyclopedia', desc_cs = 'Encyklopedie absurdních fikčních světů — braná smrtelně vážně. Futurama, Simpsonovi, Red Dwarf, Stopařův průvodce… jako by to všechno byla pravda.', desc_en = ${"An encyclopedia of absurd fictional worlds — taken deadly seriously. Futurama, The Simpsons, Red Dwarf, the Hitchhiker's Guide… as if it were all real."} WHERE slug = 'encyklopedie'`;
   ready = true;
 }
