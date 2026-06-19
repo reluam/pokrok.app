@@ -58,9 +58,6 @@ function Person({ x = 180, y = 168, s = 1, pose = "stand" }: { x?: number; y?: n
     </g>
   );
 }
-const Heart = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
-  <path transform={`translate(${x} ${y}) scale(${s})`} d="M0 -6 C-11 -22 -32 -10 0 16 C32 -10 11 -22 0 -6 Z" {...LP(4.5)} />
-);
 const Tick = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   <path d={`M${x - 13 * s} ${y} l${9 * s} ${10 * s} l${18 * s} ${-20 * s}`} {...LP(6)} />
 );
@@ -146,21 +143,30 @@ const ArtSleep = (
     <path d="M300 70 a26 26 0 1 0 8 36 a20 20 0 1 1 -8 -36" {...LP(4.5)} />
   </Frame>
 );
-const ArtSocial = (
+const ArtCare = (
   <Frame>
-    <Person x={104} y={190} s={1.05} pose="side" />
-    <Person x={180} y={184} s={1.2} pose="stand" />
-    <Person x={256} y={190} s={1.05} pose="side" />
-    <path d="M64 252 H296" {...LP(4)} />
+    <g transform="translate(120 152)">
+      <rect x={-66} y={-92} width={132} height={184} rx={11} {...LP(5)} />
+      <rect x={-24} y={-104} width={48} height={24} rx={7} {...LP(4)} />
+      <g {...LP(4)}>
+        <path d="M-46 -48 l8 9 l16 -19" />
+        <path d="M-46 2 l8 9 l16 -19" />
+        <path d="M-46 52 l8 9 l16 -19" />
+      </g>
+      <path d="M-12 -48 h50 M-12 2 h50 M-12 52 h50" {...LP(3.5)} />
+    </g>
+    <Person x={272} y={178} s={1.15} pose="wave" />
   </Frame>
 );
-const ArtLove = (
+const ArtMove = (
   <Frame>
-    <Person x={104} y={188} s={1.2} pose="side" />
-    <Person x={256} y={188} s={1.2} pose="side" />
-    <Heart x={180} y={92} s={2.1} />
-    <path d="M138 94 Q180 66 222 94" {...LP(4)} markerEnd="url(#lm-arw)" />
-    <Heart x={180} y={238} s={1.1} />
+    <Person x={190} y={170} s={1.6} pose="cheer" />
+    <g {...LP(3.5)} opacity={0.5}>
+      <path d="M84 110 q16 0 16 16" />
+      <path d="M68 146 q20 0 20 20" />
+      <path d="M80 182 q16 0 16 16" />
+    </g>
+    <path d="M62 254 H300" {...LP(4)} />
   </Frame>
 );
 const ArtMind = (
@@ -174,31 +180,6 @@ const ArtMind = (
       <circle cx={0} cy={0} r={22} />
       <path d="M-10 24 h20 M-7 31 h14" />
       <path d="M0 -36 v-11 M-31 0 h-11 M31 0 h11 M-22 -22 l-7 -7 M22 -22 l7 -7" strokeWidth={sw(3.2)} />
-    </g>
-  </Frame>
-);
-const ArtBugs = (
-  <Frame>
-    <g transform="translate(180 150)">
-      <path d="M0 -80 L90 76 L-90 76 Z" {...LP(5)} />
-      <g transform="translate(0 26)">
-        <ellipse cx={0} cy={0} rx={26} ry={34} {...SP(5)} />
-        <path d="M0 -34 V34" {...LP(4)} />
-        <circle cx={0} cy={-42} r={11} {...SP(4)} />
-        <path d="M-6 -51 q-8 -10 -17 -10 M6 -51 q8 -10 17 -10" {...LP(3.5)} />
-        <path d="M-26 -14 l-22 -8 M-26 4 l-24 0 M-26 20 l-22 11 M26 -14 l22 -8 M26 4 l24 0 M26 20 l22 11" {...LP(3.5)} />
-      </g>
-    </g>
-  </Frame>
-);
-const ArtAdvanced = (
-  <Frame>
-    <g transform="translate(180 162)">
-      <path d="M-24 -20 v-22 a24 24 0 0 1 44 -10" {...LP(7)} />
-      <rect x={-44} y={-20} width={88} height={76} rx={13} {...SP(5)} />
-      <circle cx={0} cy={10} r={9} {...LP(4)} />
-      <path d="M0 19 v15" {...LP(5)} />
-      <path d="M58 -36 l0 -16 M50 -44 l16 0 M70 -16 l0 -10 M65 -21 l10 0 M-58 -30 l0 -12 M-64 -36 l12 0" {...LP(3.5)} />
     </g>
   </Frame>
 );
@@ -273,6 +254,20 @@ const SPREADS: Spread[] = [
       { icon: "hair", lead: "0–150k", text: "hairs · by model; may thin out over time" },
     ],
     note: "Exact figures may differ slightly from unit to unit, and also change with the unit's age." },
+  { tag: "i", kind: "parts", layout: "tiles", minTile: 232, kicker: "ORGANS", title: "Important organs",
+    items: [
+      { lead: "1×", text: "brain · runs the whole body and you" },
+      { lead: "1×", text: "heart · pumps blood, ~100,000×/day" },
+      { lead: "2×", text: "lungs · oxygenate blood, ~20,000 breaths/day" },
+      { lead: "1×", text: "liver · chemical factory, 500+ jobs" },
+      { lead: "2×", text: "kidneys · filter blood, ~180 l/day" },
+      { lead: "1×", text: "stomach · breaks down food with acid" },
+      { lead: "~7.5 m", text: "intestines · absorb nutrients" },
+      { lead: "1×", text: "pancreas · insulin and digestive enzymes" },
+      { lead: "1×", text: "spleen · recycles blood, boosts immunity" },
+      { lead: "1×", text: "skin · the largest organ, ~2 m²" },
+    ],
+    note: "~78 organs in total. Selling one may have unexpected consequences for the whole unit." },
   { tag: "i", kind: "parts", layout: "tiles", minTile: 150, kicker: "CHEMICAL MAKEUP", title: "Down to the elements",
     items: [
       { lead: "65%", wm: "O", text: "Oxygen" },
@@ -289,21 +284,29 @@ const SPREADS: Spread[] = [
       { lead: "<1%", wm: "+", text: "trace · Fe, Zn, I, Cu, F, Se…" },
     ],
     note: "About 96% of you is just oxygen, carbon, hydrogen and nitrogen. The rest is seasoning." },
-  { tag: "i", kind: "parts", layout: "tiles", minTile: 232, kicker: "ORGANS", title: "Most important parts",
+  { tag: "★", art: ArtCare, kicker: "MAINTENANCE", title: "Proper care",
     items: [
-      { lead: "1×", text: "brain · runs the whole body and you" },
-      { lead: "1×", text: "heart · pumps blood, ~100,000×/day" },
-      { lead: "2×", text: "lungs · oxygenate blood, ~20,000 breaths/day" },
-      { lead: "1×", text: "liver · chemical factory, 500+ jobs" },
-      { lead: "2×", text: "kidneys · filter blood, ~180 l/day" },
-      { lead: "1×", text: "stomach · breaks down food with acid" },
-      { lead: "~7.5 m", text: "intestines · absorb nutrients" },
-      { lead: "1×", text: "pancreas · insulin and digestive enzymes" },
-      { lead: "1×", text: "spleen · recycles blood, boosts immunity" },
-      { lead: "1×", text: "skin · the largest organ, ~2 m²" },
+      { lead: "rest", text: "keep regular operating hours — sleep and recover" },
+      { lead: "move", text: "use the moving parts every day" },
+      { lead: "fuel", text: "refuel with the right kind of energy" },
+      { lead: "mind", text: "keep the brain busy, curious and connected" },
     ],
-    note: "~78 organs in total. Selling one may have unexpected consequences for the whole unit." },
-  { tag: "01", art: ArtFuel, kicker: "UPKEEP · FUEL", title: "How to refuel",
+    note: "For best performance your unit needs proper care. Neglected, it still runs — just worse, and not for as long. The four essentials, one per page next." },
+  { tag: "01", art: ArtSleep, kicker: "OPERATING HOURS", title: "Sleep & rest",
+    items: [
+      { lead: "16 h", text: "awake → then lie down for 7–9 h in the dark and quiet" },
+      { lead: "20 min", text: "a short nap recharges you when it's all too much" },
+      { lead: "PAUSE", text: "after a heavy load let yourself cool down — you can't run flat-out forever" },
+    ],
+    note: "When smoke starts rising from your ears, it's overheating (burnout). Power down, unplug from the grid (work, phone) and cool off. A restart can take weeks." },
+  { tag: "02", art: ArtMove, kicker: "LOCOMOTION", title: "Use your moving parts",
+    items: [
+      { lead: "daily", text: "move a bit every day — walk, dance, take the stairs" },
+      { lead: "sit less", text: "long sitting stiffens the chassis; stand up and stretch" },
+      { lead: "fun", text: "the exercise you enjoy is the one you'll actually keep" },
+    ],
+    note: "A unit in motion stays in working order; one left at rest starts to seize. No gym required — just keep moving." },
+  { tag: "03", art: ArtFuel, kicker: "FUEL", title: "Food & drink",
     items: [
       { lead: "2–4 l", text: "fluids a day · water keeps everything from your brain to your joints running" },
       { lead: "fibre", text: "veg and whole grains · feed your gut bacteria — more of them than stars in the Milky Way" },
@@ -313,58 +316,23 @@ const SPREADS: Spread[] = [
       { lead: "sun", text: "~15 min of rays a day · tops up vitamin D, which lifts mood and immunity" },
     ],
     note: "Nothing is forbidden to you — it's about the ratio. About 80% sensible, 20% for joy." },
-  { tag: "02", art: ArtSleep, kicker: "OPERATING MODE", title: "Sleep & cooling",
+  { tag: "04", art: ArtMind, kicker: "MENTAL", title: "Keep the brain busy",
     items: [
-      { lead: "16 h", text: "awake → then lie down for 7–9 h in the dark and quiet" },
-      { lead: "20 min", text: "a short nap recharges you when it's all too much" },
-      { lead: "PAUSE", text: "after a heavy load let yourself cool down — you can't run flat-out forever" },
+      { lead: "connect", text: "relationships are the #1 predictor of happiness (Harvard, 85 yrs); you're a social unit" },
+      { lead: "be kind", text: "kindness and cooperation — outward first, then to yourself" },
+      { lead: "compare", text: "your backstage vs other people's highlight reel; nobody dwells on your mistakes like you do" },
+      { lead: "it passes", text: "most of today's worries you won't even recall in a year" },
+      { lead: "watch bias", text: "you lean to black-and-white and to the negative — go find the other view" },
+      { lead: "level up", text: "long-term thinking, empathy, gratitude (warning: may make you a better person)" },
     ],
-    note: "When smoke starts rising from your ears, it's overheating (burnout). Power down, unplug from the grid (work, phone) and cool off. A restart can take weeks." },
-  { tag: "△", art: ArtSocial, kicker: "EVOLUTION", title: "A social creature",
-    items: [
-      { lead: "300k", text: "years tuned for life in a group (genus Homo ~2.5M years)" },
-      { lead: "~150", text: "close relationships you can keep at once (Dunbar's number)" },
-      { lead: "0", text: "claws · we survived by cooperating, not by force" },
-    ],
-    note: "You're Homo sapiens sapiens — the social human. Life isn't only about you; solitude doesn't suit you, and belonging is fuel, not a luxury." },
-  { tag: "03", art: ArtLove, kicker: "RELATIONSHIPS", title: "Cultivate kindness and cooperation",
-    items: [
-      { mark: "check", text: "Outward first: be kind to others, help, listen" },
-      { mark: "check", text: "Then inward: be just as kind to yourself" },
-      { mark: "check", text: "Hug and be hugged — a hug lowers stress on both sides" },
-    ],
-    note: "We grow through others — by cooperating, not competing. Send kindness outward and inward, in that order." },
-  { tag: "04", art: ArtMind, kicker: "MIND UPKEEP", title: "A few things for a calmer mind",
-    items: [
-      { lead: "breath", text: "a slow breath in and a longer breath out calm the nerves within moments" },
-      { lead: "sit", text: "5–10 min a day, notice your breath; the mind learns not to chase every thought" },
-      { lead: "journal", text: "writing worries on paper gets them out of your head" },
-      { lead: "outside", text: "a walk in nature resets your mood better than scrolling" },
-    ],
-    note: "You are not your thoughts — they're visitors. You don't have to invite every one in." },
-  { tag: "!!", art: ArtBugs, kicker: "KNOWN SOFTWARE BUGS", title: "Possible factory bugs",
-    items: [
-      { lead: "!", text: "You may tend to see the world in black and white. Now and then, show yourself the other colours on purpose." },
-      { lead: "!", text: "You'll notice more of what confirms what you already think. Go looking for the opposite view too." },
-      { lead: "!", text: "One criticism will outweigh ten compliments for you. Keep reminding yourself of what went well." },
-    ],
-    note: "These bugs can't be uninstalled — but once you know them, you can route around them." },
-  { tag: "+", art: ArtAdvanced, kicker: "ADVANCED MODE", title: "Go big or go home",
-    items: [
-      { lead: "+", text: "Long-term thinking · decide for your future self too" },
-      { lead: "+", text: "Empathy · see the world through other people's eyes too" },
-      { lead: "+", text: "Gratitude · notice what already works" },
-    ],
-    note: "WARNING: this may turn you into a better person. It counts as an unauthorised unlock (so-called rooting) — it voids the warranty. Proceed at your own risk." },
+    note: "Software matters more than hardware. Keep it curious, connected and kind." },
   { tag: "✗", kind: "parts", kicker: "TROUBLESHOOTING", title: "Common faults",
     items: [
-      { lead: "✗", text: "Broken heart → time and loved ones; mends slowly but surely" },
-      { lead: "✗", text: "Grazed hand → clean, cover; the body repairs itself" },
-      { lead: "✗", text: "Decision paralysis → flip a coin; relief or regret reveals what you wanted" },
       { lead: "✗", text: "No appetite for work → just do the first 2 minutes; the appetite follows" },
       { lead: "✗", text: "Loneliness → reach out to someone; even a short message helps" },
       { lead: "✗", text: "Intrusive 3 a.m. thoughts → write them down and sleep; smaller by morning" },
       { lead: "✗", text: "Existential crisis → a routine update; get outside, see people, eat, overthink less" },
+      { lead: "✗", text: "Anxiety → slow the breath; separate real threats from imagined — most never arrive" },
     ],
     note: "Most faults are temporary and normal. If one lingers, call professional service (a therapist) — no shame, just maintenance." },
   { tag: "✓", done: true, art: ArtDone, kicker: "DONE", title: "Day 1 complete",
