@@ -292,7 +292,7 @@ const SPREADS: Spread[] = [
       { lead: "mind", text: "keep the brain busy, curious and connected" },
     ],
     note: "For best performance your unit needs proper care. Neglected, it still runs — just worse, and not for as long. The four essentials, one per page next." },
-  { tag: "01", art: ArtSleep, kicker: "OPERATING HOURS", title: "Sleep & rest",
+  { tag: "01", art: ArtSleep, kicker: "OPERATING HOURS", title: "Operating hours",
     items: [
       { lead: "16 h", text: "awake → then lie down for 7–9 h in the dark and quiet" },
       { lead: "20 min", text: "a short nap recharges you when it's all too much" },
@@ -492,7 +492,7 @@ export function LifeManual() {
 
                 {isCentered && (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "clamp(14px,2.5vh,26px)" }}>
-                    <span style={mono({ fontSize: 11, letterSpacing: ".24em", color: sp.done ? ACCENT : MUTED })}>{sp.kicker}</span>
+                    {sp.cover && <span style={mono({ fontSize: 11, letterSpacing: ".24em", color: MUTED })}>{sp.kicker}</span>}
                     <h1 style={{ fontFamily: FD, fontWeight: 700, fontSize: sp.cover ? "clamp(40px,6.6vw,80px)" : "clamp(34px,5.4vw,64px)", lineHeight: 0.97, letterSpacing: "-0.035em", margin: 0 }}>{sp.title}</h1>
                     <div style={{ width: "min(340px,68%)", color: INK }}>{sp.art}</div>
                     {sp.cover && serial != null && (
@@ -504,14 +504,11 @@ export function LifeManual() {
 
                 {isParts && (
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 6 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 4 }}>
                       {stepBadge(52)}
-                      <div>
-                        <div style={mono({ fontSize: 11, letterSpacing: ".18em", color: MUTED })}>{sp.kicker}</div>
-                        <h2 style={{ fontFamily: FD, fontWeight: 700, fontSize: "clamp(26px,3vw,40px)", lineHeight: 1.04, letterSpacing: "-0.02em", margin: "4px 0 0" }}>{sp.title}</h2>
-                      </div>
+                      <h2 style={{ fontFamily: FD, fontWeight: 700, fontSize: "clamp(26px,3.2vw,42px)", lineHeight: 1.04, letterSpacing: "-0.02em", margin: 0 }}>{sp.title}</h2>
                     </div>
-                    <div style={{ width: 44, height: 3, background: ACCENT, margin: "16px 0 8px" }} />
+                    <div style={{ width: 44, height: 3, background: ACCENT, margin: "14px 0 8px" }} />
                     {sp.layout === "tiles" ? (
                       <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(min(${sp.minTile ?? 220}px,100%),1fr))`, gap: 10 }}>
                         {sp.items!.map((it, k) => <PartTile key={k} it={it} />)}
@@ -540,11 +537,10 @@ export function LifeManual() {
                       <span style={{ position: "absolute", left: 14, bottom: 11, ...mono({ fontSize: 10, letterSpacing: ".12em", color: MUTED }) }}>FIG. {String(i + 1).padStart(2, "0")}</span>
                     </div>
                     <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                         {stepBadge(54)}
-                        <span style={mono({ fontSize: 11, letterSpacing: ".18em", color: MUTED })}>{sp.kicker}</span>
+                        <h2 style={{ fontFamily: FD, fontWeight: 700, fontSize: "clamp(26px,3.2vw,42px)", lineHeight: 1.04, letterSpacing: "-0.025em", margin: 0 }}>{sp.title}</h2>
                       </div>
-                      <h2 style={{ fontFamily: FD, fontWeight: 700, fontSize: "clamp(28px,3.4vw,46px)", lineHeight: 1.04, letterSpacing: "-0.025em", margin: 0 }}>{sp.title}</h2>
                       <div style={{ width: 46, height: 3, background: ACCENT, margin: "16px 0" }} />
                       {itemList}
                       {noteBlock("48ch")}
