@@ -1,0 +1,19 @@
+{
+  "name": "spaghetti-city-contracts",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Smart contracts for the Spaghetti City on-chain economic simulation (Base).",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:baseSepolia": "hardhat run scripts/deploy.js --network baseSepolia",
+    "deploy:base": "hardhat run scripts/deploy.js --network base"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0"
+  }
+}
