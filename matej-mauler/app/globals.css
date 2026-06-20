@@ -236,16 +236,17 @@ body {
   align-items: stretch;
 }
 .scard {
-  display: block; text-decoration: none; height: 100%;
+  display: flex; flex-direction: column; text-decoration: none; height: 100%;
   background: transparent;
   border: 1px solid rgba(26,22,20,0.14);
-  border-radius: 14px;
+  border-radius: 0;
+  overflow: hidden;
   transition: border-color 200ms var(--transition);
 }
 .scard:hover {
   border-color: rgba(26,22,20,0.45);
 }
-.scard-banner { border-radius: 10px; overflow: hidden; border: 1px solid rgba(26,22,20,0.08); }
+.scard-banner { border-radius: 0; overflow: hidden; }
 .zarrow { transition: transform 200ms var(--transition); }
 .scard:hover .zarrow { transform: translateX(4px); }
 
