@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ClerkProvider } from "@clerk/nextjs";
+import { ExperiencePanelMount } from "@/components/ExperiencePanelMount";
 import "./globals.css";
+
+// Clerk se zapne, jen když jsou v prostředí klíče → web funguje i bez nich (žádný 500 při deployi před setupem).
+const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // Headline font – Space Grotesk
 const display = Space_Grotesk({
@@ -38,12 +43,27 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const inner = (
+    <>
+      {children}
+      <ExperiencePanelMount />
+      <Analytics />
+      <SpeedInsights />
+    </>
+  );
+
   return (
     <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} h-full`}>
       <body className="min-h-full">
-        {children}
-        <Analytics />
-        <SpeedInsights />
+        {clerkEnabled ? (
+          <ClerkProvider
+            appearance={{ variables: { colorPrimary: "#1a1614", borderRadius: "12px", fontFamily: "var(--font-sans)" } }}
+          >
+            {inner}
+          </ClerkProvider>
+        ) : (
+          inner
+        )}
       </body>
     </html>
   );

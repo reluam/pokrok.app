@@ -1,6 +1,10 @@
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
 
 const ADMIN_COOKIE = "admin_token";
+
+// Clerk běží jen s klíčem → bez něj se použije čistý handler (web nespadne na 500 před setupem).
+const clerkEnabled = !!process.env.CLERK_SECRET_KEY;
 
 // Cache hrefů smazaných experimentů (per edge isolate, TTL 60 s) → 410 Gone bez DB v hot-path.
 let goneCache: { ts: number; set: Set<string> } = { ts: 0, set: new Set() };
@@ -17,7 +21,7 @@ async function getGone(request: NextRequest): Promise<Set<string>> {
   return goneCache.set;
 }
 
-export async function middleware(request: NextRequest) {
+async function handle(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── Admin protection ────────────────────────────────────────────
@@ -30,8 +34,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── Smazané experimenty → 410 Gone ─────────────────────────────
-  if (!pathname.startsWith("/admin")) {
+  // ── Smazané experimenty → 410 Gone (jen stránky, ne API) ───────
+  if (!pathname.startsWith("/admin") && !pathname.startsWith("/api")) {
     const gone = await getGone(request);
     if (gone.has(pathname)) {
       return new NextResponse("410 Gone — this experiment no longer exists.", {
@@ -45,7 +49,18 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+// Clerk obaluje handler jen kvůli auth() v /api/comments; bez klíče čistý handler.
+export default clerkEnabled
+  ? clerkMiddleware((_auth, request) => handle(request))
+  : (request: NextRequest) => handle(request);
+
 export const config = {
-  // Běží na všech stránkách kromě API, _next a statických souborů (kvůli 410 kontrole) + admin.
-  matcher: ["/((?!api/|_next/|favicon.ico|logo.svg|.*\\.).*)", "/admin/:path*"],
+  matcher: [
+    // Stránky (kvůli 410 kontrole) + admin + comments API (Clerk auth()) + Clerk auto-proxy.
+    "/((?!api/|_next/|favicon.ico|logo.svg|.*\\.).*)",
+    "/admin/:path*",
+    "/api/comments/:path*",
+    "/api/ratings/:path*",
+    "/__clerk/:path*",
+  ],
 };
