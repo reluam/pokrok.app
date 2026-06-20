@@ -5,11 +5,11 @@ import type { Lang } from "@/lib/dictionaries";
 
 /* ───────────────────────────────────────────────────────────────────
    Zamotaná nudle — easter egg na homepage.
-   Nudle vyjede z loga a požírá REÁLNÝ obsah stránky:
-   • text (slova) + logo = sousta (body, nudle roste),
+   CÍL: sníst VŠECHEN text na stránce (slova, logo, tlačítka, texty karet).
    • obrázek experimentu (banner) = přebarví celou stránku do barev toho
-     experimentu (nezabíjí),
-   • snědený text se po ~15 s nahradí zajímavým faktoidem (jde taky sníst),
+     experimentu (nezabíjí); rychlost roste se skóre,
+   • povede-li se sníst úplně vše → „Congratulations, good game" (ztmavení +
+     bílý text), po pár vteřinách zmizí a vrátí se jen homepage,
    • jediná prohra = zamotat se sám do sebe.
    Vše kreslí průhledný canvas navrch; DOM se nemění → po konci se stránka
    sama „obnoví" (canvas se odmountuje, --bg se vrátí).
@@ -22,15 +22,12 @@ const sans = "var(--font-sans)";
 const CELL = 26; // velikost buňky v px (dokumentový prostor)
 // rychlost roste se skóre: stepMs klesá z BASE_MS k MIN_MS
 const BASE_MS = 132, MIN_MS = 52, SPEED_K = 0.06;
-const SPAWN_INTERVAL = 2400; // ms — jak rychle přibývají nové texty (až po snědení webu)
-const MAX_FACTOID_WORDS = 260; // strop živých faktoidových slov
-const FACTOID_FONT = 'italic 16px ui-serif, Georgia, "Times New Roman", serif';
-const FACTOID_LINE = 23;
+const WIN_HOLD_MS = 3600; // jak dlouho svítí „Congratulations" než se vrátí homepage
 
 type Dir = { x: number; y: number };
 type Cell = { x: number; y: number };
 type Rect = { x0: number; y0: number; x1: number; y1: number };
-type Food = Rect & { n: number; eaten: boolean; kind: "dom" | "factoid"; text?: string; bg?: string };
+type Food = Rect & { n: number; eaten: boolean; bg?: string };
 type Paint = Rect & { color: string; hit: boolean };
 type Game = {
   snake: Cell[];
@@ -47,8 +44,6 @@ type Game = {
   last: number;
   score: number; // řídí rychlost
   stepMs: number; // aktuální ms na krok (i pro interpolaci)
-  allEaten: boolean; // celý web snězen → smí přibývat nové texty
-  nextSpawnAt: number; // čas dalšího faktoidu (po allEaten)
 };
 
 const UI = {
@@ -57,7 +52,7 @@ const UI = {
     exit: "Konec",
     again: "Hrát znovu",
     close: "Zavřít",
-    controls: "šipky / WASD · táhni prstem · najeď na obrázek = přebarvíš web · Esc = konec",
+    controls: "šipky / WASD · táhni prstem · sněz všechen text · Esc = konec",
     over: "Konec",
   },
   en: {
@@ -65,7 +60,7 @@ const UI = {
     exit: "Exit",
     again: "Play again",
     close: "Close",
-    controls: "arrows / WASD · swipe · hit an image to recolor the site · Esc = exit",
+    controls: "arrows / WASD · swipe · eat all the text · Esc = exit",
     over: "Game over",
   },
 } as const;
@@ -82,45 +77,6 @@ const DEATHS_SELF: Record<Lang, string[]> = {
     "The only knot that stopped you was your own.",
     "You ate your own tail. Loop closed.",
     "Even spaghetti has limits. Mostly self-imposed.",
-  ],
-};
-
-const FACTOIDS: Record<Lang, string[]> = {
-  cs: [
-    "Jsi z ~60 % voda. Hlavně neztuhni.",
-    "Tělo ti denně vymění ~330 miliard buněk.",
-    "Mikrobů v tobě je víc než tvých vlastních buněk.",
-    "Světlo ze Slunce sem letělo 8 minut.",
-    "Každý atom v tobě se ukoval v umírající hvězdě.",
-    "Srdce ti tlukne asi 2,5 miliardykrát. Bez pauzy.",
-    "V hlavě máš víc synapsí než hvězd v Mléčné dráze.",
-    "S banánem sdílíš zhruba 60 % genů.",
-    "Suchá špageta se skoro nikdy nezlomí jen na dva kusy.",
-    "Mozek běží na asi 20 wattech. Slabá žárovka, skvělé nápady.",
-    "Právě teď se točíš rychlostí ~1600 km/h a nic necítíš.",
-    "Atom je z větší části prázdný prostor. Ty taky.",
-    "Asi třetinu života prospíš. To je servisní okno.",
-    "Nadechneš se asi 20 000krát denně, aniž bys o to požádal.",
-    "Voda, co dnes piješ, byla kdysi voda dinosaurů.",
-    "Kosti jsou na váhu asi 4krát pevnější než beton.",
-  ],
-  en: [
-    "You are about 60% water. Try not to harden.",
-    "Your body swaps ~330 billion cells a day.",
-    "Microbes in you outnumber your own cells.",
-    "Light from the Sun took 8 minutes to get here.",
-    "Every atom in you was forged in a dying star.",
-    "Your heart beats about 2.5 billion times. No breaks.",
-    "More synapses in your head than stars in the Milky Way.",
-    "You share roughly 60% of your genes with a banana.",
-    "A dry spaghetti strand almost never snaps into just two.",
-    "Your brain runs on about 20 watts. Dim bulb, bright ideas.",
-    "Right now you spin at ~1600 km/h and feel nothing.",
-    "Most of an atom is empty space. So are you.",
-    "You'll spend about a third of your life asleep.",
-    "You take ~20,000 breaths a day without asking.",
-    "The water you drink today was once dinosaur water.",
-    "Bones are about 4x stronger than concrete by weight.",
   ],
 };
 
@@ -142,7 +98,7 @@ const rgbStr = (c: RGB) => `rgb(${Math.round(c[0])},${Math.round(c[1])},${Math.r
 
 export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose: () => void; lang: Lang }) {
   const t = UI[lang];
-  const [phase, setPhase] = useState<"playing" | "dead">("playing");
+  const [phase, setPhase] = useState<"playing" | "dead" | "won">("playing");
   const [score, setScore] = useState(0);
   const [overLine, setOverLine] = useState("");
   const [round, setRound] = useState(0);
@@ -176,7 +132,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
         for (let i = 0; i < rects.length; i++) {
           const r = rects[i];
           if (r.width < 2 || r.height < 2) continue;
-          out.push({ kind: "dom", x0: r.left + sx, y0: r.top + sy, x1: r.right + sx, y1: r.bottom + sy, n: m[0].length, eaten: false, bg });
+          out.push({ x0: r.left + sx, y0: r.top + sy, x1: r.right + sx, y1: r.bottom + sy, n: m[0].length, eaten: false, bg });
         }
       }
       node = walker.nextNode();
@@ -199,7 +155,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       collectWords(el, food, sx, sy, bg);
       el.querySelectorAll("img").forEach((img) => {
         const r = img.getBoundingClientRect();
-        if (r.width > 4 && r.height > 4) food.push({ kind: "dom", x0: r.left + sx, y0: r.top + sy, x1: r.right + sx, y1: r.bottom + sy, n: 8, eaten: false, bg });
+        if (r.width > 4 && r.height > 4) food.push({ x0: r.left + sx, y0: r.top + sy, x1: r.right + sx, y1: r.bottom + sy, n: 8, eaten: false, bg });
       });
     });
 
@@ -209,7 +165,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       if (r.width < 4 || r.height < 4) return;
       const card = el.closest(".scard") as HTMLElement | null;
       const bg = card ? getComputedStyle(card).backgroundColor || undefined : undefined;
-      food.push({ kind: "dom", x0: r.left + sx, y0: r.top + sy, x1: r.right + sx, y1: r.bottom + sy, n: 6, eaten: false, bg });
+      food.push({ x0: r.left + sx, y0: r.top + sy, x1: r.right + sx, y1: r.bottom + sy, n: 6, eaten: false, bg });
     });
 
     // obrázky experimentů = přebarvovací dlaždice
@@ -219,7 +175,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       if (r.width > 0 && r.height > 0) paints.push({ ...toDoc(r), color: el.dataset.noodleColor || "#FAFAF7", hit: false });
     });
 
-    // celé karty — kvůli rozmístění nového textu (věty jen mimo karty, na kartách jen slova)
+    // celé karty (nudle smí přes ně, jen je měříme)
     const cards: Rect[] = [];
     document.querySelectorAll<HTMLElement>(".scard").forEach((el) => {
       const r = el.getBoundingClientRect();
@@ -237,8 +193,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     const snake: Cell[] = [];
     for (let i = 0; i < 5; i++) snake.push({ x: clamp(hx - i, 0, cols - 1), y: hy });
 
-    const hasDom = food.some((f) => f.kind === "dom");
-    return { snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 }, food, paints, cards, cols, rows, docW, docH, acc: 0, last: 0, score: 0, stepMs: BASE_MS, allEaten: !hasDom, nextSpawnAt: 0 };
+    return { snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 }, food, paints, cards, cols, rows, docW, docH, acc: 0, last: 0, score: 0, stepMs: BASE_MS };
   }, [collectWords]);
 
   /* ── canvas (fixed přes viewport, retina) ── */
@@ -257,68 +212,6 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     return ctx;
   }, []);
 
-  /* ── nový text na NÁHODNÉ místo: věta na pozadí mimo karty, nebo jedno slovo na kartu —
-        a NIKDY přes jiný (nesnězený) text ── */
-  const spawnText = useCallback((g: Game, ctx: CanvasRenderingContext2D) => {
-    if (g.food.filter((f) => f.kind === "factoid" && !f.eaten).length > MAX_FACTOID_WORDS) return;
-    ctx.font = FACTOID_FONT;
-    const overlaps = (b: Rect, c: Rect) => b.x0 < c.x1 && b.x1 > c.x0 && b.y0 < c.y1 && b.y1 > c.y0;
-    const PAD = 3;
-    const overText = (r: Rect) => {
-      const p = { x0: r.x0 - PAD, y0: r.y0 - PAD, x1: r.x1 + PAD, y1: r.y1 + PAD };
-      for (const f of g.food) if (!f.eaten && overlaps(p, f)) return true;
-      return false;
-    };
-
-    // na kartách: jedno slovo, vejde se dovnitř a nepřekrývá jiný text
-    if (g.cards.length > 0 && Math.random() < 0.4) {
-      const card = g.cards[Math.floor(Math.random() * g.cards.length)];
-      const pad = 12;
-      const pool = FACTOIDS[lang];
-      let word = "nudle";
-      for (let i = 0; i < 8; i++) {
-        const ws = pool[Math.floor(Math.random() * pool.length)].replace(/[.,]/g, "").split(/\s+/).filter((w) => w.length >= 3);
-        if (ws.length) { word = ws[Math.floor(Math.random() * ws.length)]; break; }
-      }
-      const ww = ctx.measureText(word).width;
-      const slotW = card.x1 - card.x0 - 2 * pad;
-      const slotH = card.y1 - card.y0 - 2 * pad - 18;
-      if (ww > slotW || slotH < 0) return; // nevejde se → přeskoč
-      for (let attempt = 0; attempt < 24; attempt++) {
-        const x = card.x0 + pad + Math.random() * (slotW - ww);
-        const y = card.y0 + pad + Math.random() * slotH;
-        const r: Rect = { x0: x, y0: y, x1: x + ww, y1: y + 18 };
-        if (overText(r)) continue;
-        g.food.push({ kind: "factoid", text: word, ...r, n: word.length, eaten: false });
-        return;
-      }
-      return; // nikde na kartě není volno
-    }
-
-    // na pozadí stránky: celá věta, mimo karty a nikdy přes jiný text
-    const text = FACTOIDS[lang][Math.floor(Math.random() * FACTOIDS[lang].length)];
-    const maxW = Math.min(340, g.docW - 32);
-    for (let attempt = 0; attempt < 30; attempt++) {
-      const ax = 16 + Math.random() * Math.max(0, g.docW - maxW - 32);
-      const ay = 80 + Math.random() * Math.max(0, g.docH - 160);
-      const items: Food[] = [];
-      let x = ax, y = ay, x1max = ax;
-      for (const w of text.split(/\s+/)) {
-        const adv = ctx.measureText(w + " ").width;
-        const ww = ctx.measureText(w).width;
-        if (x + ww > ax + maxW) { x = ax; y += FACTOID_LINE; }
-        items.push({ kind: "factoid", text: w, x0: x, y0: y, x1: x + ww, y1: y + 18, n: w.length, eaten: false });
-        x1max = Math.max(x1max, x + ww);
-        x += adv;
-      }
-      const box: Rect = { x0: ax, y0: ay, x1: x1max, y1: y + 18 };
-      if (g.cards.some((c) => overlaps(box, c))) continue; // zasahuje do karty
-      if (overText(box)) continue; // přes jiný text → zkus jinde
-      for (const it of items) g.food.push(it);
-      return;
-    }
-  }, [lang]);
-
   const draw = useCallback((g: Game) => {
     const ctx = ctxSetup();
     if (!ctx) return;
@@ -327,22 +220,13 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     const sx = window.scrollX, sy = window.scrollY;
     ctx.clearRect(0, 0, w, h); // průhledné → stránka prosvítá
 
-    // snědená DOM slova: přemaluj barvou pozadí; faktoidy: vykresli inkoustem
-    ctx.textBaseline = "top";
+    // snědená slova/bloky: přemaluj barvou pozadí (karty bílé, hlavní stránka tónující --bg)
     for (const f of g.food) {
-      if (f.kind === "dom") {
-        if (!f.eaten) continue;
-        const x = f.x0 - sx - 2, y = f.y0 - sy - 2;
-        if (x > w || y > h || x + (f.x1 - f.x0) + 4 < 0 || y + (f.y1 - f.y0) + 4 < 0) continue;
-        ctx.fillStyle = f.bg ?? paper; // karty mají bílé pozadí, hlavní stránka tónující --bg
-        ctx.fillRect(x, y, f.x1 - f.x0 + 4, f.y1 - f.y0 + 4);
-      } else if (!f.eaten && f.text) {
-        const x = f.x0 - sx, y = f.y0 - sy;
-        if (x > w || y > h || x + (f.x1 - f.x0) < 0 || y + 20 < 0) continue;
-        ctx.font = FACTOID_FONT;
-        ctx.fillStyle = ink;
-        ctx.fillText(f.text, x, y);
-      }
+      if (!f.eaten) continue;
+      const x = f.x0 - sx - 2, y = f.y0 - sy - 2;
+      if (x > w || y > h || x + (f.x1 - f.x0) + 4 < 0 || y + (f.y1 - f.y0) + 4 < 0) continue;
+      ctx.fillStyle = f.bg ?? paper;
+      ctx.fillRect(x, y, f.x1 - f.x0 + 4, f.y1 - f.y0 + 4);
     }
 
     // nudle — plynulý pohyb: pozice se interpolují mezi kroky mřížky (t = postup do dalšího kroku)
@@ -475,6 +359,13 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  /* ── výhra: po pár vteřinách zavři hru → vrátí se jen homepage ── */
+  useEffect(() => {
+    if (phase !== "won") return;
+    const id = setTimeout(() => onClose(), WIN_HOLD_MS);
+    return () => clearTimeout(id);
+  }, [phase, onClose]);
+
   /* ── herní smyčka ── */
   useEffect(() => {
     if (!open || phase !== "playing") return;
@@ -489,6 +380,10 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       setOverLine(pool[Math.floor(Math.random() * pool.length)] || "");
       draw(g);
       setPhase("dead");
+    };
+    const win = () => {
+      draw(g);
+      setPhase("won");
     };
 
     const step = () => {
@@ -515,11 +410,8 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       if (grew) {
         g.score += ate;
         setScore((s) => s + ate);
-        // celý web snězen? → teprve teď začnou přibývat nové texty
-        if (!g.allEaten && g.food.every((f) => f.kind !== "dom" || f.eaten)) {
-          g.allEaten = true;
-          g.nextSpawnAt = performance.now() + 700;
-        }
+        // cíl splněn: všechen text snězen → výhra
+        if (g.food.every((f) => f.eaten)) { win(); return true; }
       } else g.snake.pop();
       return false;
     };
@@ -529,16 +421,9 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       g.last = now;
       g.acc += dt;
       g.stepMs = clamp(BASE_MS - g.score * SPEED_K, MIN_MS, BASE_MS); // rychlost roste se skóre
-      let dead = false;
-      while (g.acc >= g.stepMs) { g.acc -= g.stepMs; if (step()) { dead = true; break; } }
-      if (dead) return;
-
-      // až po snědení celého webu začnou postupně přibývat nové texty (nikdy přes jiný text)
-      if (g.allEaten && now >= g.nextSpawnAt) {
-        const ctx = canvasRef.current?.getContext("2d");
-        if (ctx) spawnText(g, ctx);
-        g.nextSpawnAt = now + SPAWN_INTERVAL;
-      }
+      let stop = false;
+      while (g.acc >= g.stepMs) { g.acc -= g.stepMs; if (step()) { stop = true; break; } }
+      if (stop) return; // die() / win() přepnuly fázi
 
       // plynulé přebarvení stránky do barvy experimentu
       const cur = themeCur.current, tgt = themeTarget.current;
@@ -562,7 +447,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [open, phase, round, draw, lang, spawnText]);
+  }, [open, phase, round, draw, lang]);
 
   if (!open) return null;
 
@@ -582,6 +467,15 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       {phase === "playing" && (
         <div style={{ position: "absolute", bottom: 14, left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
           <span style={{ fontFamily: sans, fontSize: 12, color: "var(--text-muted)", background: "var(--bg)", borderRadius: 999, padding: "5px 12px", border: "1.5px solid var(--border)" }}>{t.controls}</span>
+        </div>
+      )}
+
+      {/* výhra — zatemnění + bílý text, po pár vteřinách zmizí (homepage) */}
+      {phase === "won" && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 22, pointerEvents: "auto", background: "rgba(12,12,16,0.62)", animation: "noodleWin 600ms ease both" }}>
+          <style>{`@keyframes noodleWin{from{opacity:0}to{opacity:1}}`}</style>
+          <p style={{ ...display, fontSize: "clamp(34px,7vw,64px)", fontWeight: 900, letterSpacing: "-0.03em", color: "#fff", margin: 0, lineHeight: 1.05 }}>Congratulations</p>
+          <p style={{ ...serifI, fontSize: "clamp(17px,3.5vw,26px)", color: "rgba(255,255,255,0.82)", margin: "12px 0 0" }}>good game</p>
         </div>
       )}
 
