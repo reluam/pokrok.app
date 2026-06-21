@@ -6,6 +6,7 @@ import { questions, buildAnthem, anthemUi, type Answers, type Anthem } from "@/l
 import { SCALES, midiToFreq } from "@/lib/music";
 import type { Lang } from "@/lib/dictionaries";
 import { AudioNotice } from "./AudioNotice";
+import { PromptRegistration } from "./PromptRegistration";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -97,6 +98,17 @@ export function AnthemApp({ lang }: { lang: Lang }) {
   const another = () => { const a = buildAnthem(answers, Math.floor(Math.random() * 1e9)); setAnthem(a); play(a); };
   const restart = () => { stop(); setAnswers({}); setAnthem(null); setStep(0); };
 
+  // Zápis do Spaghetti účtů, jakmile zazní tvoje hymna (anonymous-first).
+  const recordedRef = useRef(false);
+  useEffect(() => {
+    if (!(anthem && step >= questions.length) || recordedRef.current) return;
+    recordedRef.current = true;
+    fetch("/api/participation", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ experimentSlug: "hymna", insight: { minor: anthem.minor, tempo: anthem.tempo } }),
+    }).catch(() => {});
+  }, [anthem, step]);
+
   const wrap = (children: React.ReactNode) => (
     <div style={{ minHeight: "100dvh", background: "var(--bg)" }}>
       <div style={{ padding: "20px 24px 0" }}><Link href={homeHref} style={{ fontFamily: "var(--font-sans)", fontSize: "12px", letterSpacing: "0.04em", color: "var(--text-muted)", textDecoration: "none" }}>{t.back}</Link></div>
@@ -118,6 +130,13 @@ export function AnthemApp({ lang }: { lang: Lang }) {
       </div>
       <button onClick={restart} style={{ background: "transparent", border: "none", color: "var(--text-muted)", fontFamily: "var(--font-sans)", fontSize: "13px", cursor: "pointer", textDecoration: "underline", marginTop: "18px" }}>{t.again}</button>
       <p style={{ ...serifItalic, fontSize: "12px", color: "var(--text-muted)", marginTop: "24px" }}>{t.disclaimer}</p>
+      <div style={{ marginTop: "28px" }}>
+        <PromptRegistration
+          trigger="on_result"
+          headline="keep your anthem — and hear how next month's experiment adds to it."
+          sub="no account needed to play; sign in to save it across the series."
+        />
+      </div>
     </div>);
   }
 

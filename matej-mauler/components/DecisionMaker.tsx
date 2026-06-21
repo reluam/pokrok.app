@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Lang } from "@/lib/dictionaries";
+import { PromptRegistration } from "./PromptRegistration";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifI: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -178,8 +179,28 @@ export function DecisionMaker({ lang }: { lang: Lang }) {
   const leanPct = Math.round(Math.max(posA, 1 - posA) * 100);
   const leanName = posA > 0.5 ? a.name : b.name;
 
+  // Zápis do Spaghetti účtů, jakmile padne rozhodnutí (anonymous-first).
+  const recordedRef = useRef(false);
+  useEffect(() => {
+    if (!decided || recordedRef.current) return;
+    recordedRef.current = true;
+    fetch("/api/participation", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ experimentSlug: "decision-maker", insight: { decided } }),
+    }).catch(() => {});
+  }, [decided]);
+
   return (
     <main style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--text-primary)" }}>
+      {decided && (
+        <div style={{ position: "fixed", left: "50%", bottom: 24, transform: "translateX(-50%)", zIndex: 50, width: "min(440px, 92vw)" }}>
+          <PromptRegistration
+            trigger="on_result"
+            headline="keep your decisions — and watch your patterns show up next month."
+            sub="no account needed; sign in to save this across the series."
+          />
+        </div>
+      )}
       <div style={{ maxWidth: 920, margin: "0 auto", padding: "16px 22px 70px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Link href="/" style={{ fontFamily: sans, fontSize: 12, color: "var(--text-muted)", textDecoration: "none" }}>{t.back}</Link>

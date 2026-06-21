@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { getQuestions, calcUi, Answers } from "@/lib/questions";
 import type { Lang } from "@/lib/dictionaries";
 import { Result } from "./Result";
+import { PromptRegistration } from "./PromptRegistration";
 import { PixelIcon } from "./PixelIcon";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
@@ -58,8 +59,30 @@ export function QuestionFlow({ lang }: { lang: Lang }) {
     setStep("intro");
   };
 
+  // Zápis do Spaghetti účtů, jakmile uživatel uvidí svůj odhad (anonymous-first).
+  const recordedRef = useRef(false);
+  useEffect(() => {
+    if (step !== "result" || recordedRef.current) return;
+    recordedRef.current = true;
+    fetch("/api/participation", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ experimentSlug: "time-remaining", payload: { answered: Object.keys(answers).length } }),
+    }).catch(() => {});
+  }, [step, answers]);
+
   if (step === "result") {
-    return <Result answers={answers} onRestart={restart} lang={lang} />;
+    return (
+      <>
+        <Result answers={answers} onRestart={restart} lang={lang} />
+        <div style={{ position: "fixed", left: "50%", bottom: 24, transform: "translateX(-50%)", zIndex: 50, width: "min(440px, 92vw)" }}>
+          <PromptRegistration
+            trigger="on_result"
+            headline="keep this — and see how it sits beside the next experiment."
+            sub="no account needed to play; sign in to save your result across the series."
+          />
+        </div>
+      </>
+    );
   }
 
   const q = questions[currentIdx];

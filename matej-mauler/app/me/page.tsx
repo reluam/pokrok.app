@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SignInButton } from "@clerk/nextjs";
 import { syncAuthedUser } from "@/lib/account/session";
 import { getProfile } from "@/lib/accountsDb";
@@ -20,7 +21,10 @@ const titleForSlug = (slug: string) => EXPERIENCES.find((e) => e.slug === slug)?
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main style={{ background: "var(--bg)", minHeight: "100dvh" }}>
-      <div className="max-w-[680px] mx-auto px-5 md:px-8 py-16 md:py-20">{children}</div>
+      <div className="max-w-[680px] mx-auto px-5 md:px-8 py-16 md:py-20">
+        <Link href="/" style={{ display: "inline-block", fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--text-muted)", textDecoration: "none", marginBottom: 24 }}>← Spaghetti.ltd</Link>
+        {children}
+      </div>
     </main>
   );
 }
