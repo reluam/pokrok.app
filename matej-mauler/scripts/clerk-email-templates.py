@@ -34,8 +34,12 @@ def shell(inner: str) -> str:
         "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;\">"
         '<div style="max-width:460px;margin:0 auto;">'
         '<div style="background:#fffdf6;border:1px solid rgba(26,22,20,0.14);padding:30px 26px;">'
-        '<div style="font-size:17px;font-weight:800;letter-spacing:-0.01em;color:#1a1614;margin-bottom:22px;">'
-        '🍝 Spaghetti<span style="color:#9b958f;">.ltd</span></div>'
+        '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:22px;"><tr>'
+        '<td style="padding-right:10px;vertical-align:middle;">'
+        '<img src="https://spaghetti.ltd/logo-email.png" alt="Spaghetti.ltd" width="34" height="34" style="display:block;border:0;" /></td>'
+        '<td style="vertical-align:middle;font-size:17px;font-weight:800;letter-spacing:-0.01em;color:#1a1614;">'
+        'Spaghetti<span style="color:#9b958f;">.ltd</span></td>'
+        '</tr></table>'
         f"{inner}"
         "</div>"
         '<div style="font-size:11px;color:#9b958f;padding:14px 4px 0;">'
