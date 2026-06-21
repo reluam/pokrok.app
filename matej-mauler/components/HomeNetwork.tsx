@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ExperimentPreview } from "./ExperimentPreview";
 import { HomeNoodleGame } from "./HomeNoodleGame";
+import { UserMenu } from "./UserMenu";
 import { CATEGORIES } from "@/lib/experiments";
 import { SPAGHETTI_BLURB } from "@/lib/about";
 import type { Dictionary, Lang } from "@/lib/dictionaries";
@@ -110,6 +111,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
           <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
             <div data-noodle="logo">{brand("lg")}</div>
             <button onClick={() => setGameOpen(true)} className="sbtn" data-noodle="eat-block" style={{ fontSize: 15, padding: "9px 16px", lineHeight: 1 }} aria-label={t.play} title={t.play}>▶</button>
+            <div style={{ marginLeft: "auto" }}><UserMenu /></div>
           </div>
           <p data-noodle="eat" className="text-[18px] md:text-[22px] max-w-[620px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.4 }}>{SPAGHETTI_BLURB[lang]}</p>
         </header>
