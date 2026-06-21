@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@/lib/track";
 import Link from "next/link";
+import { PromptRegistration } from "./PromptRegistration";
 
 type Lang = "cs" | "en";
 type Word = { id: number; display: string };
@@ -203,6 +204,8 @@ export function BrainApp({ lang }: { lang: Lang }) {
   const [myAssoc, setMyAssoc] = useState<{ from: number; fromLabel: string; to: string; toId: number }[]>([]);
   const [mineStats, setMineStats] = useState<MineStat[] | null>(null);
   const [mineLoading, setMineLoading] = useState(false);
+  const recordedRef = useRef(false); // zápis do Spaghetti účtů jen jednou za návštěvu
+  const [showPrompt, setShowPrompt] = useState(false); // klidná „nech si to" nabídka po výsledku
 
   const loadMap = (l: Lang) => {
     fetch(`/api/brain/map?lang=${l}`).then((r) => r.ok ? r.json() : null)
@@ -237,6 +240,30 @@ export function BrainApp({ lang }: { lang: Lang }) {
 
   useEffect(() => { track("brain", "open"); }, []);
 
+  // Po dosažení výsledku necháme insight chvíli „dosednout", pak nabídneme uložení účtu.
+  useEffect(() => {
+    if (step !== "results" || !mineStats || myAssoc.length === 0) return;
+    const id = setTimeout(() => setShowPrompt(true), 1500);
+    return () => clearTimeout(id);
+  }, [step, mineStats, myAssoc.length]);
+
+  // Zapíše dokončení do Spaghetti účtů (anonymous-first; badge logika běží na serveru,
+  // anonymní záznam se přilepí k účtu, jakmile se uživatel přihlásí).
+  const saveParticipation = async (items: MineStat[]) => {
+    if (recordedRef.current) return;
+    recordedRef.current = true;
+    try {
+      await fetch("/api/participation", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          experimentSlug: "synapsis",
+          payload: { enteredResearcher: true, associations: myAssoc.length },
+          insight: { overlapPct: summaryPct(items), uniqueEdge: items.some((i) => i.pct == null) },
+        }),
+      });
+    } catch { /* anonymous-first: tichý fail, hra běží dál */ }
+  };
+
   const goResults = async () => {
     track("brain", "interact");
     if (dirty.current) { dirty.current = false; loadMap(appLang); }
@@ -249,7 +276,10 @@ export function BrainApp({ lang }: { lang: Lang }) {
           body: JSON.stringify({ lang: appLang, pairs: myAssoc.map((a) => ({ from: a.from, to: a.to })) }),
         });
         const j = await r.json();
-        if (Array.isArray(j.items)) setMineStats(j.items);
+        if (Array.isArray(j.items)) {
+          setMineStats(j.items);
+          void saveParticipation(j.items as MineStat[]);
+        }
       } catch { /* síť výsledků selhala — levý sloupec ukáže prázdno */ }
       setMineLoading(false);
     }
@@ -407,6 +437,17 @@ export function BrainApp({ lang }: { lang: Lang }) {
             <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 30px" }}>{t.explainP3}</p>
             <button onClick={goResults} style={primaryBtn}>{t.explainGo}</button>
           </div>
+        </div>
+      )}
+
+      {/* ── po výsledku: klidná „nech si to" nabídka (anonymous-first; skrytá pro přihlášené) ── */}
+      {step === "results" && showPrompt && (
+        <div style={{ position: "fixed", left: "50%", bottom: 64, transform: "translateX(-50%)", zIndex: 30, width: "min(440px, 92vw)" }}>
+          <PromptRegistration
+            trigger="on_result"
+            headline="keep your synapses and watch how your mind changes next month."
+            sub="you didn’t need an account to play — sign in to save this result and compare when the next experiment drops."
+          />
         </div>
       )}
 
