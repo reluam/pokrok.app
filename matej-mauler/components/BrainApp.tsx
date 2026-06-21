@@ -14,7 +14,7 @@ type MapData = {
   edges: { a: number; b: number; count: number }[]; // a → b
   truncated: boolean;
 };
-type Step = "intro" | "assoc" | "explain" | "results";
+type Step = "intro" | "assoc" | "explain" | "choose" | "results";
 type MineStat = { from: number; fromLabel: string; to: string; toLabel: string; count: number; total: number; others: number; othersTotal: number; pct: number | null };
 
 /** Kolik asociací uživatel vyplní v 1. kroku cesty, než se nabídne „Dále". */
@@ -408,19 +408,17 @@ export function BrainApp({ lang }: { lang: Lang }) {
               </>
             )}
 
-            {/* po splnění + chce pokračovat: pod polem zůstává cesta dál */}
+            {/* po splnění + chce pokračovat: už vysvětleno, rovnou na volbu */}
             {done && continuing && (
               <div style={{ marginTop: 26, display: "flex", justifyContent: "center" }}>
-                <button onClick={() => setStep("explain")} style={primaryBtn}>{t.next}</button>
+                <button onClick={() => setStep("choose")} style={primaryBtn}>{t.next}</button>
               </div>
             )}
 
-            {/* po splnění 10: volba — dál na síť, nebo zpět k asociacím */}
+            {/* po splnění 10: rovnou „proč zrovna tahle slova?" */}
             {done && !continuing && (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-                <p style={{ ...sans, fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6, margin: "4px 0 6px", maxWidth: 380 }}>{t.choosePrompt}</p>
+              <div style={{ marginTop: 8, display: "flex", justifyContent: "center" }}>
                 <button onClick={() => setStep("explain")} style={primaryBtn}>{t.next}</button>
-                <button onClick={() => { setContinuing(true); setLast(null); inputRef.current?.focus(); }} style={subtleBtn}>{t.keepGoing}</button>
               </div>
             )}
           </div>
@@ -435,7 +433,18 @@ export function BrainApp({ lang }: { lang: Lang }) {
             <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 14px" }}>{t.explainP1}</p>
             <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 14px" }}>{t.explainP2}</p>
             <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 30px" }}>{t.explainP3}</p>
+            <button onClick={() => setStep("choose")} style={primaryBtn}>{t.next}</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 3) volba: rovnou na síť, nebo přidat další asociace ── */}
+      {step === "choose" && (
+        <div style={overlayWrap}>
+          <div style={{ maxWidth: 520, width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.6, margin: 0, maxWidth: 400 }}>{t.choosePrompt}</p>
             <button onClick={goResults} style={primaryBtn}>{t.explainGo}</button>
+            <button onClick={() => { setContinuing(true); setLast(null); setStep("assoc"); setTimeout(() => inputRef.current?.focus(), 0); }} style={subtleBtn}>{t.keepGoing}</button>
           </div>
         </div>
       )}
