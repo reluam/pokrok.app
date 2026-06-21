@@ -42,8 +42,9 @@ export const metadata: Metadata = {
   icons: { icon: "/logo.svg" },
 };
 
-// Clerk modal/UI sladěný se spaghetti vzhledem — krémové pozadí, tenké linky,
-// pill tlačítka, Space Grotesk nadpisy, naše logo nahoře.
+// Clerk modal/UI sladěný se spaghetti vzhledem: jeden podklad (#FAFAF7) jako web,
+// všechno hranaté (radius 0 jako karty), tenké linky, Space Grotesk nadpisy, naše logo.
+// Schválně minimum override — zbytek řídí variables, ať to nemá divné barvy.
 const clerkAppearance = {
   layout: {
     logoImageUrl: "/logo.svg",
@@ -54,7 +55,8 @@ const clerkAppearance = {
     colorPrimary: "#1a1614",
     colorText: "#1a1614",
     colorTextSecondary: "#5c5550",
-    colorBackground: "#fffdf6",
+    colorNeutral: "#1a1614",
+    colorBackground: "#FAFAF7",
     colorInputBackground: "#ffffff",
     colorInputText: "#1a1614",
     colorDanger: "#b91c1c",
@@ -64,45 +66,12 @@ const clerkAppearance = {
     colorTextOnPrimaryBackground: "#FAFAF7",
   },
   elements: {
-    card: {
-      backgroundColor: "#fffdf6",
-      border: "1px solid rgba(26,22,20,0.14)",
-      boxShadow: "0 18px 50px -28px rgba(26,22,20,0.5)",
-      borderRadius: "0px",
-    },
-    logoImage: { height: "32px" },
+    card: { border: "1px solid rgba(26,22,20,0.14)", boxShadow: "0 12px 40px -24px rgba(26,22,20,0.35)" },
     headerTitle: { fontFamily: "var(--font-display)", fontWeight: 900, letterSpacing: "-0.02em" },
-    headerSubtitle: { color: "#5c5550" },
-    socialButtonsBlockButton: {
-      backgroundColor: "#ffffff",
-      border: "1px solid rgba(26,22,20,0.16)",
-      borderRadius: "999px",
-      boxShadow: "none",
-    },
-    socialButtonsBlockButtonText: { fontFamily: "var(--font-sans)", fontWeight: 600, color: "#1a1614" },
-    dividerLine: { backgroundColor: "rgba(26,22,20,0.12)" },
-    dividerText: { color: "#9b958f" },
-    formFieldLabel: { color: "#5c5550", fontFamily: "var(--font-sans)", fontWeight: 600 },
-    formFieldInput: {
-      backgroundColor: "#ffffff",
-      border: "1px solid rgba(26,22,20,0.16)",
-      borderRadius: "0px",
-      color: "#1a1614",
-    },
-    formButtonPrimary: {
-      backgroundColor: "#1a1614",
-      borderRadius: "999px",
-      fontFamily: "var(--font-display)",
-      fontWeight: 800,
-      fontSize: "14px",
-      textTransform: "none",
-      boxShadow: "none",
-    },
-    footerActionText: { color: "#9b958f" },
+    socialButtonsBlockButton: { backgroundColor: "#ffffff", border: "1px solid rgba(26,22,20,0.16)", boxShadow: "none" },
+    formFieldInput: { backgroundColor: "#ffffff", border: "1px solid rgba(26,22,20,0.16)" },
+    formButtonPrimary: { fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "14px", textTransform: "none", boxShadow: "none" },
     footerActionLink: { color: "#1a1614", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: "3px" },
-    formResendCodeLink: { color: "#1a1614" },
-    identityPreviewEditButton: { color: "#1a1614" },
-    otpCodeFieldInput: { border: "1px solid rgba(26,22,20,0.16)", borderRadius: "0px" },
   },
 };
 
