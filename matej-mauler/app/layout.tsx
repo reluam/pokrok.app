@@ -58,7 +58,7 @@ const clerkAppearance = {
     colorInputBackground: "#ffffff",
     colorInputText: "#1a1614",
     colorDanger: "#b91c1c",
-    borderRadius: "12px",
+    borderRadius: "0px",
     fontFamily: "var(--font-sans)",
     fontFamilyButtons: "var(--font-display)",
     colorTextOnPrimaryBackground: "#FAFAF7",
@@ -68,7 +68,7 @@ const clerkAppearance = {
       backgroundColor: "#fffdf6",
       border: "1px solid rgba(26,22,20,0.14)",
       boxShadow: "0 18px 50px -28px rgba(26,22,20,0.5)",
-      borderRadius: "18px",
+      borderRadius: "0px",
     },
     logoImage: { height: "32px" },
     headerTitle: { fontFamily: "var(--font-display)", fontWeight: 900, letterSpacing: "-0.02em" },
@@ -86,7 +86,7 @@ const clerkAppearance = {
     formFieldInput: {
       backgroundColor: "#ffffff",
       border: "1px solid rgba(26,22,20,0.16)",
-      borderRadius: "12px",
+      borderRadius: "0px",
       color: "#1a1614",
     },
     formButtonPrimary: {
@@ -102,7 +102,7 @@ const clerkAppearance = {
     footerActionLink: { color: "#1a1614", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: "3px" },
     formResendCodeLink: { color: "#1a1614" },
     identityPreviewEditButton: { color: "#1a1614" },
-    otpCodeFieldInput: { border: "1px solid rgba(26,22,20,0.16)", borderRadius: "10px" },
+    otpCodeFieldInput: { border: "1px solid rgba(26,22,20,0.16)", borderRadius: "0px" },
   },
 };
 
