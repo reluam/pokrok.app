@@ -1,27 +1,54 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Environment } from "@/lib/sim/environment";
-import { initPopulation, step, SimState } from "@/lib/sim/population";
+import { initPopulation, step, setEnv, SimState } from "@/lib/sim/population";
 import { GameCanvas } from "./GameCanvas";
 import { StatsPanel } from "./StatsPanel";
+import { Controls } from "./Controls";
 
 const DEFAULT_ENV: Environment = { foodAbundance: 0.6, predatorPressure: 0.6, temperature: 0.5, backgroundHue: 0.3 };
 const sans = "ui-sans-serif, system-ui, sans-serif";
 
 export default function Driftbloom() {
-  const [seed] = useState(() => Math.floor(Math.random() * 1e9)); // UI seed (fine outside lib/sim)
+  const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
+  const [env, setEnvState] = useState<Environment>(DEFAULT_ENV);
+  const [mutationRate, setMutationRate] = useState(0.3);
+  const [running, setRunning] = useState(false);
   const [state, setState] = useState<SimState>(() => initPopulation(seed, 40, DEFAULT_ENV));
+  const mutRef = useRef(mutationRate); mutRef.current = mutationRate;
+
+  // run loop: advance ~4 generations/second while running.
+  useEffect(() => {
+    if (!running) return;
+    const id = setInterval(() => setState((s) => step(s, mutRef.current)), 250);
+    return () => clearInterval(id);
+  }, [running]);
+
+  function applyEnv(next: Environment) {
+    setEnvState(next);
+    setState((s) => setEnv(s, next)); // keep the population, change the pressures live
+  }
+  function reset() {
+    const ns = Math.floor(Math.random() * 1e9);
+    setSeed(ns); setRunning(false);
+    setState(initPopulation(ns, 40, env));
+  }
 
   return (
     <main style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--text-primary)" }}>
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "16px 22px 70px", fontFamily: sans }}>
         <h1 style={{ fontSize: "clamp(30px,6vw,46px)", fontWeight: 900, letterSpacing: "-0.03em" }}>🌱 driftbloom</h1>
-        <p style={{ color: "var(--text-secondary)", maxWidth: 560 }}>watch life adapt to where it is — not toward anywhere.</p>
+        <p style={{ color: "var(--text-secondary)", maxWidth: 560 }}>watch life adapt to where it is — not toward anywhere. seed {seed}</p>
         <div style={{ margin: "16px 0" }}><GameCanvas state={state} /></div>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button className="sbtn" onClick={() => setState((s) => step(s, 0.3))}>step</button>
-          <button className="sbtn" onClick={() => setState((s) => { let n = s; for (let i = 0; i < 10; i++) n = step(n, 0.3); return n; })}>run ×10</button>
-          <span style={{ fontSize: 13, color: "var(--text-muted)" }}>generation {state.generation}</span>
+        <span style={{ fontSize: 13, color: "var(--text-muted)" }}>generation {state.generation}</span>
+        <div style={{ marginTop: 12 }}>
+          <Controls
+            env={env} mutationRate={mutationRate} running={running}
+            onEnvChange={applyEnv} onMutationRateChange={setMutationRate}
+            onToggleRun={() => setRunning((r) => !r)}
+            onStep={() => setState((s) => step(s, mutationRate))}
+            onReset={reset}
+          />
         </div>
         <div style={{ marginTop: 16 }}><StatsPanel history={state.history} /></div>
       </div>
