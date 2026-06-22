@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { Environment } from "@/lib/sim/environment";
 import { initPopulation, step, SimState } from "@/lib/sim/population";
 import { GameCanvas } from "./GameCanvas";
+import { StatsPanel } from "./StatsPanel";
 
 const DEFAULT_ENV: Environment = { foodAbundance: 0.6, predatorPressure: 0.6, temperature: 0.5, backgroundHue: 0.3 };
 const sans = "ui-sans-serif, system-ui, sans-serif";
@@ -22,6 +23,7 @@ export default function Driftbloom() {
           <button className="sbtn" onClick={() => setState((s) => { let n = s; for (let i = 0; i < 10; i++) n = step(n, 0.3); return n; })}>run ×10</button>
           <span style={{ fontSize: 13, color: "var(--text-muted)" }}>generation {state.generation}</span>
         </div>
+        <div style={{ marginTop: 16 }}><StatsPanel history={state.history} /></div>
       </div>
     </main>
   );
