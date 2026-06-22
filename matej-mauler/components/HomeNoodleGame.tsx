@@ -520,27 +520,35 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
   );
 }
 
-/* talíř/miska špaget, co se plní podle posbíraného textu (progress 0..1) */
+/* špagetový pramen navíjený do talíře — počítá se jednou (nezávisí na progresu) */
+const PLATE_SPIRAL = (() => {
+  const cx = 29, cy = 28, turns = 3.7, steps = 240, maxR = 16;
+  let d = "", len = 0, px = cx, py = cy;
+  for (let i = 0; i <= steps; i++) {
+    const tt = i / steps;
+    const ang = tt * turns * Math.PI * 2;
+    const r = maxR * tt + Math.sin(ang * 3) * 0.9; // lehké zvlnění = organická nudle
+    const x = cx + Math.cos(ang) * r, y = cy + Math.sin(ang) * r;
+    if (i === 0) d += `M${x.toFixed(2)} ${y.toFixed(2)}`;
+    else { d += `L${x.toFixed(2)} ${y.toFixed(2)}`; len += Math.hypot(x - px, y - py); }
+    px = x; py = y;
+  }
+  return { d, len };
+})();
+
+/* talíř špaget, co se postupně zaplňuje podle posbíraného textu (progress 0..1) */
 function SpaghettiGauge({ p }: { p: number }) {
   const v = Math.max(0, Math.min(1, p));
-  const topY = 17, botY = 45; // vnitřek misky
-  const fillTop = botY - v * (botY - topY);
   return (
-    <svg viewBox="0 0 58 52" width={48} height={43} role="img" aria-label={`Posbíráno ${Math.round(v * 100)} %`}
+    <svg viewBox="0 0 58 56" width={48} height={46} role="img" aria-label={`Posbíráno ${Math.round(v * 100)} %`}
       style={{ display: "block", color: "var(--text-primary)", pointerEvents: "none", filter: "drop-shadow(0 1px 0 var(--bg)) drop-shadow(0 0 2px var(--bg))" }}>
-      <defs>
-        <clipPath id="ng-bowl"><path d="M8 17 Q8 45 29 47 Q50 45 50 17 Z" /></clipPath>
-        <pattern id="ng-noodles" width="11" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-8)">
-          <path d="M-1 3.5 Q2 0 5.5 3.5 T12 3.5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" />
-        </pattern>
-      </defs>
-      {/* špageta se plní zdola nahoru, oříznutá do misky */}
-      <g clipPath="url(#ng-bowl)">
-        <rect x="0" y={fillTop} width="58" height={botY - fillTop + 3} fill="url(#ng-noodles)" />
-      </g>
-      {/* obrys misky + okraj */}
-      <path d="M8 17 Q8 45 29 47 Q50 45 50 17" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" />
-      <ellipse cx="29" cy="17" rx="21" ry="5" fill="none" stroke="currentColor" strokeWidth={2.4} />
+      {/* talíř shora */}
+      <ellipse cx={29} cy={28} rx={21} ry={20} fill="none" stroke="currentColor" strokeWidth={2.2} opacity={0.55} />
+      <ellipse cx={29} cy={28} rx={17.2} ry={16.2} fill="none" stroke="currentColor" strokeWidth={1} opacity={0.28} />
+      {/* špageta se navíjí od středu ven, jak roste progress */}
+      <path d={PLATE_SPIRAL.d} fill="none" stroke="currentColor" strokeWidth={2.3} strokeLinecap="round" strokeLinejoin="round"
+        strokeDasharray={PLATE_SPIRAL.len} strokeDashoffset={PLATE_SPIRAL.len * (1 - v)}
+        style={{ transition: "stroke-dashoffset 300ms ease" }} />
     </svg>
   );
 }

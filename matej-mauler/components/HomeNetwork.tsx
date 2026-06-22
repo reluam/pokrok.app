@@ -120,7 +120,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
         <header className="pt-16 md:pt-20 pb-12 animate-fade-up">
           <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
             <div data-noodle="logo">{brand("lg")}</div>
-            <button onClick={() => setGameOpen(true)} data-noodle="eat-block" aria-label={t.play} title={t.play} style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontSize: 20, lineHeight: 1, color: "var(--text-primary)" }}>▶</button>
+            <button onClick={() => setGameOpen(true)} data-noodle="eat-block" aria-label={t.play} title={t.play} className="noodle-play" style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontSize: 34, lineHeight: 1, color: "var(--text-primary)" }}>▶</button>
             <div style={{ marginLeft: "auto" }}><UserMenu /></div>
           </div>
           <p data-noodle="eat" className="text-[18px] md:text-[22px] max-w-[620px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.4 }}>{SPAGHETTI_BLURB[lang]}</p>

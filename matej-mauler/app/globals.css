@@ -115,6 +115,22 @@ body {
   animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Play trigger of the homepage noodle game — periodic "click me" pulse */
+@keyframes noodle-play-pulse {
+  0%, 82%, 100% { transform: scale(1); }
+  87%          { transform: scale(1.22); }
+  92%          { transform: scale(0.94); }
+  97%          { transform: scale(1.08); }
+}
+.noodle-play {
+  animation: noodle-play-pulse 3.2s ease-in-out infinite;
+  transform-origin: center;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+.noodle-play:hover { transform: scale(1.18); animation-play-state: paused; }
+.noodle-play:active { transform: scale(0.92); }
+@media (prefers-reduced-motion: reduce) { .noodle-play { animation: none; } }
+
 /* ── Editorial feed (pudding-style) ── */
 .experiments-feed {
   display: grid;
