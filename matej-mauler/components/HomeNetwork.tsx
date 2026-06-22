@@ -22,13 +22,8 @@ const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,
 
 function ProjectCard({ item, lang, open }: { item: PublicExperiment; lang: Lang; open: string }) {
   const cat = CATEGORIES[item.slug];
-  return (
-    <a
-      key={item.slug}
-      href={item.href}
-      {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="scard group/card"
-    >
+  const inner = (
+    <>
       <div className="scard-banner" data-noodle="paint" data-noodle-color={item.color}>
         <ExperimentPreview slug={item.slug} title={item.title} color={item.color} lang={lang} />
       </div>
@@ -40,7 +35,22 @@ function ProjectCard({ item, lang, open }: { item: PublicExperiment; lang: Lang;
           {open} <span className="zarrow">→</span>
         </span>
       </div>
-    </a>
+    </>
+  );
+
+  // Externí odkaz → plný <a> (nový tab). Interní → Next <Link>: prefetch + client-side
+  // navigace, takže klik hned ukáže loading.tsx (špagetový loader) místo reloadu dokumentu.
+  if (item.external) {
+    return (
+      <a href={item.href} target="_blank" rel="noopener noreferrer" className="scard group/card">
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <Link href={item.href} className="scard group/card">
+      {inner}
+    </Link>
   );
 }
 
