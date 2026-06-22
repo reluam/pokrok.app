@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { makeRng } from "@/lib/sim/rng";
-import { GENE_KEYS, randomGenome, clamp01, mutate, crossover } from "@/lib/sim/genome";
+import { GENE_KEYS, randomGenome, clamp01, mutate, crossover, encodeGenome, decodeGenome } from "@/lib/sim/genome";
 
 test("GENE_KEYS has all ten genes", () => {
   expect(GENE_KEYS).toHaveLength(10);
@@ -51,4 +51,18 @@ test("crossover takes every gene from one parent or the other", () => {
   for (const k of GENE_KEYS) {
     expect([a[k], b[k]]).toContain(c[k]);
   }
+});
+
+test("encode→decode round-trips within byte precision", () => {
+  const g = randomGenome(makeRng(77));
+  const back = decodeGenome(encodeGenome(g));
+  for (const k of GENE_KEYS) {
+    expect(Math.abs(back[k] - g[k])).toBeLessThan(1 / 255 + 1e-9);
+  }
+});
+
+test("encoded string is short and url-safe", () => {
+  const s = encodeGenome(randomGenome(makeRng(1)));
+  expect(s).toMatch(/^[A-Za-z0-9_-]+$/);
+  expect(s.length).toBeLessThan(20);
 });
