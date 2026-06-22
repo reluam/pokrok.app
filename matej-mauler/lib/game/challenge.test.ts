@@ -2,7 +2,6 @@ import { expect, test } from "vitest";
 import { initChallenge, tickChallenge, SHIFT_EVERY, MIN_VIABLE, ChallengeState } from "@/lib/game/challenge";
 import { Genome, GENE_KEYS } from "@/lib/sim/genome";
 import type { SimState, GenStats } from "@/lib/sim/population";
-import { makeRng } from "@/lib/sim/rng";
 
 test("initChallenge starts alive at tick 0", () => {
   const c = initChallenge(1);
@@ -25,6 +24,14 @@ test("the environment shifts on the cadence", () => {
   const startEnv = { ...c.sim.env };
   for (let i = 0; i < SHIFT_EVERY; i++) c = tickChallenge(c, 0.3);
   expect(c.sim.env).not.toEqual(startEnv); // a shift happened within the window
+});
+
+test("tickChallenge on same input is idempotent (Strict Mode safe)", () => {
+  const c = initChallenge(42);
+  const a = tickChallenge(c, 0.3);
+  const b = tickChallenge(c, 0.3);
+  expect(a.rngState).toBe(b.rngState);
+  expect(a.sim.population).toEqual(b.sim.population);
 });
 
 test("lineage dies when avgFitness is below MIN_VIABLE", () => {
@@ -55,8 +62,7 @@ test("lineage dies when avgFitness is below MIN_VIABLE", () => {
   const sim: SimState = { generation: 10, population, env: hostileEnv, rngState: 12345, history };
 
   // Wrap in a ChallengeState and tick once.
-  const rng = makeRng(777);
-  let c: ChallengeState = { sim, tick: 5, alive: true, rng };
+  let c: ChallengeState = { sim, tick: 5, alive: true, rngState: 777 };
   c = tickChallenge(c, 0.01); // low mutation to keep traits bad
 
   // The population is deeply unfit — avgFitness must be below MIN_VIABLE, so alive = false.

@@ -9,7 +9,7 @@ export interface ChallengeState {
   sim: SimState;
   tick: number;
   alive: boolean;
-  rng: () => number;
+  rngState: number;
 }
 
 export function nextEnv(rng: () => number): Environment {
@@ -19,17 +19,18 @@ export function nextEnv(rng: () => number): Environment {
 export function initChallenge(seed: number): ChallengeState {
   const rng = makeRng(seed);
   const sim = initPopulation(Math.floor(rng() * 0x100000000), 40, nextEnv(rng));
-  return { sim, tick: 0, alive: true, rng };
+  return { sim, tick: 0, alive: true, rngState: Math.floor(rng() * 0x100000000) };
 }
 
 // One generation of the open challenge. Shifts the environment on a cadence; the lineage dies
 // when average fitness falls below the viability floor (the world moved faster than it could).
 export function tickChallenge(c: ChallengeState, mutationRate: number): ChallengeState {
   if (!c.alive) return c;
+  const rng = makeRng(c.rngState);
   const tick = c.tick + 1;
   let sim = c.sim;
-  if (tick % SHIFT_EVERY === 0) sim = setEnv(sim, nextEnv(c.rng));
+  if (tick % SHIFT_EVERY === 0) sim = setEnv(sim, nextEnv(rng));
   sim = step(sim, mutationRate);
   const avg = sim.history[sim.history.length - 1].avgFitness;
-  return { sim, tick, alive: avg >= MIN_VIABLE, rng: c.rng };
+  return { sim, tick, alive: avg >= MIN_VIABLE, rngState: Math.floor(rng() * 0x100000000) };
 }
