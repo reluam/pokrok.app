@@ -9,6 +9,7 @@ import { SCENARIOS, Scenario } from "@/lib/game/scenarios";
 import { GeneFocus, DriftInsight, buildInsight, mirrorSentence } from "@/lib/game/insight";
 import { PredictionGate } from "./PredictionGate";
 import { SurvivalPath } from "@/lib/sim/fitness";
+import { markScenarioComplete, loadProgress, type DriftProgress } from "@/lib/game/progress";
 
 const DEFAULT_ENV: Environment = { foodAbundance: 0.6, predatorPressure: 0.6, temperature: 0.5, backgroundHue: 0.3 };
 const sans = "ui-sans-serif, system-ui, sans-serif";
@@ -53,6 +54,7 @@ export default function Driftbloom() {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [reveal, setReveal] = useState<DriftInsight | null>(null);
   const [pathsUsed, setPathsUsed] = useState<SurvivalPath[]>([]);
+  const [progress, setProgress] = useState<DriftProgress>(() => loadProgress());
 
   function handlePredict(focus: GeneFocus) {
     const scenario = SCENARIOS[scenarioIdx];
@@ -61,6 +63,7 @@ export default function Driftbloom() {
     setState(finalState);
     setReveal(insight);
     setPathsUsed(insight.survivalPathsUsed);
+    setProgress(markScenarioComplete(scenario.id));
   }
   function nextScenario() {
     setReveal(null);
