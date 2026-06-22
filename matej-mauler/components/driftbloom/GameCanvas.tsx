@@ -6,7 +6,7 @@ import { drawScene } from "@/lib/render/scene";
 export function GameCanvas({ state, width = 640, height = 420 }: { state: SimState; width?: number; height?: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stateRef = useRef(state);
-  stateRef.current = state; // always read the freshest state in the loop
+  useEffect(() => { stateRef.current = state; });
 
   useEffect(() => {
     const canvas = canvasRef.current;

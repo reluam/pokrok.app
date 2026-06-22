@@ -26,7 +26,7 @@ export function StatsPanel({ history }: { history: GenStats[] }) {
     ctx.strokeStyle = "#9ca3af"; ctx.lineWidth = 1.5; ctx.beginPath();
     history.forEach((h, i) => {
       const y = H - 4 - (h.avgFitness / maxF) * (H - 8);
-      i === 0 ? ctx.moveTo(xAt(i), y) : ctx.lineTo(xAt(i), y);
+      if (i === 0) ctx.moveTo(xAt(i), y); else ctx.lineTo(xAt(i), y);
     });
     ctx.stroke();
 
@@ -35,7 +35,7 @@ export function StatsPanel({ history }: { history: GenStats[] }) {
       ctx.strokeStyle = tr.color; ctx.lineWidth = 2; ctx.beginPath();
       history.forEach((h, i) => {
         const y = H - 4 - h.means[tr.key] * (H - 8);
-        i === 0 ? ctx.moveTo(xAt(i), y) : ctx.lineTo(xAt(i), y);
+        if (i === 0) ctx.moveTo(xAt(i), y); else ctx.lineTo(xAt(i), y);
       });
       ctx.stroke();
     }

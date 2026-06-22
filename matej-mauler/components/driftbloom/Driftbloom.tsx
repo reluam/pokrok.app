@@ -34,8 +34,16 @@ export default function Driftbloom() {
   const [env, setEnvState] = useState<Environment>(DEFAULT_ENV);
   const [mutationRate, setMutationRate] = useState(0.3);
   const [running, setRunning] = useState(false);
-  const [state, setState] = useState<SimState>(() => initPopulation(seed, 40, DEFAULT_ENV));
-  const mutRef = useRef(mutationRate); mutRef.current = mutationRate;
+  const [state, setState] = useState<SimState>(() => {
+    const base = initPopulation(seed, 40, DEFAULT_ENV);
+    if (typeof window !== "undefined") {
+      const g = readDnaParam(window.location.search);
+      if (g) return { ...base, population: base.population.map(() => ({ ...g })) };
+    }
+    return base;
+  });
+  const mutRef = useRef(mutationRate);
+  useEffect(() => { mutRef.current = mutationRate; });
 
   // run loop: advance ~4 generations/second while running.
   useEffect(() => {
@@ -43,14 +51,6 @@ export default function Driftbloom() {
     const id = setInterval(() => setState((s) => step(s, mutRef.current)), 250);
     return () => clearInterval(id);
   }, [running]);
-
-  // seed from shared ?dna= URL param
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const g = readDnaParam(window.location.search);
-    if (!g) return;
-    setState((s) => ({ ...s, population: s.population.map(() => ({ ...g })) }));
-  }, []);
 
   function applyEnv(next: Environment) {
     setEnvState(next);
