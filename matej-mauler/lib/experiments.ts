@@ -49,4 +49,10 @@ export const experiments: ExperimentMeta[] = [
     color: "#FCE7F3",
     href: "/synapsis",
   },
+  {
+    slug: "driftbloom",
+    emoji: "🌱",
+    color: "#DCFCE7",
+    href: "/driftbloom",
+  },
 ];
