@@ -11,6 +11,8 @@ import { PredictionGate } from "./PredictionGate";
 import { SurvivalPath } from "@/lib/sim/fitness";
 import { markScenarioComplete, loadProgress, type DriftProgress } from "@/lib/game/progress";
 import { PromptRegistration } from "@/components/PromptRegistration";
+import { ShareBar } from "./ShareBar";
+import { readDnaParam } from "@/lib/game/share";
 
 const DEFAULT_ENV: Environment = { foodAbundance: 0.6, predatorPressure: 0.6, temperature: 0.5, backgroundHue: 0.3 };
 const sans = "ui-sans-serif, system-ui, sans-serif";
@@ -40,6 +42,14 @@ export default function Driftbloom() {
     const id = setInterval(() => setState((s) => step(s, mutRef.current)), 250);
     return () => clearInterval(id);
   }, [running]);
+
+  // seed from shared ?dna= URL param
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const g = readDnaParam(window.location.search);
+    if (!g) return;
+    setState((s) => ({ ...s, population: s.population.map(() => ({ ...g })) }));
+  }, []);
 
   function applyEnv(next: Environment) {
     setEnvState(next);
@@ -122,6 +132,7 @@ export default function Driftbloom() {
                 onStep={() => setState((s) => step(s, mutationRate))}
                 onReset={reset}
               />
+              <ShareBar state={state} />
             </div>
             <div style={{ marginTop: 16 }}><StatsPanel history={state.history} /></div>
           </div>
