@@ -10,6 +10,7 @@ import { GeneFocus, DriftInsight, buildInsight, mirrorSentence } from "@/lib/gam
 import { PredictionGate } from "./PredictionGate";
 import { SurvivalPath } from "@/lib/sim/fitness";
 import { markScenarioComplete, loadProgress, type DriftProgress } from "@/lib/game/progress";
+import { PromptRegistration } from "@/components/PromptRegistration";
 
 const DEFAULT_ENV: Environment = { foodAbundance: 0.6, predatorPressure: 0.6, temperature: 0.5, backgroundHue: 0.3 };
 const sans = "ui-sans-serif, system-ui, sans-serif";
@@ -64,6 +65,10 @@ export default function Driftbloom() {
     setReveal(insight);
     setPathsUsed(insight.survivalPathsUsed);
     setProgress(markScenarioComplete(scenario.id));
+    fetch("/api/participation", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ experimentSlug: "driftbloom", insight, payload: { scenarioId: SCENARIOS[scenarioIdx].id } }),
+    }).catch(() => {});
   }
   function nextScenario() {
     setReveal(null);
@@ -89,6 +94,13 @@ export default function Driftbloom() {
                 {SCENARIOS[scenarioIdx].twist && <p style={{ color: "var(--text-muted)", fontStyle: "italic", margin: 0 }}>{SCENARIOS[scenarioIdx].twist!.message}</p>}
                 <p style={{ fontWeight: 700, margin: 0 }}>{mirrorSentence(reveal)}</p>
                 <p style={{ color: "var(--text-secondary)", margin: 0 }}>{SCENARIOS[scenarioIdx].revealInsight}</p>
+                <div style={{ marginTop: 8 }}>
+                  <PromptRegistration
+                    trigger="on_result"
+                    headline="keep what you learn here — across every experiment."
+                    sub="no account needed; sign in to carry your badges across the series."
+                  />
+                </div>
                 {scenarioIdx < SCENARIOS.length - 1
                   ? <button className="sbtn" onClick={nextScenario} style={{ justifySelf: "start" }}>next scenario →</button>
                   : <p style={{ fontWeight: 700, margin: 0 }}>that&apos;s the whole point: evolution has no goal. now go play (phase b).</p>}
