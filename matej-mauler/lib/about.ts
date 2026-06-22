@@ -12,7 +12,7 @@ export type AboutProject = {
 
 export const SPAGHETTI_BLURB: Bi = {
   cs: "Život je chaos. Úžasně fascinující chaos.",
-  en: "Life is entangled. And messy. Almost like spaghetti…",
+  en: "Life is tangled. And messy. Almost like spaghetti.",
 };
 
 /** Centrální node — z něj vedou linky na všechny experimenty. */
