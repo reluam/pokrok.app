@@ -44,6 +44,8 @@ type Game = {
   last: number;
   score: number; // řídí rychlost
   stepMs: number; // aktuální ms na krok (i pro interpolaci)
+  total: number; // počet soust na začátku (pro progress)
+  eatenCount: number; // kolik soust snězeno (pro progress)
 };
 
 const UI = {
@@ -112,6 +114,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
   const t = UI[lang];
   const [phase, setPhase] = useState<"playing" | "dead" | "won">("playing");
   const [score, setScore] = useState(0);
+  const [progress, setProgress] = useState(0); // 0..1 — kolik textu už je posbíráno
   const [overLine, setOverLine] = useState("");
   const [round, setRound] = useState(0);
 
@@ -204,7 +207,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     const snake: Cell[] = [];
     for (let i = 0; i < 5; i++) snake.push({ x: clamp(hx - i, 0, cols - 1), y: hy });
 
-    return { snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 }, food, paints, cards, cols, rows, docW, docH, acc: 0, last: 0, score: 0, stepMs: BASE_MS };
+    return { snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 }, food, paints, cards, cols, rows, docW, docH, acc: 0, last: 0, score: 0, stepMs: BASE_MS, total: food.length, eatenCount: 0 };
   }, [collectWords]);
 
   /* ── canvas (fixed přes viewport, retina) ── */
@@ -300,6 +303,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     themeCur.current = hexToRgb(base);
     themeTarget.current = hexToRgb(base);
     setScore(0);
+    setProgress(0);
     setOverLine("");
     setPhase("playing");
     setRound((r) => r + 1);
@@ -414,7 +418,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       // jídlo — stačí překryv buňky hlavy se soustem (sníst i při průjezdu jen částí)
       let ate = 0, grew = false;
       for (const f of g.food) if (!f.eaten && cellHitsRect(nx, ny, f)) {
-        f.eaten = true; ate += f.n; grew = true;
+        f.eaten = true; ate += f.n; grew = true; g.eatenCount++;
         const layer = eraseLayerRef.current; // text „zmizí" DOM obdélníkem, co scrolluje s textem
         if (layer) {
           const d = document.createElement("div");
@@ -430,6 +434,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       if (grew) {
         g.score += ate;
         setScore((s) => s + ate);
+        setProgress(g.eatenCount / Math.max(1, g.total)); // talíř se plní podle posbíraného textu
         // cíl splněn: všechen text snězen → výhra
         if (g.food.every((f) => f.eaten)) { win(); return true; }
       } else g.snake.pop();
@@ -475,11 +480,9 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     <div style={{ position: "fixed", inset: 0, zIndex: 9998, pointerEvents: "none" }}>
       <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100vw", height: "100vh", display: "block", pointerEvents: "auto", touchAction: "none" }} />
 
-      {/* HUD */}
+      {/* HUD: talíř špaget, co se plní podle posbíraného textu (místo čísla) */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 16px", pointerEvents: "none" }}>
-        <span style={{ ...display, fontSize: 16, fontWeight: 900, color: "var(--text-primary)", background: "var(--bg)", border: "2px solid var(--border)", borderRadius: 999, padding: "6px 14px", boxShadow: "3px 3px 0 var(--border)" }}>
-          🍝 {t.scoreLabel}: {score}
-        </span>
+        <SpaghettiGauge p={progress} />
         <button onClick={onClose} style={sansBtn}>✕ {t.exit}</button>
       </div>
 
@@ -514,6 +517,31 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
         </div>
       )}
     </div>
+  );
+}
+
+/* talíř/miska špaget, co se plní podle posbíraného textu (progress 0..1) */
+function SpaghettiGauge({ p }: { p: number }) {
+  const v = Math.max(0, Math.min(1, p));
+  const topY = 17, botY = 45; // vnitřek misky
+  const fillTop = botY - v * (botY - topY);
+  return (
+    <svg viewBox="0 0 58 52" width={48} height={43} role="img" aria-label={`Posbíráno ${Math.round(v * 100)} %`}
+      style={{ display: "block", color: "var(--text-primary)", pointerEvents: "none", filter: "drop-shadow(0 1px 0 var(--bg)) drop-shadow(0 0 2px var(--bg))" }}>
+      <defs>
+        <clipPath id="ng-bowl"><path d="M8 17 Q8 45 29 47 Q50 45 50 17 Z" /></clipPath>
+        <pattern id="ng-noodles" width="11" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-8)">
+          <path d="M-1 3.5 Q2 0 5.5 3.5 T12 3.5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" />
+        </pattern>
+      </defs>
+      {/* špageta se plní zdola nahoru, oříznutá do misky */}
+      <g clipPath="url(#ng-bowl)">
+        <rect x="0" y={fillTop} width="58" height={botY - fillTop + 3} fill="url(#ng-noodles)" />
+      </g>
+      {/* obrys misky + okraj */}
+      <path d="M8 17 Q8 45 29 47 Q50 45 50 17" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" />
+      <ellipse cx="29" cy="17" rx="21" ry="5" fill="none" stroke="currentColor" strokeWidth={2.4} />
+    </svg>
   );
 }
 
