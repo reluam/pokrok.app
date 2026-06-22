@@ -102,9 +102,15 @@ const opaqueBg = (el: Element | null): string | undefined => {
 };
 
 type RGB = [number, number, number];
-const hexToRgb = (hex: string): RGB => {
-  const h = hex.trim().replace("#", "");
-  const s = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+const hexToRgb = (color: string): RGB => {
+  const c = (color || "").trim();
+  const m = c.match(/^rgba?\(([^)]+)\)/i); // robustní i na "rgb(r,g,b)" (jinak by reset spadl na černou)
+  if (m) {
+    const [r, g, b] = m[1].split(",").map((x) => parseFloat(x));
+    return [r || 0, g || 0, b || 0];
+  }
+  const h = c.replace("#", "");
+  const s = h.length === 3 ? h.split("").map((ch) => ch + ch).join("") : h;
   const v = parseInt(s.slice(0, 6) || "fafaf7", 16);
   return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
 };
@@ -122,6 +128,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
   const gameRef = useRef<Game | null>(null);
   const eraseLayerRef = useRef<HTMLDivElement | null>(null); // DOM překryvy snědených slov (scrollují s textem)
   const colorsRef = useRef({ ink: "#1a1614", paper: "#FAFAF7", muted: "#9b958f" });
+  const baseBgRef = useRef("#FAFAF7"); // PŮVODNÍ pozadí stránky (loop ho nepřepisuje) — pro reset při restartu
   const scrollRef = useRef(0);
   const themeCur = useRef<RGB>([250, 250, 247]);
   const themeTarget = useRef<RGB>([250, 250, 247]);
@@ -299,7 +306,10 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     const g = buildGame();
     gameRef.current = g;
     scrollRef.current = 0;
-    const base = colorsRef.current.paper || "#FAFAF7";
+    // reset pozadí na PŮVODNÍ (klasické) — žádný zbytek tintu z minulé hry
+    document.documentElement.style.removeProperty("--bg");
+    const base = baseBgRef.current || "#FAFAF7";
+    colorsRef.current.paper = base;
     themeCur.current = hexToRgb(base);
     themeTarget.current = hexToRgb(base);
     setScore(0);
@@ -320,9 +330,11 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
   useEffect(() => {
     if (!open) return;
     const cs = getComputedStyle(document.documentElement);
+    const baseBg = cs.getPropertyValue("--bg").trim() || "#FAFAF7";
+    baseBgRef.current = baseBg; // původní pozadí — drží se, loop ho nepřepisuje
     colorsRef.current = {
       ink: cs.getPropertyValue("--text-primary").trim() || "#1a1614",
-      paper: cs.getPropertyValue("--bg").trim() || "#FAFAF7",
+      paper: baseBg,
       muted: cs.getPropertyValue("--text-muted").trim() || "#9b958f",
     };
     // překryvová vrstva: kotva v počátku dokumentu, snědená slova jsou DOM obdélníky uvnitř →
