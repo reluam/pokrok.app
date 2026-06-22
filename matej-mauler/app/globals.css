@@ -417,3 +417,26 @@ body {
   }
   .browse-side { position: sticky; top: 28px; }
 }
+
+/* ── Spaghetti loader (loading.tsx) ─────────────────────────────── */
+.sl-wrap {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 22px; background: var(--bg); color: var(--text-primary);
+  animation: sl-in 0.25s ease both;
+}
+@keyframes sl-in { from { opacity: 0; } to { opacity: 1; } }
+.sl-twirl  { transform-origin: 60px 58px; animation: sl-spin 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite; }
+@keyframes sl-spin { to { transform: rotate(360deg); } }
+.sl-bob    { animation: sl-bob 1.5s ease-in-out infinite; }
+@keyframes sl-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.sl-steam  { transform-origin: center; opacity: 0; animation: sl-steam 2.2s ease-in-out infinite; }
+.sl-steam.s2 { animation-delay: 0.5s; }
+.sl-steam.s3 { animation-delay: 1s; }
+@keyframes sl-steam {
+  0%   { opacity: 0; transform: translateY(4px) scaleX(0.7); }
+  35%  { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-18px) scaleX(1.25); }
+}
+.sl-label  { font-family: var(--font-sans), system-ui, sans-serif; font-size: 13px; letter-spacing: 0.02em; color: var(--text-muted); animation: sl-dim 1.6s ease-in-out infinite; }
+@keyframes sl-dim { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }

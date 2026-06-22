@@ -1,14 +1,15 @@
 import { getDb } from "./db";
 import type { Dictionary, Lang } from "./dictionaries";
+import { unstable_cache, revalidateTag } from "next/cache";
+import { TEXT_GROUPS } from "./siteTextsShared";
 
 type Sql = ReturnType<typeof getDb>;
 
-/** Texty hlavní stránky editovatelné v adminu — override nad defaulty v lib/dictionaries. */
-export const TEXT_GROUPS: { group: string; keys: string[] }[] = [
-  { group: "hero", keys: ["hero.name", "hero.tagline", "hero.sub"] },
-  { group: "products", keys: ["products.title", "products.subtitle"] },
-  { group: "about", keys: ["about.heading", "about.p1", "about.p2", "about.p3a", "about.writeMe", "about.p3b", "about.rewardA", "about.rewardLink"] },
-];
+// Cache textových overridů homepage. setTexts ji shodí → změny v adminu hned, jinak instant.
+const TEXTS_TAG = "site-texts";
+
+// Re-export pro serverové konzumenty; klient ať importuje rovnou ze siteTextsShared.
+export { TEXT_GROUPS };
 
 let ready = false;
 
@@ -24,11 +25,19 @@ async function ensure(sql: Sql) {
   ready = true;
 }
 
-export async function getTextOverrides(lang: Lang): Promise<Record<string, string>> {
+async function loadTextOverrides(lang: Lang): Promise<Record<string, string>> {
   const sql = getDb();
   await ensure(sql);
   const rows = await sql`SELECT key, value FROM site_texts WHERE lang = ${lang}` as { key: string; value: string }[];
   return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
+export async function getTextOverrides(lang: Lang): Promise<Record<string, string>> {
+  return unstable_cache(
+    () => loadTextOverrides(lang),
+    ["site-texts", lang],
+    { tags: [TEXTS_TAG], revalidate: 600 },
+  )();
 }
 
 /** value = null/prázdné → smazat override (vrátí se default ze slovníku). */
@@ -43,6 +52,7 @@ export async function setTexts(items: { key: string; lang: Lang; value: string |
     else await sql`INSERT INTO site_texts (key, lang, value) VALUES (${it.key}, ${it.lang}, ${v})
       ON CONFLICT (key, lang) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`;
   }
+  revalidateTag(TEXTS_TAG, "max");
 }
 
 /** Naroubuje overridy na slovník (deep copy, tečková cesta klíče). */

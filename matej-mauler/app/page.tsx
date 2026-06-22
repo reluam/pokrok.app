@@ -4,8 +4,8 @@ import { dictionaries } from "@/lib/dictionaries";
 import { getPublicExperiments } from "@/lib/experimentsDb";
 import { applyTextOverrides, getTextOverrides } from "@/lib/siteTextsDb";
 
-export const dynamic = "force-dynamic";
-
+// Homepage je cacheovaná (ne force-dynamic): feed i texty se drží ve full-route cache a
+// admin změny ji shodí přes revalidateTag → návrat na „/" je instant místo dynamického renderu.
 export const metadata: Metadata = {
   title: "Spaghetti.ltd",
   description: dictionaries.en.meta.description,
@@ -25,11 +25,14 @@ const jsonLd = {
 };
 
 export default async function Home() {
-  const items = await getPublicExperiments("en");
+  const [items, overrides] = await Promise.all([
+    getPublicExperiments("en"),
+    getTextOverrides("en").catch(() => ({})),
+  ]);
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <HomeNetwork dict={applyTextOverrides(dictionaries.en, await getTextOverrides("en").catch(() => ({})))} lang="en" items={items} />
+      <HomeNetwork dict={applyTextOverrides(dictionaries.en, overrides)} lang="en" items={items} />
     </>
   );
 }

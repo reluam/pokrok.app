@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { dictionaries, type Lang } from "@/lib/dictionaries";
-import { TEXT_GROUPS } from "@/lib/siteTextsDb";
+import { TEXT_GROUPS } from "@/lib/siteTextsShared";
 import { ExperimentsAdmin } from "./ExperimentsAdmin";
 import type { DashboardData } from "@/app/admin/page";
 

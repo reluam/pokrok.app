@@ -3,6 +3,11 @@ import { experiments as STATIC } from "./experiments";
 import { dictionaries } from "./dictionaries";
 import { notFound } from "next/navigation";
 import { isAdmin } from "./adminAuth";
+import { unstable_cache, revalidateTag } from "next/cache";
+
+// Tag, pod kterým žije cache veřejného feedu experimentů. Admin mutace ho shodí
+// (revalidateTag) → homepage/archiv se obnoví, jinak se servírují z cache (instant návrat).
+const EXPERIMENTS_TAG = "experiments";
 
 type Sql = ReturnType<typeof getDb>;
 
@@ -106,7 +111,7 @@ function staticFallback(lang: "cs" | "en"): PublicExperiment[] {
   }).reverse();
 }
 
-export async function getPublicExperiments(lang: "cs" | "en"): Promise<PublicExperiment[]> {
+async function loadPublicExperiments(lang: "cs" | "en"): Promise<PublicExperiment[]> {
   try {
     const sql = getDb();
     await ensure(sql);
@@ -120,6 +125,17 @@ export async function getPublicExperiments(lang: "cs" | "en"): Promise<PublicExp
   } catch {
     return staticFallback(lang);
   }
+}
+
+// Cacheovaná verze pro veřejné stránky (homepage, archiv). Drží feed ve full-route /
+// data cache, takže návrat na „/" je instant místo dynamického renderu + 2 DB dotazů.
+// Admin mutace shodí EXPERIMENTS_TAG → změny se projeví hned. revalidate je jen pojistka.
+export async function getPublicExperiments(lang: "cs" | "en"): Promise<PublicExperiment[]> {
+  return unstable_cache(
+    () => loadPublicExperiments(lang),
+    ["public-experiments", lang, showDrafts() ? "drafts" : "pub"],
+    { tags: [EXPERIMENTS_TAG], revalidate: 600 },
+  )();
 }
 
 export async function isPublished(slug: string): Promise<boolean> {
@@ -170,6 +186,7 @@ export async function patchExperiment(slug: string, f: Partial<ExperimentRow>): 
   if (f.stage) n.published = f.stage === "published";
   else if (f.published !== undefined) n.stage = f.published ? "published" : (cur.stage === "idea" ? "idea" : "draft");
   await sql`UPDATE experiments SET title_cs=${n.title_cs}, title_en=${n.title_en}, desc_cs=${n.desc_cs}, desc_en=${n.desc_en}, color=${n.color}, href=${n.href}, external=${n.external}, published=${n.published}, stage=${n.stage}, published_at=${n.published_at || null} WHERE slug=${slug}`;
+  revalidateTag(EXPERIMENTS_TAG, "max");
 }
 
 export async function createExperiment(r: Omit<ExperimentRow, "sort_order" | "published_at" | "created_at" | "published"> & { published?: boolean }): Promise<void> {
@@ -181,6 +198,7 @@ export async function createExperiment(r: Omit<ExperimentRow, "sort_order" | "pu
   await sql`INSERT INTO experiments (slug, title_cs, title_en, desc_cs, desc_en, color, href, external, sort_order, published, stage)
     VALUES (${r.slug}, ${r.title_cs}, ${r.title_en}, ${r.desc_cs}, ${r.desc_en}, ${r.color}, ${r.href}, ${r.external}, ${max + 1}, ${published}, ${stage})
     ON CONFLICT (slug) DO NOTHING`;
+  revalidateTag(EXPERIMENTS_TAG, "max");
 }
 
 /** Volný slug pro nový nápad — slugifikuje titul, při kolizi přidá příponu. */
@@ -202,10 +220,12 @@ export async function deleteExperiment(slug: string): Promise<void> {
   const sql = getDb();
   await ensure(sql);
   await sql`UPDATE experiments SET deleted = TRUE, published = FALSE WHERE slug = ${slug}`;
+  revalidateTag(EXPERIMENTS_TAG, "max");
 }
 
 export async function reorderExperiments(order: string[]): Promise<void> {
   const sql = getDb();
   await ensure(sql);
   await sql.transaction(order.map((slug, i) => sql`UPDATE experiments SET sort_order = ${i} WHERE slug = ${slug}`));
+  revalidateTag(EXPERIMENTS_TAG, "max");
 }
