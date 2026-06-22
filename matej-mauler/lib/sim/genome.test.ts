@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { makeRng } from "@/lib/sim/rng";
-import { GENE_KEYS, randomGenome, clamp01 } from "@/lib/sim/genome";
+import { GENE_KEYS, randomGenome, clamp01, mutate, crossover } from "@/lib/sim/genome";
 
 test("GENE_KEYS has all ten genes", () => {
   expect(GENE_KEYS).toHaveLength(10);
@@ -23,4 +23,32 @@ test("clamp01 bounds values", () => {
   expect(clamp01(-3)).toBe(0);
   expect(clamp01(7)).toBe(1);
   expect(clamp01(0.4)).toBe(0.4);
+});
+
+test("mutate stays clamped in 0..1 even at high rate", () => {
+  const base = randomGenome(makeRng(3));
+  const r = makeRng(11);
+  for (let i = 0; i < 200; i++) {
+    const m = mutate(base, 1, r);
+    for (const k of GENE_KEYS) {
+      expect(m[k]).toBeGreaterThanOrEqual(0);
+      expect(m[k]).toBeLessThanOrEqual(1);
+    }
+  }
+});
+
+test("mutate with rate 0 is a no-op copy", () => {
+  const base = randomGenome(makeRng(3));
+  const m = mutate(base, 0, makeRng(1));
+  expect(m).toEqual(base);
+  expect(m).not.toBe(base); // new object
+});
+
+test("crossover takes every gene from one parent or the other", () => {
+  const a = randomGenome(makeRng(1));
+  const b = randomGenome(makeRng(2));
+  const c = crossover(a, b, makeRng(5));
+  for (const k of GENE_KEYS) {
+    expect([a[k], b[k]]).toContain(c[k]);
+  }
 });
