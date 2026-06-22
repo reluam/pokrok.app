@@ -1,39 +1,36 @@
 // Fullscreen loading state shown during route navigation (loading.tsx).
-// Pure CSS/SVG — a fork twirling a ball of spaghetti, with rising steam.
+// Pure CSS/SVG, in the same visual language as the homepage noodle game:
+// a thick ink strand with a thin paper highlight and an eyed head. The
+// spaghetti starts as a point (the tail), grows along a wavy path to a
+// second point (the goal) and eats it, then fades and loops.
 // Server component (no hooks) so it streams instantly from the prefetch cache.
+
+// The strand path. The CSS .sl-head offset-path MUST match this string exactly.
+const PATH = "M30 40 C 50 12 70 12 90 40 C 110 68 130 68 150 40 C 170 12 190 12 210 40";
 
 export function SpaghettiLoader({ label = "twirling the noodles…" }: { label?: string }) {
   return (
     <div className="sl-wrap" role="status" aria-live="polite" aria-label="loading">
-      <svg width="120" height="120" viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        {/* steam */}
-        <g stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.5">
-          <path className="sl-steam" d="M50 26 q-4 -6 0 -12 q4 -6 0 -12" />
-          <path className="sl-steam s2" d="M60 24 q-4 -6 0 -12 q4 -6 0 -12" />
-          <path className="sl-steam s3" d="M70 26 q-4 -6 0 -12 q4 -6 0 -12" />
-        </g>
+      <div className="sl-stage">
+        <svg width="220" height="74" viewBox="0 0 240 80" fill="none" aria-hidden="true">
+          {/* tail — the point it grows from */}
+          <circle className="sl-start" cx="30" cy="40" r="5" fill="currentColor" />
+          {/* goal — the point it grows toward and eats */}
+          <circle className="sl-goal" cx="210" cy="40" r="7.5" fill="currentColor" />
 
-        <g className="sl-bob">
-          {/* fork (static) */}
-          <g stroke="currentColor" strokeLinecap="round" fill="none">
-            <line x1="49" y1="30" x2="49" y2="52" strokeWidth="2.4" />
-            <line x1="56.5" y1="30" x2="56.5" y2="52" strokeWidth="2.4" />
-            <line x1="63.5" y1="30" x2="63.5" y2="52" strokeWidth="2.4" />
-            <line x1="71" y1="30" x2="71" y2="52" strokeWidth="2.4" />
-            <line x1="60" y1="52" x2="60" y2="104" strokeWidth="3.4" />
-          </g>
+          {/* the spaghetti: thick ink body + thin paper highlight (the game's noodle look) */}
+          <path className="sl-strand" d={PATH} pathLength={100} stroke="currentColor" strokeWidth="13" strokeLinecap="round" />
+          <path className="sl-strand" d={PATH} pathLength={100} stroke="var(--bg)" strokeWidth="3" strokeLinecap="round" />
 
-          {/* twirled noodle ball (rotates) */}
-          <g className="sl-twirl" stroke="currentColor" strokeLinecap="round" fill="none">
-            <circle cx="60" cy="50" r="9"  strokeWidth="4.5" strokeDasharray="34 14" />
-            <circle cx="60" cy="50" r="16" strokeWidth="4.5" strokeDasharray="55 22" opacity="0.85" />
-            <circle cx="60" cy="50" r="23" strokeWidth="4.5" strokeDasharray="78 30" opacity="0.6" />
-            {/* loose dangling ends */}
-            <path d="M60 73 q8 8 2 16 q-6 8 4 14" strokeWidth="4" opacity="0.7" />
-            <path d="M44 64 q-9 5 -8 14 q1 9 -7 12" strokeWidth="4" opacity="0.55" />
+          {/* eyed head, riding the tip of the strand */}
+          <g className="sl-head">
+            <circle cx="1.5" cy="-3.2" r="2.1" fill="var(--bg)" />
+            <circle cx="2.6" cy="-3.2" r="1" fill="currentColor" />
+            <circle cx="1.5" cy="3.2" r="2.1" fill="var(--bg)" />
+            <circle cx="2.6" cy="3.2" r="1" fill="currentColor" />
           </g>
-        </g>
-      </svg>
+        </svg>
+      </div>
       <span className="sl-label">{label}</span>
     </div>
   );

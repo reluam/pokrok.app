@@ -418,7 +418,11 @@ body {
   .browse-side { position: sticky; top: 28px; }
 }
 
-/* ── Spaghetti loader (loading.tsx) ─────────────────────────────── */
+/* ── Spaghetti loader (loading.tsx) ─────────────────────────────────
+   Same visual language as the homepage noodle game: a thick ink strand
+   with a thin paper highlight, round caps, an eyed head. The noodle starts
+   as a point (the tail), grows along a wavy path to a second point (the
+   goal) and eats it — then fades and loops. ───────────────────────────── */
 .sl-wrap {
   position: fixed; inset: 0; z-index: 50;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -426,17 +430,33 @@ body {
   animation: sl-in 0.25s ease both;
 }
 @keyframes sl-in { from { opacity: 0; } to { opacity: 1; } }
-.sl-twirl  { transform-origin: 60px 58px; animation: sl-spin 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite; }
-@keyframes sl-spin { to { transform: rotate(360deg); } }
-.sl-bob    { animation: sl-bob 1.5s ease-in-out infinite; }
-@keyframes sl-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-.sl-steam  { transform-origin: center; opacity: 0; animation: sl-steam 2.2s ease-in-out infinite; }
-.sl-steam.s2 { animation-delay: 0.5s; }
-.sl-steam.s3 { animation-delay: 1s; }
-@keyframes sl-steam {
-  0%   { opacity: 0; transform: translateY(4px) scaleX(0.7); }
-  35%  { opacity: 0.5; }
-  100% { opacity: 0; transform: translateY(-18px) scaleX(1.25); }
-}
+
+.sl-stage { --sl-d: 2.6s; color: var(--text-primary); animation: sl-cycle var(--sl-d) linear infinite; }
+@keyframes sl-cycle { 0% { opacity: 0; } 8% { opacity: 1; } 84% { opacity: 1; } 96%, 100% { opacity: 0; } }
+
+/* the spaghetti drawing itself in (tail stays put, head grows toward the goal) */
+.sl-strand { stroke-dasharray: 100; stroke-dashoffset: 101; animation: sl-draw var(--sl-d) ease-in-out infinite; }
+@keyframes sl-draw { 0%, 8% { stroke-dashoffset: 101; } 56%, 100% { stroke-dashoffset: 0; } }
+
+/* eyed head slides along the very same path, in sync with the draw */
+.sl-head { offset-path: path("M30 40 C 50 12 70 12 90 40 C 110 68 130 68 150 40 C 170 12 190 12 210 40"); offset-rotate: auto; offset-distance: 0%; animation: sl-travel var(--sl-d) ease-in-out infinite; }
+@keyframes sl-travel { 0%, 8% { offset-distance: 0%; } 56%, 100% { offset-distance: 100%; } }
+
+/* the goal point — sits there, then gets eaten the moment the head arrives */
+.sl-goal { transform-box: fill-box; transform-origin: center; animation: sl-eat var(--sl-d) ease infinite; }
+@keyframes sl-eat { 0%, 52% { transform: scale(1); opacity: 1; } 60%, 100% { transform: scale(0); opacity: 0; } }
+
+/* the start point (the tail) gives a small pop as the strand sets off */
+.sl-start { transform-box: fill-box; transform-origin: center; animation: sl-pop var(--sl-d) ease-in-out infinite; }
+@keyframes sl-pop { 0% { transform: scale(0.6); } 8%, 100% { transform: scale(1); } }
+
 .sl-label  { font-family: var(--font-sans), system-ui, sans-serif; font-size: 13px; letter-spacing: 0.02em; color: var(--text-muted); animation: sl-dim 1.6s ease-in-out infinite; }
 @keyframes sl-dim { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sl-stage, .sl-strand, .sl-head, .sl-goal, .sl-start, .sl-label { animation: none; }
+  .sl-stage { opacity: 1; }
+  .sl-strand { stroke-dashoffset: 0; }
+  .sl-head { offset-distance: 100%; }
+  .sl-goal { transform: scale(0); opacity: 0; }
+}
