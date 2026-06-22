@@ -86,6 +86,18 @@ const inRect = (px: number, py: number, r: Rect) => px >= r.x0 && px <= r.x1 && 
 const cellHitsRect = (cx: number, cy: number, r: Rect) => cx * CELL < r.x1 && cx * CELL + CELL > r.x0 && cy * CELL < r.y1 && cy * CELL + CELL > r.y0;
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const wob = (x: number, y: number, amp: number) => Math.sin(x * 0.9 + y * 1.7) * amp;
+// barva pozadí elementu — jen když je NEPRŮHLEDNÁ; průhledné (karty po redesignu) → undefined = pozadí stránky
+const opaqueBg = (el: Element | null): string | undefined => {
+  if (!el) return undefined;
+  const c = getComputedStyle(el).backgroundColor;
+  if (!c || c === "transparent") return undefined;
+  const m = c.match(/^rgba?\(([^)]+)\)/);
+  if (m) {
+    const a = m[1].split(",")[3];
+    if (a !== undefined && parseFloat(a) < 0.99) return undefined; // poloprůhledné → pozadí stránky
+  }
+  return c;
+};
 
 type RGB = [number, number, number];
 const hexToRgb = (hex: string): RGB => {
@@ -105,6 +117,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game | null>(null);
+  const eraseLayerRef = useRef<HTMLDivElement | null>(null); // DOM překryvy snědených slov (scrollují s textem)
   const colorsRef = useRef({ ink: "#1a1614", paper: "#FAFAF7", muted: "#9b958f" });
   const scrollRef = useRef(0);
   const themeCur = useRef<RGB>([250, 250, 247]);
@@ -150,8 +163,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     const food: Food[] = [];
     document.querySelectorAll<HTMLElement>('[data-noodle="eat"], [data-noodle="logo"]').forEach((el) => {
       // text na kartě sedí na bílém pozadí karty (#fff), jinak na pozadí stránky (--bg, tónuje se)
-      const card = el.closest(".scard") as HTMLElement | null;
-      const bg = card ? getComputedStyle(card).backgroundColor || undefined : undefined;
+      const bg = opaqueBg(el.closest(".scard"));
       collectWords(el, food, sx, sy, bg);
       el.querySelectorAll("img").forEach((img) => {
         const r = img.getBoundingClientRect();
@@ -163,8 +175,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     document.querySelectorAll<HTMLElement>('[data-noodle="eat-block"]').forEach((el) => {
       const r = el.getBoundingClientRect();
       if (r.width < 4 || r.height < 4) return;
-      const card = el.closest(".scard") as HTMLElement | null;
-      const bg = card ? getComputedStyle(card).backgroundColor || undefined : undefined;
+      const bg = opaqueBg(el.closest(".scard"));
       food.push({ x0: r.left + sx, y0: r.top + sy, x1: r.right + sx, y1: r.bottom + sy, n: 6, eaten: false, bg });
     });
 
@@ -218,16 +229,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
     const { ink, paper } = colorsRef.current;
     const w = window.innerWidth, h = window.innerHeight;
     const sx = window.scrollX, sy = window.scrollY;
-    ctx.clearRect(0, 0, w, h); // průhledné → stránka prosvítá
-
-    // snědená slova/bloky: přemaluj barvou pozadí (karty bílé, hlavní stránka tónující --bg)
-    for (const f of g.food) {
-      if (!f.eaten) continue;
-      const x = f.x0 - sx - 2, y = f.y0 - sy - 2;
-      if (x > w || y > h || x + (f.x1 - f.x0) + 4 < 0 || y + (f.y1 - f.y0) + 4 < 0) continue;
-      ctx.fillStyle = f.bg ?? paper;
-      ctx.fillRect(x, y, f.x1 - f.x0 + 4, f.y1 - f.y0 + 4);
-    }
+    ctx.clearRect(0, 0, w, h); // průhledné → stránka prosvítá (snědený text mizí přes DOM obdélníky)
 
     // nudle — plynulý pohyb: pozice se interpolují mezi kroky mřížky (t = postup do dalšího kroku)
     const amp = CELL * 0.06;
@@ -290,6 +292,7 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
   /* ── start / restart ── */
   const start = useCallback(() => {
     window.scrollTo(0, 0);
+    if (eraseLayerRef.current) eraseLayerRef.current.replaceChildren(); // smaž překryvy z minula
     const g = buildGame();
     gameRef.current = g;
     scrollRef.current = 0;
@@ -318,6 +321,13 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       paper: cs.getPropertyValue("--bg").trim() || "#FAFAF7",
       muted: cs.getPropertyValue("--text-muted").trim() || "#9b958f",
     };
+    // překryvová vrstva: kotva v počátku dokumentu, snědená slova jsou DOM obdélníky uvnitř →
+    // scrollují NATIVNĚ s textem (i na mobilu) a s background:var(--bg) se samy přebarvují
+    const layer = document.createElement("div");
+    layer.style.cssText = "position:absolute;top:0;left:0;width:0;height:0;pointer-events:none;z-index:1;";
+    document.body.appendChild(layer);
+    eraseLayerRef.current = layer;
+
     const startId = requestAnimationFrame(() => start());
 
     const onKey = (e: KeyboardEvent) => {
@@ -355,6 +365,8 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
       window.removeEventListener("touchstart", onTS);
       window.removeEventListener("touchend", onTE);
       document.documentElement.style.removeProperty("--bg"); // vrať barvu stránky
+      eraseLayerRef.current?.remove(); // odstraň překryvy → text je zpátky
+      eraseLayerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -401,7 +413,15 @@ export function HomeNoodleGame({ open, onClose, lang }: { open: boolean; onClose
 
       // jídlo — stačí překryv buňky hlavy se soustem (sníst i při průjezdu jen částí)
       let ate = 0, grew = false;
-      for (const f of g.food) if (!f.eaten && cellHitsRect(nx, ny, f)) { f.eaten = true; ate += f.n; grew = true; }
+      for (const f of g.food) if (!f.eaten && cellHitsRect(nx, ny, f)) {
+        f.eaten = true; ate += f.n; grew = true;
+        const layer = eraseLayerRef.current; // text „zmizí" DOM obdélníkem, co scrolluje s textem
+        if (layer) {
+          const d = document.createElement("div");
+          d.style.cssText = `position:absolute;left:${f.x0 - 2}px;top:${f.y0 - 2}px;width:${f.x1 - f.x0 + 4}px;height:${f.y1 - f.y0 + 4}px;background:${f.bg ?? "var(--bg)"};`;
+          layer.appendChild(d);
+        }
+      }
 
       const body = grew ? g.snake : g.snake.slice(0, -1);
       if (body.some((c) => c.x === nx && c.y === ny)) { die(); return true; }
