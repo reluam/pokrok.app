@@ -9,10 +9,11 @@ import { SCENARIOS, Scenario } from "@/lib/game/scenarios";
 import { GeneFocus, DriftInsight, buildInsight, mirrorSentence } from "@/lib/game/insight";
 import { PredictionGate } from "./PredictionGate";
 import { SurvivalPath } from "@/lib/sim/fitness";
-import { markScenarioComplete, loadProgress, type DriftProgress } from "@/lib/game/progress";
+import { markScenarioComplete, recordSurvival, loadProgress, type DriftProgress } from "@/lib/game/progress";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { ShareBar } from "./ShareBar";
 import { readDnaParam } from "@/lib/game/share";
+import { PhaseBRunner } from "./PhaseBRunner";
 
 const DEFAULT_ENV: Environment = { foodAbundance: 0.6, predatorPressure: 0.6, temperature: 0.5, backgroundHue: 0.3 };
 const sans = "ui-sans-serif, system-ui, sans-serif";
@@ -61,7 +62,7 @@ export default function Driftbloom() {
     setState(initPopulation(ns, 40, env));
   }
 
-  const [mode, setMode] = useState<"sandbox" | "phaseA">("sandbox");
+  const [mode, setMode] = useState<"sandbox" | "phaseA" | "phaseB">("sandbox");
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [reveal, setReveal] = useState<DriftInsight | null>(null);
   const [pathsUsed, setPathsUsed] = useState<SurvivalPath[]>([]);
@@ -92,6 +93,7 @@ export default function Driftbloom() {
         <p style={{ color: "var(--text-secondary)", maxWidth: 560 }}>watch life adapt to where it is — not toward anywhere. seed {seed}</p>
         <div style={{ display: "flex", gap: 8, margin: "8px 0 4px" }}>
           <button className="sbtn" onClick={() => setMode("phaseA")} disabled={mode === "phaseA"}>learn (phase a)</button>
+          <button className="sbtn" onClick={() => setMode("phaseB")} disabled={mode === "phaseB" || !progress.phaseBUnlocked} title={!progress.phaseBUnlocked ? "finish phase a to unlock" : undefined}>play (phase b)</button>
           <button className="sbtn" onClick={() => setMode("sandbox")} disabled={mode === "sandbox"}>sandbox</button>
         </div>
 
@@ -117,6 +119,21 @@ export default function Driftbloom() {
               </div>
             )}
             <div style={{ marginTop: 12 }}><StatsPanel history={state.history} /></div>
+          </div>
+        )}
+
+        {mode === "phaseB" && (
+          <div>
+            {progress.phaseBUnlocked
+              ? <PhaseBRunner seed={seed} onGameOver={(g) => {
+                  setProgress(recordSurvival(g));
+                  fetch("/api/participation", {
+                    method: "POST", headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ experimentSlug: "driftbloom", payload: { mode: "phaseB", survived: g } }),
+                  }).catch(() => {});
+                }} />
+              : <p style={{ color: "var(--text-muted)" }}>finish the three phase-a scenarios to unlock the open world.</p>}
+            {progress.bestSurvival > 0 && <p style={{ marginTop: 8, fontSize: 13, color: "var(--text-muted)" }}>your best: {progress.bestSurvival} generations</p>}
           </div>
         )}
 
