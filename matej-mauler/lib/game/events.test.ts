@@ -9,7 +9,7 @@ import {
 
 const env = { foodAbundance: 0.5, predatorPressure: 0.5, temperature: 0.5, backgroundHue: 0.5 };
 function lin(id: string, kind: "player" | "npc", held: string[]): Lineage {
-  return { id, kind, color: "#000", sim: initPopulation(1, 5, env), held, ap: 0, alive: held.length > 0 };
+  return { id, kind, strategy: "organism", color: "#000", sim: initPopulation(1, 5, env), held, ap: 0, alive: held.length > 0 };
 }
 
 test("shiftClimate is deterministic, perturbs envs, and preserves ids/adjacency within 0..1", () => {

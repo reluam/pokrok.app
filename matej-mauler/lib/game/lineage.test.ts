@@ -26,7 +26,7 @@ const biome = (id: string, env: Environment, neighbors: string[]): Biome => ({ i
 
 function lineageOf(id: string, kind: "player" | "npc", g: Genome, held: string[]): Lineage {
   const sim = initPopulation(1, 10, predEnv(0));
-  return { id, kind, color: "#000", sim: { ...sim, population: sim.population.map(() => ({ ...g })) }, held, ap: 0, alive: true };
+  return { id, kind, strategy: "organism", color: "#000", sim: { ...sim, population: sim.population.map(() => ({ ...g })) }, held, ap: 0, alive: true };
 }
 
 // strong when hue matches background (camo is the SOLE route — sensor edge zeroed), weak when it doesn't.
@@ -71,14 +71,21 @@ test("a clearly stronger challenger flips a biome from the incumbent", () => {
   expect(out.find((l) => l.id === "n")!.held).toEqual([]);
 });
 
-test("an unviable incumbent drops its biome (it goes empty) when nobody else qualifies", () => {
+test("refuge: an unviable incumbent keeps its SOLE biome (no instant extinction)", () => {
   const harsh: Environment = { foodAbundance: 0.5, predatorPressure: 1, temperature: 1, backgroundHue: 1 };
   const world: World = { biomes: [biome("b0", predEnv(0), ["b1"]), biome("b1", harsh, ["b0"])] };
   const weak = gene({ camouflage: 0, toughness: 0, speed: 0, size: 1, metabolism: 1, hue: 0 });
-  const npc = lineageOf("n", "npc", weak, ["b1"]);
+  const npc = lineageOf("n", "npc", weak, ["b1"]); // only biome, unviable there
   expect(strengthInBiome(npc, world.biomes[1])).toBeLessThan(MIN_VIABLE);
-  const out = resolveColonization(world, [npc]);
-  expect(out[0].held).toEqual([]);
+  expect(resolveColonization(world, [npc])[0].held).toEqual(["b1"]); // kept as a refuge
+});
+
+test("an unviable incumbent DOES drop a non-last biome (refuge only protects the last)", () => {
+  const harsh: Environment = { foodAbundance: 0.5, predatorPressure: 1, temperature: 1, backgroundHue: 1 };
+  const world: World = { biomes: [biome("b0", predEnv(0), ["b1"]), biome("b1", harsh, ["b0"])] };
+  const npc = lineageOf("n", "npc", camo0, ["b0", "b1"]); // strong in b0, unviable in harsh b1
+  expect(strengthInBiome(npc, world.biomes[1])).toBeLessThan(MIN_VIABLE);
+  expect(resolveColonization(world, [npc])[0].held).toEqual(["b0"]); // drops b1, keeps b0
 });
 
 test("resolveColonization is pure (does not mutate input) and deterministic", () => {

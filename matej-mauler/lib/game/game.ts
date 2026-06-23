@@ -1,10 +1,11 @@
 import type { Environment } from "@/lib/sim/environment";
-import { initPopulation, step, setEnv } from "@/lib/sim/population";
+import { initPopulation } from "@/lib/sim/population";
 import { makeRng } from "@/lib/sim/rng";
 import { generateWorld, World } from "./world";
 import { Lineage, resolveColonization } from "./lineage";
 import { PlayerAction, actionCost, applyPush } from "./actions";
 import { shiftClimate, rollCatastrophe, applyCatastrophe } from "./events";
+import { Strategy, evolveByStrategy } from "./strategies";
 
 // ---- tunable knobs -------------------------------------------------------
 export const BIOME_COUNT = 6;
@@ -18,6 +19,8 @@ export const MUTATION_RATE = 0.25;
 export const CLIMATE_EVERY = 4;    // a climate shift every N eras
 
 const LINEAGE_COLORS = ["#2563eb", "#dc2626", "#16a34a", "#d97706"]; // player first
+// Index → strategy: you (design) vs three rival theories of evolution.
+const LINEAGE_STRATEGIES: Strategy[] = ["intelligent_design", "gene_eye", "group_selection", "lamarck"];
 
 export type GameStatus = "playing" | "won" | "lost";
 
@@ -66,6 +69,7 @@ export function initGame(seed: number): GameState {
     lineages.push({
       id: i === 0 ? "player" : `npc${i}`,
       kind: i === 0 ? "player" : "npc",
+      strategy: LINEAGE_STRATEGIES[i % LINEAGE_STRATEGIES.length],
       color: LINEAGE_COLORS[i % LINEAGE_COLORS.length],
       sim,
       held: [startBiome.id],
@@ -107,11 +111,10 @@ export function tickEra(game: GameState, actions: PlayerAction[]): GameState {
     if (a.type === "pushTrait") player.sim = { ...player.sim, population: applyPush(player.sim.population, a.gene, a.amount) };
   }
 
-  // 2. evolve every alive lineage against its range env.
+  // 2. evolve every alive lineage against its range env, each under its own theory of evolution.
   lineages = lineages.map((l) => {
     if (!l.alive || l.held.length === 0) return l;
-    const evolved = step(setEnv(l.sim, rangeEnv(game.world, l)), MUTATION_RATE);
-    return { ...l, sim: evolved };
+    return { ...l, sim: evolveByStrategy(l.strategy, l.sim, rangeEnv(game.world, l)) };
   });
 
   // 3. resolve who holds each biome; 4. extinction = no biomes left.
