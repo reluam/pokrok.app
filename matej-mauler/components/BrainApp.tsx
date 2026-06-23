@@ -14,7 +14,7 @@ type MapData = {
   edges: { a: number; b: number; count: number }[]; // a → b
   truncated: boolean;
 };
-type Step = "intro" | "assoc" | "explain" | "choose" | "results";
+type Step = "intro" | "welcome" | "assoc" | "explain" | "choose" | "results";
 type MineStat = { from: number; fromLabel: string; to: string; toLabel: string; count: number; total: number; others: number; othersTotal: number; pct: number | null };
 
 /** Kolik asociací uživatel vyplní v 1. kroku cesty, než se nabídne „Dále". */
@@ -88,6 +88,10 @@ const T = {
     introBody: "Krátká cesta, která ti ukáže, jak v hlavě vznikají asociace — a jak se z nich skládá společná síť. Dostaneš pár slov a u každého napíšeš první věc, co tě napadne. Na konci uvidíš, jak moc se tvá spojení potkávají s ostatními.",
     introStart: "Začít →",
     introSkip: "Mám síť rovnou →",
+    welcomeTitle: "Vítej zpátky",
+    welcomeBody: "Tady už jsi byl/a. Přidat další asociace, nebo rovnou na mapu?",
+    welcomeFill: "Přidat asociace →",
+    welcomeMap: "Ukázat mapu →",
     progress: (n: number, goal: number) => `tvé asociace: ${n} / ${goal}`,
     goalReached: "Hotovo! Asociací máš dost.",
     choosePrompt: "Můžeš se rovnou podívat na síť, nebo přidat další asociace.",
@@ -155,6 +159,10 @@ const T = {
     introBody: "A short journey showing how associations form in your head — and how they add up into a shared network. You'll get a few words; for each, write the first thing that comes to mind. At the end you'll see how much your connections overlap with everyone else's.",
     introStart: "Start →",
     introSkip: "Just show me the network →",
+    welcomeTitle: "Welcome back",
+    welcomeBody: "You've been here before. Add more associations, or jump straight to the map?",
+    welcomeFill: "Add associations →",
+    welcomeMap: "View the map →",
     progress: (n: number, goal: number) => `your associations: ${n} / ${goal}`,
     goalReached: "Done! You have enough associations.",
     choosePrompt: "You can jump straight to the network, or add more associations.",
@@ -188,6 +196,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
   const appLang = lang;
   const t = T[appLang];
   const [step, setStep] = useState<Step>("intro");
+  const [checked, setChecked] = useState(false); // hotová kontrola, jestli přihlášený už synapse plnil
   const [stats, setStats] = useState<Stats | null>(null);
   const [map, setMap] = useState<MapData | null>(null);
   const dirty = useRef(false); // po nových asociacích mapu před zobrazením obnovit
@@ -239,6 +248,23 @@ export function BrainApp({ lang }: { lang: Lang }) {
   }, [appLang]);
 
   useEffect(() => { track("brain", "open"); }, []);
+
+  // Přihlášený, co už synapse plnil → uvítací volba (vyplnit / mapa). Nepřihlášený = normální flow.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/participation?experiment=synapsis", { cache: "no-store" });
+        const d = await r.json();
+        if (active && d?.signedIn && d?.done) setStep("welcome");
+      } catch {
+        /* ticho → normální flow */
+      } finally {
+        if (active) setChecked(true);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
 
   // Po dosažení výsledku necháme insight chvíli „dosednout", pak nabídneme uložení účtu.
   useEffect(() => {
@@ -326,7 +352,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       </div>
 
       {/* ── 0) intro: co tahle cesta je ── */}
-      {step === "intro" && (
+      {checked && step === "intro" && (
         <div style={overlayWrap}>
           <Link href="/" style={backLink}>{t.back}</Link>
           <div style={{ maxWidth: 560, width: "100%", textAlign: "center" }}>
@@ -336,6 +362,22 @@ export function BrainApp({ lang }: { lang: Lang }) {
             <button onClick={() => setStep("assoc")} style={primaryBtn}>{t.introStart}</button>
             <div style={{ marginTop: 16 }}>
               <button onClick={goResults} style={subtleBtn}>{t.introSkip}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 0b) vracející se přihlášený: vyplnit znovu, nebo rovnou na mapu ── */}
+      {step === "welcome" && (
+        <div style={overlayWrap}>
+          <Link href="/" style={backLink}>{t.back}</Link>
+          <div style={{ maxWidth: 520, width: "100%", textAlign: "center" }}>
+            <p style={{ ...sans, fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--text-muted)", margin: "0 0 14px" }}>{t.introEyebrow}</p>
+            <h1 style={{ ...display, fontSize: "clamp(28px,5.5vw,42px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1, margin: "0 0 14px" }}>{t.welcomeTitle}</h1>
+            <p style={{ ...sans, fontSize: 15, color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 28px" }}>{t.welcomeBody}</p>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+              <button onClick={() => { setContinuing(false); setStep("assoc"); }} style={primaryBtn}>{t.welcomeFill}</button>
+              <button onClick={goResults} style={subtleBtn}>{t.welcomeMap}</button>
             </div>
           </div>
         </div>
