@@ -354,7 +354,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       {/* ── 0) intro: co tahle cesta je ── */}
       {checked && step === "intro" && (
         <div style={overlayWrap}>
-          <Link href="/" style={backLink}>{t.back}</Link>
+          <Link href="/" className="sbtn" style={backBtn}>{t.back}</Link>
           <div style={{ maxWidth: 560, width: "100%", textAlign: "center" }}>
             <p style={{ ...sans, fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--text-muted)", margin: "0 0 14px" }}>{t.introEyebrow}</p>
             <h1 style={{ ...display, fontSize: "clamp(30px,6vw,46px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1, margin: "0 0 18px" }}>{t.introTitle}</h1>
@@ -370,7 +370,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       {/* ── 0b) vracející se přihlášený: vyplnit znovu, nebo rovnou na mapu ── */}
       {step === "welcome" && (
         <div style={overlayWrap}>
-          <Link href="/" style={backLink}>{t.back}</Link>
+          <Link href="/" className="sbtn" style={backBtn}>{t.back}</Link>
           <div style={{ maxWidth: 520, width: "100%", textAlign: "center" }}>
             <p style={{ ...sans, fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--text-muted)", margin: "0 0 14px" }}>{t.introEyebrow}</p>
             <h1 style={{ ...display, fontSize: "clamp(28px,5.5vw,42px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1, margin: "0 0 14px" }}>{t.welcomeTitle}</h1>
@@ -386,7 +386,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
       {/* ── 1) asociace s progress barem (cíl ASSOC_GOAL) ── */}
       {step === "assoc" && (
         <div style={overlayWrap}>
-          <Link href="/" style={backLink}>{t.back}</Link>
+          <Link href="/" className="sbtn" style={backBtn}>{t.back}</Link>
           <div style={{ maxWidth: 600, width: "100%", textAlign: "center" }}>
             <div style={{ maxWidth: 320, margin: "0 auto 6px" }}>
               <div style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(26,22,20,0.15)", borderRadius: 999, height: 10, overflow: "hidden" }}>
@@ -520,9 +520,9 @@ const subtleBtn: React.CSSProperties = {
   fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: "var(--text-muted)",
   textDecoration: "underline", textUnderlineOffset: "4px",
 };
-const backLink: React.CSSProperties = {
-  position: "absolute", top: 20, left: 24, fontFamily: "var(--font-sans)", fontSize: 13,
-  color: "var(--text-muted)", textDecoration: "none",
+const backBtn: React.CSSProperties = {
+  position: "absolute", top: 18, left: 20, zIndex: 12, fontSize: 12.5, padding: "7px 14px",
+  lineHeight: 1, textDecoration: "none",
 };
 
 /** Průměrná shoda s davem přes uživatelovy asociace (jen ty, co už někdo jiný zapsal). */
@@ -1205,10 +1205,8 @@ function BrainMap({ data, lang, chrome, stats, mine, mineLoading, onShare, onBac
             display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
             pointerEvents: "none",
           }}>
-            <Link href="/" style={{
-              pointerEvents: "auto", background: "#fff", border: "2px solid var(--border)", borderRadius: 999,
-              padding: "7px 14px", ...sans, fontSize: 12.5, fontWeight: 600, cursor: "pointer", color: "var(--text-primary)",
-              boxShadow: "3px 3px 0 var(--shadow)", textDecoration: "none",
+            <Link href="/" className="sbtn" style={{
+              pointerEvents: "auto", fontSize: 12.5, padding: "7px 14px", textDecoration: "none",
             }}>{t.back}</Link>
             <p style={{ ...display, fontSize: 16, fontWeight: 700, margin: 0 }}>⚡ {t.title} · 🔬 Researcher</p>
           </div>
