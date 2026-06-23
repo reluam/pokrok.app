@@ -126,13 +126,8 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
           <p data-noodle="eat" className="text-[18px] md:text-[22px] max-w-[620px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.4 }}>{SPAGHETTI_BLURB[lang]}</p>
         </header>
 
-        {/* projekty */}
-        <div className="mb-6 animate-fade-up" style={{ animationDelay: "40ms", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-          <h2 data-noodle="eat" className="text-[22px] md:text-[26px] leading-none" style={{ ...display, fontWeight: 900, letterSpacing: "-0.02em" }}>{dict.products.title}</h2>
-          <button onClick={() => setMode("browse")} className="sbtn" data-noodle="eat-block" style={{ marginLeft: "auto", fontSize: 13, padding: "9px 18px" }}>{t.browse} →</button>
-        </div>
-
-        <section className="zcards animate-fade-up pb-14" style={{ animationDelay: "60ms" }}>
+        {/* projekty — bez nadpisu i „Browse all" (schováno, dá se vrátit) */}
+        <section className="zcards animate-fade-up pb-14" style={{ animationDelay: "40ms" }}>
           {items.map((item) => <ProjectCard key={item.slug} item={item} lang={lang} open={t.open} />)}
         </section>
 
