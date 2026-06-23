@@ -13,7 +13,7 @@ export interface World {
 }
 
 // Flavourful name derived deterministically from the biome's environment character.
-function biomeName(env: Environment): string {
+export function biomeName(env: Environment): string {
   const temp =
     env.temperature < 0.33 ? "frozen" : env.temperature > 0.66 ? "scorched" : "temperate";
   const land =

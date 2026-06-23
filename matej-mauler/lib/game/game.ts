@@ -4,6 +4,7 @@ import { makeRng } from "@/lib/sim/rng";
 import { generateWorld, World } from "./world";
 import { Lineage, resolveColonization } from "./lineage";
 import { PlayerAction, actionCost, applyPush } from "./actions";
+import { shiftClimate, rollCatastrophe, applyCatastrophe } from "./events";
 
 // ---- tunable knobs -------------------------------------------------------
 export const BIOME_COUNT = 6;
@@ -14,6 +15,7 @@ export const START_AP = 4;
 export const AP_BASE = 1;          // income floor per era
 export const AP_PER_BIOME = 1;     // income per biome held
 export const MUTATION_RATE = 0.25;
+export const CLIMATE_EVERY = 4;    // a climate shift every N eras
 
 const LINEAGE_COLORS = ["#2563eb", "#dc2626", "#16a34a", "#d97706"]; // player first
 
@@ -119,12 +121,31 @@ export function tickEra(game: GameState, actions: PlayerAction[]): GameState {
   const p = lineages.find((l) => l.kind === "player")!;
   p.ap += AP_BASE + p.held.length * AP_PER_BIOME;
 
+  const era = game.era + 1;
+  const log = [...game.log, `era ${era}: you hold ${p.held.length}/${game.world.biomes.length} biomes`];
+
+  // 6. climate change on its cadence (reshapes next era's selection).
+  let world = game.world;
+  if (era % CLIMATE_EVERY === 0) {
+    world = shiftClimate(world, rng);
+    log.push(`era ${era}: the climate shifts — every biome is changing.`);
+  }
+
+  // 7. a catastrophe may strike, erasing ground for one lineage or all (chance over design).
+  const cat = rollCatastrophe(era, world, lineages, rng);
+  if (cat) {
+    const res = applyCatastrophe(cat, lineages);
+    lineages = res.lineages;
+    log.push(`era ${era}: ${res.message}`);
+  }
+
   const next: GameState = {
     ...game,
+    world,
     lineages,
-    era: game.era + 1,
+    era,
     rngState: Math.floor(rng() * 0x100000000),
-    log: [...game.log, `era ${game.era + 1}: you hold ${p.held.length}/${game.world.biomes.length} biomes`],
+    log,
   };
   return { ...next, status: evaluateStatus(next) };
 }

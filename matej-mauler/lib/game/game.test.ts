@@ -7,6 +7,13 @@ import {
   NUM_LINEAGES, BIOME_COUNT, MAX_ERAS,
 } from "@/lib/game/game";
 
+function runToEnd(seed: number): GameState {
+  let g = initGame(seed);
+  let guard = 0;
+  while (g.status === "playing" && guard++ < 100) g = tickEra(g, []);
+  return g;
+}
+
 const playerOf = (g: GameState): Lineage => g.lineages.find((l) => l.kind === "player")!;
 const npcsOf = (g: GameState): Lineage[] => g.lineages.filter((l) => l.kind === "npc");
 const geneMean = (lin: Lineage, gene: keyof Genome): number =>
@@ -75,6 +82,19 @@ test("NPCs evolve every era with no player input, and at least one stays alive",
   for (const l of npcs.filter((x) => x.alive)) expect(l.sim.generation).toBe(8);
   const after = npcs.map((l) => JSON.stringify(l.sim.population));
   expect(after).not.toEqual(before);
+});
+
+test("a full run is deterministic and exhibits climate shifts and catastrophes across seeds", () => {
+  expect(runToEnd(7)).toEqual(runToEnd(7)); // events keep determinism
+
+  let climateSeen = false, catastropheSeen = false;
+  for (let s = 1; s < 60 && !(climateSeen && catastropheSeen); s++) {
+    const g = runToEnd(s);
+    if (JSON.stringify(g.world) !== JSON.stringify(initGame(s).world)) climateSeen = true;
+    if (g.log.some((line) => /asteroid|plague|extinction/.test(line))) catastropheSeen = true;
+  }
+  expect(climateSeen).toBe(true);       // the world's environments drift mid-game
+  expect(catastropheSeen).toBe(true);   // catastrophes fire and get logged
 });
 
 test("evaluateStatus: player holding every biome is a win", () => {
