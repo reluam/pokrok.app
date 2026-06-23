@@ -1,30 +1,25 @@
 import type { BadgeDef } from "./types";
 
-// Driftbloom — evolution has no goal. Badges name what the player saw about THEIR OWN thinking,
-// never completion/counts. insight is a DriftInsight: { predictionMatched, survivalPathsUsed, ... }.
+// Driftbloom — intelligent design vs. natural selection. Badges name what the player saw about
+// THEIR OWN thinking, never completion/counts. insight is the game outcome:
+// { won, era, playerBiomes, totalBiomes, winnerStrategy }.
 export const driftbloomBadges: BadgeDef[] = [
   {
-    slug: "expected_a_plan",
+    slug: "out_designed_selection",
     experimentSlug: "driftbloom",
-    name: "you expected a plan",
-    description: "you predicted a direction; selection just fit the local world instead.",
-    criteriaKey: "prediction_missed",
-    xp: 10,
-    evaluate: ({ participation }) => {
-      const insight = participation.insight as { predictionMatched?: boolean } | null;
-      return insight?.predictionMatched === false;
-    },
+    name: "you out-designed the blind watchmaker",
+    description: "you steered a lineage across a whole world — deliberate design beat blind selection, this once.",
+    criteriaKey: "campaign_won",
+    xp: 20,
+    evaluate: ({ participation }) => (participation.insight as { won?: boolean } | null)?.won === true,
   },
   {
-    slug: "found_a_second_way",
+    slug: "watched_no_goal",
     experimentSlug: "driftbloom",
-    name: "you found a second way to survive",
-    description: "you watched a different trait win — there was never one 'right' answer.",
-    criteriaKey: "two_survival_paths",
-    xp: 15,
-    evaluate: ({ participation }) => {
-      const insight = participation.insight as { survivalPathsUsed?: string[] } | null;
-      return (insight?.survivalPathsUsed?.length ?? 0) >= 2;
-    },
+    name: "you watched 'better' get out-adapted",
+    description: "your designed lineage lost to a blind process — you saw that 'fitter' is only ever local, never a goal.",
+    criteriaKey: "campaign_lost_to_blind",
+    xp: 10,
+    evaluate: ({ participation }) => (participation.insight as { won?: boolean } | null)?.won === false,
   },
 ];
