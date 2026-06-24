@@ -26,7 +26,7 @@ export function DesignPanel({ game, queued, onQueue, onClear }: {
   return (
     <div style={{ fontFamily: sans, display: "grid", gap: 6 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <strong>your genome (intelligent design)</strong>
+        <strong>push genes</strong>
         <span style={{ fontSize: 13, color: "var(--text-muted)" }}>AP {apLeft} {spent > 0 && `(−${spent} queued)`}</span>
       </div>
       {GENE_KEYS.map((g) => {

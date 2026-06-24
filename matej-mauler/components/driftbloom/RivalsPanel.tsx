@@ -1,21 +1,29 @@
 "use client";
+import { meanGenome } from "@/lib/sim/genome";
 import type { GameState } from "@/lib/game/game";
 import { STRATEGY_LABELS } from "@/lib/game/strategies";
+import { BlobView } from "./BlobView";
 
 const sans = "ui-sans-serif, system-ui, sans-serif";
 
-// The three rival lineages, each a different theory of evolution, with how much world they hold.
+// The three rival lineages — each a different theory of evolution — shown as living creatures that
+// morph on their own. (Left half of the split.)
 export function RivalsPanel({ game }: { game: GameState }) {
   const rivals = game.lineages.filter((l) => l.kind === "npc");
   const total = game.world.biomes.length;
   return (
-    <div style={{ fontFamily: sans, display: "grid", gap: 6 }}>
-      <strong>rivals (shaped by environment)</strong>
+    <div style={{ fontFamily: sans, display: "grid", gap: 10 }}>
+      <strong>rivals — shaped by their own rules</strong>
       {rivals.map((r) => (
-        <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, opacity: r.alive ? 1 : 0.45 }}>
-          <span style={{ width: 12, height: 12, borderRadius: 3, background: r.color, flex: "0 0 auto" }} />
-          <span style={{ flex: 1 }}>{STRATEGY_LABELS[r.strategy]}</span>
-          <span style={{ color: "var(--text-muted)" }}>{r.alive ? `${r.held.length}/${total}` : "extinct"}</span>
+        <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, opacity: r.alive ? 1 : 0.4 }}>
+          <BlobView genome={meanGenome(r.sim.population)} size={64} />
+          <div style={{ display: "grid", gap: 2, fontSize: 13 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+              <span style={{ width: 11, height: 11, borderRadius: 3, background: r.color, display: "inline-block" }} />
+              {STRATEGY_LABELS[r.strategy]}
+            </span>
+            <span style={{ color: "var(--text-muted)" }}>{r.alive ? `holds ${r.held.length}/${total} biomes` : "extinct"}</span>
+          </div>
         </div>
       ))}
     </div>

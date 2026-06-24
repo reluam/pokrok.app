@@ -1,6 +1,13 @@
 import { expect, test } from "vitest";
 import { makeRng } from "@/lib/sim/rng";
-import { GENE_KEYS, randomGenome, clamp01, mutate, crossover, encodeGenome, decodeGenome } from "@/lib/sim/genome";
+import { GENE_KEYS, randomGenome, clamp01, mutate, crossover, encodeGenome, decodeGenome, meanGenome } from "@/lib/sim/genome";
+
+test("meanGenome averages every gene across the population", () => {
+  const a = randomGenome(makeRng(1));
+  const b = randomGenome(makeRng(2));
+  const m = meanGenome([a, b]);
+  for (const k of GENE_KEYS) expect(m[k]).toBeCloseTo((a[k] + b[k]) / 2, 10);
+});
 
 test("GENE_KEYS has all ten genes", () => {
   expect(GENE_KEYS).toHaveLength(10);

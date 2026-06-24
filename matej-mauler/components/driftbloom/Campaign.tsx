@@ -4,11 +4,13 @@ import { initGame, tickEra, GameState } from "@/lib/game/game";
 import { PlayerAction } from "@/lib/game/actions";
 import { summarize, revealText, outcomeInsight } from "@/lib/game/outcome";
 import { recordCampaignResult } from "@/lib/game/campaignProgress";
+import { meanGenome } from "@/lib/sim/genome";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { WorldMap } from "./WorldMap";
 import { DesignPanel } from "./DesignPanel";
 import { RivalsPanel } from "./RivalsPanel";
 import { EventLog } from "./EventLog";
+import { BlobView } from "./BlobView";
 
 const sans = "ui-sans-serif, system-ui, sans-serif";
 const newSeed = () => Math.floor(Math.random() * 1e9);
@@ -46,15 +48,27 @@ export function Campaign() {
       <WorldMap game={game} />
 
       {!over && (
-        <>
-          <div style={{ display: "grid", gap: 16, gridTemplateColumns: "1fr", maxWidth: 620 }}>
-            <DesignPanel game={game} queued={queued} onQueue={(a) => setQueued((q) => [...q, a])} onClear={() => setQueued([])} />
+        <div style={{ display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+          {/* left half — the three rivals, shaped by their own theories */}
+          <section style={{ display: "grid", gap: 10, alignContent: "start" }}>
             <RivalsPanel game={game} />
-          </div>
-          <button className="sbtn" onClick={advance} style={{ justifySelf: "start", fontWeight: 700 }}>
-            advance era ▶ {queued.length > 0 && `(${queued.length} change${queued.length > 1 ? "s" : ""})`}
-          </button>
-        </>
+          </section>
+
+          {/* right half — your lineage (intelligent design) + the controls */}
+          <section style={{ display: "grid", gap: 12, alignContent: "start" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <BlobView genome={meanGenome(player.sim.population)} size={88} />
+              <div style={{ display: "grid", gap: 2 }}>
+                <strong>your lineage — intelligent design</strong>
+                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>holds {player.held.length}/{game.world.biomes.length} biomes</span>
+              </div>
+            </div>
+            <DesignPanel game={game} queued={queued} onQueue={(a) => setQueued((q) => [...q, a])} onClear={() => setQueued([])} />
+            <button className="sbtn" onClick={advance} style={{ justifySelf: "start", fontWeight: 700 }}>
+              advance era ▶ {queued.length > 0 && `(${queued.length} change${queued.length > 1 ? "s" : ""})`}
+            </button>
+          </section>
+        </div>
       )}
 
       <EventLog log={game.log} />
