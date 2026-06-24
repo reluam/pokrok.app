@@ -7,7 +7,7 @@ import { recordCampaignResult } from "@/lib/game/campaignProgress";
 import { meanGenome } from "@/lib/sim/genome";
 import { dominatedCount } from "@/lib/game/lineage";
 import { PromptRegistration } from "@/components/PromptRegistration";
-import { BiomeGrid } from "./BiomeGrid";
+import { WorldMap } from "./WorldMap";
 import { DesignPanel } from "./DesignPanel";
 import { RivalsPanel } from "./RivalsPanel";
 import { EventLog } from "./EventLog";
@@ -18,8 +18,8 @@ const newSeed = () => Math.floor(Math.random() * 1e9);
 const muted = "var(--text-muted)";
 const divider = "1px solid var(--text-muted, #e5e5e5)";
 
-// Full-viewport dashboard (no page scroll): slim top bar, a left rail of the three rivals, and a
-// large right side for your lineage + the biome sections + controls.
+// Full-viewport dashboard (no page scroll): top bar, a left stats+controls column, and a large
+// Plague-Inc-style world map on the right showing who controls what via coloured dots.
 export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
   const [game, setGame] = useState<GameState>(() => initGame(newSeed()));
   const [queued, setQueued] = useState<PlayerAction[]>([]);
@@ -56,39 +56,30 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
         </span>
       </header>
 
-      {/* body: left rail (rivals) + main (your domain) */}
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
-        <aside style={{ flex: "0 0 232px", borderRight: divider, overflowY: "auto", padding: 12 }}>
+        {/* left — statistics + your controls */}
+        <aside style={{ flex: "0 0 340px", borderRight: divider, overflowY: "auto", padding: 12, display: "grid", gap: 14, alignContent: "start" }}>
           <RivalsPanel game={game} />
-        </aside>
-
-        <main style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", padding: 12, gap: 12, overflow: "hidden" }}>
-          <div style={{ flex: "0 0 auto" }}>
-            <div style={{ fontSize: 12, color: muted, marginBottom: 6 }}>the world — colonize every biome</div>
-            <BiomeGrid game={game} />
-          </div>
-
-          <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 16, overflow: "hidden" }}>
-            <div style={{ flex: "0 0 auto", display: "grid", gap: 6, justifyItems: "center", alignContent: "start" }}>
-              <BlobView genome={meanGenome(player.sim.population)} size={150} />
-              <strong>your lineage</strong>
-              <span style={{ fontSize: 12, color: muted }}>intelligent design</span>
-              <button className="sbtn" onClick={advance} disabled={over} style={{ fontWeight: 700, marginTop: 4 }}>
+          <div style={{ borderTop: divider, paddingTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
+            <BlobView genome={meanGenome(player.sim.population)} size={72} />
+            <div style={{ display: "grid", gap: 2 }}>
+              <strong>you — intelligent design</strong>
+              <span style={{ fontSize: 12, color: muted }}>lead {playerDom}/{total} biomes · AP {player.ap}</span>
+              <button className="sbtn" onClick={advance} disabled={over} style={{ fontWeight: 700, justifySelf: "start", marginTop: 2 }}>
                 advance era ▶{queued.length > 0 ? ` (${queued.length})` : ""}
               </button>
             </div>
-            <div style={{ flex: 1, minHeight: 0, overflowY: "auto", paddingRight: 4 }}>
-              <DesignPanel game={game} queued={queued} onQueue={(a) => setQueued((q) => [...q, a])} onClear={() => setQueued([])} />
-            </div>
           </div>
+          <DesignPanel game={game} queued={queued} onQueue={(a) => setQueued((q) => [...q, a])} onClear={() => setQueued([])} />
+        </aside>
 
-          <div style={{ flex: "0 0 auto", borderTop: divider, paddingTop: 8 }}>
-            <EventLog log={game.log} />
-          </div>
+        {/* right — the world map (the big view) */}
+        <main style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", padding: 10, gap: 6, overflow: "hidden" }}>
+          <div style={{ flex: 1, minHeight: 0 }}><WorldMap game={game} /></div>
+          <div style={{ flex: "0 0 auto", borderTop: divider, paddingTop: 6 }}><EventLog log={game.log} /></div>
         </main>
       </div>
 
-      {/* end-of-game overlay (covers the board, page still doesn't scroll) */}
       {over && (
         <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "grid", placeItems: "center", padding: 20 }}>
           <div style={{ background: "var(--bg,#fff)", color: "var(--text-primary,#111)", borderRadius: 16, padding: "22px", width: "min(460px, 94vw)", display: "grid", gap: 12, boxShadow: "0 20px 60px rgba(0,0,0,0.35)" }}>
