@@ -1,13 +1,14 @@
 "use client";
 import { meanGenome } from "@/lib/sim/genome";
 import type { GameState } from "@/lib/game/game";
+import { dominatedCount } from "@/lib/game/lineage";
 import { STRATEGY_LABELS } from "@/lib/game/strategies";
 import { BlobView } from "./BlobView";
 
 const sans = "ui-sans-serif, system-ui, sans-serif";
 
 // The three rival lineages — each a different theory of evolution — shown as living creatures that
-// morph on their own. (Left half of the split.)
+// morph on their own. (Left rail.)
 export function RivalsPanel({ game }: { game: GameState }) {
   const rivals = game.lineages.filter((l) => l.kind === "npc");
   const total = game.world.biomes.length;
@@ -22,7 +23,7 @@ export function RivalsPanel({ game }: { game: GameState }) {
               <span style={{ width: 11, height: 11, borderRadius: 3, background: r.color, display: "inline-block" }} />
               {STRATEGY_LABELS[r.strategy]}
             </span>
-            <span style={{ color: "var(--text-muted)" }}>{r.alive ? `holds ${r.held.length}/${total} biomes` : "extinct"}</span>
+            <span style={{ color: "var(--text-muted)" }}>{r.alive ? `leads ${dominatedCount(game.world, game.lineages, r.id)}/${total} biomes` : "extinct"}</span>
           </div>
         </div>
       ))}

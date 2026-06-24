@@ -1,4 +1,5 @@
 import { GameState } from "./game";
+import { dominatedCount } from "./lineage";
 import { Strategy, STRATEGY_LABELS } from "./strategies";
 
 export interface GameOutcome {
@@ -9,15 +10,17 @@ export interface GameOutcome {
   winnerStrategy: Strategy; // the strategy of the lineage that ended up dominant
 }
 
-// Summarize a finished game: who held the most ground, and how the player fared.
+// Summarize a finished game: who dominated the most ground, and how the player fared.
 export function summarize(game: GameState): GameOutcome {
   const player = game.lineages.find((l) => l.kind === "player")!;
-  // dominant lineage = most biomes held (ties broken by lineage order: player first).
-  const dominant = [...game.lineages].sort((a, b) => b.held.length - a.held.length)[0];
+  // dominant lineage = most biomes dominated (ties broken by lineage order: player first).
+  const dominant = [...game.lineages].sort(
+    (a, b) => dominatedCount(game.world, game.lineages, b.id) - dominatedCount(game.world, game.lineages, a.id),
+  )[0];
   return {
     won: game.status === "won",
     era: game.era,
-    playerBiomes: player.held.length,
+    playerBiomes: dominatedCount(game.world, game.lineages, player.id),
     totalBiomes: game.world.biomes.length,
     winnerStrategy: dominant.strategy,
   };

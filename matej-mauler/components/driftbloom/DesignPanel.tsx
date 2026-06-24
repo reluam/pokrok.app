@@ -1,13 +1,15 @@
 "use client";
-import type { Genome } from "@/lib/sim/genome";
-import { GENE_KEYS } from "@/lib/sim/genome";
+import { meanGenome } from "@/lib/sim/genome";
 import type { GameState } from "@/lib/game/game";
+import { rangeEnv } from "@/lib/game/game";
 import { PlayerAction, PUSH_COST } from "@/lib/game/actions";
+import { traitDemands, coachingHints } from "@/lib/game/hints";
+import { GeneDial } from "./GeneDial";
 
 const sans = "ui-sans-serif, system-ui, sans-serif";
 export const PUSH_STEP = 0.12;
 
-// Your intelligent-design lever: spend AP to push individual genes up or down before each era.
+// Your intelligent-design lever: circular gene dials (your value vs the world's demand) + coaching.
 export function DesignPanel({ game, queued, onQueue, onClear }: {
   game: GameState;
   queued: PlayerAction[];
@@ -19,34 +21,32 @@ export function DesignPanel({ game, queued, onQueue, onClear }: {
   const apLeft = player.ap - spent;
   const canPush = apLeft >= PUSH_COST;
 
-  const mean = (g: keyof Genome) => player.sim.population.reduce((s, x) => s + x[g], 0) / player.sim.population.length;
-  const queuedFor = (g: keyof Genome) =>
-    queued.reduce((s, a) => s + (a.type === "pushTrait" && a.gene === g ? Math.sign(a.amount) : 0), 0);
+  const mean = meanGenome(player.sim.population);
+  const env = rangeEnv(game.world, player);
+  const demands = traitDemands(mean, env);
+  const hints = coachingHints(mean, env);
 
   return (
-    <div style={{ fontFamily: sans, display: "grid", gap: 6 }}>
+    <div style={{ fontFamily: sans, display: "grid", gap: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <strong>push genes</strong>
-        <span style={{ fontSize: 13, color: "var(--text-muted)" }}>AP {apLeft} {spent > 0 && `(−${spent} queued)`}</span>
+        <strong>tune your genes</strong>
+        <span style={{ fontSize: 13, color: "var(--text-muted)" }}>AP {apLeft}{spent > 0 ? ` (−${spent})` : ""}</span>
       </div>
-      {GENE_KEYS.map((g) => {
-        const m = mean(g);
-        const q = queuedFor(g);
-        return (
-          <div key={g} style={{ display: "grid", gridTemplateColumns: "108px 1fr auto", gap: 8, alignItems: "center", fontSize: 12 }}>
-            <span style={{ color: "var(--text-secondary)" }}>{g}{q !== 0 && <em style={{ color: q > 0 ? "#16a34a" : "#dc2626" }}> {q > 0 ? `+${q}` : q}</em>}</span>
-            <span style={{ height: 7, background: "var(--card,#eee)", borderRadius: 4, overflow: "hidden" }}>
-              <span style={{ display: "block", height: "100%", width: `${Math.round(m * 100)}%`, background: player.color }} />
-            </span>
-            <span style={{ display: "flex", gap: 4 }}>
-              <button className="sbtn" disabled={!canPush} onClick={() => onQueue({ type: "pushTrait", gene: g, amount: PUSH_STEP })}>+</button>
-              <button className="sbtn" disabled={!canPush} onClick={() => onQueue({ type: "pushTrait", gene: g, amount: -PUSH_STEP })}>−</button>
-            </span>
-          </div>
-        );
-      })}
+
+      {/* coaching — what this world is asking of you */}
+      <div style={{ display: "grid", gap: 3, fontSize: 12, color: "var(--text-secondary)" }}>
+        {hints.map((h, i) => <span key={i}>· {h}</span>)}
+      </div>
+
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(92px, 1fr))" }}>
+        {demands.map((t) => (
+          <GeneDial key={t.gene} label={t.label} value={t.current} demand={t.demand} color={player.color}
+            canPush={canPush} onPush={(dir) => onQueue({ type: "pushTrait", gene: t.gene, amount: dir * PUSH_STEP })} />
+        ))}
+      </div>
+
       {queued.length > 0 && (
-        <button className="sbtn" onClick={onClear} style={{ justifySelf: "start", marginTop: 4 }}>clear {queued.length} queued</button>
+        <button className="sbtn" onClick={onClear} style={{ justifySelf: "start" }}>clear {queued.length} queued</button>
       )}
     </div>
   );

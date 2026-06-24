@@ -5,6 +5,7 @@ import { PlayerAction } from "@/lib/game/actions";
 import { summarize, revealText, outcomeInsight } from "@/lib/game/outcome";
 import { recordCampaignResult } from "@/lib/game/campaignProgress";
 import { meanGenome } from "@/lib/sim/genome";
+import { dominatedCount } from "@/lib/game/lineage";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { BiomeGrid } from "./BiomeGrid";
 import { DesignPanel } from "./DesignPanel";
@@ -26,6 +27,7 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
 
   const player = game.lineages.find((l) => l.kind === "player")!;
   const total = game.world.biomes.length;
+  const playerDom = dominatedCount(game.world, game.lineages, player.id);
   const over = game.status !== "playing";
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
       {/* top bar */}
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "8px 14px", borderBottom: divider, flex: "0 0 auto" }}>
         <strong style={{ letterSpacing: "-0.02em" }}>🌱 driftbloom</strong>
-        <span style={{ fontSize: 13, color: muted }}>era {game.era}/{game.maxEras} · you hold {player.held.length}/{total} · AP {player.ap}</span>
+        <span style={{ fontSize: 13, color: muted }}>era {game.era}/{game.maxEras} · you lead {playerDom}/{total} · AP {player.ap}</span>
         <span style={{ display: "flex", gap: 8 }}>
           <button className="sbtn" onClick={onHowToPlay} style={{ fontSize: 12 }}>how to play</button>
           <button className="sbtn" onClick={restart} style={{ fontSize: 12 }}>new game</button>

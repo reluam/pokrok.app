@@ -1,5 +1,6 @@
 import type { SimState } from "@/lib/sim/population";
 import { fitness } from "@/lib/sim/fitness";
+import { clamp01 } from "@/lib/sim/genome";
 import type { Biome, World } from "./world";
 import type { Strategy } from "./strategies";
 
@@ -11,16 +12,18 @@ export interface Lineage {
   strategy: Strategy;  // how this lineage evolves (the player's is intelligent_design)
   color: string;       // css colour for the map
   sim: SimState;       // the lineage's evolving genome cloud
-  held: string[];      // biome ids currently occupied
+  presence: Record<string, number>; // biomeId → 0..1 establishment weight (a shifting balance)
   ap: number;          // adaptation points (player economy)
   alive: boolean;
 }
 
-// Colonization thresholds (tunable knobs). Fitness sits roughly in [0, ~2.2].
-export const MIN_VIABLE = 0.6;  // below this an incumbent can no longer hold a biome
-export const MIN_CLAIM = 0.8;   // a challenger must clear this to take an empty/contested biome
-export const FLIP_MARGIN = 0.15; // a challenger must beat the incumbent by this much to flip it
-export const MAX_SPREAD_PER_ERA = 1; // a lineage can colonize at most this many NEW biomes per era
+// ---- presence dynamics knobs ---------------------------------------------
+export const MIN_VIABLE = 0.6;        // strength at/below this is "unsuited" → no competitive weight
+export const GOOD_FIT = 1.6;          // strength considered fully suited
+export const GROWTH_RATE = 0.2;       // how fast presence chases its competitive share (slow = gradual)
+export const SPREAD_THRESHOLD = 0.2;  // presence above this seeds pioneers into neighbours
+export const SEED = 0.08;             // pioneer presence seeded into a neighbour
+export const MIN_PRESENCE = 0.02;     // below this a lineage is gone from a biome
 
 // A lineage's strength in a biome = the mean fitness of its population against that biome's env.
 export function strengthInBiome(lineage: Lineage, biome: Biome): number {
@@ -31,80 +34,72 @@ export function strengthInBiome(lineage: Lineage, biome: Biome): number {
   return sum / pop.length;
 }
 
-interface Candidate { id: string; strength: number; incumbent: boolean; }
+// How well-suited a strength is (0 at the viability floor, 1 at full fitness).
+const suitability = (s: number): number => clamp01((s - MIN_VIABLE) / (GOOD_FIT - MIN_VIABLE));
 
-// Resolve who holds each biome after an era. Simultaneous: candidate sets are computed from the
-// INPUT held state for ALL biomes first, so resolution is order-independent and deterministic.
-// Candidates for a biome = lineages holding it (incumbent) or holding an adjacent biome (challenger).
-// Returns NEW lineages with updated `held`. Pure — never mutates the input.
-export function resolveColonization(world: World, lineages: Lineage[]): Lineage[] {
-  const heldBy = new Map<string, string>(); // biomeId -> lineageId (from input)
-  for (const lin of lineages) for (const b of lin.held) heldBy.set(b, lin.id);
+export function isAlive(lineage: Lineage): boolean {
+  return Object.values(lineage.presence).some((p) => p > 0);
+}
 
-  const byId = new Map(lineages.map((l) => [l.id, l]));
+// The lineage with the highest presence on a biome (ties broken by id), or null if uninhabited.
+export function dominantOnBiome(lineages: Lineage[], biomeId: string): Lineage | null {
+  let best: Lineage | null = null, bestP = 0;
+  for (const l of lineages) {
+    const p = l.presence[biomeId] ?? 0;
+    if (p > bestP || (p === bestP && best && l.id < best.id)) { bestP = p; best = l; }
+  }
+  return bestP > 0 ? best : null;
+}
+
+// How many biomes a lineage is the strict leader of.
+export function dominatedCount(world: World, lineages: Lineage[], lineageId: string): number {
+  return world.biomes.filter((b) => dominantOnBiome(lineages, b.id)?.id === lineageId).length;
+}
+
+// One era of the territorial balance. Each biome's occupants chase a competitive share of it
+// (presence × suitability, normalised), so the balance keeps shifting with fitness — like the real
+// world. Established lineages seed pioneers into neighbours; unfit ones fade out gradually. Pure.
+export function updatePresence(world: World, lineages: Lineage[]): Lineage[] {
   const biomeById = new Map(world.biomes.map((b) => [b.id, b]));
-  const inputHeld = new Map(lineages.map((l) => [l.id, new Set(l.held)]));
-  const winners = new Map<string, string | undefined>(); // biomeId -> winning lineageId (or empty)
+  // working copy of presence
+  const pres = new Map<string, Map<string, number>>();
+  for (const l of lineages) pres.set(l.id, new Map(Object.entries(l.presence)));
 
-  for (const biome of world.biomes) {
-    const incumbentId = heldBy.get(biome.id);
-    const candidates: Candidate[] = [];
-    for (const lin of lineages) {
-      const isIncumbent = incumbentId === lin.id;
-      const isAdjacentHolder = lin.held.some((h) => biome.neighbors.includes(h));
-      if (!isIncumbent && !isAdjacentHolder) continue;
-      candidates.push({ id: lin.id, strength: strengthInBiome(lin, biome), incumbent: isIncumbent });
-    }
-    if (candidates.length === 0) continue; // stays empty
-
-    // Deterministic ordering: strongest first, ties broken by lineage id.
-    candidates.sort((a, b) => (b.strength - a.strength) || (a.id < b.id ? -1 : 1));
-
-    const incumbent = candidates.find((c) => c.incumbent);
-    const topChallenger = candidates.find((c) => !c.incumbent);
-
-    let winner: string | undefined;
-    if (incumbent && incumbent.strength >= MIN_VIABLE) {
-      // Incumbent holds unless a challenger clears the claim bar AND beats it by the flip margin.
-      const flips = topChallenger
-        && topChallenger.strength >= MIN_CLAIM
-        && topChallenger.strength > incumbent.strength + FLIP_MARGIN;
-      winner = flips ? topChallenger!.id : incumbent.id;
-    } else {
-      // Empty or unviable incumbent: strongest challenger that clears the claim bar takes it.
-      const claimer = candidates.find((c) => !c.incumbent && c.strength >= MIN_CLAIM);
-      if (claimer) {
-        winner = claimer.id;
-      } else if (incumbent && byId.get(incumbent.id)!.held.length === 1) {
-        // Refuge: a lineage never loses its LAST biome to mere unviability — only a stronger
-        // rival (above) can flip it, or a catastrophe can wipe it. Keeps it alive to adapt.
-        winner = incumbent.id;
-      } // otherwise the biome goes empty
-    }
-
-    winners.set(biome.id, winner);
-  }
-
-  // Cap expansion: a lineage colonizes at most MAX_SPREAD_PER_ERA NEW biomes per era (radiation is
-  // gradual). Keep its strongest new claims; revert the rest to the prior incumbent (or empty).
-  const newClaims = new Map<string, string[]>();
-  for (const [biomeId, w] of winners) {
-    if (w && !inputHeld.get(w)!.has(biomeId)) {
-      const list = newClaims.get(w) ?? [];
-      list.push(biomeId);
-      newClaims.set(w, list);
+  // 1. spread: established lineages seed pioneers into adjacent biomes.
+  for (const l of lineages) {
+    const mine = pres.get(l.id)!;
+    for (const [biomeId, p] of [...mine]) {
+      if (p <= SPREAD_THRESHOLD) continue;
+      for (const nb of biomeById.get(biomeId)?.neighbors ?? []) {
+        if ((mine.get(nb) ?? 0) < SEED) mine.set(nb, SEED);
+      }
     }
   }
-  for (const [lid, biomeIds] of newClaims) {
-    if (biomeIds.length <= MAX_SPREAD_PER_ERA) continue;
-    const lin = byId.get(lid)!;
-    const ranked = [...biomeIds].sort(
-      (a, b) => strengthInBiome(lin, biomeById.get(b)!) - strengthInBiome(lin, biomeById.get(a)!),
-    );
-    for (const denied of ranked.slice(MAX_SPREAD_PER_ERA)) winners.set(denied, heldBy.get(denied));
+
+  // 2. competitive update per biome: presence chases its share of the biome.
+  const strengthCache = new Map<string, number>(); // `${id}@${biomeId}` → strength
+  const strengthOf = (l: Lineage, b: Biome) => {
+    const key = `${l.id}@${b.id}`;
+    let s = strengthCache.get(key);
+    if (s === undefined) { s = strengthInBiome(l, b); strengthCache.set(key, s); }
+    return s;
+  };
+  for (const b of world.biomes) {
+    const occupants = lineages.filter((l) => (pres.get(l.id)!.get(b.id) ?? 0) > 0);
+    if (occupants.length === 0) continue;
+    const weights = occupants.map((l) => (pres.get(l.id)!.get(b.id) ?? 0) * suitability(strengthOf(l, b)));
+    const sumW = weights.reduce((a, c) => a + c, 0);
+    occupants.forEach((l, i) => {
+      const cur = pres.get(l.id)!.get(b.id) ?? 0;
+      const target = sumW > 0 ? weights[i] / sumW : 0;
+      pres.get(l.id)!.set(b.id, cur + (target - cur) * GROWTH_RATE);
+    });
   }
 
-  const newHeld = new Map<string, string[]>(lineages.map((l) => [l.id, []]));
-  for (const [biomeId, w] of winners) if (w) newHeld.get(w)!.push(biomeId);
-  return lineages.map((lin) => ({ ...lin, held: newHeld.get(lin.id)! }));
+  // 3. cleanup: drop negligible presence.
+  return lineages.map((l) => {
+    const presence: Record<string, number> = {};
+    for (const [biomeId, p] of pres.get(l.id)!) if (p >= MIN_PRESENCE) presence[biomeId] = p;
+    return { ...l, presence, alive: Object.keys(presence).length > 0 };
+  });
 }
