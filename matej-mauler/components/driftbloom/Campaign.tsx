@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { initGame, tickEra, GameState } from "@/lib/game/game";
 import { PlayerAction } from "@/lib/game/actions";
 import { summarize, revealText, outcomeInsight } from "@/lib/game/outcome";
+import { recordCampaignResult } from "@/lib/game/campaignProgress";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { WorldMap } from "./WorldMap";
 import { DesignPanel } from "./DesignPanel";
@@ -24,9 +25,11 @@ export function Campaign() {
   useEffect(() => {
     if (!over || posted.current) return;
     posted.current = true;
+    const o = summarize(game);
+    recordCampaignResult({ won: o.won, playerBiomes: o.playerBiomes }); // local stats
     fetch("/api/participation", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ experimentSlug: "driftbloom", insight: outcomeInsight(summarize(game)), payload: { mode: "campaign" } }),
+      body: JSON.stringify({ experimentSlug: "driftbloom", insight: outcomeInsight(o), payload: { mode: "campaign" } }),
     }).catch(() => {});
   }, [over, game]);
 
