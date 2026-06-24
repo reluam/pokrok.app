@@ -4,22 +4,20 @@ import { initGame, tickEra, GameState } from "@/lib/game/game";
 import { PlayerAction } from "@/lib/game/actions";
 import { summarize, revealText, outcomeInsight } from "@/lib/game/outcome";
 import { recordCampaignResult } from "@/lib/game/campaignProgress";
-import { meanGenome } from "@/lib/sim/genome";
 import { dominatedCount } from "@/lib/game/lineage";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { WorldMap } from "./WorldMap";
 import { DesignPanel } from "./DesignPanel";
-import { RivalsPanel } from "./RivalsPanel";
+import { Standings } from "./Standings";
 import { EventLog } from "./EventLog";
-import { BlobView } from "./BlobView";
 
 const sans = "ui-sans-serif, system-ui, sans-serif";
 const newSeed = () => Math.floor(Math.random() * 1e9);
 const muted = "var(--text-muted)";
 const divider = "1px solid var(--text-muted, #e5e5e5)";
 
-// Full-viewport dashboard (no page scroll): top bar, a left stats+controls column, and a large
-// Plague-Inc-style world map on the right showing who controls what via coloured dots.
+// Full-viewport dashboard: top bar, left statistics column, and a large game map on the right with
+// the gene controls as a bottom bar beneath it.
 export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
   const [game, setGame] = useState<GameState>(() => initGame(newSeed()));
   const [queued, setQueued] = useState<PlayerAction[]>([]);
@@ -57,26 +55,25 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
       </header>
 
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
-        {/* left — statistics + your controls */}
-        <aside style={{ flex: "0 0 340px", borderRight: divider, overflowY: "auto", padding: 12, display: "grid", gap: 14, alignContent: "start" }}>
-          <RivalsPanel game={game} />
-          <div style={{ borderTop: divider, paddingTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
-            <BlobView genome={meanGenome(player.sim.population)} size={72} />
-            <div style={{ display: "grid", gap: 2 }}>
-              <strong>you — intelligent design</strong>
-              <span style={{ fontSize: 12, color: muted }}>lead {playerDom}/{total} biomes · AP {player.ap}</span>
-              <button className="sbtn" onClick={advance} disabled={over} style={{ fontWeight: 700, justifySelf: "start", marginTop: 2 }}>
-                advance era ▶{queued.length > 0 ? ` (${queued.length})` : ""}
-              </button>
-            </div>
-          </div>
-          <DesignPanel game={game} queued={queued} onQueue={(a) => setQueued((q) => [...q, a])} onClear={() => setQueued([])} />
+        {/* left — statistics */}
+        <aside style={{ flex: "0 0 280px", borderRight: divider, overflowY: "auto", padding: 12 }}>
+          <Standings game={game} />
         </aside>
 
-        {/* right — the world map (the big view) */}
-        <main style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", padding: 10, gap: 6, overflow: "hidden" }}>
-          <div style={{ flex: 1, minHeight: 0 }}><WorldMap game={game} /></div>
-          <div style={{ flex: "0 0 auto", borderTop: divider, paddingTop: 6 }}><EventLog log={game.log} /></div>
+        {/* right — map + controls */}
+        <main style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          <div style={{ flex: 1, minHeight: 0, padding: 10 }}><WorldMap game={game} /></div>
+          <div style={{ flex: "0 0 auto", borderTop: divider, padding: "10px 14px", display: "grid", gap: 8, background: "var(--card-bg, transparent)" }}>
+            <div style={{ display: "flex", gap: 14, alignItems: "flex-start", flexWrap: "wrap" }}>
+              <button className="sbtn" onClick={advance} disabled={over} style={{ fontWeight: 700, flex: "0 0 auto" }}>
+                advance era ▶{queued.length > 0 ? ` (${queued.length})` : ""}
+              </button>
+              <div style={{ flex: 1, minWidth: 240 }}>
+                <DesignPanel game={game} queued={queued} onQueue={(a) => setQueued((q) => [...q, a])} onClear={() => setQueued([])} />
+              </div>
+            </div>
+            <EventLog log={game.log} />
+          </div>
         </main>
       </div>
 

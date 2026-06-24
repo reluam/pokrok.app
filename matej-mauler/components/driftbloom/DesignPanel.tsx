@@ -9,7 +9,7 @@ import { GeneDial } from "./GeneDial";
 const sans = "ui-sans-serif, system-ui, sans-serif";
 export const PUSH_STEP = 0.12;
 
-// Your intelligent-design lever: circular gene dials (your value vs the world's demand) + coaching.
+// Horizontal control bar: coaching + AP on the left, the circular gene dials in a row.
 export function DesignPanel({ game, queued, onQueue, onClear }: {
   game: GameState;
   queued: PlayerAction[];
@@ -27,27 +27,23 @@ export function DesignPanel({ game, queued, onQueue, onClear }: {
   const hints = coachingHints(mean, env);
 
   return (
-    <div style={{ fontFamily: sans, display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <strong>tune your genes</strong>
-        <span style={{ fontSize: 13, color: "var(--text-muted)" }}>AP {apLeft}{spent > 0 ? ` (−${spent})` : ""}</span>
+    <div style={{ fontFamily: sans, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ flex: "1 1 190px", minWidth: 170, display: "grid", gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+          <strong>tune your genes</strong>
+          <span style={{ fontSize: 13, color: "var(--text-muted)" }}>AP {apLeft}{spent > 0 ? ` (−${spent})` : ""}</span>
+        </div>
+        <div style={{ display: "grid", gap: 2, fontSize: 12, color: "var(--text-secondary)" }}>
+          {hints.map((h, i) => <span key={i}>· {h}</span>)}
+        </div>
+        {queued.length > 0 && <button className="sbtn" onClick={onClear} style={{ justifySelf: "start", fontSize: 12 }}>clear {queued.length}</button>}
       </div>
-
-      {/* coaching — what this world is asking of you */}
-      <div style={{ display: "grid", gap: 3, fontSize: 12, color: "var(--text-secondary)" }}>
-        {hints.map((h, i) => <span key={i}>· {h}</span>)}
-      </div>
-
-      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(92px, 1fr))" }}>
-        {demands.map((t) => (
-          <GeneDial key={t.gene} label={t.label} value={t.current} demand={t.demand} color={player.color}
-            canPush={canPush} onPush={(dir) => onQueue({ type: "pushTrait", gene: t.gene, amount: dir * PUSH_STEP })} />
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {demands.map((tr) => (
+          <GeneDial key={tr.gene} label={tr.label} value={tr.current} demand={tr.demand} color={player.color}
+            canPush={canPush} onPush={(dir) => onQueue({ type: "pushTrait", gene: tr.gene, amount: dir * PUSH_STEP })} />
         ))}
       </div>
-
-      {queued.length > 0 && (
-        <button className="sbtn" onClick={onClear} style={{ justifySelf: "start" }}>clear {queued.length} queued</button>
-      )}
     </div>
   );
 }
