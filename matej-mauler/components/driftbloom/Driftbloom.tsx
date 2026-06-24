@@ -1,72 +1,18 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import type { Environment } from "@/lib/sim/environment";
-import { initPopulation, step, setEnv, SimState } from "@/lib/sim/population";
-import { GameCanvas } from "./GameCanvas";
-import { StatsPanel } from "./StatsPanel";
-import { Controls } from "./Controls";
-import { ShareBar } from "./ShareBar";
-import { readDnaParam } from "@/lib/game/share";
+import { Campaign } from "./Campaign";
 
-// NOTE: this is the interim sandbox shell. The campaign game ("intelligent design vs. natural
-// selection") replaces it in later phases; sandbox stays reachable as optional free-play.
-
-const DEFAULT_ENV: Environment = { foodAbundance: 0.6, predatorPressure: 0.6, temperature: 0.5, backgroundHue: 0.3 };
 const sans = "ui-sans-serif, system-ui, sans-serif";
 
 export default function Driftbloom() {
-  const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
-  const [env, setEnvState] = useState<Environment>(DEFAULT_ENV);
-  const [mutationRate, setMutationRate] = useState(0.3);
-  const [running, setRunning] = useState(false);
-  const [state, setState] = useState<SimState>(() => {
-    const base = initPopulation(seed, 40, DEFAULT_ENV);
-    if (typeof window !== "undefined") {
-      const g = readDnaParam(window.location.search);
-      if (g) return { ...base, population: base.population.map(() => ({ ...g })) };
-    }
-    return base;
-  });
-  const mutRef = useRef(mutationRate);
-  useEffect(() => { mutRef.current = mutationRate; });
-
-  // run loop: advance ~4 generations/second while running.
-  useEffect(() => {
-    if (!running) return;
-    const id = setInterval(() => setState((s) => step(s, mutRef.current)), 250);
-    return () => clearInterval(id);
-  }, [running]);
-
-  function applyEnv(next: Environment) {
-    setEnvState(next);
-    setState((s) => setEnv(s, next)); // keep the population, change the pressures live
-  }
-  function reset() {
-    const ns = Math.floor(Math.random() * 1e9);
-    setSeed(ns); setRunning(false);
-    setState(initPopulation(ns, 40, env));
-  }
-
   return (
     <main style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--text-primary)" }}>
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "16px 22px 70px", fontFamily: sans }}>
         <h1 style={{ fontSize: "clamp(30px,6vw,46px)", fontWeight: 900, letterSpacing: "-0.03em" }}>🌱 driftbloom</h1>
-        <p style={{ color: "var(--text-secondary)", maxWidth: 560 }}>watch life adapt to where it is — not toward anywhere. seed {seed}</p>
-        <div>
-          <div style={{ margin: "16px 0" }}><GameCanvas state={state} /></div>
-          <span style={{ fontSize: 13, color: "var(--text-muted)" }}>generation {state.generation}</span>
-          <div style={{ marginTop: 12 }}>
-            <Controls
-              env={env} mutationRate={mutationRate} running={running}
-              onEnvChange={applyEnv} onMutationRateChange={setMutationRate}
-              onToggleRun={() => setRunning((r) => !r)}
-              onStep={() => setState((s) => step(s, mutationRate))}
-              onReset={reset}
-            />
-            <ShareBar state={state} />
-          </div>
-          <div style={{ marginTop: 16 }}><StatsPanel history={state.history} /></div>
-        </div>
+        <p style={{ color: "var(--text-secondary)", maxWidth: 560, marginTop: 4 }}>
+          intelligent design vs. natural selection. you steer one lineage by hand; three rivals evolve
+          by their own theories. colonize the world — if the shifting climate and blind luck let you.
+        </p>
+        <div style={{ marginTop: 16 }}><Campaign /></div>
       </div>
     </main>
   );
