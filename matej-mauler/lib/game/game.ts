@@ -18,7 +18,7 @@ export const AP_PER_BIOME = 1;     // income per biome dominated
 export const CLIMATE_EVERY = 10;   // a climate shift every N eras
 export const START_PRESENCE = 0.3; // every lineage begins established here on the home biome
 
-const LINEAGE_COLORS = ["#2563eb", "#dc2626", "#16a34a", "#d97706"]; // player first
+const LINEAGE_COLORS = ["#2f6fed", "#e85d75", "#28a76a", "#e8a23d"]; // you (blue), rose, green, amber
 // Index → strategy: you (design) vs three rival theories of evolution.
 const LINEAGE_STRATEGIES: Strategy[] = ["intelligent_design", "gene_eye", "group_selection", "lamarck"];
 

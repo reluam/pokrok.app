@@ -46,11 +46,11 @@ function draw(ctx: CanvasRenderingContext2D, W: number, H: number, game: GameSta
   const idx = new Map(biomes.map((b, i) => [b.id, i]));
   const region = Math.min(W, H) * 0.135;
 
-  // ---- water ----
+  // ---- water (soft warm aqua) ----
   const sea = ctx.createLinearGradient(0, 0, 0, H);
-  sea.addColorStop(0, "#1b4a73"); sea.addColorStop(1, "#0f3559");
+  sea.addColorStop(0, "#cdeae6"); sea.addColorStop(1, "#a9d6da");
   ctx.fillStyle = sea; ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 1;
+  ctx.strokeStyle = "rgba(255,255,255,0.28)"; ctx.lineWidth = 1;
   for (let y = 0; y < H; y += 26) {
     ctx.beginPath();
     for (let x = 0; x <= W; x += 12) ctx.lineTo(x, y + Math.sin(x / 60 + t / 1400 + y) * 2);
@@ -59,20 +59,20 @@ function draw(ctx: CanvasRenderingContext2D, W: number, H: number, game: GameSta
 
   // ---- continent silhouette (merged soft blobs → coastline) ----
   ctx.save();
-  ctx.shadowColor = "rgba(0,0,0,0.25)"; ctx.shadowBlur = 18; ctx.shadowOffsetY = 6;
-  ctx.fillStyle = "#caa86e"; // beach/coast under the land
+  ctx.shadowColor = "rgba(40,70,80,0.18)"; ctx.shadowBlur = 20; ctx.shadowOffsetY = 7;
+  ctx.fillStyle = "#ecd6a4"; // sandy coast under the land
   pos.forEach((p) => { ctx.beginPath(); ctx.arc(p.x, p.y, region * 1.5, 0, Math.PI * 2); ctx.fill(); });
   ctx.beginPath(); ctx.arc(W / 2, H / 2, region * 1.7, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
   ctx.save();
-  ctx.shadowColor = "rgba(40,80,40,0.35)"; ctx.shadowBlur = 26;
-  ctx.fillStyle = "#9bbf72"; // base land
+  ctx.shadowColor = "rgba(60,120,70,0.25)"; ctx.shadowBlur = 24;
+  ctx.fillStyle = "#bcdc97"; // base land (soft green)
   pos.forEach((p) => { ctx.beginPath(); ctx.arc(p.x, p.y, region * 1.32, 0, Math.PI * 2); ctx.fill(); });
   ctx.beginPath(); ctx.arc(W / 2, H / 2, region * 1.5, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
   // ---- adjacency routes ----
-  ctx.strokeStyle = "rgba(60,45,25,0.28)"; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = "rgba(70,55,30,0.22)"; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
   biomes.forEach((b, i) => b.neighbors.forEach((nb) => {
     const j = idx.get(nb)!; if (j <= i) return;
     ctx.beginPath(); ctx.moveTo(pos[i].x, pos[i].y); ctx.lineTo(pos[j].x, pos[j].y); ctx.stroke();
@@ -108,14 +108,18 @@ function draw(ctx: CanvasRenderingContext2D, W: number, H: number, game: GameSta
       }
     });
 
-    // label pill
+    // label pill (light, with the dominant lineage's colour dot)
     const label = b.name + (b.id === game.homeBiome ? "  ★" : "");
     ctx.font = "600 11px ui-sans-serif, system-ui, sans-serif"; ctx.textAlign = "center";
-    const w = ctx.measureText(label).width + 14, ly = p.y + region + 6;
-    ctx.fillStyle = "rgba(20,30,40,0.72)";
-    roundRect(ctx, p.x - w / 2, ly, w, 17, 8); ctx.fill();
-    if (dom) { ctx.fillStyle = dom.color; ctx.beginPath(); ctx.arc(p.x - w / 2 + 7, ly + 8.5, 3, 0, Math.PI * 2); ctx.fill(); }
-    ctx.fillStyle = "#fff"; ctx.fillText(label, p.x + (dom ? 5 : 0), ly + 12);
+    const padL = dom ? 18 : 12;
+    const w = ctx.measureText(label).width + padL + 8, ly = p.y + region + 6;
+    ctx.save();
+    ctx.shadowColor = "rgba(26,22,20,0.18)"; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+    ctx.fillStyle = "rgba(255,255,255,0.94)";
+    roundRect(ctx, p.x - w / 2, ly, w, 18, 9); ctx.fill();
+    ctx.restore();
+    if (dom) { ctx.fillStyle = dom.color; ctx.beginPath(); ctx.arc(p.x - w / 2 + 9, ly + 9, 3.2, 0, Math.PI * 2); ctx.fill(); }
+    ctx.fillStyle = "#1a1614"; ctx.fillText(label, p.x + (dom ? 5 : 0), ly + 13);
   });
 }
 

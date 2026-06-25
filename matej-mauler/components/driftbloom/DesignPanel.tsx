@@ -5,8 +5,8 @@ import { rangeEnv } from "@/lib/game/game";
 import { PlayerAction, PUSH_COST } from "@/lib/game/actions";
 import { traitDemands, coachingHints } from "@/lib/game/hints";
 import { GeneDial } from "./GeneDial";
+import { FONT_DISPLAY, FONT_SANS, C } from "./theme";
 
-const sans = "ui-sans-serif, system-ui, sans-serif";
 export const PUSH_STEP = 0.12;
 
 // Horizontal control bar: coaching + AP on the left, the circular gene dials in a row.
@@ -27,13 +27,13 @@ export function DesignPanel({ game, queued, onQueue, onClear }: {
   const hints = coachingHints(mean, env);
 
   return (
-    <div style={{ fontFamily: sans, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
-      <div style={{ flex: "1 1 190px", minWidth: 170, display: "grid", gap: 4 }}>
+    <div style={{ fontFamily: FONT_SANS, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ flex: "1 1 190px", minWidth: 170, display: "grid", gap: 5 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-          <strong>tune your genes</strong>
-          <span style={{ fontSize: 13, color: "var(--text-muted)" }}>AP {apLeft}{spent > 0 ? ` (−${spent})` : ""}</span>
+          <strong style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em" }}>tune your genes</strong>
+          <span style={{ fontSize: 13, color: C.muted }}>AP {apLeft}{spent > 0 ? ` (−${spent})` : ""}</span>
         </div>
-        <div style={{ display: "grid", gap: 2, fontSize: 12, color: "var(--text-secondary)" }}>
+        <div style={{ display: "grid", gap: 2, fontSize: 12, color: C.text2, lineHeight: 1.45 }}>
           {hints.map((h, i) => <span key={i}>· {h}</span>)}
         </div>
         {queued.length > 0 && <button className="sbtn" onClick={onClear} style={{ justifySelf: "start", fontSize: 12 }}>clear {queued.length}</button>}

@@ -476,3 +476,16 @@ body {
   .sl-head { offset-distance: 100%; }
   .sl-goal { transform: scale(0); opacity: 0; }
 }
+
+/* ---- driftbloom game polish ---- */
+.db-card { transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.db-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(26,22,20,0.09), 0 18px 36px rgba(26,22,20,0.08); }
+.db-dialbtn { transition: transform .1s ease, background .15s ease; cursor: pointer; }
+.db-dialbtn:hover:not(:disabled) { transform: scale(1.15); }
+.db-dialbtn:active:not(:disabled) { transform: scale(0.92); }
+.db-advance { transition: transform .12s ease, box-shadow .15s ease, filter .15s ease; }
+.db-advance:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 8px 20px rgba(22,163,74,0.28); }
+.db-advance:active:not(:disabled) { transform: translateY(0); }
+.db-ring { transition: stroke-dashoffset .5s cubic-bezier(.2,.7,.2,1); }
+@keyframes db-pop { 0% { transform: scale(0.96); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.db-pop { animation: db-pop .35s cubic-bezier(.2,.8,.2,1); }
