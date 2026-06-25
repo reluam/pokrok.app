@@ -23,7 +23,7 @@ function terrain(env: Environment): { color: string; icon: string; name: string 
 function layout(game: GameState, W: number, H: number): { pos: Pt[]; region: number } {
   const n = game.world.biomes.length;
   const cx = W / 2, cy = H / 2;
-  const spread = Math.min(W, H) * 0.34;
+  const spread = Math.min(W, H) * 0.42;
   const seed = n * 97 + game.world.biomes.reduce((s, b) => s + b.name.length, 0);
   const rng = makeRng(seed);
   const pos = game.world.biomes.map((_, i) => {
@@ -32,12 +32,6 @@ function layout(game: GameState, W: number, H: number): { pos: Pt[]; region: num
     return { x: cx + Math.cos(th) * r + (rng() - 0.5) * 16, y: cy + Math.sin(th) * r + (rng() - 0.5) * 16 };
   });
   return { pos, region: Math.min(W, H) * 0.135 };
-}
-
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
 
 function draw(ctx: CanvasRenderingContext2D, W: number, H: number, game: GameState, hovered: string | null, t: number) {
@@ -118,19 +112,18 @@ function draw(ctx: CanvasRenderingContext2D, W: number, H: number, game: GameSta
       }
     });
 
-    // label pill
-    const label = b.name + (b.id === game.homeBiome ? "  ★" : "");
-    ctx.font = "600 11px ui-sans-serif, system-ui, sans-serif"; ctx.textAlign = "center";
-    const padL = dom ? 18 : 12;
-    const w = ctx.measureText(label).width + padL + 8, ly = p.y + region + 6;
-    ctx.save();
-    ctx.shadowColor = "rgba(26,22,20,0.18)"; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
-    ctx.fillStyle = "rgba(255,255,255,0.94)";
-    roundRect(ctx, p.x - w / 2, ly, w, 18, 9); ctx.fill();
-    ctx.restore();
-    if (dom) { ctx.fillStyle = dom.color; ctx.beginPath(); ctx.arc(p.x - w / 2 + 9, ly + 9, 3.2, 0, Math.PI * 2); ctx.fill(); }
-    ctx.fillStyle = "#1a1614"; ctx.fillText(label, p.x + (dom ? 5 : 0), ly + 13);
+    // home marker (names show on hover via the tooltip — keeps the board clean)
+    if (b.id === game.homeBiome) {
+      ctx.font = "14px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("★", p.x + region * 0.62, p.y - region * 0.62);
+      ctx.textBaseline = "alphabetic";
+    }
   });
+
+  // soft edge fade — the ocean melts into the page background (no hard rectangle)
+  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.32, W / 2, H / 2, Math.max(W, H) * 0.62);
+  vg.addColorStop(0, "rgba(250,250,247,0)"); vg.addColorStop(1, "rgba(250,250,247,0.92)");
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 }
 
 function Bar({ label, v }: { label: string; v: number }) {
@@ -199,7 +192,7 @@ export function WorldMap({ game }: { game: GameState }) {
   return (
     <div ref={wrapRef} style={{ position: "relative", width: "100%", height: "100%", minHeight: 280, fontFamily: FONT_SANS }}>
       <canvas ref={canvasRef} onMouseMove={onMove} onMouseLeave={() => setHover(null)}
-        style={{ width: "100%", height: "100%", display: "block", borderRadius: 16, cursor: hover ? "pointer" : "default" }} />
+        style={{ width: "100%", height: "100%", display: "block", cursor: hover ? "pointer" : "default" }} />
 
       {hb && hover && (
         <div style={{
