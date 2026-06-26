@@ -1,7 +1,7 @@
 import { Genome, GENE_KEYS, clamp01 } from "@/lib/sim/genome";
 import type { Environment } from "@/lib/sim/environment";
 import { fitness } from "@/lib/sim/fitness";
-import { SimState, step, setEnv } from "@/lib/sim/population";
+import { SimState, step, setEnv, age } from "@/lib/sim/population";
 
 // How a lineage evolves. The player is intelligent_design (directed pushes applied separately,
 // then a normal selection step); the rivals each embody a different theory of evolution.
@@ -72,9 +72,12 @@ export function evolveByStrategy(strategy: Strategy, sim: SimState, env: Environ
       // cohesion + generalist hedging, then selection.
       return step(setEnv(withPop(sim, groupAdjust(sim.population)), env), MUT);
     case "intelligent_design":
+      // the designer's genome is stable — it changes ONLY via the player's manual pushes (applied
+      // in tickEra before this). Just age it so the body keeps maturing; no selection drift.
+      return age(setEnv(sim, env));
     case "organism":
     default:
-      // plain natural selection (the player's manual pushes are applied before this in tickEra).
+      // plain natural selection (baseline rival).
       return step(setEnv(sim, env), MUT);
   }
 }

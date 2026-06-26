@@ -266,13 +266,13 @@ export function WorldMap({ game }: { game: GameState }) {
         );
       })()}
 
-      <div style={{ position: "absolute", right: 10, bottom: 10, zIndex: 4, display: "grid", gap: 6 }}>
-        <button className="db-gbtn" onClick={() => setView((v) => clampView({ ...v, scale: Math.min(4, v.scale * 1.3) }, size))} style={{ width: 30, height: 30, fontSize: 16 }}>+</button>
-        <button className="db-gbtn" onClick={() => setView((v) => clampView({ ...v, scale: Math.max(1, v.scale / 1.3) }, size))} style={{ width: 30, height: 30, fontSize: 16 }}>−</button>
+      <div style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", zIndex: 4, display: "grid", gap: 6 }}>
+        <button className="db-gbtn" onClick={() => setView((v) => clampView({ ...v, scale: Math.min(4, v.scale * 1.3) }, size))} style={{ width: 32, height: 32, fontSize: 17, background: "rgba(255,255,255,0.92)" }}>+</button>
+        <button className="db-gbtn" onClick={() => setView((v) => clampView({ ...v, scale: Math.max(1, v.scale / 1.3) }, size))} style={{ width: 32, height: 32, fontSize: 17, background: "rgba(255,255,255,0.92)" }}>−</button>
       </div>
 
       {selBiome && (
-        <div style={{ position: "absolute", zIndex: 5, top: 10, right: 10, width: 210, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, padding: "12px 13px", boxShadow: "0 12px 34px rgba(26,22,20,0.18)", display: "grid", gap: 8 }}>
+        <div style={{ position: "absolute", zIndex: 5, top: 58, right: 16, width: 210, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, padding: "12px 13px", boxShadow: "0 12px 34px rgba(26,22,20,0.18)", display: "grid", gap: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <strong style={{ fontSize: 13 }}>{terrain(selBiome.env).icon} {selBiome.name}{selBiome.id === game.homeBiome ? " ★" : ""}</strong>
             <button onClick={() => setSelected(null)} style={{ border: "none", background: "none", cursor: "pointer", color: C.muted, fontSize: 13 }}>✕</button>

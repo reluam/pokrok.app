@@ -71,8 +71,8 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
           <span style={{ ...chip, background: "rgba(22,163,74,0.14)", color: "#15803d" }}>AP {player.ap}</span>
         </div>
         <span style={{ display: "flex", gap: 8, pointerEvents: "auto" }}>
-          <button className="sbtn" onClick={onHowToPlay} style={{ fontSize: 12 }}>how to play</button>
-          <button className="sbtn" onClick={restart} style={{ fontSize: 12 }}>new game</button>
+          <button className="db-btn" onClick={onHowToPlay}>how to play</button>
+          <button className="db-btn" onClick={restart}>new game</button>
         </span>
       </header>
 
