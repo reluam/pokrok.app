@@ -5,7 +5,7 @@ import { PlayerAction } from "@/lib/game/actions";
 import { summarize, revealText, outcomeInsight } from "@/lib/game/outcome";
 import { recordCampaignResult } from "@/lib/game/campaignProgress";
 import { track } from "@/lib/analytics/track";
-import { dominatedCount } from "@/lib/game/lineage";
+import { dominatedCount, maturity } from "@/lib/game/lineage";
 import { meanGenome } from "@/lib/sim/genome";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { WorldMap } from "./WorldMap";
@@ -92,7 +92,7 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
       <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: "min(1200px, calc(100% - 28px))", zIndex: 9, ...glass, padding: "12px 16px" }}>
         <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
           <div style={{ display: "grid", justifyItems: "center", gap: 2, flex: "0 0 auto" }}>
-            <div style={{ background: hexA(player.color, 0.1), borderRadius: 14 }}><BlobView genome={meanGenome(player.sim.population)} size={64} /></div>
+            <div style={{ background: hexA(player.color, 0.1), borderRadius: 14 }}><BlobView genome={meanGenome(player.sim.population)} size={64} stage={maturity(player)} /></div>
             <strong style={{ fontFamily: FONT_DISPLAY, fontSize: 13 }}>you</strong>
             <span style={{ fontSize: 11, color: C.muted }}>lead {playerDom}/{total}</span>
           </div>

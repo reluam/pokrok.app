@@ -1,7 +1,7 @@
 "use client";
 import { meanGenome } from "@/lib/sim/genome";
 import type { GameState } from "@/lib/game/game";
-import { dominatedCount } from "@/lib/game/lineage";
+import { dominatedCount, maturity } from "@/lib/game/lineage";
 import { STRATEGY_LABELS } from "@/lib/game/strategies";
 import { BlobView } from "./BlobView";
 import { FONT_DISPLAY, FONT_SANS, C, panel, hexA } from "./theme";
@@ -28,7 +28,7 @@ export function Standings({ game }: { game: GameState }) {
             borderColor: isPlayer ? hexA(l.color, 0.45) : C.line,
           }}>
             <div style={{ flex: "0 0 auto", background: hexA(l.color, 0.1), borderRadius: 12 }}>
-              <BlobView genome={meanGenome(l.sim.population)} size={46} />
+              <BlobView genome={meanGenome(l.sim.population)} size={46} stage={maturity(l)} />
             </div>
             <div style={{ display: "grid", gap: 4, minWidth: 0, flex: 1 }}>
               <span style={{ display: "flex", alignItems: "center", gap: 7, fontWeight: 700, fontSize: 14, fontFamily: FONT_DISPLAY, letterSpacing: "-0.01em" }}>
