@@ -1,33 +1,39 @@
 "use client";
-import { FONT_SANS, C } from "./theme";
+import { FONT_DISPLAY, FONT_SANS, C } from "./theme";
 
-// A circular gene control: the ring shows how much you've invested (usefulness), the marker shows
-// what THIS environment demands (pressure). +/− sit in the middle. The gap is the tension.
+// A minimal circular gauge: full thin track, a smooth value arc, a tick for what the environment
+// wants, the value as a number in the middle, and slim −/+ below. The arc animates on change.
 export function GeneDial({ label, value, demand, color, canPush, onPush }: {
   label: string; value: number; demand: number; color: string; canPush: boolean; onPush: (dir: 1 | -1) => void;
 }) {
-  const S = 86, c = S / 2, R = 32, C2 = 2 * Math.PI * R;
-  const ang = (-90 + demand * 360) * (Math.PI / 180);
-  const mx = c + Math.cos(ang) * R, my = c + Math.sin(ang) * R;
+  const S = 60, c = S / 2, R = 25, CIRC = 2 * Math.PI * R;
+  const a = (-90 + demand * 360) * (Math.PI / 180);
+  const t1 = { x: c + Math.cos(a) * (R - 5), y: c + Math.sin(a) * (R - 5) };
+  const t2 = { x: c + Math.cos(a) * (R + 5), y: c + Math.sin(a) * (R + 5) };
   const short = value + 0.04 < demand;
 
   return (
-    <div style={{ fontFamily: FONT_SANS, display: "grid", justifyItems: "center", gap: 3 }}>
+    <div className="db-gauge" style={{ fontFamily: FONT_SANS, display: "grid", justifyItems: "center", gap: 4 }}
+      title={`${label}: ${Math.round(value * 100)} · this world wants ${Math.round(demand * 100)}`}>
       <div style={{ position: "relative", width: S, height: S }}>
         <svg width={S} height={S}>
-          <circle cx={c} cy={c} r={R} fill="none" stroke="rgba(26,22,20,0.08)" strokeWidth={8} />
-          <circle className="db-ring" cx={c} cy={c} r={R} fill="none" stroke={color} strokeWidth={8} strokeLinecap="round"
-            strokeDasharray={C2} strokeDashoffset={C2 * (1 - value)} transform={`rotate(-90 ${c} ${c})`} />
-          {short && <circle cx={mx} cy={my} r={6.5} fill="none" stroke="#e0567a" strokeWidth={1.5} opacity={0.5} />}
-          <circle cx={mx} cy={my} r={4} fill={short ? "#e0567a" : "#1a1614"} stroke="#fff" strokeWidth={1.5} />
+          <circle cx={c} cy={c} r={R} fill="none" stroke="rgba(26,22,20,0.07)" strokeWidth={5} />
+          <circle className="db-ring" cx={c} cy={c} r={R} fill="none" stroke={color} strokeWidth={5} strokeLinecap="round"
+            strokeDasharray={CIRC} strokeDashoffset={CIRC * (1 - value)} transform={`rotate(-90 ${c} ${c})`} />
+          <line className={short ? "db-pulse" : undefined} x1={t1.x} y1={t1.y} x2={t2.x} y2={t2.y}
+            stroke={short ? "#e0567a" : "rgba(26,22,20,0.45)"} strokeWidth={2.5} strokeLinecap="round" />
         </svg>
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-          <button className="sbtn db-dialbtn" disabled={!canPush} onClick={() => onPush(-1)} style={{ padding: "0 7px", lineHeight: "20px", fontWeight: 700 }}>−</button>
-          <button className="sbtn db-dialbtn" disabled={!canPush} onClick={() => onPush(1)} style={{ padding: "0 7px", lineHeight: "20px", fontWeight: 700 }}>+</button>
+        <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
+          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, color: short ? "#e0567a" : C.text, letterSpacing: "-0.02em" }}>
+            {Math.round(value * 100)}
+          </span>
         </div>
       </div>
-      <span style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{label}</span>
-      <span style={{ fontSize: 10, color: short ? "#e0567a" : C.muted }}>{Math.round(value * 100)} · wants {Math.round(demand * 100)}</span>
+      <span style={{ fontSize: 11, fontWeight: 600, color: C.text2 }}>{label}</span>
+      <div style={{ display: "flex", gap: 6 }}>
+        <button className="db-gbtn" disabled={!canPush} onClick={() => onPush(-1)} aria-label={`lower ${label}`}>−</button>
+        <button className="db-gbtn" disabled={!canPush} onClick={() => onPush(1)} aria-label={`raise ${label}`}>+</button>
+      </div>
     </div>
   );
 }

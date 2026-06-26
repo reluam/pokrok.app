@@ -91,12 +91,12 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
           <div style={{ flex: 1, minWidth: 240 }}>
             <DesignPanel game={game} queued={queued} onQueue={(a) => setQueued((q) => [...q, a])} onClear={() => setQueued([])} />
           </div>
-          <button className="db-advance" onClick={advance} disabled={over} style={{
+          <button className={`db-advance${queued.length > 0 && !over ? " db-cta" : ""}`} onClick={advance} disabled={over} style={{
             flex: "0 0 auto", fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 15, color: "#fff",
-            background: over ? "#9b958f" : "#16a34a", border: "none", borderRadius: 999, padding: "12px 22px",
-            cursor: over ? "default" : "pointer", letterSpacing: "-0.01em", alignSelf: "stretch",
+            background: over ? "#9b958f" : "#16a34a", border: "none", borderRadius: 14, padding: "14px 24px",
+            cursor: over ? "default" : "pointer", letterSpacing: "-0.01em",
           }}>
-            advance era ▶{queued.length > 0 ? `  (${queued.length})` : ""}
+            advance era <span className="arr">▶</span>{queued.length > 0 ? `  (${queued.length})` : ""}
           </button>
         </div>
       </div>
