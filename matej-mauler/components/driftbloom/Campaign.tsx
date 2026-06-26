@@ -4,6 +4,7 @@ import { initGame, tickEra, GameState } from "@/lib/game/game";
 import { PlayerAction } from "@/lib/game/actions";
 import { summarize, revealText, outcomeInsight } from "@/lib/game/outcome";
 import { recordCampaignResult } from "@/lib/game/campaignProgress";
+import { track } from "@/lib/analytics/track";
 import { dominatedCount } from "@/lib/game/lineage";
 import { meanGenome } from "@/lib/sim/genome";
 import { PromptRegistration } from "@/components/PromptRegistration";
@@ -35,10 +36,16 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
   const over = game.status !== "playing";
   const lastLog = game.log[game.log.length - 1];
 
+  // Behaviorální event: hra začala (mount = nová hra). recordParticipation řeší výsledek zvlášť.
+  useEffect(() => {
+    track("experiment_started", { slug: "driftbloom", mode: "campaign" });
+  }, []);
+
   useEffect(() => {
     if (!over || posted.current) return;
     posted.current = true;
     const o = summarize(game);
+    track("experiment_completed", { slug: "driftbloom", won: o.won, playerBiomes: o.playerBiomes, era: game.era });
     recordCampaignResult({ won: o.won, playerBiomes: o.playerBiomes });
     fetch("/api/participation", {
       method: "POST", headers: { "content-type": "application/json" },
@@ -46,8 +53,9 @@ export function Campaign({ onHowToPlay }: { onHowToPlay: () => void }) {
     }).catch(() => {});
   }, [over, game]);
 
-  function advance() { setGame((g) => tickEra(g, queued)); setQueued([]); }
-  function restart() { posted.current = false; setQueued([]); setGame(initGame(newSeed())); }
+  // experiment_step = jedna éra → kolik ér lidi dohrají před odchodem (drop-off funnel).
+  function advance() { track("experiment_step", { slug: "driftbloom", era: game.era + 1, queued: queued.length }); setGame((g) => tickEra(g, queued)); setQueued([]); }
+  function restart() { track("experiment_started", { slug: "driftbloom", mode: "campaign", restart: true }); posted.current = false; setQueued([]); setGame(initGame(newSeed())); }
 
   return (
     <div style={{ position: "relative", height: "100%", width: "100%", overflow: "hidden", fontFamily: FONT_SANS, background: C.bg }}>

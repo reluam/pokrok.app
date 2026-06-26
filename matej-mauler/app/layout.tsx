@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ExperiencePanelMount } from "@/components/ExperiencePanelMount";
+import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import "./globals.css";
 
 // Clerk se zapne, jen když jsou v prostředí klíče → web funguje i bez nich (žádný 500 při deployi před setupem).
@@ -77,12 +78,12 @@ const clerkAppearance = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const inner = (
-    <>
+    <PostHogProvider>
       {children}
       <ExperiencePanelMount />
       <Analytics />
       <SpeedInsights />
-    </>
+    </PostHogProvider>
   );
 
   return (
