@@ -1,21 +1,24 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Application, Container, Graphics, BlurFilter, FillGradient } from "pixi.js";
 import type { Environment } from "@/lib/sim/environment";
 import type { GameState } from "@/lib/game/game";
 import { makeRng } from "@/lib/sim/rng";
 import { dominantOnBiome } from "@/lib/game/lineage";
 import { STRATEGY_LABELS } from "@/lib/game/strategies";
-import { FONT_SANS, C, hexA } from "./theme";
+import { FONT_SANS, C } from "./theme";
 
 const DOTS_SCALE = 16;
 type P = { x: number; y: number };
 
-function terrain(env: Environment): { color: string; icon: string; name: string } {
+const hexNum = (hex: string) => parseInt(hex.slice(1), 16);
+
+function terrain(env: Environment): { color: number; icon: string; name: string } {
   const { temperature: t, foodAbundance: f } = env;
-  if (t < 0.3) return { color: "#dbe9f1", icon: "❄️", name: "frozen" };
-  if (t > 0.72) return { color: "#e6c994", icon: "🏜️", name: "scorched" };
-  if (f > 0.6) return { color: "#9ec877", icon: "🌴", name: "lush" };
-  return { color: "#bcd698", icon: "🌿", name: "temperate" };
+  if (t < 0.3) return { color: 0xdbe9f1, icon: "❄️", name: "frozen" };
+  if (t > 0.72) return { color: 0xe6c994, icon: "🏜️", name: "scorched" };
+  if (f > 0.6) return { color: 0x9ec877, icon: "🌴", name: "lush" };
+  return { color: 0xbcd698, icon: "🌿", name: "temperate" };
 }
 
 // ---- geometry: a convex-ish island clipped into Voronoi territories ----
@@ -34,7 +37,6 @@ function clipHalfPlane(poly: P[], nx: number, ny: number, d: number): P[] {
   }
   return out;
 }
-
 function pointInPoly(p: P, poly: P[]): boolean {
   let inside = false;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -43,56 +45,37 @@ function pointInPoly(p: P, poly: P[]): boolean {
   }
   return inside;
 }
-
 function centroid(poly: P[]): P {
-  let x = 0, y = 0;
-  for (const p of poly) { x += p.x; y += p.y; }
-  return { x: x / poly.length, y: y / poly.length };
+  let x = 0, y = 0; for (const p of poly) { x += p.x; y += p.y; } return { x: x / poly.length, y: y / poly.length };
 }
+function flat(poly: P[]): number[] { const a: number[] = []; for (const p of poly) { a.push(p.x, p.y); } return a; }
 
-// Deterministic island + Voronoi cells (stable across the whole game — seeded by biome count only).
 function buildMap(count: number, W: number, H: number) {
   const cx = W / 2, cy = H / 2, base = Math.min(W, H) * 0.44;
   const rng = makeRng(count * 1000 + 12345);
-
-  // convex-ish island outline
   const island: P[] = [];
-  const KISL = 28;
-  for (let i = 0; i < KISL; i++) {
-    const a = (i / KISL) * Math.PI * 2;
+  for (let i = 0; i < 28; i++) {
+    const a = (i / 28) * Math.PI * 2;
     const r = base * (0.86 + 0.14 * (0.5 + 0.5 * Math.sin(a * 3 + 1.3)));
     island.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * 0.82 });
   }
-
-  // biome seeds spread across the island (phyllotaxis)
   const seeds: P[] = [];
   for (let i = 0; i < count; i++) {
     const r = Math.sqrt((i + 0.4) / count) * base * 0.62;
     const th = i * 2.399963 + (rng() - 0.5) * 0.4;
     seeds.push({ x: cx + Math.cos(th) * r + (rng() - 0.5) * 18, y: cy + Math.sin(th) * r * 0.82 + (rng() - 0.5) * 14 });
   }
-
-  // each cell = island clipped by every bisector half-plane
   const cells: P[][] = seeds.map((s, i) => {
     let cell = island;
     for (let j = 0; j < seeds.length; j++) {
       if (j === i) continue;
       const o = seeds[j];
-      const nx = 2 * (o.x - s.x), ny = 2 * (o.y - s.y);
-      const d = o.x * o.x + o.y * o.y - s.x * s.x - s.y * s.y;
-      cell = clipHalfPlane(cell, nx, ny, d);
+      cell = clipHalfPlane(cell, 2 * (o.x - s.x), 2 * (o.y - s.y), o.x * o.x + o.y * o.y - s.x * s.x - s.y * s.y);
       if (cell.length === 0) break;
     }
     return cell;
   });
-
-  return { island, seeds, cells };
-}
-
-function drawPoly(ctx: CanvasRenderingContext2D, poly: P[]) {
-  ctx.beginPath();
-  poly.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
-  ctx.closePath();
+  return { island, cells };
 }
 
 function Bar({ label, v }: { label: string; v: number }) {
@@ -106,15 +89,22 @@ function Bar({ label, v }: { label: string; v: number }) {
   );
 }
 
+function clampView(v: { scale: number; tx: number; ty: number }, size: { w: number; h: number }) {
+  const scale = Math.min(4, Math.max(1, v.scale));
+  return { scale, tx: Math.min(0, Math.max(size.w * (1 - scale), v.tx)), ty: Math.min(0, Math.max(size.h * (1 - scale), v.ty)) };
+}
+
 export function WorldMap({ game }: { game: GameState }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const gameRef = useRef(game); useEffect(() => { gameRef.current = game; });
+  const appRef = useRef<Application | null>(null);
+  const worldRef = useRef<Container | null>(null);
+  const waterRef = useRef<Graphics | null>(null);
+  const dynRef = useRef<{ glow: Graphics; dots: Graphics; hi: Graphics } | null>(null);
+  const [ready, setReady] = useState(false);
 
+  const gameRef = useRef(game); useEffect(() => { gameRef.current = game; });
   const [size, setSize] = useState({ w: 600, h: 460 });
-  const sizeRef = useRef(size); useEffect(() => { sizeRef.current = size; });
   const [view, setView] = useState({ scale: 1, tx: 0, ty: 0 });
-  const viewRef = useRef(view); useEffect(() => { viewRef.current = view; });
   const [hover, setHover] = useState<{ id: string; sx: number; sy: number } | null>(null);
   const hoverRef = useRef(hover); useEffect(() => { hoverRef.current = hover; });
   const [selected, setSelected] = useState<string | null>(null);
@@ -124,66 +114,134 @@ export function WorldMap({ game }: { game: GameState }) {
   const map = useMemo(() => buildMap(game.world.biomes.length, size.w, size.h), [game.world.biomes.length, size.w, size.h]);
   const mapRef = useRef(map); useEffect(() => { mapRef.current = map; });
 
+  // container sizing
   useEffect(() => {
     const el = wrapRef.current; if (!el) return;
-    const ro = new ResizeObserver(() => {
-      const r = el.getBoundingClientRect();
-      setSize({ w: Math.max(320, r.width), h: Math.max(280, r.height) });
-    });
+    const ro = new ResizeObserver(() => { const r = el.getBoundingClientRect(); setSize({ w: Math.max(320, r.width), h: Math.max(280, r.height) }); });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
+  // init Pixi once
   useEffect(() => {
-    const c = canvasRef.current; if (!c) return;
-    const ctx = c.getContext("2d"); if (!ctx) return;
-    let raf = 0;
-    const loop = (t: number) => {
-      const { w, h } = sizeRef.current;
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
-      draw(ctx, dpr, w, h, gameRef.current, mapRef.current, viewRef.current, hoverRef.current?.id ?? null, selRef.current, t);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    let destroyed = false;
+    const app = new Application();
+    app.init({ backgroundAlpha: 0, antialias: true, resolution: Math.min(2, window.devicePixelRatio || 1), autoDensity: true, width: 600, height: 460 })
+      .then(() => {
+        if (destroyed) { app.destroy(true); return; }
+        const wrap = wrapRef.current; if (!wrap) { app.destroy(true); return; }
+        app.canvas.style.width = "100%"; app.canvas.style.height = "100%"; app.canvas.style.display = "block";
+        wrap.insertBefore(app.canvas, wrap.firstChild);
+        const water = new Graphics(); app.stage.addChild(water); waterRef.current = water;
+        const world = new Container(); app.stage.addChild(world);
+        const glowC = new Container(); glowC.filters = [new BlurFilter({ strength: 12 })];
+        const glow = new Graphics(); glowC.addChild(glow);
+        const dots = new Graphics(); const hi = new Graphics();
+        world.addChild(glowC, dots, hi);
+        appRef.current = app; worldRef.current = world; dynRef.current = { glow, dots, hi };
+
+        app.ticker.add(() => {
+          const t = performance.now();
+          const g = gameRef.current, m = mapRef.current, dyn = dynRef.current; if (!dyn) return;
+          // dominant glows
+          dyn.glow.clear();
+          g.world.biomes.forEach((b, i) => {
+            const cell = m.cells[i]; if (cell.length < 3) return;
+            const dom = dominantOnBiome(g.lineages, b.id); if (!dom) return;
+            const ctr = centroid(cell);
+            dyn.glow.circle(ctr.x, ctr.y, 34).fill({ color: hexNum(dom.color), alpha: 0.55 });
+          });
+          // dots
+          dyn.dots.clear();
+          g.world.biomes.forEach((b, i) => {
+            const cell = m.cells[i]; if (cell.length < 3) return;
+            const ctr = centroid(cell);
+            const rng = makeRng(i * 1000 + 7);
+            g.lineages.forEach((l) => {
+              const pr = l.presence[b.id] ?? 0; if (pr <= 0) return;
+              const count = Math.max(1, Math.round(pr * DOTS_SCALE));
+              const col = hexNum(l.color);
+              for (let k = 0; k < count; k++) {
+                const ang = rng() * Math.PI * 2, rr = Math.sqrt(rng()) * 26, jit = Math.sin(t / 600 + k * 1.7) * 0.7;
+                dyn.dots.circle(ctr.x + Math.cos(ang) * rr, ctr.y + Math.sin(ang) * rr + jit, 2.6).fill({ color: col });
+              }
+            });
+          });
+          // hover / selected highlight
+          dyn.hi.clear();
+          const mark = (id: string | null, color: number, width: number) => {
+            if (!id) return; const i = g.world.biomes.findIndex((b) => b.id === id); if (i < 0) return;
+            const cell = m.cells[i]; if (cell.length < 3) return;
+            dyn.hi.poly(flat(cell)).stroke({ width, color, alpha: 0.9 });
+          };
+          mark(hoverRef.current?.id ?? null, 0x5a4628, 2.5);
+          mark(selRef.current, 0x1a1614, 3.5);
+        });
+
+        setReady(true);
+      })
+      .catch(() => {});
+    return () => { destroyed = true; const a = appRef.current; if (a) { a.destroy(true); appRef.current = null; } };
   }, []);
 
-  const screenToWorld = (sx: number, sy: number) => ({ x: (sx - view.tx) / view.scale, y: (sy - view.ty) / view.scale });
+  // (re)build static layers on size / map change
+  useEffect(() => {
+    const app = appRef.current, world = worldRef.current, dyn = dynRef.current;
+    if (!ready || !app || !world || !dyn) return;
+    app.renderer.resize(size.w, size.h);
 
+    // ocean backdrop (fixed behind the world)
+    const water = waterRef.current;
+    if (water) {
+      const grad = new FillGradient(0, 0, 0, size.h);
+      grad.addColorStop(0, 0xcdeae6); grad.addColorStop(1, 0xa9d6da);
+      water.clear(); water.rect(0, 0, size.w, size.h).fill(grad);
+    }
+
+    // remove old static (everything before glow/dots/hi)
+    const keep = new Set<Container>([dyn.glow.parent!, dyn.dots, dyn.hi]);
+    for (const child of [...world.children]) if (!keep.has(child as Container)) world.removeChild(child);
+
+    const shadow = new Graphics().poly(flat(map.island)).fill({ color: 0x2a3b40, alpha: 0.25 });
+    shadow.filters = [new BlurFilter({ strength: 14 })]; shadow.y = 7;
+    const island = new Graphics().poly(flat(map.island)).fill(0xecd6a4).stroke({ width: 3, color: 0x96784a, alpha: 0.55 });
+    const terr = new Graphics();
+    game.world.biomes.forEach((b, i) => {
+      const cell = map.cells[i]; if (cell.length < 3) return;
+      terr.poly(flat(cell)).fill(terrain(b.env).color).stroke({ width: 1.4, color: 0x5a4628, alpha: 0.4 });
+    });
+    world.addChildAt(shadow, 0); world.addChildAt(island, 1); world.addChildAt(terr, 2);
+  }, [ready, map, size, game.world.biomes]);
+
+  // pan / zoom transform
+  useEffect(() => {
+    const world = worldRef.current; if (!world) return;
+    world.scale.set(view.scale); world.position.set(view.tx, view.ty);
+  }, [view, ready]);
+
+  // ---- input (kept in React; geometry via buildMap) ----
+  const screenToWorld = (sx: number, sy: number) => ({ x: (sx - view.tx) / view.scale, y: (sy - view.ty) / view.scale });
   function biomeAt(sx: number, sy: number): string | null {
     const wp = screenToWorld(sx, sy);
     for (let i = 0; i < map.cells.length; i++) if (map.cells[i].length > 2 && pointInPoly(wp, map.cells[i])) return game.world.biomes[i].id;
     return null;
   }
-
   function onMove(e: React.MouseEvent) {
     const rect = e.currentTarget.getBoundingClientRect();
     const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
-    if (drag.current) {
-      const nx = drag.current.tx + (sx - drag.current.x), ny = drag.current.ty + (sy - drag.current.y);
-      setView((v) => clampView({ ...v, tx: nx, ty: ny }, size));
-      return;
-    }
-    const id = biomeAt(sx, sy);
-    setHover(id ? { id, sx, sy } : null);
+    if (drag.current) { setView((v) => clampView({ ...v, tx: drag.current!.tx + (sx - drag.current!.x), ty: drag.current!.ty + (sy - drag.current!.y) }, size)); return; }
+    const id = biomeAt(sx, sy); setHover(id ? { id, sx, sy } : null);
   }
   function onWheel(e: React.WheelEvent) {
     const rect = e.currentTarget.getBoundingClientRect();
     const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    setView((v) => {
-      const ns = Math.min(4, Math.max(1, v.scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
-      const tx = mx - (mx - v.tx) * (ns / v.scale), ty = my - (my - v.ty) * (ns / v.scale);
-      return clampView({ scale: ns, tx, ty }, size);
-    });
+    setView((v) => { const ns = Math.min(4, Math.max(1, v.scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15))); return clampView({ scale: ns, tx: mx - (mx - v.tx) * (ns / v.scale), ty: my - (my - v.ty) * (ns / v.scale) }, size); });
   }
-  function onDown(e: React.MouseEvent) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    drag.current = { x: e.clientX - rect.left, y: e.clientY - rect.top, tx: view.tx, ty: view.ty };
-  }
+  function onDown(e: React.MouseEvent) { const rect = e.currentTarget.getBoundingClientRect(); drag.current = { x: e.clientX - rect.left, y: e.clientY - rect.top, tx: view.tx, ty: view.ty }; }
   function onUp(e: React.MouseEvent) {
-    const moved = drag.current && (Math.abs((e.clientX - e.currentTarget.getBoundingClientRect().left) - drag.current.x) > 4);
-    if (!moved) { const rect = e.currentTarget.getBoundingClientRect(); const id = biomeAt(e.clientX - rect.left, e.clientY - rect.top); setSelected(id); }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const moved = drag.current && Math.abs((e.clientX - rect.left) - drag.current.x) > 4;
+    if (!moved) setSelected(biomeAt(e.clientX - rect.left, e.clientY - rect.top));
     drag.current = null;
   }
 
@@ -192,28 +250,29 @@ export function WorldMap({ game }: { game: GameState }) {
 
   return (
     <div ref={wrapRef} style={{ position: "relative", width: "100%", height: "100%", minHeight: 280, fontFamily: FONT_SANS, overflow: "hidden", borderRadius: 16 }}>
-      <canvas ref={canvasRef} onMouseMove={onMove} onMouseLeave={() => { setHover(null); drag.current = null; }} onWheel={onWheel} onMouseDown={onDown} onMouseUp={onUp}
-        style={{ width: "100%", height: "100%", display: "block", cursor: hover ? "pointer" : "grab" }} />
+      {/* pointer surface above the pixi canvas */}
+      <div onMouseMove={onMove} onMouseLeave={() => { setHover(null); drag.current = null; }} onWheel={onWheel} onMouseDown={onDown} onMouseUp={onUp}
+        style={{ position: "absolute", inset: 0, zIndex: 2, cursor: hover ? "pointer" : "grab" }} />
 
-      {/* hover quick tooltip */}
+      {/* edge vignette → ocean melts into the page */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none", background: "radial-gradient(ellipse at center, rgba(250,250,247,0) 45%, rgba(250,250,247,0.85) 100%)" }} />
+
       {hover && (() => {
         const b = game.world.biomes.find((x) => x.id === hover.id)!;
         return (
-          <div style={{ position: "absolute", left: Math.min(hover.sx + 12, size.w - 150), top: Math.min(hover.sy + 12, size.h - 40), background: "rgba(255,255,255,0.95)", border: `1px solid ${C.line}`, borderRadius: 10, padding: "4px 9px", fontSize: 12, fontWeight: 600, pointerEvents: "none", boxShadow: "0 6px 18px rgba(26,22,20,0.15)", whiteSpace: "nowrap" }}>
+          <div style={{ position: "absolute", zIndex: 4, left: Math.min(hover.sx + 12, size.w - 150), top: Math.min(hover.sy + 12, size.h - 40), background: "rgba(255,255,255,0.95)", border: `1px solid ${C.line}`, borderRadius: 10, padding: "4px 9px", fontSize: 12, fontWeight: 600, pointerEvents: "none", boxShadow: "0 6px 18px rgba(26,22,20,0.15)", whiteSpace: "nowrap" }}>
             {terrain(b.env).icon} {b.name}{b.id === game.homeBiome ? " ★" : ""}
           </div>
         );
       })()}
 
-      {/* zoom controls */}
-      <div style={{ position: "absolute", right: 10, bottom: 10, display: "grid", gap: 6 }}>
+      <div style={{ position: "absolute", right: 10, bottom: 10, zIndex: 4, display: "grid", gap: 6 }}>
         <button className="db-gbtn" onClick={() => setView((v) => clampView({ ...v, scale: Math.min(4, v.scale * 1.3) }, size))} style={{ width: 30, height: 30, fontSize: 16 }}>+</button>
         <button className="db-gbtn" onClick={() => setView((v) => clampView({ ...v, scale: Math.max(1, v.scale / 1.3) }, size))} style={{ width: 30, height: 30, fontSize: 16 }}>−</button>
       </div>
 
-      {/* selected territory stats */}
       {selBiome && (
-        <div style={{ position: "absolute", top: 10, right: 10, width: 210, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, padding: "12px 13px", boxShadow: "0 12px 34px rgba(26,22,20,0.18)", display: "grid", gap: 8, zIndex: 6 }}>
+        <div style={{ position: "absolute", zIndex: 5, top: 10, right: 10, width: 210, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, padding: "12px 13px", boxShadow: "0 12px 34px rgba(26,22,20,0.18)", display: "grid", gap: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <strong style={{ fontSize: 13 }}>{terrain(selBiome.env).icon} {selBiome.name}{selBiome.id === game.homeBiome ? " ★" : ""}</strong>
             <button onClick={() => setSelected(null)} style={{ border: "none", background: "none", cursor: "pointer", color: C.muted, fontSize: 13 }}>✕</button>
@@ -237,92 +296,4 @@ export function WorldMap({ game }: { game: GameState }) {
       )}
     </div>
   );
-}
-
-function clampView(v: { scale: number; tx: number; ty: number }, size: { w: number; h: number }) {
-  const scale = Math.min(4, Math.max(1, v.scale));
-  const tx = Math.min(0, Math.max(size.w * (1 - scale), v.tx));
-  const ty = Math.min(0, Math.max(size.h * (1 - scale), v.ty));
-  return { scale, tx, ty };
-}
-
-function draw(
-  ctx: CanvasRenderingContext2D, dpr: number, W: number, H: number, game: GameState,
-  map: { island: P[]; seeds: P[]; cells: P[][] }, view: { scale: number; tx: number; ty: number },
-  hovered: string | null, selected: string | null, t: number,
-) {
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  // ocean (screen space)
-  const sea = ctx.createLinearGradient(0, 0, 0, H);
-  sea.addColorStop(0, "#cdeae6"); sea.addColorStop(1, "#a9d6da");
-  ctx.fillStyle = sea; ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = "rgba(255,255,255,0.28)"; ctx.lineWidth = 1;
-  for (let y = 0; y < H; y += 26) {
-    ctx.beginPath();
-    for (let x = 0; x <= W; x += 12) ctx.lineTo(x, y + Math.sin(x / 60 + t / 1400 + y) * 2);
-    ctx.stroke();
-  }
-
-  ctx.save();
-  ctx.translate(view.tx, view.ty); ctx.scale(view.scale, view.scale);
-
-  // island coast
-  ctx.save();
-  ctx.shadowColor = "rgba(40,70,80,0.2)"; ctx.shadowBlur = 22; ctx.shadowOffsetY = 8;
-  ctx.fillStyle = "#ecd6a4"; drawPoly(ctx, map.island); ctx.fill();
-  ctx.restore();
-
-  // territories
-  game.world.biomes.forEach((b, i) => {
-    const cell = map.cells[i]; if (cell.length < 3) return;
-    const dom = dominantOnBiome(game.lineages, b.id);
-    const ter = terrain(b.env);
-    drawPoly(ctx, cell);
-    ctx.fillStyle = ter.color; ctx.fill();
-    if (dom) {
-      const ctr = centroid(cell);
-      const g = ctx.createRadialGradient(ctr.x, ctr.y, 0, ctr.x, ctr.y, 70);
-      g.addColorStop(0, hexA(dom.color, b.id === hovered ? 0.42 : 0.3)); g.addColorStop(1, hexA(dom.color, 0));
-      drawPoly(ctx, cell); ctx.save(); ctx.clip(); ctx.fillStyle = g; ctx.fillRect(ctr.x - 80, ctr.y - 80, 160, 160); ctx.restore();
-    }
-    // border
-    drawPoly(ctx, cell);
-    ctx.lineWidth = b.id === selected ? 3.5 : b.id === hovered ? 2.5 : 1.5;
-    ctx.strokeStyle = b.id === selected ? "#1a1614" : "rgba(90,70,40,0.5)";
-    ctx.stroke();
-  });
-
-  // coastline outline
-  drawPoly(ctx, map.island); ctx.lineWidth = 3; ctx.strokeStyle = "rgba(150,120,70,0.55)"; ctx.stroke();
-
-  // presence dots + icon + home star
-  game.world.biomes.forEach((b, i) => {
-    const cell = map.cells[i]; if (cell.length < 3) return;
-    const ctr = centroid(cell);
-    ctx.globalAlpha = 0.4; ctx.font = "18px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(terrain(b.env).icon, ctr.x, ctr.y - 14); ctx.globalAlpha = 1; ctx.textBaseline = "alphabetic";
-
-    const rng = makeRng(i * 1000 + 7);
-    game.lineages.forEach((l) => {
-      const pr = l.presence[b.id] ?? 0; if (pr <= 0) return;
-      const count = Math.max(1, Math.round(pr * DOTS_SCALE));
-      for (let k = 0; k < count; k++) {
-        const ang = rng() * Math.PI * 2, rr = Math.sqrt(rng()) * 26;
-        const jit = Math.sin(t / 600 + k * 1.7) * 0.7;
-        ctx.fillStyle = l.color;
-        ctx.beginPath(); ctx.arc(ctr.x + Math.cos(ang) * rr, ctr.y + Math.sin(ang) * rr + jit, 2.6, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "rgba(255,255,255,0.35)";
-        ctx.beginPath(); ctx.arc(ctr.x + Math.cos(ang) * rr - 0.7, ctr.y + Math.sin(ang) * rr + jit - 0.7, 0.9, 0, Math.PI * 2); ctx.fill();
-      }
-    });
-    if (b.id === game.homeBiome) { ctx.font = "13px serif"; ctx.textAlign = "center"; ctx.fillText("★", ctr.x + 16, ctr.y - 12); }
-  });
-
-  ctx.restore();
-
-  // edge fade
-  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.34, W / 2, H / 2, Math.max(W, H) * 0.62);
-  vg.addColorStop(0, "rgba(250,250,247,0)"); vg.addColorStop(1, "rgba(250,250,247,0.85)");
-  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 }
