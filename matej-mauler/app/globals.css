@@ -501,3 +501,5 @@ body {
 .db-gbtn:hover:not(:disabled) { transform: scale(1.15); background: rgba(22,163,74,0.1); border-color: rgba(22,163,74,0.4); }
 .db-gbtn:active:not(:disabled) { transform: scale(0.9); }
 .db-gbtn:disabled { opacity: 0.4; cursor: default; }
+@keyframes db-helix { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.db-helix-move { animation: db-helix 7s linear infinite; }

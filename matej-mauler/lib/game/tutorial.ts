@@ -1,9 +1,31 @@
-// A short coaching script shown the first time (and replayable from the menu). Just enough to
-// teach the controls and the premise — not a separate game engine.
-export const TUTORIAL_STEPS: string[] = [
-  "you steer ONE lineage by intelligent design. three rivals evolve on their own — by the gene's-eye view, by group selection, and by lamarckism.",
-  "each era you spend adaptation points (AP) to push individual genes up or down with + and −. that is your design.",
-  "hit “advance era” to let everyone evolve and contest biomes. you can colonize at most one new biome per era — radiation is gradual.",
-  "the climate keeps shifting and catastrophes strike — they can wipe anyone, you included. nothing is safe because it was “better” before.",
-  "goal: hold every biome before a rival does, or lead when the clock runs out. the lesson sneaks up on you: evolution never aims — it just fits the world in front of it.",
+// A short coaching script (replayable from the menu). Frame: an outside intelligence studying
+// humanity — depicted, accurately, as spaghetti. Each step pairs copy with an illustration.
+export type TutorialArt = "creatures" | "helix" | "dial" | "map" | "goal";
+
+export interface TutorialStep {
+  text: string;
+  art: TutorialArt;
+}
+
+export const TUTORIAL_STEPS: TutorialStep[] = [
+  {
+    art: "creatures",
+    text: "you're an outside intelligence studying a small world of creatures. it's humanity — rendered, accurately, as spaghetti.",
+  },
+  {
+    art: "helix",
+    text: "their heredity is a tangled spaghetti helix. you steer ONE lineage by intelligent design; three rivals evolve on their own — gene's-eye view, group selection, and lamarckism.",
+  },
+  {
+    art: "dial",
+    text: "each era, spend adaptation points to nudge genes up or down. a dial shows what your lineage has versus what THIS world is asking for.",
+  },
+  {
+    art: "map",
+    text: "hit “advance era” to let everyone evolve, breed, and fight over biomes. lineages spread one biome at a time — and the climate shifts, catastrophes strike.",
+  },
+  {
+    art: "goal",
+    text: "dominate every biome before a rival does, or lead after 100 eras. the quiet lesson: evolution has no recipe — it just tangles toward whatever fits right now.",
+  },
 ];

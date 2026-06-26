@@ -4,8 +4,8 @@ import { syncAuthedUser } from "@/lib/account/session";
 import { getUserParticipations } from "@/lib/accountsDb";
 
 export const metadata: Metadata = {
-  title: "driftbloom — intelligent design vs. natural selection",
-  description: "a strategy game: design one lineage by hand against three rivals that evolve by their own theories. evolution has no goal.",
+  title: "driftbloom — an alien field study of humanity (as spaghetti)",
+  description: "a strategy game: steer one spaghettoid lineage by intelligent design against three rivals evolving on their own. evolution has no recipe.",
 };
 
 // Returning signed-in players who've already played skip the tutorial; everyone else gets it once

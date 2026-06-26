@@ -29,11 +29,11 @@ export function summarize(game: GameState): GameOutcome {
 // The reveal line — names what the player just learned. lowercase, "curious friend" voice.
 export function revealText(o: GameOutcome): string {
   if (o.won) {
-    return `you out-designed the blind watchmaker — this run. but selection never aimed at you; ` +
-      `it only ever fit the world in front of it. change the world and "winning" changes with it.`;
+    return `you out-designed the blind cook — this run. but selection never aimed at you; it only ever ` +
+      `fit the world in front of it. there's no recipe: change the world and "winning" changes with it.`;
   }
-  return `${STRATEGY_LABELS[o.winnerStrategy]} won — not by aiming at a goal, but by fitting this ` +
-    `world better than your design did. evolution has no destination; it just keeps whatever works here.`;
+  return `${STRATEGY_LABELS[o.winnerStrategy]} won — not by following a recipe, but by tangling into this ` +
+    `world better than your design did. evolution has no destination; it just keeps whatever holds together here.`;
 }
 
 // Participation insight payload (badges read these fields).
