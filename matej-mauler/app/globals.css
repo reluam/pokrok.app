@@ -476,3 +476,30 @@ body {
   .sl-head { offset-distance: 100%; }
   .sl-goal { transform: scale(0); opacity: 0; }
 }
+
+/* ---- driftbloom game polish ---- */
+.db-card { transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.db-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(26,22,20,0.09), 0 18px 36px rgba(26,22,20,0.08); }
+.db-dialbtn { transition: transform .1s ease, background .15s ease; cursor: pointer; }
+.db-dialbtn:hover:not(:disabled) { transform: scale(1.15); }
+.db-dialbtn:active:not(:disabled) { transform: scale(0.92); }
+.db-advance { transition: transform .12s ease, box-shadow .15s ease, filter .15s ease; }
+.db-advance:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 8px 20px rgba(22,163,74,0.28); }
+.db-advance:active:not(:disabled) { transform: translateY(0); }
+.db-ring { transition: stroke-dashoffset .5s cubic-bezier(.2,.7,.2,1); }
+@keyframes db-pop { 0% { transform: scale(0.96); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.db-pop { animation: db-pop .35s cubic-bezier(.2,.8,.2,1); }
+.db-advance .arr { display: inline-block; transition: transform .2s ease; }
+.db-advance:hover:not(:disabled) .arr { transform: translateX(3px); }
+@keyframes db-cta { 0%,100% { box-shadow: 0 8px 18px rgba(22,163,74,0.26); } 50% { box-shadow: 0 10px 30px rgba(22,163,74,0.5); } }
+.db-cta { animation: db-cta 1.5s ease-in-out infinite; }
+@keyframes db-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.db-pulse { animation: db-pulse 1.4s ease-in-out infinite; }
+.db-gauge { transition: transform .12s ease; }
+.db-gauge:hover { transform: translateY(-2px); }
+.db-gbtn { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--db-line, rgba(26,22,20,0.14)); background: #fff; color: #1a1614; font-weight: 700; line-height: 1; display: grid; place-items: center; cursor: pointer; transition: transform .1s ease, background .15s ease, border-color .15s ease; padding: 0; }
+.db-gbtn:hover:not(:disabled) { transform: scale(1.15); background: rgba(22,163,74,0.1); border-color: rgba(22,163,74,0.4); }
+.db-gbtn:active:not(:disabled) { transform: scale(0.9); }
+.db-gbtn:disabled { opacity: 0.4; cursor: default; }
+@keyframes db-helix { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.db-helix-move { animation: db-helix 7s linear infinite; }

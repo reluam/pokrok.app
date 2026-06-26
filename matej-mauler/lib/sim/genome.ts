@@ -26,6 +26,13 @@ export function randomGenome(rng: () => number): Genome {
   return g;
 }
 
+// The average genome of a population — one representative organism (for rendering / display).
+export function meanGenome(pop: Genome[]): Genome {
+  const m = {} as Genome;
+  for (const k of GENE_KEYS) m[k] = pop.length ? pop.reduce((s, g) => s + g[k], 0) / pop.length : 0.5;
+  return m;
+}
+
 const MUTATION_SCALE = 0.15; // sd of the gaussian step at rate 1
 
 // Gaussian per-gene drift, scaled by rate, clamped to the gene's 0–1 range.
