@@ -126,24 +126,39 @@ Player navigates tile to tile to the exit.
 
 Standard 10-wide stacking with the 7 tetrominoes, rotation, soft/hard drop, line clears.
 
-- **Normal play:** stack and clear lines.
-- **No game-over:** topping out does **not** end the game. New pieces keep spawning; a topped-out
-  board simply leaves the off-edge escape as the obvious move.
-- **Hidden path:** a piece may move past the left/right edge. Once a piece is fully beyond an edge
-  it vanishes (removed, no collision with the wall — the wall isn't real).
-- **`foundHiddenPath`:** resolves `true` the first time a piece is pushed off an edge.
-- **Resolve:** Tetris resolves **on discovery** (first off-edge move) → reveal. (There is no
-  classic win and no lose; the experience advances when the player finds the escape, which is
-  available from the first piece.) Reveal line: *"The field was always bigger than it looked."*
+- **Normal win:** reach **1000 score** by clearing lines. This is the resolution for Tetris (the
+  one game with a positive target rather than a finish line).
+- **Pacing (~5 minutes):** drop speed and the scoring table are calibrated so a competent player
+  reaches 1000 in roughly five minutes. Reference scheme (tuned in playtest): single = 100,
+  double = 250, triple = 500, tetris = 800, plus a small hard-drop bonus; gravity slow enough that
+  a clean run clears the lines needed for 1000 in ~5 min. The exact numbers are tuned during
+  implementation against the 5-minute target — `SCORE_TARGET = 1000` and the table live as named
+  constants in `tetrisLogic.ts`.
+- **No game-over:** topping out does **not** end the game. The off-edge escape (below) is the
+  relief valve when the stack gets dangerous; difficulty is calibrated forgiving so a normal run
+  reaches 1000 well before any real top-out risk.
+- **Hidden path (the hack):** a piece may move past the left/right edge. Once a piece is fully
+  beyond an edge it vanishes (removed — the wall isn't real). It clears no lines and scores
+  nothing; it just frees space. So the hack never *replaces* the 1000-score goal — it only helps
+  you survive toward it. The escape is available from the first piece.
+- **`foundHiddenPath`:** resolves `true` if the player ever pushed a piece off an edge during the
+  run (whether or not they needed to).
+- **Resolve:** Tetris resolves **only at 1000 score** → reveal modal. The modal says the player can
+  go to the next game, and reveals the hack — confirming it if they used it, or showing it for the
+  first time if they reached 1000 the hard way. Reveal line:
+  *"The field was always bigger than it looked."*
 - Logic API (pure): `initTetris()`, `tick(state)`, `move(state, dir)`, `rotate(state)`,
-  `drop(state)`, where `move` allows shifting past the edge and marks a piece "escaped" → cleared.
-  `outcome(state) -> null | { won:false, foundHiddenPath:true }` once an escape has happened.
-  Tests assert: normal collision within the field; line-clear logic; a piece moved past an edge is
-  removed and flags the escape; topping out does not produce a terminal/game-over state.
+  `drop(state)`, with `score`, `SCORE_TARGET`, and a `foundHiddenPath` flag on state. `move` allows
+  shifting a piece past the edge → the piece is marked "escaped" and cleared, setting
+  `foundHiddenPath`. `outcome(state) -> null | { won:true, foundHiddenPath }` once
+  `score >= SCORE_TARGET`. Tests assert: normal collision within the field; the scoring table and
+  the 1000 win threshold; a piece moved past an edge is removed, scores nothing, and sets
+  `foundHiddenPath`; topping out does not produce a terminal/game-over state.
 
-**Edge case (documented):** a player who never tries the off-edge move and never tops out can keep
-playing indefinitely. That's acceptable for the piece — the escape is reachable from move one and
-the topped-out board strongly nudges toward it. No forced timeout.
+**Soft-lock fallback (documented):** if playtest shows a player can top out and get stuck below
+1000 without discovering the hack, treat a full top-out as routing to the same reveal modal with
+`won:false` (you were still shown the other way). Calibrated difficulty should make this rare;
+the off-edge escape is the intended remedy.
 
 ## Reveal screen (`Reveal.tsx`)
 
@@ -174,23 +189,26 @@ Per the standing rules: anonymous-first, offered-never-forced, reward insight no
 
 - **One participation** recorded at the ending via POST `/api/participation` with
   `experimentSlug: "rules"` and
-  `insight: { chicken: "found"|"normal", maze: "found"|"normal", tetris: "found", foundCount: number }`.
+  `insight: { chicken: "found"|"normal", maze: "found"|"normal", tetris: "found"|"normal", foundCount: number }`.
   Anonymous runs store against `sp_anon` and merge on later registration. Signed-in runs trigger
   `evaluateRewards` server-side.
 - **Registration prompt:** `<PromptRegistration trigger="on_result" .../>` on the **ending**
   screen only — after the final insight has landed. Renders nothing if Clerk is off or the user is
   already signed in. Core experience never gated.
-- **Badges** (voice: playful / curious-friend; each names self-knowledge, never completion):
-  - `found_edge` (chicken) — discovery: `insight.chicken === "found"`. Names "you walked around
-    the whole problem instead of through it."
-  - `found_fake_wall` (maze) — discovery: `insight.maze === "found"`. Names "you poked a wall
-    instead of trusting it — and it gave."
-  - `found_bigger_field` (tetris) — discovery: `insight.tetris === "found"`. Names "you moved the
-    piece where the rules swore you couldn't."
-  - `noticed_rules_optional` (final, studio framing but `experimentSlug: "rules"`) — awarded at
-    the ending (reaching the end means you were *shown* the other way every time). Names "you
-    started reading rules as suggestions." Small XP.
-  - XP values stay small and meaningful (discovery badges a touch higher than the final).
+- **Badges** (voice: playful / curious-friend; each names self-knowledge, never completion).
+  **Studio rule (new): an experiment's badges sum to exactly 100 XP** — the full XP pool a player
+  can draw from one experience. For "rules" the pool splits so completion has a meaningful floor
+  and self-discovery fills it to 100:
+  - `noticed_rules_optional` — **40 XP** — final, awarded at the ending. Reaching the end means you
+    were *shown* the other way in all three games, so this is the guaranteed floor for anyone who
+    plays through. Names "you started reading rules as suggestions." (`experimentSlug: "rules"`.)
+  - `found_edge` (chicken) — **20 XP** — discovery: `insight.chicken === "found"`. Names "you
+    walked around the whole problem instead of through it."
+  - `found_fake_wall` (maze) — **20 XP** — discovery: `insight.maze === "found"`. Names "you poked
+    a wall instead of trusting it — and it gave."
+  - `found_bigger_field` (tetris) — **20 XP** — discovery: `insight.tetris === "found"`. Names "you
+    moved the piece where the rules swore you couldn't."
+  - **Total = 100 XP.** Floor (finish, discover nothing yourself) = 40; full self-discovery = 100.
   - All four `evaluate` purely off the final `insight` object; idempotent via the rewards layer's
     PK.
 
@@ -209,8 +227,9 @@ Per the standing rules: anonymous-first, offered-never-forced, reward insight no
     `foundHiddenPath`; reaching it through traffic does not; car collision resets position.
   - `mazeLogic`: normal route solves; fake tile is passable and its corridor reaches the exit;
     real walls block; crossing the fake tile sets `foundHiddenPath`.
-  - `tetrisLogic`: in-field collision & stacking; line clears; piece pushed off an edge is removed
-    and flags the escape; no terminal game-over state on top-out.
+  - `tetrisLogic`: in-field collision & stacking; the scoring table and the 1000-score win
+    threshold; a piece pushed off an edge is removed, scores nothing, and flags the escape; no
+    terminal game-over state on top-out.
 - Rewards: a small test that each badge's `evaluate` fires for the right `insight` shape.
 - Canvas rendering / rAF loops are not unit-tested (verified by running the page).
 

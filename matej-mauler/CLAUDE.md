@@ -27,7 +27,12 @@ a new experiment needs NO schema change.
    account on registration. Never make a user lose what they just did.
 
 **No public leaderboard** — it pulls toward competition over reflection. A private
-"how you compare" stat is fine. XP values stay small and meaningful.
+"how you compare" stat is fine.
+
+**100 XP per experiment.** Every experiment's badges sum to exactly **100 XP** — the full pool a
+player can draw from one experience (fully engaging with it = 100). Split that 100 across the
+badges as fits the experience: give completion a meaningful floor and let self-discovery /
+deeper insight fill it to 100. XP still celebrates self-knowledge, never volume or streaks.
 
 ### How a new experiment plugs in
 
