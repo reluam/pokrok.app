@@ -1,13 +1,117 @@
 "use client";
 
-import { PixelButton, RULES, type GameOutcome } from "../theme";
+import { useEffect, useRef, useState } from "react";
+import { RULES, pixelCanvas, useFixedLoop, type GameOutcome } from "../theme";
+import {
+  initChicken,
+  stepChicken,
+  moveChicken,
+  COLS,
+  ROWS,
+  EDGE_COL,
+  type ChickenState,
+  type Dir,
+} from "@/lib/rules/chickenLogic";
+
+const TILE = 22; // internal px per grid cell
 
 export default function Chicken({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  // eslint-disable-next-line react-hooks/purity
+  const state = useRef<ChickenState>(initChicken(Date.now() & 0xffff));
+  const [active, setActive] = useState(true);
+  const done = useRef(false);
+
+  function input(dir: Dir) {
+    if (done.current) return;
+    state.current = moveChicken(state.current, dir);
+    if (state.current.status === "won") finish();
+  }
+
+  function finish() {
+    if (done.current) return;
+    done.current = true;
+    setActive(false);
+    const s = state.current;
+    setTimeout(() => onResolve({ won: true, foundHiddenPath: s.foundHiddenPath }), 350);
+  }
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const map: Record<string, Dir> = {
+        ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
+        w: "up", s: "down", a: "left", d: "right",
+      };
+      const dir = map[e.key];
+      if (dir) {
+        e.preventDefault();
+        input(dir);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useFixedLoop(
+    (dt) => {
+      if (done.current) return;
+      stepChicken(state.current, dt);
+    },
+    () => {
+      const canvas = ref.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d")!;
+      const s = state.current;
+      ctx.fillStyle = RULES.bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // safe edge shoulder
+      ctx.fillStyle = "#13351a";
+      ctx.fillRect(EDGE_COL * TILE, 0, TILE, ROWS * TILE);
+      // exit strip
+      ctx.fillStyle = "#1b1b1b";
+      ctx.fillRect(0, 0, COLS * TILE, TILE);
+      // cars
+      ctx.fillStyle = RULES.yellow;
+      for (const lane of s.lanes)
+        for (const car of lane) ctx.fillRect(car.x * TILE, car.lane * TILE + 4, car.w * TILE - 2, TILE - 8);
+      // player
+      ctx.fillStyle = RULES.green;
+      ctx.fillRect(s.px * TILE + 3, s.py * TILE + 3, TILE - 6, TILE - 6);
+    },
+    active,
+  );
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (canvas) pixelCanvas(canvas, COLS * TILE, ROWS * TILE);
+  }, []);
+
   return (
-    <div style={{ display: "grid", gap: 18, placeItems: "center" }}>
-      <p style={{ fontSize: 12, color: RULES.green }}>chicken (stub)</p>
-      <PixelButton onClick={() => onResolve({ won: true, foundHiddenPath: false })}>win normally</PixelButton>
-      <PixelButton color={RULES.yellow} onClick={() => onResolve({ won: true, foundHiddenPath: true })}>find the hidden path</PixelButton>
+    <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
+      <p style={{ fontSize: 9, color: RULES.gray }}>reach the top. dodge the cars. (arrows / wasd)</p>
+      <canvas
+        ref={ref}
+        style={{ width: "min(90vw, 360px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }}
+      />
+      <TouchPad onDir={input} />
+    </div>
+  );
+}
+
+function TouchPad({ onDir }: { onDir: (d: Dir) => void }) {
+  const btn = (d: Dir, label: string) => (
+    <button
+      onPointerDown={(e) => { e.preventDefault(); onDir(d); }}
+      style={{ fontFamily: RULES.font, fontSize: 14, width: 48, height: 48, background: RULES.dim, color: RULES.white, border: "none" }}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 48px)", gap: 4, justifyContent: "center", touchAction: "none" }}>
+      <span />{btn("up", "▲")}<span />
+      {btn("left", "◀")}{btn("down", "▼")}{btn("right", "▶")}
     </div>
   );
 }
