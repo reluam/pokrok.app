@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { RULES, Scanlines, PixelButton, type GameOutcome } from "./theme";
+import { RULES, Scanlines, PixelButton, audio, type GameOutcome } from "./theme";
 import { Reveal } from "./Reveal";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { track } from "@/lib/analytics/track";
@@ -19,6 +19,7 @@ export default function TheRules() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [current, setCurrent] = useState<GameKey>("chicken");
   const [results, setResults] = useState<Results>({});
+  const [muted, setMuted] = useState(audio.muted);
   const posted = useRef(false);
 
   // post one participation when the ending is reached
@@ -79,6 +80,26 @@ export default function TheRules() {
         overflow: "hidden",
       }}
     >
+      <button
+        onClick={() => setMuted(audio.toggle())}
+        aria-label={muted ? "unmute" : "mute"}
+        style={{
+          position: "fixed",
+          top: 10,
+          right: 10,
+          zIndex: 60,
+          fontFamily: RULES.font,
+          fontSize: 16,
+          background: "transparent",
+          border: "none",
+          color: RULES.gray,
+          cursor: "pointer",
+          padding: 6,
+        }}
+      >
+        {muted ? "\u{1F507}" : "\u{1F50A}"}
+      </button>
+
       {phase === "intro" && (
         <div
           style={{ display: "grid", gap: 28, maxWidth: 620, cursor: "pointer", lineHeight: 1.9 }}

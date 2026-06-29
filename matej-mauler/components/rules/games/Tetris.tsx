@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { RULES, pixelCanvas, type GameOutcome } from "../theme";
+import { RULES, pixelCanvas, beep, audio, type GameOutcome } from "../theme";
 import {
   initTetris,
   tickTetris,
@@ -24,10 +24,12 @@ export default function Tetris({ onResolve }: { onResolve: (o: GameOutcome) => v
   const [score, setScore] = useState(0);
   const done = useRef(false);
 
-  function commit(next: TetrisState) {
+  function commit(next: TetrisState, sound?: "move" | "lock") {
     state.current = next;
     setScore(next.score);
     render();
+    if (sound === "move") beep(660, 40, audio.muted);
+    else if (sound === "lock") beep(180, 120, audio.muted);
     if (next.status === "won" && !done.current) {
       done.current = true;
       const s = next;
@@ -62,20 +64,20 @@ export default function Tetris({ onResolve }: { onResolve: (o: GameOutcome) => v
     }, GRAVITY_MS);
     const handler = (e: KeyboardEvent) => {
       if (done.current) return;
-      if (e.key === "ArrowLeft" || e.key === "a") { e.preventDefault(); commit(moveTetris(state.current, "left")); }
-      else if (e.key === "ArrowRight" || e.key === "d") { e.preventDefault(); commit(moveTetris(state.current, "right")); }
-      else if (e.key === "ArrowDown" || e.key === "s") { e.preventDefault(); commit(moveTetris(state.current, "down")); }
-      else if (e.key === "ArrowUp" || e.key === "w") { e.preventDefault(); commit(rotateTetris(state.current)); }
-      else if (e.key === " ") { e.preventDefault(); commit(dropTetris(state.current)); }
+      if (e.key === "ArrowLeft" || e.key === "a") { e.preventDefault(); commit(moveTetris(state.current, "left"), "move"); }
+      else if (e.key === "ArrowRight" || e.key === "d") { e.preventDefault(); commit(moveTetris(state.current, "right"), "move"); }
+      else if (e.key === "ArrowDown" || e.key === "s") { e.preventDefault(); commit(moveTetris(state.current, "down"), "move"); }
+      else if (e.key === "ArrowUp" || e.key === "w") { e.preventDefault(); commit(rotateTetris(state.current), "move"); }
+      else if (e.key === " ") { e.preventDefault(); commit(dropTetris(state.current), "lock"); }
     };
     window.addEventListener("keydown", handler);
     return () => { clearInterval(id); window.removeEventListener("keydown", handler); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const tbtn = (label: string, fn: () => TetrisState) => (
+  const tbtn = (label: string, fn: () => TetrisState, sound?: "move" | "lock") => (
     <button
-      onPointerDown={(e) => { e.preventDefault(); if (!done.current) commit(fn()); }}
+      onPointerDown={(e) => { e.preventDefault(); if (!done.current) commit(fn(), sound); }}
       style={{ fontFamily: RULES.font, fontSize: 13, width: 56, height: 48, background: RULES.dim, color: RULES.white, border: "none" }}
     >
       {label}
@@ -88,10 +90,10 @@ export default function Tetris({ onResolve }: { onResolve: (o: GameOutcome) => v
       <p style={{ fontSize: 8, color: RULES.gray }}>clear lines to 1000. (← → ↓ move · ↑ rotate · space drop)</p>
       <canvas ref={ref} style={{ width: "min(70vw, 220px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
       <div style={{ display: "flex", gap: 4, touchAction: "none" }}>
-        {tbtn("◀", () => moveTetris(state.current, "left"))}
-        {tbtn("▶", () => moveTetris(state.current, "right"))}
-        {tbtn("↻", () => rotateTetris(state.current))}
-        {tbtn("▼", () => dropTetris(state.current))}
+        {tbtn("◀", () => moveTetris(state.current, "left"), "move")}
+        {tbtn("▶", () => moveTetris(state.current, "right"), "move")}
+        {tbtn("↻", () => rotateTetris(state.current), "move")}
+        {tbtn("▼", () => dropTetris(state.current), "lock")}
       </div>
     </div>
   );

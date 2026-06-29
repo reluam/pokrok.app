@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { RULES, pixelCanvas, useFixedLoop, type GameOutcome } from "../theme";
+import { RULES, pixelCanvas, useFixedLoop, beep, audio, type GameOutcome } from "../theme";
 import {
   initChicken,
   stepChicken,
@@ -24,7 +24,9 @@ export default function Chicken({ onResolve }: { onResolve: (o: GameOutcome) => 
 
   function input(dir: Dir) {
     if (done.current) return;
+    const prev = { px: state.current.px, py: state.current.py };
     state.current = moveChicken(state.current, dir);
+    if (state.current.px !== prev.px || state.current.py !== prev.py) beep(660, 40, audio.muted);
     if (state.current.status === "won") finish();
   }
 
@@ -56,7 +58,9 @@ export default function Chicken({ onResolve }: { onResolve: (o: GameOutcome) => 
   useFixedLoop(
     (dt) => {
       if (done.current) return;
+      const prevY = state.current.py;
       stepChicken(state.current, dt);
+      if (state.current.py !== prevY) beep(180, 120, audio.muted); // car hit reset
     },
     () => {
       const canvas = ref.current;

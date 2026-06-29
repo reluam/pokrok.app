@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { RULES, pixelCanvas, type GameOutcome } from "../theme";
+import { RULES, pixelCanvas, beep, audio, type GameOutcome } from "../theme";
 import { MAZE, initMaze, moveMaze, type MazeState } from "@/lib/rules/mazeLogic";
 import type { Dir } from "@/lib/rules/chickenLogic";
 
@@ -41,7 +41,9 @@ export default function Maze({ onResolve }: { onResolve: (o: GameOutcome) => voi
 
   function input(dir: Dir) {
     if (done.current) return;
+    const prev = { x: state.current.x, y: state.current.y };
     state.current = moveMaze(state.current, dir);
+    if (state.current.x !== prev.x || state.current.y !== prev.y) beep(660, 40, audio.muted);
     render();
     if (state.current.status === "won") {
       done.current = true;

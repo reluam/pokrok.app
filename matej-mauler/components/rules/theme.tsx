@@ -106,6 +106,13 @@ export function useFixedLoop(
   }, [active]);
 }
 
+/** Module-level mute flag (muted by default). */
+let _muted = true;
+export const audio = {
+  get muted() { return _muted; },
+  toggle() { _muted = !_muted; return _muted; },
+};
+
 /** Tiny 8-bit blip. No-op if muted or WebAudio unavailable. */
 let audioCtx: AudioContext | null = null;
 export function beep(freq: number, ms: number, muted: boolean) {
