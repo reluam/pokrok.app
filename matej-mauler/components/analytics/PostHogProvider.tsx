@@ -50,6 +50,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       api_host: POSTHOG_HOST,
       person_profiles: "identified_only", // profil jen pro přihlášené; anonymní zůstanou anonymní
       capture_pageview: false, // posíláme ručně (viz PageviewTracker)
+      capture_pageleave: true, // jinak by se s vypnutým pageview vypnul i pageleave → nepřesný bounce rate / délka session
       autocapture: true,
       persistence: initial === "granted" ? "localStorage+cookie" : "memory",
       opt_out_capturing_by_default: initial !== "granted",
