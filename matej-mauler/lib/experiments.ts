@@ -55,4 +55,10 @@ export const experiments: ExperimentMeta[] = [
     color: "#DCFCE7",
     href: "/driftbloom",
   },
+  {
+    slug: "rules",
+    emoji: "🕹️",
+    color: "#E0E7FF",
+    href: "/rules",
+  },
 ];
