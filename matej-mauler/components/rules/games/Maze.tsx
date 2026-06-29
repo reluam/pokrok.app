@@ -1,13 +1,89 @@
 "use client";
 
-import { PixelButton, RULES, type GameOutcome } from "../theme";
+import { useEffect, useRef } from "react";
+import { RULES, pixelCanvas, type GameOutcome } from "../theme";
+import { MAZE, initMaze, moveMaze, type MazeState } from "@/lib/rules/mazeLogic";
+import type { Dir } from "@/lib/rules/chickenLogic";
+
+const TILE = 26;
+const W = MAZE[0].length;
+const H = MAZE.length;
 
 export default function Maze({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const state = useRef<MazeState>(initMaze());
+  const done = useRef(false);
+
+  function render() {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = RULES.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const t = MAZE[y][x];
+        if (t === 1) ctx.fillStyle = "#3a3a3a"; // real wall
+        else if (t === 2) ctx.fillStyle = "#343a34"; // fake wall — subtly different shade/tint
+        else if (t === 4) ctx.fillStyle = RULES.yellow; // exit
+        else ctx.fillStyle = RULES.bg; // open
+        ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
+        if (t === 2) {
+          // faint dithering so it reads as "wall-ish" but not identical
+          ctx.fillStyle = "#2c322c";
+          for (let i = 0; i < TILE; i += 4) ctx.fillRect(x * TILE + i, y * TILE, 2, TILE);
+        }
+      }
+    const s = state.current;
+    ctx.fillStyle = RULES.green;
+    ctx.fillRect(s.x * TILE + 5, s.y * TILE + 5, TILE - 10, TILE - 10);
+  }
+
+  function input(dir: Dir) {
+    if (done.current) return;
+    state.current = moveMaze(state.current, dir);
+    render();
+    if (state.current.status === "won") {
+      done.current = true;
+      const s = state.current;
+      setTimeout(() => onResolve({ won: true, foundHiddenPath: s.foundHiddenPath }), 300);
+    }
+  }
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (canvas) pixelCanvas(canvas, W * TILE, H * TILE);
+    render();
+    const handler = (e: KeyboardEvent) => {
+      const map: Record<string, Dir> = {
+        ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
+        w: "up", s: "down", a: "left", d: "right",
+      };
+      const dir = map[e.key];
+      if (dir) { e.preventDefault(); input(dir); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const tbtn = (d: Dir, label: string) => (
+    <button
+      onPointerDown={(e) => { e.preventDefault(); input(d); }}
+      style={{ fontFamily: RULES.font, fontSize: 14, width: 48, height: 48, background: RULES.dim, color: RULES.white, border: "none" }}
+    >
+      {label}
+    </button>
+  );
+
   return (
-    <div style={{ display: "grid", gap: 18, placeItems: "center" }}>
-      <p style={{ fontSize: 12, color: RULES.green }}>maze (stub)</p>
-      <PixelButton onClick={() => onResolve({ won: true, foundHiddenPath: false })}>win normally</PixelButton>
-      <PixelButton color={RULES.yellow} onClick={() => onResolve({ won: true, foundHiddenPath: true })}>find the hidden path</PixelButton>
+    <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
+      <p style={{ fontSize: 9, color: RULES.gray }}>find the exit. (arrows / wasd)</p>
+      <canvas ref={ref} style={{ width: "min(90vw, 360px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 48px)", gap: 4, touchAction: "none" }}>
+        <span />{tbtn("up", "▲")}<span />
+        {tbtn("left", "◀")}{tbtn("down", "▼")}{tbtn("right", "▶")}
+      </div>
     </div>
   );
 }
