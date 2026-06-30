@@ -1,58 +1,58 @@
 import { expect, test } from "vitest";
 import { computeMirror, SCENARIOS, type Decision } from "./priceOfALife";
 
-const bySlug = Object.fromEntries(SCENARIOS.map((s) => [s.slug, s.pricePerLife]));
-const dec = (slug: string, funded: boolean): Decision => ({ slug, funded, pricePerLife: bySlug[slug] });
+const dec = (slug: string, funded: boolean): Decision => ({ slug, funded });
+const fundAll = (pred: (slug: string) => boolean): Decision[] =>
+  SCENARIOS.map((s) => dec(s.slug, pred(s.slug)));
 
-test("ten scenarios span at least four orders of magnitude", () => {
-  const prices = SCENARIOS.map((s) => s.pricePerLife);
-  expect(SCENARIOS).toHaveLength(10);
-  expect(Math.max(...prices) / Math.min(...prices)).toBeGreaterThan(10_000);
+test("20 scenarios in 10 matched pairs, each pair equal-priced", () => {
+  expect(SCENARIOS).toHaveLength(20);
+  const byPair = new Map<string, number[]>();
+  for (const s of SCENARIOS) {
+    expect(s.pricePerLife).toBe(s.cost / s.lives);
+    byPair.set(s.pairId, [...(byPair.get(s.pairId) ?? []), s.pricePerLife]);
+  }
+  expect(byPair.size).toBe(10);
+  for (const prices of byPair.values()) {
+    expect(prices).toHaveLength(2);
+    expect(prices[0]).toBe(prices[1]); // the two halves share a price
+  }
 });
 
-test("floor = dearest funded, ceiling = cheapest skipped", () => {
-  // fund the two cheapest, skip the rest
-  const decisions = SCENARIOS.map((s) => dec(s.slug, s.pricePerLife <= 5_600));
-  const m = computeMirror(decisions);
-  expect(m.fundedCount).toBe(2);
-  expect(m.impliedFloor).toBe(5_600); // traffic lights
-  expect(m.impliedCeiling).toBe(144_000); // icu beds, cheapest skipped
-  expect(m.contradictions).toBe(0); // a clean threshold
+test("funding both halves of every pair → no flips", () => {
+  const m = computeMirror(fundAll(() => true));
+  expect(m.fundedCount).toBe(20);
+  expect(m.flips).toBe(0);
+  expect(m.comfortFlips).toBe(0);
+  expect(m.pairs.every((p) => p.status === "both")).toBe(true);
 });
 
-test("a skipped life cheaper than a funded one is a contradiction", () => {
-  // fund the rare drug ($34M), skip everything cheaper
-  const decisions = SCENARIOS.map((s) => dec(s.slug, s.slug === "rare-drug"));
-  const m = computeMirror(decisions);
-  expect(m.impliedFloor).toBe(34_000_000);
-  expect(m.contradictions).toBe(9);
-  expect(m.contradictionSlugs).toContain("vaccination");
+test("funding only the relatable half of each pair → 9 flips, all comfort", () => {
+  const relatable = new Set(SCENARIOS.filter((s) => s.relatable).map((s) => s.slug));
+  const m = computeMirror(fundAll((slug) => relatable.has(slug)));
+  // 9 pairs have a clear relatable side; the ambulance/class pair has neither, so both its
+  // halves are skipped together → not a flip.
+  expect(m.flips).toBe(9);
+  expect(m.comfortFlips).toBe(9);
+  const split = m.pairs.find((p) => p.pairId === "guardrail")!;
+  expect(split.status).toBe("split");
+  expect(split.fundedWho).toBe("schoolchildren");
+  expect(split.skippedWho).toBe("mine workers");
+  expect(split.comfort).toBe(true);
 });
 
-test("distanceBias = skipped the far cheapest life while funding something dearer", () => {
-  const biased = computeMirror(SCENARIOS.map((s) => dec(s.slug, s.slug !== "vaccination")));
-  expect(biased.distanceBias).toBe(true);
-
-  const fundedVaccine = computeMirror(SCENARIOS.map((s) => dec(s.slug, true)));
-  expect(fundedVaccine.distanceBias).toBe(false);
+test("a flip toward the LESS relatable side is not a comfort flip", () => {
+  // fund only the non-relatable halves (the ambulance pair, both non-relatable, funds together)
+  const relatable = new Set(SCENARIOS.filter((s) => s.relatable).map((s) => s.slug));
+  const m = computeMirror(fundAll((slug) => !relatable.has(slug)));
+  expect(m.flips).toBe(9);
+  expect(m.comfortFlips).toBe(0);
 });
 
-test("fundedSpanRatio reflects the cheapest-to-dearest funded ratio", () => {
-  const m = computeMirror([dec("vaccination", true), dec("rare-drug", true), dec("icu-beds", false)]);
-  expect(m.fundedSpanRatio).toBeCloseTo(34_000_000 / 1_500, 5);
-
-  const one = computeMirror(SCENARIOS.map((s) => dec(s.slug, s.slug === "icu-beds")));
-  expect(one.fundedSpanRatio).toBe(1);
-});
-
-test("edge cases: funded-all and skipped-all stay coherent", () => {
-  const all = computeMirror(SCENARIOS.map((s) => dec(s.slug, true)));
-  expect(all.skippedCount).toBe(0);
-  expect(all.impliedCeiling).toBe(Infinity);
-  expect(all.contradictions).toBe(0);
-
-  const none = computeMirror(SCENARIOS.map((s) => dec(s.slug, false)));
-  expect(none.fundedCount).toBe(0);
-  expect(none.impliedFloor).toBe(0);
-  expect(none.fundedSpanRatio).toBe(0);
+test("pairs come back sorted ascending by price", () => {
+  const m = computeMirror(fundAll(() => false));
+  const prices = m.pairs.map((p) => p.price);
+  expect(prices).toEqual([...prices].sort((a, b) => a - b));
+  expect(m.fundedCount).toBe(0);
+  expect(m.flips).toBe(0);
 });

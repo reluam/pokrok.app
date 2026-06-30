@@ -18,22 +18,22 @@ test("saw_your_price needs the mirror reached", () => {
 });
 
 test("drew_a_line needs both a fund and a skip", () => {
-  expect(badge("drew_a_line").evaluate(ctx({ fundedCount: 3, skippedCount: 7 }))).toBe(true);
-  expect(badge("drew_a_line").evaluate(ctx({ fundedCount: 10, skippedCount: 0 }))).toBe(false);
-  expect(badge("drew_a_line").evaluate(ctx({ fundedCount: 0, skippedCount: 10 }))).toBe(false);
+  expect(badge("drew_a_line").evaluate(ctx({ fundedCount: 8, skippedCount: 12 }))).toBe(true);
+  expect(badge("drew_a_line").evaluate(ctx({ fundedCount: 20, skippedCount: 0 }))).toBe(false);
+  expect(badge("drew_a_line").evaluate(ctx({ fundedCount: 0, skippedCount: 20 }))).toBe(false);
 });
 
-test("broke_your_own_rule needs a contradiction", () => {
-  expect(badge("broke_your_own_rule").evaluate(ctx({ contradictions: 2 }))).toBe(true);
-  expect(badge("broke_your_own_rule").evaluate(ctx({ contradictions: 0 }))).toBe(false);
+test("same_price_different_answer needs one flip", () => {
+  expect(badge("same_price_different_answer").evaluate(ctx({ flips: 1 }))).toBe(true);
+  expect(badge("same_price_different_answer").evaluate(ctx({ flips: 0 }))).toBe(false);
 });
 
-test("distance_changed_math reads the proximity-bias flag", () => {
-  expect(badge("distance_changed_math").evaluate(ctx({ distanceBias: true }))).toBe(true);
-  expect(badge("distance_changed_math").evaluate(ctx({ distanceBias: false }))).toBe(false);
+test("who_not_how_much needs a pattern (≥2 flips)", () => {
+  expect(badge("who_not_how_much").evaluate(ctx({ flips: 2 }))).toBe(true);
+  expect(badge("who_not_how_much").evaluate(ctx({ flips: 1 }))).toBe(false);
 });
 
-test("priced_lives_100x_apart needs a ≥100× funded span", () => {
-  expect(badge("priced_lives_100x_apart").evaluate(ctx({ fundedSpanRatio: 150 }))).toBe(true);
-  expect(badge("priced_lives_100x_apart").evaluate(ctx({ fundedSpanRatio: 99 }))).toBe(false);
+test("you_paid_for_the_familiar needs ≥2 comfort flips", () => {
+  expect(badge("you_paid_for_the_familiar").evaluate(ctx({ comfortFlips: 2 }))).toBe(true);
+  expect(badge("you_paid_for_the_familiar").evaluate(ctx({ comfortFlips: 1 }))).toBe(false);
 });

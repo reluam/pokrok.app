@@ -1,176 +1,197 @@
 // The Price of a Life — scenario data + the pure "mirror" computation.
 //
-// IMPORTANT: every number below is ILLUSTRATIVE, not a real statistic. They are tuned for spread
-// (~$1,500 → ~$34,000,000 per statistical life, ~4.4 orders of magnitude) so the final chart
-// reveals how inconsistently we implicitly price a human life. Do not cite these as facts.
+// You play a government deciding whether to fund a life-saving measure. The 20 scenarios come in
+// 10 MATCHED PAIRS: the two halves of a pair cost exactly the same and save exactly the same
+// number of lives — so they carry the SAME price per statistical life. The only thing that differs
+// is WHO is saved (schoolchildren vs miners, locals vs foreigners, newborns vs the very old…).
+// The final mirror surfaces the pairs where the player gave OPPOSITE answers to the same price —
+// proof that it wasn't the math deciding, it was who the people were.
 //
-// pricePerLife = totalCost ÷ livesSaved over the scenario's stated horizon. Stored precomputed;
-// the player is shown the inputs, not the division.
+// IMPORTANT: every number is ILLUSTRATIVE, not a real statistic. Costs and lives are kept round so
+// the price per life is a clean number and the player barely has to do arithmetic.
 
 export type Scenario = {
   slug: string;
-  /** Short, concrete situation — 1–2 sentences. */
+  /** Two scenarios share a pairId: same cost, same lives, same price — different people. */
+  pairId: string;
+  /** Short label for who is saved, e.g. "schoolchildren". */
+  who: string;
+  /** The conventionally more-relatable side of the pair (children, locals, the blameless…). */
+  relatable: boolean;
+  /** One concrete sentence. */
   situation: string;
-  /** What funding buys, e.g. "Install traffic lights". */
-  measure: string;
-  /** Human-readable cost line. */
-  costLabel: string;
-  /** Human-readable lives line. */
-  livesLabel: string;
-  /** Implicit price of one statistical life this decision represents. */
+  cost: number;
+  lives: number;
+  /** cost ÷ lives — stored so display never has to divide. */
   pricePerLife: number;
 };
 
+// Helper to keep the table tight and guarantee pricePerLife stays consistent with cost/lives.
+const s = (
+  slug: string,
+  pairId: string,
+  who: string,
+  relatable: boolean,
+  situation: string,
+  cost: number,
+  lives: number,
+): Scenario => ({ slug, pairId, who, relatable, situation, cost, lives, pricePerLife: cost / lives });
+
 export const SCENARIOS: Scenario[] = [
-  {
-    slug: "vaccination",
-    situation:
-      "A measles outbreak is spreading through a developing region. A vaccination drive could reach half a million children.",
-    measure: "Fund the vaccination drive",
-    costLabel: "$6 per child × 500,000 children — $3,000,000 one-time",
-    livesLabel: "~2,000 child deaths averted",
-    pricePerLife: 1_500,
-  },
-  {
-    slug: "traffic-lights",
-    situation:
-      "A rural crossroads sees fatal collisions every year. Signalised lights would force traffic to stop.",
-    measure: "Install traffic lights",
-    costLabel: "$280,000 one-time · 25-year lifespan",
-    livesLabel: "2 deaths/year prevented → ~50 over its life",
-    pricePerLife: 5_600,
-  },
-  {
-    slug: "icu-beds",
-    situation:
-      "The regional hospital turns away critical patients at capacity. Six more ICU beds (staffed) would change that.",
-    measure: "Add 6 staffed ICU beds",
-    costLabel: "$1,300,000 per year",
-    livesLabel: "~9 extra survivals per year",
-    pricePerLife: 144_000,
-  },
-  {
-    slug: "air-filtration",
-    situation:
-      "A factory's emissions raise mortality in the neighbourhood downwind. Filtration would cut the pollution.",
-    measure: "Install air filtration",
-    costLabel: "$14,000,000 + $400,000/yr × 20 yrs — $22,000,000",
-    livesLabel: "7 deaths/year prevented → ~140 over 20 yrs",
-    pricePerLife: 157_000,
-  },
-  {
-    slug: "underpass",
-    situation:
-      "Children cross a four-lane road to reach a school. A pedestrian underpass would take them off the road entirely.",
-    measure: "Build a pedestrian underpass",
-    costLabel: "$5,500,000 one-time · 40-year lifespan",
-    livesLabel: "~7 children over its life",
-    pricePerLife: 786_000,
-  },
-  {
-    slug: "mine-safety",
-    situation:
-      "A working mine runs ageing safety gear. Replacing it would lower the accident rate for every shift underground.",
-    measure: "Replace the safety equipment",
-    costLabel: "$3,400,000 over a 30-year mine life",
-    livesLabel: "~4 deaths prevented over that life",
-    pricePerLife: 850_000,
-  },
-  {
-    slug: "fire-station",
-    situation:
-      "A small town relies on the next town's fire crew — a 20-minute response. Its own station would cut that to minutes.",
-    measure: "Build a local fire station",
-    costLabel: "$2,800,000 + $900,000/yr × 20 yrs — $20,800,000",
-    livesLabel: "1 death/year prevented → ~20 over 20 yrs",
-    pricePerLife: 1_040_000,
-  },
-  {
-    slug: "bus-seatbelts",
-    situation:
-      "The district's school buses have no seatbelts. Retrofitting the fleet would protect children in a crash.",
-    measure: "Retrofit seatbelts across the fleet",
-    costLabel: "$9,000 × 700 buses — $6,300,000 · 12-year lifespan",
-    livesLabel: "~3 children over that period",
-    pricePerLife: 2_100_000,
-  },
-  {
-    slug: "speed-limit",
-    situation:
-      "Dropping the motorway limit would prevent crashes — at the cost of millions of commuters' time, every day.",
-    measure: "Lower the speed limit",
-    costLabel: "aggregate commuter time ≈ $48,000,000/year",
-    livesLabel: "6 deaths/year prevented",
-    pricePerLife: 8_000_000,
-  },
-  {
-    slug: "rare-drug",
-    situation:
-      "Forty patients have a rare, fatal disease. A new drug keeps them alive — at an extraordinary price per patient.",
-    measure: "Fund the drug",
-    costLabel: "$850,000/patient/yr × 40 patients — $34,000,000/year",
-    livesLabel: "~1 life saved per year",
-    pricePerLife: 34_000_000,
-  },
+  // P1 — $200,000 / life
+  s("guardrail-children", "guardrail", "schoolchildren", true,
+    "A mountain road with no guardrail is used by a school bus. A barrier would stop a bus from going over the edge.",
+    600_000, 3),
+  s("guardrail-miners", "guardrail", "mine workers", false,
+    "The same unguarded mountain road is used by a mine's shuttle bus. A barrier would stop it going over the edge.",
+    600_000, 3),
+
+  // P2 — $50,000 / life
+  s("flu-local", "flu", "the elderly at home", true,
+    "Flu vaccines for 40 frail residents of a care home in your own country.",
+    2_000_000, 40),
+  s("flu-foreign", "flu", "the elderly abroad", false,
+    "Flu vaccines for 40 frail residents of a care home in a country far away.",
+    2_000_000, 40),
+
+  // P3 — $5,000,000 / life
+  s("trial-newborns", "trial", "newborns", true,
+    "An experimental treatment is the only hope for 2 newborns in intensive care.",
+    10_000_000, 2),
+  s("trial-elderly", "trial", "people in their 80s", false,
+    "The same experimental treatment is the only hope for 2 patients in their 80s.",
+    10_000_000, 2),
+
+  // P4 — $300,000 / life
+  s("gear-firefighters", "gear", "firefighters", true,
+    "New protective gear would keep 10 city firefighters from dying on the job.",
+    3_000_000, 10),
+  s("gear-rig", "gear", "oil-rig workers", false,
+    "The same gear would keep 10 offshore oil-rig workers from dying on the job.",
+    3_000_000, 10),
+
+  // P5 — $100,000 / life
+  s("smoke-families", "smoke", "families at home", true,
+    "Smoke detectors fitted across a district's family homes would prevent about 20 deaths.",
+    2_000_000, 20),
+  s("smoke-shelter", "smoke", "people in a shelter", false,
+    "Smoke detectors fitted across the city's homeless shelters would prevent about 20 deaths.",
+    2_000_000, 20),
+
+  // P6 — $2,000,000 / life
+  s("drug-children", "drug", "children", true,
+    "A costly drug would save 3 children with a rare disease.",
+    6_000_000, 3),
+  s("drug-adults", "drug", "adults", false,
+    "The same drug would save 3 adults with the same rare disease.",
+    6_000_000, 3),
+
+  // P7 — $400,000 / life
+  s("crossing-school", "crossing", "children", true,
+    "A crossing and lights outside a primary school would save about 5 children.",
+    2_000_000, 5),
+  s("crossing-factory", "crossing", "factory workers", false,
+    "The same crossing and lights outside a factory gate would save about 5 workers.",
+    2_000_000, 5),
+
+  // P8 — $20,000 / life
+  s("water-citizens", "water", "citizens", true,
+    "Clean water for 100 people in a poor region of your own country.",
+    2_000_000, 100),
+  s("water-migrants", "water", "migrants", false,
+    "Clean water for 100 people in a migrant camp at the border.",
+    2_000_000, 100),
+
+  // P9 — $800,000 / life (class, not sympathy — neither side flagged relatable)
+  s("ambulance-suburb", "ambulance", "a wealthy suburb", false,
+    "A second ambulance for a wealthy suburb would save about 4 lives a year.",
+    3_200_000, 4),
+  s("ambulance-poor", "ambulance", "a poor district", false,
+    "A second ambulance for a poor district across town would save about 4 lives a year.",
+    3_200_000, 4),
+
+  // P10 — $1,000,000 / life
+  s("liver-accident", "liver", "accident victims", true,
+    "A liver treatment would save 4 people whose livers failed after an accident.",
+    4_000_000, 4),
+  s("liver-drinkers", "liver", "heavy drinkers", false,
+    "The same treatment would save 4 people whose livers failed from heavy drinking.",
+    4_000_000, 4),
 ];
 
-export type Decision = { slug: string; funded: boolean; pricePerLife: number };
+export type Decision = { slug: string; funded: boolean };
+
+/** One matched pair, resolved against the player's two answers. */
+export type PairResult = {
+  pairId: string;
+  price: number;
+  /** "both" funded, "none" funded, or "split" (one funded, one not). */
+  status: "both" | "none" | "split";
+  fundedWho: string | null; // set when split
+  skippedWho: string | null; // set when split
+  /** On a split, did the player fund the more-relatable side and skip the less-relatable one? */
+  comfort: boolean;
+  a: Scenario;
+  b: Scenario;
+};
 
 export type Mirror = {
   reachedMirror: true;
   fundedCount: number;
   skippedCount: number;
-  /** Highest price/life the player FUNDED (the most they'd pay). 0 if they funded nothing. */
-  impliedFloor: number;
-  /** Lowest price/life the player SKIPPED (the cheapest life they walked away from). Infinity if none. */
-  impliedCeiling: number;
-  /** # of skipped scenarios cheaper than the most expensive funded one — internal contradictions. */
-  contradictions: number;
-  /** Did they skip the far, cheapest life (vaccination) while funding something dearer? */
-  distanceBias: boolean;
-  /** maxFundedPrice / minFundedPrice. 0 if fewer than 1 funded; 1 if exactly one funded. */
-  fundedSpanRatio: number;
-  /** Slugs of skipped scenarios that sit below a funded one (rendered as contradictions). */
-  contradictionSlugs: string[];
+  /** Pairs where the same price got opposite answers. */
+  flips: number;
+  /** Split pairs where the funded side was the more-relatable one. */
+  comfortFlips: number;
+  pairs: PairResult[]; // all 10, sorted ascending by price (for the chart)
 };
 
-const VACCINATION_PRICE = 1_500;
-
-/** Pure: turn the player's 10 decisions into the reveal payload. Order-independent. */
+/** Pure: turn the player's 20 decisions into the reveal payload. Order-independent. */
 export function computeMirror(decisions: Decision[]): Mirror {
-  const funded = decisions.filter((d) => d.funded);
-  const skipped = decisions.filter((d) => !d.funded);
+  const funded = new Map(decisions.map((d) => [d.slug, d.funded]));
+  const fundedCount = decisions.filter((d) => d.funded).length;
 
-  const fundedPrices = funded.map((d) => d.pricePerLife);
-  const impliedFloor = fundedPrices.length ? Math.max(...fundedPrices) : 0;
-  const impliedCeiling = skipped.length ? Math.min(...skipped.map((d) => d.pricePerLife)) : Infinity;
+  const byPair = new Map<string, Scenario[]>();
+  for (const sc of SCENARIOS) {
+    const list = byPair.get(sc.pairId) ?? [];
+    list.push(sc);
+    byPair.set(sc.pairId, list);
+  }
 
-  // A skipped life cheaper than the dearest life you funded contradicts your own threshold.
-  const contradictionSlugs = skipped
-    .filter((d) => d.pricePerLife < impliedFloor)
-    .map((d) => d.slug);
+  const pairs: PairResult[] = [];
+  for (const [pairId, [a, b]] of byPair) {
+    const af = !!funded.get(a.slug);
+    const bf = !!funded.get(b.slug);
+    const status: PairResult["status"] = af && bf ? "both" : !af && !bf ? "none" : "split";
 
-  const vaccination = decisions.find((d) => d.pricePerLife === VACCINATION_PRICE);
-  const distanceBias =
-    !!vaccination && !vaccination.funded && impliedFloor > VACCINATION_PRICE;
+    let fundedWho: string | null = null;
+    let skippedWho: string | null = null;
+    let comfort = false;
+    if (status === "split") {
+      const fundedScn = af ? a : b;
+      const skippedScn = af ? b : a;
+      fundedWho = fundedScn.who;
+      skippedWho = skippedScn.who;
+      comfort = fundedScn.relatable && !skippedScn.relatable;
+    }
+    pairs.push({ pairId, price: a.pricePerLife, status, fundedWho, skippedWho, comfort, a, b });
+  }
 
-  const minFunded = fundedPrices.length ? Math.min(...fundedPrices) : 0;
-  const fundedSpanRatio = fundedPrices.length ? impliedFloor / minFunded : 0;
+  pairs.sort((x, y) => x.price - y.price);
+  const flips = pairs.filter((p) => p.status === "split").length;
+  const comfortFlips = pairs.filter((p) => p.comfort).length;
 
   return {
     reachedMirror: true,
-    fundedCount: funded.length,
-    skippedCount: skipped.length,
-    impliedFloor,
-    impliedCeiling,
-    contradictions: contradictionSlugs.length,
-    distanceBias,
-    fundedSpanRatio,
-    contradictionSlugs,
+    fundedCount,
+    skippedCount: decisions.length - fundedCount,
+    flips,
+    comfortFlips,
+    pairs,
   };
 }
 
-/** Stable per-session shuffle (Fisher–Yates with an injected RNG) so the run isn't a tidy ramp. */
+/** Stable per-session shuffle (Fisher–Yates with an injected RNG) so pairs aren't adjacent. */
 export function shuffledScenarios(rng: () => number = Math.random): Scenario[] {
   const a = [...SCENARIOS];
   for (let i = a.length - 1; i > 0; i--) {

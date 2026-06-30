@@ -96,7 +96,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       {
         slug: "price-of-a-life",
         title: "Cena života",
-        description: "Hraješ stát. Deset rozhodnutí, jestli zaplatit za záchranu životů — a kolik. Na konci graf ukáže, jak různě (a nespravedlivě) si cenu lidského života ceníš ty sám.",
+        description: "Hraješ stát: dvacet rozhodnutí, jestli zaplatit za záchranu životů. Stejná cena, jiní lidé — na konci uvidíš, kde sis za stejný rozpočet jednou řekl ano a podruhé ne.",
       },
     ],
   },
@@ -160,7 +160,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       {
         slug: "price-of-a-life",
         title: "The Price of a Life",
-        description: "You play the government. Ten decisions on whether to pay to save lives — and how much. A final chart shows how unevenly you, personally, price a human life.",
+        description: "You play the government: 20 decisions to fund a life-saving measure or not. Same price, different people — the end reveals where the very same budget got a yes once and a no the next.",
       },
     ],
   },

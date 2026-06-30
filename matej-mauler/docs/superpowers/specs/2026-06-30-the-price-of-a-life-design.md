@@ -2,13 +2,42 @@
 
 **Slug:** `price-of-a-life`  ·  **URL:** `/price-of-a-life`  ·  **Date:** 2026-06-30
 
-A data-journalism-style experience where the player acts as a government/institution and decides,
-across 10 scenarios, whether to fund a life-saving measure. Each decision implies a *price per
-statistical life* (cost ÷ lives saved). The final screen mirrors the player's own choices back as
-a log-scale chart, revealing their implicit, inconsistent value of a human life.
+A data-journalism-style experience where the player acts as a government and decides, across **20
+scenarios**, whether to fund a life-saving measure (fund it / don't fund it). Each decision implies
+a *price per statistical life* (cost ÷ lives saved), revealed as a big number.
 
-Based on the real economic concept of the **Value of a Statistical Life (VSL)**. All numbers in
-this experience are **illustrative, not real statistics** — tuned for spread, marked as such in code.
+Based on the real economic concept of the **Value of a Statistical Life (VSL)**. All numbers are
+**illustrative, not real statistics** — kept round so the price per life is clean and the player
+barely has to do arithmetic.
+
+> **Revision (v2, the implemented design).** The original draft below was 10 free-standing
+> scenarios charted on a log scale. Per the user, it is now **20 scenarios arranged as 10 matched
+> pairs**: the two halves of a pair cost exactly the same and save the same number of lives — so
+> they carry the **same price per life**. Only *who* is saved differs (schoolchildren vs miners,
+> locals vs foreigners, newborns vs the very old, families vs the homeless, the blameless vs the
+> blamed…). The mirror's headline is the count of pairs where the player gave **opposite answers to
+> the same price** — proof it wasn't the math deciding, it was who the people were. The institutional
+> "you're the government" framing is kept; the slider/personal-pricing ideas were rejected.
+>
+> **Pairs (price/life):** guardrail children·miners ($200k) · flu local·foreign elderly ($50k) ·
+> trial newborns·80s ($5M) · gear firefighters·rig workers ($300k) · smoke-alarms families·shelter
+> ($100k) · drug children·adults ($2M) · crossing school·factory ($400k) · water citizens·migrants
+> ($20k) · ambulance wealthy·poor suburb ($800k, class — no relatable side) · liver accident·drinkers
+> ($1M). Each pair flags the more-relatable side (children, locals, newborns, families, the blameless)
+> for the "you paid for the familiar" badge.
+>
+> **Mirror (v2):** the 10 pairs sorted ascending by price; each pair a card with both halves shown as
+> funded/passed chips; **split pairs highlighted** ("same price · opposite call"). Headline = number
+> of flips. Closing line sharpened to *"The price of a life isn't fixed. It depends on whose life it
+> is."*
+>
+> **Badges (v2, still 100 XP):** saw_your_price (10, reached end) · drew_a_line (15, funded≥1 &
+> skipped≥1) · same_price_different_answer (30, flips≥1) · who_not_how_much (25, flips≥2) ·
+> you_paid_for_the_familiar (20, comfortFlips≥2). Insight keys: `flips`, `comfortFlips`,
+> `fundedCount`, `skippedCount`, `reachedMirror`.
+
+The 10-scenario log-scale design that follows is **superseded** by the revision above; kept for
+provenance.
 
 ## Tone & visual
 
