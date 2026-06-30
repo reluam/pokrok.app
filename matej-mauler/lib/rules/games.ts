@@ -70,6 +70,17 @@ export const RULES_GAMES: RulesGameMeta[] = [
       criteriaKey: "invaders_pacifist_found",
     },
   },
+  {
+    key: "ttt",
+    title: "tic-tac-toe",
+    revealLine: "You can draw outside the grid.",
+    badge: {
+      slug: "found_margin",
+      name: "you drew outside the lines",
+      description: "the board was three by three, but the page was bigger. you made your row where nobody was guarding.",
+      criteriaKey: "ttt_margin_found",
+    },
+  },
 ];
 
 export const RULES_GAME_KEYS: string[] = RULES_GAMES.map((g) => g.key);

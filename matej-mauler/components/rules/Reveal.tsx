@@ -38,6 +38,19 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
     for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) ctx.fillRect(20 + c * 22, 10 + r * 14 + p * 30, 9, 7);
     ctx.fillStyle = RULES.white; // a cannon that never fires
     ctx.fillRect(W / 2 - 7, H - 14, 14, 6);
+  } else if (game === "ttt") {
+    ctx.strokeStyle = RULES.gray; // a small 3×3 grid in the centre
+    ctx.lineWidth = 2;
+    ctx.strokeRect(W / 2 - 22, H / 2 - 22, 44, 44);
+    ctx.strokeStyle = RULES.green; // three X marks running down the left margin, outside the grid
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 3; i++) {
+      const cy = H / 2 - 22 + 8 + i * 14;
+      ctx.beginPath();
+      ctx.moveTo(14, cy - 4); ctx.lineTo(22, cy + 4);
+      ctx.moveTo(22, cy - 4); ctx.lineTo(14, cy + 4);
+      ctx.stroke();
+    }
   } else {
     // generic: a barrier across the middle, a dot going around its end
     ctx.fillRect(20, H / 2 - 3, W - 52, 6);
