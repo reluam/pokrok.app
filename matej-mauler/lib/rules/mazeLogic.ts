@@ -1,12 +1,12 @@
 import type { Dir } from "./chickenLogic";
 
 // 0 open · 1 wall · 2 fake (passable, looks identical to a wall) · 3 start · 4 exit
-// One winding S-path: start bottom-left, exit top-right, connectors forced to a single route.
+// One winding S-path: start bottom-left, exit top-left, connectors forced to a single route.
 // The hidden path is straight UP column 1 from the start — its two switchback walls (rows 6 & 2)
-// are fake and give way, a shortcut that bypasses the whole S.
+// are fake and give way, leading straight up to the exit and bypassing the whole S.
 export const MAZE: number[][] = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 0, 0, 0, 4, 1],
+  [1, 4, 0, 0, 0, 0, 0, 0, 1],
   [1, 2, 1, 1, 1, 1, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0, 1],
   [1, 0, 1, 1, 1, 1, 1, 1, 1],

@@ -40,10 +40,10 @@ export function initChicken(seed = 1): ChickenState {
       const dir: 1 | -1 = rand() < 0.5 ? 1 : -1;
       const speed = 0.0012 + rand() * 0.0018; // cols per ms
       const count = 2 + Math.floor(rand() * 2);
-      const gap = (COLS - 1) / count;
+      const gap = (COLS - 2) / count;
       for (let i = 0; i < count; i++) {
-        // cars live in x ∈ [1, COLS): column 0 (EDGE_COL) is never covered
-        cars.push({ lane: row, x: 1 + ((i * gap + rand() * gap) % (COLS - 1)), w: 1 + Math.floor(rand() * 2), speed, dir });
+        // cars live in x ∈ [1, COLS-1): BOTH shoulder columns (0 and COLS-1) stay clear
+        cars.push({ lane: row, x: 1 + ((i * gap + rand() * gap) % (COLS - 2)), w: 1 + Math.floor(rand() * 2), speed, dir });
       }
     }
     lanes.push(cars);
@@ -63,6 +63,7 @@ export function initChicken(seed = 1): ChickenState {
 
 function carHits(s: ChickenState): boolean {
   if (s.py < 1 || s.py > s.rows - 2) return false; // safe rows
+  if (s.px === 0 || s.px === s.cols - 1) return false; // both shoulders are safe
   for (const car of s.lanes[s.py]) {
     const lo = car.x;
     const hi = car.x + car.w;
@@ -74,12 +75,12 @@ function carHits(s: ChickenState): boolean {
 
 export function stepChicken(s: ChickenState, dtMs: number): ChickenState {
   if (s.status !== "playing") return s;
-  const span = s.cols - 1; // cars wrap within [1, cols)
+  const span = s.cols - 2; // cars wrap within [1, cols-1)
   for (const lane of s.lanes) {
     for (const car of lane) {
-      car.x += car.speed * car.dir * dtMs * 1; // x is in cols
-      // wrap inside [1, cols)
-      while (car.x >= s.cols) car.x -= span;
+      car.x += car.speed * car.dir * dtMs; // x is in cols
+      // wrap inside [1, cols-1) — never onto either shoulder
+      while (car.x >= s.cols - 1) car.x -= span;
       while (car.x < 1) car.x += span;
     }
   }
@@ -100,7 +101,7 @@ export function moveChicken(s: ChickenState, dir: Dir): ChickenState {
   if (px < 0 || px >= s.cols || py < 0 || py >= s.rows) return s; // wall
   s.px = px;
   s.py = py;
-  if (py >= 1 && py <= s.rows - 2 && px !== s.edgeCol) s.crossedTraffic = true;
+  if (py >= 1 && py <= s.rows - 2 && px !== 0 && px !== s.cols - 1) s.crossedTraffic = true;
   if (carHits(s)) {
     s.px = Math.floor(s.cols / 2);
     s.py = s.rows - 1;

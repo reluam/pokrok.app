@@ -50,9 +50,7 @@ describe("mazeLogic", () => {
 
   it("walking straight up column 1 through the fake walls reaches the exit with foundHiddenPath", () => {
     let s = initMaze(); // start at (1,7)
-    s = path(s, ["up", "up", "up", "up", "up", "up"]); // up col 1 through fakes (1,6) & (1,2) to (1,1)
-    expect(s.foundHiddenPath).toBe(true);
-    s = path(s, ["right", "right", "right", "right", "right", "right"]); // along the top to exit (7,1)
+    s = path(s, ["up", "up", "up", "up", "up", "up"]); // up col 1 through fakes (1,6) & (1,2) to exit (1,1)
     expect(s.status).toBe("won");
     expect(s.foundHiddenPath).toBe(true);
   });

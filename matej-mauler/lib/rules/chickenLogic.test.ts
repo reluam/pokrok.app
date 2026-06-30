@@ -29,6 +29,15 @@ describe("chickenLogic", () => {
     expect(s.foundHiddenPath).toBe(true);
   });
 
+  it("walking straight up the RIGHT shoulder also wins via the hidden path", () => {
+    let s = clearCars(initChicken(1));
+    while (s.px < COLS - 1) s = moveChicken(s, "right"); // to the right shoulder
+    while (s.status === "playing") s = moveChicken(s, "up");
+    expect(s.status).toBe("won");
+    expect(s.crossedTraffic).toBe(false);
+    expect(s.foundHiddenPath).toBe(true);
+  });
+
   it("crossing straight up through traffic columns wins without the hidden path", () => {
     let s = clearCars(initChicken(1)); // cars cleared so we can reach the top deterministically
     while (s.status === "playing") s = moveChicken(s, "up"); // straight up the center column

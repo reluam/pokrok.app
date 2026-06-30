@@ -8,7 +8,6 @@ import {
   moveChicken,
   COLS,
   ROWS,
-  EDGE_COL,
   type ChickenState,
   type Dir,
 } from "@/lib/rules/chickenLogic";
@@ -69,16 +68,17 @@ export default function Chicken({ onResolve }: { onResolve: (o: GameOutcome) => 
       const s = state.current;
       ctx.fillStyle = RULES.bg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      // safe edge shoulder
-      ctx.fillStyle = "#13351a";
-      ctx.fillRect(EDGE_COL * TILE, 0, TILE, ROWS * TILE);
       // exit strip
       ctx.fillStyle = "#1b1b1b";
       ctx.fillRect(0, 0, COLS * TILE, TILE);
-      // cars
+      // cars (middle lanes only)
       ctx.fillStyle = RULES.yellow;
       for (const lane of s.lanes)
         for (const car of lane) ctx.fillRect(car.x * TILE, car.lane * TILE + 4, car.w * TILE - 2, TILE - 8);
+      // field borders on BOTH shoulders — drawn over cars so the field reads as framed
+      ctx.fillStyle = "#262626";
+      ctx.fillRect(0, 0, TILE, ROWS * TILE);
+      ctx.fillRect((COLS - 1) * TILE, 0, TILE, ROWS * TILE);
       // player
       ctx.fillStyle = RULES.green;
       ctx.fillRect(s.px * TILE + 3, s.py * TILE + 3, TILE - 6, TILE - 6);
