@@ -17,17 +17,12 @@ export default function TicTacToe({ onResolve }: { onResolve: (o: GameOutcome) =
     const ctx = canvas.getContext("2d")!;
     ctx.fillStyle = RULES.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // faint grid for the whole 5×5
-    ctx.strokeStyle = RULES.dim;
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= SIZE; i++) {
-      ctx.beginPath(); ctx.moveTo(i * TILE, 0); ctx.lineTo(i * TILE, SIZE * TILE); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, i * TILE); ctx.lineTo(SIZE * TILE, i * TILE); ctx.stroke();
-    }
-    // the "official" 3×3 grid, brighter
+    // ONLY the official 3×3 grid — an open "#", no outer box, nothing drawn in the margin. The space
+    // around it is empty but still clickable.
     ctx.strokeStyle = RULES.gray;
     ctx.lineWidth = 2;
-    ctx.strokeRect(1 * TILE, 1 * TILE, 3 * TILE, 3 * TILE);
+    for (const gx of [2, 3]) { ctx.beginPath(); ctx.moveTo(gx * TILE, 1 * TILE); ctx.lineTo(gx * TILE, 4 * TILE); ctx.stroke(); }
+    for (const gy of [2, 3]) { ctx.beginPath(); ctx.moveTo(1 * TILE, gy * TILE); ctx.lineTo(4 * TILE, gy * TILE); ctx.stroke(); }
     // marks
     for (let y = 0; y < SIZE; y++)
       for (let x = 0; x < SIZE; x++) {
