@@ -93,6 +93,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Synapse",
         description: "Slovo → asociace. Každá odpověď posílí synapsi ve společné síti internetu.",
       },
+      {
+        slug: "rules",
+        title: "Pravidla",
+        description: "Tři klasické hry — přejdi silnici, najdi cestu z bludiště, skládej tetris. Každá má svá pravidla. A každá tichou cestu okolo nich. Hra o tom, jak si toho všimnout.",
+      },
     ],
   },
 
@@ -151,6 +156,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "brain",
         title: "Synapses",
         description: "Word → association. Every answer strengthens a synapse in the internet's shared network.",
+      },
+      {
+        slug: "rules",
+        title: "The Rules",
+        description: "Three classic games — cross the road, escape a maze, stack tetris. Each states its rules. Each has a quiet way around them. A game about noticing that.",
       },
     ],
   },
