@@ -2,13 +2,13 @@ export const WIDTH = 10;
 export const HEIGHT = 20;
 export const SCORE_TARGET = 1000;
 export const LINE_SCORES: Record<number, number> = { 1: 100, 2: 250, 3: 500, 4: 800 };
-// The off-edge escape (the hidden path) only works in the top third of the field — above this
-// row the sides are open, below it they are solid walls.
-export const ESCAPE_MAX_ROW = Math.floor(HEIGHT / 3);
+// An off-edge escape can only BEGIN in the top quarter of the field — above this row the sides are
+// open, below it they are solid walls (unless the piece has already started escaping).
+export const ESCAPE_MAX_ROW = Math.floor(HEIGHT / 4);
 
 export type Cell = number;
-// `escaping`: once a piece pokes off the side while in the top third, the side walls stop
-// applying to it entirely — it can be pushed fully off even after it has fallen below the third.
+// `escaping`: once a piece pokes off the side while in the top quarter, the side walls stop
+// applying to it entirely — it can be pushed fully off even after it has fallen below the quarter.
 export type Piece = { cells: [number, number][]; kind: number; escaping: boolean };
 // Points awarded for each piece completely removed from the field by pushing it off the edge.
 export const ESCAPE_SCORE = 100;
@@ -73,7 +73,7 @@ function collides(board: Cell[][], cells: [number, number][], escaping: boolean)
     if (y >= HEIGHT) return true; // floor
     if (x < 0 || x >= WIDTH) {
       // a piece already escaping ignores the side walls entirely; otherwise the sides are open
-      // only in the top third (where an escape can begin) and solid below it
+      // only in the top quarter (where an escape can begin) and solid below it
       if (escaping || y < ESCAPE_MAX_ROW) continue;
       return true;
     }
@@ -123,7 +123,7 @@ export function moveTetris(s: TetrisState, dir: "left" | "right" | "down"): Tetr
   const moved = s.piece.cells.map(([x, y]) => [x + d[0], y + d[1]] as [number, number]);
   if (dir === "down" && collides(s.board, moved, s.piece.escaping)) return lockAndSpawn(s);
   // a piece fully off the side is removed and scores — once escaping, anywhere; otherwise only
-  // if the whole move happens in the top third (where an escape is allowed to begin)
+  // if the whole move happens in the top quarter (where an escape is allowed to begin)
   const canEscape = s.piece.escaping || moved.every(([, y]) => y < ESCAPE_MAX_ROW);
   if (fullyEscaped(moved) && canEscape) {
     const next = spawnInto(s.board, s.seed);

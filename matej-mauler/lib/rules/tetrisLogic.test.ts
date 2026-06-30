@@ -21,8 +21,8 @@ const withPiece = (s: TetrisState, x: number, y: number): TetrisState => ({
 });
 
 describe("tetrisLogic", () => {
-  it("a piece pushed off the edge in the top third vanishes, flags the hidden path and scores 100", () => {
-    let s = withPiece(initTetris(1), 0, ESCAPE_MAX_ROW - 1); // in the top third
+  it("a piece pushed off the edge in the top quarter vanishes, flags the hidden path and scores 100", () => {
+    let s = withPiece(initTetris(1), 0, ESCAPE_MAX_ROW - 1); // in the top quarter
     s = moveTetris(s, "left"); // x = -1, fully off the left edge for a 1-wide piece
     expect(s.foundHiddenPath).toBe(true);
     // the escaped piece is gone; a fresh piece has spawned in-bounds
@@ -30,19 +30,19 @@ describe("tetrisLogic", () => {
     expect(s.score).toBe(100); // 100 per piece sent off the field
   });
 
-  it("below the top third the side is a solid wall — no escape", () => {
+  it("below the top quarter the side is a solid wall — no escape", () => {
     let s = withPiece(initTetris(1), 0, ESCAPE_MAX_ROW + 4); // below the escape zone
     s = moveTetris(s, "left"); // would go to x=-1 but the side is solid here
     expect(s.foundHiddenPath).toBe(false);
     expect(s.piece.cells[0][0]).toBe(0); // blocked: stayed in column 0
   });
 
-  it("once a piece pokes out in the top third, the side wall stops applying to it below the third", () => {
-    // a horizontal 2-cell piece at the left edge, in the top third
+  it("once a piece pokes out in the top quarter, the side wall stops applying to it below the quarter", () => {
+    // a horizontal 2-cell piece at the left edge, in the top quarter
     let s = { ...initTetris(1), board: emptyBoard(), piece: { cells: [[0, ESCAPE_MAX_ROW - 1], [1, ESCAPE_MAX_ROW - 1]] as [number, number][], kind: 1, escaping: false } };
-    s = moveTetris(s, "left"); // pokes one cell off the side in the top third → becomes escaping
+    s = moveTetris(s, "left"); // pokes one cell off the side in the top quarter → becomes escaping
     expect(s.piece.escaping).toBe(true);
-    for (let i = 0; i < 6; i++) s = tickTetris(s); // fall well below the top third
+    for (let i = 0; i < 6; i++) s = tickTetris(s); // fall well below the top quarter
     s = moveTetris(s, "left"); // push the rest off — the wall no longer applies to this piece
     expect(s.foundHiddenPath).toBe(true);
     expect(s.score).toBe(100);
