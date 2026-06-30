@@ -75,7 +75,7 @@ export default function Maze({ onResolve }: { onResolve: (o: GameOutcome) => voi
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>reach the exit. (arrows / wasd)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>the shortest road. (arrows / wasd)</p>
       <canvas ref={ref} style={{ width: "min(90vw, 360px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 48px)", gap: 4, touchAction: "none" }}>
         <span />{tbtn("up", "▲")}<span />
