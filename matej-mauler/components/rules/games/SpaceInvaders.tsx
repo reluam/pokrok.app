@@ -98,7 +98,7 @@ export default function SpaceInvaders({ onResolve }: { onResolve: (o: GameOutcom
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>shoot them before they land. (← → move · space fire)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>protect the sky. (← → move · space fire)</p>
       <canvas ref={ref} style={{ width: "min(88vw, 380px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
       <div style={{ display: "flex", gap: 6, touchAction: "none" }}>
         <button style={btnStyle} onPointerDown={(e) => { e.preventDefault(); dir.current = -1; }} onPointerUp={() => { dir.current = 0; }} onPointerLeave={() => { dir.current = 0; }}>◀</button>
