@@ -6,6 +6,7 @@ import {
   WIDTH,
   HEIGHT,
   SCORE_TARGET,
+  ESCAPE_MAX_ROW,
   type TetrisState,
 } from "./tetrisLogic";
 
@@ -20,13 +21,20 @@ const withPiece = (s: TetrisState, x: number, y: number): TetrisState => ({
 });
 
 describe("tetrisLogic", () => {
-  it("a piece pushed fully past the left edge vanishes and flags the hidden path", () => {
-    let s = withPiece(initTetris(1), 0, 5);
+  it("a piece pushed off the edge in the top third vanishes and flags the hidden path", () => {
+    let s = withPiece(initTetris(1), 0, ESCAPE_MAX_ROW - 1); // in the top third
     s = moveTetris(s, "left"); // x = -1, fully off the left edge for a 1-wide piece
     expect(s.foundHiddenPath).toBe(true);
     // the escaped piece is gone; a fresh piece has spawned in-bounds
     expect(s.piece.cells.every(([x]) => x >= 0 && x < WIDTH)).toBe(true);
     expect(s.score).toBe(0); // escaping scores nothing
+  });
+
+  it("below the top third the side is a solid wall — no escape", () => {
+    let s = withPiece(initTetris(1), 0, ESCAPE_MAX_ROW + 4); // below the escape zone
+    s = moveTetris(s, "left"); // would go to x=-1 but the side is solid here
+    expect(s.foundHiddenPath).toBe(false);
+    expect(s.piece.cells[0][0]).toBe(0); // blocked: stayed in column 0
   });
 
   it("horizontal movement is blocked by a locked cell inside the field", () => {

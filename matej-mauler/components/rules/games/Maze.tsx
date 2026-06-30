@@ -23,16 +23,11 @@ export default function Maze({ onResolve }: { onResolve: (o: GameOutcome) => voi
     for (let y = 0; y < H; y++)
       for (let x = 0; x < W; x++) {
         const t = MAZE[y][x];
-        if (t === 1) ctx.fillStyle = "#3a3a3a"; // real wall
-        else if (t === 2) ctx.fillStyle = "#343a34"; // fake wall — subtly different shade/tint
+        // fake walls (2) render IDENTICALLY to real walls (1) — no visual tell
+        if (t === 1 || t === 2) ctx.fillStyle = "#3a3a3a"; // wall (real or fake)
         else if (t === 4) ctx.fillStyle = RULES.yellow; // exit
         else ctx.fillStyle = RULES.bg; // open
         ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
-        if (t === 2) {
-          // faint dithering so it reads as "wall-ish" but not identical
-          ctx.fillStyle = "#2c322c";
-          for (let i = 0; i < TILE; i += 4) ctx.fillRect(x * TILE + i, y * TILE, 2, TILE);
-        }
       }
     const s = state.current;
     ctx.fillStyle = RULES.green;

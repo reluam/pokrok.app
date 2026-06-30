@@ -2,6 +2,9 @@ export const WIDTH = 10;
 export const HEIGHT = 20;
 export const SCORE_TARGET = 1000;
 export const LINE_SCORES: Record<number, number> = { 1: 100, 2: 250, 3: 500, 4: 800 };
+// The off-edge escape (the hidden path) only works in the top third of the field — above this
+// row the sides are open, below it they are solid walls.
+export const ESCAPE_MAX_ROW = Math.floor(HEIGHT / 3);
 
 export type Cell = number;
 export type Piece = { cells: [number, number][]; kind: number };
@@ -53,8 +56,12 @@ export function initTetris(seed = 1): TetrisState {
 function collides(board: Cell[][], cells: [number, number][]): boolean {
   for (const [x, y] of cells) {
     if (y >= HEIGHT) return true; // floor
-    if (x >= 0 && x < WIDTH && y >= 0 && board[y][x] !== 0) return true; // locked cell
-    // x out of side bounds → no wall, no collision
+    if (x < 0 || x >= WIDTH) {
+      // sides are open only in the top third (the escape zone); solid walls below it
+      if (y >= ESCAPE_MAX_ROW) return true;
+      continue;
+    }
+    if (y >= 0 && board[y][x] !== 0) return true; // locked cell
   }
   return false;
 }
@@ -99,9 +106,9 @@ export function moveTetris(s: TetrisState, dir: "left" | "right" | "down"): Tetr
   const d = dir === "left" ? [-1, 0] : dir === "right" ? [1, 0] : [0, 1];
   const moved = s.piece.cells.map(([x, y]) => [x + d[0], y + d[1]] as [number, number]);
   if (dir === "down" && collides(s.board, moved)) return lockAndSpawn(s);
-  if (fullyEscaped(moved)) {
+  if (fullyEscaped(moved) && moved.every(([, y]) => y < ESCAPE_MAX_ROW)) {
     const { piece, seed } = spawn(s.seed);
-    return { ...s, piece, seed, foundHiddenPath: true }; // off-edge: vanish, no score
+    return { ...s, piece, seed, foundHiddenPath: true }; // off-edge in the top third: vanish, no score
   }
   if (collides(s.board, moved)) return s; // blocked by a locked cell inside the field
   return { ...s, piece: { ...s.piece, cells: moved } };

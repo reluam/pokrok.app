@@ -40,26 +40,27 @@ describe("mazeLogic", () => {
     expect(bfsReaches(true)).toBe(true);
   });
 
-  it("the fake tile is passable; a real wall next to it is not", () => {
-    expect(MAZE[4][4]).toBe(2);
-    expect(passable(MAZE, 4, 4)).toBe(true);
+  it("the fake switchback tiles are passable; a real wall is not", () => {
+    expect(MAZE[6][1]).toBe(2);
+    expect(MAZE[2][1]).toBe(2);
+    expect(passable(MAZE, 1, 6)).toBe(true);
     expect(MAZE[4][2]).toBe(1);
     expect(passable(MAZE, 2, 4)).toBe(false);
   });
 
-  it("walking up column 4 through the fake tile reaches the exit with foundHiddenPath", () => {
+  it("walking straight up column 1 through the fake walls reaches the exit with foundHiddenPath", () => {
     let s = initMaze(); // start at (1,7)
-    s = path(s, ["right", "right", "right"]); // to (4,7)
-    s = path(s, ["up", "up", "up", "up", "up", "up"]); // up col 4 through fake (4,4) to (4,1)
-    s = path(s, ["right", "right", "right"]); // to exit (7,1)
+    s = path(s, ["up", "up", "up", "up", "up", "up"]); // up col 1 through fakes (1,6) & (1,2) to (1,1)
+    expect(s.foundHiddenPath).toBe(true);
+    s = path(s, ["right", "right", "right", "right", "right", "right"]); // along the top to exit (7,1)
     expect(s.status).toBe("won");
     expect(s.foundHiddenPath).toBe(true);
   });
 
   it("does not move through a real wall", () => {
-    let s = initMaze(); // (1,7), wall above at (1,6)? it is '1'
-    expect(MAZE[6][1]).toBe(1);
-    s = moveMaze(s, "up");
+    let s = initMaze(); // start (1,7); the left side (0,7) is a border wall
+    expect(MAZE[7][0]).toBe(1);
+    s = moveMaze(s, "left");
     expect([s.x, s.y]).toEqual([1, 7]); // unchanged
   });
 });
