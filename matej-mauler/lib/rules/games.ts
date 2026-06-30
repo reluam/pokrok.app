@@ -59,6 +59,17 @@ export const RULES_GAMES: RulesGameMeta[] = [
       criteriaKey: "flappy_sky_found",
     },
   },
+  {
+    key: "invaders",
+    title: "invaders",
+    revealLine: "They only shot back because you did.",
+    badge: {
+      slug: "found_ceasefire",
+      name: "you never raised a hand",
+      description: "you never fired a shot — so neither did they. the whole fight was always mutual.",
+      criteriaKey: "invaders_pacifist_found",
+    },
+  },
 ];
 
 export const RULES_GAME_KEYS: string[] = RULES_GAMES.map((g) => g.key);

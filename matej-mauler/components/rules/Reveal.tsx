@@ -33,6 +33,11 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
     for (let i = 0; i < 3; i++) ctx.fillRect(24 + i * 34, 34, 10, H - 34);
     ctx.fillStyle = RULES.yellow; // bird cruising the open sky along the very top
     ctx.fillRect(8 + p * (W - 24), 8, 6, 6);
+  } else if (game === "invaders") {
+    ctx.fillStyle = RULES.green; // invaders descending untouched
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) ctx.fillRect(20 + c * 22, 10 + r * 14 + p * 30, 9, 7);
+    ctx.fillStyle = RULES.white; // a cannon that never fires
+    ctx.fillRect(W / 2 - 7, H - 14, 14, 6);
   } else {
     // generic: a barrier across the middle, a dot going around its end
     ctx.fillRect(20, H / 2 - 3, W - 52, 6);
