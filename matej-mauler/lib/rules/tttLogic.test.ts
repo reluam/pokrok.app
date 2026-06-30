@@ -11,6 +11,13 @@ describe("tttLogic", () => {
     expect(s.foundHiddenPath).toBe(true);
   });
 
+  it("the machine answers the very first move", () => {
+    let s = initTTT();
+    s = placeTTT(s, 1, 1);
+    const oCount = s.cells.flat().filter((c) => c === O).length;
+    expect(oCount).toBe(1);
+  });
+
   it("the machine blocks an inner three-in-a-row threat", () => {
     let s = initTTT();
     s = placeTTT(s, 1, 1); // one X, no threat yet → machine passes

@@ -10,7 +10,7 @@ export type Cell = 0 | 1 | 2;
 
 export type TTTState = {
   cells: Cell[][]; // [y][x], SIZE×SIZE
-  status: "playing" | "won" | "draw";
+  status: "playing" | "won" | "lost" | "draw";
   foundHiddenPath: boolean;
 };
 
@@ -50,13 +50,28 @@ const INNER_LINES: [number, number][][] = (() => {
   return lines;
 })();
 
-// machine = a blocker inside the grid: if the player threatens an inner line, take the open cell.
-function innerBlock(cells: Cell[][]): [number, number] | null {
-  for (const line of INNER_LINES) {
-    const xs = line.filter(([cx, cy]) => cells[cy][cx] === X).length;
-    const empties = line.filter(([cx, cy]) => cells[cy][cx] === EMPTY);
-    if (xs === 2 && empties.length === 1) return empties[0];
-  }
+// machine = a competent opponent that plays a move every turn — but only ever inside the 3×3. It
+// wins if it can, blocks the player's inner threat, else takes the centre / a corner / an edge. It
+// never touches the margin, so a line reaching outside the grid is one it can't see.
+function aiMove(cells: Cell[][]): [number, number] | null {
+  const lineGap = (mark: Cell): [number, number] | null => {
+    for (const line of INNER_LINES) {
+      const same = line.filter(([cx, cy]) => cells[cy][cx] === mark).length;
+      const empties = line.filter(([cx, cy]) => cells[cy][cx] === EMPTY);
+      if (same === 2 && empties.length === 1) return empties[0];
+    }
+    return null;
+  };
+  const win = lineGap(O);
+  if (win) return win; // take the win
+  const block = lineGap(X);
+  if (block) return block; // block the player
+  const prefs: [number, number][] = [
+    [2, 2], // centre
+    [1, 1], [3, 1], [1, 3], [3, 3], // corners
+    [2, 1], [1, 2], [3, 2], [2, 3], // edges
+  ];
+  for (const [cx, cy] of prefs) if (cells[cy][cx] === EMPTY) return [cx, cy];
   return null;
 }
 
@@ -85,8 +100,10 @@ export function placeTTT(s: TTTState, x: number, y: number): TTTState {
     return { ...s, cells, status: "won", foundHiddenPath: win.some(([cx, cy]) => isMargin(cx, cy)) };
   }
 
-  const block = innerBlock(cells);
-  if (block) cells[block[1]][block[0]] = O;
+  // the machine answers every move (including your first)
+  const ai = aiMove(cells);
+  if (ai) cells[ai[1]][ai[0]] = O;
+  if (findWin(cells, O)) return { ...s, cells, status: "lost", foundHiddenPath: false };
 
   const status: TTTState["status"] = innerFull(cells) || boardFull(cells) ? "draw" : "playing";
   return { ...s, cells, status };

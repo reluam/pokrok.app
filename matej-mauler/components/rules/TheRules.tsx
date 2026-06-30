@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
+import Link from "next/link";
 import { RULES, Scanlines, PixelButton, audio, type GameOutcome } from "./theme";
 import { Reveal } from "./Reveal";
 import { PromptRegistration } from "@/components/PromptRegistration";
@@ -95,6 +96,23 @@ export default function TheRules() {
         overflow: "hidden",
       }}
     >
+      <Link
+        href="/"
+        style={{
+          position: "fixed",
+          top: 12,
+          left: 12,
+          zIndex: 60,
+          fontFamily: RULES.font,
+          fontSize: 9,
+          color: RULES.gray,
+          textDecoration: "none",
+          padding: 6,
+        }}
+      >
+        {"← spaghetti"}
+      </Link>
+
       <button
         onClick={() => setMuted(audio.toggle())}
         aria-label={muted ? "unmute" : "mute"}
