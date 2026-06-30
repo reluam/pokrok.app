@@ -34,7 +34,7 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number) {
   }
 }
 
-export function Reveal({ game, onContinue }: { game: "chicken" | "maze" | "tetris"; onContinue: () => void }) {
+export function Reveal({ game, found, onContinue }: { game: "chicken" | "maze" | "tetris"; found: boolean; onContinue: () => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -51,7 +51,9 @@ export function Reveal({ game, onContinue }: { game: "chicken" | "maze" | "tetri
 
   return (
     <div style={{ display: "grid", gap: 22, placeItems: "center", maxWidth: 520, lineHeight: 1.9 }}>
-      <p style={{ fontSize: 13, color: RULES.white }}>There was another way.</p>
+      <p style={{ fontSize: 13, color: found ? RULES.green : RULES.white }}>
+        {found ? "You found the way." : "There was another way."}
+      </p>
       <canvas ref={ref} style={{ width: 180, height: 180, imageRendering: "pixelated", background: RULES.bg }} />
       <p style={{ fontSize: 11, color: RULES.green }}>{LINES[game]}</p>
       <PixelButton onClick={onContinue}>continue</PixelButton>
