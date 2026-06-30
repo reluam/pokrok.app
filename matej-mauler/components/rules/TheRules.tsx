@@ -1,23 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { RULES, Scanlines, PixelButton, audio, type GameOutcome } from "./theme";
 import { Reveal } from "./Reveal";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { track } from "@/lib/analytics/track";
+import { RULES_GAME_KEYS } from "@/lib/rules/games";
 import Chicken from "./games/Chicken";
 import Maze from "./games/Maze";
 import Tetris from "./games/Tetris";
 
-type GameKey = "chicken" | "maze" | "tetris";
-type Phase = "intro" | GameKey | "reveal" | "ending";
-type Results = Partial<Record<GameKey, GameOutcome>>;
+// key → controller. Every game in lib/rules/games.ts registers its component here.
+const GAMES: Record<string, ComponentType<{ onResolve: (o: GameOutcome) => void }>> = {
+  chicken: Chicken,
+  maze: Maze,
+  tetris: Tetris,
+};
 
-const ORDER: GameKey[] = ["chicken", "maze", "tetris"];
+const ORDER = RULES_GAME_KEYS;
+type Phase = "intro" | "reveal" | "ending" | string;
+type Results = Record<string, GameOutcome>;
+
+const NUM = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+const numberWord = (n: number) => NUM[n] ?? String(n);
 
 export default function TheRules() {
   const [phase, setPhase] = useState<Phase>("intro");
-  const [current, setCurrent] = useState<GameKey>("chicken");
+  const [current, setCurrent] = useState<string>(ORDER[0]);
   const [results, setResults] = useState<Results>({});
   const [muted, setMuted] = useState(audio.muted);
   const posted = useRef(false);
@@ -26,12 +35,10 @@ export default function TheRules() {
   useEffect(() => {
     if (phase !== "ending" || posted.current) return;
     posted.current = true;
-    const insight = {
-      chicken: results.chicken?.foundHiddenPath ? "found" : "normal",
-      maze: results.maze?.foundHiddenPath ? "found" : "normal",
-      tetris: results.tetris?.foundHiddenPath ? "found" : "normal",
+    const insight: Record<string, unknown> = {
       foundCount: ORDER.filter((g) => results[g]?.foundHiddenPath).length,
     };
+    for (const g of ORDER) insight[g] = results[g]?.foundHiddenPath ? "found" : "normal";
     track("experiment_completed", { slug: "rules", foundCount: insight.foundCount });
     fetch("/api/participation", {
       method: "POST",
@@ -40,13 +47,13 @@ export default function TheRules() {
     }).catch(() => {});
   }, [phase, results]);
 
-  function startGame(g: GameKey) {
+  function startGame(g: string) {
     track("experiment_step", { slug: "rules", game: g });
     setCurrent(g);
     setPhase(g);
   }
 
-  function resolve(g: GameKey, outcome: GameOutcome) {
+  function resolve(g: string, outcome: GameOutcome) {
     setResults((r) => ({ ...r, [g]: outcome }));
     setPhase("reveal");
   }
@@ -60,10 +67,12 @@ export default function TheRules() {
   function restart() {
     posted.current = false;
     setResults({});
+    setCurrent(ORDER[0]);
     setPhase("intro");
   }
 
-  const fullscreenGame = phase === "chicken" || phase === "maze" || phase === "tetris";
+  const inGame = ORDER.includes(phase);
+  const Game = inGame ? GAMES[phase] : null;
 
   return (
     <div
@@ -76,7 +85,7 @@ export default function TheRules() {
         display: "grid",
         placeItems: "center",
         textAlign: "center",
-        padding: fullscreenGame ? 0 : 24,
+        padding: inGame ? 0 : 24,
         overflow: "hidden",
       }}
     >
@@ -105,7 +114,7 @@ export default function TheRules() {
           style={{ display: "grid", gap: 28, maxWidth: 620, cursor: "pointer", lineHeight: 1.9 }}
           onClick={() => {
             track("experiment_started", { slug: "rules" });
-            startGame("chicken");
+            startGame(ORDER[0]);
           }}
         >
           <p style={{ fontSize: 13 }}>Every game has rules.</p>
@@ -115,15 +124,13 @@ export default function TheRules() {
         </div>
       )}
 
-      {phase === "chicken" && <Chicken onResolve={(o) => resolve("chicken", o)} />}
-      {phase === "maze" && <Maze onResolve={(o) => resolve("maze", o)} />}
-      {phase === "tetris" && <Tetris onResolve={(o) => resolve("tetris", o)} />}
+      {Game && <Game onResolve={(o) => resolve(phase, o)} />}
 
       {phase === "reveal" && <Reveal game={current} found={!!results[current]?.foundHiddenPath} side={results[current]?.side} onContinue={afterReveal} />}
 
       {phase === "ending" && (
         <div style={{ display: "grid", gap: 24, maxWidth: 620, lineHeight: 1.9 }}>
-          <p style={{ fontSize: 13 }}>You just played three games.</p>
+          <p style={{ fontSize: 13 }}>You just played {numberWord(ORDER.length)} games.</p>
           <p style={{ fontSize: 13 }}>In each one, the rules were suggestions.</p>
           <p style={{ fontSize: 13, color: RULES.green }}>Most rules are.</p>
           <div style={{ marginTop: 8 }}>

@@ -96,7 +96,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       {
         slug: "rules",
         title: "Pravidla",
-        description: "Tři klasické hry — přejdi silnici, najdi cestu z bludiště, skládej tetris. Každá má svá pravidla. A každá tichou cestu okolo nich. Hra o tom, jak si toho všimnout.",
+        description: "Hromádka klasických her — každá má svá pravidla a každá tichou cestu okolo nich. Hra o tom, jak si toho všimnout.",
       },
     ],
   },
@@ -160,7 +160,7 @@ export const dictionaries: Record<Lang, Dictionary> = {
       {
         slug: "rules",
         title: "The Rules",
-        description: "Three classic games — cross the road, escape a maze, stack tetris. Each states its rules. Each has a quiet way around them. A game about noticing that.",
+        description: "A stack of classic games — each states its rules, and each has a quiet way around them. A game about noticing that.",
       },
     ],
   },

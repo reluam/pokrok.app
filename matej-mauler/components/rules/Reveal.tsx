@@ -2,14 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { RULES, PixelButton, pixelCanvas } from "./theme";
+import { revealLineFor } from "@/lib/rules/games";
 
-const LINES: Record<string, string> = {
-  chicken: "You didn't have to cross the road.",
-  maze: "Not every wall is real.",
-  tetris: "The field was always bigger than it looked.",
-};
-
-// A tiny looping schematic of the alternative path for each game.
+// A tiny looping schematic of the alternative path for each game. Games without a custom branch fall
+// back to a generic "a dot slips around the barrier" sketch.
 function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side: "left" | "right") {
   const W = ctx.canvas.width;
   const H = ctx.canvas.height;
@@ -28,14 +24,22 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
     ctx.fillRect(W / 2 - 4, H / 2 - 3, 8, 6); // the fake wall tile
     ctx.fillStyle = RULES.green;
     ctx.fillRect(W / 2 - 2, H - 10 - p * (H - 16), 5, 5); // dot passing through
-  } else {
+  } else if (game === "tetris") {
     ctx.fillStyle = RULES.green; // a piece sliding off the right edge
     const x = 10 + p * (W + 10);
     ctx.fillRect(x, H / 2 - 4, 8, 8);
+  } else {
+    // generic: a barrier across the middle, a dot going around its end
+    ctx.fillRect(20, H / 2 - 3, W - 52, 6);
+    ctx.fillStyle = RULES.green;
+    const a = p * 2;
+    const x = a < 1 ? 20 + a * (W - 40) : W - 20;
+    const y = a < 1 ? H / 2 - 18 : H / 2 - 18 + (a - 1) * 30;
+    ctx.fillRect(x - 2, y - 2, 5, 5);
   }
 }
 
-export function Reveal({ game, found, side = "left", onContinue }: { game: "chicken" | "maze" | "tetris"; found: boolean; side?: "left" | "right"; onContinue: () => void }) {
+export function Reveal({ game, found, side = "left", onContinue }: { game: string; found: boolean; side?: "left" | "right"; onContinue: () => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -56,7 +60,7 @@ export function Reveal({ game, found, side = "left", onContinue }: { game: "chic
         {found ? "You found the way." : "There was another way."}
       </p>
       <canvas ref={ref} style={{ width: 180, height: 180, imageRendering: "pixelated", background: RULES.bg }} />
-      <p style={{ fontSize: 11, color: RULES.green }}>{LINES[game]}</p>
+      <p style={{ fontSize: 11, color: RULES.green }}>{revealLineFor(game)}</p>
       <PixelButton onClick={onContinue}>continue</PixelButton>
     </div>
   );
