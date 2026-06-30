@@ -11,7 +11,7 @@ export type Cell = number;
 // applying to it entirely — it can be pushed fully off even after it has fallen below the quarter.
 export type Piece = { cells: [number, number][]; kind: number; escaping: boolean };
 // Points awarded for each piece completely removed from the field by pushing it off the edge.
-export const ESCAPE_SCORE = 100;
+export const ESCAPE_SCORE = 250;
 
 export type TetrisState = {
   board: Cell[][];

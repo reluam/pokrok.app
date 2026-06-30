@@ -21,13 +21,13 @@ const withPiece = (s: TetrisState, x: number, y: number): TetrisState => ({
 });
 
 describe("tetrisLogic", () => {
-  it("a piece pushed off the edge in the top quarter vanishes, flags the hidden path and scores 100", () => {
+  it("a piece pushed off the edge in the top quarter vanishes, flags the hidden path and scores 250", () => {
     let s = withPiece(initTetris(1), 0, ESCAPE_MAX_ROW - 1); // in the top quarter
     s = moveTetris(s, "left"); // x = -1, fully off the left edge for a 1-wide piece
     expect(s.foundHiddenPath).toBe(true);
     // the escaped piece is gone; a fresh piece has spawned in-bounds
     expect(s.piece.cells.every(([x]) => x >= 0 && x < WIDTH)).toBe(true);
-    expect(s.score).toBe(100); // 100 per piece sent off the field
+    expect(s.score).toBe(250); // 250 per piece sent off the field
   });
 
   it("below the top quarter the side is a solid wall — no escape", () => {
@@ -45,7 +45,7 @@ describe("tetrisLogic", () => {
     for (let i = 0; i < 6; i++) s = tickTetris(s); // fall well below the top quarter
     s = moveTetris(s, "left"); // push the rest off — the wall no longer applies to this piece
     expect(s.foundHiddenPath).toBe(true);
-    expect(s.score).toBe(100);
+    expect(s.score).toBe(250);
   });
 
   it("horizontal movement is blocked by a locked cell inside the field", () => {
