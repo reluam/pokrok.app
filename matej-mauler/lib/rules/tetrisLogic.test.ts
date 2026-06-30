@@ -17,17 +17,17 @@ const emptyBoard = (): number[][] =>
 const withPiece = (s: TetrisState, x: number, y: number): TetrisState => ({
   ...s,
   board: emptyBoard(),
-  piece: { cells: [[x, y]], kind: 1 },
+  piece: { cells: [[x, y]], kind: 1, escaping: false },
 });
 
 describe("tetrisLogic", () => {
-  it("a piece pushed off the edge in the top third vanishes and flags the hidden path", () => {
+  it("a piece pushed off the edge in the top third vanishes, flags the hidden path and scores 100", () => {
     let s = withPiece(initTetris(1), 0, ESCAPE_MAX_ROW - 1); // in the top third
     s = moveTetris(s, "left"); // x = -1, fully off the left edge for a 1-wide piece
     expect(s.foundHiddenPath).toBe(true);
     // the escaped piece is gone; a fresh piece has spawned in-bounds
     expect(s.piece.cells.every(([x]) => x >= 0 && x < WIDTH)).toBe(true);
-    expect(s.score).toBe(0); // escaping scores nothing
+    expect(s.score).toBe(100); // 100 per piece sent off the field
   });
 
   it("below the top third the side is a solid wall — no escape", () => {
@@ -35,6 +35,17 @@ describe("tetrisLogic", () => {
     s = moveTetris(s, "left"); // would go to x=-1 but the side is solid here
     expect(s.foundHiddenPath).toBe(false);
     expect(s.piece.cells[0][0]).toBe(0); // blocked: stayed in column 0
+  });
+
+  it("once a piece pokes out in the top third, the side wall stops applying to it below the third", () => {
+    // a horizontal 2-cell piece at the left edge, in the top third
+    let s = { ...initTetris(1), board: emptyBoard(), piece: { cells: [[0, ESCAPE_MAX_ROW - 1], [1, ESCAPE_MAX_ROW - 1]] as [number, number][], kind: 1, escaping: false } };
+    s = moveTetris(s, "left"); // pokes one cell off the side in the top third → becomes escaping
+    expect(s.piece.escaping).toBe(true);
+    for (let i = 0; i < 6; i++) s = tickTetris(s); // fall well below the top third
+    s = moveTetris(s, "left"); // push the rest off — the wall no longer applies to this piece
+    expect(s.foundHiddenPath).toBe(true);
+    expect(s.score).toBe(100);
   });
 
   it("horizontal movement is blocked by a locked cell inside the field", () => {
@@ -79,7 +90,7 @@ describe("tetrisLogic", () => {
     // clog cols 2..9 all the way up (cols 0 & 1 empty → no full row, so no line clear)
     for (let y = 0; y < HEIGHT; y++) for (let x = 2; x < WIDTH; x++) s.board[y][x] = 5;
     // active piece at the bottom-left; locking it completes no line
-    s = { ...s, piece: { cells: [[0, HEIGHT - 1]], kind: 1 } };
+    s = { ...s, piece: { cells: [[0, HEIGHT - 1]], kind: 1, escaping: false } };
     s = tickTetris(s); // piece locks, next spawn collides with the clog → field resets
     expect(s.status).toBe("playing");
     expect(s.score).toBe(300); // progress preserved

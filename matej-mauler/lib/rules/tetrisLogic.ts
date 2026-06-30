@@ -7,7 +7,11 @@ export const LINE_SCORES: Record<number, number> = { 1: 100, 2: 250, 3: 500, 4: 
 export const ESCAPE_MAX_ROW = Math.floor(HEIGHT / 3);
 
 export type Cell = number;
-export type Piece = { cells: [number, number][]; kind: number };
+// `escaping`: once a piece pokes off the side while in the top third, the side walls stop
+// applying to it entirely — it can be pushed fully off even after it has fallen below the third.
+export type Piece = { cells: [number, number][]; kind: number; escaping: boolean };
+// Points awarded for each piece completely removed from the field by pushing it off the edge.
+export const ESCAPE_SCORE = 100;
 
 export type TetrisState = {
   board: Cell[][];
@@ -48,14 +52,14 @@ function spawn(seed: number): { piece: Piece; seed: number } {
   const kind = Math.floor(rand() * SHAPES.length);
   const offset = 3;
   const cells = SHAPES[kind].map(([x, y]) => [x + offset, y] as [number, number]);
-  return { piece: { cells, kind: kind + 1 }, seed: (seed * 1664525 + 1013904223) >>> 0 };
+  return { piece: { cells, kind: kind + 1, escaping: false }, seed: (seed * 1664525 + 1013904223) >>> 0 };
 }
 
 // Spawn the next piece onto `board`. If it can't be placed (topped out / clogged), restart the
 // play field — a clean board instead of a frozen, stuck game. Score is preserved.
 function spawnInto(board: Cell[][], seed: number): { board: Cell[][]; piece: Piece; seed: number } {
   const { piece, seed: next } = spawn(seed);
-  if (collides(board, piece.cells)) return { board: freshBoard(), piece, seed: next };
+  if (collides(board, piece.cells, false)) return { board: freshBoard(), piece, seed: next };
   return { board, piece, seed: next };
 }
 
@@ -64,13 +68,14 @@ export function initTetris(seed = 1): TetrisState {
   return { board: freshBoard(), piece, score: 0, status: "playing", foundHiddenPath: false, seed: next };
 }
 
-function collides(board: Cell[][], cells: [number, number][]): boolean {
+function collides(board: Cell[][], cells: [number, number][], escaping: boolean): boolean {
   for (const [x, y] of cells) {
     if (y >= HEIGHT) return true; // floor
     if (x < 0 || x >= WIDTH) {
-      // sides are open only in the top third (the escape zone); solid walls below it
-      if (y >= ESCAPE_MAX_ROW) return true;
-      continue;
+      // a piece already escaping ignores the side walls entirely; otherwise the sides are open
+      // only in the top third (where an escape can begin) and solid below it
+      if (escaping || y < ESCAPE_MAX_ROW) continue;
+      return true;
     }
     if (y >= 0 && board[y][x] !== 0) return true; // locked cell
   }
@@ -108,7 +113,7 @@ function lockAndSpawn(s: TetrisState): TetrisState {
 export function tickTetris(s: TetrisState): TetrisState {
   if (s.status !== "playing") return s;
   const moved = s.piece.cells.map(([x, y]) => [x, y + 1] as [number, number]);
-  if (collides(s.board, moved)) return lockAndSpawn(s);
+  if (collides(s.board, moved, s.piece.escaping)) return lockAndSpawn(s);
   return { ...s, piece: { ...s.piece, cells: moved } };
 }
 
@@ -116,13 +121,27 @@ export function moveTetris(s: TetrisState, dir: "left" | "right" | "down"): Tetr
   if (s.status !== "playing") return s;
   const d = dir === "left" ? [-1, 0] : dir === "right" ? [1, 0] : [0, 1];
   const moved = s.piece.cells.map(([x, y]) => [x + d[0], y + d[1]] as [number, number]);
-  if (dir === "down" && collides(s.board, moved)) return lockAndSpawn(s);
-  if (fullyEscaped(moved) && moved.every(([, y]) => y < ESCAPE_MAX_ROW)) {
-    const next = spawnInto(s.board, s.seed); // off-edge in the top third: vanish, no score
-    return { ...s, board: next.board, piece: next.piece, seed: next.seed, foundHiddenPath: true };
+  if (dir === "down" && collides(s.board, moved, s.piece.escaping)) return lockAndSpawn(s);
+  // a piece fully off the side is removed and scores — once escaping, anywhere; otherwise only
+  // if the whole move happens in the top third (where an escape is allowed to begin)
+  const canEscape = s.piece.escaping || moved.every(([, y]) => y < ESCAPE_MAX_ROW);
+  if (fullyEscaped(moved) && canEscape) {
+    const next = spawnInto(s.board, s.seed);
+    const score = s.score + ESCAPE_SCORE; // 100 per piece pushed clean off the field
+    return {
+      ...s,
+      board: next.board,
+      piece: next.piece,
+      seed: next.seed,
+      foundHiddenPath: true,
+      score,
+      status: score >= SCORE_TARGET ? "won" : "playing",
+    };
   }
-  if (collides(s.board, moved)) return s; // blocked by a locked cell inside the field
-  return { ...s, piece: { ...s.piece, cells: moved } };
+  if (collides(s.board, moved, s.piece.escaping)) return s; // blocked
+  // the move succeeded; if it poked off the side, the piece is now escaping for the rest of its life
+  const poked = moved.some(([x]) => x < 0 || x >= WIDTH);
+  return { ...s, piece: { ...s.piece, cells: moved, escaping: s.piece.escaping || poked } };
 }
 
 export function rotateTetris(s: TetrisState): TetrisState {
@@ -130,7 +149,7 @@ export function rotateTetris(s: TetrisState): TetrisState {
   // rotate 90° about the piece's first cell as pivot
   const [ox, oy] = s.piece.cells[0];
   const rotated = s.piece.cells.map(([x, y]) => [ox - (y - oy), oy + (x - ox)] as [number, number]);
-  if (collides(s.board, rotated)) return s;
+  if (collides(s.board, rotated, s.piece.escaping)) return s;
   return { ...s, piece: { ...s.piece, cells: rotated } };
 }
 
@@ -139,7 +158,7 @@ export function dropTetris(s: TetrisState): TetrisState {
   let cells = s.piece.cells;
   while (true) {
     const next = cells.map(([x, y]) => [x, y + 1] as [number, number]);
-    if (collides(s.board, next)) break;
+    if (collides(s.board, next, s.piece.escaping)) break;
     cells = next;
   }
   return lockAndSpawn({ ...s, piece: { ...s.piece, cells } });
