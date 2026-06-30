@@ -132,7 +132,7 @@ export default function TheRules() {
 
       {Game && <Game onResolve={(o) => resolve(phase, o)} />}
 
-      {phase === "reveal" && <Reveal game={current} found={!!results[current]?.foundHiddenPath} side={results[current]?.side} onContinue={afterReveal} />}
+      {phase === "reveal" && <Reveal game={current} found={!!results[current]?.foundHiddenPath} side={results[current]?.side} onContinue={afterReveal} onRetry={() => startGame(current)} />}
 
       {phase === "ending" && (
         <div style={{ display: "grid", gap: 24, maxWidth: 620, lineHeight: 1.9 }}>

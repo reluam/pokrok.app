@@ -62,7 +62,7 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
   }
 }
 
-export function Reveal({ game, found, side = "left", onContinue }: { game: string; found: boolean; side?: "left" | "right"; onContinue: () => void }) {
+export function Reveal({ game, found, side = "left", onContinue, onRetry }: { game: string; found: boolean; side?: "left" | "right"; onContinue: () => void; onRetry: () => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -84,7 +84,10 @@ export function Reveal({ game, found, side = "left", onContinue }: { game: strin
       </p>
       <canvas ref={ref} style={{ width: 180, height: 180, imageRendering: "pixelated", background: RULES.bg }} />
       <p style={{ fontSize: 11, color: RULES.green }}>{revealLineFor(game)}</p>
-      <PixelButton onClick={onContinue}>continue</PixelButton>
+      <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+        <PixelButton onClick={onContinue}>continue</PixelButton>
+        <PixelButton color={RULES.gray} onClick={onRetry}>retry</PixelButton>
+      </div>
     </div>
   );
 }
