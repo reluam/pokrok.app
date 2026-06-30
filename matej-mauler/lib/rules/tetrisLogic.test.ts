@@ -72,4 +72,17 @@ describe("tetrisLogic", () => {
     expect(s.status).not.toBe("over");
     expect(["playing", "won"]).toContain(s.status);
   });
+
+  it("a clogged top restarts the field (clears the board) and keeps the score — never stuck", () => {
+    let s = initTetris(1);
+    s = { ...s, score: 300, board: emptyBoard() };
+    // clog cols 2..9 all the way up (cols 0 & 1 empty → no full row, so no line clear)
+    for (let y = 0; y < HEIGHT; y++) for (let x = 2; x < WIDTH; x++) s.board[y][x] = 5;
+    // active piece at the bottom-left; locking it completes no line
+    s = { ...s, piece: { cells: [[0, HEIGHT - 1]], kind: 1 } };
+    s = tickTetris(s); // piece locks, next spawn collides with the clog → field resets
+    expect(s.status).toBe("playing");
+    expect(s.score).toBe(300); // progress preserved
+    expect(s.board.every((row) => row.every((c) => c === 0))).toBe(true); // fresh, playable board
+  });
 });

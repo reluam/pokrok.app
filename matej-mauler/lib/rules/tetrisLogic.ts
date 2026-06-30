@@ -39,6 +39,10 @@ function rng(seed: number) {
   };
 }
 
+function freshBoard(): Cell[][] {
+  return Array.from({ length: HEIGHT }, () => Array.from({ length: WIDTH }, () => 0));
+}
+
 function spawn(seed: number): { piece: Piece; seed: number } {
   const rand = rng(seed);
   const kind = Math.floor(rand() * SHAPES.length);
@@ -47,10 +51,17 @@ function spawn(seed: number): { piece: Piece; seed: number } {
   return { piece: { cells, kind: kind + 1 }, seed: (seed * 1664525 + 1013904223) >>> 0 };
 }
 
-export function initTetris(seed = 1): TetrisState {
-  const board = Array.from({ length: HEIGHT }, () => Array.from({ length: WIDTH }, () => 0));
+// Spawn the next piece onto `board`. If it can't be placed (topped out / clogged), restart the
+// play field — a clean board instead of a frozen, stuck game. Score is preserved.
+function spawnInto(board: Cell[][], seed: number): { board: Cell[][]; piece: Piece; seed: number } {
   const { piece, seed: next } = spawn(seed);
-  return { board, piece, score: 0, status: "playing", foundHiddenPath: false, seed: next };
+  if (collides(board, piece.cells)) return { board: freshBoard(), piece, seed: next };
+  return { board, piece, seed: next };
+}
+
+export function initTetris(seed = 1): TetrisState {
+  const { piece, seed: next } = spawn(seed);
+  return { board: freshBoard(), piece, score: 0, status: "playing", foundHiddenPath: false, seed: next };
 }
 
 function collides(board: Cell[][], cells: [number, number][]): boolean {
@@ -83,12 +94,12 @@ function lockAndSpawn(s: TetrisState): TetrisState {
     if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) board[y][x] = s.piece.kind;
   const { board: cleared, cleared: n } = clearLines(board);
   const score = s.score + (LINE_SCORES[n] ?? 0);
-  const { piece, seed } = spawn(s.seed);
+  const next = spawnInto(cleared, s.seed);
   return {
     ...s,
-    board: cleared,
-    piece,
-    seed,
+    board: next.board,
+    piece: next.piece,
+    seed: next.seed,
     score,
     status: score >= SCORE_TARGET ? "won" : "playing",
   };
@@ -107,8 +118,8 @@ export function moveTetris(s: TetrisState, dir: "left" | "right" | "down"): Tetr
   const moved = s.piece.cells.map(([x, y]) => [x + d[0], y + d[1]] as [number, number]);
   if (dir === "down" && collides(s.board, moved)) return lockAndSpawn(s);
   if (fullyEscaped(moved) && moved.every(([, y]) => y < ESCAPE_MAX_ROW)) {
-    const { piece, seed } = spawn(s.seed);
-    return { ...s, piece, seed, foundHiddenPath: true }; // off-edge in the top third: vanish, no score
+    const next = spawnInto(s.board, s.seed); // off-edge in the top third: vanish, no score
+    return { ...s, board: next.board, piece: next.piece, seed: next.seed, foundHiddenPath: true };
   }
   if (collides(s.board, moved)) return s; // blocked by a locked cell inside the field
   return { ...s, piece: { ...s.piece, cells: moved } };
