@@ -93,6 +93,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Synapse",
         description: "Slovo → asociace. Každá odpověď posílí synapsi ve společné síti internetu.",
       },
+      {
+        slug: "price-of-a-life",
+        title: "Cena života",
+        description: "Hraješ stát. Deset rozhodnutí, jestli zaplatit za záchranu životů — a kolik. Na konci graf ukáže, jak různě (a nespravedlivě) si cenu lidského života ceníš ty sám.",
+      },
     ],
   },
 
@@ -151,6 +156,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "brain",
         title: "Synapses",
         description: "Word → association. Every answer strengthens a synapse in the internet's shared network.",
+      },
+      {
+        slug: "price-of-a-life",
+        title: "The Price of a Life",
+        description: "You play the government. Ten decisions on whether to pay to save lives — and how much. A final chart shows how unevenly you, personally, price a human life.",
       },
     ],
   },

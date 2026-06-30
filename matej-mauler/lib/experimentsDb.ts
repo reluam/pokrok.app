@@ -105,10 +105,16 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 const showDrafts = () => process.env.VERCEL_ENV !== "production";
 
 function staticFallback(lang: "cs" | "en"): PublicExperiment[] {
-  return STATIC.filter((m) => m.href && !m.wip).map((m, i) => {
-    const c = dictionaries[lang].experiments.find((e) => e.slug === m.slug)!;
-    return { slug: m.slug, title: c.title, description: c.description, color: m.color, href: m.href!, external: !!m.external, date: todayISO(), number: i + 1 };
-  }).reverse();
+  return STATIC.filter((m) => m.href && !m.wip)
+    .map((m, i) => {
+      // A catalog entry with no dictionary copy can't be rendered — skip it rather than crash
+      // the no-DB build path (prod/preview build via the DB instead).
+      const c = dictionaries[lang].experiments.find((e) => e.slug === m.slug);
+      if (!c) return null;
+      return { slug: m.slug, title: c.title, description: c.description, color: m.color, href: m.href!, external: !!m.external, date: todayISO(), number: i + 1 };
+    })
+    .filter((x): x is PublicExperiment => x !== null)
+    .reverse();
 }
 
 async function loadPublicExperiments(lang: "cs" | "en"): Promise<PublicExperiment[]> {

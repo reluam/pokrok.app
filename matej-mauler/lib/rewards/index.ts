@@ -4,6 +4,7 @@ import { timeRemainingBadges } from "./time-remaining";
 import { hymnaBadges } from "./hymna";
 import { decisionMakerBadges } from "./decision-maker";
 import { driftbloomBadges } from "./driftbloom";
+import { priceOfALifeBadges } from "./price-of-a-life";
 
 // Every experiment's badge config registered here. Add new experiments by importing their
 // lib/rewards/<slug>.ts array and spreading it in.
@@ -13,6 +14,7 @@ export const ALL_BADGES: BadgeDef[] = [
   ...hymnaBadges,
   ...decisionMakerBadges,
   ...driftbloomBadges,
+  ...priceOfALifeBadges,
 ];
 
 /** Badges relevant when evaluating a participation in `experimentSlug`:

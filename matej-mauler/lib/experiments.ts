@@ -55,4 +55,10 @@ export const experiments: ExperimentMeta[] = [
     color: "#DCFCE7",
     href: "/driftbloom",
   },
+  {
+    slug: "price-of-a-life",
+    emoji: "⚖️",
+    color: "#F4F1EA",
+    href: "/price-of-a-life",
+  },
 ];
