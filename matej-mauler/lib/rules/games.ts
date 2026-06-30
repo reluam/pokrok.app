@@ -48,6 +48,17 @@ export const RULES_GAMES: RulesGameMeta[] = [
       criteriaKey: "tetris_offedge_found",
     },
   },
+  {
+    key: "flappy",
+    title: "flappy",
+    revealLine: "There was sky above the pipes.",
+    badge: {
+      slug: "found_sky",
+      name: "you flew over the whole thing",
+      description: "the pipes never reached the top — you climbed into the open sky and cruised past every one.",
+      criteriaKey: "flappy_sky_found",
+    },
+  },
 ];
 
 export const RULES_GAME_KEYS: string[] = RULES_GAMES.map((g) => g.key);

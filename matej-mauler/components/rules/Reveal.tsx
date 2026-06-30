@@ -28,6 +28,11 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
     ctx.fillStyle = RULES.green; // a piece sliding off the right edge
     const x = 10 + p * (W + 10);
     ctx.fillRect(x, H / 2 - 4, 8, 8);
+  } else if (game === "flappy") {
+    ctx.fillStyle = RULES.dim; // pipes that stop short of the top
+    for (let i = 0; i < 3; i++) ctx.fillRect(24 + i * 34, 34, 10, H - 34);
+    ctx.fillStyle = RULES.yellow; // bird cruising the open sky along the very top
+    ctx.fillRect(8 + p * (W - 24), 8, 6, 6);
   } else {
     // generic: a barrier across the middle, a dot going around its end
     ctx.fillRect(20, H / 2 - 3, W - 52, 6);
