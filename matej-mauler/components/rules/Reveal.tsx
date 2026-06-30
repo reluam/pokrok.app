@@ -10,7 +10,7 @@ const LINES: Record<string, string> = {
 };
 
 // A tiny looping schematic of the alternative path for each game.
-function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number) {
+function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side: "left" | "right") {
   const W = ctx.canvas.width;
   const H = ctx.canvas.height;
   ctx.fillStyle = RULES.bg;
@@ -19,8 +19,9 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number) {
   ctx.fillStyle = RULES.dim;
   if (game === "chicken") {
     for (let y = 8; y < H - 8; y += 8) ctx.fillRect(10, y, W - 20, 4); // road bands
-    ctx.fillStyle = RULES.green; // dot walking up the left edge
-    ctx.fillRect(6, H - 10 - p * (H - 16), 5, 5);
+    ctx.fillStyle = RULES.green; // dot walking up the shoulder the player used
+    const ex = side === "right" ? W - 11 : 6;
+    ctx.fillRect(ex, H - 10 - p * (H - 16), 5, 5);
   } else if (game === "maze") {
     ctx.fillRect(W / 2 - 3, 8, 6, H - 16); // a corridor
     ctx.fillStyle = RULES.yellow;
@@ -34,7 +35,7 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number) {
   }
 }
 
-export function Reveal({ game, found, onContinue }: { game: "chicken" | "maze" | "tetris"; found: boolean; onContinue: () => void }) {
+export function Reveal({ game, found, side = "left", onContinue }: { game: "chicken" | "maze" | "tetris"; found: boolean; side?: "left" | "right"; onContinue: () => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -42,12 +43,12 @@ export function Reveal({ game, found, onContinue }: { game: "chicken" | "maze" |
     const ctx = pixelCanvas(canvas, 120, 120);
     let raf = 0;
     const loop = (now: number) => {
-      drawReplay(ctx, game, now);
+      drawReplay(ctx, game, now, side);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [game]);
+  }, [game, side]);
 
   return (
     <div style={{ display: "grid", gap: 22, placeItems: "center", maxWidth: 520, lineHeight: 1.9 }}>

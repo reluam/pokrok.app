@@ -34,7 +34,7 @@ export default function Chicken({ onResolve }: { onResolve: (o: GameOutcome) => 
     done.current = true;
     setActive(false);
     const s = state.current;
-    setTimeout(() => onResolve({ won: true, foundHiddenPath: s.foundHiddenPath }), 350);
+    setTimeout(() => onResolve({ won: true, foundHiddenPath: s.foundHiddenPath, side: s.side ?? undefined }), 350);
   }
 
   useEffect(() => {

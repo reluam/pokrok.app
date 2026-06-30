@@ -119,7 +119,7 @@ export default function TheRules() {
       {phase === "maze" && <Maze onResolve={(o) => resolve("maze", o)} />}
       {phase === "tetris" && <Tetris onResolve={(o) => resolve("tetris", o)} />}
 
-      {phase === "reveal" && <Reveal game={current} found={!!results[current]?.foundHiddenPath} onContinue={afterReveal} />}
+      {phase === "reveal" && <Reveal game={current} found={!!results[current]?.foundHiddenPath} side={results[current]?.side} onContinue={afterReveal} />}
 
       {phase === "ending" && (
         <div style={{ display: "grid", gap: 24, maxWidth: 620, lineHeight: 1.9 }}>

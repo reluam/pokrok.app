@@ -27,6 +27,7 @@ describe("chickenLogic", () => {
     expect(s.status).toBe("won");
     expect(s.crossedTraffic).toBe(false);
     expect(s.foundHiddenPath).toBe(true);
+    expect(s.side).toBe("left");
   });
 
   it("walking straight up the RIGHT shoulder also wins via the hidden path", () => {
@@ -36,6 +37,7 @@ describe("chickenLogic", () => {
     expect(s.status).toBe("won");
     expect(s.crossedTraffic).toBe(false);
     expect(s.foundHiddenPath).toBe(true);
+    expect(s.side).toBe("right");
   });
 
   it("crossing straight up through traffic columns wins without the hidden path", () => {

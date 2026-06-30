@@ -12,6 +12,7 @@ export type ChickenState = {
   crossedTraffic: boolean;
   status: "playing" | "won";
   foundHiddenPath: boolean;
+  side: "left" | "right" | null; // which side of the field the player finished on
 };
 
 export const COLS = 11;
@@ -58,6 +59,7 @@ export function initChicken(seed = 1): ChickenState {
     crossedTraffic: false,
     status: "playing",
     foundHiddenPath: false,
+    side: null,
   };
 }
 
@@ -110,6 +112,7 @@ export function moveChicken(s: ChickenState, dir: Dir): ChickenState {
   if (py === 0) {
     s.status = "won";
     s.foundHiddenPath = !s.crossedTraffic;
+    s.side = px < s.cols / 2 ? "left" : "right"; // which side they reached the top on
   }
   return s;
 }

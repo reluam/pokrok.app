@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export type GameOutcome = { won: boolean; foundHiddenPath: boolean };
+export type GameOutcome = { won: boolean; foundHiddenPath: boolean; side?: "left" | "right" };
 
 export const RULES = {
   bg: "#0a0a0a",
