@@ -92,6 +92,17 @@ export const RULES_GAMES: RulesGameMeta[] = [
       criteriaKey: "simon_disobeyed_found",
     },
   },
+  {
+    key: "racing",
+    title: "racing",
+    revealLine: "The track was a suggestion.",
+    badge: {
+      slug: "found_shortcut",
+      name: "you cut straight across",
+      description: "you skipped the whole loop and cut across the infield — the track was painted on, never a wall.",
+      criteriaKey: "racing_shortcut_found",
+    },
+  },
 ];
 
 export const RULES_GAME_KEYS: string[] = RULES_GAMES.map((g) => g.key);

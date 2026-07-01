@@ -38,6 +38,20 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
     for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) ctx.fillRect(20 + c * 22, 10 + r * 14 + p * 30, 9, 7);
     ctx.fillStyle = RULES.white; // a cannon that never fires
     ctx.fillRect(W / 2 - 7, H - 14, 14, 6);
+  } else if (game === "racing") {
+    ctx.strokeStyle = RULES.dim; // an oval track
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.ellipse(W / 2, H / 2, W / 2 - 20, H / 2 - 20, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = RULES.green; // a dot cutting straight across the middle
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(W / 2, H - 18);
+    ctx.lineTo(W / 2, 18);
+    ctx.stroke();
+    ctx.fillStyle = RULES.green;
+    ctx.fillRect(W / 2 - 2, H - 18 - p * (H - 36) - 2, 5, 5);
   } else if (game === "simon") {
     // four pads; a marker landing on whichever one it likes
     const pads = [[W / 2 - 24, H / 2 - 24], [W / 2 + 4, H / 2 - 24], [W / 2 - 24, H / 2 + 4], [W / 2 + 4, H / 2 + 4]];
