@@ -2,6 +2,16 @@ import { describe, expect, it } from "vitest";
 import { initFlappy, stepFlappy, flapFlappy, BIRD_X, HEIGHT } from "./flappyLogic";
 
 describe("flappyLogic", () => {
+  it("holds until the first click — nothing moves and the clock is frozen", () => {
+    let s = initFlappy(1);
+    const y0 = s.birdY;
+    s = stepFlappy(s, 500);
+    expect(s.birdY).toBe(y0);
+    expect(s.elapsed).toBe(0);
+    flapFlappy(s); // first click just starts it
+    expect(s.started).toBe(true);
+  });
+
   it("only the first pillar is open-topped; later pillars have a ceiling and the gap shrinks", () => {
     const s = initFlappy(1);
     expect(s.pillars[0].ceil).toBe(0); // first: sittable, open above
@@ -13,6 +23,7 @@ describe("flappyLogic", () => {
 
   it("staying airborne to the time limit wins without the hidden path", () => {
     let s = initFlappy(1);
+    s.started = true;
     s.pillars = []; // clear sky — just survive the clock
     let t = 0;
     while (s.status === "playing" && t < 30000) {
@@ -26,6 +37,7 @@ describe("flappyLogic", () => {
 
   it("perching on the open-topped pillar freezes the world but the clock runs on — won via the hidden path", () => {
     let s = initFlappy(1);
+    s.started = true;
     s.pillars = [{ x: BIRD_X - 5, top: 60, ceil: 0 }];
     s.birdY = 40;
     s.vy = 0;
@@ -37,6 +49,7 @@ describe("flappyLogic", () => {
 
   it("flying up into a ceiling pipe loses", () => {
     let s = initFlappy(1);
+    s.started = true;
     s.pillars = [{ x: BIRD_X - 5, top: 72, ceil: 36 }];
     s.birdY = 20; // high — inside the ceiling pipe
     s.vy = 0;
@@ -46,6 +59,7 @@ describe("flappyLogic", () => {
 
   it("hitting a pillar from the side loses", () => {
     let s = initFlappy(1);
+    s.started = true;
     s.pillars = [{ x: BIRD_X - 5, top: 30, ceil: 0 }];
     s.birdY = 70;
     s.vy = 0;
@@ -55,6 +69,7 @@ describe("flappyLogic", () => {
 
   it("falling to the floor loses", () => {
     let s = initFlappy(1);
+    s.started = true;
     s.pillars = [];
     for (let i = 0; i < 6000 && s.status === "playing"; i++) s = stepFlappy(s, 16); // never flap
     expect(s.status).toBe("lost");

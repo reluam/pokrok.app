@@ -11,8 +11,8 @@ export const PILLAR_W = 22;
 export const SPACING = 46;
 export const PILLAR_COUNT = 8;
 export const SPEED = 0.012; // units per ms — world scroll
-export const GRAVITY = 0.00004; // vy per ms — a slow-ish fall
-export const FLAP = 0.09; // upward impulse
+export const GRAVITY = 0.00008; // vy per ms — a brisk fall
+export const FLAP = 0.055; // upward impulse
 export const LIMIT = 15000; // survive this many ms
 export const WARN_Y = HEIGHT - 24; // below this, flash the warning
 export const GAP_CENTER = 50;
@@ -28,6 +28,7 @@ export type FlappyState = {
   birdY: number;
   vy: number;
   pillars: Pillar[];
+  started: boolean; // the game holds until the first click
   landed: boolean;
   landedEver: boolean;
   elapsed: number;
@@ -64,6 +65,7 @@ export function initFlappy(seed = 1): FlappyState {
     birdY: 46,
     vy: 0,
     pillars,
+    started: false,
     landed: false,
     landedEver: false,
     elapsed: 0,
@@ -75,13 +77,14 @@ export function initFlappy(seed = 1): FlappyState {
 
 export function flapFlappy(s: FlappyState): FlappyState {
   if (s.status !== "playing") return s;
+  if (!s.started) { s.started = true; return s; } // the first click just begins the game (then it falls)
   s.landed = false; // taking off again resumes the world
   s.vy = -FLAP;
   return s;
 }
 
 export function stepFlappy(s: FlappyState, dtMs: number): FlappyState {
-  if (s.status !== "playing") return s;
+  if (s.status !== "playing" || !s.started) return s; // hold until the first click
 
   s.elapsed += dtMs; // the clock always runs — even while perched
   if (s.elapsed >= s.limit) {

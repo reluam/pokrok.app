@@ -25,8 +25,10 @@ export default function Flappy({ onResolve }: { onResolve: (o: GameOutcome) => v
   const [active, setActive] = useState(true);
   const [remaining, setRemaining] = useState(Math.ceil(LIMIT / 1000));
   const [clickVisible, setClickVisible] = useState(false);
+  const [started, setStarted] = useState(false);
   const remRef = useRef(remaining);
   const clickRef = useRef(false);
+  const startedRef = useRef(false);
   const done = useRef(false);
 
   function flap() {
@@ -76,6 +78,7 @@ export default function Flappy({ onResolve }: { onResolve: (o: GameOutcome) => v
       ctx.fillRect((BIRD_X - BIRD_R) * SCALE, (s.birdY - BIRD_R) * SCALE, BIRD_R * 2 * SCALE, BIRD_R * 2 * SCALE);
 
       // HUD state (throttled to changes)
+      if (s.started !== startedRef.current) { startedRef.current = s.started; setStarted(s.started); }
       const rem = Math.max(0, Math.ceil((LIMIT - s.elapsed) / 1000));
       if (rem !== remRef.current) { remRef.current = rem; setRemaining(rem); }
       const low = s.status === "playing" && !s.landed && s.birdY + BIRD_R > WARN_Y;
@@ -100,6 +103,9 @@ export default function Flappy({ onResolve }: { onResolve: (o: GameOutcome) => v
           style={{ width: "min(92vw, 460px)", display: "block", imageRendering: "pixelated", border: `2px solid ${RULES.dim}`, cursor: "pointer" }}
         />
         <span style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", fontFamily: RULES.font, fontSize: 13, color: RULES.white }}>{remaining}</span>
+        {!started && (
+          <span style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontFamily: RULES.font, fontSize: 11, color: RULES.green }}>click to start</span>
+        )}
         {clickVisible && (
           <span style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", fontFamily: RULES.font, fontSize: 13, color: "#ff5b5b" }}>CLICK</span>
         )}
