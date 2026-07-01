@@ -65,9 +65,12 @@ export default function Flappy({ onResolve }: { onResolve: (o: GameOutcome) => v
       const s = state.current;
       ctx.fillStyle = RULES.bg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      // pillars — solid columns from their top down to the floor
+      // pillars — bottom column (from `top` to floor) + a ceiling pipe (0 → `ceil`) on later ones
       ctx.fillStyle = "#1c3a1c";
-      for (const p of s.pillars) ctx.fillRect(p.x * SCALE, p.top * SCALE, PILLAR_W * SCALE, (HEIGHT - p.top) * SCALE);
+      for (const p of s.pillars) {
+        ctx.fillRect(p.x * SCALE, p.top * SCALE, PILLAR_W * SCALE, (HEIGHT - p.top) * SCALE);
+        if (p.ceil > 0) ctx.fillRect(p.x * SCALE, 0, PILLAR_W * SCALE, p.ceil * SCALE);
+      }
       // bird
       ctx.fillStyle = RULES.yellow;
       ctx.fillRect((BIRD_X - BIRD_R) * SCALE, (s.birdY - BIRD_R) * SCALE, BIRD_R * 2 * SCALE, BIRD_R * 2 * SCALE);
