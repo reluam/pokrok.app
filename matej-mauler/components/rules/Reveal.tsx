@@ -38,6 +38,14 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
     for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) ctx.fillRect(20 + c * 22, 10 + r * 14 + p * 30, 9, 7);
     ctx.fillStyle = RULES.white; // a cannon that never fires
     ctx.fillRect(W / 2 - 7, H - 14, 14, 6);
+  } else if (game === "simon") {
+    // four pads; a marker landing on whichever one it likes
+    const pads = [[W / 2 - 24, H / 2 - 24], [W / 2 + 4, H / 2 - 24], [W / 2 - 24, H / 2 + 4], [W / 2 + 4, H / 2 + 4]];
+    ctx.fillStyle = RULES.dim;
+    for (const [px, py] of pads) ctx.fillRect(px, py, 20, 20);
+    ctx.fillStyle = RULES.green;
+    const [gx, gy] = pads[Math.floor(p * 4) % 4];
+    ctx.fillRect(gx, gy, 20, 20);
   } else if (game === "ttt") {
     ctx.strokeStyle = RULES.gray; // a small 3×3 grid in the centre
     ctx.lineWidth = 2;

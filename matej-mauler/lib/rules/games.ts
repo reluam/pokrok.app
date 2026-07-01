@@ -81,6 +81,17 @@ export const RULES_GAMES: RulesGameMeta[] = [
       criteriaKey: "ttt_margin_found",
     },
   },
+  {
+    key: "simon",
+    title: "simon says",
+    revealLine: "Simon wasn't watching.",
+    badge: {
+      slug: "found_no_referee",
+      name: "you obeyed a referee who wasn't there",
+      description: "you pressed whatever you liked and every round still counted — nothing was ever checking your answers.",
+      criteriaKey: "simon_disobeyed_found",
+    },
+  },
 ];
 
 export const RULES_GAME_KEYS: string[] = RULES_GAMES.map((g) => g.key);

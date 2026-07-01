@@ -13,6 +13,7 @@ import Tetris from "./games/Tetris";
 import Flappy from "./games/Flappy";
 import SpaceInvaders from "./games/SpaceInvaders";
 import TicTacToe from "./games/TicTacToe";
+import SimonSays from "./games/SimonSays";
 
 // key → controller. Every game in lib/rules/games.ts registers its component here.
 const GAMES: Record<string, ComponentType<{ onResolve: (o: GameOutcome) => void }>> = {
@@ -22,6 +23,7 @@ const GAMES: Record<string, ComponentType<{ onResolve: (o: GameOutcome) => void 
   flappy: Flappy,
   invaders: SpaceInvaders,
   ttt: TicTacToe,
+  simon: SimonSays,
 };
 
 const ORDER = RULES_GAME_KEYS;
