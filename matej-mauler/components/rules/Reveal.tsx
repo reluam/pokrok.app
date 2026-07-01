@@ -110,6 +110,15 @@ export function Reveal({ game, found, side = "left", onContinue, onRetry }: { ga
     return () => cancelAnimationFrame(raf);
   }, [game, side]);
 
+  // Enter also advances (same as clicking "continue")
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Enter") { e.preventDefault(); onContinue(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onContinue]);
+
   return (
     <div style={{ display: "grid", gap: 22, placeItems: "center", maxWidth: 520, lineHeight: 1.9 }}>
       <p style={{ fontSize: 13, color: found ? RULES.green : RULES.white }}>
