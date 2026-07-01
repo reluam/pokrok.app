@@ -29,10 +29,11 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
     const x = 10 + p * (W + 10);
     ctx.fillRect(x, H / 2 - 4, 8, 8);
   } else if (game === "flappy") {
-    ctx.fillStyle = RULES.dim; // pipes that stop short of the top
-    for (let i = 0; i < 3; i++) ctx.fillRect(24 + i * 34, 34, 10, H - 34);
-    ctx.fillStyle = RULES.yellow; // bird cruising the open sky along the very top
-    ctx.fillRect(8 + p * (W - 24), 8, 6, 6);
+    ctx.fillStyle = RULES.dim; // a pillar
+    ctx.fillRect(W / 2 - 8, H / 2, 16, H / 2 - 6);
+    ctx.fillStyle = RULES.yellow; // the bird just sitting on top, waiting the clock out
+    const bob = Math.sin(p * Math.PI * 2) * 1.5;
+    ctx.fillRect(W / 2 - 3, H / 2 - 9 + bob, 6, 6);
   } else if (game === "invaders") {
     ctx.fillStyle = RULES.green; // invaders descending untouched
     for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) ctx.fillRect(20 + c * 22, 10 + r * 14 + p * 30, 9, 7);

@@ -51,12 +51,12 @@ export const RULES_GAMES: RulesGameMeta[] = [
   {
     key: "flappy",
     title: "flappy",
-    revealLine: "There was sky above the pipes.",
+    revealLine: "You could have just landed.",
     badge: {
-      slug: "found_sky",
-      name: "you flew over the whole thing",
-      description: "the pipes never reached the top — you climbed into the open sky and cruised past every one.",
-      criteriaKey: "flappy_sky_found",
+      slug: "found_perch",
+      name: "you just sat down",
+      description: "you let the bird settle on a pillar and everything went still — the clock ran out while you rested.",
+      criteriaKey: "flappy_perch_found",
     },
   },
   {
