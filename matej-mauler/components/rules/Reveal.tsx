@@ -38,6 +38,16 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
     for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) ctx.fillRect(20 + c * 22, 10 + r * 14 + p * 30, 9, 7);
     ctx.fillStyle = RULES.white; // a cannon that never fires
     ctx.fillRect(W / 2 - 7, H - 14, 14, 6);
+  } else if (game === "pacman") {
+    ctx.fillStyle = RULES.dim; // a maze wall with a gap on the left
+    ctx.fillRect(20, 20, 8, H - 40);
+    ctx.fillRect(20, 20, W - 40, 8);
+    ctx.fillRect(W - 28, 20, 8, H - 40);
+    ctx.fillRect(20, H - 28, W - 40, 8);
+    ctx.fillStyle = RULES.bg; // the gap (door) in the left wall
+    ctx.fillRect(20, H / 2 - 7, 8, 14);
+    ctx.fillStyle = RULES.yellow; // pac walking out to the left through it
+    ctx.fillRect(W / 2 - p * (W / 2 + 12), H / 2 - 3, 6, 6);
   } else if (game === "racing") {
     ctx.strokeStyle = RULES.dim; // an oval track
     ctx.lineWidth = 10;

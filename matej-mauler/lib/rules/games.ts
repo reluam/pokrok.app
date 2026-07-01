@@ -103,6 +103,17 @@ export const RULES_GAMES: RulesGameMeta[] = [
       criteriaKey: "racing_shortcut_found",
     },
   },
+  {
+    key: "pacman",
+    title: "pac-man",
+    revealLine: "You could have just left.",
+    badge: {
+      slug: "found_exit",
+      name: "you just walked out",
+      description: "the gap in the wall wasn't a tunnel back in — it was the door. you left the whole maze behind.",
+      criteriaKey: "pacman_exit_found",
+    },
+  },
 ];
 
 export const RULES_GAME_KEYS: string[] = RULES_GAMES.map((g) => g.key);
