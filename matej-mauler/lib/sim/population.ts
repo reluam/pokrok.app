@@ -84,3 +84,10 @@ export function step(state: SimState, mutationRate: number): SimState {
 export function setEnv(state: SimState, env: Environment): SimState {
   return { ...state, env };
 }
+
+// Advance a generation WITHOUT changing the genomes — used for the player's intelligent-design
+// lineage, whose genome only changes when the designer edits it (no selection drift).
+export function age(state: SimState): SimState {
+  const generation = state.generation + 1;
+  return { ...state, generation, history: [...state.history, statsFor(state.population, state.env, generation)] };
+}

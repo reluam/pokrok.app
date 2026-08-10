@@ -41,6 +41,13 @@ export function isAlive(lineage: Lineage): boolean {
   return Object.values(lineage.presence).some((p) => p > 0);
 }
 
+// How developed a lineage's body plan is (0 = fresh spore, 1 = fully-grown spaghettoid). Grows with
+// the generations it has actually lived through — drives the creature's visual developmental stage.
+export const MATURITY_ERAS = 36;
+export function maturity(lineage: Lineage): number {
+  return Math.min(1, lineage.sim.generation / MATURITY_ERAS);
+}
+
 // The lineage with the highest presence on a biome (ties broken by id), or null if uninhabited.
 export function dominantOnBiome(lineages: Lineage[], biomeId: string): Lineage | null {
   let best: Lineage | null = null, bestP = 0;

@@ -23,14 +23,12 @@ export type Dictionary = {
     label: string;
   };
   about: {
-    heading: string;
-    p1: string;
-    p2: string;
-    p3a: string;
-    writeMe: string;
-    p3b: string;
-    rewardA: string;
-    rewardLink: string;
+    /** 1–2 věty: kdo jsem. */
+    description: string;
+    /** Jedna úderná věta — vlastní typografické řešení (.mm-motto). */
+    motto: string;
+    /** Popisek nad kontakty. */
+    contactLabel: string;
   };
   wipLabel: string;
   experiments: ExperimentContent[];
@@ -57,14 +55,9 @@ export const dictionaries: Record<Lang, Dictionary> = {
       label: "Cestu →",
     },
     about: {
-      heading: "O projektu",
-      p1: "Ahoj, jsem Matěj. Celý svůj život se snažím přijít na to, jak vlastně žít a proč tu jsem. A tak brouzdám internetem a knihami a zjišťuju, o čem život vlastně je.",
-      p2: "Většinu času jsem mimo, ale občas mám aha moment, který mi pomůže něco objasnit. A právě tyto momenty sdílím zde na Spaghetti.ltd.",
-      p3a: "Pokud máš feedback, nápad nebo tě něco zaujme natolik, že bys byl rád, abych pro tebe něco udělal, neváhej mi napsat na ",
-      writeMe: "můj mail",
-      p3b: ".",
-      rewardA: "Díky, že jsi to dočetl až sem, a za odměnu se můžeš kouknout na zbytečné informace z mé ",
-      rewardLink: "Špagetí encyklopedie.",
+      description: "Živím se obchodem a rozvojem byznysu, po nocích dělám hudbu jako Matt Mauler a mezitím stavím webové experimenty. Baví mě dívat se na věci jako na systémy — a hledat v nich to místo, kde to zaskřípe.",
+      motto: "Devět z deseti nápadů je špatných. Proto jich mám hodně, abych našel ten jeden.",
+      contactLabel: "Ozvi se",
     },
     wipLabel: "Brzy",
     experiments: [
@@ -93,6 +86,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Synapse",
         description: "Slovo → asociace. Každá odpověď posílí synapsi ve společné síti internetu.",
       },
+      {
+        slug: "rules",
+        title: "Pravidla",
+        description: "Hromádka klasických her — každá má svá pravidla a každá tichou cestu okolo nich. Hra o tom, jak si toho všimnout.",
+      },
     ],
   },
 
@@ -116,14 +114,9 @@ export const dictionaries: Record<Lang, Dictionary> = {
       label: "Journey →",
     },
     about: {
-      heading: "About",
-      p1: "Hi, I'm Matěj. My whole life I've been trying to figure out how to actually live and why I'm here. So I wander the internet and books, working out what life is really about.",
-      p2: "Most of the time I'm off the mark, but every now and then I get an aha moment that helps me make sense of something. And those are exactly the moments I share here on Spaghetti.ltd.",
-      p3a: "If you have feedback, an idea, or something grabs you enough that you'd like me to make something for you, don't hesitate to drop me a line at ",
-      writeMe: "my email",
-      p3b: ".",
-      rewardA: "Thanks for reading this far — and as a reward, you can peek at some useless trivia from my ",
-      rewardLink: "Spaghetti encyclopedia.",
+      description: "I do sales and business development by day, music as Matt Mauler by night, and web experiments in between. I like looking at things as systems — and finding the one place where they creak.",
+      motto: "Nine out of ten ideas are bad. That's why I have plenty — to find the one that isn't.",
+      contactLabel: "Say hi",
     },
     wipLabel: "Soon",
     experiments: [
@@ -151,6 +144,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "brain",
         title: "Synapses",
         description: "Word → association. Every answer strengthens a synapse in the internet's shared network.",
+      },
+      {
+        slug: "rules",
+        title: "The Rules",
+        description: "A stack of classic games — each states its rules, and each has a quiet way around them. A game about noticing that.",
       },
     ],
   },

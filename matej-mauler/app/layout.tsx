@@ -36,10 +36,12 @@ const mono = JetBrains_Mono({
 
 // --font-grotesk je alias na --font-display (globals.css) — Space Grotesk se načítá jen jednou
 
+// Kanonická doména je matejmauler.com (osobní rozcestník na „/"); experimenty žijí na
+// stejné appce pod svými cestami, takže se relativní canonicaly řeší proti téhle base.
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.spaghetti.ltd"),
-  title: "Spaghetti.ltd",
-  description: "I have bad ideas and plenty of artificial willpower to build them.",
+  metadataBase: new URL("https://matejmauler.com"),
+  title: "Matěj Mauler",
+  description: "Sales and business development by day, music as Matt Mauler by night, web experiments in between.",
   icons: { icon: "/logo.svg" },
 };
 
