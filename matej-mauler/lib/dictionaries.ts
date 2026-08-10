@@ -23,15 +23,12 @@ export type Dictionary = {
     label: string;
   };
   about: {
-    p1: string;
-    p2: string;
-    p3: string;
-    p4: string;
-    contactHeading: string;
-    contactLead: string;
-    discordNote: string;
-    emailNote: string;
-    facebookNote: string;
+    /** 1–2 věty: kdo jsem. */
+    description: string;
+    /** Jedna úderná věta — vlastní typografické řešení (.mm-motto). */
+    motto: string;
+    /** Popisek nad kontakty. */
+    contactLabel: string;
   };
   wipLabel: string;
   experiments: ExperimentContent[];
@@ -58,15 +55,9 @@ export const dictionaries: Record<Lang, Dictionary> = {
       label: "Cestu →",
     },
     about: {
-      p1: "Ahoj, jsem Matěj. Většinu života jsem hledal ten jeden nápad — ten projekt, u kterého konečně zůstanu. Nikdy jsem ho nenašel. Jen jsem šel pořád dál.",
-      p2: "Až mi došlo: vymýšlet nápady je ten projekt.",
-      p3: "Baví mě hloubat nad novými přístupy, podivnými problémy a otázkami, které si nikdo nedal práci položit. Tak experimentuju. Testuju. Hraju si. Něco vyjde. Většina ne. Všechno skončí tady.",
-      p4: "Spaghetti je moje laboratoř. A moje portfolio.",
-      contactHeading: "Ozvi se",
-      contactLead: "Jestli chceš, aby někdo o tvém projektu přemýšlel jinak — nebo jen vymyslel 9 špatných nápadů, abys mezi nimi našel ten jeden dobrý — napiš mi.",
-      discordNote: "Nejrychlejší cesta ke mně. DM mám otevřené.",
-      emailNote: "matej@matejmauler.com",
-      facebookNote: "facebook.com/maulermatt",
+      description: "Živím se obchodem a rozvojem byznysu, po nocích dělám hudbu jako Matt Mauler a mezitím stavím webové experimenty. Baví mě dívat se na věci jako na systémy — a hledat v nich to místo, kde to zaskřípe.",
+      motto: "Devět z deseti nápadů je špatných. Proto jich mám hodně, abych našel ten jeden.",
+      contactLabel: "Ozvi se",
     },
     wipLabel: "Brzy",
     experiments: [
@@ -123,15 +114,9 @@ export const dictionaries: Record<Lang, Dictionary> = {
       label: "Journey →",
     },
     about: {
-      p1: "Hi, I'm Matěj. For most of my life I was looking for that one idea — the one project I'd finally stick with. I never found it. I just kept moving on.",
-      p2: "Until I realised: making ideas is the project.",
-      p3: "I love puzzling over new approaches, strange problems, and questions nobody's bothered to ask yet. So I experiment. I test. I play. Some of it works. Most of it doesn't. All of it ends up here.",
-      p4: "Spaghetti is my lab. And my portfolio.",
-      contactHeading: "Say hi",
-      contactLead: "If you'd like someone to think sideways about your project — or just come up with 9 bad ideas so you can find the one good one — drop me a line.",
-      discordNote: "The fastest way to reach me. My DMs are open.",
-      emailNote: "matej@matejmauler.com",
-      facebookNote: "facebook.com/maulermatt",
+      description: "I do sales and business development by day, music as Matt Mauler by night, and web experiments in between. I like looking at things as systems — and finding the one place where they creak.",
+      motto: "Nine out of ten ideas are bad. That's why I have plenty — to find the one that isn't.",
+      contactLabel: "Say hi",
     },
     wipLabel: "Soon",
     experiments: [

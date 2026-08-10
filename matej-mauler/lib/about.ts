@@ -19,11 +19,15 @@ export const SPAGHETTI_BLURB: Bi = {
 export const MESS_LABEL: Bi = { cs: "Spaghetti.ltd", en: "Spaghetti.ltd" };
 
 export const EMAIL = "matej@matejmauler.com";
+export const PERSON_NAME = "Matěj Mauler";
+export const PERSON_DOMAIN = "matejmauler.com";
+export const PERSON_URL = "https://matejmauler.com";
 
-/** Kontakty na homepage. Pořadí = priorita, první je ten primární (Discord). */
+/** Kontakty v panelu u hlavičky. Pořadí = priorita, první je ten primární (Discord). */
 export const CONTACTS: { id: string; label: string; href: string; external: boolean }[] = [
   { id: "discord", label: "Discord", href: "https://discord.com/users/1072594921195835423", external: true },
-  { id: "email", label: "E-mail", href: `mailto:${EMAIL}`, external: false },
+  { id: "email", label: EMAIL, href: `mailto:${EMAIL}`, external: false },
+  { id: "linkedin", label: "LinkedIn", href: "https://www.linkedin.com/in/matej-mauler/", external: true },
   { id: "facebook", label: "Facebook", href: "https://www.facebook.com/maulermatt", external: true },
 ];
 

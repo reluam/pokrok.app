@@ -1,0 +1,21 @@
+// Projekty do lišty na homepage. Editace = jen tenhle soubor, layout ani CSS se nesahá.
+// `typeStyle` mapuje na font/váhu (viz .mm-project v globals.css), `status` na vizuální váhu
+// (active = plná, past = tišší). Žádné taby, žádné sekce — pořadí v poli = pořadí v liště.
+
+export type Project = {
+  name: string;
+  /** Chybí-li URL, vykreslí se jen text (radši než mrtvý odkaz). */
+  url?: string;
+  status: "active" | "past";
+  typeStyle: "voice" | "mono" | "sans";
+};
+
+export const projects: Project[] = [
+  // TODO: doplnit SoundCloud (nebo jiný hudební profil) Matta Maulera
+  { name: "Matt Mauler", status: "active", typeStyle: "voice" },
+  { name: "Spaghetti.ltd", url: "https://www.spaghetti.ltd", status: "active", typeStyle: "mono" },
+  // TODO: doplnit URL, až bude kam odkázat
+  { name: "Stats & Facts", status: "active", typeStyle: "sans" },
+  // ziju.life zatím vrací 404 → bez odkazu, ať tam není mrtvý link
+  { name: "žiju.life", status: "past", typeStyle: "sans" },
+];
