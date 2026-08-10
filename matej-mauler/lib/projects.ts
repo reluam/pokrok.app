@@ -11,11 +11,8 @@ export type Project = {
 };
 
 export const projects: Project[] = [
-  // TODO: doplnit SoundCloud (nebo jiný hudební profil) Matta Maulera
-  { name: "Matt Mauler", status: "active", typeStyle: "voice" },
+  { name: "Matt Mauler", url: "https://soundcloud.com/matt-mauler", status: "active", typeStyle: "voice" },
   { name: "Spaghetti.ltd", url: "https://www.spaghetti.ltd", status: "active", typeStyle: "mono" },
   // TODO: doplnit URL, až bude kam odkázat
   { name: "Stats & Facts", status: "active", typeStyle: "sans" },
-  // ziju.life zatím vrací 404 → bez odkazu, ať tam není mrtvý link
-  { name: "žiju.life", status: "past", typeStyle: "sans" },
 ];
