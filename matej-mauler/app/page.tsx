@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { HomeNetwork } from "@/components/HomeNetwork";
+import { HomeCard } from "@/components/HomeCard";
+import { CONTACTS, EMAIL } from "@/lib/about";
 import { dictionaries } from "@/lib/dictionaries";
-import { getPublicExperiments } from "@/lib/experimentsDb";
 import { applyTextOverrides, getTextOverrides } from "@/lib/siteTextsDb";
 
-// Homepage je cacheovaná (ne force-dynamic): feed i texty se drží ve full-route cache a
+// Homepage je cacheovaná (ne force-dynamic): texty se drží ve full-route cache a
 // admin změny ji shodí přes revalidateTag → návrat na „/" je instant místo dynamického renderu.
 export const metadata: Metadata = {
   title: "Spaghetti.ltd",
@@ -17,22 +17,20 @@ export const metadata: Metadata = {
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "Spaghetti.ltd",
+  "@type": "Person",
+  name: "Matěj Mauler",
   url: "https://www.spaghetti.ltd",
-  description: "Interactive experiments and an encyclopedia connected by knowledge noodles — sound, music, a server-rendered radio, a public brain and more.",
-  inLanguage: "en",
+  email: `mailto:${EMAIL}`,
+  description: dictionaries.en.about.p2,
+  sameAs: CONTACTS.filter((c) => c.external).map((c) => c.href),
 };
 
 export default async function Home() {
-  const [items, overrides] = await Promise.all([
-    getPublicExperiments("en"),
-    getTextOverrides("en").catch(() => ({})),
-  ]);
+  const overrides = await getTextOverrides("en").catch(() => ({}));
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <HomeNetwork dict={applyTextOverrides(dictionaries.en, overrides)} lang="en" items={items} />
+      <HomeCard dict={applyTextOverrides(dictionaries.en, overrides)} lang="en" />
     </>
   );
 }

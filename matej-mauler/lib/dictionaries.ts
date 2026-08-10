@@ -23,14 +23,15 @@ export type Dictionary = {
     label: string;
   };
   about: {
-    heading: string;
     p1: string;
     p2: string;
-    p3a: string;
-    writeMe: string;
-    p3b: string;
-    rewardA: string;
-    rewardLink: string;
+    p3: string;
+    p4: string;
+    contactHeading: string;
+    contactLead: string;
+    discordNote: string;
+    emailNote: string;
+    facebookNote: string;
   };
   wipLabel: string;
   experiments: ExperimentContent[];
@@ -57,14 +58,15 @@ export const dictionaries: Record<Lang, Dictionary> = {
       label: "Cestu →",
     },
     about: {
-      heading: "O projektu",
-      p1: "Ahoj, jsem Matěj. Celý svůj život se snažím přijít na to, jak vlastně žít a proč tu jsem. A tak brouzdám internetem a knihami a zjišťuju, o čem život vlastně je.",
-      p2: "Většinu času jsem mimo, ale občas mám aha moment, který mi pomůže něco objasnit. A právě tyto momenty sdílím zde na Spaghetti.ltd.",
-      p3a: "Pokud máš feedback, nápad nebo tě něco zaujme natolik, že bys byl rád, abych pro tebe něco udělal, neváhej mi napsat na ",
-      writeMe: "můj mail",
-      p3b: ".",
-      rewardA: "Díky, že jsi to dočetl až sem, a za odměnu se můžeš kouknout na zbytečné informace z mé ",
-      rewardLink: "Špagetí encyklopedie.",
+      p1: "Ahoj, jsem Matěj. Většinu života jsem hledal ten jeden nápad — ten projekt, u kterého konečně zůstanu. Nikdy jsem ho nenašel. Jen jsem šel pořád dál.",
+      p2: "Až mi došlo: vymýšlet nápady je ten projekt.",
+      p3: "Baví mě hloubat nad novými přístupy, podivnými problémy a otázkami, které si nikdo nedal práci položit. Tak experimentuju. Testuju. Hraju si. Něco vyjde. Většina ne. Všechno skončí tady.",
+      p4: "Spaghetti je moje laboratoř. A moje portfolio.",
+      contactHeading: "Ozvi se",
+      contactLead: "Jestli chceš, aby někdo o tvém projektu přemýšlel jinak — nebo jen vymyslel 9 špatných nápadů, abys mezi nimi našel ten jeden dobrý — napiš mi.",
+      discordNote: "Nejrychlejší cesta ke mně. DM mám otevřené.",
+      emailNote: "matej@matejmauler.com",
+      facebookNote: "facebook.com/maulermatt",
     },
     wipLabel: "Brzy",
     experiments: [
@@ -121,14 +123,15 @@ export const dictionaries: Record<Lang, Dictionary> = {
       label: "Journey →",
     },
     about: {
-      heading: "About",
-      p1: "Hi, I'm Matěj. My whole life I've been trying to figure out how to actually live and why I'm here. So I wander the internet and books, working out what life is really about.",
-      p2: "Most of the time I'm off the mark, but every now and then I get an aha moment that helps me make sense of something. And those are exactly the moments I share here on Spaghetti.ltd.",
-      p3a: "If you have feedback, an idea, or something grabs you enough that you'd like me to make something for you, don't hesitate to drop me a line at ",
-      writeMe: "my email",
-      p3b: ".",
-      rewardA: "Thanks for reading this far — and as a reward, you can peek at some useless trivia from my ",
-      rewardLink: "Spaghetti encyclopedia.",
+      p1: "Hi, I'm Matěj. For most of my life I was looking for that one idea — the one project I'd finally stick with. I never found it. I just kept moving on.",
+      p2: "Until I realised: making ideas is the project.",
+      p3: "I love puzzling over new approaches, strange problems, and questions nobody's bothered to ask yet. So I experiment. I test. I play. Some of it works. Most of it doesn't. All of it ends up here.",
+      p4: "Spaghetti is my lab. And my portfolio.",
+      contactHeading: "Say hi",
+      contactLead: "If you'd like someone to think sideways about your project — or just come up with 9 bad ideas so you can find the one good one — drop me a line.",
+      discordNote: "The fastest way to reach me. My DMs are open.",
+      emailNote: "matej@matejmauler.com",
+      facebookNote: "facebook.com/maulermatt",
     },
     wipLabel: "Soon",
     experiments: [

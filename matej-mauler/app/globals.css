@@ -266,6 +266,29 @@ body {
 .zarrow { transition: transform 200ms var(--transition); }
 .scard:hover .zarrow { transform: translateX(4px); }
 
+/* ── Homepage vizitka: seznam kontaktů (první = primární, větší) ── */
+.hcontacts { list-style: none; margin: 0; padding: 0; }
+.hcontact {
+  display: flex; align-items: baseline; gap: 16px;
+  padding: 16px 0; border-top: 1px solid rgba(26,22,20,0.1);
+  text-decoration: none; color: inherit;
+}
+.hcontacts li:first-child .hcontact { border-top: none; }
+.hcontact-label {
+  font-family: var(--font-display); font-weight: 900; font-size: 21px;
+  letter-spacing: -0.02em; color: var(--text-primary);
+  transition: color 160ms var(--transition);
+}
+.hcontact.primary .hcontact-label { font-size: 27px; }
+.hcontact-note { flex: 1; font-family: var(--font-sans); font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+.hcontact .zarrow { font-family: var(--font-display); font-weight: 800; font-size: 16px; color: var(--text-muted); }
+.hcontact:hover .zarrow { transform: translateX(4px); color: var(--text-primary); }
+.hcontact:hover .hcontact-label { text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 560px) {
+  .hcontact { flex-wrap: wrap; gap: 4px 12px; }
+  .hcontact-note { flex-basis: 100%; }
+}
+
 /* ── Komentáře (vlastní řešení, Clerk identita) — minimalistické, tenké linky ── */
 .cmt-wrap { max-width: 680px; margin: 0 auto; }
 .cmt-list { display: flex; flex-direction: column; }

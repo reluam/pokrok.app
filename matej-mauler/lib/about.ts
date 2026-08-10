@@ -18,6 +18,15 @@ export const SPAGHETTI_BLURB: Bi = {
 /** Centrální node — z něj vedou linky na všechny experimenty. */
 export const MESS_LABEL: Bi = { cs: "Spaghetti.ltd", en: "Spaghetti.ltd" };
 
+export const EMAIL = "matej@matejmauler.com";
+
+/** Kontakty na homepage. Pořadí = priorita, první je ten primární (Discord). */
+export const CONTACTS: { id: string; label: string; href: string; external: boolean }[] = [
+  { id: "discord", label: "Discord", href: "https://discord.com/users/1072594921195835423", external: true },
+  { id: "email", label: "E-mail", href: `mailto:${EMAIL}`, external: false },
+  { id: "facebook", label: "Facebook", href: "https://www.facebook.com/maulermatt", external: true },
+];
+
 export const ABOUT_CONCEPTS: AboutConcept[] = [
   { id: "playful-physics", name: { cs: "Hravá fyzika · osahej si to", en: "Playful physics · feel it" }, blurb: { cs: "Nevysvětluj — nech to osahat. Vlny, pružiny, kuličky v potrubí. Některé věci pochopíš líp rukama než větou.", en: "Don't explain — let people touch it. Waves, springs, beads in a pipe. Some things land better through your hands than a sentence." } },
   { id: "shared-layer", name: { cs: "Sdílená anonymní vrstva", en: "Shared anonymous layer" }, blurb: { cs: "Skoro každý projekt má vrstvu, kterou tvoříme společně — bez přihlašování, bez jmen. Jen stopy mnoha lidí, co tudy prošli.", en: "Almost every project has a layer we make together — no login, no names. Just the traces of many people who passed through." } },
