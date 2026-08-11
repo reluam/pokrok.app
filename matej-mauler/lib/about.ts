@@ -27,8 +27,6 @@ export const PERSON_URL = "https://www.matejmauler.com";
 export const CONTACTS: { id: string; label: string; href: string; external: boolean }[] = [
   { id: "discord", label: "Discord", href: "https://discord.com/users/1072594921195835423", external: true },
   { id: "email", label: EMAIL, href: `mailto:${EMAIL}`, external: false },
-  { id: "linkedin", label: "LinkedIn", href: "https://www.linkedin.com/in/matej-mauler/", external: true },
-  { id: "facebook", label: "Facebook", href: "https://www.facebook.com/maulermatt", external: true },
 ];
 
 export const ABOUT_CONCEPTS: AboutConcept[] = [
