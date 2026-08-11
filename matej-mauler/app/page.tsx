@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
-import { HomeCard } from "@/components/HomeCard";
+import { SiteShell } from "@/components/site/SiteShell";
 import { CONTACTS, EMAIL, PERSON_NAME, PERSON_URL } from "@/lib/about";
-import { dictionaries } from "@/lib/dictionaries";
 import { projects } from "@/lib/projects";
-import { applyTextOverrides, getTextOverrides } from "@/lib/siteTextsDb";
+import { COPY } from "@/lib/site/copy";
 
-const positioning = dictionaries.en.about.description;
+const positioning = COPY.description.en;
 
-// Homepage je cacheovaná (ne force-dynamic): texty se drží ve full-route cache a
-// admin změny ji shodí přes revalidateTag → návrat na „/" je instant místo dynamického renderu.
 export const metadata: Metadata = {
   title: `${PERSON_NAME} — sales, music, web experiments`,
   description: positioning,
@@ -37,12 +34,11 @@ const jsonLd = {
   ],
 };
 
-export default async function Home() {
-  const overrides = await getTextOverrides("en").catch(() => ({}));
+export default function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <HomeCard dict={applyTextOverrides(dictionaries.en, overrides)} />
+      <SiteShell section="home" />
     </>
   );
 }

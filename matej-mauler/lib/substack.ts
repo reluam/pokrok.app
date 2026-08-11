@@ -5,6 +5,24 @@ export interface SubstackPost {
   excerpt: string;
   isoDate: string;
   image: string;
+  /** Plné znění článku z <content:encoded>, očištěné (viz sanitizeArticleHtml). */
+  contentHtml: string;
+}
+
+/**
+ * Feed je sice Matějův vlastní, ale pořád je to cizí HTML vkládané přes
+ * dangerouslySetInnerHTML — proto ven vypouštíme jen neškodnou podmnožinu:
+ * spustitelné a vnořující prvky pryč, on* handlery pryč, javascript: URL pryč.
+ */
+export function sanitizeArticleHtml(html: string): string {
+  return html
+    .replace(/<(script|style|iframe|object|embed|form|link|meta)\b[\s\S]*?<\/\1>/gi, "")
+    .replace(/<(script|style|iframe|object|embed|form|link|meta)\b[^>]*\/?>/gi, "")
+    .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
+    .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
+    .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, "")
+    .replace(/(href|src)\s*=\s*"\s*javascript:[^"]*"/gi, '$1="#"')
+    .replace(/(href|src)\s*=\s*'\s*javascript:[^']*'/gi, "$1='#'");
 }
 
 function extractCdata(xml: string, tag: string): string {
@@ -53,8 +71,10 @@ export async function getSubstackPosts(limit = 4): Promise<SubstackPost[]> {
       const title = stripHtml(extractCdata(item, "title"));
       const link = extractCdata(item, "link") || extractCdata(item, "guid");
       const pubDate = extractCdata(item, "pubDate");
-      const raw = extractCdata(item, "description") || extractCdata(item, "content:encoded");
+      const full = extractCdata(item, "content:encoded");
+      const raw = extractCdata(item, "description") || full;
       const plain = stripHtml(raw);
+      const contentHtml = sanitizeArticleHtml(full || raw);
       const excerpt = plain.length > 220 ? plain.slice(0, 220).replace(/\s\S+$/, "") + "…" : plain;
 
       let isoDate = "";
@@ -70,7 +90,7 @@ export async function getSubstackPosts(limit = 4): Promise<SubstackPost[]> {
         item.match(/<img[^>]+src="([^"]+)"/)?.[1] ?? "";
       const image = enclosure || imgInContent;
 
-      return { title, link, pubDate, excerpt, isoDate, image };
+      return { title, link, pubDate, excerpt, isoDate, image, contentHtml };
     });
   } catch {
     return [];
