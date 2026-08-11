@@ -6,12 +6,8 @@ import type { Bi } from "@/lib/about";
  */
 export const COPY = {
   description: {
-    cs: "Živím se obchodem a rozvojem byznysu, po nocích dělám hudbu jako Matt Mauler a mezitím stavím webové experimenty. Baví mě dívat se na věci jako na systémy — a hledat v nich to místo, kde to zaskřípe.",
-    en: "I do sales and business development by day, music as Matt Mauler by night, and web experiments in between. I like looking at things as systems — and finding the one place where they creak.",
-  },
-  motto: {
-    cs: "Devět z deseti nápadů je špatných. Proto jich mám hodně, abych našel ten jeden.",
-    en: "Nine out of ten ideas are bad. That's why I have plenty — to find the one that isn't.",
+    cs: "Jsem Matěj. Ve dne dělám obchod ve fintechu, večer hudbu jako Matt Mauler a mezi tím stavím malé webové věci, o které nikdo neprosil. Prošel jsem herními weby, festivaly, e-shopy i vlastním projektem, co nevyšel — a zůstal mi z toho zvyk rozebírat věci, abych viděl, co je ve skutečnosti drží pohromadě. Nejradši mám otázky, které si ještě nikdo nedal práci položit.",
+    en: "I'm Matěj. By day I do sales in fintech, by night I make music as Matt Mauler, and in between I build small web things nobody asked for. I've been through gaming sites, festivals, e-shops and a project of my own that flopped — what stayed with me is the habit of taking things apart to see what actually holds them together. My favourite questions are the ones nobody has bothered to ask yet.",
   },
   /** Popisek nad kontakty. */
   contactLabel: { cs: "Ozvi se", en: "Say hi" },

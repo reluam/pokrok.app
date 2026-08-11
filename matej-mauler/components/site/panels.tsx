@@ -23,7 +23,6 @@ export function HomePanel({ lang, onNavigate }: { lang: Lang; onNavigate: (index
           </div>
         </div>
         <p className="mm-description">{COPY.description[lang]}</p>
-        <p className="mm-motto">{COPY.motto[lang]}</p>
       </header>
 
       {/* Každá další sekce má tady svůj shrnující řádek se šipkou doprava. */}
