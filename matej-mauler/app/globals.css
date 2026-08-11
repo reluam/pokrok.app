@@ -322,7 +322,16 @@ body {
   border-radius: 999px;
 }
 .mm-menu-pill::-webkit-scrollbar { display: none; }
-.mm-menu-logo { display: inline-flex; flex-shrink: 0; padding: 0 6px; }
+/* Logo = odkaz na hlavní stránku. Aktivní stav ladí s .mm-menu-link.is-active:
+   tmavá bublina + logo invertované z černé do bílé. */
+.mm-menu-logo {
+  display: inline-flex; flex-shrink: 0; padding: 6px;
+  border-radius: 999px; background: transparent;
+  transition: background 160ms var(--transition);
+}
+.mm-menu-logo.is-active { background: var(--color-text); }
+.mm-menu-logo img { display: block; transition: filter 160ms var(--transition); }
+.mm-menu-logo.is-active img { filter: invert(1); }
 .mm-menu-list { display: inline-flex; align-items: center; gap: 2px; list-style: none; margin: 0; padding: 0; }
 .mm-menu-link {
   display: inline-block; white-space: nowrap;
