@@ -21,7 +21,7 @@ export const MESS_LABEL: Bi = { cs: "Spaghetti.ltd", en: "Spaghetti.ltd" };
 export const EMAIL = "matej@matejmauler.com";
 export const PERSON_NAME = "Matěj Mauler";
 export const PERSON_DOMAIN = "matejmauler.com";
-export const PERSON_URL = "https://matejmauler.com";
+export const PERSON_URL = "https://www.matejmauler.com";
 
 /** Kontakty v panelu u hlavičky. Pořadí = priorita, první je ten primární (Discord). */
 export const CONTACTS: { id: string; label: string; href: string; external: boolean }[] = [

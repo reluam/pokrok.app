@@ -39,7 +39,7 @@ const mono = JetBrains_Mono({
 // Kanonická doména je matejmauler.com (osobní rozcestník na „/"); experimenty žijí na
 // stejné appce pod svými cestami, takže se relativní canonicaly řeší proti téhle base.
 export const metadata: Metadata = {
-  metadataBase: new URL("https://matejmauler.com"),
+  metadataBase: new URL("https://www.matejmauler.com"),
   title: "Matěj Mauler",
   description: "Sales and business development by day, music as Matt Mauler by night, web experiments in between.",
   icons: { icon: "/logo.svg" },
