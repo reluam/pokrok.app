@@ -5,7 +5,6 @@ import { TopMenu } from "./TopMenu";
 import { ContactPanel, HomePanel, ProjectsPanel, ThoughtsPanel, WorkPanel } from "./panels";
 import type { Lang } from "@/lib/dictionaries";
 import { SECTIONS, indexForPath } from "@/lib/site/sections";
-import type { SubstackPost } from "@/lib/substack";
 
 const LANG_COOKIE = "mm_lang";
 
@@ -27,11 +26,9 @@ function blurFor(distance: number) {
 export function SiteStrip({
   initialIndex,
   initialLang,
-  posts,
 }: {
   initialIndex: number;
   initialLang: Lang;
-  posts: SubstackPost[];
 }) {
   const [index, setIndex] = useState(initialIndex);
   const [lang, setLang] = useState<Lang>(initialLang);
@@ -114,7 +111,7 @@ export function SiteStrip({
             {s.id === "home" && <HomePanel lang={lang} onNavigate={navigate} />}
             {s.id === "work" && <WorkPanel lang={lang} />}
             {s.id === "projects" && <ProjectsPanel lang={lang} />}
-            {s.id === "thoughts" && <ThoughtsPanel lang={lang} posts={posts} />}
+            {s.id === "thoughts" && <ThoughtsPanel lang={lang} />}
             {s.id === "contact" && <ContactPanel lang={lang} />}
           </section>
         ))}

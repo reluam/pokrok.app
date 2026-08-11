@@ -48,11 +48,11 @@ export const SECTIONS: Section[] = [
   {
     id: "thoughts",
     href: "/thoughts",
-    nav: { cs: "Myslím si", en: "I think" },
-    title: { cs: "Myslím si", en: "I think" },
+    nav: { cs: "Jak to vidím", en: "How I see it" },
+    title: { cs: "Jak to vidím", en: "How I see it" },
     summary: {
-      cs: "Krátké myšlenky o věcech, na které jsem v životě přišel — a delší články, když mi něco nedá spát.",
-      en: "Short thoughts on things I've worked out along the way — and longer pieces when something won't let me sleep.",
+      cs: "Tři věci, o kterých jsem přesvědčený — a řada dalších, na které jsem cestou přišel. Proklikej si je, dokud tě to baví.",
+      en: "Three things I'm convinced about — and a row of others I worked out along the way. Click through as long as it holds you.",
     },
   },
   {

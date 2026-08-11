@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { BeliefRotator, ThoughtDeck } from "./decks";
 import { CONTACTS, PERSON_DOMAIN, PERSON_NAME } from "@/lib/about";
 import type { Lang } from "@/lib/dictionaries";
 import { projects } from "@/lib/projects";
 import { COPY } from "@/lib/site/copy";
 import { SECTIONS } from "@/lib/site/sections";
-import { THOUGHTS } from "@/lib/site/thoughts";
 import { TIMELINE } from "@/lib/site/timeline";
-import type { SubstackPost } from "@/lib/substack";
 
 /** Obsah jednotlivých panelů pásu. Stav pásu drží SiteStrip, tady jen rozbalování. */
 
@@ -112,84 +110,22 @@ export function ProjectsPanel({ lang }: { lang: Lang }) {
   );
 }
 
-/** Rozbalovací blok — používají ho krátké myšlenky i články. */
-function Expandable({
-  title,
-  meta,
-  preview,
-  children,
-  lang,
-}: {
-  title: string;
-  meta?: React.ReactNode;
-  preview: string;
-  children: React.ReactNode;
-  lang: Lang;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className={`mm-entry${open ? " is-open" : ""}`}>
-      <button type="button" className="mm-entry-head" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-        <span className="mm-entry-title">{title}</span>
-        {meta}
-        {!open && <span className="mm-entry-preview">{preview}</span>}
-        <span className="mm-entry-toggle">{open ? COPY.collapse[lang] : COPY.expand[lang]}</span>
-      </button>
-      {open && <div className="mm-entry-body">{children}</div>}
-    </div>
-  );
-}
-
-export function ThoughtsPanel({ lang, posts }: { lang: Lang; posts: SubstackPost[] }) {
+/**
+ * Nahoře tři přesvědčení k prolistování, pod nimi řada myšlenek po jedné.
+ * Delší články ze Substacku sem zatím nepatří — lib/substack.ts zůstává v repu.
+ */
+export function ThoughtsPanel({ lang }: { lang: Lang }) {
   const s = SECTIONS[3];
   return (
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>
       <p className="mm-panel-lead">{s.summary[lang]}</p>
 
+      <BeliefRotator lang={lang} />
+
       <h3 className="mm-block-heading">{COPY.thoughtsShort[lang]}</h3>
       <p className="mm-block-lead">{COPY.thoughtsShortLead[lang]}</p>
-      <div className="mm-entries">
-        {THOUGHTS.map((t) => (
-          <Expandable key={t.id} lang={lang} title={t.title[lang]} preview={t.lead[lang]}>
-            <p className="mm-entry-lead">{t.lead[lang]}</p>
-            {t.body.map((p, i) => <p key={i}>{p[lang]}</p>)}
-          </Expandable>
-        ))}
-      </div>
-
-      <h3 className="mm-block-heading">{COPY.thoughtsArticles[lang]}</h3>
-      {posts.length === 0 ? (
-        <p className="mm-panel-note">{COPY.thoughtsEmpty[lang]}</p>
-      ) : (
-        <div className="mm-entries">
-          {posts.map((p) => (
-            <Expandable
-              key={p.link}
-              lang={lang}
-              title={p.title}
-              preview={p.excerpt}
-              meta={
-                <span className="mm-entry-meta">
-                  {p.isoDate
-                    ? new Date(p.isoDate).toLocaleDateString(lang === "cs" ? "cs-CZ" : "en-GB", { year: "numeric", month: "long", day: "numeric" })
-                    : ""}
-                </span>
-              }
-            >
-              {/* Vlastní text z vlastního feedu; HTML čistí sanitizeArticleHtml v lib/substack.ts */}
-              <div className="mm-article" dangerouslySetInnerHTML={{ __html: p.contentHtml }} />
-              <a className="mm-panel-out" href={p.link} target="_blank" rel="noopener noreferrer">
-                {COPY.articleOrigin[lang]} <span aria-hidden="true">↗</span>
-              </a>
-            </Expandable>
-          ))}
-        </div>
-      )}
-
-      <a className="mm-panel-out" href="https://matejmauler.substack.com" target="_blank" rel="noopener noreferrer">
-        {COPY.thoughtsAll[lang]} <span aria-hidden="true">→</span>
-      </a>
+      <ThoughtDeck lang={lang} />
     </div>
   );
 }
