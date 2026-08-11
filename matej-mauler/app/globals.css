@@ -282,17 +282,29 @@ body {
 .mm-strip {
   /* width: max-content → počet panelů řídí jen lib/site/sections.ts, ne CSS */
   display: flex; height: 100%; width: max-content;
-  will-change: transform;
+  will-change: transform, filter;
   transition-property: transform;
-  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  transition-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 }
-.mm-panel { width: 100vw; height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+/* Rozmáznutí v půlce přejezdu — čte se jako pohybová neostrost. Blur běží jen na pásu,
+   ne na .mm-viewport, aby menu zůstalo ostré. Délku i sílu nastavuje SiteStrip. */
+@keyframes mm-glide {
+  0%   { filter: blur(0px); opacity: 1; }
+  45%  { filter: blur(var(--mm-blur, 0px)); opacity: 0.94; }
+  100% { filter: blur(0px); opacity: 1; }
+}
+.mm-panel {
+  width: 100vw; height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  /* scrollbar delšího panelu jinak při přejezdu probleskne jako svislá čára mezi sekcemi */
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.mm-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .mm-inner {
   width: 100%; max-width: 760px; margin: 0 auto;
   padding: clamp(96px, 16vh, 148px) clamp(20px, 5vw, 32px) clamp(48px, 10vh, 96px);
 }
 @media (prefers-reduced-motion: reduce) {
-  .mm-strip { transition-duration: 0ms !important; }
+  .mm-strip { transition-duration: 0ms !important; animation: none !important; }
 }
 
 /* ── Fixní menu: pill široký přesně jako obsah ── */

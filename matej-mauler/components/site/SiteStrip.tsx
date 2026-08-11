@@ -11,7 +11,12 @@ const LANG_COOKIE = "mm_lang";
 
 /** Delší skok = delší animace, ať je znát, že se projelo přes mezilehlé sekce. */
 function durationFor(distance: number) {
-  return Math.min(420 + 190 * Math.max(0, distance - 1), 1080);
+  return Math.min(560 + 200 * Math.max(0, distance - 1), 1300);
+}
+
+/** Čím delší skok, tím větší pohybová neostrost — strop drží cenu za překreslení nízko. */
+function blurFor(distance: number) {
+  return Math.min(3 + 2.5 * distance, 11);
 }
 
 /**
@@ -32,17 +37,33 @@ export function SiteStrip({
   const [lang, setLang] = useState<Lang>(initialLang);
   const [duration, setDuration] = useState(0);
   const panelRefs = useRef<(HTMLElement | null)[]>([]);
+  const stripRef = useRef<HTMLDivElement>(null);
+  // index drží i ref, aby `move` zůstal čistý (updater funkce se ve StrictMode volá dvakrát)
+  const indexRef = useRef(initialIndex);
 
   const reducedMotion = () =>
     typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
   const move = useCallback((next: number, push: boolean) => {
-    setIndex((prev) => {
-      if (next === prev) return prev;
-      setDuration(reducedMotion() ? 0 : durationFor(Math.abs(next - prev)));
-      if (push) window.history.pushState({ mmIndex: next }, "", SECTIONS[next].href);
-      return next;
-    });
+    const prev = indexRef.current;
+    if (next === prev) return;
+    indexRef.current = next;
+
+    const distance = Math.abs(next - prev);
+    const reduced = reducedMotion();
+    const ms = reduced ? 0 : durationFor(distance);
+    setDuration(ms);
+    setIndex(next);
+    if (push) window.history.pushState({ mmIndex: next }, "", SECTIONS[next].href);
+
+    // Blur pouštíme imperativně: animaci je potřeba restartovat i při skoku
+    // na stejnou vzdálenost, což by se stejnými props samo nenastalo.
+    const el = stripRef.current;
+    if (!el || reduced) return;
+    el.style.animation = "none";
+    void el.offsetWidth; // vynucený reflow → animace se spustí znovu od nuly
+    el.style.setProperty("--mm-blur", `${blurFor(distance)}px`);
+    el.style.animation = `mm-glide ${ms}ms cubic-bezier(0.76, 0, 0.24, 1)`;
   }, []);
 
   const navigate = useCallback((next: number) => move(next, true), [move]);
@@ -78,6 +99,7 @@ export function SiteStrip({
       <TopMenu lang={lang} index={index} onNavigate={navigate} onToggleLang={toggleLang} />
 
       <div
+        ref={stripRef}
         className="mm-strip"
         style={{ transform: `translate3d(${-index * 100}vw, 0, 0)`, transitionDuration: `${duration}ms` }}
       >
