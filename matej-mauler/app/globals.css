@@ -437,8 +437,14 @@ body {
   color: var(--color-text-muted); padding-top: 5px;
 }
 .mm-tl-item.is-current .mm-tl-period { color: var(--color-text); }
-.mm-tl-org { font-family: var(--font-voice); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; margin: 0; }
-.mm-tl-role { font-family: var(--font-mono); font-size: 12.5px; color: var(--color-text-muted); margin: 4px 0 10px; }
+/* CV pořadí: role je nadpis, firma podtitul */
+.mm-tl-role { font-family: var(--font-voice); font-weight: 700; font-size: 19px; letter-spacing: -0.02em; margin: 0; }
+.mm-tl-org { font-family: var(--font-mono); font-size: 12.5px; color: var(--color-text-muted); margin: 4px 0 10px; }
+.mm-tl-bullets {
+  margin: 10px 0 0; padding-left: 18px;
+  font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted);
+}
+.mm-tl-bullets li { margin-bottom: 4px; }
 .mm-tl-text { font-family: var(--font-sans); font-size: 15px; line-height: 1.65; color: var(--color-text); margin: 0; max-width: 60ch; }
 @media (max-width: 560px) {
   .mm-tl-item { grid-template-columns: 1fr; gap: 8px; }
@@ -458,21 +464,73 @@ body {
 .mm-post:hover .mm-post-title { text-decoration: underline; text-underline-offset: 4px; }
 .mm-post-excerpt { font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted); max-width: 62ch; }
 
-.mm-projects {
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: 14px 28px;
-  padding: 0 0 8px;
+/* ── Projekty: název ve vlastní typografii + odstavec, co to je ── */
+.mm-projects { list-style: none; margin: 0; padding: 0; }
+.mm-project-item {
+  padding: 24px 0; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
 }
-.mm-project {
-  color: var(--color-text); text-decoration: none;
-  padding: 6px 0; /* tap target i při zalomení */
-  transition: opacity 160ms var(--transition);
-}
-a.mm-project:hover { text-decoration: underline; text-underline-offset: 4px; }
+.mm-projects li:last-child { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.mm-project-link { display: inline-flex; align-items: baseline; gap: 8px; text-decoration: none; }
+.mm-project { color: var(--color-text); }
 .mm-project[data-type="voice"] { font-family: var(--font-voice); font-weight: 700; font-size: 24px; letter-spacing: -0.02em; }
 .mm-project[data-type="mono"]  { font-family: var(--font-mono); font-weight: 500; font-size: 19px; }
 .mm-project[data-type="sans"]  { font-family: var(--font-sans); font-weight: 500; font-size: 20px; }
-/* minulé projekty se neschovávají do sekce — jen ztichnou */
-.mm-project.is-past { color: var(--color-text-muted); font-size: 15px; font-weight: 400; }
+.mm-project-arrow { font-family: var(--font-voice); font-size: 15px; color: var(--color-text-muted); transition: transform 200ms var(--transition); }
+.mm-project-link:hover .mm-project { text-decoration: underline; text-underline-offset: 4px; }
+.mm-project-link:hover .mm-project-arrow { transform: translate(2px, -2px); color: var(--color-text); }
+.mm-project-blurb {
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.65;
+  color: var(--color-text-muted); max-width: 62ch; margin: 10px 0 0;
+}
+/* odložené projekty se neschovávají do sekce — jen ztichnou */
+.mm-project-item.is-past .mm-project { color: var(--color-text-muted); font-size: 16px; font-weight: 400; }
+
+/* ── Rozbalovací záznamy (krátké myšlenky i články) ── */
+.mm-block-heading {
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--color-text-muted); margin: 52px 0 10px;
+}
+.mm-block-lead { font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted); max-width: 56ch; margin: 0 0 18px; }
+.mm-entries { border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.mm-entry { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.mm-entry-head {
+  display: flex; flex-direction: column; gap: 6px; width: 100%;
+  padding: 20px 0; background: none; border: none; text-align: left; cursor: pointer;
+}
+.mm-entry-title {
+  font-family: var(--font-voice); font-weight: 700; font-size: 19px;
+  letter-spacing: -0.02em; line-height: 1.3; color: var(--color-text);
+}
+.mm-entry-head:hover .mm-entry-title { text-decoration: underline; text-underline-offset: 4px; }
+.mm-entry-meta { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; color: var(--color-text-muted); }
+.mm-entry-preview {
+  font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted);
+  max-width: 62ch;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.mm-entry-toggle { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted); }
+.mm-entry-head:hover .mm-entry-toggle { color: var(--color-text); }
+.mm-entry-body { padding: 0 0 26px; max-width: 64ch; }
+.mm-entry-body p { font-family: var(--font-sans); font-size: 15.5px; line-height: 1.7; color: var(--color-text); margin: 0 0 14px; }
+.mm-entry-lead { font-weight: 600; }
+
+/* Text článku ze Substacku — jen základní typografie, obrázky se vejdou do sloupce. */
+.mm-article { font-family: var(--font-sans); font-size: 15.5px; line-height: 1.7; color: var(--color-text); }
+.mm-article p { margin: 0 0 14px; }
+.mm-article h1, .mm-article h2, .mm-article h3 {
+  font-family: var(--font-voice); font-weight: 700; letter-spacing: -0.02em;
+  font-size: 19px; margin: 26px 0 10px;
+}
+.mm-article a { color: var(--color-text); text-decoration: underline; text-underline-offset: 3px; }
+.mm-article img { max-width: 100%; height: auto; display: block; margin: 18px 0; }
+.mm-article blockquote {
+  margin: 18px 0; padding-left: 16px;
+  border-left: 2px solid color-mix(in srgb, var(--color-text) 20%, transparent);
+  color: var(--color-text-muted);
+}
+.mm-article ul, .mm-article ol { margin: 0 0 14px; padding-left: 20px; }
+.mm-article li { margin-bottom: 6px; }
+.mm-article hr { border: none; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); margin: 24px 0; }
 
 
 /* ── Komentáře (vlastní řešení, Clerk identita) — minimalistické, tenké linky ── */

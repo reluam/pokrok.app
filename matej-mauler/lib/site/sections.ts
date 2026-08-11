@@ -28,31 +28,31 @@ export const SECTIONS: Section[] = [
   {
     id: "work",
     href: "/work",
-    nav: { cs: "Čím jsem prošel", en: "Where I've been" },
-    title: { cs: "Čím jsem prošel", en: "Where I've been" },
+    nav: { cs: "Kousek historie", en: "A bit of history" },
+    title: { cs: "Kousek historie", en: "A bit of history" },
     summary: {
-      cs: "Herní weby, jeden vlastní projekt, co nevyšel, festivaly, e-shopy a teď fintech. Životopis, ale na časové ose — i s tím, co nedopadlo.",
-      en: "Gaming sites, one project of my own that flopped, festivals, e-shops, and fintech today. A CV on a timeline — including the parts that went wrong.",
+      cs: "Herní weby, vlastní projekt, festivaly, e-shopy a dnes fintech. Životopis na časové ose — i s tím, co nevyšlo.",
+      en: "Gaming sites, a project of my own, festivals, e-shops, and fintech today. A CV on a timeline — including what didn't work out.",
     },
   },
   {
     id: "projects",
     href: "/projects",
-    nav: { cs: "Moje projekty", en: "My projects" },
-    title: { cs: "Moje projekty", en: "My projects" },
+    nav: { cs: "Čemu se věnuju teď", en: "What I do now" },
+    title: { cs: "Čemu se věnuju teď", en: "What I do now" },
     summary: {
-      cs: "Co si stavím sám a po večerech — hudba jako Matt Mauler, webové experimenty na Spaghetti.ltd a další věci, které vznikly z nudy nebo z otázky.",
-      en: "The things I build on my own time — music as Matt Mauler, web experiments on Spaghetti.ltd, and whatever else grew out of boredom or a question.",
+      cs: "Věci, které si stavím sám, protože mi dávají smysl — hudba jako Matt Mauler, webové experimenty na Spaghetti.ltd a další.",
+      en: "The things I build myself because they make sense to me — music as Matt Mauler, web experiments on Spaghetti.ltd, and more.",
     },
   },
   {
     id: "thoughts",
     href: "/thoughts",
-    nav: { cs: "Občas se zamyslím", en: "Sometimes I think" },
-    title: { cs: "Občas se zamyslím", en: "Sometimes I think" },
+    nav: { cs: "Myslím si", en: "I think" },
+    title: { cs: "Myslím si", en: "I think" },
     summary: {
-      cs: "Texty o tom, co znamená být člověkem — a co z toho plyne. Píšu je nepravidelně, vždycky až když mi něco doopravdy nedá spát.",
-      en: "Notes on what it means to be human — and what follows from it. Written irregularly, always only when something genuinely won't let me sleep.",
+      cs: "Krátké myšlenky o věcech, na které jsem v životě přišel — a delší články, když mi něco nedá spát.",
+      en: "Short thoughts on things I've worked out along the way — and longer pieces when something won't let me sleep.",
     },
   },
   {
