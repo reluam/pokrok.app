@@ -274,16 +274,65 @@ body {
 .zarrow { transition: transform 200ms var(--transition); }
 .scard:hover .zarrow { transform: translateX(4px); }
 
-/* ── Osobní stránka (/) — hlavička, kontakty, lišta projektů ──
+/* ── Osobní stránky (matejmauler.com) — vodorovný pás pěti panelů ──
    Ploché, bez dekorací: barvy a fonty jdou jen přes tokeny nahoře (design pass přijde zvlášť). */
-.mm-page { background: var(--color-bg); min-height: 100dvh; display: flex; flex-direction: column; }
-.mm-shell {
-  width: 100%; max-width: 760px; margin: 0 auto;
-  padding: clamp(56px, 10vh, 104px) clamp(20px, 5vw, 32px) 0;
-  flex: 1; display: flex; flex-direction: column;
+
+/* Okno, ve kterém se pás posouvá. Stránka sama nikdy nescrolluje do stran. */
+.mm-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--color-bg); }
+.mm-strip {
+  /* width: max-content → počet panelů řídí jen lib/site/sections.ts, ne CSS */
+  display: flex; height: 100%; width: max-content;
+  will-change: transform;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
 }
-/* hlavička drží horní část, lišta projektů sedí až na konci stránky */
-.mm-header { flex: 1; }
+.mm-panel { width: 100vw; height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+.mm-inner {
+  width: 100%; max-width: 760px; margin: 0 auto;
+  padding: clamp(96px, 16vh, 148px) clamp(20px, 5vw, 32px) clamp(48px, 10vh, 96px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-strip { transition-duration: 0ms !important; }
+}
+
+/* ── Fixní menu: pill široký přesně jako obsah ── */
+.mm-menu {
+  position: fixed; top: clamp(14px, 2.4vh, 24px); left: 50%; transform: translateX(-50%);
+  z-index: 50; max-width: calc(100vw - 24px);
+}
+.mm-menu-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  max-width: 100%; overflow-x: auto; scrollbar-width: none;
+  padding: 7px 10px;
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+  border-radius: 999px;
+}
+.mm-menu-pill::-webkit-scrollbar { display: none; }
+.mm-menu-logo { display: inline-flex; flex-shrink: 0; padding: 0 6px; }
+.mm-menu-list { display: inline-flex; align-items: center; gap: 2px; list-style: none; margin: 0; padding: 0; }
+.mm-menu-link {
+  display: inline-block; white-space: nowrap;
+  font-family: var(--font-sans); font-size: 13.5px; font-weight: 500;
+  color: color-mix(in srgb, var(--color-text) 62%, transparent);
+  text-decoration: none; padding: 7px 12px; border-radius: 999px;
+  transition: color 160ms var(--transition), background 160ms var(--transition);
+}
+.mm-menu-link:hover { color: var(--color-text); }
+.mm-menu-link.is-active {
+  color: var(--color-bg);
+  background: var(--color-text);
+}
+.mm-menu-lang {
+  flex-shrink: 0; cursor: pointer; margin-left: 2px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+  color: var(--color-text-muted); background: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-text) 16%, transparent);
+  border-radius: 999px; padding: 5px 9px;
+  transition: color 160ms var(--transition), border-color 160ms var(--transition);
+}
+.mm-menu-lang:hover { color: var(--color-text); border-color: color-mix(in srgb, var(--color-text) 40%, transparent); }
 
 .mm-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
 .mm-logo { display: block; flex-shrink: 0; }
@@ -318,10 +367,79 @@ body {
 }
 .mm-contact:hover { text-decoration-color: var(--color-text); }
 
+/* ── Shrnující řádky sekcí na hlavní stránce (klik = posun pásu doprava) ── */
+.mm-teasers { list-style: none; margin: 48px 0 0; padding: 0; }
+.mm-teaser {
+  display: flex; align-items: center; gap: 20px;
+  padding: 22px 0; text-decoration: none; color: inherit;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+.mm-teasers li:last-child .mm-teaser { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.mm-teaser-text { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.mm-teaser-title {
+  font-family: var(--font-voice); font-weight: 700; font-size: clamp(19px, 3vw, 23px);
+  letter-spacing: -0.02em; color: var(--color-text);
+}
+.mm-teaser-summary { font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted); }
+.mm-teaser-arrow {
+  flex-shrink: 0; font-family: var(--font-voice); font-size: 22px; color: var(--color-text-muted);
+  transition: transform 200ms var(--transition), color 200ms var(--transition);
+}
+.mm-teaser:hover .mm-teaser-arrow { transform: translateX(6px); color: var(--color-text); }
+.mm-teaser:hover .mm-teaser-title { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ── Vnitřek panelů ── */
+.mm-panel-title {
+  font-family: var(--font-voice); font-weight: 700; font-size: clamp(27px, 5vw, 38px);
+  letter-spacing: -0.03em; line-height: 1.05; color: var(--color-text); margin: 0 0 14px;
+}
+.mm-panel-lead {
+  font-family: var(--font-sans); font-size: clamp(15px, 2vw, 17px); line-height: 1.65;
+  color: var(--color-text-muted); max-width: 56ch; margin: 0 0 44px;
+}
+.mm-panel-note { font-family: var(--font-sans); font-size: 14px; color: var(--color-text-muted); margin: 28px 0 0; }
+.mm-panel-out {
+  display: inline-block; margin-top: 36px;
+  font-family: var(--font-sans); font-size: 15px; color: var(--color-text);
+  text-decoration: underline; text-underline-offset: 4px;
+}
+
+/* ── Časová osa (životopis) ── */
+.mm-timeline { list-style: none; margin: 0; padding: 0; }
+.mm-tl-item {
+  display: grid; grid-template-columns: 92px 1fr; gap: 20px;
+  padding: 24px 0; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+.mm-tl-item:last-child { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.mm-tl-period {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em;
+  color: var(--color-text-muted); padding-top: 5px;
+}
+.mm-tl-item.is-current .mm-tl-period { color: var(--color-text); }
+.mm-tl-org { font-family: var(--font-voice); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; margin: 0; }
+.mm-tl-role { font-family: var(--font-mono); font-size: 12.5px; color: var(--color-text-muted); margin: 4px 0 10px; }
+.mm-tl-text { font-family: var(--font-sans); font-size: 15px; line-height: 1.65; color: var(--color-text); margin: 0; max-width: 60ch; }
+@media (max-width: 560px) {
+  .mm-tl-item { grid-template-columns: 1fr; gap: 8px; }
+  .mm-tl-period { padding-top: 0; }
+}
+
+/* ── Texty ze Substacku ── */
+.mm-posts { list-style: none; margin: 0; padding: 0; }
+.mm-post {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 22px 0; text-decoration: none; color: inherit;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+.mm-posts li:last-child .mm-post { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.mm-post-date { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
+.mm-post-title { font-family: var(--font-voice); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; color: var(--color-text); }
+.mm-post:hover .mm-post-title { text-decoration: underline; text-underline-offset: 4px; }
+.mm-post-excerpt { font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted); max-width: 62ch; }
+
 .mm-projects {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 14px 28px;
-  padding: 40px 0 20px; margin-top: 56px;
-  border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  padding: 0 0 8px;
 }
 .mm-project {
   color: var(--color-text); text-decoration: none;
@@ -335,10 +453,6 @@ a.mm-project:hover { text-decoration: underline; text-underline-offset: 4px; }
 /* minulé projekty se neschovávají do sekce — jen ztichnou */
 .mm-project.is-past { color: var(--color-text-muted); font-size: 15px; font-weight: 400; }
 
-.mm-footer {
-  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.04em;
-  color: var(--color-text-muted); padding: 0 0 28px;
-}
 
 /* ── Komentáře (vlastní řešení, Clerk identita) — minimalistické, tenké linky ── */
 .cmt-wrap { max-width: 680px; margin: 0 auto; }

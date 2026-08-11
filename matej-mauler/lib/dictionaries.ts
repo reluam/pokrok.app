@@ -22,14 +22,6 @@ export type Dictionary = {
     prefix: string;
     label: string;
   };
-  about: {
-    /** 1–2 věty: kdo jsem. */
-    description: string;
-    /** Jedna úderná věta — vlastní typografické řešení (.mm-motto). */
-    motto: string;
-    /** Popisek nad kontakty. */
-    contactLabel: string;
-  };
   wipLabel: string;
   experiments: ExperimentContent[];
 };
@@ -53,11 +45,6 @@ export const dictionaries: Record<Lang, Dictionary> = {
     journeyCredit: {
       prefix: "Pro vážnější publikum dělám také",
       label: "Cestu →",
-    },
-    about: {
-      description: "Živím se obchodem a rozvojem byznysu, po nocích dělám hudbu jako Matt Mauler a mezitím stavím webové experimenty. Baví mě dívat se na věci jako na systémy — a hledat v nich to místo, kde to zaskřípe.",
-      motto: "Devět z deseti nápadů je špatných. Proto jich mám hodně, abych našel ten jeden.",
-      contactLabel: "Ozvi se",
     },
     wipLabel: "Brzy",
     experiments: [
@@ -112,11 +99,6 @@ export const dictionaries: Record<Lang, Dictionary> = {
     journeyCredit: {
       prefix: "For more serious folks, I also make the",
       label: "Journey →",
-    },
-    about: {
-      description: "I do sales and business development by day, music as Matt Mauler by night, and web experiments in between. I like looking at things as systems — and finding the one place where they creak.",
-      motto: "Nine out of ten ideas are bad. That's why I have plenty — to find the one that isn't.",
-      contactLabel: "Say hi",
     },
     wipLabel: "Soon",
     experiments: [
