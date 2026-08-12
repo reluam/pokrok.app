@@ -47,28 +47,33 @@ paralelně, protože typ `Bi` ji vyžaduje — cs scaffolding zůstává zmraže
 **en**
 
 > I'm Matěj. I'm of the human species. Life, and being human, is a fascinating, humbling
-> and awe-inspiring experience.
+> and awe-inspiring experience for me.
 >
 > In my small way I want to make it more fascinating still. So I keep learning — about
 > the world, about people, about myself.
 >
-> Day to day: sales at Teya, music as Matt Mauler, and small web things in the evenings.
+> Whatever I do, I do it with that end goal in mind — as a project manager, as a
+> musician, as a human being.
 
 **cs**
 
-> Jsem Matěj. Jsem z živočišného druhu člověk. Život a to, být člověkem, je fascinující,
-> pokořující a úžasná zkušenost.
+> Jsem Matěj. Jsem z živočišného druhu člověk. Život a to, být člověkem, je pro mě
+> fascinující, pokořující a úžasná zkušenost.
 >
 > Svým malým dílem chci přispět k tomu, aby byl ještě fascinující. Tak se pořád učím —
 > o světě, o lidech, o sobě.
 >
-> Ve dne obchod v Teyi, hudba jako Matt Mauler a večer malé webové věci.
+> Ať dělám cokoli, dělám to s tímhle cílem — jako projektový manažer, jako muzikant,
+> jako člověk.
 
 Poznámky:
 - „I'm of the human species" je záměrná zvláštnost — je mírně vtipná a sedí k tomu, co
   Spaghetti dělá jinde (inform, educate, entertain). Neuhlazovat do „I'm human".
-- Poslední faktický řádek je přidaný oproti zadání: bez něj hlavní stránka neříká, co
-  Matěj vlastně dělá. Je to seznam, ne teze.
+- „for me" na konci první věty je záměrné: dělá z toho Matějovu zkušenost, ne tvrzení
+  o tom, jaký život je. Nevypouštět — je to celý rozdíl mezi popisem a kázáním.
+- **Hlavní stránka nenese žádný konkrétní fakt.** Je to vědomé rozhodnutí: co Matěj
+  dělá, říkají až shrnutí sekcí pod tím („A bit of history", „What I do now"). Důsledek
+  je, že veškerou faktickou váhu pro vyhledávače nese `metaDescription` — viz níže.
 - `description` se používá i jako `<meta description>` a v JSON-LD. Tři odstavce jsou
   pro meta tag moc dlouhé → **implementace musí zavést oddělený `COPY.metaDescription`**
   (jedna věta, ~155 znaků) a `app/page.tsx` použije ten.
