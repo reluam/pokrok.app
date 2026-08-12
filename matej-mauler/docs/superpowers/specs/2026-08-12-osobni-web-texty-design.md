@@ -259,8 +259,12 @@ Přístupnost:
 Responsivita:
 
 - Geometrie platí nad `560px` — stejný breakpoint, na kterém se už láme
-  `.mm-tl-item` v `globals.css`. Pod ním se trojúhelník i kruh sesypou do sloupce
-  s `support` textem přímo pod každým `claim` — bez rozbalování, všechno vidět.
+  `.mm-tl-item` v `globals.css`. Pod ním se trojúhelník i kruh sesypou do prostého
+  sloupce.
+- **Rozbalování funguje stejně v obou režimech, mění se jen CSS.** (Původně tu stálo,
+  že na mobilu bude všech osm `support` textů rovnou vidět — to by znamenalo vykreslit
+  každý dvakrát, jednou inline a jednou ve sdíleném panelu. Duplicitní DOM a duplicitní
+  čtení pro odečítač obrazovky nestojí za to.)
 - Panel je uvnitř vodorovného pásu (`.mm-inner`), takže **nesmí přetéct do stran** —
   šířka geometrie se odvozuje od kontejneru, ne od viewportu.
 
