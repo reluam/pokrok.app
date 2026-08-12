@@ -121,23 +121,24 @@ a nemusí je vysvětlovat.
 |---|---|---|---|---|
 | 1 | Teya | May 2025 – now | Sales | Obchod |
 | 2 | NetDirect (FLO) | Sep 2023 – Nov 2024 | Project manager | Projektový manažer |
+| ? | Kinder Fest | **OTEVŘENÉ** | Festivals for kids | Festivaly pro děti |
 | 3 | MarketPUBG | 2019 – 2020 | Founder | Zakladatel |
 | 4 | Mladá fronta | Feb 2018 – Aug 2019 | Gaming websites | Herní weby |
 | 5 | Beats for Love | 2015 – now | Festival insights & visitor research | Festival insights & visitor research |
 
-Kinder Fest se z timeline **vypouští** (rozhodnutí 2026-08-12) — Matěj ho vyřadil sám,
-ne kvůli tomu, že skončil špatně. Původní odůvodnění v tomhle specu („jeden neúspěch
-stačí") bylo špatně a je zrušené: neúspěchy se z timeline nevyhazují kvůli vyváženosti,
-viz hlasové pravidlo 8.
+Kinder Fest byl 2026-08-12 nejdřív vypuštěn a **hned vrácen zpátky** — patří tam podle
+hlasového pravidla 8. Zbývá doplnit roky; podle nich se určí i pozice (pravděpodobně
+mezi NetDirect a MarketPUBG, tedy někde 2020–2023).
 
 Texty (en):
 
 1. **Teya** — Card payment terminals for small businesses. I spend the day talking to
    people who run one.
 2. **NetDirect (FLO)** — E-commerce builds, brief to handover.
-3. **MarketPUBG** — A marketplace for game skins. My own company. It didn't make it.
-4. **Mladá fronta** — Gaming sites at a publishing house.
-5. **Beats for Love** — Started as summer crew on production and stayed. Project
+3. **Kinder Fest** — Producing festivals for children. It ended badly.
+4. **MarketPUBG** — A marketplace for game skins. My own company. It didn't make it.
+5. **Mladá fronta** — Gaming sites at a publishing house.
+6. **Beats for Love** — Started as summer crew on production and stayed. Project
    management along the way; now I work on what the data says about the people who come.
    Also project assistant on Sweetsen Fest.
 
@@ -146,9 +147,10 @@ Texty (cs):
 1. **Teya** — Platební terminály pro malé podniky. Celý den mluvím s lidma, co nějaký
    provozují.
 2. **NetDirect (FLO)** — E-shopy od zadání po předání.
-3. **MarketPUBG** — Tržiště se skiny do her. Vlastní firma. Nevyšlo to.
-4. **Mladá fronta** — Herní weby ve vydavatelském domě.
-5. **Beats for Love** — Začínal jsem na produkci jako brigádník a zůstal. Cestou
+3. **Kinder Fest** — Pořádání festivalů pro děti. Skončilo to ošklivě.
+4. **MarketPUBG** — Tržiště se skiny do her. Vlastní firma. Nevyšlo to.
+5. **Mladá fronta** — Herní weby ve vydavatelském domě.
+6. **Beats for Love** — Začínal jsem na produkci jako brigádník a zůstal. Cestou
    projektové řízení, dneska dělám na tom, co data říkají o lidech, co přijdou. K tomu
    projektový asistent na Sweetsen Festu.
 
@@ -302,7 +304,9 @@ zůstává.
 
 ## Otevřené otázky
 
-Žádné. Spec je kompletní, implementace může začít.
+1. **Roky u Kinder Festu.** Jediná chybějící položka. Určí i pozici v timeline.
+   Implementace může začít vším ostatním; tenhle jeden řádek se doplní až přijde odpověď.
 
-Vyřešeno 2026-08-12: MarketPUBG = 2019 – 2020 (rok hned po Mladé frontě); Kinder Fest
-se vypouští; díry v letech neexistují, protože Beats for Love běží průběžně od 2015.
+Vyřešeno 2026-08-12: MarketPUBG = 2019 – 2020 (rok hned po Mladé frontě); díry v letech
+neexistují, protože Beats for Love běží průběžně od 2015; Kinder Fest nejdřív vypuštěn,
+pak vrácen zpátky (hlasové pravidlo 8).
