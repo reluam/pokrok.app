@@ -121,14 +121,13 @@ a nemusí je vysvětlovat.
 |---|---|---|---|---|
 | 1 | Teya | May 2025 – now | Sales | Obchod |
 | 2 | NetDirect (FLO) | Sep 2023 – Nov 2024 | Project manager | Projektový manažer |
-| ? | Kinder Fest | **OTEVŘENÉ** | Festivals for kids | Festivaly pro děti |
-| 3 | MarketPUBG | 2019 – 2020 | Founder | Zakladatel |
-| 4 | Mladá fronta | Feb 2018 – Aug 2019 | Gaming websites | Herní weby |
-| 5 | Beats for Love | 2015 – now | Festival insights & visitor research | Festival insights & visitor research |
+| 3 | Kinder Fest | 2020 – 2021 | Festivals for kids | Festivaly pro děti |
+| 4 | MarketPUBG | 2019 – 2020 | Founder | Zakladatel |
+| 5 | Mladá fronta | Feb 2018 – Aug 2019 | Gaming websites | Herní weby |
+| 6 | Beats for Love | 2015 – now | Festival insights & visitor research | Festival insights & visitor research |
 
 Kinder Fest byl 2026-08-12 nejdřív vypuštěn a **hned vrácen zpátky** — patří tam podle
-hlasového pravidla 8. Zbývá doplnit roky; podle nich se určí i pozice (pravděpodobně
-mezi NetDirect a MarketPUBG, tedy někde 2020–2023).
+hlasového pravidla 8.
 
 Texty (en):
 
@@ -138,9 +137,10 @@ Texty (en):
 3. **Kinder Fest** — Producing festivals for children. It ended badly.
 4. **MarketPUBG** — A marketplace for game skins. My own company. It didn't make it.
 5. **Mladá fronta** — Gaming sites at a publishing house.
-6. **Beats for Love** — Started as summer crew on production and stayed. Project
-   management along the way; now I work on what the data says about the people who come.
-   Also project assistant on Sweetsen Fest.
+6. **Beats for Love** — Started as summer crew on production in 2015 and never left.
+   Production, project management, two years full-time between 2021 and 2023, and now
+   the visitor research. Also project assistant on Sweetsen Fest. It's the one thing
+   I've stayed with.
 
 Texty (cs):
 
@@ -150,9 +150,10 @@ Texty (cs):
 3. **Kinder Fest** — Pořádání festivalů pro děti. Skončilo to ošklivě.
 4. **MarketPUBG** — Tržiště se skiny do her. Vlastní firma. Nevyšlo to.
 5. **Mladá fronta** — Herní weby ve vydavatelském domě.
-6. **Beats for Love** — Začínal jsem na produkci jako brigádník a zůstal. Cestou
-   projektové řízení, dneska dělám na tom, co data říkají o lidech, co přijdou. K tomu
-   projektový asistent na Sweetsen Festu.
+6. **Beats for Love** — Začínal jsem v roce 2015 na produkci jako brigádník a už jsem
+   neodešel. Produkce, projektové řízení, dva roky na plný úvazek mezi 2021 a 2023,
+   dneska visitor research. K tomu projektový asistent na Sweetsen Festu. Je to jediná
+   věc, u které jsem zůstal.
 
 ## 4 — Čemu se věnuju teď (`lib/projects.ts`, `COPY.nowIntro`)
 
@@ -304,9 +305,9 @@ zůstává.
 
 ## Otevřené otázky
 
-1. **Roky u Kinder Festu.** Jediná chybějící položka. Určí i pozici v timeline.
-   Implementace může začít vším ostatním; tenhle jeden řádek se doplní až přijde odpověď.
+Žádné. Spec je kompletní, implementace může začít.
 
-Vyřešeno 2026-08-12: MarketPUBG = 2019 – 2020 (rok hned po Mladé frontě); díry v letech
-neexistují, protože Beats for Love běží průběžně od 2015; Kinder Fest nejdřív vypuštěn,
-pak vrácen zpátky (hlasové pravidlo 8).
+Vyřešeno 2026-08-12: MarketPUBG = 2019 – 2020 (rok hned po Mladé frontě); Kinder Fest =
+2020 – 2021, nejdřív vypuštěn, pak vrácen zpátky (hlasové pravidlo 8); Beats for Love
+běží průběžně od 2015 a mezi 2021 a 2023 byl na plný úvazek — tím jsou pokryté všechny
+roky a timeline nemá díry, které by musela vysvětlovat.
