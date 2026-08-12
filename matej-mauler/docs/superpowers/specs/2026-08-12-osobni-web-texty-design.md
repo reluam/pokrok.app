@@ -36,6 +36,10 @@ který je neskromný bez ohledu na to, jak pokorně jsou jednotlivé věty napsa
 5. **Max 2–3 věty na blok.**
 6. Sentence case (ne lowercase — to je hlas experimentů na Spaghetti, ne osobního webu).
 7. První osoba všude. Nejsou to rady čtenáři.
+8. **Web nesmí působit jako portfolio úspěšného člověka.** Je to popis člověka, který se
+   snaží žít, jak nejlíp umí. Nedodělané zůstává nedodělaným, neúspěch neúspěchem —
+   bez vysvětlení, bez omluvy a bez odstraňování „kvůli vyváženosti". Když se při
+   redakci objeví nutkání nějaký fail vyhodit nebo změkčit, je to signál, že tam patří.
 
 Angličtina je primární (web je EN-only, `getLang() → "en"`). Čeština se udržuje
 paralelně, protože typ `Bi` ji vyžaduje — cs scaffolding zůstává zmražený, ne smazaný.
@@ -121,8 +125,10 @@ a nemusí je vysvětlovat.
 | 4 | Mladá fronta | Feb 2018 – Aug 2019 | Gaming websites | Herní weby |
 | 5 | Beats for Love | 2015 – now | Festival insights & visitor research | Festival insights & visitor research |
 
-Kinder Fest se z timeline **vypouští** (rozhodnutí 2026-08-12). Jediný zbylý neúspěch
-je MarketPUBG — to stačí, sekce se nemá stát seznamem průšvihů.
+Kinder Fest se z timeline **vypouští** (rozhodnutí 2026-08-12) — Matěj ho vyřadil sám,
+ne kvůli tomu, že skončil špatně. Původní odůvodnění v tomhle specu („jeden neúspěch
+stačí") bylo špatně a je zrušené: neúspěchy se z timeline nevyhazují kvůli vyváženosti,
+viz hlasové pravidlo 8.
 
 Texty (en):
 
@@ -155,14 +161,14 @@ Texty (cs):
 | projekt | en |
 |---|---|
 | Matt Mauler | Music. The oldest thing I do. Tracks are on SoundCloud. |
-| Spaghetti.ltd | Interactive web experiments — sound, music, a radio that runs on the server, an encyclopedia, games. |
-| Stats & Facts | A platform for working with data. Interactive reports, built so you can actually see what the numbers connect to. No public link yet. |
+| Spaghetti.ltd | Interactive web experiments — sound, music, a radio that runs on the server, an encyclopedia, games. Plenty of them are unfinished and hardly anyone has seen them. |
+| Stats & Facts | Interactive reports, built so you can see what the numbers connect to. It's early — it still lives on a temporary domain, so there's no link yet. |
 
 | projekt | cs |
 |---|---|
 | Matt Mauler | Hudba. Nejstarší věc, co dělám. Nahrávky jsou na SoundCloudu. |
-| Spaghetti.ltd | Interaktivní webové experimenty — zvuk, hudba, rádio běžící na serveru, encyklopedie, hry. |
-| Stats & Facts | Platforma pro práci s daty. Interaktivní reporty, postavené tak, abys viděl, na čem ta čísla visí. Veřejný odkaz zatím není. |
+| Spaghetti.ltd | Interaktivní webové experimenty — zvuk, hudba, rádio běžící na serveru, encyklopedie, hry. Spousta z nich je nedodělaná a skoro nikdo je neviděl. |
+| Stats & Facts | Interaktivní reporty, postavené tak, abys viděl, na čem ta čísla visí. Je to na začátku — pořád to běží na dočasné doméně, takže odkaz zatím není. |
 
 Stats & Facts zůstává bez `url` (běží na dočasné doméně) — komponenta už umí vykreslit
 projekt bez odkazu.
