@@ -84,14 +84,14 @@ Poznámky:
 
 | id | title en | summary en |
 |---|---|---|
-| work | A bit of history | Where I've worked, in order. Gaming sites, a company of my own, festivals, e-shops, fintech. |
+| work | A bit of history | Where I've worked, newest first. Fintech, e-commerce, a company of my own, gaming sites, and a festival I've been at since 2015. |
 | projects | What I do now | Three things I keep coming back to. None of them pay for anything. |
 | thoughts | How I see it | A few things I've landed on. Not advice — just where I am. |
 | contact | Let's stay in touch | Discord is fastest. Email works too. No reason needed. |
 
 | id | title cs | summary cs |
 |---|---|---|
-| work | Kousek historie | Kde jsem pracoval, po pořádku. Herní weby, vlastní firma, festivaly, e-shopy, fintech. |
+| work | Kousek historie | Kde jsem pracoval, od nejnovějšího. Fintech, e-shopy, vlastní firma, herní weby a festival, u kterého jsem od roku 2015. |
 | projects | Čemu se věnuju teď | Tři věci, ke kterým se pořád vracím. Ani jedna nic nevydělává. |
 | thoughts | Jak to vidím | Pár věcí, na kterých jsem zůstal. Nejsou to rady, je to jen to, kde jsem. |
 | contact | Zůstaňme ve spojení | Nejrychleji Discord. Mail taky funguje. Důvod není potřeba. |
@@ -109,14 +109,20 @@ přepisu nepoužívá (zůstává v typu jako volitelné).
 B4L zahodilo informaci „2015 –". **Implementace musí `WorkPanel` upravit tak, aby
 `period` vypisovala vždy**, a `current` používala jen pro vizuální zvýraznění.
 
+Beats for Love běží celou dobu (2015 – teď), takže mezery mezi ostatními položkami
+nejsou prázdné roky — jen roky, kdy Matěj nedělal nic dalšího. Timeline díry nemá
+a nemusí je vysvětlovat.
+
 | pořadí | org | period | role en | role cs |
 |---|---|---|---|---|
 | 1 | Teya | May 2025 – now | Sales | Obchod |
 | 2 | NetDirect (FLO) | Sep 2023 – Nov 2024 | Project manager | Projektový manažer |
-| 3 | MarketPUBG | **OTEVŘENÉ** | Founder | Zakladatel |
-| 4 | Kinder Fest | **OTEVŘENÉ** | Festivals for kids | Festivaly pro děti |
-| 5 | Mladá fronta | Feb 2018 – Aug 2019 | Gaming websites | Herní weby |
-| 6 | Beats for Love | 2015 – now | Festival insights & visitor research | Festival insights & visitor research |
+| 3 | MarketPUBG | 2019 – 2020 | Founder | Zakladatel |
+| 4 | Mladá fronta | Feb 2018 – Aug 2019 | Gaming websites | Herní weby |
+| 5 | Beats for Love | 2015 – now | Festival insights & visitor research | Festival insights & visitor research |
+
+Kinder Fest se z timeline **vypouští** (rozhodnutí 2026-08-12). Jediný zbylý neúspěch
+je MarketPUBG — to stačí, sekce se nemá stát seznamem průšvihů.
 
 Texty (en):
 
@@ -124,9 +130,8 @@ Texty (en):
    people who run one.
 2. **NetDirect (FLO)** — E-commerce builds, brief to handover.
 3. **MarketPUBG** — A marketplace for game skins. My own company. It didn't make it.
-4. **Kinder Fest** — Producing festivals for children. It ended badly.
-5. **Mladá fronta** — Gaming sites at a publishing house.
-6. **Beats for Love** — Started as summer crew on production and stayed. Project
+4. **Mladá fronta** — Gaming sites at a publishing house.
+5. **Beats for Love** — Started as summer crew on production and stayed. Project
    management along the way; now I work on what the data says about the people who come.
    Also project assistant on Sweetsen Fest.
 
@@ -136,9 +141,8 @@ Texty (cs):
    provozují.
 2. **NetDirect (FLO)** — E-shopy od zadání po předání.
 3. **MarketPUBG** — Tržiště se skiny do her. Vlastní firma. Nevyšlo to.
-4. **Kinder Fest** — Pořádání festivalů pro děti. Skončilo to ošklivě.
-5. **Mladá fronta** — Herní weby ve vydavatelském domě.
-6. **Beats for Love** — Začínal jsem na produkci jako brigádník a zůstal. Cestou
+4. **Mladá fronta** — Herní weby ve vydavatelském domě.
+5. **Beats for Love** — Začínal jsem na produkci jako brigádník a zůstal. Cestou
    projektové řízení, dneska dělám na tom, co data říkají o lidech, co přijdou. K tomu
    projektový asistent na Sweetsen Festu.
 
@@ -292,9 +296,7 @@ zůstává.
 
 ## Otevřené otázky
 
-1. **Roky u MarketPUBG a Kinder Fest.** V `timeline.ts` zatím nejsou. Bez nich nelze
-   položky 3 a 4 dokončit.
-2. **Období srpen 2019 – září 2023.** Mezi Mladou frontou a NetDirectem je díra.
-   Pravděpodobně ji vyplňuje MarketPUBG a Kinder Fest — potvrdit.
+Žádné. Spec je kompletní, implementace může začít.
 
-Implementace může začít vším ostatním; timeline se dokončí, až obě odpovědi přijdou.
+Vyřešeno 2026-08-12: MarketPUBG = 2019 – 2020 (rok hned po Mladé frontě); Kinder Fest
+se vypouští; díry v letech neexistují, protože Beats for Love běží průběžně od 2015.
