@@ -21,8 +21,8 @@ export const projects: Project[] = [
     status: "active",
     typeStyle: "voice",
     blurb: {
-      cs: "Hudba. Nejstarší věc, co dělám, a jediná, u které nikdy neřeším, jestli dává smysl — prostě ji dělat musím. Nahrávky žijí na SoundCloudu.",
-      en: "Music. The oldest thing I do, and the only one where I never ask whether it makes sense — I just have to. The tracks live on SoundCloud.",
+      cs: "Hudba. Nejstarší věc, co dělám. Nahrávky jsou na SoundCloudu.",
+      en: "Music. The oldest thing I do. Tracks are on SoundCloud.",
     },
   },
   {
@@ -31,18 +31,17 @@ export const projects: Project[] = [
     status: "active",
     typeStyle: "mono",
     blurb: {
-      cs: "Moje laboratoř. Interaktivní webové experimenty, u kterých si věci spíš osaháš, než abys o nich četl — zvuk, hudba, rádio běžící na serveru, encyklopedie i hry. Vzniká, protože mě baví zkoušet, co ještě web unese.",
-      en: "My lab. Interactive web experiments where you feel how something works instead of reading about it — sound, music, a server-run radio, an encyclopedia, games. It exists because I like finding out what the web still puts up with.",
+      cs: "Interaktivní webové experimenty — zvuk, hudba, rádio běžící na serveru, encyklopedie, hry. Spousta z nich je nedodělaná a skoro nikdo je neviděl.",
+      en: "Interactive web experiments — sound, music, a radio that runs on the server, an encyclopedia, games. Plenty of them are unfinished and hardly anyone has seen them.",
     },
   },
   {
-    // TODO: doplnit URL a upřesnit popis — o tomhle projektu vím zatím nejmíň
     name: "Stats & Facts",
     status: "active",
     typeStyle: "sans",
     blurb: {
-      cs: "TODO: doplnit. Zatím jen pracovní název — čísla a fakta, která stojí za to ukázat srozumitelně.",
-      en: "TODO: fill in. A working title for now — numbers and facts worth showing in a way people actually get.",
+      cs: "Interaktivní reporty, postavené tak, abys viděl, na čem ta čísla visí. Je to na začátku — pořád to běží na dočasné doméně, takže odkaz zatím není.",
+      en: "Interactive reports, built so you can see what the numbers connect to. It's early — it still lives on a temporary domain, so there's no link yet.",
     },
   },
 ];

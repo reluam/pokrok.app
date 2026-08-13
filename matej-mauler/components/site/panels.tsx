@@ -1,10 +1,10 @@
 "use client";
 
-import { BeliefRotator, ThoughtDeck } from "./decks";
+import { HowISeeIt } from "./HowISeeIt";
 import { CONTACTS, PERSON_DOMAIN, PERSON_NAME } from "@/lib/about";
 import type { Lang } from "@/lib/dictionaries";
 import { projects } from "@/lib/projects";
-import { COPY } from "@/lib/site/copy";
+import { COPY, DESCRIPTION } from "@/lib/site/copy";
 import { SECTIONS } from "@/lib/site/sections";
 import { TIMELINE } from "@/lib/site/timeline";
 
@@ -22,7 +22,9 @@ export function HomePanel({ lang, onNavigate }: { lang: Lang; onNavigate: (index
             <p className="mm-domain">{PERSON_DOMAIN}</p>
           </div>
         </div>
-        <p className="mm-description">{COPY.description[lang]}</p>
+        {DESCRIPTION.map((p, i) => (
+          <p key={i} className="mm-description">{p[lang]}</p>
+        ))}
       </header>
 
       {/* Každá další sekce má tady svůj shrnující řádek se šipkou doprava. */}
@@ -61,7 +63,7 @@ export function WorkPanel({ lang }: { lang: Lang }) {
       <ol className="mm-timeline">
         {TIMELINE.map((t) => (
           <li key={t.id} className={`mm-tl-item${t.current ? " is-current" : ""}`}>
-            <span className="mm-tl-period">{t.current ? COPY.timelineNow[lang] : t.period}</span>
+            <span className="mm-tl-period">{t.period}</span>
             <div className="mm-tl-body">
               <h3 className="mm-tl-role">{t.role[lang]}</h3>
               <p className="mm-tl-org">{t.org}</p>
@@ -110,7 +112,8 @@ export function ProjectsPanel({ lang }: { lang: Lang }) {
 }
 
 /**
- * Nahoře tři přesvědčení k prolistování, pod nimi řada myšlenek po jedné.
+ * Trojúhelník tří přesvědčení nahoře, kruh pěti pravidel pod ním — klik na uzel
+ * rozbalí jeho zdůvodnění. Vykresluje HowISeeIt, viz components/site/HowISeeIt.tsx.
  * Delší články ze Substacku sem zatím nepatří — lib/substack.ts zůstává v repu.
  */
 export function ThoughtsPanel({ lang }: { lang: Lang }) {
@@ -119,12 +122,7 @@ export function ThoughtsPanel({ lang }: { lang: Lang }) {
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>
       <p className="mm-panel-lead">{s.summary[lang]}</p>
-
-      <BeliefRotator lang={lang} />
-
-      <h3 className="mm-block-heading">{COPY.thoughtsShort[lang]}</h3>
-      <p className="mm-block-lead">{COPY.thoughtsShortLead[lang]}</p>
-      <ThoughtDeck lang={lang} />
+      <HowISeeIt lang={lang} />
     </div>
   );
 }

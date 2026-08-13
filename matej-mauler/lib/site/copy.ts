@@ -3,29 +3,51 @@ import type { Bi } from "@/lib/about";
 /**
  * Texty osobních stránek. Záměrně mimo lib/dictionaries.ts — ten je svázaný
  * s admin overridy a experimenty; tohle je statický obsah rozcestníku.
+ *
+ * Hlas: honest, humble, to the point. Žádná pointa na konci odstavce, žádné
+ * sebehodnocení, neúspěchy holé. Web popisuje člověka, co se snaží žít, jak umí —
+ * ne portfolio. Viz docs/superpowers/specs/2026-08-12-osobni-web-texty-design.md.
  */
+
+/**
+ * Úvod na hlavní stránce. Každý prvek = jeden <p>; proto pole a ne jeden Bi.
+ * „for me" / „pro mě" v první větě je záměrné — dělá z toho Matějovu zkušenost,
+ * ne tvrzení o tom, jaký život je. Nevypouštět.
+ */
+export const DESCRIPTION: Bi[] = [
+  {
+    cs: "Jsem Matěj. Jsem z živočišného druhu člověk. Život a to, být člověkem, je pro mě fascinující zkušenost — učí mě pokoře a bere mi dech.",
+    en: "I'm Matěj. I'm of the human species. Life, and being human, is a fascinating, humbling and awe-inspiring experience for me.",
+  },
+  {
+    cs: "Svým malým dílem chci přispět k tomu, aby toho fascinujícího bylo ještě víc. Tak se pořád učím — o světě, o lidech, o sobě.",
+    en: "In my small way I want to make it more fascinating still. So I keep learning — about the world, about people, about myself.",
+  },
+  {
+    cs: "Ať dělám cokoli, dělám to s tímhle cílem — jako projektový manažer, jako muzikant, jako člověk.",
+    en: "Whatever I do, I do it with that end goal in mind — as a project manager, as a musician, as a human being.",
+  },
+];
+
 export const COPY = {
-  description: {
-    cs: "Jsem Matěj. Ve dne dělám obchod ve fintechu, večer hudbu jako Matt Mauler a mezi tím stavím malé webové věci, o které nikdo neprosil. Prošel jsem herními weby, festivaly, e-shopy i vlastním projektem, co nevyšel — a zůstal mi z toho zvyk rozebírat věci, abych viděl, co je ve skutečnosti drží pohromadě. Nejradši mám otázky, které si ještě nikdo nedal práci položit.",
-    en: "I'm Matěj. By day I do sales in fintech, by night I make music as Matt Mauler, and in between I build small web things nobody asked for. I've been through gaming sites, festivals, e-shops and a project of my own that flopped — what stayed with me is the habit of taking things apart to see what actually holds them together. My favourite questions are the ones nobody has bothered to ask yet.",
+  /**
+   * Hlavní stránka záměrně nenese jediný konkrétní fakt, takže veškerou
+   * faktickou váhu pro vyhledávače nese tenhle řádek. Držet pod 165 znaky.
+   */
+  metaDescription: {
+    cs: "Matěj Mauler — obchod v Teyi, hudba jako Matt Mauler a malé webové experimenty po večerech. Pořád se učím o světě, o lidech a o sobě.",
+    en: "Matěj Mauler — sales at Teya, music as Matt Mauler, and small web experiments in the evenings. Still learning about the world, people, and myself.",
   },
   /** Popisek nad kontakty. */
   contactLabel: { cs: "Ozvi se", en: "Say hi" },
   /** Aria popisek šipky na hlavní stránce. */
   goTo: { cs: "Přejít na", en: "Go to" },
-  timelineNow: { cs: "teď", en: "now" },
-  beliefsHeading: { cs: "Jsem přesvědčený, že…", en: "I believe that…" },
-  thoughtsShort: { cs: "Myslím si", en: "I think" },
-  thoughtsShortLead: {
-    cs: "Věci, na které jsem za ta léta přišel. Nic z toho není originální — ale všechno mě to něco stálo.",
-    en: "Things I've worked out over the years. None of it is original — but all of it cost me something.",
-  },
-  prev: { cs: "Předchozí", en: "Previous" },
-  next: { cs: "Další", en: "Next" },
+  /** Dělič mezi trojúhelníkem přesvědčení a kruhem pravidel. */
+  inPractice: { cs: "a v praxi", en: "so, in practice" },
   /** Úvod sekce „Čemu se věnuju teď". */
   nowIntro: {
-    cs: "Snažím se dělat věci, které mi dávají smysl. Ne proto, že by z nich něco koukalo, ale protože mě zajímá otázka, na kterou odpovídají. Většinou vzniknou večer, z nudy nebo ze vzteku, a část z nich se pak ukáže jako užitečná i pro někoho dalšího.",
-    en: "I try to make things that make sense to me. Not because there's something in it, but because I care about the question they answer. Most of them start in the evening, out of boredom or irritation, and some turn out to be useful to somebody else too.",
+    cs: "Nic z toho není byznys. Dělám to, protože chci, aby to existovalo.",
+    en: "None of this is a business. I make it because I want it to exist.",
   },
   langSwitch: {
     cs: "Switch to English",
