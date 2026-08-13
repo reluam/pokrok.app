@@ -202,7 +202,7 @@ chovám** (já). Osm různých položek, žádný duplikát mezi vrstvami.
 | id | claim en | support en |
 |---|---|---|
 | hotove | Done beats perfect. | I can polish something for months. Until it's out, nothing tells me whether I was right. I'm still bad at this. |
-| jedna-vec | Nothing gets fixed in one move. | No book, no course, no single decision. Only a lot of small things stacked over time. |
+| jedna-vec | Nothing gets fixed in one move. | No book, no course, no single decision has ever done it for me. Only a lot of small things stacked over time. |
 | sebevedomi | Confidence comes after, not before. | I've never talked myself into it. I've only ever done the thing and found out afterwards. |
 | intuice | I take the weird feeling seriously, then check it. | It's not magic, it's my brain noticing something before I can name it. Good first signal, bad final answer. |
 | vazne-sebe | I don't take myself that seriously. | When everything is serious, every mistake is a disaster. It's the only thing that reliably gets me to try something in public. |
@@ -210,7 +210,7 @@ chovám** (já). Osm různých položek, žádný duplikát mezi vrstvami.
 | id | claim cs | support cs |
 |---|---|---|
 | hotove | Hotové je lepší než dokonalé. | Umím něco ladit měsíce. Dokud to není venku, nic mi neřekne, jestli jsem měl pravdu. Pořád mi to nejde. |
-| jedna-vec | Žádná jedna věc to nespraví. | Žádná kniha, žádný kurz, žádné jedno rozhodnutí. Jenom hodně malých věcí naskládaných v čase. |
+| jedna-vec | Žádná jedna věc to nespraví. | Žádná kniha, žádný kurz, žádné jedno rozhodnutí to za mě neudělaly. Jenom hodně malých věcí naskládaných v čase. |
 | sebevedomi | Sebevědomí přijde až potom, ne předtím. | Nikdy jsem se do toho neupovídal. Vždycky jsem to jenom udělal a zjistil to až pak. |
 | intuice | Divný pocit beru vážně, pak si ho ověřím. | Není to magie, je to můj mozek, co si něčeho všiml dřív, než to umím pojmenovat. Dobrý první signál, špatná konečná odpověď. |
 | vazne-sebe | Neberu se tak vážně. | Když je všechno vážné, každá chyba je katastrofa. Je to jediná věc, co mě spolehlivě donutí zkusit něco veřejně. |

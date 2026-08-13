@@ -651,8 +651,8 @@ export const RULES: Conviction[] = [
     id: "jedna-vec",
     claim: { cs: "Žádná jedna věc to nespraví.", en: "Nothing gets fixed in one move." },
     support: {
-      cs: "Žádná kniha, žádný kurz, žádné jedno rozhodnutí. Jenom hodně malých věcí naskládaných v čase.",
-      en: "No book, no course, no single decision. Only a lot of small things stacked over time.",
+      cs: "Žádná kniha, žádný kurz, žádné jedno rozhodnutí to za mě neudělaly. Jenom hodně malých věcí naskládaných v čase.",
+      en: "No book, no course, no single decision has ever done it for me. Only a lot of small things stacked over time.",
     },
   },
   {
