@@ -26,8 +26,10 @@ describe("texty rozcestníku", () => {
     expect(COPY.metaDescription.en).toContain("Teya");
   });
 
-  it("description je pryč z COPY a inPractice přibyl", () => {
-    expect(COPY).not.toHaveProperty("description");
+  it("mrtvé klíče po rotátoru a kartotéce jsou pryč", () => {
+    for (const dead of ["description", "beliefsHeading", "thoughtsShort", "thoughtsShortLead", "prev", "next", "timelineNow"]) {
+      expect(COPY).not.toHaveProperty(dead);
+    }
     expect(COPY.inPractice.en).toBe("so, in practice");
   });
 

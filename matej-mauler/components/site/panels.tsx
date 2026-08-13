@@ -112,7 +112,8 @@ export function ProjectsPanel({ lang }: { lang: Lang }) {
 }
 
 /**
- * Nahoře tři přesvědčení k prolistování, pod nimi řada myšlenek po jedné.
+ * Trojúhelník tří přesvědčení nahoře, kruh pěti pravidel pod ním — klik na uzel
+ * rozbalí jeho zdůvodnění. Vykresluje HowISeeIt, viz components/site/HowISeeIt.tsx.
  * Delší články ze Substacku sem zatím nepatří — lib/substack.ts zůstává v repu.
  */
 export function ThoughtsPanel({ lang }: { lang: Lang }) {

@@ -42,21 +42,8 @@ export const COPY = {
   contactLabel: { cs: "Ozvi se", en: "Say hi" },
   /** Aria popisek šipky na hlavní stránce. */
   goTo: { cs: "Přejít na", en: "Go to" },
-  timelineNow: { cs: "teď", en: "now" },
   /** Dělič mezi trojúhelníkem přesvědčení a kruhem pravidel. */
   inPractice: { cs: "a v praxi", en: "so, in practice" },
-
-  // ── Dožívá do Tasku 5 ──
-  // Pořád to konzumuje decks.tsx a ThoughtsPanel. Maže se až s nimi,
-  // jinak spadne typová kontrola. beliefsHeading nahradil inPractice výše.
-  beliefsHeading: { cs: "Jsem přesvědčený, že…", en: "I believe that…" },
-  thoughtsShort: { cs: "Myslím si", en: "I think" },
-  thoughtsShortLead: {
-    cs: "Věci, na které jsem za ta léta přišel. Nic z toho není originální — ale všechno mě to něco stálo.",
-    en: "Things I've worked out over the years. None of it is original — but all of it cost me something.",
-  },
-  prev: { cs: "Předchozí", en: "Previous" },
-  next: { cs: "Další", en: "Next" },
   /** Úvod sekce „Čemu se věnuju teď". */
   nowIntro: {
     cs: "Nic z toho není byznys. Dělám to, protože chci, aby to existovalo.",
