@@ -62,10 +62,10 @@ paralelně, protože typ `Bi` ji vyžaduje — cs scaffolding zůstává zmraže
 **cs**
 
 > Jsem Matěj. Jsem z živočišného druhu člověk. Život a to, být člověkem, je pro mě
-> fascinující, pokořující a úžasná zkušenost.
+> fascinující zkušenost — učí mě pokoře a bere mi dech.
 >
-> Svým malým dílem chci přispět k tomu, aby byl ještě fascinující. Tak se pořád učím —
-> o světě, o lidech, o sobě.
+> Svým malým dílem chci přispět k tomu, aby toho fascinujícího bylo ještě víc. Tak se
+> pořád učím — o světě, o lidech, o sobě.
 >
 > Ať dělám cokoli, dělám to s tímhle cílem — jako projektový manažer, jako muzikant,
 > jako člověk.
@@ -193,7 +193,7 @@ chovám** (já). Osm různých položek, žádný duplikát mezi vrstvami.
 
 | id | claim cs | support cs |
 |---|---|---|
-| zodpovednost | Za svůj život jsem zodpovědný jenom já. | Mám podporu. Ta rozhodnutí se stejně každé ráno objeví s mým jménem. |
+| zodpovednost | Za svůj život jsem zodpovědný jenom já. | Mám podporu. Ta rozhodnutí se stejně každé ráno objeví s mým jménem na nich. |
 | cernobile | Skoro nic není jenom černobílé. | Buď práce, nebo svoboda. Buď rodina, nebo kariéra. Roky jsem v tom byl zaseklý a ani jedna ta dvojice nebyla skutečná. |
 | mozek | Můj mozek je hloupější, než si myslím. | Většinu času jedu na autopilota. Stavím kolem toho, místo abych se s ním hádal. |
 
@@ -211,7 +211,7 @@ chovám** (já). Osm různých položek, žádný duplikát mezi vrstvami.
 |---|---|---|
 | hotove | Hotové je lepší než dokonalé. | Umím něco ladit měsíce. Dokud to není venku, nic mi neřekne, jestli jsem měl pravdu. Pořád mi to nejde. |
 | jedna-vec | Žádná jedna věc to nespraví. | Žádná kniha, žádný kurz, žádné jedno rozhodnutí to za mě neudělaly. Jenom hodně malých věcí naskládaných v čase. |
-| sebevedomi | Sebevědomí přijde až potom, ne předtím. | Nikdy jsem se do toho neupovídal. Vždycky jsem to jenom udělal a zjistil to až pak. |
+| sebevedomi | Sebevědomí přijde až potom, ne předtím. | Nikdy jsem se do toho nepřemluvil. Vždycky jsem to jenom udělal a zjistil to až pak. |
 | intuice | Divný pocit beru vážně, pak si ho ověřím. | Není to magie, je to můj mozek, co si něčeho všiml dřív, než to umím pojmenovat. Dobrý první signál, špatná konečná odpověď. |
 | vazne-sebe | Neberu se tak vážně. | Když je všechno vážné, každá chyba je katastrofa. Je to jediná věc, co mě spolehlivě donutí zkusit něco veřejně. |
 

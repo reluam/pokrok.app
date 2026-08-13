@@ -16,11 +16,11 @@ import type { Bi } from "@/lib/about";
  */
 export const DESCRIPTION: Bi[] = [
   {
-    cs: "Jsem Matěj. Jsem z živočišného druhu člověk. Život a to, být člověkem, je pro mě fascinující, pokořující a úžasná zkušenost.",
+    cs: "Jsem Matěj. Jsem z živočišného druhu člověk. Život a to, být člověkem, je pro mě fascinující zkušenost — učí mě pokoře a bere mi dech.",
     en: "I'm Matěj. I'm of the human species. Life, and being human, is a fascinating, humbling and awe-inspiring experience for me.",
   },
   {
-    cs: "Svým malým dílem chci přispět k tomu, aby byl ještě fascinující. Tak se pořád učím — o světě, o lidech, o sobě.",
+    cs: "Svým malým dílem chci přispět k tomu, aby toho fascinujícího bylo ještě víc. Tak se pořád učím — o světě, o lidech, o sobě.",
     en: "In my small way I want to make it more fascinating still. So I keep learning — about the world, about people, about myself.",
   },
   {

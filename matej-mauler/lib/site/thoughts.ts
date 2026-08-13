@@ -29,7 +29,7 @@ export const RULES: Conviction[] = [
       en: "Confidence comes after, not before.",
     },
     support: {
-      cs: "Nikdy jsem se do toho neupovídal. Vždycky jsem to jenom udělal a zjistil to až pak.",
+      cs: "Nikdy jsem se do toho nepřemluvil. Vždycky jsem to jenom udělal a zjistil to až pak.",
       en: "I've never talked myself into it. I've only ever done the thing and found out afterwards.",
     },
   },

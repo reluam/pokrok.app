@@ -14,6 +14,9 @@ describe("Jak to vidím", () => {
   it("žádné id se neopakuje napříč vrstvami", () => {
     const ids = all.map((x) => x.id);
     expect(new Set(ids).size).toBe(ids.length);
+
+    const claims = all.map((x) => x.claim.en);
+    expect(new Set(claims).size).toBe(claims.length);
   });
 
   it("každá položka má claim i support v obou jazycích", () => {
@@ -42,6 +45,7 @@ describe("Jak to vidím", () => {
   it("všechno je v první osobě — nejsou to rady čtenáři", () => {
     for (const x of all) {
       expect(x.support.en).toMatch(/\b(I|my|me)\b/);
+      expect(x.support.cs).toMatch(/(?<!\p{L})(jsem|j[áa]|mi|mne|mnou|m[ěe]|m[ůu]j|moje|moji|m[ýy]m|abych)(?!\p{L})/iu);
     }
   });
 });

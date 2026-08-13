@@ -20,7 +20,7 @@ export const BELIEFS: Conviction[] = [
       en: "I alone am responsible for my life.",
     },
     support: {
-      cs: "Mám podporu. Ta rozhodnutí se stejně každé ráno objeví s mým jménem.",
+      cs: "Mám podporu. Ta rozhodnutí se stejně každé ráno objeví s mým jménem na nich.",
       en: "I have support. The decisions still show up every morning with my name on them.",
     },
   },

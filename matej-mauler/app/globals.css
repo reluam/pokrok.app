@@ -425,7 +425,7 @@ body {
 /* ── Časová osa (životopis) ── */
 .mm-timeline { list-style: none; margin: 0; padding: 0; }
 .mm-tl-item {
-  display: grid; grid-template-columns: 92px 1fr; gap: 20px;
+  display: grid; grid-template-columns: 118px 1fr; gap: 20px;
   padding: 24px 0; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 .mm-tl-item:last-child { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
