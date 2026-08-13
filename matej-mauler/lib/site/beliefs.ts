@@ -1,39 +1,49 @@
 import type { Bi } from "@/lib/about";
 
 /**
- * Tři nejsilnější přesvědčení do rotátoru nahoře na stránce „Jak to vidím".
- * NÁVRH: vybráno z desatera v lib/site/thoughts.ts. Všechno je psané v první
- * osobě — nejsou to rady čtenáři, ale to, co si Matěj myslí o sobě.
+ * Sdílený tvar obou vrstev sekce „Jak to vidím": trojúhelníku přesvědčení
+ * (tenhle soubor) i kruhu pravidel (lib/site/thoughts.ts).
+ * Všechno v první osobě — nejsou to rady čtenáři, ale co si Matěj myslí o sobě.
  */
-export type Belief = {
+export type Conviction = {
   id: string;
   claim: Bi;
   support: Bi;
 };
 
-export const BELIEFS: Belief[] = [
+/** ▲ Jak to podle mě je. Nesmí se překrývat s RULES. */
+export const BELIEFS: Conviction[] = [
   {
     id: "zodpovednost",
-    claim: { cs: "za svůj život jsem zodpovědný pouze já sám.", en: "I alone am responsible for my life." },
-    support: {
-      cs: "Můžu mít podporu, kouče, partnerku, komunitu. Ale rozhodnutí, která mě čekají každé ráno, za mě nikdo neudělá. Není to tlak, je to svoboda.",
-      en: "I can have support, a coach, a partner, a community. But nobody makes the decisions waiting for me every morning. That's not pressure, it's freedom.",
+    claim: {
+      cs: "Za svůj život jsem zodpovědný jenom já.",
+      en: "I alone am responsible for my life.",
     },
-  },
-  {
-    id: "hotove",
-    claim: { cs: "hotové je lepší než dokonalé.", en: "done beats perfect." },
     support: {
-      cs: "Perfekcionismus je můj chytře maskovaný strach. Dokud to nevypustím ven, realita mi nedá žádnou zpětnou vazbu — zůstanu v bezpečí vlastní hlavy.",
-      en: "Perfectionism is my fear in a clever disguise. Until I put it out there, reality gives me no feedback — I just stay safe inside my own head.",
+      cs: "Mám podporu. Ta rozhodnutí se stejně každé ráno objeví s mým jménem.",
+      en: "I have support. The decisions still show up every morning with my name on them.",
     },
   },
   {
     id: "cernobile",
-    claim: { cs: "skoro nic není pouze černobílé.", en: "almost nothing is only black and white." },
+    claim: {
+      cs: "Skoro nic není jenom černobílé.",
+      en: "Almost nothing is only black and white.",
+    },
     support: {
-      cs: "Buď práce, nebo svoboda. Buď rodina, nebo kariéra. Mezi černou a bílou je spousta odstínů — a právě tam si skládám život podle sebe.",
-      en: "Either work or freedom. Either family or career. Between black and white there are plenty of shades — and that's where I get to build a life of my own.",
+      cs: "Buď práce, nebo svoboda. Buď rodina, nebo kariéra. Roky jsem v tom byl zaseklý a ani jedna ta dvojice nebyla skutečná.",
+      en: "Work or freedom. Family or career. I spent years stuck inside those, and neither pair was real.",
+    },
+  },
+  {
+    id: "mozek",
+    claim: {
+      cs: "Můj mozek je hloupější, než si myslím.",
+      en: "My brain is dumber than I think.",
+    },
+    support: {
+      cs: "Většinu času jedu na autopilota. Stavím kolem toho, místo abych se s ním hádal.",
+      en: "Most of the time I run on autopilot. I build around that instead of arguing with it.",
     },
   },
 ];
