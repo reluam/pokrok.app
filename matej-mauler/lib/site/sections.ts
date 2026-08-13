@@ -31,8 +31,8 @@ export const SECTIONS: Section[] = [
     nav: { cs: "Kousek historie", en: "A bit of history" },
     title: { cs: "Kousek historie", en: "A bit of history" },
     summary: {
-      cs: "Herní weby, vlastní projekt, festivaly, e-shopy a dnes fintech. Životopis na časové ose — i s tím, co nevyšlo.",
-      en: "Gaming sites, a project of my own, festivals, e-shops, and fintech today. A CV on a timeline — including what didn't work out.",
+      cs: "Kde jsem pracoval, od nejnovějšího. Fintech, e-shopy, vlastní firma, herní weby a festival, u kterého jsem od roku 2015.",
+      en: "Where I've worked, newest first. Fintech, e-commerce, a company of my own, gaming sites, and a festival I've been at since 2015.",
     },
   },
   {
@@ -41,8 +41,8 @@ export const SECTIONS: Section[] = [
     nav: { cs: "Čemu se věnuju teď", en: "What I do now" },
     title: { cs: "Čemu se věnuju teď", en: "What I do now" },
     summary: {
-      cs: "Věci, které si stavím sám, protože mi dávají smysl — hudba jako Matt Mauler, webové experimenty na Spaghetti.ltd a další.",
-      en: "The things I build myself because they make sense to me — music as Matt Mauler, web experiments on Spaghetti.ltd, and more.",
+      cs: "Tři věci, ke kterým se pořád vracím. Ani jedna nic nevydělává.",
+      en: "Three things I keep coming back to. None of them pay for anything.",
     },
   },
   {
@@ -51,8 +51,8 @@ export const SECTIONS: Section[] = [
     nav: { cs: "Jak to vidím", en: "How I see it" },
     title: { cs: "Jak to vidím", en: "How I see it" },
     summary: {
-      cs: "Tři věci, o kterých jsem přesvědčený — a řada dalších, na které jsem cestou přišel. Proklikej si je, dokud tě to baví.",
-      en: "Three things I'm convinced about — and a row of others I worked out along the way. Click through as long as it holds you.",
+      cs: "Pár věcí, na kterých jsem zůstal. Nejsou to rady, je to jen to, kde jsem.",
+      en: "A few things I've landed on. Not advice — just where I am.",
     },
   },
   {
@@ -61,8 +61,8 @@ export const SECTIONS: Section[] = [
     nav: { cs: "Zůstaňme ve spojení", en: "Let's stay in touch" },
     title: { cs: "Zůstaňme ve spojení", en: "Let's stay in touch" },
     summary: {
-      cs: "Nejrychleji mě chytneš na Discordu, ale funguje i mail. Ozvi se klidně jen tak.",
-      en: "Discord is the fastest way to catch me, but email works too. Feel free to reach out for no reason at all.",
+      cs: "Nejrychleji Discord. Mail taky funguje. Důvod není potřeba.",
+      en: "Discord is fastest. Email works too. No reason needed.",
     },
   },
 ];

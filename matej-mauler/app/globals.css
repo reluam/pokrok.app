@@ -365,8 +365,10 @@ body {
 
 .mm-description {
   font-family: var(--font-sans); font-size: clamp(16px, 2.2vw, 18px); line-height: 1.65;
-  color: var(--color-text); max-width: 58ch; margin: 0 0 40px;
+  color: var(--color-text); max-width: 58ch; margin: 0 0 18px;
 }
+/* poslední odstavec drží odstup od rozcestníku sekcí */
+.mm-description:last-of-type { margin-bottom: 40px; }
 
 .mm-contacts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; }
 .mm-contacts-label {

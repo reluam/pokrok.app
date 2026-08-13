@@ -4,7 +4,7 @@ import { BeliefRotator, ThoughtDeck } from "./decks";
 import { CONTACTS, PERSON_DOMAIN, PERSON_NAME } from "@/lib/about";
 import type { Lang } from "@/lib/dictionaries";
 import { projects } from "@/lib/projects";
-import { COPY } from "@/lib/site/copy";
+import { COPY, DESCRIPTION } from "@/lib/site/copy";
 import { SECTIONS } from "@/lib/site/sections";
 import { TIMELINE } from "@/lib/site/timeline";
 
@@ -22,7 +22,9 @@ export function HomePanel({ lang, onNavigate }: { lang: Lang; onNavigate: (index
             <p className="mm-domain">{PERSON_DOMAIN}</p>
           </div>
         </div>
-        <p className="mm-description">{COPY.description[lang]}</p>
+        {DESCRIPTION.map((p, i) => (
+          <p key={i} className="mm-description">{p[lang]}</p>
+        ))}
       </header>
 
       {/* Každá další sekce má tady svůj shrnující řádek se šipkou doprava. */}

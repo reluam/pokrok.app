@@ -4,7 +4,7 @@ import { CONTACTS, EMAIL, PERSON_NAME, PERSON_URL } from "@/lib/about";
 import { projects } from "@/lib/projects";
 import { COPY } from "@/lib/site/copy";
 
-const positioning = COPY.description.en;
+const positioning = COPY.metaDescription.en;
 
 export const metadata: Metadata = {
   title: `${PERSON_NAME} — sales, music, web experiments`,
