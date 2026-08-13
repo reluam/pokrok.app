@@ -54,6 +54,8 @@
 
 **Pozor:** `COPY.description` byl jeden `Bi`, ale nový text má tři odstavce. Jeden `<p>` s `\n\n` by se v HTML slil do jednoho bloku, proto se z něj stává **pole odstavců** mimo `COPY` (aby `satisfies Record<string, Bi>` dál platilo).
 
+**Pozor 2 — pořadí mazání.** `thoughtsShort`, `thoughtsShortLead`, `prev`, `next` a `beliefsHeading` pořád konzumuje `decks.tsx` a `ThoughtsPanel`, které tenhle task nesmí sahat. Smazat je teď by shodilo typovou kontrolu, a tím i `npm run build` v Kroku 10. **Zůstávají v `COPY` až do Tasku 5**, který `decks.tsx` maže — stejný odklad, jaký plán už používá pro `timelineNow`. `inPractice` se v tomhle tasku jen **přidává**; `beliefsHeading` tedy chvíli existuje vedle něj.
+
 - [ ] **Step 1: Napiš padající test**
 
 Vytvoř `lib/site/copy.test.ts`:
@@ -87,10 +89,8 @@ describe("texty rozcestníku", () => {
     expect(COPY.metaDescription.en).toContain("Teya");
   });
 
-  it("zrušené klíče po starém rotátoru a kartotéce jsou pryč", () => {
-    for (const dead of ["description", "thoughtsShort", "thoughtsShortLead", "prev", "next", "beliefsHeading"]) {
-      expect(COPY).not.toHaveProperty(dead);
-    }
+  it("description je pryč z COPY a inPractice přibyl", () => {
+    expect(COPY).not.toHaveProperty("description");
     expect(COPY.inPractice.en).toBe("so, in practice");
   });
 
@@ -173,6 +173,18 @@ export const COPY = {
   timelineNow: { cs: "teď", en: "now" },
   /** Dělič mezi trojúhelníkem přesvědčení a kruhem pravidel. */
   inPractice: { cs: "a v praxi", en: "so, in practice" },
+
+  // ── Dožívá do Tasku 5 ──
+  // Pořád to konzumuje decks.tsx a ThoughtsPanel. Maže se až s nimi,
+  // jinak spadne typová kontrola. beliefsHeading nahradil inPractice výše.
+  beliefsHeading: { cs: "Jsem přesvědčený, že…", en: "I believe that…" },
+  thoughtsShort: { cs: "Myslím si", en: "I think" },
+  thoughtsShortLead: {
+    cs: "Věci, na které jsem za ta léta přišel. Nic z toho není originální — ale všechno mě to něco stálo.",
+    en: "Things I've worked out over the years. None of it is original — but all of it cost me something.",
+  },
+  prev: { cs: "Předchozí", en: "Previous" },
+  next: { cs: "Další", en: "Next" },
   /** Úvod sekce „Čemu se věnuju teď". */
   nowIntro: {
     cs: "Nic z toho není byznys. Dělám to, protože chci, aby to existovalo.",
@@ -950,15 +962,22 @@ Ve starém `@media (prefers-reduced-motion: reduce)` bloku, který zmiňoval `.m
 
 `.mm-entries` / `.mm-entry` **nech být** — je to samostatný nepoužitý blok, který s touhle změnou nesouvisí.
 
-- [ ] **Step 4: Smaž `timelineNow`, pokud ho Krok 2 neusvědčil**
+- [ ] **Step 4: Smaž dožívající klíče z `COPY`**
 
-Pokud grep v Kroku 2 našel `timelineNow` jen v `lib/site/copy.ts`, smaž z `COPY` řádek:
+Teď, když je `decks.tsx` pryč a `ThoughtsPanel` používá `HowISeeIt`, ztratilo šest klíčů posledního konzumenta. Smaž z `lib/site/copy.ts` celý blok `// ── Dožívá do Tasku 5 ──` (tedy `beliefsHeading`, `thoughtsShort`, `thoughtsShortLead`, `prev`, `next`) a k tomu `timelineNow` — **ale jen ty, které grep v Kroku 2 nenašel nikde jinde**. Cokoli, co ještě někdo používá, nech být.
+
+Pak v `lib/site/copy.test.ts` nahraď test `description je pryč z COPY a inPractice přibyl`:
 
 ```ts
-  timelineNow: { cs: "teď", en: "now" },
+  it("mrtvé klíče po rotátoru a kartotéce jsou pryč", () => {
+    for (const dead of ["description", "beliefsHeading", "thoughtsShort", "thoughtsShortLead", "prev", "next", "timelineNow"]) {
+      expect(COPY).not.toHaveProperty(dead);
+    }
+    expect(COPY.inPractice.en).toBe("so, in practice");
+  });
 ```
 
-a doplň do `lib/site/copy.test.ts` v testu „zrušené klíče…" `"timelineNow"` do pole `dead`.
+Pokud jsi některý klíč v předchozím odstavci nechal naživu, vyhoď ho i z pole `dead` — test má popisovat skutečnost, ne přání.
 
 - [ ] **Step 5: Ověř všechno**
 
