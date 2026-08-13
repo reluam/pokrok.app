@@ -482,6 +482,73 @@ body {
 /* odložené projekty se neschovávají do sekce — jen ztichnou */
 .mm-project-item.is-past .mm-project { color: var(--color-text-muted); font-size: 16px; font-weight: 400; }
 
+/* ── „Jak to vidím": trojúhelník přesvědčení + kruh pravidel ──
+   Mobil = prostý sloupec, geometrie naskočí až nad 560px. Rozbalování
+   funguje stejně v obou režimech, DOM je jeden. */
+.mm-hisi { margin-top: 4px; }
+
+.mm-hisi-divider {
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--color-text-muted);
+  margin: 40px 0 34px;
+}
+
+.mm-nodes { list-style: none; margin: 0; padding: 0; }
+.mm-node { margin: 0 0 16px; }
+
+.mm-node-btn {
+  display: block; width: 100%; cursor: pointer; text-align: left;
+  background: none; border: none; padding: 0;
+  font-family: var(--font-voice); font-weight: 700; font-size: clamp(19px, 5vw, 23px);
+  letter-spacing: -0.02em; line-height: 1.25;
+  color: var(--color-text-muted);
+  transition: color 160ms var(--transition);
+}
+.mm-node-btn:hover, .mm-node-btn.is-open { color: var(--color-text); }
+.mm-node-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-text) 35%, transparent);
+  outline-offset: 6px; border-radius: 4px;
+}
+
+.mm-cluster-support { margin-top: 10px; }
+.mm-support-text {
+  font-family: var(--font-sans); font-size: 15.5px; line-height: 1.7;
+  color: var(--color-text-muted); max-width: 54ch; margin: 0;
+  animation: mm-rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (min-width: 561px) {
+  .mm-nodes { position: relative; height: 300px; }
+  .mm-node {
+    position: absolute; margin: 0;
+    left: 50%; top: 50%; width: 16ch;
+  }
+  .mm-node-btn { text-align: center; font-size: clamp(17px, 2.4vw, 21px); }
+
+  /* trojúhelník: vrchol nahoře, dva dole */
+  .mm-cluster--triangle .mm-node { transform: translate(-50%, -50%) translate(var(--x), var(--y)); }
+  .mm-cluster--triangle .mm-node:nth-child(1) { --x: 0;      --y: -104px; }
+  .mm-cluster--triangle .mm-node:nth-child(2) { --x: -164px; --y:   86px; }
+  .mm-cluster--triangle .mm-node:nth-child(3) { --x:  164px; --y:   86px; }
+
+  /* kruh: pět uzlů po 72°, první nahoře. Druhá rotace text zase narovná. */
+  .mm-cluster--circle .mm-nodes { height: 340px; }
+  .mm-cluster--circle .mm-node {
+    transform: translate(-50%, -50%)
+               rotate(calc(var(--i) * 72deg)) translateY(-132px)
+               rotate(calc(var(--i) * -72deg));
+  }
+
+  /* pevná výška → panel neposkakuje layoutem při přepínání uzlů */
+  .mm-cluster-support { min-height: 5.5em; margin-top: 0; text-align: center; }
+  .mm-support-text { margin: 0 auto; }
+  .mm-hisi-divider { text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-support-text { animation: none !important; }
+}
+
 /* ── „Jsem přesvědčený, že…" — jedno tvrzení velkým písmem, listuje se tečkami ── */
 .mm-beliefs { margin: 8px 0 0; }
 .mm-beliefs-heading {

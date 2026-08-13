@@ -1,6 +1,6 @@
 "use client";
 
-import { BeliefRotator, ThoughtDeck } from "./decks";
+import { HowISeeIt } from "./HowISeeIt";
 import { CONTACTS, PERSON_DOMAIN, PERSON_NAME } from "@/lib/about";
 import type { Lang } from "@/lib/dictionaries";
 import { projects } from "@/lib/projects";
@@ -121,12 +121,7 @@ export function ThoughtsPanel({ lang }: { lang: Lang }) {
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>
       <p className="mm-panel-lead">{s.summary[lang]}</p>
-
-      <BeliefRotator lang={lang} />
-
-      <h3 className="mm-block-heading">{COPY.thoughtsShort[lang]}</h3>
-      <p className="mm-block-lead">{COPY.thoughtsShortLead[lang]}</p>
-      <ThoughtDeck lang={lang} />
+      <HowISeeIt lang={lang} />
     </div>
   );
 }
