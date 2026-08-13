@@ -63,7 +63,7 @@ export function WorkPanel({ lang }: { lang: Lang }) {
       <ol className="mm-timeline">
         {TIMELINE.map((t) => (
           <li key={t.id} className={`mm-tl-item${t.current ? " is-current" : ""}`}>
-            <span className="mm-tl-period">{t.current ? COPY.timelineNow[lang] : t.period}</span>
+            <span className="mm-tl-period">{t.period}</span>
             <div className="mm-tl-body">
               <h3 className="mm-tl-role">{t.role[lang]}</h3>
               <p className="mm-tl-org">{t.org}</p>
