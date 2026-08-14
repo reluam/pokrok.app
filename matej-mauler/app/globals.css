@@ -308,13 +308,21 @@ body {
 }
 
 /* ── Fixní menu: pill široký přesně jako obsah ── */
+/* Pruh přes celou šířku, pill uvnitř vycentrovaný. Dřív to bylo left:50% +
+   translateX(-50%) — jenže tím byla dostupná šířka pro shrink-to-fit jen 50vw,
+   ne celý viewport, takže se pill pod ~1300px (cs) nikdy nevešel na svou
+   přirozenou šířku a overflow-x usekával tlačítko jazyka. max-width se přitom
+   nikdy neuplatnil. Pruh je průhledný, proto pointer-events: none — jinak by
+   neviditelný pás blokoval klikání do panelu pod ním. */
 .mm-menu {
-  position: fixed; top: clamp(14px, 2.4vh, 24px); left: 50%; transform: translateX(-50%);
-  z-index: 50; max-width: calc(100vw - 24px);
+  position: fixed; top: clamp(14px, 2.4vh, 24px); left: 0; right: 0;
+  z-index: 50; display: flex; justify-content: center;
+  padding-inline: 12px; pointer-events: none;
 }
 .mm-menu-pill {
   display: inline-flex; align-items: center; gap: 6px;
   max-width: 100%; overflow-x: auto; scrollbar-width: none;
+  pointer-events: auto;
   padding: 7px 10px;
   background: color-mix(in srgb, var(--color-bg) 88%, transparent);
   backdrop-filter: blur(10px);
