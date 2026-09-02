@@ -1,6 +1,6 @@
 "use client";
 
-import { project, projectPolygon, type Rotation } from "@/lib/site/globe";
+import { project, projectArc, projectPolygon, type Rotation } from "@/lib/site/globe";
 
 /**
  * Koule v SVG. Komponenta nezná obsah — dostane tvary a natočení, vrací kresbu
@@ -25,6 +25,20 @@ export type GlobeShape = {
 
 const PAD = 4;
 const VIEW = GLOBE_RADIUS + PAD;
+
+/**
+ * Síť poledníků a rovnoběžek. Není to dekorace: když je vepředu jediný
+ * kontinent, jsou to jediné čáry, na kterých je při tažení vidět, že se koule
+ * točí. Po 30°, vzorkované po 5° — jemnější krok se v téhle velikosti ztratí.
+ */
+const GRATICULE: [number, number][][] = [
+  ...Array.from({ length: 12 }, (_, m) =>
+    Array.from({ length: 37 }, (_, i) => [m * 30, -90 + i * 5] as [number, number]),
+  ),
+  ...Array.from({ length: 5 }, (_, p) =>
+    Array.from({ length: 73 }, (_, i) => [i * 5, -60 + p * 30] as [number, number]),
+  ),
+];
 
 export function Globe({
   rotation,
@@ -67,8 +81,24 @@ export function Globe({
       role="group"
       aria-label={ariaLabel}
     >
+      <defs>
+        {/* Ztmavení jen u okraje (limb darkening). Střed zůstává čistý, jinak
+            by stín přebil pevniny — z koule by byl tmavý kotouč. */}
+        <radialGradient id="mm-globe-shade" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="var(--color-text)" stopOpacity="0" />
+          <stop offset="74%" stopColor="var(--color-text)" stopOpacity="0" />
+          <stop offset="93%" stopColor="var(--color-text)" stopOpacity="0.07" />
+          <stop offset="100%" stopColor="var(--color-text)" stopOpacity="0.2" />
+        </radialGradient>
+      </defs>
+
       <g style={{ transform: `scale(${zoom})` }} className="mm-globe-world">
         <circle className="mm-globe-ocean" cx={0} cy={0} r={GLOBE_RADIUS} />
+
+        {GRATICULE.map((line, i) => {
+          const d = projectArc(line, rotation, GLOBE_RADIUS);
+          return d ? <path key={i} className="mm-globe-grid" fill="none" d={d} /> : null;
+        })}
 
         {drawn.map(({ shape, poly, seat }) => {
           const isActive = shape.id === activeId;
@@ -127,6 +157,8 @@ export function Globe({
           );
         })}
 
+        {/* stínování až nakonec, aby leželo přes pevniny i síť */}
+        <circle className="mm-globe-shade" cx={0} cy={0} r={GLOBE_RADIUS} fill="url(#mm-globe-shade)" />
         <circle className="mm-globe-rim" cx={0} cy={0} r={GLOBE_RADIUS} />
       </g>
     </svg>
