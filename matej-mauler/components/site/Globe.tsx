@@ -34,6 +34,9 @@ export function Globe({
   zoom = 1,
   className,
   ariaLabel,
+  regions = [],
+  activeRegionId = null,
+  onSelectRegion,
 }: {
   rotation: Rotation;
   shapes: GlobeShape[];
@@ -43,6 +46,10 @@ export function Globe({
   zoom?: number;
   className?: string;
   ariaLabel: string;
+  /** Země uvnitř aktivního kontinentu. Kreslí se až v přiblížení. */
+  regions?: GlobeShape[];
+  activeRegionId?: string | null;
+  onSelectRegion?: (id: string) => void;
 }) {
   const drawn = shapes
     .map((s) => {
@@ -90,6 +97,33 @@ export function Globe({
                 </text>
               )}
             </a>
+          );
+        })}
+
+        {regions.map((r) => {
+          const poly = projectPolygon(r.points, rotation, GLOBE_RADIUS);
+          if (poly.visibility === "hidden") return null;
+          const seat = project({ lon: r.seat[0], lat: r.seat[1] }, rotation, GLOBE_RADIUS);
+          return (
+            // aria-hidden schválně: každá země má v panelu pod mapou svoje
+            // <button> (viz WorkPanel), takže druhá sada tabstopů v SVG by jen
+            // zdvojila cestu klávesnicí.
+            <g
+              key={r.id}
+              aria-hidden="true"
+              className={`mm-country${r.id === activeRegionId ? " is-active" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation(); // klik na zemi nesmí probublat na kontinent pod ní
+                onSelectRegion?.(r.id);
+              }}
+            >
+              <path className="mm-country-land" d={poly.path} />
+              {seat.cosc > 0.4 && (
+                <text className="mm-country-label" x={seat.x} y={seat.y} textAnchor="middle">
+                  {r.label}
+                </text>
+              )}
+            </g>
           );
         })}
 

@@ -47,6 +47,9 @@ export const COPY = {
     cs: "Věci, na které pořád myslím a nedělám je. Když si je někdo vezme, budu rád.",
     en: "Things I keep thinking about and don't build. If someone takes one, I'll be glad.",
   },
+  /** Přepínač přiblížení na kontinent Práce. */
+  zoomIn: { cs: "přiblížit na mapu", en: "zoom into the map" },
+  zoomOut: { cs: "zpět na glóbus", en: "back to the globe" },
   langSwitch: {
     cs: "Switch to English",
     en: "Přepnout do češtiny",

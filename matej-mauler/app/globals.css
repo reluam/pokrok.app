@@ -337,6 +337,45 @@ body {
   stroke: var(--color-bg); stroke-width: 2.5; stroke-linejoin: round;
 }
 .mm-continent.is-active .mm-continent-label { font-weight: 700; }
+
+/* ── Země na mapě (jen v přiblížení kontinentu Práce) ── */
+.mm-country { cursor: pointer; }
+.mm-country-land {
+  fill: color-mix(in srgb, var(--color-text) 30%, transparent);
+  stroke: var(--color-bg); stroke-width: 0.7;
+  transition: fill 200ms var(--transition);
+}
+.mm-country:hover .mm-country-land { fill: color-mix(in srgb, var(--color-text) 45%, transparent); }
+.mm-country.is-active .mm-country-land { fill: color-mix(in srgb, var(--color-text) 62%, transparent); }
+.mm-country-label {
+  font-family: var(--font-mono); font-size: 3.4px; letter-spacing: 0.06em;
+  fill: var(--color-text); pointer-events: none; paint-order: stroke;
+  stroke: var(--color-bg); stroke-width: 1.2; stroke-linejoin: round;
+}
+/* v přiblížení kontinenty kolem ustoupí, aby scéna patřila jedné pevnině */
+.mm-stage.is-zoomed .mm-continent:not(.is-active) { opacity: 0.12; }
+.mm-stage.is-zoomed .mm-continent.is-active .mm-continent-label { opacity: 0; }
+.mm-continent, .mm-continent-label { transition: opacity 320ms var(--transition); }
+
+.mm-zoom-toggle {
+  display: inline-block; margin: 0 0 20px; padding: 6px 12px;
+  background: none; cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--color-text) 22%, transparent);
+  border-radius: 999px;
+  font-family: var(--font-mono); font-size: 12px; color: var(--color-text-muted);
+  transition: color 160ms var(--transition), border-color 160ms var(--transition);
+}
+.mm-zoom-toggle:hover { color: var(--color-text); border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+
+.mm-country-btn {
+  background: none; border: none; padding: 0; cursor: pointer; text-align: left;
+  font: inherit; color: inherit;
+}
+.mm-country-btn:hover { text-decoration: underline; text-underline-offset: 4px; }
+.mm-country-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-text) 35%, transparent);
+  outline-offset: 4px; border-radius: 4px;
+}
 @media (prefers-reduced-motion: reduce) {
   .mm-globe-world { transition: none; }
 }

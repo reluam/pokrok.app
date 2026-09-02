@@ -52,16 +52,44 @@ export function HomePanel({ lang, onNavigate }: { lang: Lang; onNavigate: (index
   );
 }
 
-export function WorkPanel({ lang }: { lang: Lang }) {
+export function WorkPanel({
+  lang,
+  zoomed,
+  activeCountryId,
+  onSelectCountry,
+  onToggleZoom,
+}: {
+  lang: Lang;
+  zoomed: boolean;
+  activeCountryId: string | null;
+  onSelectCountry: (id: string | null) => void;
+  onToggleZoom: () => void;
+}) {
   const s = SECTIONS[1];
   return (
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>
       <p className="mm-panel-lead">{s.summary[lang]}</p>
+
+      <button type="button" className="mm-zoom-toggle" onClick={onToggleZoom}>
+        {zoomed ? COPY.zoomOut[lang] : COPY.zoomIn[lang]}
+      </button>
+
       <ul className="mm-countries">
         {COUNTRIES.map((c) => (
-          <li key={c.id} className="mm-country-item">
-            <h3 className="mm-country-org">{c.org}</h3>
+          <li
+            key={c.id}
+            className={`mm-country-item${c.id === activeCountryId ? " is-active" : ""}`}
+          >
+            <h3 className="mm-country-org">
+              <button
+                type="button"
+                className="mm-country-btn"
+                onClick={() => onSelectCountry(c.id === activeCountryId ? null : c.id)}
+              >
+                {c.org}
+              </button>
+            </h3>
             <p className="mm-country-text">{c.body[lang]}</p>
             {c.bullets && c.bullets.length > 0 && (
               <ul className="mm-country-bullets">

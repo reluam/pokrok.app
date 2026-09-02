@@ -6,6 +6,7 @@ import { TopMenu } from "./TopMenu";
 import { ContactPanel, HomePanel, IdeasPanel, WorkPanel } from "./panels";
 import type { Lang } from "@/lib/dictionaries";
 import { CONTINENTS, nearestContinent, rotationFor, type ContinentId } from "@/lib/site/continents";
+import { COUNTRIES, countryShape } from "@/lib/site/countries";
 import { angularDistance, shortestRotation, type Rotation } from "@/lib/site/globe";
 import { SECTIONS, indexForPath } from "@/lib/site/sections";
 
@@ -39,6 +40,8 @@ export function GlobeShell({
   const [rotation, setRotation] = useState<Rotation>(() =>
     rotationFor(SECTIONS[initialIndex].id as ContinentId),
   );
+  const [zoomed, setZoomed] = useState(false);
+  const [activeCountry, setActiveCountry] = useState<string | null>(null);
 
   // index a rotace jedou i v refech: animační smyčka i pointer handlery musí
   // číst aktuální hodnotu, aniž by se kvůli tomu překreslovaly
@@ -83,6 +86,9 @@ export function GlobeShell({
     (next: number, push: boolean) => {
       indexRef.current = next;
       setIndex(next);
+      // přiblížení patří jednomu kontinentu — otočení jinam ho vždycky zavře
+      setZoomed(false);
+      setActiveCountry(null);
       if (push) window.history.pushState({ mmIndex: next }, "", SECTIONS[next].href);
       animateTo(rotationFor(SECTIONS[next].id as ContinentId));
     },
@@ -106,6 +112,23 @@ export function GlobeShell({
     const onPop = () => goTo(indexForPath(window.location.pathname), false);
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
+  }, [goTo]);
+
+  // Šipky otáčejí na sousední kontinent, Esc zavře přiblížení. Menu zůstává
+  // plnou náhradou za tažení, tohle je jen zrychlení.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "Escape") { setZoomed(false); return; }
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      const step = e.key === "ArrowRight" ? 1 : -1;
+      const next = (indexRef.current + step + SECTIONS.length) % SECTIONS.length;
+      goTo(next, true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [goTo]);
 
   // Titulek musí sledovat URL, protože skutečná navigace neproběhne.
@@ -164,6 +187,12 @@ export function GlobeShell({
     goTo(next, next !== indexRef.current);
   };
 
+  const onWork = SECTIONS[index].id === "work";
+
+  const regions: GlobeShape[] = zoomed && onWork
+    ? COUNTRIES.map((c) => ({ id: c.id, label: c.org, points: countryShape(c), seat: c.seat }))
+    : [];
+
   const shapes: GlobeShape[] = CONTINENTS.map((c) => {
     const section = SECTIONS.find((s) => s.id === c.id)!;
     return {
@@ -175,6 +204,15 @@ export function GlobeShell({
     };
   });
 
+  /** Klik na kontinent, který už je vepředu, otevře jeho země. */
+  const onSelectShape = (id: string) => {
+    if (id === SECTIONS[indexRef.current].id) {
+      if (id === "work") setZoomed((v) => !v);
+      return;
+    }
+    selectContinent(id);
+  };
+
   return (
     <div className="mm-viewport">
       <TopMenu lang={lang} index={index} onNavigate={navigate} onToggleLang={toggleLang} />
@@ -182,7 +220,7 @@ export function GlobeShell({
       <div className="mm-scene">
         <div
           ref={stageRef}
-          className="mm-stage"
+          className={zoomed ? "mm-stage is-zoomed" : "mm-stage"}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
@@ -192,8 +230,12 @@ export function GlobeShell({
             rotation={rotation}
             shapes={shapes}
             activeId={SECTIONS[index].id}
-            onSelect={selectContinent}
+            onSelect={onSelectShape}
             ariaLabel={lang === "cs" ? "Glóbus sekcí" : "Globe of sections"}
+            zoom={zoomed ? 2.5 : 1}
+            regions={regions}
+            activeRegionId={activeCountry}
+            onSelectRegion={setActiveCountry}
           />
         </div>
 
@@ -203,7 +245,15 @@ export function GlobeShell({
           {SECTIONS.map((s, i) => (
             <section key={s.id} className="mm-stack-panel" hidden={i !== index} inert={i !== index}>
               {s.id === "home" && <HomePanel lang={lang} onNavigate={navigate} />}
-              {s.id === "work" && <WorkPanel lang={lang} />}
+              {s.id === "work" && (
+                <WorkPanel
+                  lang={lang}
+                  zoomed={zoomed}
+                  activeCountryId={activeCountry}
+                  onSelectCountry={setActiveCountry}
+                  onToggleZoom={() => setZoomed((v) => !v)}
+                />
+              )}
               {s.id === "ideas" && <IdeasPanel lang={lang} />}
               {s.id === "contact" && <ContactPanel lang={lang} />}
             </section>
