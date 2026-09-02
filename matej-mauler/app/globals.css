@@ -303,6 +303,40 @@ body {
   width: 100%; max-width: 760px; margin: 0 auto;
   padding: clamp(96px, 16vh, 148px) clamp(20px, 5vw, 32px) clamp(48px, 10vh, 96px);
 }
+
+/* ── Glóbus: koule, kontinenty, popisky ── */
+.mm-globe {
+  display: block; width: 100%; height: auto;
+  touch-action: none; user-select: none; -webkit-user-select: none;
+  overflow: visible;
+}
+.mm-globe-world { transform-origin: 50% 50%; transition: transform 520ms cubic-bezier(0.76, 0, 0.24, 1); }
+.mm-globe-ocean { fill: color-mix(in srgb, var(--color-text) 5%, transparent); }
+.mm-globe-rim {
+  fill: none; stroke: color-mix(in srgb, var(--color-text) 22%, transparent); stroke-width: 1;
+}
+.mm-continent { cursor: pointer; }
+.mm-continent:focus-visible { outline: none; }
+.mm-continent:focus-visible .mm-continent-land {
+  stroke: var(--color-text); stroke-width: 2; stroke-dasharray: 3 2;
+}
+.mm-continent-land {
+  fill: color-mix(in srgb, var(--color-text) 16%, transparent);
+  stroke: color-mix(in srgb, var(--color-text) 30%, transparent); stroke-width: 0.8;
+  transition: fill 200ms var(--transition);
+}
+.mm-continent:hover .mm-continent-land { fill: color-mix(in srgb, var(--color-text) 26%, transparent); }
+.mm-continent.is-active .mm-continent-land { fill: color-mix(in srgb, var(--color-text) 38%, transparent); }
+.mm-continent-label {
+  font-family: var(--font-mono); font-size: 7px; letter-spacing: 0.08em;
+  text-transform: uppercase; fill: var(--color-text); pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--color-bg); stroke-width: 2.5; stroke-linejoin: round;
+}
+.mm-continent.is-active .mm-continent-label { font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  .mm-globe-world { transition: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .mm-strip { transition-duration: 0ms !important; animation: none !important; }
 }
