@@ -543,26 +543,31 @@ body {
 .mm-post:hover .mm-post-title { text-decoration: underline; text-underline-offset: 4px; }
 .mm-post-excerpt { font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted); max-width: 62ch; }
 
-/* ── Projekty: název ve vlastní typografii + odstavec, co to je ── */
-.mm-projects { list-style: none; margin: 0; padding: 0; }
-.mm-project-item {
-  padding: 24px 0; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+/* ── Nápady: název, co to je, proč by to mělo existovat ── */
+.mm-ideas { list-style: none; margin: 0; padding: 0; }
+.mm-idea {
+  padding: 22px 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
 }
-.mm-projects li:last-child { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
-.mm-project-link { display: inline-flex; align-items: baseline; gap: 8px; text-decoration: none; }
-.mm-project { color: var(--color-text); }
-.mm-project[data-type="voice"] { font-family: var(--font-voice); font-weight: 700; font-size: 24px; letter-spacing: -0.02em; }
-.mm-project[data-type="mono"]  { font-family: var(--font-mono); font-weight: 500; font-size: 19px; }
-.mm-project[data-type="sans"]  { font-family: var(--font-sans); font-weight: 500; font-size: 20px; }
-.mm-project-arrow { font-family: var(--font-voice); font-size: 15px; color: var(--color-text-muted); transition: transform 200ms var(--transition); }
-.mm-project-link:hover .mm-project { text-decoration: underline; text-underline-offset: 4px; }
-.mm-project-link:hover .mm-project-arrow { transform: translate(2px, -2px); color: var(--color-text); }
-.mm-project-blurb {
-  font-family: var(--font-sans); font-size: 15px; line-height: 1.65;
-  color: var(--color-text-muted); max-width: 62ch; margin: 10px 0 0;
+.mm-ideas li:last-child { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
+.mm-idea-title {
+  font-family: var(--font-voice); font-weight: 700; font-size: 22px;
+  letter-spacing: -0.02em; line-height: 1.25; margin: 0 0 10px;
 }
-/* odložené projekty se neschovávají do sekce — jen ztichnou */
-.mm-project-item.is-past .mm-project { color: var(--color-text-muted); font-size: 16px; font-weight: 400; }
+.mm-idea-what {
+  font-family: var(--font-sans); font-size: 15.5px; line-height: 1.65;
+  color: var(--color-text); margin: 0 0 10px; max-width: 60ch;
+}
+.mm-idea-why {
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.7;
+  color: var(--color-text-muted); margin: 0; max-width: 62ch;
+}
+.mm-idea-hard {
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.6;
+  color: var(--color-text-muted); margin: 12px 0 0; max-width: 58ch;
+  padding-left: 14px;
+  border-left: 2px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+}
 
 /* ── „Jak to vidím": trojúhelník přesvědčení + kruh pravidel ──
    Mobil = prostý sloupec, geometrie naskočí až nad 560px. Rozbalování

@@ -5,6 +5,7 @@ import type { Lang } from "@/lib/dictionaries";
 import { COPY, DESCRIPTION } from "@/lib/site/copy";
 import { SECTIONS } from "@/lib/site/sections";
 import { COUNTRIES } from "@/lib/site/countries";
+import { IDEAS } from "@/lib/site/ideas";
 
 /** Obsah jednotlivých panelů pásu. Stav pásu drží SiteStrip, tady jen rozbalování. */
 
@@ -113,6 +114,16 @@ export function IdeasPanel({ lang }: { lang: Lang }) {
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>
       <p className="mm-panel-lead">{COPY.ideasIntro[lang]}</p>
+      <ul className="mm-ideas">
+        {IDEAS.map((idea) => (
+          <li key={idea.id} className="mm-idea">
+            <h3 className="mm-idea-title">{idea.title[lang]}</h3>
+            <p className="mm-idea-what">{idea.what[lang]}</p>
+            <p className="mm-idea-why">{idea.why[lang]}</p>
+            {idea.hard && <p className="mm-idea-hard">{idea.hard[lang]}</p>}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
