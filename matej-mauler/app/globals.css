@@ -376,6 +376,15 @@ body {
   outline: 2px solid color-mix(in srgb, var(--color-text) 35%, transparent);
   outline-offset: 4px; border-radius: 4px;
 }
+
+@media (max-width: 560px) {
+  .mm-stage { margin-top: clamp(66px, 10vh, 92px); }
+  .mm-stage .mm-globe { width: min(74vw, 300px); }
+  /* v přiblížení se na malém displeji nevejdou popisky zemí — čte se seznam pod mapou */
+  .mm-stage.is-zoomed .mm-country-label { display: none; }
+  .mm-country-item { padding: 18px 0; }
+  .mm-idea-title { font-size: 20px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .mm-globe-world { transition: none; }
 }
@@ -530,19 +539,6 @@ body {
 .mm-country-bullets li { margin-bottom: 4px; }
 .mm-country-item.is-active .mm-country-org { text-decoration: underline; text-underline-offset: 4px; }
 
-/* ── Texty ze Substacku ── */
-.mm-posts { list-style: none; margin: 0; padding: 0; }
-.mm-post {
-  display: flex; flex-direction: column; gap: 6px;
-  padding: 22px 0; text-decoration: none; color: inherit;
-  border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
-}
-.mm-posts li:last-child .mm-post { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
-.mm-post-date { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
-.mm-post-title { font-family: var(--font-voice); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; color: var(--color-text); }
-.mm-post:hover .mm-post-title { text-decoration: underline; text-underline-offset: 4px; }
-.mm-post-excerpt { font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted); max-width: 62ch; }
-
 /* ── Nápady: název, co to je, proč by to mělo existovat ── */
 .mm-ideas { list-style: none; margin: 0; padding: 0; }
 .mm-idea {
@@ -569,120 +565,11 @@ body {
   border-left: 2px solid color-mix(in srgb, var(--color-text) 18%, transparent);
 }
 
-/* ── „Jak to vidím": trojúhelník přesvědčení + kruh pravidel ──
-   Mobil = prostý sloupec, geometrie naskočí až nad 560px. Rozbalování
-   funguje stejně v obou režimech, DOM je jeden. */
-.mm-hisi { margin-top: 4px; }
-
-.mm-hisi-divider {
-  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--color-text-muted);
-  margin: 40px 0 34px;
-}
-
-.mm-nodes { list-style: none; margin: 0; padding: 0; }
-.mm-node { margin: 0 0 16px; }
-
-.mm-node-btn {
-  display: block; width: 100%; cursor: pointer; text-align: left;
-  background: none; border: none; padding: 0;
-  font-family: var(--font-voice); font-weight: 700; font-size: clamp(19px, 5vw, 23px);
-  letter-spacing: -0.02em; line-height: 1.25;
-  color: var(--color-text-muted);
-  transition: color 160ms var(--transition);
-}
-.mm-node-btn:hover, .mm-node-btn.is-open { color: var(--color-text); }
-.mm-node-btn:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--color-text) 35%, transparent);
-  outline-offset: 6px; border-radius: 4px;
-}
-
-.mm-cluster-support { margin-top: 10px; }
-.mm-support-text {
-  font-family: var(--font-sans); font-size: 15.5px; line-height: 1.7;
-  color: var(--color-text-muted); max-width: 54ch; margin: 0;
-  animation: mm-rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@media (min-width: 561px) {
-  .mm-nodes { position: relative; height: 300px; }
-  .mm-node {
-    position: absolute; margin: 0;
-    left: 50%; top: 50%; width: 16ch;
-  }
-  .mm-node-btn { text-align: center; font-size: clamp(17px, 2.4vw, 21px); }
-
-  /* trojúhelník: vrchol nahoře, dva dole */
-  .mm-cluster--triangle .mm-node { transform: translate(-50%, -50%) translate(var(--x), var(--y)); }
-  .mm-cluster--triangle .mm-node:nth-child(1) { --x: 0;      --y: -104px; }
-  .mm-cluster--triangle .mm-node:nth-child(2) { --x: -164px; --y:   86px; }
-  .mm-cluster--triangle .mm-node:nth-child(3) { --x:  164px; --y:   86px; }
-
-  /* kruh: pět uzlů po 72°, první nahoře. Druhá rotace text zase narovná. */
-  .mm-cluster--circle .mm-nodes { height: 340px; }
-  .mm-cluster--circle .mm-node {
-    transform: translate(-50%, -50%)
-               rotate(calc(var(--i) * 72deg)) translateY(-132px)
-               rotate(calc(var(--i) * -72deg));
-  }
-
-  /* pevná výška → panel neposkakuje layoutem při přepínání uzlů */
-  .mm-cluster-support { min-height: 5.5em; margin-top: 0; text-align: center; }
-  .mm-support-text { margin: 0 auto; }
-  .mm-hisi-divider { text-align: center; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mm-support-text { animation: none !important; }
-}
-
+/* mm-rise: sdílený náběh panelu pod koulí (viz .mm-stack-panel). */
 @keyframes mm-rise {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: none; }
 }
-
-/* ── Rozbalovací záznamy (zbylo pro delší texty, až se vrátí) ── */
-.mm-entries { border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
-.mm-entry { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
-.mm-entry-head {
-  display: flex; flex-direction: column; gap: 6px; width: 100%;
-  padding: 20px 0; background: none; border: none; text-align: left; cursor: pointer;
-}
-.mm-entry-title {
-  font-family: var(--font-voice); font-weight: 700; font-size: 19px;
-  letter-spacing: -0.02em; line-height: 1.3; color: var(--color-text);
-}
-.mm-entry-head:hover .mm-entry-title { text-decoration: underline; text-underline-offset: 4px; }
-.mm-entry-meta { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; color: var(--color-text-muted); }
-.mm-entry-preview {
-  font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted);
-  max-width: 62ch;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.mm-entry-toggle { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted); }
-.mm-entry-head:hover .mm-entry-toggle { color: var(--color-text); }
-.mm-entry-body { padding: 0 0 26px; max-width: 64ch; }
-.mm-entry-body p { font-family: var(--font-sans); font-size: 15.5px; line-height: 1.7; color: var(--color-text); margin: 0 0 14px; }
-.mm-entry-lead { font-weight: 600; }
-
-/* Text článku ze Substacku — jen základní typografie, obrázky se vejdou do sloupce. */
-.mm-article { font-family: var(--font-sans); font-size: 15.5px; line-height: 1.7; color: var(--color-text); }
-.mm-article p { margin: 0 0 14px; }
-.mm-article h1, .mm-article h2, .mm-article h3 {
-  font-family: var(--font-voice); font-weight: 700; letter-spacing: -0.02em;
-  font-size: 19px; margin: 26px 0 10px;
-}
-.mm-article a { color: var(--color-text); text-decoration: underline; text-underline-offset: 3px; }
-.mm-article img { max-width: 100%; height: auto; display: block; margin: 18px 0; }
-.mm-article blockquote {
-  margin: 18px 0; padding-left: 16px;
-  border-left: 2px solid color-mix(in srgb, var(--color-text) 20%, transparent);
-  color: var(--color-text-muted);
-}
-.mm-article ul, .mm-article ol { margin: 0 0 14px; padding-left: 20px; }
-.mm-article li { margin-bottom: 6px; }
-.mm-article hr { border: none; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); margin: 24px 0; }
-
 
 /* ── Komentáře (vlastní řešení, Clerk identita) — minimalistické, tenké linky ── */
 .cmt-wrap { max-width: 680px; margin: 0 auto; }

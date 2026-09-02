@@ -2,8 +2,7 @@ import type { Bi } from "@/lib/about";
 
 // Projekty. Na stránce se od redesignu na glóbus nevykreslují — zůstávají jen jako
 // zdroj URL pro JSON-LD `sameAs` v app/page.tsx (identita osoby pro vyhledávače).
-// `typeStyle` mapuje na font/váhu (viz .mm-project v globals.css), `status` na vizuální váhu
-// (active = plná, past = tišší). Pořadí v poli = pořadí na stránce.
+// `typeStyle` a `status` zbyly po zrušené sekci; JSON-LD z nich bere jen `url`.
 
 export type Project = {
   name: string;
