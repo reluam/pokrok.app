@@ -1,0 +1,215 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Globe, type GlobeShape } from "./Globe";
+import { TopMenu } from "./TopMenu";
+import { ContactPanel, HomePanel, IdeasPanel, WorkPanel } from "./panels";
+import type { Lang } from "@/lib/dictionaries";
+import { CONTINENTS, nearestContinent, rotationFor, type ContinentId } from "@/lib/site/continents";
+import { angularDistance, shortestRotation, type Rotation } from "@/lib/site/globe";
+import { SECTIONS, indexForPath } from "@/lib/site/sections";
+
+const LANG_COOKIE = "mm_lang";
+
+/** Delší otočka = delší animace, ať je znát, že se projelo přes oceán. */
+function durationFor(degrees: number) {
+  return Math.min(560 + degrees * 3, 1300);
+}
+
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+const reducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Koule jako navigace. Stav (natočení, aktivní kontinent, jazyk) drží tahle
+ * komponenta, kreslí Globe. Navigace nemění stromy komponent — jen otočí kouli
+ * a přepíše URL přes History API, takže přechod jde animovat. Přímý vstup na
+ * /work vykreslí kouli rovnou natočenou na kontinent Práce.
+ */
+export function GlobeShell({
+  initialIndex,
+  initialLang,
+}: {
+  initialIndex: number;
+  initialLang: Lang;
+}) {
+  const [index, setIndex] = useState(initialIndex);
+  const [lang, setLang] = useState<Lang>(initialLang);
+  const [rotation, setRotation] = useState<Rotation>(() =>
+    rotationFor(SECTIONS[initialIndex].id as ContinentId),
+  );
+
+  // index a rotace jedou i v refech: animační smyčka i pointer handlery musí
+  // číst aktuální hodnotu, aniž by se kvůli tomu překreslovaly
+  const indexRef = useRef(initialIndex);
+  const rotationRef = useRef(rotation);
+  const rafRef = useRef(0);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ id: number; x: number; y: number; moved: number } | null>(null);
+
+  const applyRotation = useCallback((r: Rotation) => {
+    rotationRef.current = r;
+    setRotation(r);
+  }, []);
+
+  /** Plynule dojede na cílové natočení. Kratší cestou, s délkou podle úhlu. */
+  const animateTo = useCallback(
+    (target: Rotation) => {
+      cancelAnimationFrame(rafRef.current);
+      const from = rotationRef.current;
+      const to = { lon0: shortestRotation(from.lon0, target.lon0), lat0: target.lat0 };
+      const ms = reducedMotion() ? 0 : durationFor(angularDistance(from, to));
+      if (ms === 0) {
+        applyRotation(to);
+        return;
+      }
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - t0) / ms);
+        const e = easeInOut(t);
+        applyRotation({
+          lon0: from.lon0 + (to.lon0 - from.lon0) * e,
+          lat0: from.lat0 + (to.lat0 - from.lat0) * e,
+        });
+        if (t < 1) rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    },
+    [applyRotation],
+  );
+
+  const goTo = useCallback(
+    (next: number, push: boolean) => {
+      indexRef.current = next;
+      setIndex(next);
+      if (push) window.history.pushState({ mmIndex: next }, "", SECTIONS[next].href);
+      animateTo(rotationFor(SECTIONS[next].id as ContinentId));
+    },
+    [animateTo],
+  );
+
+  const navigate = useCallback((next: number) => goTo(next, next !== indexRef.current), [goTo]);
+
+  const selectContinent = useCallback(
+    (id: string) => {
+      const next = SECTIONS.findIndex((s) => s.id === id);
+      if (next >= 0) navigate(next);
+    },
+    [navigate],
+  );
+
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  // Zpět/vpřed v prohlížeči → koule se otočí na kontinent podle URL (bez dalšího pushState).
+  useEffect(() => {
+    const onPop = () => goTo(indexForPath(window.location.pathname), false);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [goTo]);
+
+  // Titulek musí sledovat URL, protože skutečná navigace neproběhne.
+  useEffect(() => {
+    const s = SECTIONS[index];
+    document.title = index === 0 ? s.title[lang] : `${s.title[lang]} — ${SECTIONS[0].title[lang]}`;
+  }, [index, lang]);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  const toggleLang = useCallback(() => {
+    setLang((prev) => {
+      const next: Lang = prev === "cs" ? "en" : "cs";
+      document.cookie = `${LANG_COOKIE}=${next}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+      return next;
+    });
+  }, []);
+
+  /* ── tažení ── */
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    cancelAnimationFrame(rafRef.current);
+    dragRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = dragRef.current;
+    if (!d || d.id !== e.pointerId) return;
+    const width = stageRef.current?.clientWidth ?? 320;
+    // půlka šířky scény ≈ poloměr koule ≈ 90° otočení
+    const perPx = 90 / (width / 2);
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    d.moved += Math.abs(dx) + Math.abs(dy);
+    d.x = e.clientX;
+    d.y = e.clientY;
+    const r = rotationRef.current;
+    applyRotation({
+      lon0: r.lon0 - dx * perPx,
+      // strop ±60°, aby se koule nepřetočila přes pól
+      lat0: Math.max(-60, Math.min(60, r.lat0 + dy * perPx)),
+    });
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = dragRef.current;
+    if (!d || d.id !== e.pointerId) return;
+    dragRef.current = null;
+    // krátký tah = klik, ten si řeší Globe sám
+    if (d.moved < 6) return;
+    const target = nearestContinent(rotationRef.current);
+    const next = SECTIONS.findIndex((s) => s.id === target.id);
+    goTo(next, next !== indexRef.current);
+  };
+
+  const shapes: GlobeShape[] = CONTINENTS.map((c) => {
+    const section = SECTIONS.find((s) => s.id === c.id)!;
+    return {
+      id: c.id,
+      label: section.nav[lang],
+      points: c.points,
+      seat: c.centroid,
+      href: section.href,
+    };
+  });
+
+  return (
+    <div className="mm-viewport">
+      <TopMenu lang={lang} index={index} onNavigate={navigate} onToggleLang={toggleLang} />
+
+      <div className="mm-scene">
+        <div
+          ref={stageRef}
+          className="mm-stage"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+        >
+          <Globe
+            rotation={rotation}
+            shapes={shapes}
+            activeId={SECTIONS[index].id}
+            onSelect={selectContinent}
+            ariaLabel={lang === "cs" ? "Glóbus sekcí" : "Globe of sections"}
+          />
+        </div>
+
+        {/* aria-live: skutečná navigace neproběhne, takže změnu sekce musí
+            čtečce ohlásit tenhle region. */}
+        <div aria-live="polite" className="mm-stack">
+          {SECTIONS.map((s, i) => (
+            <section key={s.id} className="mm-stack-panel" hidden={i !== index} inert={i !== index}>
+              {s.id === "home" && <HomePanel lang={lang} onNavigate={navigate} />}
+              {s.id === "work" && <WorkPanel lang={lang} />}
+              {s.id === "ideas" && <IdeasPanel lang={lang} />}
+              {s.id === "contact" && <ContactPanel lang={lang} />}
+            </section>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

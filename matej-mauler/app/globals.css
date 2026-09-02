@@ -274,34 +274,37 @@ body {
 .zarrow { transition: transform 200ms var(--transition); }
 .scard:hover .zarrow { transform: translateX(4px); }
 
-/* ── Osobní stránky (matejmauler.com) — vodorovný pás pěti panelů ──
-   Ploché, bez dekorací: barvy a fonty jdou jen přes tokeny nahoře (design pass přijde zvlášť). */
+/* ── Osobní stránky (matejmauler.com) — koule a panel pod ní ──
+   Ploché, bez dekorací: barvy a fonty jdou jen přes tokeny nahoře. */
 
-/* Okno, ve kterém se pás posouvá. Stránka sama nikdy nescrolluje do stran. */
 .mm-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--color-bg); }
-.mm-strip {
-  /* width: max-content → počet panelů řídí jen lib/site/sections.ts, ne CSS */
-  display: flex; height: 100%; width: max-content;
-  will-change: transform, filter;
-  transition-property: transform;
-  transition-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-}
-/* Rozmáznutí v půlce přejezdu — čte se jako pohybová neostrost. Blur běží jen na pásu,
-   ne na .mm-viewport, aby menu zůstalo ostré. Délku i sílu nastavuje SiteStrip. */
-@keyframes mm-glide {
-  0%   { filter: blur(0px); opacity: 1; }
-  45%  { filter: blur(var(--mm-blur, 0px)); opacity: 0.94; }
-  100% { filter: blur(0px); opacity: 1; }
-}
-.mm-panel {
-  width: 100vw; height: 100%; overflow-y: auto; overscroll-behavior: contain;
-  /* scrollbar delšího panelu jinak při přejezdu probleskne jako svislá čára mezi sekcemi */
+
+/* Scéna scrolluje jako celek: koule odjede nahoru, když je text dlouhý. */
+.mm-scene {
+  height: 100%; overflow-y: auto; overscroll-behavior: contain;
   scrollbar-width: none; -ms-overflow-style: none;
 }
-.mm-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.mm-scene::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+.mm-stage {
+  width: 100%; max-width: 760px;
+  margin: clamp(78px, 12vh, 116px) auto 0;
+  padding-inline: clamp(20px, 5vw, 32px);
+  display: flex; justify-content: center;
+  cursor: grab;
+}
+.mm-stage:active { cursor: grabbing; }
+.mm-stage .mm-globe { width: clamp(230px, 46vw, 360px); }
+
 .mm-inner {
   width: 100%; max-width: 760px; margin: 0 auto;
-  padding: clamp(96px, 16vh, 148px) clamp(20px, 5vw, 32px) clamp(48px, 10vh, 96px);
+  padding: clamp(24px, 4vh, 40px) clamp(20px, 5vw, 32px) clamp(48px, 10vh, 96px);
+}
+/* mm-rise je sdílená animace náběhu; panel se po otočení koule vysune zespodu. */
+.mm-stack-panel { animation: mm-rise 380ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-stack-panel { animation: none !important; }
 }
 
 /* ── Glóbus: koule, kontinenty, popisky ── */
