@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { TopMenu } from "./TopMenu";
-import { ContactPanel, HomePanel, ProjectsPanel, ThoughtsPanel, WorkPanel } from "./panels";
+import { ContactPanel, HomePanel, IdeasPanel, WorkPanel } from "./panels";
 import type { Lang } from "@/lib/dictionaries";
 import { SECTIONS, indexForPath } from "@/lib/site/sections";
 
@@ -110,8 +110,7 @@ export function SiteStrip({
           >
             {s.id === "home" && <HomePanel lang={lang} onNavigate={navigate} />}
             {s.id === "work" && <WorkPanel lang={lang} />}
-            {s.id === "projects" && <ProjectsPanel lang={lang} />}
-            {s.id === "thoughts" && <ThoughtsPanel lang={lang} />}
+            {s.id === "ideas" && <IdeasPanel lang={lang} />}
             {s.id === "contact" && <ContactPanel lang={lang} />}
           </section>
         ))}

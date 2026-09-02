@@ -42,12 +42,10 @@ export const COPY = {
   contactLabel: { cs: "Ozvi se", en: "Say hi" },
   /** Aria popisek šipky na hlavní stránce. */
   goTo: { cs: "Přejít na", en: "Go to" },
-  /** Dělič mezi trojúhelníkem přesvědčení a kruhem pravidel. */
-  inPractice: { cs: "a v praxi", en: "so, in practice" },
-  /** Úvod sekce „Čemu se věnuju teď". */
-  nowIntro: {
-    cs: "Nic z toho není byznys. Dělám to, protože chci, aby to existovalo.",
-    en: "None of this is a business. I make it because I want it to exist.",
+  /** Úvod sekce „Nad čím přemýšlím". */
+  ideasIntro: {
+    cs: "Věci, na které pořád myslím a nedělám je. Když si je někdo vezme, budu rád.",
+    en: "Things I keep thinking about and don't build. If someone takes one, I'll be glad.",
   },
   langSwitch: {
     cs: "Switch to English",
