@@ -4,7 +4,7 @@ import { CONTACTS, PERSON_DOMAIN, PERSON_NAME } from "@/lib/about";
 import type { Lang } from "@/lib/dictionaries";
 import { COPY, DESCRIPTION } from "@/lib/site/copy";
 import { SECTIONS } from "@/lib/site/sections";
-import { TIMELINE } from "@/lib/site/timeline";
+import { COUNTRIES } from "@/lib/site/countries";
 
 /** Obsah jednotlivých panelů pásu. Stav pásu drží SiteStrip, tady jen rozbalování. */
 
@@ -58,23 +58,19 @@ export function WorkPanel({ lang }: { lang: Lang }) {
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>
       <p className="mm-panel-lead">{s.summary[lang]}</p>
-      <ol className="mm-timeline">
-        {TIMELINE.map((t) => (
-          <li key={t.id} className={`mm-tl-item${t.current ? " is-current" : ""}`}>
-            <span className="mm-tl-period">{t.period}</span>
-            <div className="mm-tl-body">
-              <h3 className="mm-tl-role">{t.role[lang]}</h3>
-              <p className="mm-tl-org">{t.org}</p>
-              <p className="mm-tl-text">{t.body[lang]}</p>
-              {t.bullets && t.bullets.length > 0 && (
-                <ul className="mm-tl-bullets">
-                  {t.bullets.map((b, i) => <li key={i}>{b[lang]}</li>)}
-                </ul>
-              )}
-            </div>
+      <ul className="mm-countries">
+        {COUNTRIES.map((c) => (
+          <li key={c.id} className="mm-country-item">
+            <h3 className="mm-country-org">{c.org}</h3>
+            <p className="mm-country-text">{c.body[lang]}</p>
+            {c.bullets && c.bullets.length > 0 && (
+              <ul className="mm-country-bullets">
+                {c.bullets.map((b, i) => <li key={i}>{b[lang]}</li>)}
+              </ul>
+            )}
           </li>
         ))}
-      </ol>
+      </ul>
     </div>
   );
 }

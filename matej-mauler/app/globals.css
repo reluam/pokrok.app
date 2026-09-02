@@ -467,31 +467,29 @@ body {
   text-decoration: underline; text-underline-offset: 4px;
 }
 
-/* ── Časová osa (životopis) ── */
-.mm-timeline { list-style: none; margin: 0; padding: 0; }
-.mm-tl-item {
-  display: grid; grid-template-columns: 118px 1fr; gap: 20px;
-  padding: 24px 0; border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+/* ── Země (firmy) — firma a co jsem v ní dělal, bez pozic a bez let ── */
+.mm-countries { list-style: none; margin: 0; padding: 0; }
+.mm-country-item {
+  padding: 20px 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
 }
-.mm-tl-item:last-child { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent); }
-.mm-tl-period {
-  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em;
-  color: var(--color-text-muted); padding-top: 5px;
+.mm-countries li:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
 }
-.mm-tl-item.is-current .mm-tl-period { color: var(--color-text); }
-/* CV pořadí: role je nadpis, firma podtitul */
-.mm-tl-role { font-family: var(--font-voice); font-weight: 700; font-size: 19px; letter-spacing: -0.02em; margin: 0; }
-.mm-tl-org { font-family: var(--font-mono); font-size: 12.5px; color: var(--color-text-muted); margin: 4px 0 10px; }
-.mm-tl-bullets {
-  margin: 10px 0 0; padding-left: 18px;
-  font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6; color: var(--color-text-muted);
+.mm-country-org {
+  font-family: var(--font-voice); font-weight: 700; font-size: 20px;
+  letter-spacing: -0.02em; margin: 0 0 8px;
 }
-.mm-tl-bullets li { margin-bottom: 4px; }
-.mm-tl-text { font-family: var(--font-sans); font-size: 15px; line-height: 1.65; color: var(--color-text); margin: 0; max-width: 60ch; }
-@media (max-width: 560px) {
-  .mm-tl-item { grid-template-columns: 1fr; gap: 8px; }
-  .mm-tl-period { padding-top: 0; }
+.mm-country-text {
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.65;
+  color: var(--color-text); margin: 0; max-width: 60ch;
 }
+.mm-country-bullets {
+  font-family: var(--font-sans); font-size: 14.5px; line-height: 1.6;
+  color: var(--color-text-muted); margin: 10px 0 0; padding-left: 18px;
+}
+.mm-country-bullets li { margin-bottom: 4px; }
+.mm-country-item.is-active .mm-country-org { text-decoration: underline; text-underline-offset: 4px; }
 
 /* ── Texty ze Substacku ── */
 .mm-posts { list-style: none; margin: 0; padding: 0; }
