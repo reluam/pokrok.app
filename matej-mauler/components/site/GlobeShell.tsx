@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Globe, type GlobeShape } from "./Globe";
+import { Globe, radiusForViewport, type GlobeShape } from "./Globe";
 import { TopMenu } from "./TopMenu";
 import { ContactPanel, HomePanel, IdeasPanel, WorkPanel } from "./panels";
 import type { Lang } from "@/lib/dictionaries";
-import { CONTINENTS, nearestContinent, rotationFor, type ContinentId } from "@/lib/site/continents";
+import { CONTINENTS, continentShape, nearestContinent, rotationFor, type ContinentId } from "@/lib/site/continents";
 import { COUNTRIES, countryShape } from "@/lib/site/countries";
 import { angularDistance, shortestRotation, type Rotation } from "@/lib/site/globe";
 import { SECTIONS, indexForPath } from "@/lib/site/sections";
@@ -41,6 +41,10 @@ export function GlobeShell({
     rotationFor(SECTIONS[initialIndex].id as ContinentId),
   );
   const [zoomed, setZoomed] = useState(false);
+  // Koule se sází v pixelech okna, ne v abstraktních jednotkách — jinak by se
+  // „obzor jen v rozích" rozpadl na jiném poměru stran. 0×0 do prvního měření:
+  // server nezná okno a SSR musí dát stejný výstup jako první render v prohlížeči.
+  const [size, setSize] = useState({ w: 0, h: 0 });
   const [activeCountry, setActiveCountry] = useState<string | null>(null);
 
   // index a rotace jedou i v refech: animační smyčka i pointer handlery musí
@@ -107,6 +111,13 @@ export function GlobeShell({
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
+  useEffect(() => {
+    const measure = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
   // Zpět/vpřed v prohlížeči → koule se otočí na kontinent podle URL (bez dalšího pushState).
   useEffect(() => {
     const onPop = () => goTo(indexForPath(window.location.pathname), false);
@@ -160,9 +171,8 @@ export function GlobeShell({
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const d = dragRef.current;
     if (!d || d.id !== e.pointerId) return;
-    const width = stageRef.current?.clientWidth ?? 320;
-    // půlka šířky scény ≈ poloměr koule ≈ 90° otočení
-    const perPx = 90 / (width / 2);
+    // posun o poloměr koule = 90° otočení
+    const perPx = 90 / Math.max(1, radius);
     const dx = e.clientX - d.x;
     const dy = e.clientY - d.y;
     d.moved += Math.abs(dx) + Math.abs(dy);
@@ -187,6 +197,10 @@ export function GlobeShell({
     goTo(next, next !== indexRef.current);
   };
 
+  // Přiblížení na kontinent Práce = větší poloměr, ne škálování skupiny:
+  // koule je kulisa přes celé okno, takže „přijít blíž" je přesně tohle.
+  const radius = radiusForViewport(size.w, size.h) * (zoomed ? 2.3 : 1);
+
   const onWork = SECTIONS[index].id === "work";
 
   const regions: GlobeShape[] = zoomed && onWork
@@ -198,7 +212,7 @@ export function GlobeShell({
     return {
       id: c.id,
       label: section.nav[lang],
-      points: c.points,
+      points: continentShape(c),
       seat: c.centroid,
       href: section.href,
     };
@@ -217,48 +231,53 @@ export function GlobeShell({
     <div className="mm-viewport">
       <TopMenu lang={lang} index={index} onNavigate={navigate} onToggleLang={toggleLang} />
 
-      <div className="mm-scene">
-        <div
-          ref={stageRef}
-          className={zoomed ? "mm-stage is-zoomed" : "mm-stage"}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-        >
+      {/* Planeta leží pod vším a je jen kulisa pro čtení — proto je pod textem
+          a chytá tažení jen tam, kde nad ní text není. */}
+      <div
+        ref={stageRef}
+        className={zoomed ? "mm-stage is-zoomed" : "mm-stage"}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
+        {size.w > 0 && (
           <Globe
             rotation={rotation}
             shapes={shapes}
             activeId={SECTIONS[index].id}
             onSelect={onSelectShape}
-            ariaLabel={lang === "cs" ? "Glóbus sekcí" : "Globe of sections"}
-            zoom={zoomed ? 2.5 : 1}
+            width={size.w}
+            height={size.h}
+            radius={radius}
+            ariaLabel={lang === "cs" ? "Planeta sekcí" : "Planet of sections"}
             regions={regions}
             activeRegionId={activeCountry}
             onSelectRegion={setActiveCountry}
           />
-        </div>
+        )}
+      </div>
 
-        {/* aria-live: skutečná navigace neproběhne, takže změnu sekce musí
-            čtečce ohlásit tenhle region. */}
-        <div aria-live="polite" className="mm-stack">
-          {SECTIONS.map((s, i) => (
-            <section key={s.id} className="mm-stack-panel" hidden={i !== index} inert={i !== index}>
-              {s.id === "home" && <HomePanel lang={lang} onNavigate={navigate} />}
-              {s.id === "work" && (
-                <WorkPanel
-                  lang={lang}
-                  zoomed={zoomed}
-                  activeCountryId={activeCountry}
-                  onSelectCountry={setActiveCountry}
-                  onToggleZoom={() => setZoomed((v) => !v)}
-                />
-              )}
-              {s.id === "ideas" && <IdeasPanel lang={lang} />}
-              {s.id === "contact" && <ContactPanel lang={lang} />}
-            </section>
-          ))}
-        </div>
+      {/* Text nad planetou. Čitelnost je přednější než kouli — sloupec je rovný
+          a scrolluje, i když se pod ním pevnina hýbe.
+          aria-live: skutečná navigace neproběhne, změnu sekce musí ohlásit tenhle region. */}
+      <div aria-live="polite" className="mm-reading">
+        {SECTIONS.map((s, i) => (
+          <section key={s.id} className="mm-stack-panel" hidden={i !== index} inert={i !== index}>
+            {s.id === "home" && <HomePanel lang={lang} onNavigate={navigate} />}
+            {s.id === "work" && (
+              <WorkPanel
+                lang={lang}
+                zoomed={zoomed}
+                activeCountryId={activeCountry}
+                onSelectCountry={setActiveCountry}
+                onToggleZoom={() => setZoomed((v) => !v)}
+              />
+            )}
+            {s.id === "ideas" && <IdeasPanel lang={lang} />}
+            {s.id === "contact" && <ContactPanel lang={lang} />}
+          </section>
+        ))}
       </div>
     </div>
   );

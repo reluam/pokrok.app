@@ -51,6 +51,22 @@ export const CONTINENTS: Continent[] = [
   },
 ];
 
+/**
+ * Obrysy nahoře jsou psané v „malém" měřítku, ať se dobře čtou jako data.
+ * Tady se roztáhnou kolem centroidu na velikost, kterou má pevnina na stránce:
+ * aktivní kontinent musí unést celý sloupec textu, který na něm leží.
+ * Víc než 1.2 nejde — sousedi jsou po 90° a začali by se dotýkat.
+ */
+const SPREAD = 1.2;
+
+export function continentShape(c: Continent): [number, number][] {
+  const [clon, clat] = c.centroid;
+  return c.points.map(([lon, lat]) => [
+    clon + (lon - clon) * SPREAD,
+    clat + (lat - clat) * SPREAD,
+  ]);
+}
+
 export function rotationFor(id: ContinentId): Rotation {
   const c = CONTINENTS.find((x) => x.id === id) ?? CONTINENTS[0];
   return { lon0: c.centroid[0], lat0: c.centroid[1] };

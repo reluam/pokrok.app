@@ -274,33 +274,36 @@ body {
 .zarrow { transition: transform 200ms var(--transition); }
 .scard:hover .zarrow { transform: translateX(4px); }
 
-/* ── Osobní stránky (matejmauler.com) — koule a panel pod ní ──
+/* ── Osobní stránky (matejmauler.com) — planeta pod textem ──
+   Koule je kulisa přes celý viewport, text leží na ní a je vždycky čitelný.
    Ploché, bez dekorací: barvy a fonty jdou jen přes tokeny nahoře. */
 
 .mm-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--color-bg); }
 
-/* Scéna scrolluje jako celek: koule odjede nahoru, když je text dlouhý. */
-.mm-scene {
-  height: 100%; overflow-y: auto; overscroll-behavior: contain;
-  scrollbar-width: none; -ms-overflow-style: none;
-}
-.mm-scene::-webkit-scrollbar { width: 0; height: 0; display: none; }
-
+/* Planeta vyplňuje celé okno a je vycentrovaná; přetékající kus koule ořízne
+   .mm-viewport, takže obzor prořízne jen rohy. */
 .mm-stage {
-  width: 100%; max-width: 760px;
-  margin: clamp(78px, 12vh, 116px) auto 0;
-  padding-inline: clamp(20px, 5vw, 32px);
-  display: flex; justify-content: center;
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
   cursor: grab;
 }
 .mm-stage:active { cursor: grabbing; }
-.mm-stage .mm-globe { width: clamp(230px, 46vw, 360px); }
+
+/* Čtecí vrstva. Leží nad planetou, ale propouští tažení všude, kde není text —
+   jinak by koule šla otáčet jen za rohy. */
+.mm-reading {
+  position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -ms-overflow-style: none;
+  pointer-events: none;
+}
+.mm-reading::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.mm-reading .mm-inner > * { pointer-events: auto; }
 
 .mm-inner {
-  width: 100%; max-width: 760px; margin: 0 auto;
-  padding: clamp(24px, 4vh, 40px) clamp(20px, 5vw, 32px) clamp(48px, 10vh, 96px);
+  width: 100%; max-width: 620px; margin: 0 auto;
+  padding: clamp(96px, 15vh, 150px) clamp(20px, 5vw, 32px) clamp(48px, 10vh, 96px);
 }
-/* mm-rise je sdílená animace náběhu; panel se po otočení koule vysune zespodu. */
+/* mm-rise je sdílená animace náběhu; panel naskočí, až se koule dotočí. */
 .mm-stack-panel { animation: mm-rise 380ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -309,20 +312,14 @@ body {
 
 /* ── Glóbus: koule, kontinenty, popisky ── */
 .mm-globe {
-  display: block; width: 100%; height: auto;
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%;
   touch-action: none; user-select: none; -webkit-user-select: none;
-  overflow: visible;
 }
-.mm-globe-world { transform-origin: 50% 50%; transition: transform 520ms cubic-bezier(0.76, 0, 0.24, 1); }
-.mm-globe-ocean { fill: color-mix(in srgb, var(--color-text) 5%, transparent); }
-.mm-globe-grid {
-  fill: none; stroke: color-mix(in srgb, var(--color-text) 18%, transparent);
-  stroke-width: 0.6; pointer-events: none;
-}
+.mm-globe-ocean { fill: color-mix(in srgb, var(--color-text) 3.5%, transparent); }
 /* stínování nesmí polykat kliky do pevnin pod ním */
 .mm-globe-shade { pointer-events: none; }
 .mm-globe-rim {
-  fill: none; stroke: color-mix(in srgb, var(--color-text) 28%, transparent); stroke-width: 1;
+  fill: none; stroke: color-mix(in srgb, var(--color-text) 26%, transparent); stroke-width: 1.5;
   pointer-events: none;
 }
 .mm-continent { cursor: pointer; }
@@ -331,33 +328,33 @@ body {
   stroke: var(--color-text); stroke-width: 2; stroke-dasharray: 3 2;
 }
 .mm-continent-land {
-  fill: color-mix(in srgb, var(--color-text) 16%, transparent);
-  stroke: color-mix(in srgb, var(--color-text) 30%, transparent); stroke-width: 0.8;
+  fill: color-mix(in srgb, var(--color-text) 10%, transparent);
+  stroke: color-mix(in srgb, var(--color-text) 24%, transparent); stroke-width: 2;
   transition: fill 200ms var(--transition);
 }
-.mm-continent:hover .mm-continent-land { fill: color-mix(in srgb, var(--color-text) 26%, transparent); }
-.mm-continent.is-active .mm-continent-land { fill: color-mix(in srgb, var(--color-text) 38%, transparent); }
+.mm-continent:hover .mm-continent-land { fill: color-mix(in srgb, var(--color-text) 15%, transparent); }
+.mm-continent.is-active .mm-continent-land { fill: color-mix(in srgb, var(--color-text) 13%, transparent); }
 .mm-continent-label {
-  font-family: var(--font-mono); font-size: 7px; letter-spacing: 0.08em;
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.14em;
   text-transform: uppercase; fill: var(--color-text); pointer-events: none;
   paint-order: stroke;
-  stroke: var(--color-bg); stroke-width: 2.5; stroke-linejoin: round;
+  stroke: var(--color-bg); stroke-width: 4; stroke-linejoin: round;
 }
 .mm-continent.is-active .mm-continent-label { font-weight: 700; }
 
 /* ── Země na mapě (jen v přiblížení kontinentu Práce) ── */
 .mm-country { cursor: pointer; }
 .mm-country-land {
-  fill: color-mix(in srgb, var(--color-text) 30%, transparent);
-  stroke: var(--color-bg); stroke-width: 0.7;
+  fill: color-mix(in srgb, var(--color-text) 14%, transparent);
+  stroke: var(--color-bg); stroke-width: 1.5;
   transition: fill 200ms var(--transition);
 }
 .mm-country:hover .mm-country-land { fill: color-mix(in srgb, var(--color-text) 45%, transparent); }
 .mm-country.is-active .mm-country-land { fill: color-mix(in srgb, var(--color-text) 62%, transparent); }
 .mm-country-label {
-  font-family: var(--font-mono); font-size: 3.4px; letter-spacing: 0.06em;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em;
   fill: var(--color-text); pointer-events: none; paint-order: stroke;
-  stroke: var(--color-bg); stroke-width: 1.2; stroke-linejoin: round;
+  stroke: var(--color-bg); stroke-width: 3.5; stroke-linejoin: round;
 }
 /* v přiblížení kontinenty kolem ustoupí, aby scéna patřila jedné pevnině */
 .mm-stage.is-zoomed .mm-continent:not(.is-active) { opacity: 0.12; }
@@ -385,9 +382,8 @@ body {
 }
 
 @media (max-width: 560px) {
-  .mm-stage { margin-top: clamp(66px, 10vh, 92px); }
-  .mm-stage .mm-globe { width: min(74vw, 300px); }
-  /* v přiblížení se na malém displeji nevejdou popisky zemí — čte se seznam pod mapou */
+  .mm-continent-label { font-size: 11px; }
+  /* v přiblížení se na malém displeji nevejdou popisky zemí — čte se seznam v textu */
   .mm-stage.is-zoomed .mm-country-label { display: none; }
   .mm-country-item { padding: 18px 0; }
   .mm-idea-title { font-size: 20px; }

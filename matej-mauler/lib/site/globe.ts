@@ -56,30 +56,6 @@ export function projectPolygon(
   return { path, visibility };
 }
 
-/**
- * Otevřená čára (poledník, rovnoběžka) — na rozdíl od polygonu se neuzavírá a
- * úseky za obzorem se vynechají, ne přitisknou na okraj. Vrací jednu SVG cestu
- * s tolika podcestami, na kolik viditelných kusů se čára rozpadne.
- */
-export function projectArc(
-  points: [number, number][],
-  r: Rotation,
-  radius: number,
-): string {
-  const parts: string[] = [];
-  let open = false;
-  for (const [lon, lat] of points) {
-    const p = project({ lon, lat }, r, radius);
-    if (p.cosc <= 0) {
-      open = false;
-      continue;
-    }
-    parts.push(`${open ? "L" : "M"} ${round(p.x)} ${round(p.y)}`);
-    open = true;
-  }
-  return parts.join(" ");
-}
-
 /** Cíl posunutý o násobek 360°, aby se koule točila kratší cestou. */
 export function shortestRotation(fromLon: number, toLon: number): number {
   let delta = (toLon - fromLon) % 360;

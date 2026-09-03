@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { angularDistance, isVisible, project, projectArc, projectPolygon, shortestRotation } from "./globe";
+import { angularDistance, isVisible, project, projectPolygon, shortestRotation } from "./globe";
 
 const R = 100;
 
@@ -78,22 +78,3 @@ describe("rotační pomocníci", () => {
   });
 });
 
-describe("projectArc", () => {
-  const meridian: [number, number][] = Array.from({ length: 19 }, (_, i) => [0, -90 + i * 10]);
-
-  it("poledník vepředu je jedna souvislá čára a neuzavírá se", () => {
-    const path = projectArc(meridian, { lon0: 0, lat0: 0 }, R);
-    expect(path.endsWith("Z")).toBe(false);
-    expect((path.match(/M/g) ?? []).length).toBe(1);
-  });
-
-  it("poledník za obzorem nedá žádnou čáru", () => {
-    expect(projectArc(meridian, { lon0: 180, lat0: 0 }, R)).toBe("");
-  });
-
-  it("rovnoběžka přeťatá obzorem se rozpadne na dva kusy", () => {
-    const parallel: [number, number][] = Array.from({ length: 73 }, (_, i) => [i * 5, 0]);
-    const path = projectArc(parallel, { lon0: 0, lat0: 0 }, R);
-    expect((path.match(/M/g) ?? []).length).toBe(2);
-  });
-});
