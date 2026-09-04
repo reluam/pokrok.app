@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { deleteComment } from "@/lib/commentsDb";
 import { isAdmin } from "@/lib/adminAuth";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
+// Účty jsou schované (lib/features.ts) → tahle routa neexistuje. Kód i DB tabulky
+// zůstávají; až se účty vrátí, guard zmizí sám s přepnutím vlajky.
+const off = () => NextResponse.json({ error: "not found" }, { status: 404 });
+
+
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!ACCOUNTS_ENABLED) return off();
   try {
     const { userId } = await auth();
     const admin = await isAdmin();

@@ -5,10 +5,13 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ExperiencePanelMount } from "@/components/ExperiencePanelMount";
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 import "./globals.css";
 
-// Clerk se zapne, jen když jsou v prostředí klíče → web funguje i bez nich (žádný 500 při deployi před setupem).
-const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+// Clerk potřebuje klíče v prostředí i zapnuté účty (lib/features.ts). Účty jsou
+// teď schované, takže se ClerkProvider nemountuje vůbec — a nic pod ním nesmí
+// volat Clerk hooky.
+const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // Headline font – Space Grotesk
 const display = Space_Grotesk({

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { track } from "@/lib/track";
 import Link from "next/link";
 import { PromptRegistration } from "./PromptRegistration";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 type Lang = "cs" | "en";
 type Word = { id: number; display: string };
@@ -196,7 +197,8 @@ export function BrainApp({ lang }: { lang: Lang }) {
   const appLang = lang;
   const t = T[appLang];
   const [step, setStep] = useState<Step>("intro");
-  const [checked, setChecked] = useState(false); // hotová kontrola, jestli přihlášený už synapse plnil
+  // Hotová kontrola, jestli přihlášený už synapse plnil. Bez účtů není co kontrolovat → rovnou hotovo.
+  const [checked, setChecked] = useState(!ACCOUNTS_ENABLED);
   const [stats, setStats] = useState<Stats | null>(null);
   const [map, setMap] = useState<MapData | null>(null);
   const dirty = useRef(false); // po nových asociacích mapu před zobrazením obnovit
@@ -251,6 +253,9 @@ export function BrainApp({ lang }: { lang: Lang }) {
 
   // Přihlášený, co už synapse plnil → uvítací volba (vyplnit / mapa). Nepřihlášený = normální flow.
   useEffect(() => {
+    // Účty schované → nikdo není přihlášený, zkratka pro navrátilce nedává smysl
+    // (`checked` startuje rovnou na true, viz useState výše).
+    if (!ACCOUNTS_ENABLED) return;
     let active = true;
     (async () => {
       try {
@@ -276,7 +281,7 @@ export function BrainApp({ lang }: { lang: Lang }) {
   // Zapíše dokončení do Spaghetti účtů (anonymous-first; badge logika běží na serveru,
   // anonymní záznam se přilepí k účtu, jakmile se uživatel přihlásí).
   const saveParticipation = async (items: MineStat[]) => {
-    if (recordedRef.current) return;
+    if (!ACCOUNTS_ENABLED || recordedRef.current) return;
     recordedRef.current = true;
     try {
       await fetch("/api/participation", {

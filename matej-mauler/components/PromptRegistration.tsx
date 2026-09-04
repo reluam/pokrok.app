@@ -1,6 +1,7 @@
 "use client";
 
 import { SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 export type RegistrationTrigger = "on_result" | "on_explore" | "on_return" | "manual";
 
@@ -15,7 +16,7 @@ export type PromptRegistrationProps = {
   cta?: string;
 };
 
-const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 const DEFAULT_CTA: Record<RegistrationTrigger, string> = {
   on_result: "keep this",

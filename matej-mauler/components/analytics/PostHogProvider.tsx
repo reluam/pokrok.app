@@ -5,12 +5,13 @@ import posthog from "posthog-js";
 import { POSTHOG_KEY, POSTHOG_HOST, posthogEnabled } from "@/lib/analytics/posthog";
 import { ConsentBanner } from "./ConsentBanner";
 import { ClerkIdentify } from "./ClerkIdentify";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 // Plný režim s consent bannerem: v EU trackujeme až po souhlasu.
 // Před souhlasem běží PostHog v memory + opted-out (žádné cookies) → bez banneru nic neukládá.
 export type Consent = "granted" | "denied" | "unset";
 const CONSENT_KEY = "sp_analytics_consent";
-const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 type Ctx = { consent: Consent; accept: () => void; decline: () => void };
 const ConsentContext = createContext<Ctx>({ consent: "unset", accept: () => {}, decline: () => {} });

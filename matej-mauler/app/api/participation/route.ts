@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { ensureAnonSession, getUserStats, recordParticipation } from "@/lib/accountsDb";
 import { resolveParticipationActor, syncAuthedUser } from "@/lib/account/session";
 import { evaluateRewards } from "@/lib/rewards/evaluate";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
+
+// Účty jsou schované (lib/features.ts) → tahle routa neexistuje. Kód i DB tabulky
+// zůstávají; až se účty vrátí, guard zmizí sám s přepnutím vlajky.
+const off = () => NextResponse.json({ error: "not found" }, { status: 404 });
+
 
 // Has the SIGNED-IN user already done this experiment? (?experiment=<slug>)
 // Anonymous → { signedIn:false, done:false }. Used to offer returning users a shortcut.
 export async function GET(req: NextRequest) {
+  if (!ACCOUNTS_ENABLED) return off();
   try {
     const experiment = req.nextUrl.searchParams.get("experiment");
     if (!experiment) return NextResponse.json({ error: "missing experiment" }, { status: 400 });
@@ -25,6 +32,7 @@ export async function GET(req: NextRequest) {
 // rewards. Anonymous participations are stored against the sp_anon session and get their badges
 // when the user later registers (merge-on-auth). Never gates the core experience.
 export async function POST(req: NextRequest) {
+  if (!ACCOUNTS_ENABLED) return off();
   try {
     const b = await req.json().catch(() => ({}));
     const experimentSlug = typeof b?.experimentSlug === "string" ? b.experimentSlug : "";

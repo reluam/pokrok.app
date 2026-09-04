@@ -1,10 +1,11 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
+import { ACCOUNTS_ENABLED } from "./lib/features";
 
 const ADMIN_COOKIE = "admin_token";
 
-// Clerk běží jen s klíčem → bez něj se použije čistý handler (web nespadne na 500 před setupem).
-const clerkEnabled = !!process.env.CLERK_SECRET_KEY;
+// Clerk běží jen se zapnutými účty a klíčem → jinak čistý handler (web nespadne na 500).
+const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.CLERK_SECRET_KEY;
 
 // Cache hrefů smazaných experimentů (per edge isolate, TTL 60 s) → 410 Gone bez DB v hot-path.
 let goneCache: { ts: number; set: Set<string> } = { ts: 0, set: new Set() };

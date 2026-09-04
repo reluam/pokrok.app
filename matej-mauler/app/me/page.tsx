@@ -4,6 +4,8 @@ import { SignInButton } from "@clerk/nextjs";
 import { syncAuthedUser } from "@/lib/account/session";
 import { getProfile } from "@/lib/accountsDb";
 import { EXPERIENCES } from "@/lib/experiencePanel";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +16,7 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 const titleForSlug = (slug: string) => EXPERIENCES.find((e) => e.slug === slug)?.title ?? slug;
 
@@ -46,6 +48,8 @@ function SignedOut({ note }: { note?: string }) {
 }
 
 export default async function MePage() {
+  // Účty jsou schované → profil neexistuje (radši 404 než prázdná stránka s „brzy").
+  if (!ACCOUNTS_ENABLED) notFound();
   if (!clerkEnabled) return <SignedOut note="accounts are coming soon." />;
 
   const synced = await syncAuthedUser();

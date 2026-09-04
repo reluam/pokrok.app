@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { SignInButton, useUser } from "@clerk/nextjs";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
-const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // Homepage user icon. Signed out → opens Clerk sign-in / register (modal).
 // Signed in → links to /me. Env-guarded: renders nothing without Clerk keys.

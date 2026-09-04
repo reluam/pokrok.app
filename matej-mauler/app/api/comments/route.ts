@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { addComment, listComments } from "@/lib/commentsDb";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
+// Účty jsou schované (lib/features.ts) → tahle routa neexistuje. Kód i DB tabulky
+// zůstávají; až se účty vrátí, guard zmizí sám s přepnutím vlajky.
+const off = () => NextResponse.json({ error: "not found" }, { status: 404 });
+
+
 export async function GET(req: NextRequest) {
+  if (!ACCOUNTS_ENABLED) return off();
   try {
     const page = req.nextUrl.searchParams.get("page");
     if (!page) return NextResponse.json({ error: "missing page" }, { status: 400 });
@@ -16,6 +23,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!ACCOUNTS_ENABLED) return off();
   try {
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });

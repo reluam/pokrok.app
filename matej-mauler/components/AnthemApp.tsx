@@ -7,6 +7,7 @@ import { SCALES, midiToFreq } from "@/lib/music";
 import type { Lang } from "@/lib/dictionaries";
 import { AudioNotice } from "./AudioNotice";
 import { PromptRegistration } from "./PromptRegistration";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifItalic: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -101,6 +102,7 @@ export function AnthemApp({ lang }: { lang: Lang }) {
   // Zápis do Spaghetti účtů, jakmile zazní tvoje hymna (anonymous-first).
   const recordedRef = useRef(false);
   useEffect(() => {
+    if (!ACCOUNTS_ENABLED) return;
     if (!(anthem && step >= questions.length) || recordedRef.current) return;
     recordedRef.current = true;
     fetch("/api/participation", {

@@ -7,6 +7,7 @@ import type { Lang } from "@/lib/dictionaries";
 import { Result } from "./Result";
 import { PromptRegistration } from "./PromptRegistration";
 import { PixelIcon } from "./PixelIcon";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serif: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -62,6 +63,7 @@ export function QuestionFlow({ lang }: { lang: Lang }) {
   // Zápis do Spaghetti účtů, jakmile uživatel uvidí svůj odhad (anonymous-first).
   const recordedRef = useRef(false);
   useEffect(() => {
+    if (!ACCOUNTS_ENABLED) return;
     if (step !== "result" || recordedRef.current) return;
     recordedRef.current = true;
     fetch("/api/participation", {

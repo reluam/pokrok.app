@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Lang } from "@/lib/dictionaries";
 import { PromptRegistration } from "./PromptRegistration";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const serifI: React.CSSProperties = { fontFamily: "var(--font-display)", fontStyle: "italic" };
@@ -182,6 +183,7 @@ export function DecisionMaker({ lang }: { lang: Lang }) {
   // Zápis do Spaghetti účtů, jakmile padne rozhodnutí (anonymous-first).
   const recordedRef = useRef(false);
   useEffect(() => {
+    if (!ACCOUNTS_ENABLED) return;
     if (!decided || recordedRef.current) return;
     recordedRef.current = true;
     fetch("/api/participation", {

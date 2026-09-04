@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { Comments } from "./Comments";
+import { ACCOUNTS_ENABLED } from "@/lib/features";
 
 export type ExperiencePanelProps = {
   /** Klíč vlákna komentářů + hodnocení (stabilní, např. "life-manual"). */
@@ -14,12 +15,52 @@ export type ExperiencePanelProps = {
   guide?: string[];
 };
 
-const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-// Panel se zapne až s Clerk klíči (hodnocení i komentáře potřebují přihlášení). Gate je bez hooků → bezpečné.
+// Bez účtů panel nezmizí — popis a návod žádné přihlášení nepotřebují. Zmizí jen
+// hodnocení a komentáře. Gate je bez hooků, takže varianta bez Clerku se nikdy
+// nedostane k useUser() (a nespadne na chybějícím ClerkProvideru).
 export function ExperiencePanel(props: ExperiencePanelProps) {
-  if (!clerkEnabled) return null;
+  if (!clerkEnabled) return <PanelBasic {...props} />;
   return <Panel {...props} />;
+}
+
+/** Panel bez účtů: jen „About" — chip, popis, návod. Žádný Clerk, žádný fetch. */
+function PanelBasic({ title, category, description, guide }: ExperiencePanelProps) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      {!open && (
+        <button className="xp-tab" onClick={() => setOpen(true)} aria-label="Open info">
+          <span aria-hidden style={{ fontSize: 14 }}>›</span>
+          <span>INFO</span>
+        </button>
+      )}
+
+      <aside className={`xp-drawer${open ? " open" : ""}`} aria-hidden={!open}>
+        <div className="xp-head">
+          <strong style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 16, letterSpacing: "-0.01em" }}>{title}</strong>
+          <button className="xp-close" onClick={() => setOpen(false)} aria-label="Close panel">×</button>
+        </div>
+
+        <div className="xp-body">
+          {category && <span className="xp-chip">{category}</span>}
+          {description && <p className="xp-desc">{description}</p>}
+
+          {guide && guide.length > 0 && (
+            <>
+              <div className="xp-h">How it works</div>
+              <ol className="xp-guide">
+                {guide.map((g, i) => (
+                  <li key={i}>{g}</li>
+                ))}
+              </ol>
+            </>
+          )}
+        </div>
+      </aside>
+    </>
+  );
 }
 
 function Panel({ slug, title, category, description, guide }: ExperiencePanelProps) {
