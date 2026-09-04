@@ -4,7 +4,7 @@ import { NODES } from "@/lib/encyclopedia/nodes";
 
 export const dynamic = "force-dynamic";
 
-const SITE = "https://www.matejmauler.com";
+const SITE = "https://www.spaghetti.ltd";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const items = await getPublicExperiments("en");
@@ -14,6 +14,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE}/mapa`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE}/songs`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    // osobní rozcestník — přestěhoval se z „/" pod „/matej", ať nevypadne ze sitemapy
+    { url: `${SITE}/matej`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
   ];
 
   // jen interní (ne external) publikované experimenty; smazané/draft tu nejsou

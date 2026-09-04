@@ -5,4 +5,5 @@
 export const TEXT_GROUPS: { group: string; keys: string[] }[] = [
   { group: "hero", keys: ["hero.name", "hero.tagline", "hero.sub"] },
   { group: "products", keys: ["products.title", "products.subtitle"] },
+  { group: "about", keys: ["about.heading", "about.p1", "about.p2", "about.p3a", "about.writeMe", "about.p3b", "about.rewardA", "about.rewardLink"] },
 ];

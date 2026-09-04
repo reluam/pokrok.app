@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { COPY, DESCRIPTION } from "./copy";
-import { SECTIONS } from "./sections";
-import { projects } from "@/lib/projects";
+import { SECTIONS, indexForPath } from "./sections";
 
 const langs = ["cs", "en"] as const;
 
@@ -26,30 +25,40 @@ describe("texty rozcestníku", () => {
     expect(COPY.metaDescription.en).toContain("Teya");
   });
 
-  it("mrtvé klíče po rotátoru a kartotéce jsou pryč", () => {
-    for (const dead of ["description", "beliefsHeading", "thoughtsShort", "thoughtsShortLead", "prev", "next", "timelineNow"]) {
-      expect(COPY).not.toHaveProperty(dead);
-    }
-    expect(COPY.inPractice.en).toBe("so, in practice");
+  it("mrtvé klíče po rotátoru, kartotéce a sekci „Jak to vidím“ jsou pryč", () => {
+    const dead = [
+      "description", "beliefsHeading", "thoughtsShort", "thoughtsShortLead",
+      "prev", "next", "timelineNow", "inPractice", "nowIntro",
+    ];
+    for (const key of dead) expect(COPY).not.toHaveProperty(key);
   });
 
-  it("každá sekce kromě home má shrnutí v obou jazycích", () => {
+  it("sekce jsou čtyři, „jak to vidím“ mezi nimi není", () => {
+    expect(SECTIONS.map((s) => s.id)).toEqual(["home", "work", "ideas", "contact"]);
+  });
+
+  it("každá sekce kromě home má shrnutí i navigační popisek v obou jazycích", () => {
     for (const s of SECTIONS.filter((x) => x.id !== "home")) {
-      for (const l of langs) expect(s.summary[l].length).toBeGreaterThan(20);
+      for (const l of langs) {
+        expect(s.summary[l].length).toBeGreaterThan(20);
+        expect(s.nav[l].length).toBeGreaterThan(2);
+      }
     }
   });
 
-  it("projekty přiznávají, v jakém jsou stavu — pravidlo 8", () => {
-    const spaghetti = projects.find((p) => p.name === "Spaghetti.ltd")!;
-    expect(spaghetti.blurb.en).toContain("unfinished");
-    const stats = projects.find((p) => p.name === "Stats & Facts")!;
-    expect(stats.url).toBeUndefined();
-    expect(stats.blurb.en).toContain("early");
+  it("cesty ukazují na správné sekce", () => {
+    expect(indexForPath("/matej")).toBe(0);
+    expect(indexForPath("/matej/work")).toBe(1);
+    expect(indexForPath("/matej/ideas")).toBe(2);
+    expect(indexForPath("/matej/contact")).toBe(3);
+    expect(indexForPath("/neexistuje")).toBe(0);
   });
 
-  it("v žádném blurbu nezůstalo TODO", () => {
-    for (const p of projects) {
-      for (const l of langs) expect(p.blurb[l]).not.toContain("TODO");
-    }
+  it("osobní web žije pod /matej — na „/“ je zase Spaghetti.ltd", () => {
+    for (const s of SECTIONS) expect(s.href.startsWith("/matej")).toBe(true);
+  });
+
+  it("úvod sekce Nápady mluví o nápadech, ne o projektech", () => {
+    for (const l of langs) expect(COPY.ideasIntro[l].length).toBeGreaterThan(20);
   });
 });

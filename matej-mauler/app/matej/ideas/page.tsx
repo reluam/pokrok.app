@@ -3,7 +3,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { PERSON_NAME } from "@/lib/about";
 import { SECTIONS, sectionIndex } from "@/lib/site/sections";
 
-const section = SECTIONS[sectionIndex("projects")];
+const section = SECTIONS[sectionIndex("ideas")];
 
 export const metadata: Metadata = {
   title: `${section.title.en} — ${PERSON_NAME}`,
@@ -20,5 +20,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <SiteShell section="projects" />;
+  return <SiteShell section="ideas" />;
 }

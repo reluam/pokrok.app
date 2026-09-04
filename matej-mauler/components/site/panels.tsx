@@ -1,12 +1,11 @@
 "use client";
 
-import { HowISeeIt } from "./HowISeeIt";
 import { CONTACTS, PERSON_DOMAIN, PERSON_NAME } from "@/lib/about";
 import type { Lang } from "@/lib/dictionaries";
-import { projects } from "@/lib/projects";
 import { COPY, DESCRIPTION } from "@/lib/site/copy";
 import { SECTIONS } from "@/lib/site/sections";
-import { TIMELINE } from "@/lib/site/timeline";
+import { COUNTRIES } from "@/lib/site/countries";
+import { IDEAS } from "@/lib/site/ideas";
 
 /** Obsah jednotlivých panelů pásu. Stav pásu drží SiteStrip, tady jen rozbalování. */
 
@@ -54,81 +53,83 @@ export function HomePanel({ lang, onNavigate }: { lang: Lang; onNavigate: (index
   );
 }
 
-export function WorkPanel({ lang }: { lang: Lang }) {
+export function WorkPanel({
+  lang,
+  zoomed,
+  activeCountryId,
+  onSelectCountry,
+  onToggleZoom,
+}: {
+  lang: Lang;
+  zoomed: boolean;
+  activeCountryId: string | null;
+  onSelectCountry: (id: string | null) => void;
+  onToggleZoom: () => void;
+}) {
   const s = SECTIONS[1];
   return (
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>
       <p className="mm-panel-lead">{s.summary[lang]}</p>
-      <ol className="mm-timeline">
-        {TIMELINE.map((t) => (
-          <li key={t.id} className={`mm-tl-item${t.current ? " is-current" : ""}`}>
-            <span className="mm-tl-period">{t.period}</span>
-            <div className="mm-tl-body">
-              <h3 className="mm-tl-role">{t.role[lang]}</h3>
-              <p className="mm-tl-org">{t.org}</p>
-              <p className="mm-tl-text">{t.body[lang]}</p>
-              {t.bullets && t.bullets.length > 0 && (
-                <ul className="mm-tl-bullets">
-                  {t.bullets.map((b, i) => <li key={i}>{b[lang]}</li>)}
-                </ul>
-              )}
-            </div>
+
+      <button type="button" className="mm-zoom-toggle" onClick={onToggleZoom}>
+        {zoomed ? COPY.zoomOut[lang] : COPY.zoomIn[lang]}
+      </button>
+
+      <ul className="mm-countries">
+        {COUNTRIES.map((c) => (
+          <li
+            key={c.id}
+            className={`mm-country-item${c.id === activeCountryId ? " is-active" : ""}`}
+          >
+            <h3 className="mm-country-org">
+              <button
+                type="button"
+                className="mm-country-btn"
+                onClick={() => onSelectCountry(c.id === activeCountryId ? null : c.id)}
+              >
+                {c.org}
+              </button>
+            </h3>
+            <p className="mm-country-text">{c.body[lang]}</p>
+            {c.bullets && c.bullets.length > 0 && (
+              <ul className="mm-country-bullets">
+                {c.bullets.map((b, i) => <li key={i}>{b[lang]}</li>)}
+              </ul>
+            )}
           </li>
         ))}
-      </ol>
-    </div>
-  );
-}
-
-export function ProjectsPanel({ lang }: { lang: Lang }) {
-  const s = SECTIONS[2];
-  return (
-    <div className="mm-inner">
-      <h2 className="mm-panel-title">{s.title[lang]}</h2>
-      <p className="mm-panel-lead">{COPY.nowIntro[lang]}</p>
-      <ul className="mm-projects">
-        {projects.map((p) => {
-          const heading = (
-            <span className="mm-project" data-type={p.typeStyle}>{p.name}</span>
-          );
-          return (
-            <li key={p.name} className={`mm-project-item${p.status === "past" ? " is-past" : ""}`}>
-              {p.url ? (
-                <a className="mm-project-link" href={p.url} target="_blank" rel="noopener noreferrer">
-                  {heading}
-                  <span className="mm-project-arrow" aria-hidden="true">↗</span>
-                </a>
-              ) : (
-                heading
-              )}
-              <p className="mm-project-blurb">{p.blurb[lang]}</p>
-            </li>
-          );
-        })}
       </ul>
     </div>
   );
 }
 
 /**
- * Trojúhelník tří přesvědčení nahoře, kruh pěti pravidel pod ním — klik na uzel
- * rozbalí jeho zdůvodnění. Vykresluje HowISeeIt, viz components/site/HowISeeIt.tsx.
- * Delší články ze Substacku sem zatím nepatří — lib/substack.ts zůstává v repu.
+ * „Nad čím přemýšlím" — nápady, které Matěj nedělá a myslí si, že by měly
+ * existovat. Obsah dodá lib/site/ideas.ts; zatím jen úvod sekce.
  */
-export function ThoughtsPanel({ lang }: { lang: Lang }) {
-  const s = SECTIONS[3];
+export function IdeasPanel({ lang }: { lang: Lang }) {
+  const s = SECTIONS[2];
   return (
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>
-      <p className="mm-panel-lead">{s.summary[lang]}</p>
-      <HowISeeIt lang={lang} />
+      <p className="mm-panel-lead">{COPY.ideasIntro[lang]}</p>
+      <ul className="mm-ideas">
+        {IDEAS.map((idea) => (
+          <li key={idea.id} className="mm-idea">
+            <h3 className="mm-idea-title">{idea.title[lang]}</h3>
+            <p className="mm-idea-what">{idea.what[lang]}</p>
+            <p className="mm-idea-why">{idea.why[lang]}</p>
+            {idea.hard && <p className="mm-idea-hard">{idea.hard[lang]}</p>}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 export function ContactPanel({ lang }: { lang: Lang }) {
-  const s = SECTIONS[4];
+  const s = SECTIONS[3];
   return (
     <div className="mm-inner">
       <h2 className="mm-panel-title">{s.title[lang]}</h2>

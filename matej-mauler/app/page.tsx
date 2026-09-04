@@ -1,44 +1,38 @@
 import type { Metadata } from "next";
-import { SiteShell } from "@/components/site/SiteShell";
-import { CONTACTS, EMAIL, PERSON_NAME, PERSON_URL } from "@/lib/about";
-import { projects } from "@/lib/projects";
-import { COPY } from "@/lib/site/copy";
+import { HomeNetwork } from "@/components/HomeNetwork";
+import { dictionaries } from "@/lib/dictionaries";
+import { getPublicExperiments } from "@/lib/experimentsDb";
+import { applyTextOverrides, getTextOverrides } from "@/lib/siteTextsDb";
 
-const positioning = COPY.metaDescription.en;
-
+// Homepage je cacheovaná (ne force-dynamic): feed i texty se drží ve full-route cache a
+// admin změny ji shodí přes revalidateTag → návrat na „/" je instant místo dynamického renderu.
 export const metadata: Metadata = {
-  title: `${PERSON_NAME} — sales, music, web experiments`,
-  description: positioning,
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "profile",
-    title: `${PERSON_NAME} — sales, music, web experiments`,
-    description: positioning,
-    url: PERSON_URL,
-    siteName: PERSON_NAME,
-    // TODO: nahradit skutečným OG obrázkem (1200×630), zatím logo jako placeholder
-    images: [{ url: "/logo.svg" }],
+  title: "Spaghetti.ltd",
+  description: dictionaries.en.meta.description,
+  alternates: {
+    canonical: "/",
+    languages: { "x-default": "/", en: "/" },
   },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  name: PERSON_NAME,
-  url: PERSON_URL,
-  email: `mailto:${EMAIL}`,
-  description: positioning,
-  sameAs: [
-    ...CONTACTS.filter((c) => c.external).map((c) => c.href),
-    ...projects.map((p) => p.url).filter((u): u is string => !!u),
-  ],
+  "@type": "WebSite",
+  name: "Spaghetti.ltd",
+  url: "https://www.spaghetti.ltd",
+  description: "Interactive experiments and an encyclopedia connected by knowledge noodles — sound, music, a server-rendered radio, a public brain and more.",
+  inLanguage: "en",
 };
 
-export default function Home() {
+export default async function Home() {
+  const [items, overrides] = await Promise.all([
+    getPublicExperiments("en"),
+    getTextOverrides("en").catch(() => ({})),
+  ]);
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <SiteShell section="home" />
+      <HomeNetwork dict={applyTextOverrides(dictionaries.en, overrides)} lang="en" items={items} />
     </>
   );
 }
