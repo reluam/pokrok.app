@@ -78,8 +78,8 @@ lib/getLang.ts          odemknout na verzi z 0e6bb7a8c^ (cookie → host → geo
 proxy.ts                odchyt ?lang= → cookie
 components/LanguageSwitcher.tsx   z historie zpět (bez psaní cookie); vrací se do:
   components/HomeNetwork.tsx        hlavička homepage
-  components/encyclopedia/Shell.tsx
-  components/BrainApp.tsx           (Synapse)
+  components/ExperiencePanel.tsx    patička panelu — visí nad každou experiencí,
+                                    takže i přímý příchod na /sound má přepínač
 app/layout.tsx          <html lang> podle getLang() → layout se stává async
 app/page.tsx            "en" natvrdo → getLang() (a tím i celý feed dvojjazyčně)
 app/cs/page.tsx         redirect na /?lang=cs místo na /
