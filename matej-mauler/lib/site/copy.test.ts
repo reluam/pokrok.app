@@ -47,11 +47,15 @@ describe("texty rozcestníku", () => {
   });
 
   it("cesty ukazují na správné sekce", () => {
-    expect(indexForPath("/")).toBe(0);
-    expect(indexForPath("/work")).toBe(1);
-    expect(indexForPath("/ideas")).toBe(2);
-    expect(indexForPath("/contact")).toBe(3);
+    expect(indexForPath("/matej")).toBe(0);
+    expect(indexForPath("/matej/work")).toBe(1);
+    expect(indexForPath("/matej/ideas")).toBe(2);
+    expect(indexForPath("/matej/contact")).toBe(3);
     expect(indexForPath("/neexistuje")).toBe(0);
+  });
+
+  it("osobní web žije pod /matej — na „/“ je zase Spaghetti.ltd", () => {
+    for (const s of SECTIONS) expect(s.href.startsWith("/matej")).toBe(true);
   });
 
   it("úvod sekce Nápady mluví o nápadech, ne o projektech", () => {

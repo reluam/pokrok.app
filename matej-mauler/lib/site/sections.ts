@@ -1,7 +1,8 @@
 import type { Bi } from "@/lib/about";
 
 /**
- * Čtyři sekce = čtyři routy = čtyři kontinenty na kouli.
+ * Čtyři sekce = čtyři routy = čtyři kontinenty na kouli. Osobní web sedí pod
+ * /matej — na kořeni je Spaghetti.ltd (feed experimentů), ne rozcestník.
  * Pořadí tady určuje pořadí v menu; kde kontinent leží na kouli, říká
  * lib/site/continents.ts. URL zůstávají anglické i v české verzi (jazyk drží
  * cookie, ne cesta) — jinak by každá stránka musela existovat dvakrát.
@@ -20,14 +21,14 @@ export type Section = {
 export const SECTIONS: Section[] = [
   {
     id: "home",
-    href: "/",
+    href: "/matej",
     nav: { cs: "Začátek", en: "Start" },
     title: { cs: "Matěj Mauler", en: "Matěj Mauler" },
     summary: { cs: "", en: "" },
   },
   {
     id: "work",
-    href: "/work",
+    href: "/matej/work",
     nav: { cs: "Kousek historie", en: "A bit of history" },
     title: { cs: "Kousek historie", en: "A bit of history" },
     summary: {
@@ -37,7 +38,7 @@ export const SECTIONS: Section[] = [
   },
   {
     id: "ideas",
-    href: "/ideas",
+    href: "/matej/ideas",
     nav: { cs: "Nad čím přemýšlím", en: "What I'm thinking about" },
     title: { cs: "Nad čím přemýšlím", en: "What I'm thinking about" },
     summary: {
@@ -47,7 +48,7 @@ export const SECTIONS: Section[] = [
   },
   {
     id: "contact",
-    href: "/contact",
+    href: "/matej/contact",
     nav: { cs: "Zůstaňme ve spojení", en: "Let's stay in touch" },
     title: { cs: "Zůstaňme ve spojení", en: "Let's stay in touch" },
     summary: {

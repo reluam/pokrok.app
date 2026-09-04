@@ -26,9 +26,8 @@ export function TopMenu({
         {/* Schválně <a>, ne <Link>: router push by panel odmountoval a zabil animaci pásu.
             Klik odchytáváme, href zůstává kvůli funkčnosti bez JS a pro „otevřít v novém tabu". */}
         {/* Hlavní stránka nemá v menu položku — vede na ni jen logo (aktivní = invertované). */}
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
-          href="/"
+          href={SECTIONS[0].href}
           className={`mm-menu-logo${index === 0 ? " is-active" : ""}`}
           onClick={(e) => {
             if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
