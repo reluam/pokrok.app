@@ -14,8 +14,8 @@ const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const sans = "var(--font-sans)";
 
 const T = {
-  cs: { browse: "Procházet všechny experimenty", back: "← Zpět", search: "Hledej experiment…", allCats: "Vše", open: "Otevřít", none: "Nic se nenašlo.", play: "Hrát" },
-  en: { browse: "Browse all experiments", back: "← Back", search: "Search experiments…", allCats: "All", open: "Open", none: "Nothing found.", play: "Play" },
+  cs: { browse: "Procházet všechny experimenty", back: "← Zpět", search: "Hledej experiment…", allCats: "Vše", open: "Otevřít", none: "Nic se nenašlo.", play: "Hrát", aboutMe: "Víc o mně →" },
+  en: { browse: "Browse all experiments", back: "← Back", search: "Search experiments…", allCats: "All", open: "Open", none: "Nothing found.", play: "Play", aboutMe: "More about me →" },
 };
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -139,6 +139,8 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
             <p className="mb-4">{a.p2}</p>
             <p className="mb-4">{a.p3a}<a href="mailto:matej@matejmauler.com" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.writeMe}</a>{a.p3b}</p>
             <p>{a.rewardA}<Link href={lang === "cs" ? "/encyklopedie" : "/encyclopedia"} style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{a.rewardLink}</Link></p>
+            {/* Jediná cesta na osobní stránku — jinak by /matej viselo jen v sitemapě. */}
+            <p className="mt-4"><Link href="/matej" style={{ color: "var(--text-primary)", textDecoration: "underline", textUnderlineOffset: 3, fontWeight: 600 }}>{t.aboutMe}</Link></p>
           </div>
         </section>
 
