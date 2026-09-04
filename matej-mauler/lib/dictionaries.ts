@@ -103,6 +103,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         title: "Driftbloom",
         description: "Vedeš jednu špagetí linii inteligentním designem proti třem, které se vyvíjejí samy. Evoluce nemá recept — a ty to zjistíš po svém.",
       },
+      {
+        slug: "milans-world",
+        title: "Milanův svět",
+        description: "Klikačka o představě, že se všechno dá vyřešit penězi. Razítkuješ na úřadě a kupuješ se od popelnice až po vesmír. Cíl je z principu nedosažitelný.",
+      },
     ],
   },
 
@@ -171,6 +176,11 @@ export const dictionaries: Record<Lang, Dictionary> = {
         slug: "driftbloom",
         title: "Driftbloom",
         description: "Steer one spaghettoid lineage by intelligent design against three evolving on their own. Evolution has no recipe — you find that out the hard way.",
+      },
+      {
+        slug: "milans-world",
+        title: "Milan's World",
+        description: "A clicker about the idea that money solves everything. Stamp forms at the city hall and buy your way from a wheelie bin to the universe. The goal is unreachable by design.",
       },
     ],
   },

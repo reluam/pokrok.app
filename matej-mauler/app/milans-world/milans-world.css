@@ -1,0 +1,287 @@
+/* ═══════════════ Milanův svět (/milans-world) ═══════════════
+   Přeneseno ze samostatné hry. Celé zapouzdřené pod .msw — hra má vlastní
+   paletu (papír/inkoust) i fonty a nesmí sahat na zbytek webu ani naopak.
+   Fonty Oswald / IBM Plex načítá app/milans-world/layout.tsx přes next/font. */
+
+.msw{
+  color-scheme: light;
+  --paper:#E3E6DC;
+  --surface:#F4F5ED;
+  --surface2:#EAECE0;
+  --line:#C4C8B7;
+  --line-soft:#D6D9CB;
+  --ink:#20231B;
+  --ink-soft:#5C6152;
+  --ink-faint:#8B907C;
+  --stamp:#3A38A6;
+  --stamp-wash:rgba(58,56,166,.10);
+  --red:#B0322A;
+  --gold:#9A7318;
+  --gold-wash:rgba(154,115,24,.12);
+  --ok:#3D6B48;
+  --raise:0 1px 0 rgba(255,255,255,.65), 0 2px 12px rgba(32,35,27,.09);
+  --f-disp:var(--msw-display),"Haettenschweiler","Arial Narrow",sans-serif;
+  --f-body:var(--msw-sans),"Segoe UI",system-ui,sans-serif;
+  --f-mono:var(--msw-mono),"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  .msw:not([data-theme="light"]){
+    color-scheme: dark;
+    --paper:#14160F;
+    --surface:#1E211A;
+    --surface2:#262A20;
+    --line:#3B4132;
+    --line-soft:#2E3428;
+    --ink:#E7EADD;
+    --ink-soft:#A6AC96;
+    --ink-faint:#767C67;
+    --stamp:#9C99F2;
+    --stamp-wash:rgba(156,153,242,.14);
+    --red:#E2685A;
+    --gold:#DDB055;
+    --gold-wash:rgba(221,176,85,.14);
+    --ok:#83C393;
+    --raise:0 1px 0 rgba(255,255,255,.04), 0 2px 14px rgba(0,0,0,.35);
+  }
+}
+[data-theme="dark"] .msw{
+  color-scheme: dark;
+  --paper:#14160F;
+  --surface:#1E211A;
+  --surface2:#262A20;
+  --line:#3B4132;
+  --line-soft:#2E3428;
+  --ink:#E7EADD;
+  --ink-soft:#A6AC96;
+  --ink-faint:#767C67;
+  --stamp:#9C99F2;
+  --stamp-wash:rgba(156,153,242,.14);
+  --red:#E2685A;
+  --gold:#DDB055;
+  --gold-wash:rgba(221,176,85,.14);
+  --ok:#83C393;
+  --raise:0 1px 0 rgba(255,255,255,.04), 0 2px 14px rgba(0,0,0,.35);
+}
+
+.msw *{box-sizing:border-box}
+.msw{
+  min-height:100dvh;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.msw button{font:inherit;color:inherit}
+.msw :focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
+
+.msw-app{max-width:1200px;margin:0 auto;padding:20px 18px 40px;display:flex;flex-direction:column;gap:16px}
+
+/* ---------- hlavička formuláře ---------- */
+.msw-head{
+  background:var(--surface);
+  border:1px solid var(--line);
+  box-shadow:var(--raise);
+  position:relative;
+}
+.msw-head__band{
+  display:flex;flex-wrap:wrap;gap:10px 18px;align-items:baseline;justify-content:space-between;
+  padding:9px 16px;border-bottom:1px solid var(--line);
+  background:var(--surface2);
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);
+}
+.msw-head__band b{font-weight:500;color:var(--ink-soft)}
+.msw-head__top{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:flex-end;justify-content:space-between;padding:14px 16px 4px}
+.msw h1{
+  font-family:var(--f-disp);font-weight:600;font-size:clamp(28px,4.6vw,44px);
+  letter-spacing:.02em;text-transform:uppercase;margin:0;line-height:.98;text-wrap:balance;
+}
+.msw h1 span{
+  display:block;font-family:var(--f-body);text-transform:none;
+  font-size:clamp(13px,1.5vw,15.5px);letter-spacing:.005em;font-weight:400;
+  color:var(--ink-soft);margin-top:9px;line-height:1.35;max-width:44ch;text-wrap:pretty;
+}
+.msw-head__meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+.msw-rank{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--stamp);color:var(--stamp);padding:4px 9px;border-radius:2px;background:var(--stamp-wash);
+}
+.msw-mini{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid var(--line);background:transparent;color:var(--ink-soft);
+  padding:4px 9px;border-radius:2px;cursor:pointer;
+}
+.msw-mini:hover{border-color:var(--ink-soft);color:var(--ink)}
+.msw-mini[aria-pressed="false"]{opacity:.5}
+.msw-mini--danger:hover{border-color:var(--red);color:var(--red)}
+
+.msw-langsw{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.msw-langsw button{
+  background:transparent;border:0;border-left:1px solid var(--line);cursor:pointer;
+  padding:4px 10px;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;color:var(--ink-soft);
+}
+.msw-langsw button:first-child{border-left:0}
+.msw-langsw button:hover{color:var(--ink)}
+.msw-langsw button[aria-pressed="true"]{background:var(--stamp);color:var(--surface);border-color:var(--stamp)}
+
+/* kolonky s čísly */
+.msw-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));border-top:1px solid var(--line);margin-top:12px}
+.msw-field{padding:11px 16px 13px;border-right:1px solid var(--line-soft);display:flex;flex-direction:column;gap:1px;min-width:0}
+.msw-field:last-child{border-right:0}
+.msw-field__k{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-faint)}
+.msw-field__v{font-family:var(--f-disp);font-weight:500;font-size:26px;letter-spacing:.01em;font-variant-numeric:tabular-nums;line-height:1.15;overflow-wrap:anywhere}
+.msw-field__v small{font-family:var(--f-body);font-size:12px;font-weight:400;letter-spacing:0;color:var(--ink-faint)}
+.msw-field__s{font-size:11.5px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.msw-field--money .msw-field__v{color:var(--gold)}
+.msw-field--min .msw-field__v{color:var(--stamp)}
+
+/* ---------- hlavní mřížka ---------- */
+.msw-main{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:16px;align-items:start}
+@media (max-width:900px){ .msw-main{grid-template-columns:1fr} }
+
+/* ---------- podací arch s razítkem ---------- */
+.msw-desk{
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--raise);
+  padding:18px 18px 22px;position:relative;overflow:hidden;
+}
+.msw-desk__hdr{font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);display:flex;justify-content:space-between;gap:10px}
+.msw-sheet{
+  position:relative;margin-top:14px;padding:18px 16px 16px;
+  background:repeating-linear-gradient(var(--surface) 0 27px, var(--line-soft) 27px 28px);
+  border:1px solid var(--line-soft);
+  min-height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+.msw-splats{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.msw-splat{position:absolute;width:34px;height:34px;border-radius:50%;background:var(--stamp);opacity:.07;transform:translate(-50%,-50%)}
+
+.msw-stampbtn{
+  -webkit-tap-highlight-color:transparent;
+  position:relative;z-index:2;width:min(260px,64vw);aspect-ratio:1;border:0;background:none;padding:0;cursor:pointer;
+  filter:drop-shadow(0 6px 10px rgba(32,35,27,.16));
+  transition:transform .09s cubic-bezier(.3,1.5,.6,1);
+  touch-action:manipulation;
+}
+.msw-stampbtn:active{transform:scale(.93) rotate(-1.5deg)}
+.msw-stampbtn svg{display:block;width:100%;height:100%}
+.msw-stampbtn .msw-ring{fill:none;stroke:var(--stamp);stroke-width:3}
+.msw-stampbtn .msw-ring2{fill:none;stroke:var(--stamp);stroke-width:1.5}
+.msw-stampbtn .msw-arc{fill:var(--stamp);font-family:var(--f-disp);font-size:17px;font-weight:600;letter-spacing:.16em}
+.msw-stampbtn .msw-mid{fill:var(--stamp);font-family:var(--f-disp);text-anchor:middle;font-weight:700}
+.msw-stampbtn .msw-mid--big{font-size:44px;letter-spacing:.02em}
+.msw-stampbtn .msw-mid--sm{font-size:14px;letter-spacing:.22em;font-weight:500}
+.msw-stampbtn .msw-star{fill:var(--stamp)}
+@media (prefers-reduced-motion:reduce){ .msw-stampbtn{transition:none} }
+
+.msw-hint{font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;color:var(--ink-faint);text-align:center;max-width:34ch;z-index:2}
+.msw-hint b{color:var(--stamp);font-weight:600}
+
+.msw-float{position:absolute;pointer-events:none;font-family:var(--f-disp);font-weight:600;font-size:20px;color:var(--stamp);z-index:5;white-space:nowrap;animation:msw-rise 1.1s ease-out forwards}
+.msw-float--say{font-family:var(--f-body);font-style:italic;font-weight:400;font-size:14px;color:var(--red)}
+@keyframes msw-rise{ from{opacity:1;transform:translate(-50%,0)} to{opacity:0;transform:translate(-50%,-58px)} }
+@media (prefers-reduced-motion:reduce){ .msw-float{animation-duration:.4s} }
+
+.msw-deskfoot{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:16px;background:var(--line-soft);border:1px solid var(--line-soft)}
+.msw-deskfoot div{background:var(--surface);padding:9px 12px}
+.msw-deskfoot dt{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0}
+.msw-deskfoot dd{margin:2px 0 0;font-family:var(--f-mono);font-size:14px;font-variant-numeric:tabular-nums}
+
+/* ---------- evidence / obchod ---------- */
+.msw-shop{background:var(--surface);border:1px solid var(--line);box-shadow:var(--raise);display:flex;flex-direction:column;min-height:520px}
+.msw-tabs{display:flex;border-bottom:1px solid var(--line);background:var(--surface2)}
+.msw-tab{
+  flex:1;background:none;border:0;border-right:1px solid var(--line-soft);cursor:pointer;
+  padding:11px 6px;font-family:var(--f-disp);font-size:14px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+}
+.msw-tab:last-child{border-right:0}
+.msw-tab[aria-selected="true"]{color:var(--ink);background:var(--surface);box-shadow:inset 0 -2px 0 var(--stamp)}
+.msw-tab i{font-style:normal;font-family:var(--f-mono);font-size:10px;color:var(--ink-faint)}
+
+.msw-bulkbar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line-soft);font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+.msw-bulk{display:flex;gap:0;margin-left:auto;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.msw-bulk button{background:transparent;border:0;border-left:1px solid var(--line);padding:3px 10px;cursor:pointer;font-family:var(--f-mono);font-size:11px;color:var(--ink-soft)}
+.msw-bulk button:first-child{border-left:0}
+.msw-bulk button[aria-pressed="true"]{background:var(--stamp);color:var(--surface);border-color:var(--stamp)}
+
+.msw-panel{overflow-y:auto;overflow-x:hidden;max-height:min(64vh,640px);flex:1}
+.msw-panel[hidden]{display:none}
+
+.msw-row{
+  display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;
+  width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line-soft);
+  padding:10px 14px;cursor:pointer;
+}
+.msw-row[hidden]{display:none}
+.msw-row:hover:not(:disabled){background:var(--stamp-wash)}
+.msw-row:disabled{cursor:not-allowed}
+.msw-row.locked{opacity:.42;filter:grayscale(1)}
+.msw-row.poor .msw-row__cost{color:var(--ink-faint)}
+.msw-row__ico{font-size:26px;line-height:1;text-align:center;filter:saturate(.85)}
+.msw-row__name{font-family:var(--f-disp);font-size:17px;font-weight:500;letter-spacing:.02em;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.msw-row__name em{font-style:normal;font-family:var(--f-mono);font-size:10.5px;color:var(--ink-faint);letter-spacing:.08em}
+.msw-row__desc{font-size:11.5px;color:var(--ink-soft);line-height:1.35;margin-top:1px}
+.msw-row__right{text-align:right;display:flex;flex-direction:column;gap:1px;align-items:flex-end}
+.msw-row__cost{font-family:var(--f-mono);font-size:12.5px;font-weight:500;color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap}
+.msw-row__cnt{font-family:var(--f-disp);font-size:24px;font-weight:600;line-height:.95;color:var(--ink);font-variant-numeric:tabular-nums}
+.msw-row__cnt.zero{color:var(--ink-faint);opacity:.35}
+.msw-row__rate{font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);white-space:nowrap}
+
+.msw-ups{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;padding:14px}
+.msw-up{
+  aspect-ratio:1;border:1px solid var(--line);background:var(--surface2);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;border-radius:2px;
+}
+.msw-up:hover:not(:disabled){border-color:var(--stamp);background:var(--stamp-wash)}
+.msw-up:disabled{opacity:.4;cursor:not-allowed}
+.msw-up span{font-size:22px;line-height:1}
+.msw-up i{font-style:normal;font-family:var(--f-mono);font-size:8.5px;color:var(--gold);letter-spacing:.02em}
+.msw-uptip{padding:12px 14px;border-top:1px solid var(--line);background:var(--surface2);min-height:74px}
+.msw-uptip h4{margin:0;font-family:var(--f-disp);font-size:16px;font-weight:500;letter-spacing:.03em}
+.msw-uptip p{margin:3px 0 0;font-size:12px;color:var(--ink-soft)}
+.msw-uptip .msw-price{font-family:var(--f-mono);font-size:12px;color:var(--gold);margin-top:4px;display:block}
+.msw-empty{padding:26px 16px;text-align:center;color:var(--ink-faint);font-size:13px}
+
+.msw-achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px;padding:14px}
+.msw-ach{border:1px solid var(--line-soft);padding:9px 10px;border-radius:2px;background:var(--surface2)}
+.msw-ach.on{border-color:var(--ok);background:transparent}
+.msw-ach.on .msw-ach__n{color:var(--ok)}
+.msw-ach__n{font-family:var(--f-disp);font-size:14px;font-weight:500;letter-spacing:.03em;color:var(--ink-faint)}
+.msw-ach__d{font-size:11px;color:var(--ink-soft);line-height:1.3}
+.msw-ach:not(.on) .msw-ach__d{opacity:.55}
+
+/* ---------- oznámení ---------- */
+.msw-notes{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:40;display:flex;flex-direction:column;gap:8px;align-items:center;width:min(520px,92vw)}
+.msw-note{
+  background:var(--surface);border:1px solid var(--stamp);border-left-width:4px;box-shadow:var(--raise);
+  padding:9px 14px;font-size:13px;width:100%;animation:msw-pop .25s ease-out;pointer-events:none;
+}
+.msw-note b{font-family:var(--f-disp);font-weight:600;letter-spacing:.04em;display:block;font-size:13px}
+.msw-note--ach{border-color:var(--ok)}
+.msw-note--bad{border-color:var(--red)}
+@keyframes msw-pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.msw-note{animation:none}}
+
+.msw-footer{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);text-align:center;padding-top:4px}
+
+/* ---------- úvodní obrazovka ---------- */
+.msw-overlay{position:fixed;inset:0;background:var(--paper);z-index:60;overflow-y:auto;padding:24px 18px}
+.msw-overlay[hidden]{display:none}
+.msw-start{max-width:900px;margin:0 auto;background:var(--surface);border:1px solid var(--line);box-shadow:var(--raise)}
+.msw-start__band{padding:9px 18px;border-bottom:1px solid var(--line);background:var(--surface2);font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.msw-start__body{padding:26px 22px 24px}
+.msw-start h2{font-family:var(--f-disp);font-size:clamp(26px,5vw,40px);font-weight:600;text-transform:uppercase;letter-spacing:.02em;margin:0 0 10px;line-height:1}
+.msw-start p.msw-lead{margin:0 0 4px;max-width:62ch;color:var(--ink-soft);font-size:14px}
+.msw-start p.msw-lead--punch{font-family:var(--f-disp);font-size:clamp(19px,2.5vw,24px);font-weight:400;letter-spacing:.01em;color:var(--ink);max-width:46ch;margin-bottom:10px;line-height:1.25;text-wrap:pretty}
+.msw-start .msw-q{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-faint);margin:24px 0 10px;border-top:1px solid var(--line-soft);padding-top:14px}
+.msw-picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.msw-pick{
+  text-align:left;background:var(--surface2);border:1px solid var(--line);cursor:pointer;padding:14px 15px 15px;border-radius:2px;
+  display:flex;flex-direction:column;gap:5px;
+}
+.msw-pick:hover{border-color:var(--stamp);background:var(--stamp-wash)}
+.msw-pick__x{font-family:var(--f-disp);font-size:30px;font-weight:700;color:var(--stamp);line-height:1}
+.msw-pick__n{font-family:var(--f-disp);font-size:19px;font-weight:500;letter-spacing:.03em;text-transform:uppercase}
+.msw-pick__d{font-size:12px;color:var(--ink-soft);line-height:1.4}
+.msw-pick__w{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;margin-top:2px}
+.msw-warn{margin-top:16px;font-size:11.5px;color:var(--ink-faint);border-left:2px solid var(--red);padding-left:10px}

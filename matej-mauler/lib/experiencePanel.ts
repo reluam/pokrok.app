@@ -12,6 +12,20 @@ export type ExperienceInfo = {
 
 export const EXPERIENCES: ExperienceInfo[] = [
   {
+    route: "/milans-world",
+    slug: "milans-world",
+    title: "Milan's World",
+    category: "game",
+    description: "A clicker about the idea that money solves everything. Milan has an answer to any problem in your life — you just need enough money. Stamp forms at the city hall and buy your way up from a wheelie bin to the universe.",
+    guide: [
+      "Click the stamp. Every stamp is a minute wasted at the office, and wasted time pays.",
+      "Spend what you earn on property — each one keeps earning while you do nothing.",
+      "Upgrades unlock on their own as your paperwork grows. Hover one to see what it does.",
+      "Box 4 (your category) is picked once and can only be changed by starting over.",
+      "It saves itself in your browser. The goal is unreachable by design — that's the joke.",
+    ],
+  },
+  {
     route: "/life-manual",
     slug: "life-manual",
     title: "Life Manual",

@@ -15,6 +15,7 @@ export const CATEGORIES: Record<string, string> = {
   music: "audio",
   radio: "audio",
   brain: "mind",
+  "milans-world": "game",
 };
 
 export const experiments: ExperimentMeta[] = [
@@ -48,6 +49,12 @@ export const experiments: ExperimentMeta[] = [
     emoji: "⚡",
     color: "#FCE7F3",
     href: "/synapsis",
+  },
+  {
+    slug: "milans-world",
+    emoji: "🪧",
+    color: "#E3E6DC",
+    href: "/milans-world",
   },
   {
     slug: "driftbloom",
