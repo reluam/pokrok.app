@@ -1,7 +1,18 @@
-import Link from "next/link";
-import { getLang } from "@/lib/getLang";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { useSyncExternalStore } from "react";
+import Link from "next/link";
+import type { Lang } from "@/lib/dictionaries";
+
+/**
+ * 404 je dvojjazyčná, ale jazyk si bere z cookie AŽ na klientovi — schválně.
+ *
+ * not-found boundary je součástí stromu každé routy, takže kdyby tahle stránka
+ * sáhla na `cookies()` (přes getLang()), Next by zdynamičtěl CELOU aplikaci,
+ * ne jen stránky, které jazyk potřebují. Ověřeno měřením: 12 statických rout
+ * by spadlo na 2. Cenou je krátké bliknutí angličtiny na 404 — to je levnější
+ * než ztráta route cache na celém webu.
+ */
 
 const COPY = {
   cs: {
@@ -20,10 +31,18 @@ const COPY = {
 
 const display: React.CSSProperties = { fontFamily: "var(--font-display)" };
 
-export default async function NotFound() {
-  const lang = await getLang();
+const readCookieLang = (): Lang => {
+  const m = document.cookie.match(/(?:^|;\s*)lang=(cs|en)\b/);
+  return m ? (m[1] as Lang) : "en";
+};
+// Cookie se během prohlížení 404 nemění → prázdný subscribe.
+const noSubscribe = () => () => {};
+
+export default function NotFound() {
+  // useSyncExternalStore je přesně na „server a klient vidí jinou hodnotu":
+  // server vrátí "en", klient přečte cookie. Žádný setState v efektu.
+  const lang = useSyncExternalStore(noSubscribe, readCookieLang, () => "en" as Lang);
   const t = COPY[lang];
-  const homeHref = lang === "cs" ? "/cs" : "/";
 
   return (
     <main
@@ -88,7 +107,7 @@ export default async function NotFound() {
       </p>
 
       <Link
-        href={homeHref}
+        href="/"
         style={{
           background: "var(--text-primary)",
           color: "var(--bg)",

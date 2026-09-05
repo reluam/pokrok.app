@@ -130,10 +130,41 @@ Expected: PASS (6 testů)
 Run: `npm run build`
 Expected: projde. **Pozor — v outputu ubudou statické routy** (`/brain`, `/encyklopedie`, `/rules`, `/synapse`, `/driftbloom`): `getLang()` teď volá `cookies()`, což je dynamické API. Je to očekávaný důsledek popsaný ve specu, ne regrese.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Odpojit `not-found.tsx` od `getLang()`** ⚠️ NALEZENO PŘI EXEKUCI
+
+`app/not-found.tsx` volá `getLang()`. Not-found boundary je součástí stromu
+**každé** routy, takže jakmile getLang sáhne na `cookies()`, zdynamičtí to celou
+aplikaci — ne jen stránky, které jazyk potřebují. Ověřeno měřením: 12 statických
+rout spadne na 2.
+
+Řešení: 404 zůstává dvojjazyčná, ale jazyk si bere z cookie na klientovi.
+`export const dynamic = "force-dynamic"` a import `getLang` pryč, soubor je
+`"use client"`, a jazyk se čte přes `useSyncExternalStore` (ne `useState` +
+`useEffect` — na to lint právem hlásí `set-state-in-effect`):
+
+```tsx
+const readCookieLang = (): Lang => {
+  const m = document.cookie.match(/(?:^|;\s*)lang=(cs|en)\b/);
+  return m ? (m[1] as Lang) : "en";
+};
+const noSubscribe = () => () => {};
+
+export default function NotFound() {
+  const lang = useSyncExternalStore(noSubscribe, readCookieLang, () => "en" as Lang);
+  const t = COPY[lang];
+  // …
+}
+```
+
+Odkaz zpět je vždy `/` — jazyk nese cookie.
+
+Ověření: `rm -rf .next && npm run build` → 12 statických rout zpět.
+**Pozor na `.next` cache:** bez `rm -rf .next` dává měření nesmysly.
+
+- [ ] **Step 7: Commit**
 
 ```bash
-git add lib/getLang.ts lib/getLang.test.ts
+git add lib/getLang.ts lib/getLang.test.ts app/not-found.tsx
 git commit -m "feat(i18n): odemknout getLang — cookie, .cz doména, geo CZ/SK"
 ```
 
