@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Oswald, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { MilansWorld } from "@/components/milans-world/MilansWorld";
 import { getLang } from "@/lib/getLang";

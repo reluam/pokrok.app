@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { EncyclopediaShell } from "@/components/encyclopedia/Shell";
 import { getLang } from "@/lib/getLang";
 import { experienceMetadata } from "@/lib/experienceMetadata";
