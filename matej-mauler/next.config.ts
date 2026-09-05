@@ -14,7 +14,9 @@ const nextConfig: NextConfig = {
       { source: "/ideas", destination: "/matej", permanent: true },
       { source: "/thoughts", destination: "/matej", permanent: true },
       { source: "/projects", destination: "/matej", permanent: true },
-      { source: "/matej/:path*", destination: "/matej", permanent: true },
+      // Pozor: „:path*" matchuje i nula segmentů, takže by se /matej přesměrovávalo
+      // samo na sebe → ERR_TOO_MANY_REDIRECTS. „:path+" bere až podstránky.
+      { source: "/matej/:path+", destination: "/matej", permanent: true },
     ];
   },
 };
