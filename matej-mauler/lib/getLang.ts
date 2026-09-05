@@ -26,6 +26,14 @@ export function pickLang(input: {
   return "en";
 }
 
+/**
+ * `?lang=` → jazyk, nebo null. Nesmysl vrací null, aby cookie zůstala, jak byla.
+ * Volá to proxy.ts — je to jediné místo, kde se jazyk mění.
+ */
+export function langFromQuery(raw: string | null): Lang | null {
+  return isLang(raw) ? raw : null;
+}
+
 export async function getLang(): Promise<Lang> {
   const [jar, h] = await Promise.all([cookies(), headers()]);
   return pickLang({

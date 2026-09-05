@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pickLang } from "./getLang";
+import { langFromQuery, pickLang } from "./getLang";
 
 describe("pickLang", () => {
   it("výchozí jazyk je angličtina", () => {
@@ -29,5 +29,19 @@ describe("pickLang", () => {
     expect(pickLang({ country: "CZ" })).toBe("cs");
     expect(pickLang({ country: "SK" })).toBe("cs");
     expect(pickLang({ country: "DE" })).toBe("en");
+  });
+});
+
+describe("langFromQuery", () => {
+  it("bere platné jazyky", () => {
+    expect(langFromQuery("cs")).toBe("cs");
+    expect(langFromQuery("en")).toBe("en");
+  });
+
+  it("nesmysl neprojde — cookie se pak nemá čím přepsat", () => {
+    expect(langFromQuery("de")).toBeNull();
+    expect(langFromQuery("")).toBeNull();
+    expect(langFromQuery(null)).toBeNull();
+    expect(langFromQuery("cs; drop table")).toBeNull();
   });
 });

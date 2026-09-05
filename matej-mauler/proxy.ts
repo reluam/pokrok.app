@@ -1,6 +1,7 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
 import { ACCOUNTS_ENABLED } from "./lib/features";
+import { langFromQuery } from "./lib/getLang";
 
 const ADMIN_COOKIE = "admin_token";
 
@@ -24,6 +25,22 @@ async function getGone(request: NextRequest): Promise<Set<string>> {
 
 async function handle(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ── ?lang= → cookie ───────────────────────────────────────────
+  // Jediné místo, kde se jazyk mění. Bez redirectu, aby sdílený odkaz zůstal,
+  // jak byl poslán, a aby to fungovalo na každé routě naráz (stránky samy
+  // o ?lang= nevědí, čtou jen cookie přes getLang()).
+  const wanted = langFromQuery(request.nextUrl.searchParams.get("lang"));
+  if (wanted) {
+    const res = NextResponse.next();
+    res.cookies.set("lang", wanted, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+      // ne httpOnly: přepínač a 404 si jazyk čtou i na klientovi
+    });
+    return res;
+  }
 
   // ── Admin protection ────────────────────────────────────────────
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
