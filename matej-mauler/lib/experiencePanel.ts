@@ -7,6 +7,25 @@
 
 export type Bi = { cs: string; en: string };
 
+/**
+ * Vzhled panelu pro danou experience. Panel visí v root layoutu, tedy MIMO DOM
+ * experience — nemůže si její proměnné zdědit, musí je dostat odsud.
+ * Kdo téma nemá, vypadá jako Spaghetti (fallbacky v globals.css).
+ */
+export type PanelTheme = {
+  bg: string;
+  surface: string;
+  ink: string;
+  inkSoft: string;
+  inkMuted: string;
+  accent: string;
+  border: string;
+  borderSoft: string;
+  hover: string;
+  fontDisplay: string;
+  fontBody: string;
+};
+
 export type ExperienceInfo = {
   route: string; // přesný pathname, např. "/sound"
   slug: string; // klíč pro comments/ratings — stabilní, neměnit
@@ -16,6 +35,38 @@ export type ExperienceInfo = {
   guide?: Bi[]; // volitelný návod, krok = položka
   /** Experience zatím nemá českou verzi — panel to v cs přizná. */
   enOnly?: true;
+  /** Vzhled panelu. Bez něj vypadá panel jako Spaghetti. */
+  theme?: PanelTheme;
+};
+
+/** Černá arkáda s neonovou zelení a CRT pixelovým fontem (components/rules/theme.tsx). */
+const RULES_THEME: PanelTheme = {
+  bg: "#0a0a0a",
+  surface: "#141414",
+  ink: "#FFFFFF",
+  inkSoft: "#c8c8c8",
+  inkMuted: "#6b6b6b",
+  accent: "#39FF14",
+  border: "rgba(57,255,20,0.35)",
+  borderSoft: "rgba(57,255,20,0.18)",
+  hover: "rgba(57,255,20,0.10)",
+  fontDisplay: "var(--font-press), monospace",
+  fontBody: "var(--font-press), monospace",
+};
+
+/** Úřední formulář: papír, inkoust, razítková modř (app/milans-world/milans-world.css). */
+const MILANS_WORLD_THEME: PanelTheme = {
+  bg: "#E3E6DC",
+  surface: "#F4F5ED",
+  ink: "#20231B",
+  inkSoft: "#5C6152",
+  inkMuted: "#8B907C",
+  accent: "#3A38A6",
+  border: "#C4C8B7",
+  borderSoft: "#D6D9CB",
+  hover: "rgba(58,56,166,0.10)",
+  fontDisplay: "var(--msw-display), \"Arial Narrow\", sans-serif",
+  fontBody: "var(--msw-sans), system-ui, sans-serif",
 };
 
 export const EXPERIENCES: ExperienceInfo[] = [
@@ -24,6 +75,7 @@ export const EXPERIENCES: ExperienceInfo[] = [
     slug: "milans-world",
     title: { cs: "Milanův svět", en: "Milan's World" },
     category: "game",
+    theme: MILANS_WORLD_THEME,
     description: {
       cs: "Klikačka o představě, že se všechno dá vyřešit penězi. Milan má odpověď na každý tvůj životní problém — stačí mít dost peněz. Razítkuješ na úřadě a kupuješ se od popelnice až po vesmír.",
       en: "A clicker about the idea that money solves everything. Milan has an answer to any problem in your life — you just need enough money. Stamp forms at the city hall and buy your way up from a wheelie bin to the universe.",
@@ -34,6 +86,24 @@ export const EXPERIENCES: ExperienceInfo[] = [
       { cs: "Vylepšení se odemykají sama, jak roste tvá agenda. Najeď na ně a uvidíš, co dělají.", en: "Upgrades unlock on their own as your paperwork grows. Hover one to see what it does." },
       { cs: "Kolonka 4 se vybírá jednou a změnit ji jde jen novou žádostí.", en: "Box 4 (your category) is picked once and can only be changed by starting over." },
       { cs: "Ukládá se to samo do prohlížeče. Cíl je z principu nedosažitelný — v tom je ten vtip.", en: "It saves itself in your browser. The goal is unreachable by design — that's the joke." },
+    ],
+  },
+  {
+    route: "/rules",
+    slug: "rules",
+    title: { cs: "Pravidla", en: "The Rules" },
+    category: "game",
+    enOnly: true,
+    theme: RULES_THEME,
+    description: {
+      cs: "Tři klasické hry, každá se svými pravidly — a každá s tichou cestou okolo nich. Hra o tom, že pravidla někdo vymyslel a nikde není psáno, že platí.",
+      en: "Three classic games, each stating its rules — and each with a quiet way around them. A game about noticing that someone made those rules up.",
+    },
+    guide: [
+      { cs: "Každá hra ti na začátku vyloží svá pravidla. Přečti si je pozorně.", en: "Each game states its rules up front. Read them carefully." },
+      { cs: "Dají se hrát poctivě a dá se vyhrát. To je ta nudná cesta.", en: "You can play them straight and win. That's the boring way." },
+      { cs: "V každé je i cesta, kterou pravidla nezakazují, protože o ní nevědí.", en: "Each one also has a path the rules don't forbid, because they never considered it." },
+      { cs: "Zkoušej věci, o kterých hra nemluví. Tam to začíná být zajímavé.", en: "Try the things the game never mentions. That's where it gets interesting." },
     ],
   },
   {

@@ -5,7 +5,7 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import { Comments } from "./Comments";
 import { ACCOUNTS_ENABLED } from "@/lib/features";
 import type { Lang } from "@/lib/dictionaries";
-import type { Bi } from "@/lib/experiencePanel";
+import type { Bi, PanelTheme } from "@/lib/experiencePanel";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export type ExperiencePanelProps = {
@@ -19,7 +19,30 @@ export type ExperiencePanelProps = {
   guide?: Bi[];
   /** Experience zatím nemá českou verzi — v cs se přidá poznámka. */
   enOnly?: true;
+  theme?: PanelTheme;
 };
+
+/**
+ * Téma → inline CSS proměnné. Panel visí v layoutu mimo DOM experience, takže
+ * si její proměnné nezdědí; nasazují se tady na kořen zásuvky i na úchyt.
+ * Bez tématu vrací prázdno a globals.css spadne na Spaghetti fallbacky.
+ */
+function themeVars(t?: PanelTheme): React.CSSProperties {
+  if (!t) return {};
+  return {
+    "--xp-bg": t.bg,
+    "--xp-surface": t.surface,
+    "--xp-ink": t.ink,
+    "--xp-ink-soft": t.inkSoft,
+    "--xp-ink-muted": t.inkMuted,
+    "--xp-accent": t.accent,
+    "--xp-border": t.border,
+    "--xp-border-soft": t.borderSoft,
+    "--xp-hover": t.hover,
+    "--xp-font-display": t.fontDisplay,
+    "--xp-font-body": t.fontBody,
+  } as React.CSSProperties;
+}
 
 const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -32,18 +55,19 @@ export function ExperiencePanel(props: ExperiencePanelProps) {
 }
 
 /** Panel bez účtů: jen „About" — chip, popis, návod. Žádný Clerk, žádný fetch. */
-function PanelBasic({ lang, title, category, description, guide, enOnly }: ExperiencePanelProps) {
+function PanelBasic({ lang, title, category, description, guide, enOnly, theme }: ExperiencePanelProps) {
+  const vars = themeVars(theme);
   const [open, setOpen] = useState(false);
   return (
     <>
       {!open && (
-        <button className="xp-tab" onClick={() => setOpen(true)} aria-label="Open info">
+        <button className="xp-tab" style={vars} onClick={() => setOpen(true)} aria-label="Open info">
           <span aria-hidden style={{ fontSize: 14 }}>›</span>
           <span>INFO</span>
         </button>
       )}
 
-      <aside className={`xp-drawer${open ? " open" : ""}`} aria-hidden={!open}>
+      <aside className={`xp-drawer${open ? " open" : ""}`} style={vars} aria-hidden={!open}>
         <div className="xp-head">
           <strong style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 16, letterSpacing: "-0.01em" }}>{title[lang]}</strong>
           <button className="xp-close" onClick={() => setOpen(false)} aria-label="Close panel">×</button>
@@ -78,7 +102,8 @@ function PanelBasic({ lang, title, category, description, guide, enOnly }: Exper
   );
 }
 
-function Panel({ lang, slug, title, category, description, guide, enOnly }: ExperiencePanelProps) {
+function Panel({ lang, slug, title, category, description, guide, enOnly, theme }: ExperiencePanelProps) {
+  const vars = themeVars(theme);
   const { isSignedIn } = useUser();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"about" | "comments">("about");
@@ -125,13 +150,13 @@ function Panel({ lang, slug, title, category, description, guide, enOnly }: Expe
   return (
     <>
       {!open && (
-        <button className="xp-tab" onClick={() => setOpen(true)} aria-label="Open info & comments">
+        <button className="xp-tab" style={vars} onClick={() => setOpen(true)} aria-label="Open info & comments">
           <span aria-hidden style={{ fontSize: 14 }}>›</span>
           <span>INFO</span>
         </button>
       )}
 
-      <aside className={`xp-drawer${open ? " open" : ""}`} aria-hidden={!open}>
+      <aside className={`xp-drawer${open ? " open" : ""}`} style={vars} aria-hidden={!open}>
         <div className="xp-head">
           <strong style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 16, letterSpacing: "-0.01em" }}>{title[lang]}</strong>
           <button className="xp-close" onClick={() => setOpen(false)} aria-label="Close panel">×</button>

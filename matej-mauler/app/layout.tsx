@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono, Press_Start_2P, Oswald, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -37,6 +37,15 @@ const mono = JetBrains_Mono({
   variable: "--font-mono",
   display: "swap",
 });
+
+// Fonty jednotlivých experiencí. Bydlí tady, ne na jejich stránkách, protože
+// ExperiencePanel se mountuje v layoutu — je to sourozenec {children}, takže
+// proměnné nastavené na <div> uvnitř stránky nevidí. preload: false → @font-face
+// platí globálně, ale nepřednačítá se tam, kde není potřeba.
+const press = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-press", display: "swap", preload: false });
+const oswald = Oswald({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--msw-display", display: "swap", preload: false });
+const plexSans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], style: ["normal", "italic"], variable: "--msw-sans", display: "swap", preload: false });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--msw-mono", display: "swap", preload: false });
 
 // --font-grotesk je alias na --font-display (globals.css) — Space Grotesk se načítá jen jednou
 
@@ -94,7 +103,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   );
 
   return (
-    <html lang={lang} className={`${display.variable} ${sans.variable} ${mono.variable} h-full`}>
+    <html lang={lang} className={`${display.variable} ${sans.variable} ${mono.variable} ${press.variable} ${oswald.variable} ${plexSans.variable} ${plexMono.variable} h-full`}>
       <body className="min-h-full">
         {clerkEnabled ? (
           <ClerkProvider appearance={clerkAppearance}>{inner}</ClerkProvider>
