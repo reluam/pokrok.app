@@ -1,9 +1,10 @@
 import { AnthemApp } from "@/components/AnthemApp";
 import { getLang } from "@/lib/getLang";
 import { guardExperiment } from "@/lib/experimentsDb";
+import { experienceMetadata } from "@/lib/experienceMetadata";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "The anthem of your life — Spaghetti.ltd" };
+export const generateMetadata = () => experienceMetadata("/hymna");
 
 export default async function HymnaPage() {
   await guardExperiment("anthem");

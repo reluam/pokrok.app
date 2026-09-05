@@ -3,19 +3,22 @@
 import { usePathname } from "next/navigation";
 import { ExperiencePanel } from "./ExperiencePanel";
 import { experienceForPath } from "@/lib/experiencePanel";
+import type { Lang } from "@/lib/dictionaries";
 
 // Globální mount v layoutu: podle pathname najde experience a vykreslí panel.
 // Bez Clerk hooků → bezpečné i bez ClerkProvideru (ExperiencePanel se sám vypne bez klíče).
-export function ExperiencePanelMount() {
+export function ExperiencePanelMount({ lang }: { lang: Lang }) {
   const info = experienceForPath(usePathname());
   if (!info) return null;
   return (
     <ExperiencePanel
+      lang={lang}
       slug={info.slug}
       title={info.title}
       category={info.category}
       description={info.description}
       guide={info.guide}
+      enOnly={info.enOnly}
     />
   );
 }

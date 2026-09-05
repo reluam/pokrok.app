@@ -1,11 +1,10 @@
 import { QuestionFlow } from "@/components/QuestionFlow";
 import { getLang } from "@/lib/getLang";
 import { guardExperiment } from "@/lib/experimentsDb";
+import { experienceMetadata } from "@/lib/experienceMetadata";
 
 export const dynamic = "force-dynamic";
-export const metadata = {
-  title: "Time Remaining — Spaghetti.ltd",
-};
+export const generateMetadata = () => experienceMetadata("/time-remaining");
 
 export default async function TimeRemainingPage() {
   await guardExperiment("cas");

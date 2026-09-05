@@ -1,11 +1,10 @@
 import { SonifyApp } from "@/components/SonifyApp";
 import { getLang } from "@/lib/getLang";
 import { guardExperiment } from "@/lib/experimentsDb";
+import { experienceMetadata } from "@/lib/experienceMetadata";
 
 export const dynamic = "force-dynamic";
-export const metadata = {
-  title: "How does it sound? — Spaghetti.ltd",
-};
+export const generateMetadata = () => experienceMetadata("/jak-to-zni");
 
 export default async function JakToZniPage() {
   await guardExperiment("sonify");

@@ -1,14 +1,10 @@
-import type { Metadata } from "next";
 import { EncyclopediaShell } from "@/components/encyclopedia/Shell";
 import { getLang } from "@/lib/getLang";
+import { experienceMetadata } from "@/lib/experienceMetadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "The Encyclopedia — Spaghetti.ltd",
-  description: "An interactive encyclopedia connected by noodles of knowledge. Scroll from the general to the specific, click sideways — the universe, sound, music, the Hitchhiker's Guide and more.",
-  alternates: { canonical: "/encyclopedia" },
-};
+export const generateMetadata = () => experienceMetadata("/encyclopedia");
 
 // Brána encyklopedie — heslo nad vesmírem. Scroll dolů = do vesmíru.
 export default async function EncyklopediePage() {

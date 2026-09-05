@@ -277,6 +277,18 @@ body {
 /* ── Osobní stránka (/matej) — jeden sloupec textu, nic víc ──
    Styluje se inline v app/matej/page.tsx přes stejné tokeny jako /me. */
 
+/* ── Přepínač jazyka ── */
+.langsw { display: inline-flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+.langsw button {
+  background: transparent; border: 0; border-left: 1.5px solid var(--border); cursor: pointer;
+  padding: 5px 10px; font-family: var(--font-sans); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+  transition: color 160ms var(--transition), background 160ms var(--transition);
+}
+.langsw button:first-child { border-left: 0; }
+.langsw button:hover { color: var(--text-primary); }
+.langsw button[aria-pressed="true"] { background: var(--text-primary); color: var(--bg); }
+
 /* ── Komentáře (vlastní řešení, Clerk identita) — minimalistické, tenké linky ── */
 .cmt-wrap { max-width: 680px; margin: 0 auto; }
 .cmt-list { display: flex; flex-direction: column; }

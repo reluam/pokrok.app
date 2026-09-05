@@ -18,7 +18,8 @@ export const metadata: Metadata = {
 
 const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-const titleForSlug = (slug: string) => EXPERIENCES.find((e) => e.slug === slug)?.title ?? slug;
+// Profil je schovaný s účty a anglický → stačí anglická půlka titulku.
+const titleForSlug = (slug: string) => EXPERIENCES.find((e) => e.slug === slug)?.title.en ?? slug;
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (

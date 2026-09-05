@@ -4,15 +4,21 @@ import { useEffect, useState } from "react";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { Comments } from "./Comments";
 import { ACCOUNTS_ENABLED } from "@/lib/features";
+import type { Lang } from "@/lib/dictionaries";
+import type { Bi } from "@/lib/experiencePanel";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export type ExperiencePanelProps = {
+  lang: Lang;
   /** Klíč vlákna komentářů + hodnocení (stabilní, např. "life-manual"). */
   slug: string;
-  title: string;
+  title: Bi;
   category?: string;
-  description?: string;
+  description?: Bi;
   /** Volitelný návod — každý krok jako jedna položka. */
-  guide?: string[];
+  guide?: Bi[];
+  /** Experience zatím nemá českou verzi — v cs se přidá poznámka. */
+  enOnly?: true;
 };
 
 const clerkEnabled = ACCOUNTS_ENABLED && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -26,7 +32,7 @@ export function ExperiencePanel(props: ExperiencePanelProps) {
 }
 
 /** Panel bez účtů: jen „About" — chip, popis, návod. Žádný Clerk, žádný fetch. */
-function PanelBasic({ title, category, description, guide }: ExperiencePanelProps) {
+function PanelBasic({ lang, title, category, description, guide, enOnly }: ExperiencePanelProps) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -39,31 +45,40 @@ function PanelBasic({ title, category, description, guide }: ExperiencePanelProp
 
       <aside className={`xp-drawer${open ? " open" : ""}`} aria-hidden={!open}>
         <div className="xp-head">
-          <strong style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 16, letterSpacing: "-0.01em" }}>{title}</strong>
+          <strong style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 16, letterSpacing: "-0.01em" }}>{title[lang]}</strong>
           <button className="xp-close" onClick={() => setOpen(false)} aria-label="Close panel">×</button>
         </div>
 
         <div className="xp-body">
           {category && <span className="xp-chip">{category}</span>}
-          {description && <p className="xp-desc">{description}</p>}
+          {description && <p className="xp-desc">{description[lang]}</p>}
 
           {guide && guide.length > 0 && (
             <>
-              <div className="xp-h">How it works</div>
+              <div className="xp-h">{lang === "cs" ? "Jak to funguje" : "How it works"}</div>
               <ol className="xp-guide">
                 {guide.map((g, i) => (
-                  <li key={i}>{g}</li>
+                  <li key={i}>{g[lang]}</li>
                 ))}
               </ol>
             </>
           )}
+
+          {enOnly && lang === "cs" && (
+            <p className="xp-desc" style={{ opacity: 0.7 }}>
+              Pozn.: tahle experience je zatím jen anglicky. Čeština k ní přijde.
+            </p>
+          )}
+
+          <div className="xp-h">{lang === "cs" ? "Jazyk" : "Language"}</div>
+          <LanguageSwitcher lang={lang} />
         </div>
       </aside>
     </>
   );
 }
 
-function Panel({ slug, title, category, description, guide }: ExperiencePanelProps) {
+function Panel({ lang, slug, title, category, description, guide, enOnly }: ExperiencePanelProps) {
   const { isSignedIn } = useUser();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"about" | "comments">("about");
@@ -118,7 +133,7 @@ function Panel({ slug, title, category, description, guide }: ExperiencePanelPro
 
       <aside className={`xp-drawer${open ? " open" : ""}`} aria-hidden={!open}>
         <div className="xp-head">
-          <strong style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 16, letterSpacing: "-0.01em" }}>{title}</strong>
+          <strong style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 16, letterSpacing: "-0.01em" }}>{title[lang]}</strong>
           <button className="xp-close" onClick={() => setOpen(false)} aria-label="Close panel">×</button>
         </div>
 
@@ -131,17 +146,23 @@ function Panel({ slug, title, category, description, guide }: ExperiencePanelPro
           {tab === "about" ? (
             <>
               {category && <span className="xp-chip">{category}</span>}
-              {description && <p className="xp-desc">{description}</p>}
+              {description && <p className="xp-desc">{description[lang]}</p>}
 
               {guide && guide.length > 0 && (
                 <>
-                  <div className="xp-h">How it works</div>
+                  <div className="xp-h">{lang === "cs" ? "Jak to funguje" : "How it works"}</div>
                   <ol className="xp-guide">
                     {guide.map((g, i) => (
-                      <li key={i}>{g}</li>
+                      <li key={i}>{g[lang]}</li>
                     ))}
                   </ol>
                 </>
+              )}
+
+              {enOnly && lang === "cs" && (
+                <p className="xp-desc" style={{ opacity: 0.7 }}>
+                  Pozn.: tahle experience je zatím jen anglicky. Čeština k ní přijde.
+                </p>
               )}
 
               <div className="xp-h">Rating</div>
@@ -175,6 +196,9 @@ function Panel({ slug, title, category, description, guide }: ExperiencePanelPro
                   <button className="sbtn" style={{ fontSize: 12, padding: "7px 14px", marginTop: 4 }}>Sign in to rate</button>
                 </SignInButton>
               )}
+
+              <div className="xp-h">{lang === "cs" ? "Jazyk" : "Language"}</div>
+              <LanguageSwitcher lang={lang} />
             </>
           ) : (
             <Comments pageSlug={slug} />
