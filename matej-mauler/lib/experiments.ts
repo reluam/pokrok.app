@@ -6,6 +6,8 @@ export type ExperimentMeta = {
   size?: "wide";
   wip?: boolean;
   external?: boolean;
+  /** Funguje i bez databáze → smí se ukázat, když je DB nedostupná. */
+  offline?: true;
 };
 
 // Kategorie pro tag na kartě (jazykově neutrální, krátké)
@@ -55,6 +57,8 @@ export const experiments: ExperimentMeta[] = [
     emoji: "🪧",
     color: "#E3E6DC",
     href: "/milans-world",
+    // Celá hra běží v prohlížeči (localStorage) → přežije výpadek databáze.
+    offline: true,
   },
   {
     slug: "driftbloom",

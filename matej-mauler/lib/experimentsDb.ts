@@ -100,8 +100,17 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 // aby šlo projekt rozklikat a ladit na preview deploy ještě před publikací.
 const showDrafts = () => process.env.VERCEL_ENV !== "production";
 
+/**
+ * Experimenty, které se seedují jako draft. Musí sedět se seedem v ensure()
+ * výš — hlídá to test. Je to v kódu schválně: na rozhodnutí „tohle není ke
+ * zveřejnění" nesmí být potřeba databáze, jinak ji výpadek zveřejní.
+ */
+export const DRAFT_SLUGS: ReadonlySet<string> = new Set(["about", "decision-maker", "life-manual"]);
+
+// Náhradní feed, když je databáze nedostupná. Jen experimenty, které bez ní
+// fungují — radši jedna živá karta než sedm mrtvých.
 function staticFallback(lang: "cs" | "en"): PublicExperiment[] {
-  return STATIC.filter((m) => m.href && !m.wip).map((m, i) => {
+  return STATIC.filter((m) => m.href && !m.wip && m.offline).map((m, i) => {
     const c = dictionaries[lang].experiments.find((e) => e.slug === m.slug)!;
     return { slug: m.slug, title: c.title, description: c.description, color: m.color, href: m.href!, external: !!m.external, date: todayISO(), number: i + 1 };
   }).reverse();
@@ -162,6 +171,8 @@ export async function getDeletedHrefs(): Promise<string[]> {
 export async function guardExperiment(slug: string): Promise<void> {
   if (await isAdmin()) return;
   if (showDrafts()) return; // preview/dev: ukaž i drafty
+  // Draft podle kódu → 404 i když je databáze dole (isPublished tam fail-open propouští).
+  if (DRAFT_SLUGS.has(slug)) notFound();
   if (!(await isPublished(slug))) notFound();
 }
 
