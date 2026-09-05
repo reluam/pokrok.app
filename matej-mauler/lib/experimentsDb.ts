@@ -6,6 +6,10 @@ import { isAdmin } from "./adminAuth";
 import { unstable_cache, revalidateTag } from "next/cache";
 import { ensureSchema, registerSchema } from "./schema";
 import { withFallback } from "./dbFallback";
+import { DRAFT_SLUGS, showDrafts } from "./drafts";
+
+// Re-export: volající (a testy) berou drafty odsud, definice bydlí v lib/drafts.
+export { DRAFT_SLUGS };
 
 // Tag, pod kterým žije cache veřejného feedu experimentů. Admin mutace ho shodí
 // (revalidateTag) → homepage/archiv se obnoví, jinak se servírují z cache (instant návrat).
@@ -96,14 +100,6 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 
 // Na ostré (production) jsou drafty skryté; na preview/lokálně je ukaž —
 // aby šlo projekt rozklikat a ladit na preview deploy ještě před publikací.
-const showDrafts = () => process.env.VERCEL_ENV !== "production";
-
-/**
- * Experimenty, které se seedují jako draft. Musí sedět se seedem v ensure()
- * výš — hlídá to test. Je to v kódu schválně: na rozhodnutí „tohle není ke
- * zveřejnění" nesmí být potřeba databáze, jinak ji výpadek zveřejní.
- */
-export const DRAFT_SLUGS: ReadonlySet<string> = new Set(["about", "decision-maker", "life-manual"]);
 
 // Náhradní feed, když je databáze nedostupná. Jen experimenty, které bez ní
 // fungují — radši jedna živá karta než sedm mrtvých.

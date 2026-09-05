@@ -2,6 +2,7 @@ import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
 import { ACCOUNTS_ENABLED } from "./lib/features";
 import { langFromQuery } from "./lib/getLang";
+import { DRAFT_PATHS, showDrafts } from "./lib/drafts";
 
 const ADMIN_COOKIE = "admin_token";
 
@@ -50,6 +51,15 @@ async function handle(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
     return NextResponse.next();
+  }
+
+  // ── Drafty → 404 už tady ───────────────────────────────────────
+  // guardExperiment() ve stránce sice notFound() zavolá, ale odpověď se
+  // streamuje: odchází se stavem 200 a s <title> draftu z generateMetadata.
+  // Pro vyhledávače je to indexovatelná stránka. Tady je to skutečná 404
+  // a nic z nezveřejněného experimentu neuteče.
+  if (!showDrafts() && DRAFT_PATHS.has(pathname)) {
+    return new NextResponse("404", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
   }
 
   // ── Smazané experimenty → 410 Gone (jen stránky, ne API) ───────

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { experiments } from "./experiments";
 import { DRAFT_SLUGS, loadPublicExperiments } from "./experimentsDb";
+import { DRAFT_PATHS } from "./drafts";
 
 describe("drafty", () => {
   it("zná ty, které kód seeduje jako draft", () => {
@@ -11,6 +12,10 @@ describe("drafty", () => {
   // Pojistka proti rozejití: seed je syrové SQL, DRAFT_SLUGS je konstanta.
   // Kdyby někdo přidal draft do seedu a zapomněl na konstantu, výpadek DB
   // by ho zveřejnil. Tenhle test to chytí.
+  it("cesty draftů odpovídají slugům — dva seznamy se nesmí rozejít", () => {
+    expect([...DRAFT_PATHS].sort()).toEqual([...DRAFT_SLUGS].map((s) => `/${s}`).sort());
+  });
+
   it("seznam sedí se seedem v SQL", () => {
     const src = readFileSync(new URL("./experimentsDb.ts", import.meta.url), "utf8");
     const seeded = [...src.matchAll(/VALUES \('([a-z0-9-]+)'/g)]
