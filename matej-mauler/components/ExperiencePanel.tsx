@@ -6,6 +6,7 @@ import { Comments } from "./Comments";
 import { ACCOUNTS_ENABLED } from "@/lib/features";
 import type { Lang } from "@/lib/dictionaries";
 import type { Bi } from "@/lib/experiencePanel";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export type ExperiencePanelProps = {
   lang: Lang;
@@ -68,6 +69,9 @@ function PanelBasic({ lang, title, category, description, guide, enOnly }: Exper
               Pozn.: tahle experience je zatím jen anglicky. Čeština k ní přijde.
             </p>
           )}
+
+          <div className="xp-h">{lang === "cs" ? "Jazyk" : "Language"}</div>
+          <LanguageSwitcher lang={lang} />
         </div>
       </aside>
     </>
@@ -192,6 +196,9 @@ function Panel({ lang, slug, title, category, description, guide, enOnly }: Expe
                   <button className="sbtn" style={{ fontSize: 12, padding: "7px 14px", marginTop: 4 }}>Sign in to rate</button>
                 </SignInButton>
               )}
+
+              <div className="xp-h">{lang === "cs" ? "Jazyk" : "Language"}</div>
+              <LanguageSwitcher lang={lang} />
             </>
           ) : (
             <Comments pageSlug={slug} />

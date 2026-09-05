@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ExperimentPreview } from "./ExperimentPreview";
 import { HomeNoodleGame } from "./HomeNoodleGame";
 import { UserMenu } from "./UserMenu";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { CATEGORIES } from "@/lib/experiments";
 import { SPAGHETTI_BLURB } from "@/lib/about";
 import type { Dictionary, Lang } from "@/lib/dictionaries";
@@ -121,7 +122,7 @@ export function HomeNetwork({ dict, lang, items }: { dict: Dictionary; lang: Lan
           <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
             <div data-noodle="logo">{brand("lg")}</div>
             <button onClick={() => setGameOpen(true)} data-noodle="eat-block" aria-label={t.play} title={t.play} className="noodle-play" style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer", fontSize: 34, lineHeight: 1, color: "var(--text-primary)" }}>▶</button>
-            <div style={{ marginLeft: "auto" }}><UserMenu /></div>
+            <div style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center" }}><LanguageSwitcher lang={lang} /><UserMenu /></div>
           </div>
           <p data-noodle="eat" className="text-[18px] md:text-[22px] max-w-[620px]" style={{ ...display, fontStyle: "italic", color: "var(--text-primary)", lineHeight: 1.4 }}>{SPAGHETTI_BLURB[lang]}</p>
         </header>
