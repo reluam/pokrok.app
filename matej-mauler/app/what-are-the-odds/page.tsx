@@ -1,11 +1,10 @@
 import { OddsApp } from "@/components/OddsApp";
 import { getLang } from "@/lib/getLang";
 import { guardExperiment } from "@/lib/experimentsDb";
+import { experienceMetadata } from "@/lib/experienceMetadata";
 
 export const dynamic = "force-dynamic";
-export const metadata = {
-  title: "What are the odds? — Spaghetti.ltd",
-};
+export const generateMetadata = () => experienceMetadata("/what-are-the-odds");
 
 export default async function WhatAreTheOddsPage() {
   await guardExperiment("odds");

@@ -4,6 +4,7 @@ import { MilansWorld } from "@/components/milans-world/MilansWorld";
 import { getLang } from "@/lib/getLang";
 import { guardExperiment } from "@/lib/experimentsDb";
 import "./milans-world.css";
+import { experienceMetadata } from "@/lib/experienceMetadata";
 
 // Hra má vlastní typografii (úřední formulář), ne spaghetti fonty. Načítá se jen
 // na téhle routě a jde do CSS proměnných, které čte milans-world.css.
@@ -11,12 +12,7 @@ const display = Oswald({ subsets: ["latin", "latin-ext"], weight: ["400", "500",
 const sans = IBM_Plex_Sans({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], style: ["normal", "italic"], variable: "--msw-sans", display: "swap" });
 const mono = IBM_Plex_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--msw-mono", display: "swap" });
 
-export const metadata: Metadata = {
-  title: "Milan's World — Spaghetti.ltd",
-  description:
-    "A clicker about the idea that money solves everything. Stamp forms at the city hall, buy your way from a wheelie bin to the universe — and find out the goal is unreachable by design.",
-  alternates: { canonical: "/milans-world" },
-};
+export const generateMetadata = () => experienceMetadata("/milans-world");
 
 export default async function Page() {
   await guardExperiment("milans-world");

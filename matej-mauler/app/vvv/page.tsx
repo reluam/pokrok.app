@@ -3,13 +3,11 @@ import { getDb } from "@/lib/db";
 import { getLang } from "@/lib/getLang";
 import { ensureVvvSchema } from "@/lib/vvvSchema";
 import { guardExperiment } from "@/lib/experimentsDb";
+import { experienceMetadata } from "@/lib/experienceMetadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "VVV — Vast Void Vault",
-  description: "An encyclopedia more complete than the Hitchhiker's Guide to the Galaxy.",
-};
+export const generateMetadata = () => experienceMetadata("/vvv");
 
 async function getTerms() {
   try {

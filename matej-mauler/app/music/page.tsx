@@ -1,12 +1,10 @@
 import { MusicExperience } from "@/components/MusicExperience";
 import { getLang } from "@/lib/getLang";
 import { guardExperiment } from "@/lib/experimentsDb";
+import { experienceMetadata } from "@/lib/experienceMetadata";
 
 export const dynamic = "force-dynamic";
-export const metadata = {
-  title: "How music is made — Spaghetti.ltd",
-  description: "Interactive music studio: build a track layer by layer — beat, bass, chords and melody. Grids, faders and effects like in a DAW.",
-};
+export const generateMetadata = () => experienceMetadata("/music");
 
 export default async function MusicPage() {
   await guardExperiment("music");
