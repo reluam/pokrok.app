@@ -88,11 +88,14 @@ describe("isUndefinedTable", () => {
 describe("registrace modulů", () => {
   it("všechny moduly s DDL jsou zaregistrované", async () => {
     resetSchemaMemo();
-    for (const m of ["experimentsDb", "siteTextsDb", "accountsDb", "brainDb",
-                     "commentsDb", "counterDb", "metricsDb", "ratingsDb",
-                     "songsDb", "vvvSchema"]) {
-      await import(`./${m}`);
-    }
+    // Staticky, ne přes `./${m}` — Vite šablonové importy neumí staticky přebrat
+    // a hlásí na ně varování při každém běhu sady.
+    await Promise.all([
+      import("./experimentsDb"), import("./siteTextsDb"), import("./accountsDb"),
+      import("./brainDb"), import("./commentsDb"), import("./counterDb"),
+      import("./metricsDb"), import("./ratingsDb"), import("./songsDb"),
+      import("./vvvSchema"),
+    ]);
     const { registeredSchemas } = await import("./schema");
     // "test" registruje beforeEach téhle sady, ten mezi produkční nepatří
     const names = registeredSchemas().map((m) => m.name).filter((n) => n !== "test").sort();
