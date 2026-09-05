@@ -1,9 +1,7 @@
 // Flappy — survive 15 seconds. The bird falls (a warning flashes near the floor). The FIRST pillar is
 // open-topped: let the bird settle on it and everything freezes while the clock keeps running — you
-// wait out the 15s in stillness. Every later pillar is a pipe-pair whose gap tightens as you go, so
-// flying it is a real, winnable fight — you CAN thread every pipe and beat the clock the hard way.
-// The point isn't that the frantic path is impossible; it's that you could have just landed instead.
-// The gap floor (GAP_MIN) is what keeps the ordinary path honest — see flappyLogic.test.ts.
+// wait out the 15s in stillness. Every later pillar is a pipe-pair whose gap shrinks and shrinks until
+// threading it is impossible. The frantic path is a trap; you could have just landed on the first one.
 
 export const WIDTH = 140;
 export const HEIGHT = 100;
@@ -18,12 +16,9 @@ export const FLAP = 0.05; // small upward hop per tap
 export const LIMIT = 15000; // survive this many ms
 export const WARN_Y = HEIGHT - 24; // below this, flash the warning
 export const GAP_CENTER = 50;
-export const START_GAP = 38; // gap of the first pipe-pair…
-export const GAP_SHRINK = 5; // …tightening by this per pillar…
-// …down to this floor. Must stay well clear of the bird's height (8) PLUS the height one flap gains
-// (FLAP² / 2·GRAVITY ≈ 7.8) — otherwise a single tap inside a gap slams you into the ceiling pipe and
-// the ordinary, keep-flying path stops being playable at all.
-export const GAP_MIN = 24;
+export const START_GAP = 34; // gap of the first pipe-pair…
+export const GAP_SHRINK = 8; // …shrinking by this per pillar…
+export const GAP_MIN = 6; // …down to this (below the bird's height → impossible)
 
 export type Pillar = { x: number; top: number; ceil: number }; // bottom column `top`→floor; ceiling pipe 0→`ceil` (0 = open top)
 

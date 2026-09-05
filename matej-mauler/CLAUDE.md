@@ -1,9 +1,19 @@
 # Spaghetti.ltd — project conventions
 
 Studio publishing one interactive web experiment per month. Stack: Next.js 16 (App Router),
-Vercel, Neon (Postgres), Clerk (auth), Stripe. DB access = lazy `CREATE TABLE IF NOT EXISTS`
-inside `lib/*Db.ts` via an `ensure(sql)` gate (no migration runner). Experiments are keyed by
-**slug** everywhere (`experiments.slug` is the catalog).
+Vercel, Neon (Postgres), Clerk (auth), Stripe. Experiments are keyed by **slug** everywhere
+(`experiments.slug` is the catalog).
+
+**DB access:** každý `lib/*Db.ts` registruje své DDL přes `registerSchema()` a dotazy volají
+`ensureSchema(sql)`. Ta položí jeden levný dotaz na `schema_meta`; DDL se spustí jen když
+`SCHEMA_VERSION` v `lib/schema.ts` nesedí, a to v jedné dávce. **Kdo změní DDL nebo seed,
+zvedne `SCHEMA_VERSION`** — jinak se změna na produkci neprojeví. Pořád žádný migration runner.
+
+Dřív se DDL pouštělo lazy při každém dotazu; jedna návštěva webu tak dělala ~393 dotazů do
+Neonu, z toho drtivou většinu `CREATE TABLE IF NOT EXISTS` a seedů, které nic neměnily.
+
+**Chyby DB se nesmí polykat** — `catch` patří NAD `unstable_cache` (viz `withFallback`
+v `lib/dbFallback.ts`), jinak se do cache uloží náhrada a drží se tam celý revalidate interval.
 
 ## Spaghetti accounts, XP & badges — standing rules for every experiment
 
