@@ -11,8 +11,6 @@ import { withFallback } from "./dbFallback";
 // (revalidateTag) → homepage/archiv se obnoví, jinak se servírují z cache (instant návrat).
 const EXPERIMENTS_TAG = "experiments";
 
-type Sql = ReturnType<typeof getDb>;
-
 export type Stage = "idea" | "draft" | "published";
 export type ExperimentRow = {
   slug: string;
