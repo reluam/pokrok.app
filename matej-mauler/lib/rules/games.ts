@@ -5,18 +5,22 @@
 // The order here IS the play order. Keep existing badge slugs stable so already-awarded badges stay
 // valid. Reveal lines are the deadpan one-liners shown after each game.
 
+export type Bi = { cs: string; en: string };
+
 export type RulesGameMeta = {
   key: string;
-  title: string;
-  revealLine: string;
+  title: Bi;
+  /** Suchá jednořádková rána po dohrání. Čeština je psaná, ne přeložená. */
+  revealLine: Bi;
+  /** Anglicky schválně: BadgeDef je string v celé rewards vrstvě a ta spí s účty. */
   badge: { slug: string; name: string; description: string; criteriaKey: string };
 };
 
 export const RULES_GAMES: RulesGameMeta[] = [
   {
     key: "chicken",
-    title: "chicken",
-    revealLine: "You didn't have to cross the road.",
+    title: { cs: "slepice", en: "chicken" },
+    revealLine: { cs: "Přes tu silnici jsi jít nemusel.", en: "You didn't have to cross the road." },
     badge: {
       slug: "found_edge",
       name: "you walked around the whole problem",
@@ -27,8 +31,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
   },
   {
     key: "maze",
-    title: "maze",
-    revealLine: "Not every wall is real.",
+    title: { cs: "bludiště", en: "maze" },
+    revealLine: { cs: "Ne každá zeď je opravdová.", en: "Not every wall is real." },
     badge: {
       slug: "found_fake_wall",
       name: "you poked a wall instead of trusting it",
@@ -38,8 +42,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
   },
   {
     key: "tetris",
-    title: "tetris",
-    revealLine: "The field was always bigger than it looked.",
+    title: { cs: "tetris", en: "tetris" },
+    revealLine: { cs: "To pole bylo vždycky větší, než vypadalo.", en: "The field was always bigger than it looked." },
     badge: {
       slug: "found_bigger_field",
       name: "you moved where the rules swore you couldn't",
@@ -50,8 +54,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
   },
   {
     key: "flappy",
-    title: "flappy",
-    revealLine: "You could have just landed.",
+    title: { cs: "flappy", en: "flappy" },
+    revealLine: { cs: "Stačilo přistát.", en: "You could have just landed." },
     badge: {
       slug: "found_perch",
       name: "you just sat down",
@@ -61,8 +65,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
   },
   {
     key: "invaders",
-    title: "invaders",
-    revealLine: "They only shot back because you did.",
+    title: { cs: "invaze", en: "invaders" },
+    revealLine: { cs: "Stříleli zpátky jen proto, že jsi začal ty.", en: "They only shot back because you did." },
     badge: {
       slug: "found_ceasefire",
       name: "you never raised a hand",
@@ -72,8 +76,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
   },
   {
     key: "ttt",
-    title: "tic-tac-toe",
-    revealLine: "You can draw outside the grid.",
+    title: { cs: "piškvorky", en: "tic-tac-toe" },
+    revealLine: { cs: "Kreslit se dá i mimo mřížku.", en: "You can draw outside the grid." },
     badge: {
       slug: "found_margin",
       name: "you drew outside the lines",
@@ -83,8 +87,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
   },
   {
     key: "simon",
-    title: "simon says",
-    revealLine: "Simon wasn't watching.",
+    title: { cs: "simon říká", en: "simon says" },
+    revealLine: { cs: "Simon se nedíval.", en: "Simon wasn't watching." },
     badge: {
       slug: "found_no_referee",
       name: "you obeyed a referee who wasn't there",
@@ -94,8 +98,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
   },
   {
     key: "racing",
-    title: "racing",
-    revealLine: "The track was a suggestion.",
+    title: { cs: "závod", en: "racing" },
+    revealLine: { cs: "Trať byla jen návrh.", en: "The track was a suggestion." },
     badge: {
       slug: "found_shortcut",
       name: "you cut straight across",
@@ -105,8 +109,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
   },
   {
     key: "pacman",
-    title: "pac-man",
-    revealLine: "You could have just left.",
+    title: { cs: "pac-man", en: "pac-man" },
+    revealLine: { cs: "Mohl jsi prostě odejít.", en: "You could have just left." },
     badge: {
       slug: "found_exit",
       name: "you just walked out",
@@ -118,6 +122,8 @@ export const RULES_GAMES: RulesGameMeta[] = [
 
 export const RULES_GAME_KEYS: string[] = RULES_GAMES.map((g) => g.key);
 
-export function revealLineFor(key: string): string {
-  return RULES_GAMES.find((g) => g.key === key)?.revealLine ?? "There was another way.";
+const FALLBACK_LINE: Bi = { cs: "Byla tam ještě jiná cesta.", en: "There was another way." };
+
+export function revealLineFor(key: string, lang: "cs" | "en"): string {
+  return (RULES_GAMES.find((g) => g.key === key)?.revealLine ?? FALLBACK_LINE)[lang];
 }

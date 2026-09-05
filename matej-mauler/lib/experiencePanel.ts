@@ -93,17 +93,17 @@ export const EXPERIENCES: ExperienceInfo[] = [
     slug: "rules",
     title: { cs: "Pravidla", en: "The Rules" },
     category: "game",
-    enOnly: true,
     theme: RULES_THEME,
     description: {
-      cs: "Tři klasické hry, každá se svými pravidly — a každá s tichou cestou okolo nich. Hra o tom, že pravidla někdo vymyslel a nikde není psáno, že platí.",
-      en: "Three classic games, each stating its rules — and each with a quiet way around them. A game about noticing that someone made those rules up.",
+      cs: "Devět klasických her — slepice, bludiště, tetris, flappy, invaze, piškvorky, simon říká, závod a pac-man. Každá ti vyloží svá pravidla a v každé je tichá cesta okolo nich. Hra o tom, že pravidla někdo vymyslel.",
+      en: "Nine classic games — chicken, maze, tetris, flappy, invaders, tic-tac-toe, simon says, racing and pac-man. Each states its rules, and each has a quiet way around them. A game about noticing someone made those rules up.",
     },
     guide: [
       { cs: "Každá hra ti na začátku vyloží svá pravidla. Přečti si je pozorně.", en: "Each game states its rules up front. Read them carefully." },
       { cs: "Dají se hrát poctivě a dá se vyhrát. To je ta nudná cesta.", en: "You can play them straight and win. That's the boring way." },
       { cs: "V každé je i cesta, kterou pravidla nezakazují, protože o ní nevědí.", en: "Each one also has a path the rules don't forbid, because they never considered it." },
       { cs: "Zkoušej věci, o kterých hra nemluví. Tam to začíná být zajímavé.", en: "Try the things the game never mentions. That's where it gets interesting." },
+      { cs: "Po každé hře ti to řekne, cos přehlédl. I když jsi vyhrál.", en: "After each game it tells you what you missed. Even if you won." },
     ],
   },
   {

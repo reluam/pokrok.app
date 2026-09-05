@@ -7,6 +7,37 @@ import { Reveal } from "./Reveal";
 import { PromptRegistration } from "@/components/PromptRegistration";
 import { track } from "@/lib/analytics/track";
 import { RULES_GAME_KEYS } from "@/lib/rules/games";
+import type { Lang } from "@/lib/dictionaries";
+
+// Čeština je psaná, ne přeložená — ty věty jsou suché rány, ne popisky.
+const T = {
+  cs: {
+    l1: "Každá hra má svá pravidla.",
+    l2: "Každé pravidlo někdo vymyslel.",
+    l3: "Tahle hra je o tom si toho všimnout.",
+    click: "[ klikni a pokračuj ]",
+    played: (n: string) => `Právě jsi odehrál ${n} her.`,
+    e2: "V každé z nich byla pravidla jen návrh.",
+    e3: "Většina pravidel je.",
+    restart: "znovu",
+    keepHeadline: "nech si, čeho sis všiml — napříč všemi experimenty.",
+    keepSub: "účet není potřeba; přihlášení ti přenese odznaky mezi experimenty.",
+  },
+  en: {
+    l1: "Every game has rules.",
+    l2: "Every rule was made up by someone.",
+    l3: "This is a game about noticing that.",
+    click: "[ click to continue ]",
+    played: (n: string) => `You just played ${n} games.`,
+    e2: "In each one, the rules were suggestions.",
+    e3: "Most rules are.",
+    restart: "restart",
+    keepHeadline: "keep what you noticed — across every experiment.",
+    keepSub: "no account needed; sign in to carry your badges across the series.",
+  },
+} as const;
+
+const NUM_CS: Record<number, string> = { 1: "jednu", 2: "dvě", 3: "tři", 4: "čtyři", 5: "pět", 6: "šest", 7: "sedm", 8: "osm", 9: "devět" };
 import Chicken from "./games/Chicken";
 import Maze from "./games/Maze";
 import Tetris from "./games/Tetris";
@@ -35,9 +66,9 @@ type Phase = "intro" | "reveal" | "ending" | string;
 type Results = Record<string, GameOutcome>;
 
 const NUM = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
-const numberWord = (n: number) => NUM[n] ?? String(n);
-
-export default function TheRules() {
+export default function TheRules({ lang }: { lang: Lang }) {
+  const t = T[lang];
+  const numberWord = (n: number) => (lang === "cs" ? NUM_CS[n] ?? String(n) : NUM[n] ?? String(n));
   const [phase, setPhase] = useState<Phase>("intro");
   const [current, setCurrent] = useState<string>(ORDER[0]);
   const [results, setResults] = useState<Results>({});
@@ -147,31 +178,31 @@ export default function TheRules() {
             startGame(ORDER[0]);
           }}
         >
-          <p style={{ fontSize: 13 }}>Every game has rules.</p>
-          <p style={{ fontSize: 13 }}>Every rule was made up by someone.</p>
-          <p style={{ fontSize: 13, color: RULES.green }}>This is a game about noticing that.</p>
-          <p style={{ fontSize: 9, color: RULES.gray, marginTop: 18 }}>[ click to continue ]</p>
+          <p style={{ fontSize: 13 }}>{t.l1}</p>
+          <p style={{ fontSize: 13 }}>{t.l2}</p>
+          <p style={{ fontSize: 13, color: RULES.green }}>{t.l3}</p>
+          <p style={{ fontSize: 9, color: RULES.gray, marginTop: 18 }}>{t.click}</p>
         </div>
       )}
 
       {Game && <Game onResolve={(o) => resolve(phase, o)} />}
 
-      {phase === "reveal" && <Reveal game={current} found={!!results[current]?.foundHiddenPath} side={results[current]?.side} onContinue={afterReveal} onRetry={() => startGame(current)} />}
+      {phase === "reveal" && <Reveal game={current} lang={lang} found={!!results[current]?.foundHiddenPath} side={results[current]?.side} onContinue={afterReveal} onRetry={() => startGame(current)} />}
 
       {phase === "ending" && (
         <div style={{ display: "grid", gap: 24, maxWidth: 620, lineHeight: 1.9 }}>
-          <p style={{ fontSize: 13 }}>You just played {numberWord(ORDER.length)} games.</p>
-          <p style={{ fontSize: 13 }}>In each one, the rules were suggestions.</p>
-          <p style={{ fontSize: 13, color: RULES.green }}>Most rules are.</p>
+          <p style={{ fontSize: 13 }}>{t.played(numberWord(ORDER.length))}</p>
+          <p style={{ fontSize: 13 }}>{t.e2}</p>
+          <p style={{ fontSize: 13, color: RULES.green }}>{t.e3}</p>
           <div style={{ marginTop: 8 }}>
             <PromptRegistration
               trigger="on_result"
-              headline="keep what you noticed — across every experiment."
-              sub="no account needed; sign in to carry your badges across the series."
+              headline={t.keepHeadline}
+              sub={t.keepSub}
             />
           </div>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 8 }}>
-            <PixelButton onClick={restart}>restart</PixelButton>
+            <PixelButton onClick={restart}>{t.restart}</PixelButton>
             <PixelButton
               color={RULES.yellow}
               onClick={() => {

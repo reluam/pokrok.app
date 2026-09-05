@@ -24,9 +24,15 @@ describe("registr experiencí", () => {
     expect(new Set(EXPERIENCES.map((e) => e.slug)).size).toBe(EXPERIENCES.length);
   });
 
-  it("enOnly nesou ty dvě, co nemají českou verzi obsahu", () => {
-    expect(EXPERIENCES.filter((e) => e.enOnly).map((e) => e.route).sort())
-      .toEqual(["/life-manual", "/rules"]);
+  it("enOnly nese jen life-manual — pravidla už češtinu mají", () => {
+    expect(EXPERIENCES.filter((e) => e.enOnly).map((e) => e.route)).toEqual(["/life-manual"]);
+  });
+
+  it("popisek pravidel vyjmenovává všech devět her", () => {
+    const cs = experienceForPath("/rules")!.description!.cs;
+    for (const g of ["slepice", "bludiště", "tetris", "flappy", "invaze", "piškvorky", "simon", "závod", "pac-man"]) {
+      expect(cs, `chybí ${g}`).toContain(g);
+    }
   });
 
   it("pravidla jsou v registru, takže na nich visí panel", () => {
