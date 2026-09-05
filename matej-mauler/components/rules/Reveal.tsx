@@ -3,6 +3,12 @@
 import { useEffect, useRef } from "react";
 import { RULES, PixelButton, pixelCanvas } from "./theme";
 import { revealLineFor } from "@/lib/rules/games";
+import type { Lang } from "@/lib/dictionaries";
+
+const T = {
+  cs: { continue: "pokračovat", retry: "znovu" },
+  en: { continue: "continue", retry: "retry" },
+} as const;
 
 // A tiny looping schematic of the alternative path for each game. Games without a custom branch fall
 // back to a generic "a dot slips around the barrier" sketch.
@@ -95,7 +101,8 @@ function drawReplay(ctx: CanvasRenderingContext2D, game: string, t: number, side
   }
 }
 
-export function Reveal({ game, found, side = "left", onContinue, onRetry }: { game: string; found: boolean; side?: "left" | "right"; onContinue: () => void; onRetry: () => void }) {
+export function Reveal({ game, found, side = "left", lang, onContinue, onRetry }: { game: string; found: boolean; side?: "left" | "right"; lang: Lang; onContinue: () => void; onRetry: () => void }) {
+  const t = T[lang];
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -125,10 +132,10 @@ export function Reveal({ game, found, side = "left", onContinue, onRetry }: { ga
         {found ? "You found the way." : "There was another way."}
       </p>
       <canvas ref={ref} style={{ width: 180, height: 180, imageRendering: "pixelated", background: RULES.bg }} />
-      <p style={{ fontSize: 11, color: RULES.green }}>{revealLineFor(game)}</p>
+      <p style={{ fontSize: 11, color: RULES.green }}>{revealLineFor(game, lang)}</p>
       <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-        <PixelButton onClick={onContinue}>continue</PixelButton>
-        <PixelButton color={RULES.gray} onClick={onRetry}>retry</PixelButton>
+        <PixelButton onClick={onContinue}>{t.continue}</PixelButton>
+        <PixelButton color={RULES.gray} onClick={onRetry}>{t.retry}</PixelButton>
       </div>
     </div>
   );
