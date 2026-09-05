@@ -124,6 +124,20 @@ Před zámkem angličtiny měla homepage `export const dynamic = "force-dynamic"
 tenhle stav se tedy jen vrací tam, kde byl, a cachování bylo dočasný bonus
 plynoucí z jednojazyčnosti.
 
+**Doplněno při exekuci — dopad je širší, než tahle sekce původně tvrdila.**
+`<html lang>` musí odpovídat jazyku (jinak čtečky obrazovky čtou češtinu
+anglickou fonetikou), a `<html>` je jen v root layoutu. Jakmile layout zavolá
+`getLang()`, je dynamická **každá** routa, protože layout je ve stromu všech.
+Nad rámec šesti stránek vyjmenovaných výše to bere ještě `/_not-found`,
+`/admin/login`, `/admin/vvv`, `/cs` a `/matej` — dvě administrace, jeden
+redirect, 404 a statická textovka. Staticky zůstávají `/llms.txt` a
+`/robots.txt`.
+
+Přijato vědomě: správný `<html lang>` je pro dvojjazyčný web důležitější než
+statické generování pěti málo navštěvovaných rout. `not-found.tsx` je z toho
+vyjmutý jinak — ten si jazyk bere z cookie na klientovi, protože u 404 nemá
+`<html lang>` co zkazit a nestojí to za nic.
+
 ## Přepínač: jediný zdroj pravdy
 
 Starý `LanguageSwitcher` si cookie nastavoval sám (`document.cookie`) a pak

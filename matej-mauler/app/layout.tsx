@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ExperiencePanelMount } from "@/components/ExperiencePanelMount";
 import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 import { ACCOUNTS_ENABLED } from "@/lib/features";
+import { getLang } from "@/lib/getLang";
 import "./globals.css";
 
 // Clerk potřebuje klíče v prostředí i zapnuté účty (lib/features.ts). Účty jsou
@@ -81,18 +82,19 @@ const clerkAppearance = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const lang = await getLang();
   const inner = (
     <PostHogProvider>
       {children}
-      <ExperiencePanelMount />
+      <ExperiencePanelMount lang={lang} />
       <Analytics />
       <SpeedInsights />
     </PostHogProvider>
   );
 
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable} h-full`}>
+    <html lang={lang} className={`${display.variable} ${sans.variable} ${mono.variable} h-full`}>
       <body className="min-h-full">
         {clerkEnabled ? (
           <ClerkProvider appearance={clerkAppearance}>{inner}</ClerkProvider>

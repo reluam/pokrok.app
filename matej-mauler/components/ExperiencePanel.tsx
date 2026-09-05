@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { Comments } from "./Comments";
 import { ACCOUNTS_ENABLED } from "@/lib/features";
+import type { Lang } from "@/lib/dictionaries";
 
 export type ExperiencePanelProps = {
+  lang: Lang;
   /** Klíč vlákna komentářů + hodnocení (stabilní, např. "life-manual"). */
   slug: string;
   title: string;
