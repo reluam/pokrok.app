@@ -1,6 +1,5 @@
 import { getDb } from "./db";
-
-type Sql = ReturnType<typeof getDb>;
+import { ensureSchema, registerSchema } from "./schema";
 
 export type BrainLang = "cs" | "en";
 export const brainLang = (raw: string | null | undefined): BrainLang => raw === "en" ? "en" : "cs";
@@ -54,49 +53,49 @@ export function normalizeWord(raw: string): string | null {
   return s;
 }
 
-let ready = false;
-
-async function ensure(sql: Sql) {
-  if (ready) return;
-  await sql`CREATE TABLE IF NOT EXISTS brain_words (
-    id SERIAL PRIMARY KEY,
-    word TEXT UNIQUE NOT NULL,
-    display TEXT NOT NULL,
-    is_seed BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  )`;
-  await sql`CREATE TABLE IF NOT EXISTS brain_edges (
-    from_id INT NOT NULL REFERENCES brain_words(id) ON DELETE CASCADE,
-    to_id INT NOT NULL REFERENCES brain_words(id) ON DELETE CASCADE,
-    count INT NOT NULL DEFAULT 1,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (from_id, to_id)
-  )`;
-  // migrace 2026-06: oddělené sítě per jazyk — existující slova jsou česká
-  await sql`ALTER TABLE brain_words ADD COLUMN IF NOT EXISTS lang TEXT NOT NULL DEFAULT 'cs'`;
-  // slovní druh (noun/verb/adjective/adverb/other) — třídí Claude dávkově
-  await sql`ALTER TABLE brain_words ADD COLUMN IF NOT EXISTS pos TEXT`;
-  await sql`ALTER TABLE brain_words DROP CONSTRAINT IF EXISTS brain_words_word_key`;
-  await sql`CREATE UNIQUE INDEX IF NOT EXISTS brain_words_lang_word ON brain_words (lang, word)`;
-  for (const lang of ["cs", "en"] as const) {
-    const [{ n }] = await sql`SELECT COUNT(*)::int AS n FROM brain_words WHERE is_seed AND lang = ${lang}` as { n: number }[];
-    if (n === 0) {
-      for (const w of SEEDS[lang]) {
+registerSchema({
+  name: "brain",
+  statements: (sql) => [
+    sql`CREATE TABLE IF NOT EXISTS brain_words (
+      id SERIAL PRIMARY KEY,
+      word TEXT UNIQUE NOT NULL,
+      display TEXT NOT NULL,
+      is_seed BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`,
+    sql`CREATE TABLE IF NOT EXISTS brain_edges (
+      from_id INT NOT NULL REFERENCES brain_words(id) ON DELETE CASCADE,
+      to_id INT NOT NULL REFERENCES brain_words(id) ON DELETE CASCADE,
+      count INT NOT NULL DEFAULT 1,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (from_id, to_id)
+    )`,
+    // migrace 2026-06: oddělené sítě per jazyk — existující slova jsou česká
+    sql`ALTER TABLE brain_words ADD COLUMN IF NOT EXISTS lang TEXT NOT NULL DEFAULT 'cs'`,
+    // slovní druh (noun/verb/adjective/adverb/other) — třídí Claude dávkově
+    sql`ALTER TABLE brain_words ADD COLUMN IF NOT EXISTS pos TEXT`,
+    sql`ALTER TABLE brain_words DROP CONSTRAINT IF EXISTS brain_words_word_key`,
+    sql`CREATE UNIQUE INDEX IF NOT EXISTS brain_words_lang_word ON brain_words (lang, word)`,
+    // Seed slov. Dřív se nejdřív četlo COUNT(*) a vkládalo jen do prázdné sítě —
+    // to tady nejde, statements() je čisté pole bez čtení. Vkládá se tedy vždy;
+    // ON CONFLICT DO UPDATE je idempotentní a migrace běží jen při změně verze,
+    // takže je to 96 příkazů jednou za čas místo dotazu při každém startu.
+    ...(["cs", "en"] as const).flatMap((lang) =>
+      SEEDS[lang].flatMap((w) => {
         const word = normalizeWord(w);
-        if (!word) continue;
-        await sql`INSERT INTO brain_words (word, display, is_seed, lang) VALUES (${word}, ${word}, TRUE, ${lang})
-          ON CONFLICT (lang, word) DO UPDATE SET is_seed = TRUE`;
-      }
-    }
-  }
-  ready = true;
-}
+        if (!word) return [];
+        return [sql`INSERT INTO brain_words (word, display, is_seed, lang) VALUES (${word}, ${word}, TRUE, ${lang})
+          ON CONFLICT (lang, word) DO UPDATE SET is_seed = TRUE`];
+      }),
+    ),
+  ],
+});
 
 /** Náhodné slovo k asociování. `seen` = ID slov, která už uživatel v tomhle prohlížeči
     viděl (vyloučí se, dokud síť nedojde); `avoidId` = nezopakovat aktuální slovo při fallbacku. */
 export async function randomWord(lang: BrainLang, seen: number[] = [], avoidId?: number): Promise<BrainWord | null> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   // přednostně slovo, které uživatel ještě neviděl
   if (seen.length) {
     const fresh = await sql`SELECT id, display FROM brain_words WHERE lang = ${lang} AND NOT (id = ANY(${seen}::int[])) ORDER BY random() LIMIT 1` as BrainWord[];
@@ -114,7 +113,7 @@ export type AssociateResult =
 /** Uloží asociaci from → to. Existující synapsi posílí (count + 1). */
 export async function associate(fromId: number, toRaw: string): Promise<AssociateResult> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
 
   const [from] = await sql`SELECT id, word, display, lang FROM brain_words WHERE id = ${fromId}` as { id: number; word: string; display: string; lang: BrainLang }[];
   if (!from) return { ok: false, error: "unknown-from" };
@@ -148,7 +147,7 @@ function raw2display(raw: string): string {
 
 export async function getBrainStats(lang: BrainLang): Promise<BrainStats> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const [row] = await sql`SELECT
     (SELECT COUNT(*)::int FROM brain_words WHERE lang = ${lang}) AS words,
     (SELECT COUNT(*)::int FROM brain_edges e JOIN brain_words w ON w.id = e.from_id WHERE w.lang = ${lang}) AS edges,
@@ -159,7 +158,7 @@ export async function getBrainStats(lang: BrainLang): Promise<BrainStats> {
 /** Mapa pro Researchera: nejsilnější synapse + jejich slova. */
 export async function getBrainMap(lang: BrainLang, maxEdges = 600): Promise<BrainMapData> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const edges = await sql`SELECT e.from_id AS a, e.to_id AS b, e.count FROM brain_edges e
     JOIN brain_words w ON w.id = e.from_id WHERE w.lang = ${lang}
     ORDER BY e.count DESC, e.updated_at DESC LIMIT ${maxEdges + 1}` as { a: number; b: number; count: number }[];
@@ -189,7 +188,7 @@ export type MineStat = {
  */
 export async function getMineStats(lang: BrainLang, pairs: { from: number; to: string }[]): Promise<MineStat[]> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const out: MineStat[] = [];
   for (const p of pairs.slice(0, 50)) {
     if (!Number.isInteger(p.from) || typeof p.to !== "string") continue;
@@ -213,20 +212,20 @@ export async function getMineStats(lang: BrainLang, pairs: { from: number; to: s
 /* ── Klasifikace slovních druhů (Claude, dávkově) ──────────────── */
 export async function getUnclassifiedWords(limit = 300): Promise<{ id: number; display: string; lang: string }[]> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   return await sql`SELECT id, display, lang FROM brain_words WHERE pos IS NULL ORDER BY id LIMIT ${limit}` as { id: number; display: string; lang: string }[];
 }
 
 export async function countUnclassified(): Promise<number> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const [{ n }] = await sql`SELECT COUNT(*)::int AS n FROM brain_words WHERE pos IS NULL` as { n: number }[];
   return n;
 }
 
 export async function setWordPos(items: { id: number; pos: WordPos }[]): Promise<void> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const valid = new Set(WORD_POS);
   for (const it of items) {
     if (!Number.isInteger(it.id) || !valid.has(it.pos)) continue;
@@ -242,7 +241,7 @@ export type AdminBrainWord = {
 
 export async function adminListWords(q = ""): Promise<AdminBrainWord[]> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const like = `%${q.trim().toLocaleLowerCase("cs")}%`;
   return await sql`SELECT w.id, w.display, w.is_seed, w.created_at::text AS created_at, w.lang,
       COALESCE(o.n, 0)::int AS out_n, COALESCE(i.n, 0)::int AS in_n,
@@ -258,6 +257,6 @@ export async function adminListWords(q = ""): Promise<AdminBrainWord[]> {
 /** Smaže slovo i všechny jeho synapse (FK kaskáda). */
 export async function adminDeleteWord(id: number): Promise<void> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   await sql`DELETE FROM brain_words WHERE id = ${id}`;
 }

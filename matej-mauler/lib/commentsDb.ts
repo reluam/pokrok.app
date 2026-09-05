@@ -1,6 +1,5 @@
 import { getDb } from "./db";
-
-type Sql = ReturnType<typeof getDb>;
+import { ensureSchema, registerSchema } from "./schema";
 
 export const COMMENT_MAX_LEN = 4000;
 
@@ -30,24 +29,24 @@ export type PublicComment = {
   deleted: boolean;
 };
 
-let ready = false;
-async function ensure(sql: Sql) {
-  if (ready) return;
-  await sql`CREATE TABLE IF NOT EXISTS comments (
-    id BIGSERIAL PRIMARY KEY,
-    page_slug TEXT NOT NULL,
-    parent_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
-    user_id TEXT NOT NULL,
-    author_name TEXT NOT NULL,
-    author_avatar TEXT,
-    body TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'visible',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    edited_at TIMESTAMPTZ
-  )`;
-  await sql`CREATE INDEX IF NOT EXISTS comments_page_idx ON comments (page_slug, created_at)`;
-  ready = true;
-}
+registerSchema({
+  name: "comments",
+  statements: (sql) => [
+    sql`CREATE TABLE IF NOT EXISTS comments (
+      id BIGSERIAL PRIMARY KEY,
+      page_slug TEXT NOT NULL,
+      parent_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL,
+      author_name TEXT NOT NULL,
+      author_avatar TEXT,
+      body TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'visible',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      edited_at TIMESTAMPTZ
+    )`,
+    sql`CREATE INDEX IF NOT EXISTS comments_page_idx ON comments (page_slug, created_at)`,
+  ],
+});
 
 function toPublic(r: CommentRow): PublicComment {
   const deleted = r.status === "deleted";
@@ -67,7 +66,7 @@ function toPublic(r: CommentRow): PublicComment {
 /** Všechny komentáře stránky chronologicky (vč. smazaných tombstonů — strom si poskládá klient). */
 export async function listComments(pageSlug: string): Promise<PublicComment[]> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const rows = (await sql`
     SELECT * FROM comments WHERE page_slug = ${pageSlug} ORDER BY created_at ASC
   `) as CommentRow[];
@@ -76,7 +75,7 @@ export async function listComments(pageSlug: string): Promise<PublicComment[]> {
 
 export async function countComments(pageSlug: string): Promise<number> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const rows = (await sql`
     SELECT COUNT(*)::int AS n FROM comments WHERE page_slug = ${pageSlug} AND status = 'visible'
   `) as { n: number }[];
@@ -96,7 +95,7 @@ export async function addComment(input: {
   if (body.length > COMMENT_MAX_LEN) return { error: "too_long" };
 
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
 
   // Parent musí existovat a patřit ke stejné stránce (zákaz cross-page vláken).
   if (input.parentId != null) {
@@ -117,7 +116,7 @@ export async function addComment(input: {
 /** Měkké smazání. Smí autor komentáře nebo admin. Vrací true, pokud něco smazal. */
 export async function deleteComment(id: number, userId: string, isAdmin: boolean): Promise<boolean> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const rows = isAdmin
     ? ((await sql`UPDATE comments SET status = 'deleted' WHERE id = ${id} AND status = 'visible' RETURNING id`) as { id: number }[])
     : ((await sql`UPDATE comments SET status = 'deleted' WHERE id = ${id} AND user_id = ${userId} AND status = 'visible' RETURNING id`) as { id: number }[]);

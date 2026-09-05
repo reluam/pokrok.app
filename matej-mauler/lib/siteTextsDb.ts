@@ -2,8 +2,7 @@ import { getDb } from "./db";
 import type { Dictionary, Lang } from "./dictionaries";
 import { unstable_cache, revalidateTag } from "next/cache";
 import { TEXT_GROUPS } from "./siteTextsShared";
-
-type Sql = ReturnType<typeof getDb>;
+import { ensureSchema, registerSchema } from "./schema";
 
 // Cache textových overridů homepage. setTexts ji shodí → změny v adminu hned, jinak instant.
 const TEXTS_TAG = "site-texts";
@@ -11,23 +10,22 @@ const TEXTS_TAG = "site-texts";
 // Re-export pro serverové konzumenty; klient ať importuje rovnou ze siteTextsShared.
 export { TEXT_GROUPS };
 
-let ready = false;
-
-async function ensure(sql: Sql) {
-  if (ready) return;
-  await sql`CREATE TABLE IF NOT EXISTS site_texts (
-    key TEXT NOT NULL,
-    lang TEXT NOT NULL,
-    value TEXT NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (key, lang)
-  )`;
-  ready = true;
-}
+registerSchema({
+  name: "site-texts",
+  statements: (sql) => [
+    sql`CREATE TABLE IF NOT EXISTS site_texts (
+      key TEXT NOT NULL,
+      lang TEXT NOT NULL,
+      value TEXT NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (key, lang)
+    )`,
+  ],
+});
 
 async function loadTextOverrides(lang: Lang): Promise<Record<string, string>> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const rows = await sql`SELECT key, value FROM site_texts WHERE lang = ${lang}` as { key: string; value: string }[];
   return Object.fromEntries(rows.map((r) => [r.key, r.value]));
 }
@@ -43,7 +41,7 @@ export async function getTextOverrides(lang: Lang): Promise<Record<string, strin
 /** value = null/prázdné → smazat override (vrátí se default ze slovníku). */
 export async function setTexts(items: { key: string; lang: Lang; value: string | null }[]): Promise<void> {
   const sql = getDb();
-  await ensure(sql);
+  await ensureSchema(sql);
   const allowed = new Set(TEXT_GROUPS.flatMap((g) => g.keys));
   for (const it of items) {
     if (!allowed.has(it.key) || (it.lang !== "cs" && it.lang !== "en")) continue;

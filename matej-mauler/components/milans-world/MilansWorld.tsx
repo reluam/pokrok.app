@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import type { Lang } from "@/lib/dictionaries";
 import { SAYINGS, UI } from "@/lib/milans-world/copy";
@@ -75,7 +76,10 @@ export function MilansWorld({ initialLang }: { initialLang: Lang }) {
         <div className="msw-overlay">
           <div className="msw-start">
             <div className="msw-start__band">
-              <span>{T.startBand}</span>
+              <span className="msw-band__l">
+                <BackLink />
+                <span>{T.startBand}</span>
+              </span>
               <span style={{ display: "flex", gap: 12, alignItems: "center" }}>
                 <span>{T.startBand2}</span>
                 <LangSwitch lang={lang} onSet={g.setLang} />
@@ -116,7 +120,10 @@ export function MilansWorld({ initialLang }: { initialLang: Lang }) {
       <div className="msw-app">
         <header className="msw-head">
           <div className="msw-head__band">
-            <span>{T.bandOffice}</span>
+            <span className="msw-band__l">
+              <BackLink />
+              <span>{T.bandOffice}</span>
+            </span>
             <span><b>{T.bandForm}</b> {T.bandFormWhat}</span>
           </div>
           <div className="msw-head__top">
@@ -292,6 +299,12 @@ export function MilansWorld({ initialLang }: { initialLang: Lang }) {
       </div>
     </div>
   );
+}
+
+// Cesta ven ze hry. Jméno je vlastní, takže se nepřekládá — proto nesahá do copy.ts,
+// který je doslovný přenos ze samostatné hry.
+function BackLink() {
+  return <Link href="/" className="msw-back">← Spaghetti.ltd</Link>;
 }
 
 function LangSwitch({ lang, onSet }: { lang: Lang; onSet: (l: Lang) => void }) {
