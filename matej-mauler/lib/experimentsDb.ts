@@ -4,6 +4,7 @@ import { dictionaries } from "./dictionaries";
 import { notFound } from "next/navigation";
 import { isAdmin } from "./adminAuth";
 import { unstable_cache, revalidateTag } from "next/cache";
+import { withFallback } from "./dbFallback";
 
 // Tag, pod kterým žije cache veřejného feedu experimentů. Admin mutace ho shodí
 // (revalidateTag) → homepage/archiv se obnoví, jinak se servírují z cache (instant návrat).
@@ -116,31 +117,40 @@ function staticFallback(lang: "cs" | "en"): PublicExperiment[] {
   }).reverse();
 }
 
-async function loadPublicExperiments(lang: "cs" | "en"): Promise<PublicExperiment[]> {
-  try {
-    const sql = getDb();
-    await ensure(sql);
-    // Chronologicky (nejstarší první) kvůli číslování, pak otočíme → nejnovější nahoře.
-    // Na preview/lokálně přidáme i drafty (stage <> 'idea'), ať jsou ve feedu k nalezení.
-    const rows = (showDrafts()
-      ? await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE deleted = FALSE AND stage <> 'idea' ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC`
-      : await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE AND deleted = FALSE ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC`) as (ExperimentRow & { eff_date: string })[];
-    const numbered = rows.map((r, i) => ({ slug: r.slug, title: lang === "cs" ? r.title_cs : r.title_en, description: lang === "cs" ? r.desc_cs : r.desc_en, color: r.color, href: r.href, external: r.external, date: r.eff_date, number: i + 1 }));
-    return numbered.reverse();
-  } catch {
-    return staticFallback(lang);
-  }
+/**
+ * Načte feed z databáze. Chybu SCHVÁLNĚ nechytá — musí probublat ven z
+ * unstable_cache, aby se selhání neuložilo. Náhradu řeší withFallback nad cachí.
+ * Exportované kvůli testu, jinak to volá jen getPublicExperiments.
+ */
+export async function loadPublicExperiments(lang: "cs" | "en"): Promise<PublicExperiment[]> {
+  const sql = getDb();
+  await ensure(sql);
+  // Chronologicky (nejstarší první) kvůli číslování, pak otočíme → nejnovější nahoře.
+  // Na preview/lokálně přidáme i drafty (stage <> 'idea'), ať jsou ve feedu k nalezení.
+  const rows = (showDrafts()
+    ? await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE deleted = FALSE AND stage <> 'idea' ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC`
+    : await sql`SELECT *, COALESCE(published_at, created_at::date)::text AS eff_date FROM experiments WHERE published = TRUE AND deleted = FALSE ORDER BY COALESCE(published_at, created_at::date) ASC, sort_order ASC`) as (ExperimentRow & { eff_date: string })[];
+  const numbered = rows.map((r, i) => ({ slug: r.slug, title: lang === "cs" ? r.title_cs : r.title_en, description: lang === "cs" ? r.desc_cs : r.desc_en, color: r.color, href: r.href, external: r.external, date: r.eff_date, number: i + 1 }));
+  return numbered.reverse();
 }
 
-// Cacheovaná verze pro veřejné stránky (homepage, archiv). Drží feed ve full-route /
-// data cache, takže návrat na „/" je instant místo dynamického renderu + 2 DB dotazů.
-// Admin mutace shodí EXPERIMENTS_TAG → změny se projeví hned. revalidate je jen pojistka.
+// Cacheovaná verze pro veřejné stránky (homepage, archiv). Admin mutace shodí
+// EXPERIMENTS_TAG → změny se projeví hned, revalidate je jen pojistka.
+//
+// withFallback je NAD cachí schválně: chyba tak probublá ven z cachované funkce
+// a nic se neuloží. Kdyby byl catch uvnitř, zapamatovala by se náhrada na celých
+// 600 s a jeden zádrhel by znamenal deset minut špatného obsahu.
 export async function getPublicExperiments(lang: "cs" | "en"): Promise<PublicExperiment[]> {
-  return unstable_cache(
-    () => loadPublicExperiments(lang),
-    ["public-experiments", lang, showDrafts() ? "drafts" : "pub"],
-    { tags: [EXPERIMENTS_TAG], revalidate: 600 },
-  )();
+  return withFallback(
+    `public-experiments/${lang}`,
+    () =>
+      unstable_cache(
+        () => loadPublicExperiments(lang),
+        ["public-experiments", lang, showDrafts() ? "drafts" : "pub"],
+        { tags: [EXPERIMENTS_TAG], revalidate: 600 },
+      )(),
+    () => staticFallback(lang),
+  );
 }
 
 export async function isPublished(slug: string): Promise<boolean> {
@@ -150,8 +160,9 @@ export async function isPublished(slug: string): Promise<boolean> {
     const [row] = await sql`SELECT published, deleted FROM experiments WHERE slug = ${slug}` as { published: boolean; deleted: boolean }[];
     if (!row) return true; // neznámý slug → nech projít (fail open)
     return row.published && !row.deleted; // draft i smazané → zavřít
-  } catch {
-    return true; // DB výpadek → nech projít
+  } catch (e) {
+    console.error("[db] isPublished selhalo, propouštím:", e);
+    return true; // DB výpadek → nech projít (drafty chrání DRAFT_SLUGS)
   }
 }
 
@@ -162,7 +173,8 @@ export async function getDeletedHrefs(): Promise<string[]> {
     await ensure(sql);
     const rows = await sql`SELECT href FROM experiments WHERE deleted = TRUE` as { href: string }[];
     return rows.map((r) => r.href);
-  } catch {
+  } catch (e) {
+    console.error("[db] getDeletedHrefs selhalo:", e);
     return [];
   }
 }

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { experiments } from "./experiments";
-import { DRAFT_SLUGS } from "./experimentsDb";
+import { DRAFT_SLUGS, loadPublicExperiments } from "./experimentsDb";
 
 describe("drafty", () => {
   it("zná ty, které kód seeduje jako draft", () => {
@@ -38,5 +38,14 @@ describe("offline fallback", () => {
         expect(dictionaries[l].experiments.find((x) => x.slug === e.slug)).toBeDefined();
       }
     }
+  });
+});
+
+describe("načtení feedu", () => {
+  it("při nedostupné DB chybu vyhodí, nevrací náhradu — jinak by se náhrada uložila do cache", async () => {
+    const old = process.env.DATABASE_URL;
+    process.env.DATABASE_URL = "postgres://u:p@127.0.0.1:1/nope";
+    await expect(loadPublicExperiments("en")).rejects.toBeDefined();
+    process.env.DATABASE_URL = old;
   });
 });
