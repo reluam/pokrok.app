@@ -18,6 +18,7 @@ export function ExperiencePanelMount({ lang }: { lang: Lang }) {
       category={info.category}
       description={info.description}
       guide={info.guide}
+      enOnly={info.enOnly}
     />
   );
 }
