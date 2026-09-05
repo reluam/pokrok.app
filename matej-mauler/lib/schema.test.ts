@@ -84,3 +84,15 @@ describe("isUndefinedTable", () => {
     expect(isUndefinedTable({ code: "42703" })).toBe(false);
   });
 });
+
+describe("registrace modulů", () => {
+  it("moduly s DDL jsou zaregistrované", async () => {
+    resetSchemaMemo();
+    await import("./experimentsDb");
+    await import("./siteTextsDb");
+    const { registeredSchemas } = await import("./schema");
+    const names = registeredSchemas().map((m) => m.name);
+    expect(names).toContain("experiments");
+    expect(names).toContain("site-texts");
+  });
+});
