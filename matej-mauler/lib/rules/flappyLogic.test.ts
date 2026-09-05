@@ -1,5 +1,39 @@
 import { describe, expect, it } from "vitest";
-import { initFlappy, stepFlappy, flapFlappy, BIRD_X, HEIGHT } from "./flappyLogic";
+import {
+  initFlappy,
+  stepFlappy,
+  flapFlappy,
+  BIRD_X,
+  BIRD_R,
+  HEIGHT,
+  LIMIT,
+  PILLAR_W,
+  SPEED,
+  FLAP,
+  GRAVITY,
+} from "./flappyLogic";
+
+const STEP = 1000 / 60;
+
+// A steady-handed but un-prescient player: every `reactFrames` it looks at the next pillar and taps
+// if the bird has sunk below the middle of that gap. Returns how the run ended.
+function autopilot(seed: number, reactFrames: number) {
+  const s = initFlappy(seed);
+  flapFlappy(s); // the first click only starts the game
+  let cooldown = 0;
+  while (s.status === "playing") {
+    if (cooldown <= 0) {
+      const next = s.pillars.find((p) => p.x + PILLAR_W > BIRD_X - BIRD_R);
+      const target = !next ? HEIGHT / 2 : next.ceil > 0 ? (next.ceil + next.top) / 2 : next.top - 12;
+      if (s.birdY > target) flapFlappy(s);
+      cooldown = reactFrames;
+    }
+    cooldown--;
+    stepFlappy(s, STEP);
+    if (s.landed) return "perched";
+  }
+  return s.status; // "won" | "lost"
+}
 
 describe("flappyLogic", () => {
   it("holds until the first click — nothing moves and the clock is frozen", () => {
@@ -19,6 +53,32 @@ describe("flappyLogic", () => {
     const gap = (i: number) => s.pillars[i].top - s.pillars[i].ceil;
     expect(gap(2)).toBeLessThan(gap(1)); // gaps get narrower and narrower
     expect(gap(3)).toBeLessThan(gap(2));
+  });
+
+  it("every pillar met inside the time limit leaves room to correct with a flap", () => {
+    const flapRise = (FLAP * FLAP) / (2 * GRAVITY); // how far one tap lifts the bird
+    for (let seed = 1; seed <= 40; seed++) {
+      const s = initFlappy(seed);
+      for (const p of s.pillars) {
+        if (p.ceil === 0) continue; // the open-topped perch pillar
+        const reachesBirdAt = (p.x - (BIRD_X + BIRD_R)) / SPEED;
+        if (reachesBirdAt > LIMIT) continue; // never seen before the clock runs out
+        expect(p.top - p.ceil).toBeGreaterThan(BIRD_R * 2 + flapRise);
+      }
+    }
+  });
+
+  it("only the first pillar is perchable — later ones never lose their ceiling", () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const s = initFlappy(seed);
+      for (const p of s.pillars.slice(1)) expect(p.ceil).toBeGreaterThan(0);
+    }
+  });
+
+  it("flying the ordinary way survives the clock — the normal path is winnable", () => {
+    let won = 0;
+    for (let seed = 1; seed <= 40; seed++) if (autopilot(seed, 5) === "won") won++;
+    expect(won).toBe(40);
   });
 
   it("staying airborne to the time limit wins without the hidden path", () => {

@@ -86,13 +86,25 @@ describe("isUndefinedTable", () => {
 });
 
 describe("registrace modulů", () => {
-  it("moduly s DDL jsou zaregistrované", async () => {
+  it("všechny moduly s DDL jsou zaregistrované", async () => {
     resetSchemaMemo();
-    await import("./experimentsDb");
-    await import("./siteTextsDb");
+    for (const m of ["experimentsDb", "siteTextsDb", "accountsDb", "brainDb",
+                     "commentsDb", "counterDb", "metricsDb", "ratingsDb",
+                     "songsDb", "vvvSchema"]) {
+      await import(`./${m}`);
+    }
     const { registeredSchemas } = await import("./schema");
-    const names = registeredSchemas().map((m) => m.name);
-    expect(names).toContain("experiments");
-    expect(names).toContain("site-texts");
+    // "test" registruje beforeEach téhle sady, ten mezi produkční nepatří
+    const names = registeredSchemas().map((m) => m.name).filter((n) => n !== "test").sort();
+    expect(names).toEqual([
+      "accounts", "brain", "comments", "counter", "experiments",
+      "metrics", "ratings", "site-texts", "songs", "vvv",
+    ]);
+  });
+
+  it("žádný modul neregistruje prázdné schéma", async () => {
+    const { registeredSchemas } = await import("./schema");
+    const fake = (() => Promise.resolve([])) as never;
+    for (const m of registeredSchemas()) expect(m.statements(fake).length).toBeGreaterThan(0);
   });
 });
