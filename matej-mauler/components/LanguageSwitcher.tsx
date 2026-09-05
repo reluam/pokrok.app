@@ -11,7 +11,10 @@ export function LanguageSwitcher({ lang }: { lang: Lang }) {
     if (target === lang) return;
     const url = new URL(window.location.href);
     url.searchParams.set("lang", target);
-    window.location.href = url.toString();
+    // assign(), ne přiřazení do location.href — jinak React compiler právem hlásí
+    // zápis do hodnoty zvenčí komponenty. Plný reload je záměr: cookie nastaví
+    // proxy až na dalším požadavku a server musí překreslit v novém jazyce.
+    window.location.assign(url.toString());
   };
 
   return (
