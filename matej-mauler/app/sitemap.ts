@@ -11,7 +11,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const entries: MetadataRoute.Sitemap = [
-    { url: `${SITE}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
+    {
+      url: `${SITE}/`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 1,
+      alternates: { languages: { en: `${SITE}/?lang=en`, cs: `${SITE}/?lang=cs` } },
+    },
     { url: `${SITE}/mapa`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE}/songs`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     // osobní rozcestník — přestěhoval se z „/" pod „/matej", ať nevypadne ze sitemapy
