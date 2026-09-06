@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, pixelCanvas, useFixedLoop, beep, audio, type GameOutcome } from "../theme";
 import {
   initFlappy,
@@ -18,7 +20,7 @@ import {
 
 const SCALE = 3;
 
-export default function Flappy({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function Flappy({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   const ref = useRef<HTMLCanvasElement>(null);
   // eslint-disable-next-line react-hooks/purity
   const state = useRef<FlappyState>(initFlappy((Date.now() & 0xffff) || 1));
@@ -95,7 +97,7 @@ export default function Flappy({ onResolve }: { onResolve: (o: GameOutcome) => v
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>survive 15 seconds. (space / tap)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>{goalFor("flappy", lang)}</p>
       <div style={{ position: "relative", touchAction: "none" }}>
         <canvas
           ref={ref}
@@ -104,7 +106,7 @@ export default function Flappy({ onResolve }: { onResolve: (o: GameOutcome) => v
         />
         <span style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", fontFamily: RULES.font, fontSize: 13, color: RULES.white }}>{remaining}</span>
         {!started && (
-          <span style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontFamily: RULES.font, fontSize: 11, color: RULES.green }}>click to start</span>
+          <span style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontFamily: RULES.font, fontSize: 11, color: RULES.green }}>{lang === "cs" ? "klikni a začni" : "click to start"}</span>
         )}
         {clickVisible && (
           <span style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", fontFamily: RULES.font, fontSize: 13, color: "#ff5b5b" }}>CLICK</span>

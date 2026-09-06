@@ -49,7 +49,7 @@ import Racing from "./games/Racing";
 import Pacman from "./games/Pacman";
 
 // key → controller. Every game in lib/rules/games.ts registers its component here.
-const GAMES: Record<string, ComponentType<{ onResolve: (o: GameOutcome) => void }>> = {
+const GAMES: Record<string, ComponentType<{ onResolve: (o: GameOutcome) => void; lang: Lang }>> = {
   chicken: Chicken,
   maze: Maze,
   tetris: Tetris,
@@ -185,7 +185,7 @@ export default function TheRules({ lang }: { lang: Lang }) {
         </div>
       )}
 
-      {Game && <Game onResolve={(o) => resolve(phase, o)} />}
+      {Game && <Game onResolve={(o) => resolve(phase, o)} lang={lang} />}
 
       {phase === "reveal" && <Reveal game={current} lang={lang} found={!!results[current]?.foundHiddenPath} side={results[current]?.side} onContinue={afterReveal} onRetry={() => startGame(current)} />}
 

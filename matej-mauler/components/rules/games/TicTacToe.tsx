@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, pixelCanvas, beep, audio, type GameOutcome } from "../theme";
 import { initTTT, placeTTT, SIZE, X, O, isInner, type TTTState } from "@/lib/rules/tttLogic";
 
 const TILE = 42; // internal px per cell
 
-export default function TicTacToe({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function TicTacToe({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [state, setState] = useState<TTTState>(initTTT());
   const done = useRef(false);
@@ -65,7 +67,7 @@ export default function TicTacToe({ onResolve }: { onResolve: (o: GameOutcome) =
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>three in a row beats the machine. (click / tap)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>{goalFor("ttt", lang)}</p>
       <canvas
         ref={ref}
         onPointerDown={click}

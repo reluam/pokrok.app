@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, pixelCanvas, beep, audio, type GameOutcome } from "../theme";
 import { initPacman, setDirPacman, stepPacman, MAZE, W, H, type Dir, type PacmanState } from "@/lib/rules/pacmanLogic";
 
 const TILE = 22;
 const TICK_MS = 200;
 
-export default function Pacman({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function Pacman({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const state = useRef<PacmanState>(initPacman());
   const done = useRef(false);
@@ -71,7 +73,7 @@ export default function Pacman({ onResolve }: { onResolve: (o: GameOutcome) => v
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>eat the dots, dodge the ghost. (arrows / wasd)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>{goalFor("pacman", lang)}</p>
       <canvas ref={ref} style={{ width: "min(88vw, 340px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 48px)", gap: 4, justifyContent: "center", touchAction: "none" }}>
         <span />{tbtn("up", "▲")}<span />

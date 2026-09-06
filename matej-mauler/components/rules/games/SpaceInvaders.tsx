@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, pixelCanvas, useFixedLoop, beep, audio, type GameOutcome } from "../theme";
 import {
   initInvaders,
@@ -19,7 +21,7 @@ import {
 const SCALE = 3;
 const MOVE = 0.06; // units per ms
 
-export default function SpaceInvaders({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function SpaceInvaders({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   const ref = useRef<HTMLCanvasElement>(null);
   // eslint-disable-next-line react-hooks/purity
   const state = useRef<InvadersState>(initInvaders((Date.now() & 0xffff) || 1));
@@ -98,7 +100,7 @@ export default function SpaceInvaders({ onResolve }: { onResolve: (o: GameOutcom
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>protect the sky. (← → move · space fire)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>{goalFor("invaders", lang)}</p>
       <canvas ref={ref} style={{ width: "min(88vw, 380px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
       <div style={{ display: "flex", gap: 6, touchAction: "none" }}>
         <button style={btnStyle} onPointerDown={(e) => { e.preventDefault(); dir.current = -1; }} onPointerUp={() => { dir.current = 0; }} onPointerLeave={() => { dir.current = 0; }}>◀</button>

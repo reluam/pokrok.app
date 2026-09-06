@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RULES_GAMES, RULES_GAME_KEYS, revealLineFor } from "./games";
+import { RULES_GAMES, RULES_GAME_KEYS, goalFor, revealLineFor } from "./games";
 
 const langs = ["cs", "en"] as const;
 
@@ -18,9 +18,26 @@ describe("registr her v Pravidlech", () => {
     }
   });
 
+  it("každá hra má cíl v obou jazycích i s ovládáním", () => {
+    for (const g of RULES_GAMES) {
+      for (const l of langs) {
+        expect(g.goal[l].length, `${g.key} goal.${l}`).toBeGreaterThan(10);
+        // ovládání je v závorce — bez něj hráč neví, co mačkat
+        expect(g.goal[l], `${g.key} goal.${l}`).toContain("(");
+      }
+    }
+  });
+
+  it("goalFor vrací jazyk, co si řekneš, a neznámou hru neshodí", () => {
+    expect(goalFor("maze", "cs")).toContain("nejkratší");
+    expect(goalFor("maze", "en")).toContain("shortest");
+    expect(goalFor("neexistuje", "cs")).toBe("");
+  });
+
   it("čeština není jen opsaná angličtina", () => {
     for (const g of RULES_GAMES) {
       expect(g.revealLine.cs, g.key).not.toBe(g.revealLine.en);
+      expect(g.goal.cs, g.key).not.toBe(g.goal.en);
     }
   });
 

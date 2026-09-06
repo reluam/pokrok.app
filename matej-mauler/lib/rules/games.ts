@@ -12,6 +12,8 @@ export type RulesGameMeta = {
   title: Bi;
   /** Suchá jednořádková rána po dohrání. Čeština je psaná, ne přeložená. */
   revealLine: Bi;
+  /** Cíl hry i s ovládáním, ukazuje se nad hrací plochou. */
+  goal: Bi;
   /** Anglicky schválně: BadgeDef je string v celé rewards vrstvě a ta spí s účty. */
   badge: { slug: string; name: string; description: string; criteriaKey: string };
 };
@@ -21,6 +23,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "chicken",
     title: { cs: "slepice", en: "chicken" },
     revealLine: { cs: "Přes tu silnici jsi jít nemusel.", en: "You didn't have to cross the road." },
+    goal: { cs: "dojdi nahoru. vyhni se autům. (šipky / wasd)", en: "reach the top. dodge the cars. (arrows / wasd)" },
     badge: {
       slug: "found_edge",
       name: "you walked around the whole problem",
@@ -33,6 +36,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "maze",
     title: { cs: "bludiště", en: "maze" },
     revealLine: { cs: "Ne každá zeď je opravdová.", en: "Not every wall is real." },
+    goal: { cs: "nejkratší cesta. (šipky / wasd)", en: "the shortest road. (arrows / wasd)" },
     badge: {
       slug: "found_fake_wall",
       name: "you poked a wall instead of trusting it",
@@ -44,6 +48,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "tetris",
     title: { cs: "tetris", en: "tetris" },
     revealLine: { cs: "To pole bylo vždycky větší, než vypadalo.", en: "The field was always bigger than it looked." },
+    goal: { cs: "vymaž řádky do 1000. (← → ↓ pohyb · ↑ otočit · mezerník pustit)", en: "clear lines to 1000. (← → ↓ move · ↑ rotate · space drop)" },
     badge: {
       slug: "found_bigger_field",
       name: "you moved where the rules swore you couldn't",
@@ -56,6 +61,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "flappy",
     title: { cs: "flappy", en: "flappy" },
     revealLine: { cs: "Stačilo přistát.", en: "You could have just landed." },
+    goal: { cs: "vydrž 15 vteřin. (mezerník / ťuk)", en: "survive 15 seconds. (space / tap)" },
     badge: {
       slug: "found_perch",
       name: "you just sat down",
@@ -67,6 +73,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "invaders",
     title: { cs: "invaze", en: "invaders" },
     revealLine: { cs: "Stříleli zpátky jen proto, že jsi začal ty.", en: "They only shot back because you did." },
+    goal: { cs: "ubraň oblohu. (← → pohyb · mezerník střelba)", en: "protect the sky. (← → move · space fire)" },
     badge: {
       slug: "found_ceasefire",
       name: "you never raised a hand",
@@ -78,6 +85,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "ttt",
     title: { cs: "piškvorky", en: "tic-tac-toe" },
     revealLine: { cs: "Kreslit se dá i mimo mřížku.", en: "You can draw outside the grid." },
+    goal: { cs: "tři v řadě porazí stroj. (klik / ťuk)", en: "three in a row beats the machine. (click / tap)" },
     badge: {
       slug: "found_margin",
       name: "you drew outside the lines",
@@ -89,6 +97,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "simon",
     title: { cs: "simon říká", en: "simon says" },
     revealLine: { cs: "Simon se nedíval.", en: "Simon wasn't watching." },
+    goal: { cs: "zopakuj sekvenci. (ťukej na pole)", en: "repeat the pattern. (tap the pads)" },
     badge: {
       slug: "found_no_referee",
       name: "you obeyed a referee who wasn't there",
@@ -100,6 +109,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "racing",
     title: { cs: "závod", en: "racing" },
     revealLine: { cs: "Trať byla jen návrh.", en: "The track was a suggestion." },
+    goal: { cs: "tři kola po trati. (šipky / wasd)", en: "three laps of the track. (arrows / wasd)" },
     badge: {
       slug: "found_shortcut",
       name: "you cut straight across",
@@ -111,6 +121,7 @@ export const RULES_GAMES: RulesGameMeta[] = [
     key: "pacman",
     title: { cs: "pac-man", en: "pac-man" },
     revealLine: { cs: "Mohl jsi prostě odejít.", en: "You could have just left." },
+    goal: { cs: "sněz tečky, vyhni se duchovi. (šipky / wasd)", en: "eat the dots, dodge the ghost. (arrows / wasd)" },
     badge: {
       slug: "found_exit",
       name: "you just walked out",
@@ -123,6 +134,10 @@ export const RULES_GAMES: RulesGameMeta[] = [
 export const RULES_GAME_KEYS: string[] = RULES_GAMES.map((g) => g.key);
 
 const FALLBACK_LINE: Bi = { cs: "Byla tam ještě jiná cesta.", en: "There was another way." };
+
+export function goalFor(key: string, lang: "cs" | "en"): string {
+  return RULES_GAMES.find((g) => g.key === key)?.goal[lang] ?? "";
+}
 
 export function revealLineFor(key: string, lang: "cs" | "en"): string {
   return (RULES_GAMES.find((g) => g.key === key)?.revealLine ?? FALLBACK_LINE)[lang];
