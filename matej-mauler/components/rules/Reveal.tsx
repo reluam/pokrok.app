@@ -6,8 +6,8 @@ import { revealLineFor } from "@/lib/rules/games";
 import type { Lang } from "@/lib/dictionaries";
 
 const T = {
-  cs: { continue: "pokračovat", retry: "znovu" },
-  en: { continue: "continue", retry: "retry" },
+  cs: { continue: "pokračovat", retry: "znovu", found: "Našel jsi tu cestu.", missed: "Byla tam ještě jiná cesta." },
+  en: { continue: "continue", retry: "retry", found: "You found the way.", missed: "There was another way." },
 } as const;
 
 // A tiny looping schematic of the alternative path for each game. Games without a custom branch fall
@@ -129,7 +129,7 @@ export function Reveal({ game, found, side = "left", lang, onContinue, onRetry }
   return (
     <div style={{ display: "grid", gap: 22, placeItems: "center", maxWidth: 520, lineHeight: 1.9 }}>
       <p style={{ fontSize: 13, color: found ? RULES.green : RULES.white }}>
-        {found ? "You found the way." : "There was another way."}
+        {found ? t.found : t.missed}
       </p>
       <canvas ref={ref} style={{ width: 180, height: 180, imageRendering: "pixelated", background: RULES.bg }} />
       <p style={{ fontSize: 11, color: RULES.green }}>{revealLineFor(game, lang)}</p>

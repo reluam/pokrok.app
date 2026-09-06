@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, beep, audio, type GameOutcome } from "../theme";
 import { initSimon, pressSimon, type SimonState } from "@/lib/rules/simonLogic";
 
 const PAD_COLORS = [RULES.green, RULES.yellow, "#4dd2ff", "#ff6bd6"];
 const TONES = [440, 550, 660, 770];
 
-export default function SimonSays({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function SimonSays({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   // eslint-disable-next-line react-hooks/purity
   const state = useRef<SimonState>(initSimon((Date.now() & 0xffff) || 1));
   const timers = useRef<number[]>([]);
@@ -60,7 +62,7 @@ export default function SimonSays({ onResolve }: { onResolve: (o: GameOutcome) =
 
   return (
     <div style={{ display: "grid", gap: 14, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>{mode === "show" ? "watch…" : "repeat the pattern. (tap the pads)"}</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>{mode === "show" ? "watch…" : goalFor("simon", lang)}</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 82px)", gridTemplateRows: "repeat(2, 82px)", gap: 8, touchAction: "none" }}>
         {[0, 1, 2, 3].map((pad) => (
           <button

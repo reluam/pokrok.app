@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, pixelCanvas, beep, audio, type GameOutcome } from "../theme";
 import { MAZE, initMaze, moveMaze, type MazeState } from "@/lib/rules/mazeLogic";
 import type { Dir } from "@/lib/rules/chickenLogic";
@@ -9,7 +11,7 @@ const TILE = 26;
 const W = MAZE[0].length;
 const H = MAZE.length;
 
-export default function Maze({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function Maze({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const state = useRef<MazeState>(initMaze());
   const done = useRef(false);
@@ -75,7 +77,7 @@ export default function Maze({ onResolve }: { onResolve: (o: GameOutcome) => voi
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>the shortest road. (arrows / wasd)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>{goalFor("maze", lang)}</p>
       <canvas ref={ref} style={{ width: "min(90vw, 360px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 48px)", gap: 4, touchAction: "none" }}>
         <span />{tbtn("up", "▲")}<span />

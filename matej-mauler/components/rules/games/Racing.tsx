@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, pixelCanvas, useFixedLoop, beep, audio, type GameOutcome } from "../theme";
 import {
   initRacing,
@@ -19,7 +21,7 @@ import {
 const SCALE = 3;
 const SPEED = 0.05;
 
-export default function Racing({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function Racing({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const state = useRef<RacingState>(initRacing());
   const held = useRef({ up: false, down: false, left: false, right: false });
@@ -103,7 +105,7 @@ export default function Racing({ onResolve }: { onResolve: (o: GameOutcome) => v
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>three laps of the track. (arrows / wasd)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>{goalFor("racing", lang)}</p>
       <canvas ref={ref} style={{ width: "min(88vw, 380px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 48px)", gap: 4, justifyContent: "center", touchAction: "none" }}>
         <span />

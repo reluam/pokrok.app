@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, pixelCanvas, beep, audio, type GameOutcome } from "../theme";
 import {
   initTetris,
@@ -18,7 +20,7 @@ const TILE = 16;
 const COLORS = ["", RULES.green, RULES.yellow, "#4dd2ff", "#ff6bd6", "#ff8a3d", "#b388ff", "#7CFC00"];
 const GRAVITY_MS = 700; // tuned with scoring so a clean run hits 1000 in ~5 min
 
-export default function Tetris({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function Tetris({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const state = useRef<TetrisState>(initTetris(Date.now() & 0xffff));
   const [score, setScore] = useState(0);
@@ -87,7 +89,7 @@ export default function Tetris({ onResolve }: { onResolve: (o: GameOutcome) => v
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
       <p style={{ fontSize: 10, color: RULES.green }}>score {score} / {SCORE_TARGET}</p>
-      <p style={{ fontSize: 8, color: RULES.gray }}>clear lines to 1000. (← → ↓ move · ↑ rotate · space drop)</p>
+      <p style={{ fontSize: 8, color: RULES.gray }}>{goalFor("tetris", lang)}</p>
       <canvas ref={ref} style={{ width: "min(70vw, 220px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }} />
       <div style={{ display: "flex", gap: 4, touchAction: "none" }}>
         {tbtn("◀", () => moveTetris(state.current, "left"), "move")}

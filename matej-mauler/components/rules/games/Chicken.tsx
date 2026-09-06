@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Lang } from "@/lib/dictionaries";
+import { goalFor } from "@/lib/rules/games";
 import { RULES, pixelCanvas, useFixedLoop, beep, audio, type GameOutcome } from "../theme";
 import {
   initChicken,
@@ -14,7 +16,7 @@ import {
 
 const TILE = 22; // internal px per grid cell
 
-export default function Chicken({ onResolve }: { onResolve: (o: GameOutcome) => void }) {
+export default function Chicken({ onResolve , lang }: { onResolve: (o: GameOutcome) => void ; lang: Lang }) {
   const ref = useRef<HTMLCanvasElement>(null);
   // eslint-disable-next-line react-hooks/purity
   const state = useRef<ChickenState>(initChicken(Date.now() & 0xffff));
@@ -93,7 +95,7 @@ export default function Chicken({ onResolve }: { onResolve: (o: GameOutcome) => 
 
   return (
     <div style={{ display: "grid", gap: 10, placeItems: "center" }}>
-      <p style={{ fontSize: 9, color: RULES.gray }}>reach the top. dodge the cars. (arrows / wasd)</p>
+      <p style={{ fontSize: 9, color: RULES.gray }}>{goalFor("chicken", lang)}</p>
       <canvas
         ref={ref}
         style={{ width: "min(90vw, 360px)", imageRendering: "pixelated", border: `2px solid ${RULES.dim}` }}
